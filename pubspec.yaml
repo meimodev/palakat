@@ -35,6 +35,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.4
   flutter_screenutil: 5.1.0
+  flutter_datetime_picker: ^1.5.1
+  jiffy: ^5.0.0
+  flutter_bloc: ^8.0.1
+  equatable: ^2.0.3
 
 dev_dependencies:
   flutter_test:
@@ -75,26 +79,21 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Poppins
+    - family: OpenSans
       fonts:
-        - asset: assets/fonts/Poppins-Black.ttf
-          weight: 900
-        - asset: assets/fonts/Poppins-Bold.ttf
+        - asset: assets/fonts/OpenSans-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Poppins-ExtraBold.ttf
+        - asset: assets/fonts/OpenSans-ExtraBold.ttf
           weight: 800
-        - asset: assets/fonts/Poppins-ExtraLight.ttf
-          weight: 200
-        - asset: assets/fonts/Poppins-Light.ttf
+        - asset: assets/fonts/OpenSans-Light.ttf
           weight: 300
-        - asset: assets/fonts/Poppins-Medium.ttf
+        - asset: assets/fonts/OpenSans-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/OpenSans-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Poppins-SemiBold.ttf
+        - asset: assets/fonts/OpenSans-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Poppins-Thin.ttf
-          weight: 100
+
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

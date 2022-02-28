@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-const String fontFamily = 'Poppins';
+const String fontFamily = 'OpenSans';
 final ThemeData appThemeData = ThemeData.light().copyWith(
   scaffoldBackgroundColor: Palette.scaffold,
   inputDecorationTheme: InputDecorationTheme(
@@ -102,8 +102,8 @@ class Palette {
 }
 
 class Insets {
-  static const double small = 15.0;
-  static const double medium = 27.0;
+  static const double small = 12.0;
+  static const double medium = 24.0;
   static const double large = 39.0;
 }
 
