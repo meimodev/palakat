@@ -4,7 +4,6 @@ import 'package:palakat/app/modules/anthem/anthem_screen.dart';
 import 'package:palakat/app/modules/calendar/calendar_screen.dart';
 import 'package:palakat/app/modules/home/home_screen.dart';
 import 'package:palakat/app/modules/splash/splash.dart';
-import 'package:palakat/data/models/user.dart';
 
 class Routes {
   static const String splash = '/';

@@ -5,7 +5,6 @@ import 'package:palakat/app/blocs/event_bloc.dart';
 import 'package:palakat/app/blocs/user_cubit.dart';
 import 'package:palakat/app/widgets/bottom_navbar.dart';
 import 'package:palakat/app/widgets/card_event.dart';
-import 'package:palakat/app/modules/account/account_screen.dart';
 import 'package:palakat/app/widgets/dialog_event_detail.dart';
 import 'package:palakat/app/widgets/screen_wrapper.dart';
 import 'package:palakat/data/models/church.dart';

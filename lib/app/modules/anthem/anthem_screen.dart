@@ -44,7 +44,7 @@ class AnthemScreen extends StatelessWidget {
             left: 0,
             right: 0,
             bottom: Insets.medium.h,
-            child: Center(
+            child: const Center(
               child: BottomNavbar(
                 activeIndex: 2,
               ),

@@ -9,7 +9,6 @@ import 'package:palakat/app/widgets/button_confirm_dialog.dart';
 import 'package:palakat/app/widgets/card_event_item.dart';
 import 'package:palakat/app/widgets/checkbox_dialog_new_event.dart';
 import 'package:palakat/data/models/event.dart';
-import 'package:palakat/shared/routes.dart';
 import 'package:palakat/shared/theme.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
