@@ -4,9 +4,17 @@ import 'package:jiffy/jiffy.dart';
 import 'package:palakat/shared/routes.dart';
 import 'package:palakat/shared/theme.dart';
 import 'package:get/get.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await Jiffy.locale('id');
+
   runApp(const MyApp());
 }
 
