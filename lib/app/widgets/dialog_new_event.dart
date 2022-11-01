@@ -1,24 +1,27 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:palakat/app/blocs/event_bloc.dart';
 import 'package:palakat/app/widgets/button_confirm_dialog.dart';
 import 'package:palakat/app/widgets/card_event_item.dart';
 import 'package:palakat/app/widgets/checkbox_dialog_new_event.dart';
-import 'package:palakat/data/models/event.dart';
 import 'package:palakat/shared/theme.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class DialogNewEvent extends StatefulWidget {
   const DialogNewEvent({
     Key? key,
+    required this.onPressedPositive,
   }) : super(key: key);
 
   @override
   State<DialogNewEvent> createState() => _DialogNewEventState();
+
+  final void Function(
+    String title,
+    String location,
+    String dateTime,
+    List<String> reminders,
+  ) onPressedPositive;
 }
 
 class _DialogNewEventState extends State<DialogNewEvent> {
@@ -173,19 +176,19 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                     color: Palette.cardForeground,
                   ),
                   onPressed: () {
-                    if (_validateInput(context)) {
-                      Event event = Event(
-                        title: textEditingControllerTitle.text,
-                        location: textEditingControllerLocation.text,
-                        authorName: 'Jhon Manembo',
-                        authorPhone: '0812 1234 1234',
-                        dateTime: dateTime,
-                        reminders: reminders,
-                        id: Random().nextInt(999).toString(),
-                      );
-                      context.read<EventBloc>().add(AddEvent(event: event));
-                      Navigator.pop(context);
+                    if (!_validateInput(context)) {
+                      return;
                     }
+
+                    String title = textEditingControllerTitle.text;
+                    String location = textEditingControllerLocation.text;
+                    widget.onPressedPositive(
+                      title,
+                      location,
+                      dateTime,
+                      reminders,
+                    );
+                    Navigator.pop(context);
                   },
                 ),
               ],

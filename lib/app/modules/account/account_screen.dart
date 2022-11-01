@@ -1,282 +1,233 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:palakat/app/blocs/user_cubit.dart';
+import 'package:palakat/app/modules/account/account_controller.dart';
 import 'package:palakat/app/widgets/dialog_select_church.dart';
 import 'package:palakat/app/widgets/screen_wrapper.dart';
 import 'package:palakat/data/models/church.dart';
 import 'package:palakat/data/models/model_mock.dart';
-import 'package:palakat/data/models/user.dart';
 import 'package:palakat/shared/theme.dart';
 
-class AccountScreen extends StatefulWidget {
+class AccountScreen extends GetView<AccountController> {
   const AccountScreen({Key? key}) : super(key: key);
-
-  @override
-  State<AccountScreen> createState() => _AccountScreenState();
-}
-
-class _AccountScreenState extends State<AccountScreen> {
-  TextEditingController textEditingControllerName = TextEditingController();
-  TextEditingController textEditingControllerDob = TextEditingController();
-  TextEditingController textEditingControllerPhone = TextEditingController();
-
-  TextEditingController textEditingControllerColumn = TextEditingController();
-  TextEditingController textEditingControllerChurchName =
-      TextEditingController();
-  TextEditingController textEditingControllerChurchLocation =
-      TextEditingController();
-
-  @override
-  void dispose() {
-    textEditingControllerName.dispose();
-    textEditingControllerDob.dispose();
-    textEditingControllerPhone.dispose();
-    textEditingControllerColumn.dispose();
-    textEditingControllerChurchName.dispose();
-    textEditingControllerChurchLocation.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    // textEditingControllerName.text = widget.user.name;
-    // textEditingControllerDob.text = widget.user.dob;
-    // textEditingControllerPhone.text = widget.user.phone;
-    //
-    // textEditingControllerColumn.text = widget.user.column;
-    // textEditingControllerChurchName.text = widget.user.church.name;
-    // textEditingControllerChurchLocation.text = widget.user.church.location;
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return ScreenWrapper(
-      child: Container(
+      child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: Insets.small.w,
-          vertical: Insets.medium.h,
+          horizontal: Insets.medium.w,
+          vertical: Insets.small.h,
         ),
-        child: BlocBuilder<UserCubit, UserState>(
-          builder: (context, state) {
-            if (state is UserLoaded) {
-              _fillFields(state.user);
-              return ListView(
-                physics: const BouncingScrollPhysics(),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          children: [
+            Text(
+              'About',
+              style: Theme.of(context).textTheme.headline1?.copyWith(
+                    fontSize: 36.sp,
+                  ),
+            ),
+            SizedBox(height: Insets.medium.h),
+            Text(
+              'Account',
+              style: Theme.of(context).textTheme.headline1?.copyWith(
+                    fontSize: 21.sp,
+                  ),
+            ),
+            SizedBox(height: Insets.small.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Insets.small.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'About Account',
+                  TextField(
+                    controller: controller.textEditingControllerName,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.text,
                     style: Theme.of(context).textTheme.headline1?.copyWith(
-                          fontSize: 36.sp,
+                          fontSize: 14.sp,
+                          color: Palette.primary,
                         ),
-                  ),
-                  SizedBox(height: Insets.small.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Insets.small.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          controller: textEditingControllerName,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.text,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Name',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                        ),
-                        SizedBox(height: Insets.small.h),
-                        TextField(
-                          controller: textEditingControllerDob,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.text,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          readOnly: true,
-                          onTap: () {
-                            _showDatePicker(context);
-                          },
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Date of Birth',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                        ),
-                        SizedBox(height: Insets.small.h),
-                        TextField(
-                          controller: textEditingControllerPhone,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          enabled: false,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.text,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Phone',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                        ),
-                      ],
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Name',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
                     ),
                   ),
-                  SizedBox(height: Insets.medium.h),
-                  Text(
-                    'About  Membership',
-                    style: Theme.of(context).textTheme.headline1?.copyWith(
-                          fontSize: 36.sp,
-                        ),
-                  ),
                   SizedBox(height: Insets.small.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Insets.small.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          controller: textEditingControllerColumn,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.number,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Church Column',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
+                  TextField(
+                    controller: controller.textEditingControllerDob,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.text,
+                    style: Theme.of(context).textTheme.headline1?.copyWith(
+                          fontSize: 14.sp,
+                          color: Palette.primary,
                         ),
-                        SizedBox(height: Insets.small.h),
-                        TextField(
-                          controller: textEditingControllerChurchName,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.text,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          readOnly: true,
-                          onTap: () {
-                            _showChurchSelectionDialog(context);
-                          },
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Church Name',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                        ),
-                        SizedBox(height: Insets.small.h),
-                        TextField(
-                          controller: textEditingControllerChurchLocation,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          maxLines: 1,
-                          cursorColor: Palette.primary,
-                          keyboardType: TextInputType.text,
-                          style:
-                              Theme.of(context).textTheme.headline1?.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Palette.primary,
-                                  ),
-                          readOnly: true,
-                          onTap: () {
-                            _showChurchSelectionDialog(context);
-                          },
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(0.sp),
-                            isDense: true,
-                            border: InputBorder.none,
-                            labelText: 'Church Location',
-                            labelStyle:
-                                Theme.of(context).textTheme.headline1?.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                        ),
-                      ],
+                    readOnly: true,
+                    onTap: () {
+                      _showDatePicker(context);
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Date of Birth',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
                     ),
                   ),
-                  SizedBox(height: Insets.medium.h * 1.5),
-                  _buildButtonsConfirm(
-                    context: context,
-                    onPressedNegative: () {
-                      Navigator.pop(context);
-                    },
-                    onPressedPositive: () {
-                      _validateInputs(context);
-                    },
+                  SizedBox(height: Insets.small.h),
+                  TextField(
+                    controller: controller.textEditingControllerPhone,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    enabled: false,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.text,
+                    style: Theme.of(context).textTheme.headline1?.copyWith(
+                          fontSize: 14.sp,
+                          color: Palette.primary,
+                        ),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Phone',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
+                    ),
                   ),
                 ],
-              );
-            } else {
-              return const CircularProgressIndicator();
-            }
-          },
+              ),
+            ),
+            SizedBox(height: Insets.medium.h),
+            Text(
+              'Membership',
+              style: Theme.of(context).textTheme.headline1?.copyWith(
+                    fontSize: 21.sp,
+                  ),
+            ),
+            SizedBox(height: Insets.small.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Insets.small.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: controller.textEditingControllerColumn,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.number,
+                    style: Theme.of(context).textTheme.headline1?.copyWith(
+                          fontSize: 14.sp,
+                          color: Palette.primary,
+                        ),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Church Column',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
+                    ),
+                  ),
+                  SizedBox(height: Insets.small.h),
+                  TextField(
+                    controller: controller.textEditingControllerChurchName,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.text,
+                    style: Theme.of(context).textTheme.headline1?.copyWith(
+                          fontSize: 14.sp,
+                          color: Palette.primary,
+                        ),
+                    readOnly: true,
+                    onTap: () {
+                      _showChurchSelectionDialog(context);
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Church Name',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
+                    ),
+                  ),
+                  SizedBox(height: Insets.small.h),
+                  TextField(
+                    controller: controller.textEditingControllerChurchLocation,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    maxLines: 1,
+                    cursorColor: Palette.primary,
+                    keyboardType: TextInputType.text,
+                    style: Theme.of(context).textTheme.headline1?.copyWith(
+                          fontSize: 14.sp,
+                          color: Palette.primary,
+                        ),
+                    readOnly: true,
+                    onTap: () {
+                      _showChurchSelectionDialog(context);
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(0.sp),
+                      isDense: true,
+                      border: InputBorder.none,
+                      labelText: 'Church Location',
+                      labelStyle:
+                          Theme.of(context).textTheme.headline1?.copyWith(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: Insets.medium.h * 1.5),
+            _buildButtonsConfirm(
+              context: context,
+              onPressedNegative: () {
+                Navigator.pop(context);
+              },
+              onPressedPositive: () {
+                _validateInputs(context);
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -288,8 +239,8 @@ class _AccountScreenState extends State<AccountScreen> {
       builder: (_) => DialogSelectChurch(
         churches: ModelMock.churches,
         onSelectedChurch: (Church church) {
-          textEditingControllerChurchName.text = church.name;
-          textEditingControllerChurchLocation.text = church.location;
+          controller.textEditingControllerChurchName.text = church.name;
+          controller.textEditingControllerChurchLocation.text = church.location;
         },
       ),
     );
@@ -313,7 +264,7 @@ class _AccountScreenState extends State<AccountScreen> {
       locale: LocaleType.id,
       onChanged: (date) {
         String s = Jiffy(date).format("dd MMMM y");
-        textEditingControllerDob.text = s;
+        controller.textEditingControllerDob.text = s;
       },
     );
   }
@@ -323,7 +274,7 @@ class _AccountScreenState extends State<AccountScreen> {
     required VoidCallback onPressedPositive,
     required VoidCallback onPressedNegative,
   }) {
-    _buildButton(bool isConfirm, VoidCallback onPressed) {
+    buildButton(bool isConfirm, VoidCallback onPressed) {
       return Material(
         clipBehavior: Clip.hardEdge,
         borderRadius: BorderRadius.circular(9.sp),
@@ -338,13 +289,13 @@ class _AccountScreenState extends State<AccountScreen> {
             child: Row(
               children: [
                 Icon(
-                  Icons.delete,
+                  isConfirm ? Icons.check : Icons.arrow_back,
                   color: isConfirm ? Palette.cardForeground : Palette.primary,
                   size: 15.sp,
                 ),
                 SizedBox(width: 6.w),
                 Text(
-                  isConfirm ? 'Confirm' : 'Cancel',
+                  isConfirm ? 'Confirm' : 'Back',
                   style: Theme.of(context).textTheme.bodyText2?.copyWith(
                       fontWeight: FontWeight.w300,
                       fontSize: 15.sp,
@@ -361,19 +312,20 @@ class _AccountScreenState extends State<AccountScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildButton(false, onPressedNegative),
-        _buildButton(true, onPressedPositive),
+        buildButton(false, onPressedNegative),
+        buildButton(true, onPressedPositive),
       ],
     );
   }
 
   _validateInputs(BuildContext context) {
-    final String name = textEditingControllerName.text;
-    final String dob = textEditingControllerDob.text;
-    final String phone = textEditingControllerPhone.text;
-    final String column = textEditingControllerColumn.text;
-    final String cName = textEditingControllerChurchName.text;
-    final String cLocation = textEditingControllerChurchLocation.text;
+    final String name = controller.textEditingControllerName.text;
+    final String dob = controller.textEditingControllerDob.text;
+    final String phone = controller.textEditingControllerPhone.text;
+    final String column = controller.textEditingControllerColumn.text;
+    final String cName = controller.textEditingControllerChurchName.text;
+    final String cLocation =
+        controller.textEditingControllerChurchLocation.text;
 
     if (name.isEmpty ||
         dob.isEmpty ||
@@ -390,31 +342,8 @@ class _AccountScreenState extends State<AccountScreen> {
       );
       return;
     }
-    context.read<UserCubit>().loadUser(
-          User(
-            dob: dob,
-            phone: phone,
-            column: column,
-            id: 123,
-            name: name,
-            church: Church(
-              id: '123',
-              name: cName,
-              location: cLocation,
-            ),
-          ),
-        );
+
     Navigator.pop(context);
-  }
-
-  void _fillFields(User user) {
-    textEditingControllerName.text = user.name;
-    textEditingControllerDob.text = user.dob;
-    textEditingControllerPhone.text = user.phone;
-
-    textEditingControllerColumn.text = user.column;
-    textEditingControllerChurchName.text = user.church.name;
-    textEditingControllerChurchLocation.text = user.church.location;
   }
 }
 
@@ -436,10 +365,9 @@ class _SimpleDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.sp),
       ),
       child: Container(
-        width: 210.w,
         color: Palette.scaffold,
         padding: EdgeInsets.symmetric(
-          vertical: Insets.medium.h,
+          vertical: Insets.small.h,
           horizontal: Insets.medium.w,
         ),
         child: Column(
@@ -455,7 +383,8 @@ class _SimpleDialog extends StatelessWidget {
             Text(
               description,
               style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
+                fontWeight: FontWeight.w300,
                   ),
             ),
             SizedBox(height: Insets.medium.h),

@@ -1,3 +1,5 @@
+import 'package:palakat/data/models/user.dart';
+
 import 'church.dart';
 import 'event.dart';
 
@@ -74,4 +76,13 @@ class ModelMock {
       location: 'Sansobar, Malalayang',
     ),
   ];
+
+  static User user = User(
+    dob: "12 Januari 1999",
+    phone: "081212341234",
+    column: "2",
+    id: 99,
+    name: "Jhon Manembo",
+    church: churches[0],
+  );
 }

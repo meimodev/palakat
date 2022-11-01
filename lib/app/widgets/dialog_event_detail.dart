@@ -222,10 +222,8 @@ class DialogEventDetail extends StatelessWidget {
 class _ButtonSetAlarm extends StatefulWidget {
   const _ButtonSetAlarm({
     Key? key,
-    this.onPressed,
   }) : super(key: key);
 
-  final VoidCallback? onPressed;
 
   @override
   State<_ButtonSetAlarm> createState() => _ButtonSetAlarmState();
@@ -238,9 +236,6 @@ class _ButtonSetAlarmState extends State<_ButtonSetAlarm> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        if (widget.onPressed != null) {
-          widget.onPressed!();
-        }
         setState(() {
           isActive = !isActive;
         });
