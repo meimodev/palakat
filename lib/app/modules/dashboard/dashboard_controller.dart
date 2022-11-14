@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:palakat/data/models/church.dart';
 import 'package:palakat/data/models/event.dart';
+import 'package:palakat/data/models/model_mock.dart';
 import 'package:palakat/data/models/user.dart';
 
 class DashboardController extends GetxController {
@@ -18,7 +19,7 @@ class DashboardController extends GetxController {
   );
 
   var isLoading = true.obs;
-  var eventsThisWeek = <Event>[];
+  var eventsThisWeek = ModelMock.events;
 
 
   @override
