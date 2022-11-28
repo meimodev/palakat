@@ -131,27 +131,21 @@ class _BuildListBody extends StatelessWidget {
         ),
         SizedBox(height: Insets.small.h * .5),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Palette.cardForeground,
-              borderRadius: BorderRadius.circular(9.sp),
-            ),
-            child: ListView.builder(
-              itemCount: eventsThisWeek.length,
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) => CardEvent(
-                isActive: index % 2 == 0,
-                event: eventsThisWeek[index],
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => DialogEventDetail(
-                      enableAlarm: true,
-                      event: eventsThisWeek[index],
-                    ),
-                  );
-                },
-              ),
+          child: ListView.builder(
+            itemCount: eventsThisWeek.length,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, index) => CardEvent(
+              isActive: index % 2 == 0,
+              event: eventsThisWeek[index],
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => DialogEventDetail(
+                    enableAlarm: true,
+                    event: eventsThisWeek[index],
+                  ),
+                );
+              },
             ),
           ),
         ),

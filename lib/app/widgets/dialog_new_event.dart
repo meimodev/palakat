@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
@@ -6,11 +8,16 @@ import 'package:palakat/app/widgets/card_event_item.dart';
 import 'package:palakat/app/widgets/checkbox_dialog_new_event.dart';
 import 'package:palakat/shared/theme.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:palakat/shared/values.dart';
 
 class DialogNewEvent extends StatefulWidget {
-  const DialogNewEvent({
+  DialogNewEvent({
     Key? key,
     required this.onPressedPositive,
+    this.title,
+    this.location,
+    this.dateTime,
+    this.reminders,
   }) : super(key: key);
 
   @override
@@ -22,6 +29,25 @@ class DialogNewEvent extends StatefulWidget {
     String dateTime,
     List<String> reminders,
   ) onPressedPositive;
+
+  final List<String> hintTitles = [
+    "Ibadah Pemuda Jemaat",
+    "Ibadah Gabungan Pemuda Remaja Kolom 5, 6 & 7",
+    "Ibadah Natal Remaja Jemaat",
+    "Latihan Paduan Suara PKB Jemaat",
+    "Rapat Panitia HRG Jemaat",
+  ];
+  final List<String> hintLocations = [
+    "Gedung Gereja",
+    "Kel. Abcd - Efgh, Kolom 4",
+    "Sdr. Abcd Efgh, Kolom 1",
+    "Taman Getsemani",
+  ];
+
+  final String? title;
+  final String? location;
+  final String? dateTime;
+  final List<String>? reminders;
 }
 
 class _DialogNewEventState extends State<DialogNewEvent> {
@@ -29,6 +55,19 @@ class _DialogNewEventState extends State<DialogNewEvent> {
   TextEditingController textEditingControllerLocation = TextEditingController();
   String dateTime = '';
   List<String> reminders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingControllerTitle.text = widget.title ?? '';
+    textEditingControllerLocation.text = widget.location ?? '';
+    if (widget.dateTime != null || widget.reminders != null) {
+      setState((){
+        dateTime = widget.dateTime!;
+        reminders = widget.reminders ?? [];
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -63,7 +102,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
               cursorColor: Palette.primary,
               keyboardType: TextInputType.text,
               style: Theme.of(context).textTheme.headline1?.copyWith(
-                    fontSize: 24.sp,
+                    fontSize: 20.sp,
                     color: Palette.primary,
                   ),
               decoration: InputDecoration(
@@ -72,9 +111,15 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                 border: InputBorder.none,
                 labelText: 'Title',
                 labelStyle: Theme.of(context).textTheme.headline1?.copyWith(
-                      fontSize: 24.sp,
+                      fontSize: 20.sp,
                       color: Colors.grey,
                     ),
+                hintText: widget
+                    .hintTitles[Random().nextInt(widget.hintTitles.length)],
+                hintStyle: TextStyle(
+                  fontWeight: FontWeight.w100,
+                  color: Colors.grey.shade400,
+                ),
               ),
             ),
             SizedBox(
@@ -88,7 +133,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
               cursorColor: Palette.primary,
               keyboardType: TextInputType.text,
               style: Theme.of(context).textTheme.headline1?.copyWith(
-                    fontSize: 14.sp,
+                    fontSize: 20.sp,
                     color: Palette.primary,
                   ),
               decoration: InputDecoration(
@@ -97,15 +142,22 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                 border: InputBorder.none,
                 labelText: 'Location',
                 labelStyle: Theme.of(context).textTheme.headline1?.copyWith(
-                      fontSize: 14.sp,
+                      fontSize: 20.sp,
                       color: Colors.grey,
                     ),
+                hintText: widget.hintLocations[
+                    Random().nextInt(widget.hintLocations.length)],
+                hintStyle: TextStyle(
+                  fontWeight: FontWeight.w100,
+                  color: Colors.grey.shade400,
+                ),
               ),
             ),
             SizedBox(
               height: Insets.small.h,
             ),
             _BuildCardDateTime(
+              dateTime: dateTime,
               onChangedValue: (String value) {
                 dateTime = value;
               },
@@ -121,6 +173,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                   SizedBox(height: Insets.small.h * .5),
                   CheckboxDialogNewEvent(
                     text: 'On Time',
+                    checked: reminders.contains('On Time'),
                     onChanged: (isChecked, text) {
                       if (isChecked) {
                         reminders.add(text);
@@ -131,6 +184,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                   ),
                   CheckboxDialogNewEvent(
                     text: '30 Minute Before',
+                    checked: reminders.contains('30 Minute Before'),
                     onChanged: (isChecked, text) {
                       if (isChecked) {
                         reminders.add(text);
@@ -141,6 +195,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                   ),
                   CheckboxDialogNewEvent(
                     text: '1 Hour Before',
+                    checked: reminders.contains('1 Hour Before'),
                     onChanged: (isChecked, text) {
                       if (isChecked) {
                         reminders.add(text);
@@ -200,7 +255,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
   }
 
   _validateInput(BuildContext context) {
-    if (textEditingControllerTitle.text.length < 2) {
+    if (textEditingControllerTitle.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Title cannot be empty'),
@@ -208,7 +263,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
       );
       return false;
     }
-    if (textEditingControllerLocation.text.length < 2) {
+    if (textEditingControllerLocation.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Location cannot be empty'),
@@ -242,9 +297,11 @@ class _BuildCardDateTime extends StatefulWidget {
   const _BuildCardDateTime({
     Key? key,
     required this.onChangedValue,
+    this.dateTime,
   }) : super(key: key);
 
   final Function(String value) onChangedValue;
+  final String? dateTime;
 
   @override
   State<_BuildCardDateTime> createState() => _BuildCardDateTimeState();
@@ -255,6 +312,14 @@ class _BuildCardDateTimeState extends State<_BuildCardDateTime> {
   bool isValue = false;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.dateTime != null) {
+        dateTime = widget.dateTime!;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CardEventItem(
       isValue: isValue,
@@ -262,7 +327,6 @@ class _BuildCardDateTimeState extends State<_BuildCardDateTime> {
       onPressed: () {
         DatePicker.showDateTimePicker(
           context,
-          showTitleActions: false,
           theme: DatePickerTheme(
             backgroundColor: Palette.scaffold,
             headerColor: Palette.primary,
@@ -275,13 +339,14 @@ class _BuildCardDateTimeState extends State<_BuildCardDateTime> {
           maxTime: DateTime(2019, 6, 7),
           currentTime: DateTime.now(),
           locale: LocaleType.id,
-          onChanged: (date) {
-            String s = Jiffy(date).format("EEEE, dd/MM/y HH:mm");
+          onChanged: (date) async{
+            String s = Jiffy(date).format(Values.eventDateTimeFormat);
             setState(() {
               isValue = true;
               dateTime = s;
             });
             widget.onChangedValue(s);
+
           },
         );
       },

@@ -7,10 +7,12 @@ class CheckboxDialogNewEvent extends StatefulWidget {
     Key? key,
     required this.text,
     required this.onChanged,
+    this.checked,
   }) : super(key: key);
 
   final String text;
   final Function(bool isChecked, String text) onChanged;
+  final bool? checked;
 
   @override
   State<CheckboxDialogNewEvent> createState() => _CheckboxDialogNewEventState();
@@ -18,6 +20,15 @@ class CheckboxDialogNewEvent extends StatefulWidget {
 
 class _CheckboxDialogNewEventState extends State<CheckboxDialogNewEvent> {
   bool isChecked = false;
+
+  @override
+  void initState() {
+
+    super.initState();
+    if (widget.checked !=null) {
+      isChecked = widget.checked!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

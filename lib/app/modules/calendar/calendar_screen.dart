@@ -29,7 +29,6 @@ class CalendarScreen extends GetView<CalendarController> {
                 ),
           ),
           SizedBox(height: Insets.small.h),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,7 +44,9 @@ class CalendarScreen extends GetView<CalendarController> {
                   },
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric( vertical: Insets.small.h *.5,),
+                  padding: EdgeInsets.symmetric(
+                    vertical: Insets.small.h * .5,
+                  ),
                   child: Text(
                     "Your Published Events (0)",
                     style: TextStyle(
@@ -56,16 +57,40 @@ class CalendarScreen extends GetView<CalendarController> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                    color: Palette.cardForeground,
-                      borderRadius: BorderRadius.circular(12.sp)
-                    ),
+                        color: Palette.cardForeground,
+                        borderRadius: BorderRadius.circular(12.sp)),
                     child: Obx(
                       () => ListView.builder(
                         primary: true,
                         itemCount: controller.events.length,
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (_, index) => CardEvent(
-                          onPressed: () {},
+                          enableAlarm: false,
+                          onPressed: () {
+                            final event = controller.events[index];
+                            showDialog(
+                              context: context,
+                              builder: (_) => DialogNewEvent(
+                                title: event.title,
+                                location: event.location,
+                                dateTime: event.dateTime,
+                                reminders: event.reminders,
+                                onPressedPositive: (
+                                  String title,
+                                  String location,
+                                  String dateTime,
+                                  List<String> reminders,
+                                ) =>
+                                    controller.onEditEvent(
+                                  event.id,
+                                  title,
+                                  location,
+                                  dateTime,
+                                  reminders,
+                                ),
+                              ),
+                            );
+                          },
                           event: controller.events[index],
                         ),
                       ),
