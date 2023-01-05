@@ -1,4 +1,5 @@
 import 'package:jiffy/jiffy.dart';
+import 'package:palakat/shared/values.dart';
 
 class Event {
   String id;
@@ -20,25 +21,25 @@ class Event {
   });
 
   String get day {
-    return dateTime.substring(0, dateTime.length - 18);
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("EEEE");
   }
 
-  String get formattedDate {
-    String s = dateTime.substring(dateTime.length - 16);
-    return s.substring(0, 10);
+  String get month {
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("M");
+  }
+  String get monthF {
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("MMM");
   }
 
   String get time {
-    return dateTime.substring(dateTime.length - 5);
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("HH:mm");
   }
 
   String get year {
-    return dateTime.substring(dateTime.length - 10, dateTime.length - 6);
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("y");
   }
 
   String get date {
-    String s = dateTime.substring(0, dateTime.length - 6);
-    Jiffy jiffy = Jiffy(s, 'EEEE, dd/MM/y');
-    return jiffy.format('EEEE, dd MMM');
+    return Jiffy(dateTime, Values.eventDateTimeFormat).format("d");
   }
 }

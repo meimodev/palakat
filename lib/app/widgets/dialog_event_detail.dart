@@ -77,11 +77,8 @@ class DialogEventDetail extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              '${event.year}\n${event.date}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
-                                  ?.copyWith(
+                              '${event.year}\n${event.day}, ${event.date} ${event.monthF}',
+                              style: TextStyle(
                                     fontSize: 18.sp,
                                   ),
                             ),

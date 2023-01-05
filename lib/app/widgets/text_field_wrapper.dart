@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:palakat/shared/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -14,7 +13,7 @@ class TextFieldWrapper extends StatelessWidget {
     this.enabled = true,
     this.readOnly = false,
     this.onPressed,
-    this.startIconData, this.fontColor, this.onChangeText, this.maxLength,
+    this.startIconData, this.fontColor, this.onChangeText, this.maxLength, this.hintText,
   }) : super(key: key);
 
   final TextEditingController textEditingController;
@@ -27,6 +26,7 @@ class TextFieldWrapper extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onPressed;
   final int? maxLength;
+  final String? hintText;
 
   final void Function(String text)? onChangeText;
 
@@ -90,6 +90,7 @@ class TextFieldWrapper extends StatelessWidget {
                     color: Palette.primary,
                   ),
                   decoration: InputDecoration(
+                    hintText: hintText,
                     contentPadding: EdgeInsets.all(0.sp),
                     isDense: true,
                     border: InputBorder.none,

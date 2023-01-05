@@ -12,7 +12,7 @@ class ModelMock {
       location: 'Jhon Manembo, Kolom 2',
       authorName: 'Jhon Manembo',
       authorPhone: '0812 1234 1234',
-      dateTime: 'Senin, 28/02/2022 19:00',
+      dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
       ],
@@ -23,7 +23,7 @@ class ModelMock {
       location: 'Utu Sengkey, Kolom 4',
       authorName: 'Utu Masengi',
       authorPhone: '0812 4321 4321',
-      dateTime: 'Minggu, 19/02/2022 13:00',
+      dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
         '30 Minutes Before',
@@ -36,7 +36,7 @@ class ModelMock {
       location: 'Utu Sengkey, Kolom 4',
       authorName: 'Jhon Manembo',
       authorPhone: '0812 1234 1234',
-      dateTime: 'Rabu, 02/03/2022 19:00',
+      dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
         '30 Minutes Before',

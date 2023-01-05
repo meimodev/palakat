@@ -27,6 +27,11 @@ final ThemeData appThemeData = ThemeData.light().copyWith(
         color: Colors.red,
       ),
     ),
+    hintStyle: TextStyle(
+      fontWeight: FontWeight.w100,
+      color: Colors.grey.shade500,
+      fontFamily: fontFamily,
+    )
   ),
   textTheme: TextTheme(
     headline1: TextStyle(
@@ -84,6 +89,7 @@ final ThemeData appThemeData = ThemeData.light().copyWith(
       color: Colors.grey.shade600,
     ),
   ),
+
 );
 
 class Palette {

@@ -46,7 +46,7 @@ class CardEvent extends StatelessWidget {
                         ),
                   ),
                   Text(
-                    event.formattedDate,
+                    "${event.date}/${event.month}/${event.year}",
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           fontSize: 11.sp,
                           color: Colors.grey,
