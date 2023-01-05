@@ -17,7 +17,7 @@ class CalendarScreen extends GetView<CalendarController> {
       padding: EdgeInsets.only(
         left: Insets.medium.w,
         right: Insets.medium.w,
-        top: Insets.small.h,
+        top: Insets.large.h,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -28,7 +28,7 @@ class CalendarScreen extends GetView<CalendarController> {
                   fontSize: 36.sp,
                 ),
           ),
-          SizedBox(height: Insets.small.h),
+          SizedBox(height: Insets.medium.h),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,22 +43,20 @@ class CalendarScreen extends GetView<CalendarController> {
                     );
                   },
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: Insets.small.h * .5,
-                  ),
-                  child: Text(
-                    "Your Published Events (0)",
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                    ),
+                SizedBox(height: Insets.small.h),
+                Text(
+                  "Your Published Events (0)",
+                  style: TextStyle(
+                    fontSize: 14.sp,
                   ),
                 ),
+                SizedBox(height: Insets.small.h * .5),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                        color: Palette.cardForeground,
-                        borderRadius: BorderRadius.circular(12.sp)),
+                      color: Palette.cardForeground,
+                      borderRadius: BorderRadius.circular(12.sp),
+                    ),
                     child: Obx(
                       () => ListView.builder(
                         primary: true,

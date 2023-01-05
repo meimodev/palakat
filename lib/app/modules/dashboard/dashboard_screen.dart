@@ -19,7 +19,7 @@ class DashboardScreen extends GetView<DashboardController> {
       padding: EdgeInsets.only(
         left: Insets.medium.w,
         right: Insets.medium.w,
-        top: Insets.small.h,
+        top: Insets.large.h,
       ),
       child: Obx(
         () => AnimatedSwitcher(
@@ -63,7 +63,7 @@ class _BuildListBody extends StatelessWidget {
                 fontSize: 36.sp,
               ),
         ),
-        SizedBox(height: Insets.small.h),
+        SizedBox(height: Insets.medium.h),
         Material(
           clipBehavior: Clip.hardEdge,
           elevation: 0,
@@ -81,32 +81,63 @@ class _BuildListBody extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 21.sp,
-                    backgroundColor: Palette.accent,
-                  ),
-                  SizedBox(
-                    width: Insets.small.w,
-                  ),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          user.name,
-                          style: TextStyle(
-                            color: Palette.textAccent,
-                            fontSize: 14.sp,
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(Insets.small.sp * .5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(9),
+                                color: Palette.accent,
+                              ),
+                              child: const Icon(
+                                Icons.ac_unit_rounded,
+                                color: Palette.primary,
+                              ),
+                            ),
+                            SizedBox(
+                              width: Insets.small.w,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    '${user.membership.church.name}, ${user.membership.church.location}',
+                                    style: TextStyle(
+                                      color: Palette.cardForeground,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Kolom ${user.membership.column}',
+                                    style: TextStyle(
+                                      color: Palette.cardForeground,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        ),
+                        SizedBox(height: Insets.small.h),
+                        Center(
+                          child: Text(
+                            user.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.sp,
+                              color: Palette.accent,
+                            ),
                           ),
                         ),
-                        Text(
-                          user.church.name,
-                          style: TextStyle(
-                            color: Palette.cardForeground,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
+                        SizedBox(height: Insets.small.h),
                       ],
                     ),
                   ),
@@ -122,7 +153,7 @@ class _BuildListBody extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: Insets.small.h * .5),
+        SizedBox(height: Insets.small.h),
         Text(
           'This Week (${eventsThisWeek.length})',
           style: TextStyle(

@@ -8,4 +8,9 @@ class Church {
     required this.name,
     required this.location,
   });
+
+  @override
+  String toString() {
+    return 'Church{id: $id, name: $name, location: $location}';
+  }
 }

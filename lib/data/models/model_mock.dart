@@ -1,3 +1,4 @@
+import 'package:palakat/data/models/membership.dart';
 import 'package:palakat/data/models/user.dart';
 
 import 'church.dart';
@@ -47,42 +48,43 @@ class ModelMock {
   static List<Church> churches = [
     Church(
       id: '254',
-      name: 'GMIM Riedel Wawalintouan',
+      name: 'GMIM Riedel',
       location: 'Wawalintouan, Tondano',
     ),
     Church(
       id: '22',
-      name: 'GMIM Betlehem Watudambo',
-      location: 'Have no idea, Where the f that is',
+      name: 'GMIM Betlehem',
+      location: 'Watudambo, Watu watu',
     ),
     Church(
       id: '40',
-      name: 'GMIM Madunde Malalayang',
+      name: 'GMIM Madunde',
       location: 'Sansobar, Malalayang',
-    ),
-    Church(
-      id: '254',
-      name: 'GMIM Riedel Wawalintouan',
-      location: 'Wawalintouan, Tondano',
-    ),
-    Church(
-      id: '22',
-      name: 'GMIM Betlehem Watudambo',
-      location: 'Have no idea, Where the f that is',
     ),
     Church(
       id: '40',
-      name: 'GMIM Madunde Malalayang',
-      location: 'Sansobar, Malalayang',
+      name: 'GMIM Alfa Omega Bau',
+      location: 'Rinegetan, Tondano',
+    ),
+    Church(
+      id: '40',
+      name: 'GMIM Harga Mati',
+      location: 'Neraka, Tondano',
     ),
   ];
 
   static User user = User(
-    dob: "12 Januari 1999",
-    phone: "081212341234",
-    column: "2",
-    id: 99,
-    name: "Jhon Manembo",
-    church: churches[0],
+    id: "202",
+    name: 'Jhon Mokodompit',
+    phone: '0812 1234 1234',
+    dob: '04 September 1990',
+    maritalStatus: 'Belum Menikah',
+    membership: Membership(
+      id: "1000",
+      column: "2",
+      baptize: true,
+      sidi: false,
+      church: churches[0],
+    ),
   );
 }

@@ -1,21 +1,21 @@
-import 'package:palakat/data/models/church.dart';
+import 'package:palakat/data/models/membership.dart';
 
 class User {
-  final int id;
+  final String id;
+  final String phone;
   final String name;
   final String dob;
-  final String phone;
-  final String column;
-  final Church church;
+  final String maritalStatus;
+  final Membership membership;
   List<String> eventIds;
 
   User({
     required this.dob,
     required this.phone,
-    required this.column,
     required this.id,
     required this.name,
-    required this.church,
+    required this.maritalStatus,
+    required this.membership,
     this.eventIds = const [],
   });
 }
