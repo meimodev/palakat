@@ -24,13 +24,12 @@ class CalendarController extends GetxController {
     String location,
     String dateTime,
     List<String> reminders,
-  ) {
+  )  {
     final e = Event(
       id: events.length.toString(),
       title: title,
       location: location,
-      authorName: userRepo.user.name,
-      authorPhone: userRepo.user.phone,
+      author:  userRepo.user,
       dateTime: dateTime,
       reminders: reminders,
     );

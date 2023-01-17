@@ -1,12 +1,12 @@
 import 'package:jiffy/jiffy.dart';
+import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/shared/values.dart';
 
 class Event {
   String id;
   String title;
   String location;
-  String authorName;
-  String authorPhone;
+  UserApp author;
   String dateTime;
   List<String> reminders;
 
@@ -14,8 +14,7 @@ class Event {
     required this.id,
     required this.title,
     required this.location,
-    required this.authorName,
-    required this.authorPhone,
+    required this.author,
     required this.dateTime,
     required this.reminders,
   });

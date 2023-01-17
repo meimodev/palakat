@@ -1,5 +1,5 @@
 import 'package:palakat/data/models/membership.dart';
-import 'package:palakat/data/models/user.dart';
+import 'package:palakat/data/models/user_app.dart';
 
 import 'church.dart';
 import 'event.dart';
@@ -10,8 +10,7 @@ class ModelMock {
       id: "1",
       title: 'Ibadah ibdaha',
       location: 'Jhon Manembo, Kolom 2',
-      authorName: 'Jhon Manembo',
-      authorPhone: '0812 1234 1234',
+      author: user,
       dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
@@ -21,8 +20,7 @@ class ModelMock {
       id: "2",
       title: 'Ibadah Keibadahan',
       location: 'Utu Sengkey, Kolom 4',
-      authorName: 'Utu Masengi',
-      authorPhone: '0812 4321 4321',
+      author: user,
       dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
@@ -34,8 +32,7 @@ class ModelMock {
       id: "3",
       title: 'Ibadah Keibadahan',
       location: 'Utu Sengkey, Kolom 4',
-      authorName: 'Jhon Manembo',
-      authorPhone: '0812 1234 1234',
+      author: user,
       dateTime: 'Sen, 28 Januari 2022 19:00',
       reminders: [
         'On Time',
@@ -73,17 +70,19 @@ class ModelMock {
     ),
   ];
 
-  static User user = User(
+  static UserApp user = UserApp(
     id: "202",
     name: 'Jhon Mokodompit',
     phone: '0812 1234 1234',
     dob: '04 September 1990',
     maritalStatus: 'Belum Menikah',
+    membershipId: "",
     membership: Membership(
       id: "1000",
       column: "2",
       baptize: true,
       sidi: false,
+      churchId: '',
       church: churches[0],
     ),
   );

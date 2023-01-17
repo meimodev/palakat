@@ -9,6 +9,12 @@ class Church {
     required this.location,
   });
 
+  factory Church.fromMap(Map<String, dynamic> data) => Church(
+        id: data["id"],
+        name: data["name"],
+        location: data["location"],
+      );
+
   @override
   String toString() {
     return 'Church{id: $id, name: $name, location: $location}';

@@ -173,12 +173,12 @@ class DialogEventDetail extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      event.authorName,
+                      event.author.name,
                       style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           color: Palette.cardForeground, fontSize: 10.sp),
                     ),
                     Text(
-                      event.authorPhone,
+                      event.author.phone,
                       style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           color: Palette.cardForeground, fontSize: 10.sp),
                     ),

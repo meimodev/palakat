@@ -4,7 +4,6 @@ import 'package:palakat/app/modules/dashboard/dashboard_controller.dart';
 import 'package:palakat/app/modules/songs/songs_controller.dart';
 import 'package:palakat/data/repos/user_repo.dart';
 
-// import 'home_controller.dart';
 
 class HomeBinding implements Bindings {
   @override

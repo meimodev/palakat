@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
-import 'package:palakat/data/models/user.dart';
+import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/shared/routes.dart';
 
 class AccountController extends GetxController {
@@ -9,7 +9,7 @@ class AccountController extends GetxController {
   final textEditingControllerDob = TextEditingController();
   final textEditingControllerPhone = TextEditingController();
 
-  User? user;
+  UserApp? user;
 
   String maritalStatus = "";
 

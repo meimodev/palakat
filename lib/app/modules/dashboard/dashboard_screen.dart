@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:palakat/app/widgets/card_event.dart';
 import 'package:palakat/app/widgets/dialog_event_detail.dart';
 import 'package:palakat/data/models/event.dart';
-import 'package:palakat/data/models/user.dart';
+import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/shared/routes.dart';
 import 'package:palakat/shared/theme.dart';
 
@@ -24,13 +24,20 @@ class DashboardScreen extends GetView<DashboardController> {
       child: Obx(
         () => AnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
-          child: _BuildListBody(
-            isLoading: controller.isLoading.value,
-            user: controller.user,
-            eventsThisWeek: controller.eventsThisWeek,
-          ),
+          child: controller.isLoading.isTrue
+              ? _buildLoading()
+              : _BuildListBody(
+                  user: controller.user,
+                  eventsThisWeek: controller.eventsThisWeek,
+                ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 }
@@ -38,22 +45,15 @@ class DashboardScreen extends GetView<DashboardController> {
 class _BuildListBody extends StatelessWidget {
   const _BuildListBody({
     Key? key,
-    required this.isLoading,
     required this.user,
     required this.eventsThisWeek,
   }) : super(key: key);
 
-  final bool isLoading;
-  final User user;
+  final UserApp? user;
   final List<Event> eventsThisWeek;
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -105,31 +105,31 @@ class _BuildListBody extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Text(
-                                    '${user.membership.church.name}, ${user.membership.church.location}',
+                                    '${user?.membership?.church?.name ?? "-"}, ${user?.membership?.church?.location ?? "-"}',
                                     style: TextStyle(
                                       color: Palette.cardForeground,
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w300,
                                     ),
                                   ),
-                                  Text(
-                                    'Kolom ${user.membership.column}',
-                                    style: TextStyle(
-                                      color: Palette.cardForeground,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w300,
+                                  if (user != null && user!.membership != null)
+                                    Text(
+                                      'Kolom ${user!.membership!.column}',
+                                      style: TextStyle(
+                                        color: Palette.cardForeground,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w300,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                         SizedBox(height: Insets.small.h),
                         Center(
                           child: Text(
-                            user.name,
+                            user!.name,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16.sp,
