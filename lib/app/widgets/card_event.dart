@@ -40,14 +40,14 @@ class CardEvent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    event.eventDateTimeStamp.dayEEEE,
+                    event.eventDateTimeStamp.toDayEEEE,
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           fontSize: 14.sp,
                           color: Palette.primary,
                         ),
                   ),
                   Text(
-                    event.eventDateTimeStamp.timeHHmm,
+                    event.eventDateTimeStamp.toTimeHHmm,
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           fontSize: 14.sp,
                           color: Palette.primary,

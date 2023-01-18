@@ -119,7 +119,7 @@ class _DialogEventDetailState extends State<DialogEventDetail> {
                                   Expanded(
                                     flex: 2,
                                     child: Text(
-                                      '${widget.event.eventDateTimeStamp.yeary}\n${widget.event.eventDateTimeStamp.dayEEEE}, ${widget.event.eventDateTimeStamp.dated} ${widget.event.eventDateTimeStamp.monthMMM}',
+                                      '${widget.event.eventDateTimeStamp.toYeary}\n${widget.event.eventDateTimeStamp.toDayEEEE}, ${widget.event.eventDateTimeStamp.toDated} ${widget.event.eventDateTimeStamp.toMonthMMM}',
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                       ),
@@ -135,7 +135,7 @@ class _DialogEventDetailState extends State<DialogEventDetail> {
                                   Expanded(
                                     flex: 1,
                                     child: Text(
-                                      widget.event.eventDateTimeStamp.timeHHmm,
+                                      widget.event.eventDateTimeStamp.toTimeHHmm,
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                       ),

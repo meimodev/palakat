@@ -39,7 +39,7 @@ class MembershipScreen extends GetView<MembershipController> {
                     description: "Identify your active church",
                     endIconData: Icons.church_outlined,
                     readOnly: true,
-                    onPressed: () => _showChurchSelectionDialog(context),
+                    onPressed: (text) => _showChurchSelectionDialog(context),
                   ),
                   SizedBox(height: Insets.small.h),
                   TextFieldWrapper(

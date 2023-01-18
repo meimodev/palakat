@@ -130,7 +130,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                 labelText: 'Date & Time',
                 endIconData: Icons.calendar_month_outlined,
                 readOnly: true,
-                onPressed: () {
+                onPressed: (text) {
                   _showDatePicker(context);
                 },
               ),

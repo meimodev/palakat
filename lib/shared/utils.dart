@@ -9,33 +9,37 @@ extension StringExtension on String {
 }
 
 extension DateTimeExtension on DateTime {
-  String get dayEEEE {
+  String get toDayEEEE {
     return Jiffy(this).format("EEEE");
   }
 
-  String get monthM {
+  String get toMonthM {
     return Jiffy(this).format("M");
   }
 
-  String get monthMMM {
+  String get toMonthMMM {
     return Jiffy(this).format("MMM");
   }
-  String get monthMMMM {
+  String get toMonthMMMM {
     return Jiffy(this).format("MMMM");
   }
 
-  String get timeHHmm {
+  String get toTimeHHmm {
     return Jiffy(this).format("HH:mm");
   }
 
-  String get yeary {
+  String get toYeary {
     return Jiffy(this).format("y");
   }
 
-  String get dated {
+  String get toDated {
     return Jiffy(this).format("d");
   }
   String format(String format){
     return Jiffy(this).format(format);
+  }
+
+  DateTime resetTimeToStartOfTheDay(){
+    return Jiffy(this).startOf(Units.DAY).dateTime;
   }
 }

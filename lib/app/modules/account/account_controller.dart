@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
 import 'package:palakat/data/models/user_app.dart';
-import 'package:palakat/shared/routes.dart';
+import 'package:palakat/data/repos/user_repo.dart';
+import 'package:palakat/shared/shared.dart';
 
 class AccountController extends GetxController {
+  final userRepo = Get.find<UserRepo>();
+
   final textEditingControllerName = TextEditingController();
   final textEditingControllerDob = TextEditingController();
   final textEditingControllerPhone = TextEditingController();
@@ -12,6 +16,8 @@ class AccountController extends GetxController {
   UserApp? user;
 
   String maritalStatus = "";
+
+  var loading = true.obs;
 
   @override
   void dispose() {
@@ -24,17 +30,20 @@ class AccountController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    //get user data through local storage
+
+    user = Get.arguments;
+
     maritalStatus = "Belum Menikah";
     if (user != null) {
       textEditingControllerName.text = user!.name;
-      textEditingControllerDob.text = user!.dob;
+      textEditingControllerDob.text = user!.dob.format(Values.dobPickerFormat);
       textEditingControllerPhone.text = user!.phone;
       maritalStatus = user!.maritalStatus;
     }
+    loading.toggle();
   }
 
-  void onPressedNextButton() {
+  Future<void> onPressedNextButton() async {
     // validate inputs
     final phone = textEditingControllerPhone.text;
     final name = textEditingControllerName.text;
@@ -43,7 +52,7 @@ class AccountController extends GetxController {
     if (phone.isEmpty) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Phone cannot be empty",
         ),
       );
@@ -52,17 +61,16 @@ class AccountController extends GetxController {
     if (!phone.isNumericOnly) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Phone consist of number 0 - 9",
         ),
       );
       return;
-
     }
     if (!phone.startsWith("0")) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Phone start with 0",
         ),
       );
@@ -71,7 +79,7 @@ class AccountController extends GetxController {
     if (phone.length > 13 || phone.length < 12) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Phone number consist of 12 or 13 number",
         ),
       );
@@ -80,7 +88,7 @@ class AccountController extends GetxController {
     if (name.isEmpty) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Name cannot be empty",
         ),
       );
@@ -89,7 +97,7 @@ class AccountController extends GetxController {
     if (dob.isEmpty) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Date of birth cannot be empty",
         ),
       );
@@ -98,14 +106,61 @@ class AccountController extends GetxController {
     if (maritalStatus.isEmpty) {
       Get.dialog(
         const CustomSimpleDialog(
-          title: "Warning",
+          title: "Heads up",
           description: "Select either one of the marital status",
         ),
       );
       return;
     }
 
-    Get.toNamed(Routes.membership);
-    // print("phone $phone name $name dob $dob married $maritalStatus");
+    loading.value = true;
+    //Edit user
+    if (user != null) {
+      await editUser();
+      loading.value = false;
+      return;
+    }
+
+    //Create user
+    await createUser();
+    print("phone $phone name $name dob $dob married $maritalStatus");
+    loading.value = false;
+  }
+
+  Future<void> editUser() async {
+    //check if a user data has been modified
+    if (user!.phone == textEditingControllerPhone.text &&
+        user!.name == textEditingControllerName.text &&
+        user!.dob.format(Values.dobPickerFormat) ==
+            textEditingControllerDob.text &&
+        user!.maritalStatus == maritalStatus) {
+      Get.toNamed(Routes.membership, arguments: user?.membership);
+      return;
+    }
+
+    UserApp editedUser = user!.copyWith(
+      phone: textEditingControllerPhone.text,
+      name: textEditingControllerName.text,
+      dob:
+          Jiffy(textEditingControllerDob.text, Values.dobPickerFormat).dateTime,
+      maritalStatus: maritalStatus,
+    );
+    await userRepo.updateUser(editedUser);
+    user = editedUser;
+    Get.toNamed(Routes.membership, arguments: user?.membership);
+    return;
+  }
+
+  Future<void> createUser() async {
+    UserApp newUser = await userRepo.writeUser(
+      dob:
+          Jiffy(textEditingControllerDob.text, Values.dobPickerFormat).dateTime,
+      phone: textEditingControllerPhone.text,
+      name: textEditingControllerName.text,
+      maritalStatus: maritalStatus,
+    );
+    user = newUser;
+    Get.toNamed(Routes.membership, arguments: user?.membership);
+    return;
   }
 }

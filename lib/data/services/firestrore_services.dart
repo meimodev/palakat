@@ -104,4 +104,33 @@ class FirestoreService {
     final res = docs.docs.map((e) => e.data()).toList();
     return res;
   }
+
+  Future<void> updateUser(Map<String, dynamic> data) async {
+    final users = firestore.collection(_keyCollectionUsers);
+    await firestoreLogger(
+      () => users.doc(data['id']).set(
+            data,
+            SetOptions(merge: true),
+          ),
+      'updateUser',
+    );
+  }
+
+  Future<Object?> setUser(Map<String, dynamic> data) async {
+    final users = firestore.collection(_keyCollectionUsers);
+
+    final userId = await firestoreLogger(
+      () async {
+        final doc = await users.add(data);
+        return doc.id;
+      },
+      'updateUser',
+    );
+
+    return {
+      "id": userId,
+      ...data,
+    };
+
+  }
 }

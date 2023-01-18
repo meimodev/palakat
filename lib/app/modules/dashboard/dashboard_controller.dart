@@ -3,6 +3,7 @@ import 'package:palakat/data/models/event.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/repos/event_repo.dart';
 import 'package:palakat/data/repos/user_repo.dart';
+import 'package:palakat/shared/shared.dart';
 
 class DashboardController extends GetxController {
   UserApp? user;
@@ -21,5 +22,10 @@ class DashboardController extends GetxController {
         await eventRepo.readEventsThisWeek(user!.membership!.churchId);
 
     isLoading.value = false;
+  }
+
+  void onTapAccountCard() {
+    print("tapped");
+    Get.toNamed(Routes.account, arguments: user);
   }
 }

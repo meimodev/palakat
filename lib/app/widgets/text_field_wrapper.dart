@@ -13,7 +13,11 @@ class TextFieldWrapper extends StatelessWidget {
     this.enabled = true,
     this.readOnly = false,
     this.onPressed,
-    this.startIconData, this.fontColor, this.onChangeText, this.maxLength, this.hintText,
+    this.startIconData,
+    this.fontColor,
+    this.onChangeText,
+    this.maxLength,
+    this.hintText,
   }) : super(key: key);
 
   final TextEditingController textEditingController;
@@ -24,7 +28,7 @@ class TextFieldWrapper extends StatelessWidget {
   final IconData? startIconData;
   final bool enabled;
   final bool readOnly;
-  final VoidCallback? onPressed;
+  final void Function(String text)? onPressed;
   final int? maxLength;
   final String? hintText;
 
@@ -73,7 +77,11 @@ class TextFieldWrapper extends StatelessWidget {
                   : const SizedBox(),
               Expanded(
                 child: TextField(
-                  onTap: onPressed,
+                  onTap: () {
+                    if (onPressed != null) {
+                      onPressed!(textEditingController.text);
+                    }
+                  },
                   controller: textEditingController,
                   enableSuggestions: false,
                   autocorrect: false,
@@ -86,9 +94,9 @@ class TextFieldWrapper extends StatelessWidget {
                   // maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   // maxLength: maxLength,
                   style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    fontSize: 14.sp,
-                    color: Palette.primary,
-                  ),
+                        fontSize: 14.sp,
+                        color: Palette.primary,
+                      ),
                   decoration: InputDecoration(
                     hintText: hintText,
                     contentPadding: EdgeInsets.all(0.sp),
@@ -96,18 +104,20 @@ class TextFieldWrapper extends StatelessWidget {
                     border: InputBorder.none,
                     labelText: labelText,
                     labelStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
-                      fontSize: 14.sp,
-                      color: fontColor ?? Palette.primary,
-                    ),
+                          fontSize: 14.sp,
+                          color: fontColor ?? Palette.primary ,
+                        ),
                   ),
                 ),
               ),
-              endIconData != null ? const SizedBox(width: 12) : const SizedBox(),
+              endIconData != null
+                  ? const SizedBox(width: 12)
+                  : const SizedBox(),
               endIconData != null
                   ? Icon(
                       endIconData!,
                       size: 15.sp,
-                      color: Palette.primary,
+                      color:  Palette.primary,
                     )
                   : const SizedBox(),
             ],

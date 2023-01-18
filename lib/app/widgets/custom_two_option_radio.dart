@@ -6,11 +6,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomTwoOptionRadio extends StatefulWidget {
   const CustomTwoOptionRadio({
     Key? key,
-    required this.onChangedOption, required this.actionText,
+    required this.onChangedOption,
+    required this.actionText,
+    this.initValue,
   }) : super(key: key);
 
   final Function(int activeIndex, String activeTitle) onChangedOption;
   final String actionText;
+  final String? initValue;
 
   @override
   State<CustomTwoOptionRadio> createState() => _CustomTwoOptionRadioState();
@@ -18,6 +21,21 @@ class CustomTwoOptionRadio extends StatefulWidget {
 
 class _CustomTwoOptionRadioState extends State<CustomTwoOptionRadio> {
   int activeIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.initValue != null) {
+      if (!widget.initValue!.contains("elum")) {
+        setState(() {
+          activeIndex = 1;
+        widget.onChangedOption(activeIndex, widget.actionText);
+        });
+      }
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +66,11 @@ class _CustomTwoOptionRadioState extends State<CustomTwoOptionRadio> {
     );
   }
 
-  _buildOption({bool active = false, required String title, required index}) =>
+  _buildOption({
+    bool active = false,
+    required String title,
+    required index,
+  }) =>
       Material(
         color: active ? Palette.primary : Palette.cardForeground,
         // borderRadius: BorderRadius.circular(9),

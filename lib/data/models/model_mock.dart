@@ -77,7 +77,7 @@ class ModelMock {
     id: "202",
     name: 'Jhon Mokodompit',
     phone: '0812 1234 1234',
-    dob: '04 September 1990',
+    dob: DateTime(1990, 1,16),
     maritalStatus: 'Belum Menikah',
     membershipId: "",
     membership: Membership(

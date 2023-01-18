@@ -6,9 +6,7 @@ import 'package:palakat/app/widgets/card_event.dart';
 import 'package:palakat/app/widgets/dialog_event_detail.dart';
 import 'package:palakat/data/models/event.dart';
 import 'package:palakat/data/models/user_app.dart';
-import 'package:palakat/shared/routes.dart';
 import 'package:palakat/shared/shared.dart';
-import 'package:palakat/shared/theme.dart';
 
 import 'dashboard_controller.dart';
 
@@ -29,6 +27,7 @@ class DashboardScreen extends GetView<DashboardController> {
           child: controller.isLoading.isTrue
               ? _buildLoading()
               : _BuildListBody(
+                  onTapAccountCard: controller.onTapAccountCard,
                   user: controller.user,
                   eventsThisWeek: controller.eventsThisWeek,
                 ),
@@ -49,10 +48,12 @@ class _BuildListBody extends StatelessWidget {
     Key? key,
     required this.user,
     required this.eventsThisWeek,
+    required this.onTapAccountCard,
   }) : super(key: key);
 
   final UserApp? user;
   final List<Event> eventsThisWeek;
+  final void Function() onTapAccountCard;
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +73,7 @@ class _BuildListBody extends StatelessWidget {
           color: Palette.primary,
           borderRadius: BorderRadius.circular(9.sp),
           child: InkWell(
-            onTap: () => Navigator.pushNamed(
-              context,
-              Routes.account,
-            ),
+            onTap: onTapAccountCard,
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: Insets.small.w,
@@ -89,13 +87,14 @@ class _BuildListBody extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(Insets.small.sp * .5),
+                              padding: EdgeInsets.all(Insets.small.sp * .75),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(9),
                                 color: Palette.accent,
                               ),
-                              child: const Icon(
-                                Icons.ac_unit_rounded,
+                              child: Icon(
+                                Icons.church_outlined,
+                                size: 24.sp,
                                 color: Palette.primary,
                               ),
                             ),
@@ -167,10 +166,10 @@ class _BuildListBody extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                ' ${Jiffy().startOf(Units.WEEK).dateTime.dated} '
-                    '${Jiffy().startOf(Units.WEEK).dateTime.monthMMMM} '
-                    ' - ${Jiffy().endOf(Units.WEEK).dateTime.dated} '
-                    '${Jiffy().endOf(Units.WEEK).dateTime.monthMMMM}',
+                ' ${Jiffy().startOf(Units.WEEK).dateTime.toDated} '
+                '${Jiffy().startOf(Units.WEEK).dateTime.toMonthMMMM} '
+                ' - ${Jiffy().endOf(Units.WEEK).dateTime.toDated} '
+                '${Jiffy().endOf(Units.WEEK).dateTime.toMonthMMMM}',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontSize: 12.sp,
@@ -202,5 +201,4 @@ class _BuildListBody extends StatelessWidget {
       ],
     );
   }
-
 }
