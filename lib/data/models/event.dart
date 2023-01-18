@@ -1,44 +1,35 @@
-import 'package:jiffy/jiffy.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:palakat/data/models/user_app.dart';
-import 'package:palakat/shared/values.dart';
 
 class Event {
   String id;
   String title;
   String location;
-  UserApp author;
-  String dateTime;
+  UserApp? author;
+  String authorId;
+
+  DateTime eventDateTimeStamp;
   List<String> reminders;
 
   Event({
     required this.id,
     required this.title,
     required this.location,
-    required this.author,
-    required this.dateTime,
+    this.author,
+    required this.authorId,
+    required this.eventDateTimeStamp,
     required this.reminders,
   });
 
-  String get day {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("EEEE");
-  }
+  factory Event.fromMap(Map<String, dynamic> data) => Event(
+        id: data["id"],
+        title: data["title"],
+        location: data["location"],
+        authorId: data["user_id"],
+        eventDateTimeStamp:
+            (data["event_date_time_stamp"] as Timestamp).toDate(),
+        reminders: List<String>.from(data["reminders"]),
+      );
 
-  String get month {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("M");
-  }
-  String get monthF {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("MMM");
-  }
 
-  String get time {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("HH:mm");
-  }
-
-  String get year {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("y");
-  }
-
-  String get date {
-    return Jiffy(dateTime, Values.eventDateTimeFormat).format("d");
-  }
 }

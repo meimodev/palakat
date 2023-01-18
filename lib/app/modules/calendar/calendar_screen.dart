@@ -69,23 +69,13 @@ class CalendarScreen extends GetView<CalendarController> {
                             showDialog(
                               context: context,
                               builder: (_) => DialogNewEvent(
-                                title: event.title,
-                                location: event.location,
-                                dateTime: event.dateTime,
-                                reminders: event.reminders,
+                                event: event,
                                 onPressedPositive: (
                                   String title,
                                   String location,
                                   String dateTime,
                                   List<String> reminders,
-                                ) =>
-                                    controller.onEditEvent(
-                                  event.id,
-                                  title,
-                                  location,
-                                  dateTime,
-                                  reminders,
-                                ),
+                                ) {}
                               ),
                             );
                           },

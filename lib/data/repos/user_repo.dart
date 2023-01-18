@@ -9,9 +9,9 @@ abstract class UserRepoContract {
 
 class UserRepo implements UserRepoContract {
   UserApp? _user;
-  FirestoreService firestore = FirestoreService();
+  final firestore = FirestoreService();
 
-  UserApp get user  {
+  UserApp get user {
     if (_user != null) {
       return _user!;
     }
@@ -19,14 +19,17 @@ class UserRepo implements UserRepoContract {
   }
 
   @override
-  Future<UserApp> readUser(String phoneOrId) async {
+  Future<UserApp> readUser(
+    String phoneOrId, {
+    bool populateWholeData = true,
+  }) async {
     final res = await firestore.getUser(phoneOrId: phoneOrId);
     final data = UserApp.fromMap(res as Map<String, dynamic>);
     _user = data;
-    if (_user!.membership == null) {
+    if (populateWholeData && _user!.membership == null  ) {
       await readMembership(_user!.membershipId);
     }
-    if (_user!.membership!.church == null) {
+    if (populateWholeData && _user!.membership!.church == null && populateWholeData) {
       await readChurch(_user!.membership!.churchId);
     }
     return _user!;

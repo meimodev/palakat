@@ -9,18 +9,15 @@ import 'package:palakat/app/widgets/card_event_item.dart';
 import 'package:palakat/app/widgets/checkbox_dialog_new_event.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
 import 'package:palakat/app/widgets/text_field_wrapper.dart';
-import 'package:palakat/shared/theme.dart';
+import 'package:palakat/data/models/event.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:palakat/shared/values.dart';
+import 'package:palakat/shared/shared.dart';
 
 class DialogNewEvent extends StatefulWidget {
   DialogNewEvent({
     Key? key,
     required this.onPressedPositive,
-    this.title,
-    this.location,
-    this.dateTime,
-    this.reminders,
+    this.event,
   }) : super(key: key);
 
   @override
@@ -47,10 +44,7 @@ class DialogNewEvent extends StatefulWidget {
     "Taman Getsemani",
   ];
 
-  final String? title;
-  final String? location;
-  final String? dateTime;
-  final List<String>? reminders;
+  final Event? event;
 }
 
 class _DialogNewEventState extends State<DialogNewEvent> {
@@ -62,12 +56,14 @@ class _DialogNewEventState extends State<DialogNewEvent> {
   @override
   void initState() {
     super.initState();
-    textEditingControllerTitle.text = widget.title ?? '';
-    textEditingControllerLocation.text = widget.location ?? '';
-    textEditingControllerDateTime.text = widget.dateTime ?? '';
-    if (widget.dateTime != null || widget.reminders != null) {
+    if (widget.event != null) {
+      textEditingControllerTitle.text = widget.event!.title;
+      textEditingControllerLocation.text = widget.event!.location;
+      textEditingControllerDateTime.text =
+          widget.event!.eventDateTimeStamp.format(Values.eventDateTimeFormat);
+
       setState(() {
-        reminders = widget.reminders ?? [];
+        reminders = widget.event!.reminders;
       });
     }
   }

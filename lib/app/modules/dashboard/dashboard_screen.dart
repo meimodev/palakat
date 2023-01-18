@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:palakat/app/widgets/card_event.dart';
 import 'package:palakat/app/widgets/dialog_event_detail.dart';
 import 'package:palakat/data/models/event.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/shared/routes.dart';
+import 'package:palakat/shared/shared.dart';
 import 'package:palakat/shared/theme.dart';
 
 import 'dashboard_controller.dart';
@@ -37,7 +39,7 @@ class DashboardScreen extends GetView<DashboardController> {
 
   Widget _buildLoading() {
     return const Center(
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(color: Palette.primary),
     );
   }
 }
@@ -154,11 +156,28 @@ class _BuildListBody extends StatelessWidget {
           ),
         ),
         SizedBox(height: Insets.small.h),
-        Text(
-          'This Week (${eventsThisWeek.length})',
-          style: TextStyle(
-            fontSize: 14.sp,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'This Week (${eventsThisWeek.length})',
+              style: TextStyle(
+                fontSize: 14.sp,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                ' ${Jiffy().startOf(Units.WEEK).dateTime.dated} '
+                    '${Jiffy().startOf(Units.WEEK).dateTime.monthMMMM} '
+                    ' - ${Jiffy().endOf(Units.WEEK).dateTime.dated} '
+                    '${Jiffy().endOf(Units.WEEK).dateTime.monthMMMM}',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+          ],
         ),
         SizedBox(height: Insets.small.h * .5),
         Expanded(
@@ -183,4 +202,5 @@ class _BuildListBody extends StatelessWidget {
       ],
     );
   }
+
 }

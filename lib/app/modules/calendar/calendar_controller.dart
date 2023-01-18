@@ -24,23 +24,20 @@ class CalendarController extends GetxController {
     String location,
     String dateTime,
     List<String> reminders,
-  )  {
+  ) {
     final e = Event(
       id: events.length.toString(),
       title: title,
       location: location,
-      author:  userRepo.user,
-      dateTime: dateTime,
+      author: userRepo.user,
       reminders: reminders,
+      authorId: '',
+      eventDateTimeStamp: DateTime.now(),
     );
     events.add(e);
   }
 
   void onEditEvent(
-    String id,
-    String title,
-    String location,
-    String dateTime,
-    List<String> reminders,
+    Event event,
   ) {}
 }

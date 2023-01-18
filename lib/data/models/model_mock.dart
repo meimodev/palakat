@@ -11,34 +11,37 @@ class ModelMock {
       title: 'Ibadah ibdaha',
       location: 'Jhon Manembo, Kolom 2',
       author: user,
-      dateTime: 'Sen, 28 Januari 2022 19:00',
+      eventDateTimeStamp: DateTime.now().add(const Duration(days: 2)),
       reminders: [
         'On Time',
       ],
+      authorId: '',
     ),
     Event(
       id: "2",
       title: 'Ibadah Keibadahan',
       location: 'Utu Sengkey, Kolom 4',
       author: user,
-      dateTime: 'Sen, 28 Januari 2022 19:00',
+      eventDateTimeStamp: DateTime.now().add(const Duration(days: 3)),
       reminders: [
         'On Time',
         '30 Minutes Before',
         '1 Hour Before',
       ],
+      authorId: '',
     ),
     Event(
       id: "3",
       title: 'Ibadah Keibadahan',
       location: 'Utu Sengkey, Kolom 4',
       author: user,
-      dateTime: 'Sen, 28 Januari 2022 19:00',
+      eventDateTimeStamp: DateTime.now().add(const Duration(days: 4)),
       reminders: [
         'On Time',
         '30 Minutes Before',
         '1 Hour Before',
       ],
+      authorId: '',
     ),
   ];
 

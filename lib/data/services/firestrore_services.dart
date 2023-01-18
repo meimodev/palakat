@@ -10,12 +10,16 @@ class FirestoreService {
 
   // ignore: unused_field
   final String _keyCollectionApp = 'app';
+
   // ignore: unused_field
   final String _keyCollectionChurches = 'churches';
+
   // ignore: unused_field
   final String _keyCollectionEvents = 'events';
+
   // ignore: unused_field
   final String _keyCollectionMembership = 'membership';
+
   // ignore: unused_field
   final String _keyCollectionUsers = 'users';
 
@@ -35,7 +39,6 @@ class FirestoreService {
     }
   }
 
-  ///can get user from id or phone
   Future<Object?> getUser({required String phoneOrId}) async {
     final isPhoneNumber = phoneOrId.isNumericOnly;
     final col = firestore.collection(_keyCollectionUsers);
@@ -73,4 +76,32 @@ class FirestoreService {
       'getChurch',
     );
     return doc!.data();
-  }}
+  }
+
+  Future<List<Object?>> getEvents({
+    required String churchId,
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    final col = firestore.collection(_keyCollectionEvents);
+    final query = col.where('church_id', isEqualTo: churchId);
+    String log = "church_id: $churchId";
+
+    if (from != null) {
+      query
+          .where('event_date_time_stamp', isGreaterThanOrEqualTo: from)
+          .where('event_date_time_stamp', isLessThanOrEqualTo: to);
+      log = "$log from: ${from.toString()} to: ${to.toString()}";
+    }
+
+    QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
+      query.get,
+      'readUserOrders $log',
+    );
+    if (docs == null) {
+      return [];
+    }
+    final res = docs.docs.map((e) => e.data()).toList();
+    return res;
+  }
+}

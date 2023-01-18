@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:palakat/data/models/event.dart';
-import 'package:palakat/shared/theme.dart';
+import 'package:palakat/shared/shared.dart';
 
 class CardEvent extends StatelessWidget {
   const CardEvent({
     Key? key,
     this.isActive = false,
-    required this.onPressed,
     this.enableAlarm = true,
+    required this.onPressed,
     required this.event,
   }) : super(key: key);
 
@@ -37,23 +37,17 @@ class CardEvent extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    event.day,
+                    event.eventDateTimeStamp.dayEEEE,
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           fontSize: 14.sp,
                           color: Palette.primary,
                         ),
                   ),
                   Text(
-                    "${event.date}/${event.month}/${event.year}",
-                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                          fontSize: 11.sp,
-                          color: Colors.grey,
-                        ),
-                  ),
-                  Text(
-                    event.time,
+                    event.eventDateTimeStamp.timeHHmm,
                     style: Theme.of(context).textTheme.bodyText1?.copyWith(
                           fontSize: 14.sp,
                           color: Palette.primary,
@@ -64,23 +58,23 @@ class CardEvent extends StatelessWidget {
               SizedBox(width: Insets.small.w),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
                       event.title,
-                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            fontSize: 14.sp,
-                            color: Palette.primary,
-                          ),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Palette.primary,
+                      ),
                     ),
                     Text(
                       event.location,
-                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            fontSize: 11.sp,
-                            color: Colors.grey,
-                          ),
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
