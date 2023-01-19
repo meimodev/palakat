@@ -95,7 +95,6 @@ class SongsController extends GetxController {
   }
 
   void onPressedSongCard(Song song) {
-    print(song.title);
     Get.toNamed(Routes.songDetail, arguments: song);
   }
 

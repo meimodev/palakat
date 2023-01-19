@@ -123,7 +123,6 @@ class AccountController extends GetxController {
 
     //Create user
     await createUser();
-    print("phone $phone name $name dob $dob married $maritalStatus");
     loading.value = false;
   }
 

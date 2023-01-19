@@ -150,6 +150,5 @@ class MembershipController extends GetxController {
     selectedChurch = church;
     textEditingControllerChurch.text =
         "${selectedChurch!.name}, ${selectedChurch!.location}";
-    print(church.toString());
   }
 }
