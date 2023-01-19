@@ -24,8 +24,13 @@ class DashboardController extends GetxController {
     isLoading.value = false;
   }
 
+  void onUpdateUserInfo(UserApp user){
+    isLoading.value = true;
+    this.user = user;
+    isLoading.value = false;
+  }
+
   void onTapAccountCard() {
-    print("tapped");
     Get.toNamed(Routes.account, arguments: user);
   }
 }

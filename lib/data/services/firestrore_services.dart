@@ -131,6 +131,27 @@ class FirestoreService {
       "id": userId,
       ...data,
     };
+  }
 
+  Future<List<Object?>> readChurches() async {
+    final col = firestore.collection(_keyCollectionChurches);
+
+    QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
+      col.get,
+      'readChurches()',
+    );
+    if (docs == null) {
+      return [];
+    }
+    final res = docs.docs.map((e) => e.data()).toList();
+    return res;
+  }
+
+  Future<void> updateMembership(Map<String, dynamic> data) async {
+    final col = firestore.collection((_keyCollectionMembership));
+    await firestoreLogger(
+      () => col.doc(data['id']).set(data, SetOptions(merge: true)),
+      'updateMembership',
+    );
   }
 }

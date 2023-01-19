@@ -6,6 +6,16 @@ extension StringExtension on String {
     trim();
     return contains('+62') ? replaceFirst('+62', '0') : this;
   }
+
+  bool statusStringToBool(){
+    return !toLowerCase().contains("belum");
+  }
+}
+
+extension BooleanExtension on bool {
+  String statusBoolToString(String actionName){
+    return this ? actionName : "Belum $actionName";
+  }
 }
 
 extension DateTimeExtension on DateTime {

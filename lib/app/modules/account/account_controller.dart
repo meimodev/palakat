@@ -134,7 +134,7 @@ class AccountController extends GetxController {
         user!.dob.format(Values.dobPickerFormat) ==
             textEditingControllerDob.text &&
         user!.maritalStatus == maritalStatus) {
-      Get.toNamed(Routes.membership, arguments: user?.membership);
+      Get.toNamed(Routes.membership, arguments: user);
       return;
     }
 
@@ -147,7 +147,7 @@ class AccountController extends GetxController {
     );
     await userRepo.updateUser(editedUser);
     user = editedUser;
-    Get.toNamed(Routes.membership, arguments: user?.membership);
+    Get.toNamed(Routes.membership, arguments: user);
     return;
   }
 
@@ -160,7 +160,7 @@ class AccountController extends GetxController {
       maritalStatus: maritalStatus,
     );
     user = newUser;
-    Get.toNamed(Routes.membership, arguments: user?.membership);
+    Get.toNamed(Routes.membership, arguments: user);
     return;
   }
 }
