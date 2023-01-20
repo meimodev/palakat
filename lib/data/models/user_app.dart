@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:palakat/data/models/membership.dart';
 
 class UserApp {
-  final String id;
+  final String? id;
   final String phone;
   final String name;
   final DateTime dob;
@@ -14,7 +14,7 @@ class UserApp {
   UserApp({
     required this.dob,
     required this.phone,
-     this.id = "",
+     this.id,
     required this.name,
     required this.maritalStatus,
      this.membershipId ="",

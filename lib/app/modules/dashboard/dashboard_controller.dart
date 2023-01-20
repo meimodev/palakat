@@ -17,16 +17,16 @@ class DashboardController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    user = await userRepo.readUser("99XfAvEkRoobnrC4foJ2");
+    user = await userRepo.readUser("JayUDzeq9ej2owJLqRKN");
     eventsThisWeek =
         await eventRepo.readEventsThisWeek(user!.membership!.churchId);
 
     isLoading.value = false;
   }
 
-  void onUpdateUserInfo(UserApp user){
+  void onUpdateUserInfo(UserApp user) async{
     isLoading.value = true;
-    this.user = user;
+    this.user = await userRepo.readUser(user.id!);
     isLoading.value = false;
   }
 

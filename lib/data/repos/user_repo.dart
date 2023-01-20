@@ -9,7 +9,7 @@ abstract class UserRepoContract {
 }
 
 class UserRepo implements UserRepoContract {
-  UserApp? _user;
+  UserApp? _user ;
   final firestore = FirestoreService();
 
   UserApp get user {
@@ -57,7 +57,7 @@ class UserRepo implements UserRepoContract {
     return _user!;
   }
 
-  Future<UserApp> writeUser({
+  Future<UserApp> createUser({
     required DateTime dob,
     required String phone,
     required String name,
@@ -67,7 +67,7 @@ class UserRepo implements UserRepoContract {
     final newUser = UserApp(
       dob: dob.resetTimeToStartOfTheDay(),
       phone: phone,
-      name: name,
+      name: name.toTitleCase(),
       maritalStatus: maritalStatus,
     );
     final res = await firestore.setUser(newUser.toMap);

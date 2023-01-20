@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:palakat/app/modules/dashboard/dashboard_controller.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/repos/user_repo.dart';
@@ -8,6 +9,7 @@ import 'package:palakat/shared/shared.dart';
 
 class AccountController extends GetxController {
   final userRepo = Get.find<UserRepo>();
+  final dashboardController = Get.find<DashboardController>();
 
   final textEditingControllerName = TextEditingController();
   final textEditingControllerDob = TextEditingController();
@@ -116,17 +118,15 @@ class AccountController extends GetxController {
     loading.value = true;
     //Edit user
     if (user != null) {
-      await editUser();
-      loading.value = false;
+      await _editUser();
       return;
     }
 
     //Create user
-    await createUser();
-    loading.value = false;
+    await _createUser();
   }
 
-  Future<void> editUser() async {
+  Future<void> _editUser() async {
     //check if a user data has been modified
     if (user!.phone == textEditingControllerPhone.text &&
         user!.name == textEditingControllerName.text &&
@@ -147,11 +147,13 @@ class AccountController extends GetxController {
     await userRepo.updateUser(editedUser);
     user = editedUser;
     Get.toNamed(Routes.membership, arguments: user);
-    return;
+    dashboardController.onUpdateUserInfo(user!);
+    loading.value = false;
+
   }
 
-  Future<void> createUser() async {
-    UserApp newUser = await userRepo.writeUser(
+  Future<void> _createUser() async {
+    UserApp newUser = await userRepo.createUser(
       dob:
           Jiffy(textEditingControllerDob.text, Values.dobPickerFormat).dateTime,
       phone: textEditingControllerPhone.text,
@@ -160,6 +162,8 @@ class AccountController extends GetxController {
     );
     user = newUser;
     Get.toNamed(Routes.membership, arguments: user);
-    return;
+    dashboardController.onUpdateUserInfo(user!);
+
+    loading.value = false;
   }
 }

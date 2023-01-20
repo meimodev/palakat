@@ -1,7 +1,7 @@
 import 'package:palakat/data/models/church.dart';
 
 class Membership {
-  final String id;
+  final String? id;
   String churchId;
   final String column;
   final bool baptize;
@@ -9,7 +9,7 @@ class Membership {
   Church? church;
 
   Membership({
-    required this.id,
+     this.id,
     required this.column,
     required this.baptize,
     required this.sidi,

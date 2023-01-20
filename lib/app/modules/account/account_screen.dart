@@ -64,11 +64,13 @@ class AccountScreen extends GetView<AccountController> {
                               endIconData: Icons.call_outlined,
                               maxLength: 13,
                               onPressed: (_) {
+                                if (controller.user == null) {
+                                  return;
+                                }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-
                                     content: Text(
-                                      "Phone number couldn't be changed",
+                                      "Contact admin to change number",
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                       ),

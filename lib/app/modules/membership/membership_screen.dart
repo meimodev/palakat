@@ -48,8 +48,22 @@ class MembershipScreen extends GetView<MembershipController> {
                               description: "Identify your active church",
                               endIconData: Icons.church_outlined,
                               readOnly: true,
-                              onPressed: (text) =>
-                                  _showChurchSelectionDialog(context),
+                              onPressed: (text) {
+                                if (controller.user.membership == null) {
+                                  _showChurchSelectionDialog(context);
+                                  return;
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "Contact admin to change church",
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             SizedBox(height: Insets.small.h),
                             TextFieldWrapper(

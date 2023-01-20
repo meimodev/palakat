@@ -96,7 +96,7 @@ class FirestoreService {
 
     QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
       query.get,
-      'readUserOrders $log',
+      'getEvents $log',
     );
     if (docs == null) {
       return [];
@@ -124,12 +124,20 @@ class FirestoreService {
         final doc = await users.add(data);
         return doc.id;
       },
-      'updateUser',
+      'setUser',
+    );
+
+    await firestoreLogger(
+      () => users.doc(userId).set(
+        {"id": userId},
+        SetOptions(merge: true),
+      ),
+      'setUser update id',
     );
 
     return {
-      "id": userId,
       ...data,
+      "id": userId,
     };
   }
 
@@ -145,6 +153,40 @@ class FirestoreService {
     }
     final res = docs.docs.map((e) => e.data()).toList();
     return res;
+  }
+
+  Future<Object?> setMembership(Map<String, dynamic> data, String userId) async {
+    final memberships = firestore.collection(_keyCollectionMembership);
+    final users = firestore.collection(_keyCollectionUsers);
+
+    final membershipId = await firestoreLogger(
+      () async {
+        final doc = await memberships.add(data);
+        return doc.id;
+      },
+      'setMembership()',
+    );
+
+    await firestoreLogger(
+      () => memberships.doc(membershipId).set(
+        {"id": membershipId},
+        SetOptions(merge: true),
+      ),
+      'setMembership() update id',
+    );
+
+    await firestoreLogger(
+          () => users.doc(userId).set(
+        {"membership_id": membershipId},
+        SetOptions(merge: true),
+      ),
+      'setMembership() update membership id in user',
+    );
+
+    return {
+      ...data,
+      "id": membershipId,
+    };
   }
 
   Future<void> updateMembership(Map<String, dynamic> data) async {

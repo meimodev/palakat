@@ -16,7 +16,7 @@ class MembershipController extends GetxController {
   final textEditingControllerChurch = TextEditingController();
   final textEditingControllerColumn = TextEditingController();
 
-  UserApp? user;
+  late UserApp user;
   String baptizeStatus = false.statusBoolToString("Baptis");
   String sidiStatus = false.statusBoolToString("Sidi");
   Church? selectedChurch;
@@ -40,14 +40,14 @@ class MembershipController extends GetxController {
 
     user = Get.arguments;
 
-    if (user != null) {
-      selectedChurch = user!.membership!.church;
-      textEditingControllerColumn.text = user!.membership!.column;
+    if (user.membership != null) {
+      selectedChurch = user.membership!.church;
+      textEditingControllerColumn.text = user.membership!.column;
       textEditingControllerChurch.text =
           "${selectedChurch!.name}, ${selectedChurch!.location}";
 
-      baptizeStatus = user!.membership!.baptize.statusBoolToString("Baptis");
-      sidiStatus = user!.membership!.sidi.statusBoolToString("Sidi");
+      baptizeStatus = user.membership!.baptize.statusBoolToString("Baptis");
+      sidiStatus = user.membership!.sidi.statusBoolToString("Sidi");
     }
 
     //fetch churches
@@ -109,13 +109,23 @@ class MembershipController extends GetxController {
       return;
     }
 
+    if (user.membership != null) {
+      await _editMembership();
+      return;
+    }
+
+    await _createMembership();
+  }
+
+  Future<void> _editMembership() async {
     //check if changed occurred
     final currentBaptizeStatus =
-        user!.membership!.baptize.statusBoolToString("Baptis");
-    final currentSidiStatus = user!.membership!.sidi.statusBoolToString("Sidi");
+        user.membership!.baptize.statusBoolToString("Baptis");
+    final currentSidiStatus = user.membership!.sidi.statusBoolToString("Sidi");
+    final currentColumn = user.membership!.column;
 
-    if (selectedChurch!.id == user!.membership!.church!.id &&
-        user!.membership!.column == column &&
+    if (selectedChurch!.id == user.membership!.church!.id &&
+        currentColumn == textEditingControllerColumn.text &&
         currentBaptizeStatus == baptizeStatus &&
         currentSidiStatus == sidiStatus) {
       Get.offNamedUntil(
@@ -126,24 +136,41 @@ class MembershipController extends GetxController {
     }
 
     final updatedMembership =
-        await saveMembershipData(user!.membership!.copyWith(
+        await membershipRepo.updateMembership(user.membership!.copyWith(
       church: selectedChurch,
-      column: column,
+      column: textEditingControllerColumn.text,
       baptize: baptizeStatus.statusStringToBool(),
       sidi: sidiStatus.statusStringToBool(),
     ));
-    user!.membership = updatedMembership;
+    user.membership = updatedMembership;
     Get.offNamedUntil(
       Routes.home,
-          (route) => route.settings.name == Routes.home,
-      arguments: user
+      (route) => route.settings.name == Routes.home,
+      arguments: user,
     );
-    dashboardController.onUpdateUserInfo(user!);
-
+    dashboardController.onUpdateUserInfo(user);
   }
 
-  Future<Membership> saveMembershipData(Membership membership) async {
-    return await membershipRepo.updateMembership(membership);
+  Future<void> _createMembership() async {
+    final createdMembership = await membershipRepo.createMembership(
+      membership: Membership(
+        church: selectedChurch,
+        column: textEditingControllerColumn.text,
+        baptize: baptizeStatus.statusStringToBool(),
+        sidi: sidiStatus.statusStringToBool(),
+        churchId: selectedChurch!.id,
+      ),
+      userId: user.id!,
+    );
+
+    user.membership = createdMembership;
+
+    Get.offNamedUntil(
+      Routes.home,
+      (route) => route.settings.name == Routes.home,
+      arguments: user,
+    );
+    dashboardController.onUpdateUserInfo(user);
   }
 
   void onSelectChurch(Church church) {
