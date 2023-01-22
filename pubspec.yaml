@@ -22,6 +22,7 @@ dependencies:
   cloud_firestore: ^4.3.1
   firebase_messaging: ^14.2.1
   firebase_app_check: ^0.1.1+8
+  rive: ^0.10.1
 
 dev_dependencies:
   flutter_test:
@@ -32,6 +33,8 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
+  assets:
+    - assets/animations/
 
   fonts:
     - family: OpenSans

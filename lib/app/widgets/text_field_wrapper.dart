@@ -18,6 +18,8 @@ class TextFieldWrapper extends StatelessWidget {
     this.onChangeText,
     this.maxLength,
     this.hintText,
+    this.backgroundColor,
+    this.outlineColor,
   }) : super(key: key);
 
   final TextEditingController textEditingController;
@@ -35,6 +37,9 @@ class TextFieldWrapper extends StatelessWidget {
   final void Function(String text)? onChangeText;
 
   final Color? fontColor;
+
+  final Color? backgroundColor;
+  final Color? outlineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +66,20 @@ class TextFieldWrapper extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(9),
-            color: Palette.cardBackground,
+            color: backgroundColor ?? Palette.cardBackground,
+            border: outlineColor != null
+                ? Border.all(
+                    color: outlineColor!,
+                  )
+                : null,
+            gradient: RadialGradient(
+              colors: [
+                Palette.cardBackground,
+                Colors.grey.shade400,
+              ],
+              focal: Alignment.bottomLeft,
+              radius: 10,
+            ),
           ),
           child: Row(
             children: [
@@ -105,7 +123,7 @@ class TextFieldWrapper extends StatelessWidget {
                     labelText: labelText,
                     labelStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
                           fontSize: 14.sp,
-                          color: fontColor ?? Palette.primary ,
+                          color: fontColor ?? Palette.primary,
                         ),
                   ),
                 ),
@@ -117,7 +135,7 @@ class TextFieldWrapper extends StatelessWidget {
                   ? Icon(
                       endIconData!,
                       size: 15.sp,
-                      color:  Palette.primary,
+                      color: Palette.primary,
                     )
                   : const SizedBox(),
             ],

@@ -28,10 +28,10 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: false,
       builder: (context, _) => GetMaterialApp(
-        title: "EVENT NOTIFIER APP",
+        title: "App",
         theme: appThemeData,
         debugShowCheckedModeBanner: false,
-        initialRoute: Routes.home,
+        initialRoute: Routes.signing,
         getPages: Routes.getRoutes(),
         builder: (context, widget) {
           return MediaQuery(
