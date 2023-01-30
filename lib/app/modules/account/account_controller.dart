@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:palakat/app/modules/dashboard/dashboard_controller.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/repos/user_repo.dart';
@@ -9,7 +8,6 @@ import 'package:palakat/shared/shared.dart';
 
 class AccountController extends GetxController {
   final userRepo = Get.find<UserRepo>();
-  final dashboardController = Get.find<DashboardController>();
 
   final textEditingControllerName = TextEditingController();
   final textEditingControllerDob = TextEditingController();
@@ -147,7 +145,6 @@ class AccountController extends GetxController {
     await userRepo.updateUser(editedUser);
     user = editedUser;
     Get.toNamed(Routes.membership, arguments: user);
-    dashboardController.onUpdateUserInfo(user!);
     loading.value = false;
 
   }
@@ -162,7 +159,6 @@ class AccountController extends GetxController {
     );
     user = newUser;
     Get.toNamed(Routes.membership, arguments: user);
-    dashboardController.onUpdateUserInfo(user!);
 
     loading.value = false;
   }

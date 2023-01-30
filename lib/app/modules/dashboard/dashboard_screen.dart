@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/app/widgets/card_event.dart';
 import 'package:palakat/app/widgets/dialog_event_detail.dart';
+import 'package:palakat/app/widgets/dialog_simple_confirm.dart';
 import 'package:palakat/data/models/event.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/shared/shared.dart';
@@ -30,6 +31,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   onTapAccountCard: controller.onTapAccountCard,
                   user: controller.user,
                   eventsThisWeek: controller.eventsThisWeek,
+                  onPressedSignOutButton: controller.onPressedSignOutButton,
                 ),
         ),
       ),
@@ -49,24 +51,45 @@ class _BuildListBody extends StatelessWidget {
     required this.user,
     required this.eventsThisWeek,
     required this.onTapAccountCard,
+    required this.onPressedSignOutButton,
   }) : super(key: key);
 
   final UserApp? user;
   final List<Event> eventsThisWeek;
   final void Function() onTapAccountCard;
+  final void Function() onPressedSignOutButton;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Dashboard',
-          style: Theme.of(context).textTheme.headline1?.copyWith(
-                fontSize: 36.sp,
-              ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Dashboard',
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontSize: 36.sp,
+                  ),
+            ),
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => DialogSimpleConfirm(
+                    title: "Heads Up !",
+                    description: "Proceed to Log out of this account ?",
+                    onPressedPositive: onPressedSignOutButton,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.logout_outlined),
+              splashRadius: 30.sp,
+            ),
+          ],
         ),
-        SizedBox(height: Insets.medium.h),
+        SizedBox(height: Insets.medium.h * .75),
         Material(
           clipBehavior: Clip.hardEdge,
           elevation: 0,

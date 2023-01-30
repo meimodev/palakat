@@ -17,14 +17,17 @@ class DashboardController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    user = await userRepo.readUser("JayUDzeq9ej2owJLqRKN");
+
+    final phone = userRepo.auth.currentUser?.phoneNumber ?? "";
+
+    user = await userRepo.readUser(phone);
     eventsThisWeek =
-        await eventRepo.readEventsThisWeek(user!.membership!.churchId);
+    await eventRepo.readEventsThisWeek(user!.membership!.churchId);
 
     isLoading.value = false;
   }
 
-  void onUpdateUserInfo(UserApp user) async{
+  void onUpdateUserInfo(UserApp user) async {
     isLoading.value = true;
     this.user = await userRepo.readUser(user.id!);
     isLoading.value = false;
@@ -32,5 +35,12 @@ class DashboardController extends GetxController {
 
   void onTapAccountCard() {
     Get.toNamed(Routes.account, arguments: user);
+  }
+
+  void onPressedSignOutButton() {
+    userRepo.signOut();
+    Future.delayed(Duration.zero).then((value) =>
+        Get.offAndToNamed(Routes.signing)
+    );
   }
 }

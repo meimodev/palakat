@@ -37,12 +37,12 @@ class _BuildBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Expanded(child: RiveLoading()),
+        Expanded(child: RiveLoading(onInitRive: controller.onInitLoading)),
         SizedBox(
-          height: 120,
+          height: 140.h,
           child: Obx(
             () => AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 600),
               child: controller.loading.isTrue
                   ? const SizedBox()
                   : Column(
@@ -54,7 +54,7 @@ class _BuildBody extends StatelessWidget {
                                 labelText: 'Phone',
                                 endIconData: Icons.phone_outlined,
                                 textInputType: TextInputType.phone,
-                                textEditingController: TextEditingController(),
+                                textEditingController: controller.tecPhone,
                               )
                             : const SizedBox(),
                         controller.state == SigningState.enterCode
@@ -63,7 +63,7 @@ class _BuildBody extends StatelessWidget {
                                 endIconData: Icons.dialpad_outlined,
                                 textInputType: TextInputType.phone,
                                 outlineColor: Palette.primary,
-                                textEditingController: TextEditingController(),
+                                textEditingController: controller.tecCode,
                               )
                             : const SizedBox(),
                         SizedBox(
@@ -76,11 +76,11 @@ class _BuildBody extends StatelessWidget {
                                       left: Insets.small.w,
                                       right: Insets.small.w,
                                     ),
-                                    child: const Align(
+                                    child:  Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        "This is the error text",
-                                        style: TextStyle(
+                                        controller.errorText.value,
+                                        style: const TextStyle(
                                           letterSpacing: .5,
                                           color: Palette.negative,
                                         ),
@@ -139,41 +139,50 @@ class _BuildBody extends StatelessWidget {
 }
 
 class RiveLoading extends StatefulWidget {
-  const RiveLoading({Key? key}) : super(key: key);
+  const RiveLoading({Key? key, required this.onInitRive}) : super(key: key);
+
+  final void Function(SMIBool loading, SMITrigger show) onInitRive;
 
   @override
   State<RiveLoading> createState() => _RiveLoadingState();
 }
 
 class _RiveLoadingState extends State<RiveLoading> {
-  bool loading = true;
-  SMIBool? loadingCompleteState;
+  late SMIBool loading;
+
+  late SMITrigger show;
 
   late StateMachineController controller;
 
-  @override
-  void initState() {
-    super.initState();
+  void _onRiveInit(Artboard artBoard) {
+    controller =
+        StateMachineController.fromArtboard(artBoard, 'State Machine 1')!;
+    artBoard.addController(controller);
+    loading = (controller.findInput<bool>('Loading') as SMIBool);
+    show = (controller.findInput<bool>('Show') as SMITrigger);
+
+    widget.onInitRive(loading, show);
   }
 
-  void _onRiveInit(Artboard artboard) {
-    controller =
-        StateMachineController.fromArtboard(artboard, 'State Machine 1')!;
-    artboard.addController(controller);
+  void initiateLoading() {
+    if (!loading.value) {
+      loading.value = true;
+      show.fire();
+    } else {
+      loading.value = false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        final load = (controller.findInput<bool>('LoadComplete') as SMIBool);
-        print("load ${load.value}");
-        load.value = !load.value;
+        // initiateLoading();
       },
       child: SizedBox(
         child: RiveAnimation.asset(
           "assets/animations/ball_loader.riv",
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
           onInit: _onRiveInit,
         ),
       ),

@@ -50,6 +50,9 @@ class DialogSimpleConfirm extends StatelessWidget {
                 ButtonConfirmDialog(
                   icon: const Icon(Icons.close_outlined),
                   onPressed: () {
+                    if (onPressedNegative != null) {
+                      onPressedNegative!();
+                    }
                     Navigator.pop(context, false);
                   },
                   invertColor: true,
@@ -57,6 +60,9 @@ class DialogSimpleConfirm extends StatelessWidget {
                 ButtonConfirmDialog(
                   icon: const Icon(Icons.check_outlined, color: Palette.accent),
                   onPressed: () {
+                    if (onPressedPositive != null) {
+                      onPressedPositive!();
+                    }
                     Navigator.pop(context, true);
                   },
                 ),

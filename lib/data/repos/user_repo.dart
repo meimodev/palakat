@@ -1,18 +1,26 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/services/firestrore_services.dart';
 import 'package:palakat/data/models/membership.dart';
 import 'package:palakat/data/models/church.dart';
+import 'package:palakat/data/services/phone_auth_service.dart';
 import 'package:palakat/shared/shared.dart';
+import 'dart:developer' as dev;
 
 abstract class UserRepoContract {
   Future<UserApp> readUser(String phone);
 }
 
 class UserRepo implements UserRepoContract {
-  UserApp? _user ;
-  final firestore = FirestoreService();
+  UserApp? _user;
 
-  UserApp get user {
+  final firestore = FirestoreService();
+  final phoneAuthService = PhoneAuthService();
+  final auth = FirebaseAuth.instance;
+
+  String verificationID = "";
+
+  Future<UserApp?> get user async {
     if (_user != null) {
       return _user!;
     }
@@ -63,7 +71,6 @@ class UserRepo implements UserRepoContract {
     required String name,
     required String maritalStatus,
   }) async {
-
     final newUser = UserApp(
       dob: dob.resetTimeToStartOfTheDay(),
       phone: phone,
@@ -74,4 +81,105 @@ class UserRepo implements UserRepoContract {
     final data = UserApp.fromMap(res as Map<String, dynamic>);
     return data;
   }
+
+  Future<String> verifyPhoneNumber({
+    required String phoneNumber,
+    required void Function(UserApp user) onProceed,
+    required void Function(String phone, String userId) onRegister,
+    required void Function() onManualCodeVerification,
+    required void Function(String firebaseAuthExceptionCode) onFailed,
+  }) async {
+    //setup success callback on onChangedUser
+    bool shouldCallFromIdTokenChangesListenerOccurred = true;
+    auth.authStateChanges().listen((User? user) async {
+      const logHeadText = "authStateChanges()";
+      shouldCallFromIdTokenChangesListenerOccurred = false;
+      if (user != null) {
+        dev.log('$logHeadText, Phone number confirmed');
+
+        final result = await firestore.getUser(phoneOrId: user.phoneNumber!);
+        final userApp = result != null
+            ? UserApp.fromMap(result as Map<String, dynamic>)
+            : null;
+
+        if (userApp != null) {
+          _user = userApp;
+          dev.log('$logHeadText signed success $_user');
+          onProceed(userApp);
+          return;
+        }
+
+        onRegister(user.phoneNumber!, user.uid);
+        _user = null;
+        dev.log('$logHeadText  Phone verified but not registered yet $user');
+        return;
+      }
+      dev.log('$logHeadText user = null');
+      _user = null;
+    });
+    auth.idTokenChanges().listen((user) async {
+      //just called this listener when the auth status is never called
+      if (!shouldCallFromIdTokenChangesListenerOccurred) {
+        return;
+      }
+
+      const logHeadText = "idTokenChanges()";
+
+      if (user != null) {
+        dev.log('$logHeadText, Phone number confirmed');
+        if (_user != null) {
+          dev.log('$logHeadText user already signed');
+          return;
+        }
+        final result = await firestore.getUser(phoneOrId: user.phoneNumber!);
+        final userApp = result != null
+            ? UserApp.fromMap(result as Map<String, dynamic>)
+            : null;
+
+        if (userApp != null) {
+          _user = userApp;
+          dev.log('$logHeadText signed success $_user');
+          onProceed(userApp);
+          return;
+        }
+
+        // user is not registered
+        onRegister(user.phoneNumber!, user.uid);
+        _user = null;
+
+        dev.log('$logHeadText Phone verified but not registered yet $user');
+        return;
+      }
+
+      dev.log("$logHeadText Phone not confirmed");
+    });
+
+    await phoneAuthService.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      onManualCodeVerification: (String verificationID){
+        this.verificationID = verificationID;
+        onManualCodeVerification();
+      },
+      onFailed: onFailed,
+      onSuccessAuth: (String sentCode) {
+        dev.log("OTP code automatically retrieved");
+      },
+    );
+    return "";
+  }
+
+  Future<void> signInWithCredential(
+    String smsCode,
+  ) async {
+    await phoneAuthService.signInWithCredentialFromPhone(
+      verificationID,
+      smsCode,
+    );
+
+  }
+
+  Future<void> signOut() async {
+    await auth.signOut();
+  }
+
 }

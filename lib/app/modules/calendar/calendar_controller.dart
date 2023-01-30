@@ -19,17 +19,17 @@ class CalendarController extends GetxController {
     isLoading.value = false;
   }
 
-  void onAddNewEvent(
+  Future<void> onAddNewEvent(
     String title,
     String location,
     String dateTime,
     List<String> reminders,
-  ) {
+  ) async {
     final e = Event(
       id: events.length.toString(),
       title: title,
       location: location,
-      author: userRepo.user,
+      author: await userRepo.user,
       reminders: reminders,
       authorId: '',
       eventDateTimeStamp: DateTime.now(),

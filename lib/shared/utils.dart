@@ -2,8 +2,11 @@
 import 'package:jiffy/jiffy.dart';
 
 extension StringExtension on String {
-  String cleanPhone() {
+  String cleanPhone({bool withCountryCode = false}) {
     trim();
+    if (withCountryCode) {
+      return startsWith("0") ? replaceFirst('0', '+62') : this;
+    }
     return contains('+62') ? replaceFirst('+62', '0') : this;
   }
 

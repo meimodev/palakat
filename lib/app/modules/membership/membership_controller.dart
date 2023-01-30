@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palakat/app/modules/dashboard/dashboard_controller.dart';
 import 'package:palakat/app/widgets/custom_simple_dialog.dart';
 import 'package:palakat/data/models/church.dart';
 import 'package:palakat/data/models/membership.dart';
@@ -11,7 +10,6 @@ import 'package:palakat/shared/shared.dart';
 
 class MembershipController extends GetxController {
   final churchRepo = Get.find<ChurchRepo>();
-  final dashboardController = Get.find<DashboardController>();
 
   final textEditingControllerChurch = TextEditingController();
   final textEditingControllerColumn = TextEditingController();
@@ -148,7 +146,6 @@ class MembershipController extends GetxController {
       (route) => route.settings.name == Routes.home,
       arguments: user,
     );
-    dashboardController.onUpdateUserInfo(user);
   }
 
   Future<void> _createMembership() async {
@@ -170,7 +167,6 @@ class MembershipController extends GetxController {
       (route) => route.settings.name == Routes.home,
       arguments: user,
     );
-    dashboardController.onUpdateUserInfo(user);
   }
 
   void onSelectChurch(Church church) {

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
 import 'package:palakat/shared/utils.dart';
 import 'dart:developer' as dev;
 
@@ -40,16 +39,20 @@ class FirestoreService {
   }
 
   Future<Object?> getUser({required String phoneOrId}) async {
-    final isPhoneNumber = phoneOrId.isNumericOnly;
+    final isPhoneNumber =
+        phoneOrId.startsWith("08") || phoneOrId.startsWith("+62");
     final col = firestore.collection(_keyCollectionUsers);
 
     if (isPhoneNumber) {
-      final phone = phoneOrId.cleanPhone();
-      DocumentSnapshot<Map<String, dynamic>>? doc = await firestoreLogger(
-        col.where("phone", isEqualTo: phone).get,
+      final phone = phoneOrId.cleanPhone(withCountryCode: true);
+      QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
+        col.where("phone", isEqualTo: phone).limit(1).get,
         'getUser(phone)',
       );
-      return doc!.data();
+      if (docs == null || docs.docs.isEmpty) {
+        return null;
+      }
+      return docs.docs.first.data();
     }
 
     final id = phoneOrId;
@@ -155,7 +158,8 @@ class FirestoreService {
     return res;
   }
 
-  Future<Object?> setMembership(Map<String, dynamic> data, String userId) async {
+  Future<Object?> setMembership(
+      Map<String, dynamic> data, String userId) async {
     final memberships = firestore.collection(_keyCollectionMembership);
     final users = firestore.collection(_keyCollectionUsers);
 
@@ -176,7 +180,7 @@ class FirestoreService {
     );
 
     await firestoreLogger(
-          () => users.doc(userId).set(
+      () => users.doc(userId).set(
         {"membership_id": membershipId},
         SetOptions(merge: true),
       ),
