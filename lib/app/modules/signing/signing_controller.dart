@@ -87,7 +87,7 @@ class SigningController extends GetxController {
   }
 
   String _validatePhone(String phone) {
-    phone.cleanPhone(withCountryCode: true);
+    phone.cleanPhone(useCountryCode: true);
 
     if (phone.isEmpty) {
       return "Phone cannot be empty";
@@ -109,10 +109,10 @@ class SigningController extends GetxController {
     }
 
     if (!code.isNumericOnly) {
-      return "Code only contain number";
+      return "OTP Code only contain number";
     }
     if (code.length != 6) {
-      return "Phone consist of 6 digit number";
+      return "OTP Code consist of 6 digit number";
     }
 
     return "";
@@ -125,13 +125,13 @@ class SigningController extends GetxController {
 
   void _phoneAuthWithOtp() async {
     final code = tecCode.text;
-    await userRepo.signInWithCredential(code);
+    await userRepo.signInWithCredential(smsCode: code, onFailed: _onFailed);
   }
 
   void _phoneVerification() async {
     final phoneNumber = tecPhone.text;
     await userRepo.verifyPhoneNumber(
-      phoneNumber: phoneNumber.cleanPhone(withCountryCode: true),
+      phoneNumber: phoneNumber.cleanPhone(useCountryCode: true),
       onProceed: _onProceed,
       onRegister: _onRegister,
       onManualCodeVerification: () async {
@@ -147,17 +147,14 @@ class SigningController extends GetxController {
   }
 
   _onRegister(String phone, String userId) {
-    final user = UserApp(
-      id: userId,
-      dob: DateTime.now(),
-      phone: phone,
-      name: "",
-      maritalStatus: "Belum Menikah",
+    Get.offAndToNamed(
+      Routes.account,
+      arguments: phone,
     );
-    Get.offAndToNamed(Routes.account, arguments: user);
   }
 
   _onFailed(String firebaseAuthExceptionCode) {
+    state = SigningState.enterCode;
     errorText.value = firebaseAuthExceptionCode;
     _endLoading();
   }

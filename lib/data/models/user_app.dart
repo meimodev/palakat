@@ -14,10 +14,10 @@ class UserApp {
   UserApp({
     required this.dob,
     required this.phone,
-     this.id,
+    this.id,
     required this.name,
     required this.maritalStatus,
-     this.membershipId ="",
+    this.membershipId = "",
     this.membership,
     this.eventIds = const [],
   });

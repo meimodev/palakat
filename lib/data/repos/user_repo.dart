@@ -73,7 +73,7 @@ class UserRepo implements UserRepoContract {
   }) async {
     final newUser = UserApp(
       dob: dob.resetTimeToStartOfTheDay(),
-      phone: phone,
+      phone: phone.cleanPhone(useCountryCode: true),
       name: name.toTitleCase(),
       maritalStatus: maritalStatus,
     );
@@ -156,7 +156,7 @@ class UserRepo implements UserRepoContract {
 
     await phoneAuthService.verifyPhoneNumber(
       phoneNumber: phoneNumber,
-      onManualCodeVerification: (String verificationID){
+      onManualCodeVerification: (String verificationID) {
         this.verificationID = verificationID;
         onManualCodeVerification();
       },
@@ -168,18 +168,15 @@ class UserRepo implements UserRepoContract {
     return "";
   }
 
-  Future<void> signInWithCredential(
-    String smsCode,
-  ) async {
+  Future<void> signInWithCredential({
+    required String smsCode,
+    required void Function(String firebaseAuthExceptionCode) onFailed,
+  }) async {
     await phoneAuthService.signInWithCredentialFromPhone(
-      verificationID,
-      smsCode,
-    );
-
+        verificationId: verificationID, smsCode: smsCode, onFailed: onFailed);
   }
 
   Future<void> signOut() async {
     await auth.signOut();
   }
-
 }

@@ -44,7 +44,7 @@ class FirestoreService {
     final col = firestore.collection(_keyCollectionUsers);
 
     if (isPhoneNumber) {
-      final phone = phoneOrId.cleanPhone(withCountryCode: true);
+      final phone = phoneOrId.cleanPhone(useCountryCode: true);
       QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
         col.where("phone", isEqualTo: phone).limit(1).get,
         'getUser(phone)',

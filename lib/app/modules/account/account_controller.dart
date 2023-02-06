@@ -19,6 +19,7 @@ class AccountController extends GetxController {
 
   var loading = true.obs;
 
+
   @override
   void dispose() {
     textEditingControllerName.dispose();
@@ -31,13 +32,21 @@ class AccountController extends GetxController {
   void onInit() {
     super.onInit();
 
-    user = Get.arguments;
+    maritalStatus = "Belum Menikah";
+    final arguments = Get.arguments;
+
+    if (arguments is String) {
+      textEditingControllerPhone.text = arguments.cleanPhone(useCountryCode: true);
+      loading.toggle();
+      return;
+    }
+    user = arguments;
 
     maritalStatus = "Belum Menikah";
     if (user != null) {
-      textEditingControllerName.text = user!.name;
+    textEditingControllerName.text = user!.name;
       textEditingControllerDob.text = user!.dob.format(Values.dobPickerFormat);
-      textEditingControllerPhone.text = user!.phone;
+      textEditingControllerPhone.text = user!.phone.cleanPhone(useCountryCode: true);
       maritalStatus = user!.maritalStatus;
     }
     loading.toggle();
@@ -115,7 +124,7 @@ class AccountController extends GetxController {
 
     loading.value = true;
     //Edit user
-    if (user != null) {
+    if (user != null ) {
       await _editUser();
       return;
     }

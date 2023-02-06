@@ -54,7 +54,7 @@ class AccountScreen extends GetView<AccountController> {
                             ),
                             SizedBox(height: Insets.medium.h),
                             TextFieldWrapper(
-                              readOnly: controller.user != null,
+                              readOnly: true,
                               textEditingController:
                                   controller.textEditingControllerPhone,
                               labelText: 'Phone Number',
@@ -64,9 +64,9 @@ class AccountScreen extends GetView<AccountController> {
                               endIconData: Icons.call_outlined,
                               maxLength: 13,
                               onPressed: (_) {
-                                if (controller.user == null) {
-                                  return;
-                                }
+                                // if (controller.user == null || !controller.phoneIsReadOnly) {
+                                //   return;
+                                // }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -142,7 +142,7 @@ class AccountScreen extends GetView<AccountController> {
       theme: DatePickerTheme(
         backgroundColor: Palette.scaffold,
         headerColor: Palette.primary,
-        itemStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
+        itemStyle: Theme.of(context).textTheme.displaySmall!.copyWith(
               color: Palette.primary,
               fontSize: 14.sp,
             ),

@@ -25,36 +25,38 @@ class PhoneAuthService {
         this.resendToken = resendToken;
       },
       verificationFailed: (FirebaseAuthException exception) {
-        // log the failed code
-
         final code = exception.code;
-        dev.log("[FIREBASE AUTH EXCEPTION] [error] "
+        dev.log("[FIREBASE AUTH EXCEPTION] [verifyPhoneNumber()] "
             "code = $code message = ${exception.message}");
-        //-- phone authentication specified error
-        if (code == "invalid-verification-code" &&
-            code == "invalid-verification-id") {
-          onFailed(code);
-          return;
-        }
+
+        onFailed(code);
       },
       codeAutoRetrievalTimeout: (String verificationID) {
-        dev.log("[FIREBASE AUTH] [success] OTP Sent Auto Retrieval timed out, manual verification");
+        dev.log(
+            "[FIREBASE AUTH] [success] OTP Sent Auto Retrieval timed out, manual verification");
         onManualCodeVerification(verificationID);
       },
       forceResendingToken: resendToken,
     );
   }
 
-  Future<void> signInWithCredentialFromPhone(
-    String verificationId,
-    String smsCode,
-  ) async {
+  Future<void> signInWithCredentialFromPhone({
+    required String verificationId,
+    required String smsCode,
+    required void Function(String firebaseAuthExceptionCode) onFailed,
+  }) async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: smsCode,
     );
 
-    await _auth.signInWithCredential(credential);
-
+    try {
+      await _auth.signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      final code = e.code;
+      dev.log("[FIREBASE AUTH EXCEPTION] [signInWithCredentialFromPhone()] "
+          "code = $code message = ${e.message}");
+      onFailed(code);
+    }
   }
 }

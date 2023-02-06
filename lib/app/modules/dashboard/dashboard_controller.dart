@@ -19,7 +19,6 @@ class DashboardController extends GetxController {
     super.onInit();
 
     final phone = userRepo.auth.currentUser?.phoneNumber ?? "";
-
     user = await userRepo.readUser(phone);
     eventsThisWeek =
     await eventRepo.readEventsThisWeek(user!.membership!.churchId);
