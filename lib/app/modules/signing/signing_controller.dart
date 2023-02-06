@@ -32,10 +32,11 @@ class SigningController extends GetxController {
   void onReady() {
     super.onReady();
 
-    //check whether the user already signed in then proceed straight to home
+    //check whether the user already signed in with firebase account alone
+    //then proceed straight to home
     final currentUser = userRepo.auth.currentUser;
     if (currentUser != null) {
-      Get.offAndToNamed(Routes.home);
+      Get.offAllNamed(Routes.home);
       return;
     }
     dev.log("[NO USER SIGNED IN]");

@@ -18,11 +18,19 @@ class DashboardController extends GetxController {
   void onInit() async {
     super.onInit();
 
+    if (userRepo.auth.currentUser == null) {
+      //phone not verify hence user not registered
+      await userRepo.signOut();
+      Get.offAllNamed(Routes.home);
+      return;
+    }
+
+
     final phone = userRepo.auth.currentUser?.phoneNumber ?? "";
     user = await userRepo.readUser(phone);
     eventsThisWeek =
     await eventRepo.readEventsThisWeek(user!.membership!.churchId);
-
+    eventsThisWeek.forEach((e) => print("Event Time : ${e.eventDateTimeStamp.toString()}"));
     isLoading.value = false;
   }
 

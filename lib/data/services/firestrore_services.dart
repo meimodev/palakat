@@ -87,23 +87,28 @@ class FirestoreService {
     DateTime? to,
   }) async {
     final col = firestore.collection(_keyCollectionEvents);
-    final query = col.where('church_id', isEqualTo: churchId);
+    Query? query;
     String log = "church_id: $churchId";
 
     if (from != null) {
-      query
+      query = col
+          .where('church_id', isEqualTo: churchId)
           .where('event_date_time_stamp', isGreaterThanOrEqualTo: from)
           .where('event_date_time_stamp', isLessThanOrEqualTo: to);
       log = "$log from: ${from.toString()} to: ${to.toString()}";
     }
 
+    query ??= col.where('church_id', isEqualTo: churchId);
+
     QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
       query.get,
       'getEvents $log',
     );
+
     if (docs == null) {
       return [];
     }
+
     final res = docs.docs.map((e) => e.data()).toList();
     return res;
   }
