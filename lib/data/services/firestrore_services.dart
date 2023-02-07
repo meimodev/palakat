@@ -38,29 +38,27 @@ class FirestoreService {
     }
   }
 
-  Future<Object?> getUser({required String phoneOrId}) async {
-    final isPhoneNumber =
-        phoneOrId.startsWith("08") || phoneOrId.startsWith("+62");
+  Future<Object?> getUserById({required String userId}) async {
+    final col = firestore.collection(_keyCollectionUsers);
+    DocumentSnapshot<Map<String, dynamic>>? doc = await firestoreLogger(
+      col.doc(userId).get,
+      'getUserById($userId)',
+    );
+    return doc!.data();
+  }
+
+  Future<Object?> getUserByPhone({required String phone}) async {
     final col = firestore.collection(_keyCollectionUsers);
 
-    if (isPhoneNumber) {
-      final phone = phoneOrId.cleanPhone(useCountryCode: true);
       QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
-        col.where("phone", isEqualTo: phone).limit(1).get,
-        'getUser(phone)',
+          ()=>col.where("phone", isEqualTo: phone.cleanPhone(useCountryCode: true)).get(),
+        'getUserByPhone(${phone.cleanPhone(useCountryCode: true)})',
       );
       if (docs == null || docs.docs.isEmpty) {
         return null;
       }
       return docs.docs.first.data();
-    }
 
-    final id = phoneOrId;
-    DocumentSnapshot<Map<String, dynamic>>? doc = await firestoreLogger(
-      col.doc(id).get,
-      'getUser(user_id)',
-    );
-    return doc!.data();
   }
 
   Future<Object?> getMembership({required String id}) async {
@@ -103,6 +101,27 @@ class FirestoreService {
     QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
       query.get,
       'getEvents $log',
+    );
+
+    if (docs == null) {
+      return [];
+    }
+
+    final res = docs.docs.map((e) => e.data()).toList();
+    return res;
+  }
+
+  Future<List<Object?>> getEventsByUserId({
+    required String userId,
+  }) async {
+    final col = firestore.collection(_keyCollectionEvents);
+
+    QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
+        ()=>col
+          .where('user_id', isEqualTo: userId)
+          .orderBy("event_date_time_stamp", descending: true)
+          .get(const GetOptions(source: Source.server)),
+      'getEventsByUserId($userId)',
     );
 
     if (docs == null) {

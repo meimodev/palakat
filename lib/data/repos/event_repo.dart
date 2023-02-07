@@ -21,4 +21,12 @@ class EventRepo implements EventRepoContract {
 
     return data;
   }
+
+  Future<List<Event>> readEventByAuthor({required String userId}) async {
+
+    final res = await firestore.getEventsByUserId(userId: userId);
+    final data =
+    res.map((e) => Event.fromMap(e as Map<String, dynamic>)).toList();
+    return data;
+  }
 }

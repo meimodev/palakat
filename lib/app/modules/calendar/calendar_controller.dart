@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
 import 'package:palakat/data/models/event.dart';
-import 'package:palakat/data/models/model_mock.dart';
+import 'package:palakat/data/repos/event_repo.dart';
 import 'package:palakat/data/repos/user_repo.dart';
 
 class CalendarController extends GetxController {
   final userRepo = Get.find<UserRepo>();
+  final eventRepo = Get.find<EventRepo>();
 
   var events = <Event>[].obs;
   var isLoading = true.obs;
@@ -15,7 +16,8 @@ class CalendarController extends GetxController {
 
     isLoading.value = true;
     await Future.delayed(const Duration(seconds: 1));
-    events.value = ModelMock.events;
+    final user = await userRepo.user();
+    events.value = await eventRepo.readEventByAuthor(userId: user.id!);
     isLoading.value = false;
   }
 
@@ -29,7 +31,7 @@ class CalendarController extends GetxController {
       id: events.length.toString(),
       title: title,
       location: location,
-      author: await userRepo.user,
+      author: await userRepo.user(),
       reminders: reminders,
       authorId: '',
       eventDateTimeStamp: DateTime.now(),

@@ -6,7 +6,7 @@ import 'signing_controller.dart';
 class SigningBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<UserRepo>(UserRepo());
+    Get.put<UserRepo>(UserRepo(), permanent: true);
     Get.put<SigningController>(SigningController());
   }
 }

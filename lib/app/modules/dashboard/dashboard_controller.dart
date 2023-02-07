@@ -18,19 +18,23 @@ class DashboardController extends GetxController {
   void onInit() async {
     super.onInit();
 
-    if (userRepo.auth.currentUser == null) {
-      //phone not verify hence user not registered
+    //redirect to homepage if phone not confirmed
+    if (!await userRepo.isSignedIn()) {
       await userRepo.signOut();
-      Get.offAllNamed(Routes.home);
+      Get.offAndToNamed(Routes.signing);
       return;
     }
 
+    user = await userRepo.user();
+    //redirect to signing page if membership data not fulfilled
+    if (user!.membership == null) {
+      await userRepo.signOut();
+      Get.offAndToNamed(Routes.signing);
+      return;
+    }
 
-    final phone = userRepo.auth.currentUser?.phoneNumber ?? "";
-    user = await userRepo.readUser(phone);
     eventsThisWeek =
-    await eventRepo.readEventsThisWeek(user!.membership!.churchId);
-    eventsThisWeek.forEach((e) => print("Event Time : ${e.eventDateTimeStamp.toString()}"));
+        await eventRepo.readEventsThisWeek(user!.membership!.churchId);
     isLoading.value = false;
   }
 
@@ -46,8 +50,7 @@ class DashboardController extends GetxController {
 
   void onPressedSignOutButton() {
     userRepo.signOut();
-    Future.delayed(Duration.zero).then((value) =>
-        Get.offAndToNamed(Routes.signing)
-    );
+    Future.delayed(Duration.zero)
+        .then((value) => Get.offAndToNamed(Routes.signing));
   }
 }

@@ -20,11 +20,20 @@ class UserRepo implements UserRepoContract {
 
   String verificationID = "";
 
-  Future<UserApp?> get user async {
+  Future<UserApp> user() async{
     if (_user != null) {
       return _user!;
     }
-    throw Exception("No User logged in");
+
+    if (auth.currentUser == null) {
+      throw Exception("NO USER SIGNED IN");
+    }
+
+    return await readUser(auth.currentUser!.phoneNumber!);
+  }
+
+  Future<bool> isSignedIn() async {
+    return auth.currentUser != null;
   }
 
   @override
@@ -32,7 +41,12 @@ class UserRepo implements UserRepoContract {
     String phoneOrId, {
     bool populateWholeData = true,
   }) async {
-    final res = await firestore.getUser(phoneOrId: phoneOrId);
+    Object? res;
+    if (phoneOrId.startsWith("08")||phoneOrId.startsWith("+62")) {
+      res = await firestore.getUserByPhone(phone: phoneOrId);
+    } else {
+      res = await firestore.getUserById(userId: phoneOrId);
+    }
     final data = UserApp.fromMap(res as Map<String, dynamic>);
     _user = data;
     if (populateWholeData && _user!.membership == null) {
@@ -97,7 +111,7 @@ class UserRepo implements UserRepoContract {
       if (user != null) {
         dev.log('$logHeadText, Phone number confirmed');
 
-        final result = await firestore.getUser(phoneOrId: user.phoneNumber!);
+        final result = await firestore.getUserByPhone(phone: user.phoneNumber!);
         final userApp = result != null
             ? UserApp.fromMap(result as Map<String, dynamic>)
             : null;
@@ -111,7 +125,7 @@ class UserRepo implements UserRepoContract {
 
         onRegister(user.phoneNumber!, user.uid);
         _user = null;
-        dev.log('$logHeadText  Phone verified but not registered yet $user');
+        dev.log('$logHeadText  Phone verified but not registered yet ${user.phoneNumber} $userApp');
         return;
       }
       dev.log('$logHeadText user = null');
@@ -131,7 +145,7 @@ class UserRepo implements UserRepoContract {
           dev.log('$logHeadText user already signed');
           return;
         }
-        final result = await firestore.getUser(phoneOrId: user.phoneNumber!);
+        final result = await firestore.getUserByPhone(phone: user.phoneNumber!);
         final userApp = result != null
             ? UserApp.fromMap(result as Map<String, dynamic>)
             : null;

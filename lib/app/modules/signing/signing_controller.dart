@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/repos/user_repo.dart';
-import 'package:palakat/data/services/phone_auth_service.dart';
 import 'package:palakat/shared/shared.dart';
 import 'package:rive/rive.dart';
 import 'dart:developer' as dev;
@@ -26,21 +25,16 @@ class SigningController extends GetxController {
   SMIBool? loadingBall;
 
   ///tight coupling implementation, fix this later!
-  final phoneAuthService = PhoneAuthService();
 
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
 
-    //check whether the user already signed in with firebase account alone
-    //then proceed straight to home
-    final currentUser = userRepo.auth.currentUser;
-    if (currentUser != null) {
+    if (await userRepo.isSignedIn()) {
       Get.offAllNamed(Routes.home);
       return;
     }
     dev.log("[NO USER SIGNED IN]");
-
     loading.toggle();
   }
 
@@ -62,10 +56,8 @@ class SigningController extends GetxController {
     errorText.value = "";
 
     if (state == SigningState.enterPhone) {
-      print("$state phone ${tecPhone.text}");
       final error = _validatePhone(tecPhone.text);
       if (error.isNotEmpty) {
-        print(error);
         errorText.value = error;
         _endLoading();
         return;

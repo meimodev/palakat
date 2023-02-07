@@ -24,7 +24,7 @@ class CalendarScreen extends GetView<CalendarController> {
         children: [
           Text(
             'Calendar',
-            style: Theme.of(context).textTheme.headline1?.copyWith(
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
                   fontSize: 36.sp,
                 ),
           ),
