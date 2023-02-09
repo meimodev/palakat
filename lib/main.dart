@@ -1,7 +1,6 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/shared/routes.dart';
 import 'package:palakat/shared/theme.dart';
@@ -20,7 +19,6 @@ void main() async {
   );
   await Jiffy.locale('id');
 
-  await Hive.initFlutter();
 
   runApp(const MyApp());
 }

@@ -23,8 +23,6 @@ dependencies:
   firebase_messaging: ^14.2.2
   firebase_app_check: ^0.1.1+9
   rive: ^0.10.1
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
