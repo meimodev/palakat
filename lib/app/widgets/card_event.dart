@@ -26,6 +26,13 @@ class CardEvent extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         child: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                width: .25,
+              ),
+            )
+          ),
           padding: EdgeInsets.symmetric(
             horizontal: Insets.small.w,
             vertical: Insets.small.h * .5,
@@ -83,26 +90,26 @@ class CardEvent extends StatelessWidget {
                 ),
               ),
               SizedBox(width: Insets.small.w),
-              enableAlarm
-                  ? Center(
-                      child: Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(9.sp),
-                          color: Colors.transparent,
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 9.sp,
-                          vertical: 9.sp,
-                        ),
-                        child: Icon(
-                          Icons.alarm_rounded,
-                          size: 18.sp,
-                          color: isActive ? Palette.positive : Colors.grey,
-                        ),
-                      ),
-                    )
-                  : const SizedBox()
+              // enableAlarm
+              //     ? Center(
+              //         child: Container(
+              //           clipBehavior: Clip.hardEdge,
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(9.sp),
+              //             color: Colors.transparent,
+              //           ),
+              //           padding: EdgeInsets.symmetric(
+              //             horizontal: 9.sp,
+              //             vertical: 9.sp,
+              //           ),
+              //           child: Icon(
+              //             Icons.alarm_rounded,
+              //             size: 18.sp,
+              //             color: isActive ? Palette.positive : Colors.grey,
+              //           ),
+              //         ),
+              //       )
+              //     : const SizedBox()
             ],
           ),
         ),

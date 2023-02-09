@@ -22,15 +22,27 @@ class EventRepo implements EventRepoContract {
     return data;
   }
 
-  streamEventsByAuthor({required String userId}) async  {
-    //hevavy coupled to firestore, fix this later
+  streamEventsThisWeek(String churchId) async {
+    //heavy coupled to firestore, fix this later
+
+    final res = await firestore.streamEventsThisWeek(
+      churchId: churchId,
+      from: Jiffy().startOf(Units.WEEK).dateTime,
+      to: Jiffy().endOf(Units.WEEK).dateTime,
+    );
+
+    return res;
+  }
+
+  streamEventsByAuthor({required String userId}) async {
+    //heavy coupled to firestore, fix this later
     final res = await firestore.streamEventsByUserId(userId: userId);
     return res;
   }
 
   // create event & edit event
   Future<void> writeEvent(Event event) async {
-     await firestore.setEvent(event.toMap());
+    await firestore.setEvent(event.toMap());
   }
 
   Future<Event> editEvent(Event event) async {

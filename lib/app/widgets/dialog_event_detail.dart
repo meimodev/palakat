@@ -118,11 +118,23 @@ class _DialogEventDetailState extends State<DialogEventDetail> {
                                   SizedBox(width: Insets.small.w * .5),
                                   Expanded(
                                     flex: 2,
-                                    child: Text(
-                                      '${widget.event.eventDateTimeStamp.toYeary}\n${widget.event.eventDateTimeStamp.toDayEEEE}, ${widget.event.eventDateTimeStamp.toDated} ${widget.event.eventDateTimeStamp.toMonthMMM}',
-                                      style: TextStyle(
-                                        fontSize: 18.sp,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.event.eventDateTimeStamp.toYeary,
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: Colors.grey
+                                          ),
+                                        ),
+                                        Text(
+                                          '${widget.event.eventDateTimeStamp.toDayEEEE} ${widget.event.eventDateTimeStamp.toDated} ${widget.event.eventDateTimeStamp.toMonthMMM}',
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(width: Insets.small.w),
@@ -189,9 +201,9 @@ class _DialogEventDetailState extends State<DialogEventDetail> {
                                     ],
                                   ),
                                 ),
-                                widget.enableAlarm
-                                    ? const _ButtonSetAlarm()
-                                    : const SizedBox(),
+                                // widget.enableAlarm
+                                //     ? const _ButtonSetAlarm()
+                                //     : const SizedBox(),
                                 widget.onPressedDelete != null
                                     ? _buildButtonDelete(
                                         context, widget.onPressedDelete!)

@@ -111,6 +111,26 @@ class FirestoreService {
     return res;
   }
 
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> streamEventsThisWeek({
+    required String churchId,
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final col = firestore.collection(_keyCollectionEvents);
+
+    final res = await firestoreLogger(
+      col
+          .where('church_id', isEqualTo: churchId)
+          .where('event_date_time_stamp', isGreaterThanOrEqualTo: from)
+          .where('event_date_time_stamp', isLessThanOrEqualTo: to)
+          .orderBy("event_date_time_stamp", descending: true)
+          .snapshots,
+      'STREAM streamEventsThisWeek($churchId)',
+    );
+
+    return res;
+  }
+
   Future<List<Object?>> getEventsByUserId({
     required String userId,
   }) async {
@@ -137,11 +157,10 @@ class FirestoreService {
     final col = firestore.collection(_keyCollectionEvents);
 
     final res = await firestoreLogger(
-        col
-            .where('user_id', isEqualTo: userId)
-        .orderBy("event_date_time_stamp", descending: true)
-            .snapshots
-      ,
+      col
+          .where('user_id', isEqualTo: userId)
+          .orderBy("event_date_time_stamp", descending: true)
+          .snapshots,
       'STREAM streamEventsByUserId($userId)',
     );
 

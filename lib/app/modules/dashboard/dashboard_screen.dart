@@ -30,7 +30,7 @@ class DashboardScreen extends GetView<DashboardController> {
               : _BuildListBody(
                   onTapAccountCard: controller.onTapAccountCard,
                   user: controller.user,
-                  eventsThisWeek: controller.eventsThisWeek,
+                  eventsThisWeek: controller.events,
                   onPressedSignOutButton: controller.onPressedSignOutButton,
                 ),
         ),
