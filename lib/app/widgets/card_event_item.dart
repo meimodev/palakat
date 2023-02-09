@@ -37,7 +37,7 @@ class CardEventItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       text,
-                      style: Theme.of(context).textTheme.headline1?.copyWith(
+                      style: TextStyle(
                             fontSize: 14.sp,
                             color: Palette.primary ,
                           ),

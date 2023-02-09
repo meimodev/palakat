@@ -25,7 +25,7 @@ class ButtonNewEvent extends StatelessWidget {
           child: Center(
             child: Text(
               'New Event',
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              style: TextStyle(
                     color: Palette.cardForeground,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,

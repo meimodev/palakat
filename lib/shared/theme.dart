@@ -34,55 +34,56 @@ final ThemeData appThemeData = ThemeData.light().copyWith(
     )
   ),
   textTheme: TextTheme(
-    headline1: TextStyle(
+
+    displayLarge: TextStyle(
       fontFamily: fontFamily,
       fontSize: 27.sp,
       fontWeight: FontWeight.w400,
       color: Palette.textPrimary,
     ),
-    headline2: TextStyle(
+    displayMedium: TextStyle(
       fontFamily: fontFamily,
       fontSize: 27.sp,
       fontWeight: FontWeight.w500,
       color: Palette.textPrimary,
     ),
-    headline3: TextStyle(
+    displaySmall: TextStyle(
       fontFamily: fontFamily,
       fontSize: 16.sp,
       fontWeight: FontWeight.w400,
       color: Palette.textPrimary,
     ),
-    headline4: TextStyle(
+    headlineMedium: TextStyle(
       fontFamily: fontFamily,
       fontSize: 16.sp,
       fontWeight: FontWeight.w400,
       color: Palette.textPrimary,
     ),
-    headline5: TextStyle(
+    headlineSmall: TextStyle(
       fontFamily: fontFamily,
       fontSize: 12.sp,
       fontWeight: FontWeight.w500,
       color: Palette.textPrimary,
     ),
-    headline6: TextStyle(
+    titleLarge: TextStyle(
       fontFamily: fontFamily,
       fontSize: 12.sp,
       fontWeight: FontWeight.w500,
       color: Palette.textPrimary,
     ),
-    bodyText1: TextStyle(
+    bodyLarge: TextStyle(
       fontFamily: fontFamily,
       fontSize: 10.sp,
       fontWeight: FontWeight.w500,
       color: Palette.textPrimary,
     ),
-    bodyText2: TextStyle(
+    bodyMedium: TextStyle(
       fontFamily: fontFamily,
       fontSize: 10.sp,
       fontWeight: FontWeight.w500,
       color: Palette.textPrimary,
     ),
-    caption: TextStyle(
+    bodySmall: TextStyle(
       fontFamily: fontFamily,
       fontSize: 9.sp,
       fontWeight: FontWeight.w400,

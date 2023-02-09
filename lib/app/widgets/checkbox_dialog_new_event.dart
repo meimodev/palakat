@@ -57,9 +57,9 @@ class _CheckboxDialogNewEventState extends State<CheckboxDialogNewEvent> {
             ),
             Text(
               widget.text,
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              style: TextStyle(
                     color: isChecked ? Palette.primary : Colors.grey,
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                   ),
             ),
           ],

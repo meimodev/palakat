@@ -111,7 +111,7 @@ class TextFieldWrapper extends StatelessWidget {
                   onChanged: onChangeText,
                   // maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   // maxLength: maxLength,
-                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontSize: 14.sp,
                         color: Palette.primary,
                       ),
@@ -121,7 +121,7 @@ class TextFieldWrapper extends StatelessWidget {
                     isDense: true,
                     border: InputBorder.none,
                     labelText: labelText,
-                    labelStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
+                    labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
                           fontSize: 14.sp,
                           color: fontColor ?? Palette.primary,
                         ),

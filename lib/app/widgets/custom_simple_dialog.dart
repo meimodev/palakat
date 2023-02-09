@@ -30,14 +30,14 @@ class CustomSimpleDialog extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              style: TextStyle(
                 fontSize: 24.sp,
               ),
             ),
             SizedBox(height: Insets.small.h),
             Text(
               description,
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w300,
               ),

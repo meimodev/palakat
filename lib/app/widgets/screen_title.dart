@@ -24,6 +24,7 @@ class ScreenTitle extends StatelessWidget {
                 onTap: () async {
                   if (onPressedBack != null) {
                     if (await onPressedBack!()) {
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     }
                     return;
