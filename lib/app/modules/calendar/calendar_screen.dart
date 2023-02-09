@@ -19,76 +19,82 @@ class CalendarScreen extends GetView<CalendarController> {
         right: Insets.medium.w,
         top: Insets.large.h,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Calendar',
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontSize: 36.sp,
-                ),
-          ),
-          SizedBox(height: Insets.medium.h),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ButtonNewEvent(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => DialogNewEvent(
-                        onPressedPositive: controller.onAddNewEvent,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: Insets.small.h),
-                Text(
-                  "Your Published Events (0)",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                  ),
-                ),
-                SizedBox(height: Insets.small.h * .5),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Palette.cardForeground,
-                      borderRadius: BorderRadius.circular(12.sp),
+      child: Obx(
+        () => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: controller.isLoading.isTrue
+              ? const CircularProgressIndicator(color: Palette.primary,)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Calendar',
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            fontSize: 36.sp,
+                          ),
                     ),
-                    child: Obx(
-                      () => ListView.builder(
-                        primary: true,
-                        itemCount: controller.events.length,
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (_, index) => CardEvent(
-                          enableAlarm: false,
-                          onPressed: () {
-                            final event = controller.events[index];
-                            showDialog(
-                              context: context,
-                              builder: (_) => DialogNewEvent(
-                                event: event,
-                                onPressedPositive: (
-                                  String title,
-                                  String location,
-                                  String dateTime,
-                                  List<String> reminders,
-                                ) {}
+                    SizedBox(height: Insets.medium.h),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ButtonNewEvent(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => DialogNewEvent(
+                                  onPressedPositive: controller.onAddNewEvent,
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: Insets.small.h),
+                          Text(
+                            "Your Published Events (${controller.events.length})",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          SizedBox(height: Insets.small.h * .5),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Palette.cardForeground,
+                                borderRadius: BorderRadius.circular(12.sp),
                               ),
-                            );
-                          },
-                          event: controller.events[index],
-                        ),
+                              child: Obx(
+                                () => ListView.builder(
+                                  primary: true,
+                                  itemCount: controller.events.length,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemBuilder: (_, index) => CardEvent(
+                                    enableAlarm: false,
+                                    onPressed: () {
+                                      final event = controller.events[index];
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => DialogNewEvent(
+                                            event: event,
+                                            onPressedPositive: (
+                                              String title,
+                                              String location,
+                                              DateTime dateTime,
+                                              List<String> reminders,
+                                            ) {}),
+                                      );
+                                    },
+                                    event: controller.events[index],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
+                    )
+                  ],
                 ),
-              ],
-            ),
-          )
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:palakat/data/models/event.dart';
+import 'package:palakat/data/models/user_app.dart';
 import 'package:palakat/data/repos/event_repo.dart';
 import 'package:palakat/data/repos/user_repo.dart';
 
@@ -10,13 +11,14 @@ class CalendarController extends GetxController {
   var events = <Event>[].obs;
   var isLoading = true.obs;
 
+  late UserApp user;
+
   @override
   Future<void> onInit() async {
     super.onInit();
 
     isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1));
-    final user = await userRepo.user();
+    user = await userRepo.user();
     events.value = await eventRepo.readEventByAuthor(userId: user.id!);
     isLoading.value = false;
   }
@@ -24,19 +26,28 @@ class CalendarController extends GetxController {
   Future<void> onAddNewEvent(
     String title,
     String location,
-    String dateTime,
+    DateTime dateTime,
     List<String> reminders,
   ) async {
-    final e = Event(
-      id: events.length.toString(),
+    isLoading.value = true;
+
+    final event = Event(
+      id: "",
       title: title,
       location: location,
-      author: await userRepo.user(),
+      author: user,
       reminders: reminders,
-      authorId: '',
-      eventDateTimeStamp: DateTime.now(),
+      authorId: user.id!,
+      eventDateTimeStamp: dateTime,
+      churchId: user.membership!.churchId,
     );
-    events.add(e);
+    print("create event $event");
+    final newEvent = await eventRepo.writeEvent(event);
+    print("newly created $newEvent");
+    events.add(event);
+
+    isLoading.value = false;
+
   }
 
   void onEditEvent(

@@ -28,32 +28,35 @@ class CardEvent extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: Insets.small.w,
-            vertical: Insets.small.h,
+            vertical: Insets.small.h * .5,
           ),
-          height: 80.h,
+          height: 60.h,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    event.eventDateTimeStamp.toDayEEEE,
-                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                          fontSize: 14.sp,
-                          color: Palette.primary,
-                        ),
-                  ),
-                  Text(
-                    event.eventDateTimeStamp.toTimeHHmm,
-                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                          fontSize: 14.sp,
-                          color: Palette.primary,
-                        ),
-                  ),
-                ],
+              SizedBox(
+                width: 50.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      event.eventDateTimeStamp.toDayEEEE,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Palette.primary,
+                      ),
+                    ),
+                    Text(
+                      event.eventDateTimeStamp.toTimeHHmm,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(width: Insets.small.w),
               Expanded(
@@ -72,7 +75,7 @@ class CardEvent extends StatelessWidget {
                     Text(
                       event.location,
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: 12.sp,
                         color: Colors.grey,
                       ),
                     ),

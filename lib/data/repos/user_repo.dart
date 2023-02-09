@@ -22,6 +22,7 @@ class UserRepo implements UserRepoContract {
 
   Future<UserApp> user() async{
     if (_user != null) {
+      dev.log("[UserRepo] USING CACHED USER");
       return _user!;
     }
 
@@ -32,9 +33,7 @@ class UserRepo implements UserRepoContract {
     return await readUser(auth.currentUser!.phoneNumber!);
   }
 
-  Future<bool> isSignedIn() async {
-    return auth.currentUser != null;
-  }
+
 
   @override
   Future<UserApp> readUser(
@@ -103,7 +102,7 @@ class UserRepo implements UserRepoContract {
     required void Function() onManualCodeVerification,
     required void Function(String firebaseAuthExceptionCode) onFailed,
   }) async {
-    //setup success callback on onChangedUser
+
     bool shouldCallFromIdTokenChangesListenerOccurred = true;
     auth.authStateChanges().listen((User? user) async {
       const logHeadText = "authStateChanges()";
@@ -117,7 +116,7 @@ class UserRepo implements UserRepoContract {
             : null;
 
         if (userApp != null) {
-          _user = userApp;
+          signUser(userApp);
           dev.log('$logHeadText signed success $_user');
           onProceed(userApp);
           return;
@@ -151,7 +150,7 @@ class UserRepo implements UserRepoContract {
             : null;
 
         if (userApp != null) {
-          _user = userApp;
+          signUser(userApp);
           dev.log('$logHeadText signed success $_user');
           onProceed(userApp);
           return;
@@ -192,5 +191,15 @@ class UserRepo implements UserRepoContract {
 
   Future<void> signOut() async {
     await auth.signOut();
+  }
+
+  Future<void> signUser(UserApp userApp) async {
+    // commit userdata to local storage
+    _user = userApp;
+  }
+
+  Future<bool> isSignedIn() async {
+    //instead check in local storage
+    return auth.currentUser != null;
   }
 }

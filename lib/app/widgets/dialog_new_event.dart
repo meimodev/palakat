@@ -26,7 +26,7 @@ class DialogNewEvent extends StatefulWidget {
   final void Function(
     String title,
     String location,
-    String dateTime,
+    DateTime dateTime,
     List<String> reminders,
   ) onPressedPositive;
 
@@ -223,7 +223,7 @@ class _DialogNewEventState extends State<DialogNewEvent> {
                       widget.onPressedPositive(
                         title,
                         location,
-                        dateTime,
+                        Jiffy(dateTime, Values.eventDateTimeFormat).dateTime,
                         reminders,
                       );
                       Navigator.pop(context);
@@ -287,12 +287,12 @@ class _DialogNewEventState extends State<DialogNewEvent> {
       theme: DatePickerTheme(
         backgroundColor: Palette.scaffold,
         headerColor: Palette.primary,
-        itemStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
+        itemStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: Palette.primary,
               fontSize: 14.sp,
             ),
       ),
-      minTime: Jiffy().add(minutes: 10).dateTime,
+      minTime: Jiffy().subtract(minutes: 5). dateTime,
       maxTime: Jiffy().add(years: 20).dateTime,
       currentTime: Jiffy().dateTime,
       locale: LocaleType.id,

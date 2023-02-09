@@ -15,7 +15,7 @@ class ModelMock {
       reminders: [
         'On Time',
       ],
-      authorId: '',
+      authorId: '', churchId: '1',
     ),
     Event(
       id: "2",
@@ -28,7 +28,7 @@ class ModelMock {
         '30 Minutes Before',
         '1 Hour Before',
       ],
-      authorId: '',
+      authorId: '', churchId: 'i',
     ),
     Event(
       id: "3",
@@ -41,7 +41,7 @@ class ModelMock {
         '30 Minutes Before',
         '1 Hour Before',
       ],
-      authorId: '',
+      authorId: '', churchId: 'i',
     ),
   ];
 

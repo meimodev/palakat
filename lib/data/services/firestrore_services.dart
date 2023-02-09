@@ -34,7 +34,6 @@ class FirestoreService {
     } catch (e) {
       dev.log('[FIRESTORE] $operation ERROR');
       dev.log(e.toString());
-      return null;
     }
   }
 
@@ -50,15 +49,16 @@ class FirestoreService {
   Future<Object?> getUserByPhone({required String phone}) async {
     final col = firestore.collection(_keyCollectionUsers);
 
-      QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
-          ()=>col.where("phone", isEqualTo: phone.cleanPhone(useCountryCode: true)).get(),
-        'getUserByPhone(${phone.cleanPhone(useCountryCode: true)})',
-      );
-      if (docs == null || docs.docs.isEmpty) {
-        return null;
-      }
-      return docs.docs.first.data();
-
+    QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
+      () => col
+          .where("phone", isEqualTo: phone.cleanPhone(useCountryCode: true))
+          .get(),
+      'getUserByPhone(${phone.cleanPhone(useCountryCode: true)})',
+    );
+    if (docs == null || docs.docs.isEmpty) {
+      return null;
+    }
+    return docs.docs.first.data();
   }
 
   Future<Object?> getMembership({required String id}) async {
@@ -117,10 +117,10 @@ class FirestoreService {
     final col = firestore.collection(_keyCollectionEvents);
 
     QuerySnapshot<Map<String, dynamic>>? docs = await firestoreLogger(
-        ()=>col
+      () => col
           .where('user_id', isEqualTo: userId)
           .orderBy("event_date_time_stamp", descending: true)
-          .get(const GetOptions(source: Source.server)),
+          .get(),
       'getEventsByUserId($userId)',
     );
 
@@ -223,5 +223,41 @@ class FirestoreService {
       () => col.doc(data['id']).set(data, SetOptions(merge: true)),
       'updateMembership',
     );
+  }
+
+  Future<Object?> setEvent(Map<String, dynamic> data) async {
+    final events = firestore.collection(_keyCollectionEvents);
+    final eventId = await firestoreLogger(
+      () async {
+        final doc = await events.add(data);
+        return doc.id;
+      },
+      'setEvent()',
+    );
+
+    await firestoreLogger(
+      () => events.doc(eventId).set(
+        {"id": eventId},
+        SetOptions(merge: true),
+      ),
+      'setEvent() update id',
+    );
+
+    return {
+      ...data,
+      "id": eventId,
+    };
+  }
+
+  Future<Object?> editEvent(Map<String, dynamic> data) async {
+    final events = firestore.collection(_keyCollectionEvents);
+    await firestoreLogger(
+      () => events.doc(data["id"]).set(
+            data,
+            SetOptions(merge: true),
+          ),
+      'setEvent() edit Event',
+    );
+    return data;
   }
 }

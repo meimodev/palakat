@@ -14,7 +14,7 @@ class HomeBinding implements Bindings {
     Get.put<EventRepo>(EventRepo());
     Get.put<ChurchRepo>(ChurchRepo());
     Get.put<DashboardController>(DashboardController());
-    Get.put<CalendarController>(CalendarController());
-    Get.put<SongsController>(SongsController());
+    Get.lazyPut<CalendarController>(()=>CalendarController());
+    Get.lazyPut<SongsController>(()=>SongsController());
   }
 }

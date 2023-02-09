@@ -17,12 +17,14 @@ dependencies:
   flutter_datetime_picker: ^1.5.1
   jiffy: ^5.0.0
   get: ^4.6.5
-  firebase_auth: ^4.2.5
-  firebase_core: ^2.4.1
-  cloud_firestore: ^4.3.1
-  firebase_messaging: ^14.2.1
-  firebase_app_check: ^0.1.1+8
+  firebase_auth: ^4.2.6
+  firebase_core: ^2.5.0
+  cloud_firestore: ^4.3.2
+  firebase_messaging: ^14.2.2
+  firebase_app_check: ^0.1.1+9
   rive: ^0.10.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
