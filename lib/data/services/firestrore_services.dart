@@ -132,6 +132,22 @@ class FirestoreService {
     return res;
   }
 
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> streamEventsByUserId(
+      {required String userId}) async {
+    final col = firestore.collection(_keyCollectionEvents);
+
+    final res = await firestoreLogger(
+        col
+            .where('user_id', isEqualTo: userId)
+        .orderBy("event_date_time_stamp", descending: true)
+            .snapshots
+      ,
+      'STREAM streamEventsByUserId($userId)',
+    );
+
+    return res;
+  }
+
   Future<void> updateUser(Map<String, dynamic> data) async {
     final users = firestore.collection(_keyCollectionUsers);
     await firestoreLogger(

@@ -295,7 +295,10 @@ class _DialogNewEventState extends State<DialogNewEvent> {
       minTime: Jiffy().subtract(minutes: 5). dateTime,
       maxTime: Jiffy().add(years: 20).dateTime,
       currentTime: Jiffy().dateTime,
-      locale: LocaleType.id,
+      onConfirm: (date) {
+        String s = Jiffy(date).format(Values.eventDateTimeFormat);
+        textEditingControllerDateTime.text = s;
+      },      locale: LocaleType.id,
       onChanged: (date) {
         String s = Jiffy(date).format(Values.eventDateTimeFormat);
         textEditingControllerDateTime.text = s;
