@@ -20,20 +20,20 @@ class UserRepo implements UserRepoContract {
 
   String verificationID = "";
 
-  Future<UserApp> user() async{
-    if (_user != null) {
+  Future<UserApp> user() async {
+    if (_user != null &&
+        _user!.membership != null &&
+        _user!.membership!.church != null) {
       dev.log("[UserRepo] USING CACHED USER");
       return _user!;
     }
 
     if (auth.currentUser == null) {
-      throw Exception("NO USER SIGNED IN");
+      throw Exception("NO PHONE VERIFIED FOR FIREBASE");
     }
 
     return await readUser(auth.currentUser!.phoneNumber!);
   }
-
-
 
   @override
   Future<UserApp> readUser(
@@ -41,7 +41,7 @@ class UserRepo implements UserRepoContract {
     bool populateWholeData = true,
   }) async {
     Object? res;
-    if (phoneOrId.startsWith("08")||phoneOrId.startsWith("+62")) {
+    if (phoneOrId.startsWith("08") || phoneOrId.startsWith("+62")) {
       res = await firestore.getUserByPhone(phone: phoneOrId);
     } else {
       res = await firestore.getUserById(userId: phoneOrId);
@@ -102,7 +102,6 @@ class UserRepo implements UserRepoContract {
     required void Function() onManualCodeVerification,
     required void Function(String firebaseAuthExceptionCode) onFailed,
   }) async {
-
     bool shouldCallFromIdTokenChangesListenerOccurred = true;
     auth.authStateChanges().listen((User? user) async {
       const logHeadText = "authStateChanges()";
@@ -124,7 +123,8 @@ class UserRepo implements UserRepoContract {
 
         onRegister(user.phoneNumber!, user.uid);
         _user = null;
-        dev.log('$logHeadText  Phone verified but not registered yet ${user.phoneNumber} $userApp');
+        dev.log(
+            '$logHeadText  Phone verified but not registered yet ${user.phoneNumber} $userApp');
         return;
       }
       dev.log('$logHeadText user = null');

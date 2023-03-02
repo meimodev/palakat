@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palakat/data/models/song.dart';
-import 'package:palakat/data/models/song_part.dart';
+import 'package:palakat/data/repos/song_repo.dart';
 import 'package:palakat/shared/routes.dart';
 
 class SongsController extends GetxController {
@@ -20,69 +20,23 @@ class SongsController extends GetxController {
     "kami puji dengan riang",
     "Hatiku percaya",
   ];
+  late SongRepo songRepo;
 
-   List<Song> songs = [
-    Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]), Song(id: '123', title: "Kami Puji Dengan riang", book: "KJ 1", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
-    Song(id: '123', title: "Suci suci suci", book: "NNBT 2", songParts: [
-      SongPart(type: "Verse 1", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Verse 2", content: "lorem ipsum dolor sit amet"),
-      SongPart(type: "Refr", content: "lorem ipsum dolor sit amet"),
-    ]),
+  List<Song> songs = [];
 
-  ];
+  var songsLoading = true.obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+
+    songsLoading.value = true;
+    songRepo = SongRepo();
+    await songRepo.initSongs();
+    songs = await songRepo.getSongs();
+    await Future.delayed(1.seconds);
+    songsLoading.value = false;
+  }
 
   @override
   void dispose() {
@@ -90,14 +44,19 @@ class SongsController extends GetxController {
     super.dispose();
   }
 
-  void onPressedCategoryCard(String category) {
+  void onPressedCategoryCard(String category) async {
     tecSearch.text = category;
   }
 
-  void onPressedSongCard(Song song) {
+  void onPressedSongCard(Song song) async {
     Get.toNamed(Routes.songDetail, arguments: song);
   }
 
-  void onChangeSearchText(String text) {
+  void onChangeSearchText(String text) async{
+    songsLoading.value = true;
+    songs = await songRepo.searchSong(text);
+    // await Future.delayed(1.seconds);
+    songsLoading.value = false;
+
   }
 }

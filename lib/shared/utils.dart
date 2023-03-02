@@ -37,6 +37,20 @@ extension StringExtension on String {
     // Join/Merge all words back to one String
     return capitalizedWords.join(' ');
   }
+
+  String toInitials() {
+    List<String> names = split(" ");
+    String initials = "";
+    int numWords = 2;
+
+    if(numWords < names.length) {
+      numWords = names.length;
+    }
+    for(var i = 0; i < numWords; i++){
+      initials += names[i][0];
+    }
+    return initials;
+  }
 }
 
 extension BooleanExtension on bool {

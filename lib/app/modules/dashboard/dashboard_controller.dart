@@ -20,7 +20,7 @@ class DashboardController extends GetxController {
   void onInit() async {
     super.onInit();
 
-    //redirect to homepage if phone not confirmed
+    // redirect to homepage if phone not confirmed
     if (!await userRepo.isSignedIn()) {
       await userRepo.signOut();
       Get.offAndToNamed(Routes.signing);
@@ -28,16 +28,16 @@ class DashboardController extends GetxController {
     }
 
     user = await userRepo.user();
-    //redirect to signing page if membership data not fulfilled
+    //redirect to signing page if membership data not filled
     if (user!.membership == null) {
-      await userRepo.signOut();
-      Get.offAndToNamed(Routes.signing);
+      // await userRepo.signOut();
+      // Get.offAndToNamed(Routes.signing);
+      isLoading.value = false;
       return;
     }
 
     _initEventsStreamingListener();
 
-    isLoading.value = false;
   }
 
   void onUpdateUserInfo(UserApp user) async {

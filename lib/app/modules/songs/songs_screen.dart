@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:palakat/app/widgets/text_field_wrapper.dart';
 import 'package:palakat/data/models/song.dart';
-import 'package:palakat/shared/theme.dart';
+import 'package:palakat/shared/shared.dart';
 
 import 'songs_controller.dart';
 
@@ -37,17 +37,22 @@ class SongsScreen extends GetView<SongsController> {
           ),
           SizedBox(height: Insets.small.h),
           Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              child: controller.songs.isNotEmpty
-                  ? _BuildListSongs(
-                      songs: controller.songs,
-                      onPressedSongCard: controller.onPressedSongCard,
-                    )
-                  : _BuildListCategories(
-                      categories: controller.songBooks,
-                      onPressedCategoryCard: controller.onPressedCategoryCard,
-                    ),
+            child: Obx(
+              () => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                child: controller.songsLoading.isTrue
+                    ? const CircularProgressIndicator(color: Palette.primary)
+                    : controller.songs.isNotEmpty
+                        ? _BuildListSongs(
+                            songs: controller.songs,
+                            onPressedSongCard: controller.onPressedSongCard,
+                          )
+                        : _BuildListCategories(
+                            categories: controller.songBooks,
+                            onPressedCategoryCard:
+                                controller.onPressedCategoryCard,
+                          ),
+              ),
             ),
           ),
         ],
@@ -155,16 +160,17 @@ class SongCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "${song.book} ${song.title.toUpperCase()}",
+                "${song.book.toInitials().toUpperCase()} ${song.entry} ${song.title.toUpperCase()}",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 3.h),
               Text(
-                song.songParts[0].content,
-                textAlign: TextAlign.center,
+                '${song.songParts[0].content![0]} ${song.songParts[0].content![1]} ',
+                textAlign: TextAlign.start,
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: Colors.grey.shade600,

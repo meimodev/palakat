@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:palakat/app/widgets/screen_wrapper.dart';
-import 'package:palakat/data/models/song_part.dart';
-import 'package:palakat/shared/theme.dart';
+import 'package:palakat/data/models/song.dart';
+import 'package:palakat/shared/shared.dart';
 
 import 'song_detail_controller.dart';
 
@@ -50,7 +50,9 @@ class SongDetailScreen extends GetView<SongDetailController> {
                     )),
                 Center(
                   child: Text(
-                    controller.song!.book,
+                    '${controller.song!.book.toInitials()} '
+                    'No '
+                    '${controller.song?.entry}',
                     style: TextStyle(
                       fontSize: 36.sp,
                     ),
@@ -73,7 +75,7 @@ class SongDetailScreen extends GetView<SongDetailController> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          part.type,
+                          part.type ?? '',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontStyle: FontStyle.italic,
@@ -85,16 +87,23 @@ class SongDetailScreen extends GetView<SongDetailController> {
                           padding: const EdgeInsets.symmetric(
                             horizontal: Insets.small,
                           ),
-                          child: Text(
-                            part.content,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (String c in part.content!)
+                                Text(
+                                  c,
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: Insets.small),
                       ],
-                    )
+                    ),
+                  SizedBox(height: Insets.large.h * 2),
                 ],
               ),
             ),
