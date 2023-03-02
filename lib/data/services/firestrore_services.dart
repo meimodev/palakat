@@ -67,7 +67,11 @@ class FirestoreService {
       col.doc(id).get,
       'getMembership',
     );
-    return doc!.data();
+    if (!doc!.exists) {
+      return null;
+    }
+    return doc.data();
+
   }
 
   Future<Object?> getChurch({required String id}) async {
@@ -76,7 +80,10 @@ class FirestoreService {
       col.doc(id).get,
       'getChurch',
     );
-    return doc!.data();
+    if (!doc!.exists) {
+      return null;
+    }
+    return doc.data();
   }
 
   Future<List<Object?>> getEvents({

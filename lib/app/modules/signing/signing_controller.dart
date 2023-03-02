@@ -34,7 +34,7 @@ class SigningController extends GetxController {
       Get.offAllNamed(Routes.home);
       return;
     }
-    dev.log("[NO USER SIGNED IN]");
+    dev.log("[Signing Controller] No user signed in");
     loading.toggle();
   }
 
@@ -140,10 +140,12 @@ class SigningController extends GetxController {
   }
 
   _onRegister(String phone, String userId) {
-    Get.offAndToNamed(
-      Routes.account,
-      arguments: phone,
-    );
+    // Get.offAndToNamed(
+    //   Routes.account,
+    //   arguments: phone,
+    // );
+    Get.offAndToNamed(Routes.home);
+
   }
 
   _onFailed(String firebaseAuthExceptionCode) {

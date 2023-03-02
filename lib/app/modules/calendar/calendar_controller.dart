@@ -21,6 +21,10 @@ class CalendarController extends GetxController {
 
     isLoading.value = true;
     user = await userRepo.user();
+    if (user.membershipId.isEmpty) {
+      isLoading.value = false;
+      return;
+    }
 
     _initEventsStreamingListener();
 

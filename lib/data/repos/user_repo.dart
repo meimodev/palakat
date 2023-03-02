@@ -12,7 +12,7 @@ abstract class UserRepoContract {
 }
 
 class UserRepo implements UserRepoContract {
-  UserApp? _user;
+  static UserApp? _user;
 
   final firestore = FirestoreService();
   final phoneAuthService = PhoneAuthService();
@@ -21,15 +21,13 @@ class UserRepo implements UserRepoContract {
   String verificationID = "";
 
   Future<UserApp> user() async {
-    if (_user != null &&
-        _user!.membership != null &&
-        _user!.membership!.church != null) {
+    if (_user != null) {
       dev.log("[UserRepo] USING CACHED USER");
       return _user!;
     }
 
     if (auth.currentUser == null) {
-      throw Exception("NO PHONE VERIFIED FOR FIREBASE");
+      throw Exception("[UserRepo] NO PHONE VERIFIED FOR FIREBASE");
     }
 
     return await readUser(auth.currentUser!.phoneNumber!);
@@ -48,14 +46,20 @@ class UserRepo implements UserRepoContract {
     }
     final data = UserApp.fromMap(res as Map<String, dynamic>);
     _user = data;
-    if (populateWholeData && _user!.membership == null) {
-      await readMembership(_user!.membershipId);
-    }
+
     if (populateWholeData &&
-        _user!.membership!.church == null &&
-        populateWholeData) {
-      await readChurch(_user!.membership!.churchId);
+        _user!.membershipId.isNotEmpty ) {
+      _user!.membership = await readMembership(_user!.membershipId);
     }
+
+    if (_user!.membership == null) {
+      return _user!;
+    }
+
+    if (populateWholeData && _user!.membership!.church == null) {
+      _user!.membership!.church = await readChurch(_user!.membership!.churchId);
+    }
+
     return _user!;
   }
 
@@ -64,18 +68,20 @@ class UserRepo implements UserRepoContract {
     return user;
   }
 
-  Future<UserApp> readMembership(String membershipId) async {
+  Future<Membership?> readMembership(String membershipId) async {
     final res = await firestore.getMembership(id: membershipId);
-    final data = Membership.fromMap(res as Map<String, dynamic>);
-    _user!.membership = data;
-    return _user!;
+    if (res == null) {
+      return null;
+    }
+    return Membership.fromMap(res as Map<String, dynamic>);
   }
 
-  Future<UserApp> readChurch(String churchId) async {
+  Future<Church?> readChurch(String churchId) async {
     final res = await firestore.getChurch(id: churchId);
-    final data = Church.fromMap(res as Map<String, dynamic>);
-    _user!.membership!.church = data;
-    return _user!;
+    if (res == null) {
+      return null;
+    }
+    return Church.fromMap(res as Map<String, dynamic>);
   }
 
   Future<UserApp> createUser({
@@ -104,7 +110,7 @@ class UserRepo implements UserRepoContract {
   }) async {
     bool shouldCallFromIdTokenChangesListenerOccurred = true;
     auth.authStateChanges().listen((User? user) async {
-      const logHeadText = "authStateChanges()";
+      const logHeadText = "[UserRepo] authStateChanges()";
       shouldCallFromIdTokenChangesListenerOccurred = false;
       if (user != null) {
         dev.log('$logHeadText, Phone number confirmed');
@@ -136,7 +142,7 @@ class UserRepo implements UserRepoContract {
         return;
       }
 
-      const logHeadText = "idTokenChanges()";
+      const logHeadText = "[UserRepo] idTokenChanges()";
 
       if (user != null) {
         dev.log('$logHeadText, Phone number confirmed');
@@ -175,7 +181,7 @@ class UserRepo implements UserRepoContract {
       },
       onFailed: onFailed,
       onSuccessAuth: (String sentCode) {
-        dev.log("OTP code automatically retrieved");
+        dev.log("[UserRepo] OTP code automatically retrieved");
       },
     );
     return "";

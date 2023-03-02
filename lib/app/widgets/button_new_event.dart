@@ -5,10 +5,11 @@ import 'package:palakat/shared/theme.dart';
 class ButtonNewEvent extends StatelessWidget {
   const ButtonNewEvent({
     Key? key,
-    required this.onPressed,
+    required this.onPressed, this.title,
   }) : super(key: key);
 
   final VoidCallback onPressed;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class ButtonNewEvent extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              'New Event',
+              title ?? 'New Event',
               style: TextStyle(
                     color: Palette.cardForeground,
                     fontSize: 14.sp,

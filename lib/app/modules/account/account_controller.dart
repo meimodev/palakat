@@ -15,7 +15,7 @@ class AccountController extends GetxController {
 
   UserApp? user;
 
-  String maritalStatus = "";
+  String maritalStatus = "Belum Menikah";
 
   var loading = true.obs;
 
@@ -29,20 +29,19 @@ class AccountController extends GetxController {
   }
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
-    maritalStatus = "Belum Menikah";
-    final arguments = Get.arguments;
+    // final arguments = Get.arguments;
+    //
+    // if (arguments is String) {
+    //   textEditingControllerPhone.text = arguments.cleanPhone(useCountryCode: true);
+    //   loading.toggle();
+    //   return;
+    // }
+    // user = arguments;
+    user = await userRepo.user();
 
-    if (arguments is String) {
-      textEditingControllerPhone.text = arguments.cleanPhone(useCountryCode: true);
-      loading.toggle();
-      return;
-    }
-    user = arguments;
-
-    maritalStatus = "Belum Menikah";
     if (user != null) {
     textEditingControllerName.text = user!.name;
       textEditingControllerDob.text = user!.dob.format(Values.dobPickerFormat);

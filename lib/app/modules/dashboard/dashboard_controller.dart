@@ -8,7 +8,7 @@ import 'package:palakat/shared/shared.dart';
 import 'dart:developer' as dev;
 
 class DashboardController extends GetxController {
-  UserApp? user;
+  late UserApp user;
 
   final userRepo = Get.find<UserRepo>();
   final eventRepo = Get.find<EventRepo>();
@@ -29,7 +29,7 @@ class DashboardController extends GetxController {
 
     user = await userRepo.user();
     //redirect to signing page if membership data not filled
-    if (user!.membership == null) {
+    if (user.membership == null) {
       // await userRepo.signOut();
       // Get.offAndToNamed(Routes.signing);
       isLoading.value = false;
@@ -58,7 +58,7 @@ class DashboardController extends GetxController {
 
   void _initEventsStreamingListener() async {
     final stream =
-        await eventRepo.streamEventsThisWeek(user!.membership!.churchId);
+        await eventRepo.streamEventsThisWeek(user.membership!.churchId);
 
     stream.listen((event) {
       isLoading.value = true;
