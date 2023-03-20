@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:palakat/shared/shared.dart';
 
 part 'song.g.dart';
 
@@ -25,13 +26,34 @@ class Song {
   @Index()
   List<String> get titleWords => Isar.splitWords(title);
 
+  // @Index(type: IndexType.value, caseSensitive: false)
+  // List<String> get contentWords {
+  //   String res = '';
+  //   for (SongPart songPart in songParts) {
+  //     res += songPart.content!.reduce((value, element) => " $value $element ");
+  //   }
+  //   return Isar.splitWords(res);
+  // }
+
   @Index()
-  List<String> get contentWords {
+  String get rawTitle {
+    String res = '';
+    res = "$book ${book.toInitials} $entry $id $title".toLowerCase();
+    res = res.replaceAll(RegExp('[^A-Za-z0-9 ]'), '');
+    res = res.replaceAll('  ', ' ');
+    return res;
+  }
+
+  @Index()
+  String get rawLyrics {
     String res = '';
     for (SongPart songPart in songParts) {
-      res += songPart.content!.reduce((value, element) => value + element);
+      res += songPart.content!.reduce((value, element) => "$value $element ");
     }
-    return Isar.splitWords(res);
+
+    res = res.replaceAll(RegExp('[^A-Za-z0-9 ]'), '');
+    res = res.replaceAll('  ', ' ');
+    return res;
   }
 
   @override

@@ -50,7 +50,7 @@ class SongDetailScreen extends GetView<SongDetailController> {
                     )),
                 Center(
                   child: Text(
-                    '${controller.song!.book.toInitials()} '
+                    '${controller.song!.book.toInitials} '
                     'No '
                     '${controller.song?.entry}',
                     style: TextStyle(

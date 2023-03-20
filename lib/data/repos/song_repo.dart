@@ -35,11 +35,11 @@ class SongRepo {
           localSongsDate.isSameOrBefore(cachedSongsVersionDate, Units.DAY);
 
       if (isLocalSongsVersionIsSameOrOlder) {
-        dev.log("[SongRepo] cached songs version is same or newer, skip caching");
+        dev.log(
+            "[SongRepo] cached songs version is same or newer, skip caching");
         return;
       }
       dev.log("[SongRepo] cached songs is older, starting caching");
-
     }
 
     clearSongs();
@@ -69,14 +69,14 @@ class SongRepo {
     });
   }
 
-   Future<Map<String, dynamic>> _readDataFromLocalFile() async {
+  Future<Map<String, dynamic>> _readDataFromLocalFile() async {
     if (decodedStringFromAsset != null) {
       return decodedStringFromAsset!;
     }
 
     final String loadedStringFromAsset =
         await rootBundle.loadString('assets/songs/songs.json');
-     decodedStringFromAsset = await json.decode(loadedStringFromAsset);
+    decodedStringFromAsset = await json.decode(loadedStringFromAsset);
     return decodedStringFromAsset!;
   }
 
@@ -91,10 +91,18 @@ class SongRepo {
   }
 
   Future<List<Song>> searchSong(String text) async {
-    return await isar!.songs
+    List<Song> res = await isar!.songs
         .filter()
-        .contentWordsElementContains(text, caseSensitive: false)
+        .rawTitleContains(text, caseSensitive: false)
         .findAll();
+    if (res.isEmpty) {
+      dev.log("[SongRepo] $text in titles not found, search lyrics instead");
+      res = await isar!.songs
+          .filter()
+          .rawLyricsContains(text, caseSensitive: false)
+          .findAll();
+    }
+    return res;
   }
 
   Future<void> clearSongs() async {

@@ -38,7 +38,7 @@ extension StringExtension on String {
     return capitalizedWords.join(' ');
   }
 
-  String toInitials() {
+  String get toInitials {
     List<String> names = split(" ");
     String initials = "";
     int numWords = 2;

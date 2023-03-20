@@ -19,7 +19,6 @@ class AccountController extends GetxController {
 
   var loading = true.obs;
 
-
   @override
   void dispose() {
     textEditingControllerName.dispose();
@@ -43,9 +42,10 @@ class AccountController extends GetxController {
     user = await userRepo.user();
 
     if (user != null) {
-    textEditingControllerName.text = user!.name;
+      textEditingControllerName.text = user!.name;
       textEditingControllerDob.text = user!.dob.format(Values.dobPickerFormat);
-      textEditingControllerPhone.text = user!.phone.cleanPhone(useCountryCode: true);
+      textEditingControllerPhone.text =
+          user!.phone.cleanPhone(useCountryCode: true);
       maritalStatus = user!.maritalStatus;
     }
     loading.toggle();
@@ -123,7 +123,7 @@ class AccountController extends GetxController {
 
     loading.value = true;
     //Edit user
-    if (user != null ) {
+    if (user != null) {
       await _editUser();
       return;
     }
@@ -154,7 +154,6 @@ class AccountController extends GetxController {
     user = editedUser;
     Get.toNamed(Routes.membership, arguments: user);
     loading.value = false;
-
   }
 
   Future<void> _createUser() async {

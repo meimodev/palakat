@@ -160,7 +160,7 @@ class SongCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "${song.book.toInitials().toUpperCase()} ${song.entry} ${song.title.toUpperCase()}",
+                "${song.book.toInitials.toUpperCase()} ${song.entry} ${song.title.toUpperCase()}",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.sp,
@@ -169,7 +169,7 @@ class SongCard extends StatelessWidget {
               ),
               SizedBox(height: 3.h),
               Text(
-                '${song.songParts[0].content![0]} ${song.songParts[0].content![1]} ',
+                '${song.songParts[0].content![0]} ${song.songParts[0].content?[1] ?? ""} ',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   fontSize: 12.sp,

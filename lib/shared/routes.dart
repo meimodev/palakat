@@ -39,7 +39,7 @@ class Routes {
         name: account,
         page: () => const AccountScreen(),
         binding: AccountBinding(),
-        transition: Transition.rightToLeftWithFade,
+        transition: Transition.rightToLeft,
       ),
       GetPage(
         name: membership,

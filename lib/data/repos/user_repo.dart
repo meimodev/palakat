@@ -11,6 +11,9 @@ abstract class UserRepoContract {
   Future<UserApp> readUser(String phone);
 }
 
+//TODO Fix the error when accessing a null user if the user not yet registered
+//TODo check the phone version to accomodate that
+
 class UserRepo implements UserRepoContract {
   static UserApp? _user;
 
@@ -61,6 +64,7 @@ class UserRepo implements UserRepoContract {
     }
 
     return _user!;
+     
   }
 
   Future<UserApp> updateUser(UserApp user) async {
@@ -185,6 +189,7 @@ class UserRepo implements UserRepoContract {
       },
     );
     return "";
+    
   }
 
   Future<void> signInWithCredential({
