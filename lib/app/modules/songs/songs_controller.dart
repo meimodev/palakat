@@ -8,17 +8,17 @@ class SongsController extends GetxController {
   final tecSearch = TextEditingController();
 
   final List<String> songBooks = [
-    "Nanyikanlah Nyanyian Baru Bagi TUHAN (NNBT)",
-    "Kidung Jemaat (KJ)",
-    "Nyanyikanlah Kidung Baru (NKB)",
-    "Dua Sahabat Lama (DSL)",
+    "Nanyikanlah Nyanyian Baru Bagi TUHAN",
+    "Kidung Jemaat",
+    "Nyanyikanlah Kidung Baru",
+    "Dua Sahabat Lama",
   ];
 
   final List<String> searchHints = [
-    "NKB No 2",
-    "Terpujilah Allah",
-    "kami puji dengan riang",
-    "Hatiku percaya",
+    "KJ 234",
+    "Kami Puji Dengan Riang",
+    "Kidung Jemaat 301",
+    "KJ56",
   ];
   late SongRepo songRepo;
 
@@ -45,7 +45,11 @@ class SongsController extends GetxController {
   }
 
   void onPressedCategoryCard(String category) async {
+    songsLoading.value = true;
+    songs = await songRepo.searchSong(category);
     tecSearch.text = category;
+    songsLoading.value = false;
+
   }
 
   void onPressedSongCard(Song song) async {

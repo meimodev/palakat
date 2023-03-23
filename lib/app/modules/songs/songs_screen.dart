@@ -36,6 +36,7 @@ class SongsScreen extends GetView<SongsController> {
             onChangeText: controller.onChangeSearchText,
           ),
           SizedBox(height: Insets.small.h),
+          // TODO show propper UI if the searched songs is not found
           Expanded(
             child: Obx(
               () => AnimatedSwitcher(
