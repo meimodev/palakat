@@ -1,0 +1,1 @@
+export 'news_articles_detail_widget.dart';

@@ -1,0 +1,39 @@
+class RouteParamKey {
+  static const String mainBottomMenu = "mainBottomMenu";
+  static const String formType = 'formType';
+  static const String signUpType = 'signUpType';
+  static const String email = 'email';
+  static const String phone = 'phone';
+  static const String verificationType = 'verificationType';
+  static const String verificationRegisterData = 'verificationRegisterData';
+  static const String verificationLoginPhone = 'verificationLoginPhone';
+  static const String verificationNextDuration = 'verificationNextDuration';
+  static const String addressSearchType = 'addressSearchType';
+  static const String addressLabel = 'addressLabel';
+  static const String address = 'address';
+  static const String latitude = 'latitude';
+  static const String longitude = 'longitude';
+  static const String appointment = 'appointment';
+  static const String rescheduleDateTime = 'rescheduleDateTime';
+  static const String location = 'location';
+  static const String specialist = 'specialist';
+  static const String serial = 'serial';
+  static const String addressOperationType = 'operation';
+  static const String name = 'name';
+  static const String doctor = 'doctor';
+  static const String patient = 'patient';
+  static const String guaranteeType = 'guaranteeType';
+  static const String dateTime = 'dateTime';
+  static const String hospital = 'hospital';
+  static const String specialistSerial = 'specialistSerial';
+  static const String doctorName = 'doctorName';
+  static const String type = 'type';
+  static const String code = 'code';
+  static const String appointmentSerial = 'appointmentSerial';
+  static const String redirectBack = 'redirectBack';
+  static const String selectedOption = "PickupDeliveryOption.none";
+  static const String codeMethod = 'codeMethod';
+  static const String otpProvider = 'otpProvider';
+  static const String activatePatientPortalForm = 'activatePatientPortalForm';
+
+}

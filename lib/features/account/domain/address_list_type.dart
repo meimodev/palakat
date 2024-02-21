@@ -1,0 +1,1 @@
+enum AddressListType { basic, selection }

@@ -1,0 +1,1 @@
+enum AddressSearchType { add, search }

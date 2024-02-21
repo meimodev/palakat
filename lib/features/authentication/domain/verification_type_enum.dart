@@ -1,0 +1,1 @@
+enum VerificationType { login, signup }

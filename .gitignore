@@ -8,6 +8,12 @@
 .buildlog/
 .history
 .svn/
+.env
+
+# Generated File
+*.g.dart
+*.freezed.dart
+*.gen.dart
 
 # IntelliJ related
 *.iml

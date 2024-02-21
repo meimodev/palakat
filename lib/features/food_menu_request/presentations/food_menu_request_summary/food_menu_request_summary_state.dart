@@ -1,0 +1,3 @@
+class FoodMenuRequestSummaryState {
+  const FoodMenuRequestSummaryState();
+}

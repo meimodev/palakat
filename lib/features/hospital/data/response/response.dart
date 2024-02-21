@@ -1,0 +1,11 @@
+export 'doctor_hospital_slot_response.dart';
+export 'doctor_hospital_schedule_response.dart';
+export 'doctor_schedule_response.dart';
+export 'doctor_price_response.dart';
+export 'location_response.dart';
+export 'pagination_with_nearest_response.dart';
+export 'hospital_response.dart';
+export 'doctor_specialist_response.dart';
+export 'doctor_response.dart';
+export 'doctor_content_response.dart';
+export 'doctor_content_education_response.dart';

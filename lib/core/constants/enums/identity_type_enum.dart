@@ -1,0 +1,5 @@
+
+enum IdentityType {
+  ktp,
+  passport
+}

@@ -1,0 +1,1 @@
+enum FoodMenuSegment { patient, companion }
