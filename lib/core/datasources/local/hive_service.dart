@@ -12,24 +12,24 @@ class HiveService {
   final featureSetSource = Hive.box<String>(HiveKey.featureSetBox);
   final tutorialSetSource = Hive.box<bool>(HiveKey.tutorialSetBox);
 
-  UserData? getUser() {
-    final user = userSource.get(HiveKey.user);
-
-    if (user == null) return null;
-
-    return UserData.fromJson(
-      json.decode(user),
-    );
-  }
-
-  Future saveUser(UserData value) async {
-    await userSource.put(
-      HiveKey.user,
-      json.encode(
-        value.toJson(),
-      ),
-    );
-  }
+  // UserData? getUser() {
+  //   final user = userSource.get(HiveKey.user);
+  //
+  //   if (user == null) return null;
+  //
+  //   return UserData.fromJson(
+  //     json.decode(user),
+  //   );
+  // }
+  //
+  // Future saveUser(UserData value) async {
+  //   await userSource.put(
+  //     HiveKey.user,
+  //     json.encode(
+  //       value.toJson(),
+  //     ),
+  //   );
+  // }
 
   Future deleteUser() async {
     await userSource.delete(
@@ -62,22 +62,22 @@ class HiveService {
     );
   }
 
-  AccountSettingData? getAccountSetting() {
-    final accountSetting = accountSettingSource.get(HiveKey.accountSetting);
-
-    if (accountSetting == null) return null;
-
-    return AccountSettingData.fromJson(json.decode(accountSetting));
-  }
-
-  Future setAccountSetting(AccountSettingData value) async {
-    await accountSettingSource.put(
-      HiveKey.accountSetting,
-      json.encode(
-        value.toJson(),
-      ),
-    );
-  }
+  // AccountSettingData? getAccountSetting() {
+  //   final accountSetting = accountSettingSource.get(HiveKey.accountSetting);
+  //
+  //   if (accountSetting == null) return null;
+  //
+  //   return AccountSettingData.fromJson(json.decode(accountSetting));
+  // }
+  //
+  // Future setAccountSetting(AccountSettingData value) async {
+  //   await accountSettingSource.put(
+  //     HiveKey.accountSetting,
+  //     json.encode(
+  //       value.toJson(),
+  //     ),
+  //   );
+  // }
 
   Future deleteAccountSetting() async {
     await accountSettingSource.delete(HiveKey.accountSetting);

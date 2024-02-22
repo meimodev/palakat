@@ -1,3 +1,0 @@
-export 'patient_portal_admission_detail_screen_tab_enum.dart';
-export 'patient_portal_list_active_history_tab_enum.dart';
-export 'patient_portal_outpatient_screen_tab_enum.dart';

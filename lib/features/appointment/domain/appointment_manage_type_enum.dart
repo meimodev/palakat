@@ -1,1 +1,0 @@
-enum AppointmentManageType { personal, callCenter }

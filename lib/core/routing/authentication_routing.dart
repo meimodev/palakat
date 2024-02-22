@@ -1,9 +1,11 @@
 import 'package:go_router/go_router.dart';
+import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
 
 final authenticationRouting = GoRoute(
   path: 'authentication',
-  builder: (context, state) => const MainScreen(),
+  name: AppRoute.authentication,
+  builder: (context, state) => const AuthenticationScreen(),
   routes: const [
 
     // GoRoute(

@@ -1,1 +1,0 @@
-enum PatientPortalAdmissionDetailScreenTabEnum { laboratory, radiology }

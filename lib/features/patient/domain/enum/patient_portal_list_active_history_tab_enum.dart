@@ -1,1 +1,0 @@
-enum PatientPortalListActiveHistoryTab { active, past }
