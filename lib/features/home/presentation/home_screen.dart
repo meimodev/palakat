@@ -56,9 +56,9 @@ class HomeScreen extends ConsumerWidget {
                 allowImplicitScrolling: false,
                 physics: const NeverScrollableScrollPhysics(),
                 controller: state.pageController,
-                children: [
+                children: const [
                   DashboardScreen(),
-                  Text("Second Screen"),
+                  PublishingScreen(),
                   Text("Third"),
                 ],
               ),

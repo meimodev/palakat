@@ -69,6 +69,10 @@ extension XTextStyle on TextStyle {
   TextStyle get toNeutral80 => copyWith(color: BaseColor.neutral[80]);
   TextStyle get toNeutral90 => copyWith(color: BaseColor.neutral[90]);
 
+  TextStyle get toCardBackground1 => copyWith(color: BaseColor.cardBackground1);
+  TextStyle get toCardBackground2 => copyWith(color: BaseColor.cardBackground2);
+
+
   /// [INFO]
   /// Extension for change font size
   ///

@@ -60,18 +60,6 @@ class DashboardScreen extends StatelessWidget {
                 "Title of the article 3 lorem ipsum",
               ],
             ),
-            Gap.h12,
-            //TODO Later the news in the next phase
-            // NewsWidget(
-            //   onPressedViewAll: () {
-            //     print("view all articles");
-            //   },
-            //   data: [
-            //     "Title of the article 1",
-            //     "Title of the article 2",
-            //     "Title of the article 3 lorem ipsum",
-            //   ],
-            // ),
             Gap.h56,
           ],
         ),
