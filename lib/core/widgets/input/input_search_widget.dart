@@ -87,7 +87,7 @@ class InputSearchWidget extends StatelessWidget {
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       onEditingComplete: onEditingComplete,
-      style: BaseTypography.textMRegular.fontColor(BaseColor.neutral.shade70),
+      style: BaseTypography.titleMedium.fontColor(BaseColor.neutral.shade70),
       decoration: InputDecoration(
         fillColor: BaseColor.white,
         filled: true,
@@ -96,7 +96,7 @@ class InputSearchWidget extends StatelessWidget {
         focusedBorder: _border,
         hintText: hint,
         hintStyle:
-            BaseTypography.textMRegular.fontColor(BaseColor.neutral.shade40),
+            BaseTypography.titleMedium.fontColor(BaseColor.neutral.shade40),
         contentPadding: EdgeInsets.zero,
         constraints: constraints ??
             BoxConstraints(

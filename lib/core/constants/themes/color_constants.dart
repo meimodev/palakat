@@ -16,10 +16,13 @@ class BaseColor {
   static const Color primary4 = Color(0xFF28A745);
   static const Color primary5 = Color(0xFF19692C);
 
-  static const Color primaryLight = Color(0xFF1ce372);
+  static const Color cardBackground1 = Color(0xFFEBEBEB);
+  static const Color cardBackground2 = Color(0xFFE9E9E9);
+  static const Color primaryText = Color(0xFF000000);
+  static const Color secondaryText = Color(0xFF929292);
+  static const Color disabled = Color(0xFFD9D9D9);
 
-  static const Color secondary1 = Color(0xFFF4F9FD);
-  static const Color secondary2 = Color(0xFF0D253F);
+  static Color  primaryLight = primary3.withOpacity(.5);
 
   static const MaterialColor neutral = MaterialColor(
     _neutralPrimaryValue,

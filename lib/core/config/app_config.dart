@@ -1,5 +1,3 @@
-import 'package:flutter_config/flutter_config.dart';
-import 'package:palakat/core/utils/utils.dart';
 
 class AppConfig {
 

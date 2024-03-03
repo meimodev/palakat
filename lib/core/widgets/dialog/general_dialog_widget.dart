@@ -31,7 +31,7 @@ Future showGeneralDialogWidget(
     isScrollControlled: true,
     avoidKeyboard: avoidKeyboard,
     content: Padding(
-      padding: horizontalPadding,
+      padding: horizontalScreenPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -45,7 +45,7 @@ Future showGeneralDialogWidget(
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: BaseTypography.heading4Bold.toNeutral80,
+                style: BaseTypography.headlineSmall.toNeutral80,
               ),
             ),
           if (subtitle.isNotNull()) ...[
@@ -57,7 +57,7 @@ Future showGeneralDialogWidget(
               child: Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: BaseTypography.textSRegular.toNeutral60,
+                style: BaseTypography.labelSmall.toNeutral60,
               ),
             ),
           ],

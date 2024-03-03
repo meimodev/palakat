@@ -6,7 +6,7 @@ class SplashController extends StateNotifier<SplashState> {
   SplashController() : super(SplashState());
 
   void init(void Function() onProceed) async {
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 1));
     onProceed();
   }
 }

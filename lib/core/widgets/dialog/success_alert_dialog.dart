@@ -35,13 +35,13 @@ Future showSuccessAlertDialogWidget(
             title,
             textAlign: TextAlign.center,
             style:
-                BaseTypography.textLBold.fontColor(BaseColor.neutral.shade80),
+                BaseTypography.titleMedium.fontColor(BaseColor.neutral.shade80),
           ),
           Gap.h12,
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: BaseTypography.textMRegular
+            style: BaseTypography.headlineSmall
                 .fontColor(BaseColor.neutral.shade60),
           ),
         ]),

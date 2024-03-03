@@ -24,7 +24,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
     controller.init(
       () {
-        context.goNamed(AppRoute.dashboard);
+        context.goNamed(AppRoute.home);
       },
     );
   }
@@ -35,7 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       child: Center(
         child: Text(
           "Splash Screen",
-          style: BaseTypography.textLRegular,
+          style: BaseTypography.headlineSmall,
         ),
       ),
     );

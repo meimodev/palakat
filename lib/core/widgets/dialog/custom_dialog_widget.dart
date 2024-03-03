@@ -48,14 +48,14 @@ Future<T?> showCustomDialogWidget<T>(
     ),
     Gap.h12,
     Padding(
-      padding: horizontalPadding,
+      padding: horizontalScreenPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            style: BaseTypography.heading3SemiBold.toNeutral80,
+            style: BaseTypography.headlineSmall.toNeutral80,
             textAlign: TextAlign.center,
           ),
           if (isDismissible || headerActionIcon != null) ...[
@@ -85,7 +85,7 @@ Future<T?> showCustomDialogWidget<T>(
     if (contentText != null) ...[
       Text(
         contentText,
-        style: BaseTypography.textLRegular,
+        style: BaseTypography.titleMedium,
         textAlign: TextAlign.center,
       ),
       Gap.h24,
@@ -98,7 +98,7 @@ Future<T?> showCustomDialogWidget<T>(
                 children: [
                   Expanded(
                     child: Container(
-                      padding: horizontalPadding,
+                      padding: horizontalScreenPadding,
                       child: Padding(
                         padding: EdgeInsets.only(
                             bottom: BaseSize.h28, top: BaseSize.h16),

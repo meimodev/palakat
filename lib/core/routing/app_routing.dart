@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/config/app_config.dart';
+// import 'package:palakat/core/config/app_config.dart';
 import 'package:palakat/core/routing/routing.dart';
-import 'package:palakat/features/application.dart';
-import 'package:palakat/features/domain.dart';
+// import 'package:palakat/features/application.dart';
+// import 'package:palakat/features/domain.dart';
 import 'package:palakat/features/presentation.dart';
 
 class AppRoute {
@@ -88,6 +88,11 @@ final goRouterProvider = Provider<GoRouter>(
           path: '/',
           name: AppRoute.splash,
           builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: '/home',
+          name: AppRoute.home,
+          builder: (context, state) => const HomeScreen(),
         ),
         GoRoute(
           path: '/dashboard',

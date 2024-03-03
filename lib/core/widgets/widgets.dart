@@ -27,5 +27,12 @@ export 'input/input_multiple_select_widget.dart';
 
 //Card
 export 'card/card_widget.dart';
+export 'card/membership_card_widget.dart';
 
+export 'screen_title/screen_title_widget.dart';
+export 'divider/divider_widget.dart';
+
+export 'segment_title/segment_title.dart';
+
+export 'chips/chips_widget.dart';
 

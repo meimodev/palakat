@@ -7,10 +7,8 @@ extension XTextStyle on TextStyle {
   /// Extension for change text color
   TextStyle get toBlack => copyWith(color: BaseColor.black);
   TextStyle get toWhite => copyWith(color: BaseColor.white);
-  TextStyle get toSecondary1 => copyWith(color: BaseColor.secondary1);
-  TextStyle get toSecondary2 => copyWith(color: BaseColor.secondary2);
   TextStyle get toPrimary => copyWith(color: BaseColor.primary3);
-  TextStyle get toSecondary => copyWith(color: BaseColor.secondary1);
+  TextStyle get toSecondary => copyWith(color: BaseColor.secondaryText);
   TextStyle get toError => copyWith(color: BaseColor.error);
   TextStyle get toInfo => copyWith(color: BaseColor.info);
   TextStyle get toWarning => copyWith(color: BaseColor.warning);
@@ -99,6 +97,9 @@ extension XTextStyle on TextStyle {
   TextStyle get w700 => copyWith(fontWeight: FontWeight.w700);
   TextStyle get w800 => copyWith(fontWeight: FontWeight.w800);
   TextStyle get w900 => copyWith(fontWeight: FontWeight.w900);
+  TextStyle get toBold => copyWith(fontWeight: FontWeight.w700);
+  TextStyle get toRegular => copyWith(fontWeight: FontWeight.w400);
+
 
   /// [INFO]
   /// Extension for change font style and decoration

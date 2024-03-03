@@ -284,8 +284,8 @@ class _InputFormWidgetState extends State<InputFormWidget> {
       },
       style: widget.valueTextStyle ??
           (widget.isInputNumber
-              ? BaseTypography.textLRegular
-              : BaseTypography.textLRegular),
+              ? BaseTypography.headlineSmall
+              : BaseTypography.headlineSmall),
       enabled: widget.isActive,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       readOnly: widget.readOnly,
@@ -332,12 +332,12 @@ class _InputFormWidgetState extends State<InputFormWidget> {
         errorMaxLines: 2,
         errorText: widget.error,
         helperText: widget.helperText,
-        helperStyle: BaseTypography.textSRegular.toNeutral60,
+        helperStyle: BaseTypography.labelSmall.toNeutral60,
         fillColor: Colors.transparent,
         hintText: widget.hintText,
         hintStyle: widget.isInputNumber
-            ? BaseTypography.textLRegular.fontColor(BaseColor.neutral.shade50)
-            : BaseTypography.textLRegular.fontColor(BaseColor.neutral.shade50),
+            ? BaseTypography.headlineSmall.fontColor(BaseColor.neutral.shade50)
+            : BaseTypography.headlineSmall.fontColor(BaseColor.neutral.shade50),
         enabledBorder: _underlineInputBorder(
           color: BaseColor.neutral.shade20,
         ),
@@ -411,13 +411,13 @@ class _InputFormWidgetState extends State<InputFormWidget> {
             children: [
               Text(
                 widget.label.toString(),
-                style: BaseTypography.textMRegular
+                style: BaseTypography.bodyMedium
                     .fontColor(BaseColor.neutral.shade60),
               ),
               if (widget.isImportant)
                 Text(
                   '*',
-                  style: BaseTypography.textLRegular.toRed500,
+                  style: BaseTypography.titleMedium.toRed500,
                 ),
             ],
           ),
@@ -426,7 +426,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
         if (widget.description != null) ...[
           Text(
             widget.description.toString(),
-            style: widget.descriptionStyle ?? BaseTypography.bodyRegular,
+            style: widget.descriptionStyle ?? BaseTypography.displayLarge,
           ),
           Gap.h8,
         ],
@@ -438,7 +438,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
                 padding: const EdgeInsets.only(top: 12.3),
                 child: Text(
                   widget.outsidePrefix.toString(),
-                  style: BaseTypography.textLRegular,
+                  style: BaseTypography.titleMedium,
                 ),
               ),
               Gap.w12,
@@ -489,7 +489,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
           ),
           child: Text(
             widget.prefix ?? "",
-            style: BaseTypography.textMRegular,
+            style: BaseTypography.titleMedium,
           ),
         ),
       );

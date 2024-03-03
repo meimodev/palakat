@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:palakat/core/utils/utils.dart';
 
+enum ScreenDensity { ldpi, mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi }
+
 // [INFO]
 // Constant for sizes to be used in the app with respecting 8 pixel rules
 class BaseSize {
@@ -25,6 +27,9 @@ class BaseSize {
   static final w72 = 72.0.w;
   static final w80 = 80.0.w;
   static final w96 = 96.0.w;
+  static final w6 = 6.0.w;
+  static var w3 = 3.0.w;
+
 
   // [INFO]
   // Sizes that related with height
@@ -46,18 +51,25 @@ class BaseSize {
   static final h72 = 72.0.h;
   static final h80 = 80.0.h;
   static final h96 = 96.0.h;
+  static final h6 = 6.0.h;
+
 
   // [INFO]
   // Sizes that related with radius
   static final radiusSm = 6.r;
-  static final radiusMd = 8.r;
-  static final radiusLg = 10.r;
+  static final radiusMd = 12.r;
+  static final radiusLg = 24.r;
+
+
 
   /// [INFO]
   /// Sizes for custom width or height outside the 8 pixel rules
   static customWidth(double value) => value.w;
+
   static customHeight(double value) => value.h;
+
   static customRadius(double value) => value.r;
+
   static customFontSize(double value) => value.sp;
 }
 
@@ -83,6 +95,9 @@ class Gap {
   static final w72 = SizedBox(width: BaseSize.w72);
   static final w80 = SizedBox(width: BaseSize.w80);
 
+  static final w3 = SizedBox(width: BaseSize.w3);
+
+
   /// [INFO]
   /// Gaps that related with height
   static final h4 = SizedBox(height: BaseSize.h4);
@@ -102,9 +117,13 @@ class Gap {
   static final h72 = SizedBox(height: BaseSize.h72);
   static final h80 = SizedBox(height: BaseSize.h80);
 
+  static final h6 = SizedBox(height: BaseSize.h6);
+
+
   /// [INFO]
   /// Gaps for custom width or height outside the 8 pixel rules
   static customGapWidth(double value) => SizedBox(width: value.w);
+
   static customGapHeight(double value) => SizedBox(height: value.h);
 
   /// [INFO]
@@ -115,10 +134,6 @@ class Gap {
   }
 }
 
-final horizontalPadding = EdgeInsets.symmetric(
-  horizontal: BaseSize.w16,
-);
-
-final horizontalPaddingSmall = EdgeInsets.symmetric(
+final horizontalScreenPadding = EdgeInsets.symmetric(
   horizontal: BaseSize.w12,
 );

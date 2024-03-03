@@ -1,3 +1,8 @@
+//Home
+export 'home/presentation/home_screen.dart';
+export 'home/presentation/home_controller.dart';
+export 'home/presentation/home_state.dart';
+
 //Account
 export 'account/presentations/account_screen.dart';
 export 'account/presentations/account_controller.dart';

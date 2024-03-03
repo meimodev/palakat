@@ -20,10 +20,12 @@ class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-  final router = ref.read(goRouterProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.read(goRouterProvider);
     return ScreenUtilInit(
-      designSize: const Size(360, 800),
+      designSize: const Size(360, 640), // Your design dimensions
+      // designSize: const Size(390, 844),
+      ensureScreenSize: true,
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp.router(
@@ -37,4 +39,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-

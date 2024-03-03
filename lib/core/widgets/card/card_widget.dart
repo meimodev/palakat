@@ -73,7 +73,7 @@ class CardWidget extends StatelessWidget {
                       child: Text(
                         title ?? '',
                         style: titleStyle ??
-                            BaseTypography.textMSemiBold.toNeutral80,
+                            BaseTypography.titleMedium.toNeutral80,
                       ),
                     ),
                     postFixWidget ?? const SizedBox(),

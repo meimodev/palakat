@@ -9,11 +9,6 @@ class BaseTheme {
   static ThemeData appTheme = ThemeData(
     scaffoldBackgroundColor: BaseColor.neutral.shade0,
     fontFamily: FontFamily.openSans,
-    colorScheme: const ColorScheme.light(
-      background: Colors.white,
-      primary: BaseColor.primary3,
-      secondary: BaseColor.secondary2,
-    ),
     primaryColor: BaseColor.primary3,
     appBarTheme: const AppBarTheme(
       elevation: 0,

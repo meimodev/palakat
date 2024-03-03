@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/utils/extensions/extension.dart';
 
 enum _ButtonType {
   primary,
@@ -94,14 +95,14 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// if isEnabled null, it will check if the onTap null or not. if null, it will be Disabled
   const ButtonWidget.primary(
-      {Key? key,
+      {super.key,
       required this.text,
       this.icon,
       bool? isEnabled,
       this.textColor = BaseColor.white,
       this.color = BaseColor.primary3,
       this.focusColor = BaseColor.primary2,
-      this.overlayColor = BaseColor.primaryLight,
+      this.overlayColor = BaseColor.primary2,
       this.onTap,
       this.isShrink = false,
       this.buttonSize = ButtonSize.medium,
@@ -115,8 +116,7 @@ class ButtonWidget extends StatelessWidget {
       : _isEnabled = isEnabled ?? onTap != null ? true : false,
         _buttonType = _ButtonType.primary,
         _isIconOnly = false,
-        outlineColor = null,
-        super(key: key);
+        outlineColor = null;
 
   /// [INFO] : Button Primary Icon
   ///
@@ -124,13 +124,13 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// if isEnabled null, it will check if the onTap null or not. if null, it will be Disabled
   const ButtonWidget.primaryIcon(
-      {Key? key,
+      {super.key,
       required this.icon,
       bool? isEnabled,
       this.textColor = BaseColor.white,
       this.color = BaseColor.primary3,
       this.focusColor = BaseColor.primary2,
-      this.overlayColor = BaseColor.primaryLight,
+      this.overlayColor = BaseColor.primary2,
       this.onTap,
       this.buttonSize = ButtonSize.medium,
       this.isLoading = false,
@@ -145,8 +145,7 @@ class ButtonWidget extends StatelessWidget {
         _isIconOnly = true,
         isShrink = true,
         isIconLeading = true,
-        outlineColor = null,
-        super(key: key);
+        outlineColor = null;
 
   /// [INFO] : Button Outlined
   ///
@@ -154,7 +153,7 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// if isEnabled null, it will check if the onTap null or not. if null, it will be Disabled
   const ButtonWidget.outlined(
-      {Key? key,
+      {super.key,
       required this.text,
       this.icon,
       bool? isEnabled,
@@ -175,8 +174,7 @@ class ButtonWidget extends StatelessWidget {
       : _isEnabled = isEnabled ?? onTap != null ? true : false,
         _buttonType = _ButtonType.outlined,
         _isIconOnly = false,
-        color = BaseColor.transparent,
-        super(key: key);
+        color = BaseColor.transparent;
 
   /// [INFO] : Button Outlined Icon
   ///
@@ -186,7 +184,7 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// `isIconOnly = true` because it only use icon, and then there's no text params
   const ButtonWidget.outlinedIcon(
-      {Key? key,
+      {super.key,
       required this.icon,
       bool? isEnabled,
       this.onTap,
@@ -207,8 +205,7 @@ class ButtonWidget extends StatelessWidget {
         _isIconOnly = true,
         isShrink = true,
         isIconLeading = true,
-        color = BaseColor.transparent,
-        super(key: key);
+        color = BaseColor.transparent;
 
   /// [INFO] : Button Text
   ///
@@ -217,7 +214,7 @@ class ButtonWidget extends StatelessWidget {
   /// if isEnabled null, it will check if the onTap null or not. if null,
   /// it will be Disabled
   const ButtonWidget.text(
-      {Key? key,
+      {super.key,
       required this.text,
       bool? isEnabled,
       this.icon,
@@ -238,8 +235,7 @@ class ButtonWidget extends StatelessWidget {
         _isIconOnly = false,
         isShrink = true,
         outlineColor = null,
-        color = BaseColor.white,
-        super(key: key);
+        color = BaseColor.white;
 
   /// [INFO] : Button Text Icon
   ///
@@ -248,7 +244,7 @@ class ButtonWidget extends StatelessWidget {
   /// if isEnabled null, it will check if the onTap null or not. if null,
   /// it will be Disabled
   const ButtonWidget.textIcon(
-      {Key? key,
+      {super.key,
       required this.icon,
       bool? isEnabled,
       this.onTap,
@@ -269,8 +265,7 @@ class ButtonWidget extends StatelessWidget {
         isShrink = true,
         isIconLeading = true,
         outlineColor = null,
-        color = BaseColor.white,
-        super(key: key);
+        color = BaseColor.white;
 
   /// [INFO] GET BORDER
   ///
@@ -286,14 +281,14 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// getTextStyle function is to get textstyle for button for every size
   TextStyle? _getTextStyle() {
-    TextStyle typography = BaseTypography.textMSemiBold;
+    TextStyle typography = BaseTypography.headlineSmall.toBold;
 
     if (buttonSize == ButtonSize.large) {
-      typography = BaseTypography.textLSemiBold;
+      typography = BaseTypography.headlineSmall.toBold;
     } else if (buttonSize == ButtonSize.medium) {
-      typography = BaseTypography.textMBold;
+      typography = BaseTypography.titleMedium.toBold;
     } else if (buttonSize == ButtonSize.small) {
-      typography = BaseTypography.textSBold;
+      typography = BaseTypography.labelSmall.toBold;
     }
 
     if (!_isEnabled) {
