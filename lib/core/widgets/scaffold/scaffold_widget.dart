@@ -9,6 +9,7 @@ class ScaffoldWidget extends StatelessWidget {
     this.resizeToAvoidBottomInset = false,
     this.backgroundColor,
     this.bottomNavigationBar,
+    this.disableSingleChildScrollView = false,
   });
 
   final Widget child;
@@ -16,6 +17,7 @@ class ScaffoldWidget extends StatelessWidget {
   final bool resizeToAvoidBottomInset;
   final Color? backgroundColor;
   final Widget? bottomNavigationBar;
+  final bool disableSingleChildScrollView ;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,17 @@ class ScaffoldWidget extends StatelessWidget {
             left: BaseSize.w12,
             right: BaseSize.w12,
           ),
-          child: child,
+          child: disableSingleChildScrollView ? child
+              :  SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Gap.h48,
+                child,
+                Gap.h56,
+              ],
+            ),
+          ),
         ),
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,

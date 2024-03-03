@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
+import 'package:palakat/core/widgets/divider/divider_widget.dart';
 
 class InputFormWidget extends StatefulWidget {
   const InputFormWidget({
@@ -25,7 +26,7 @@ class InputFormWidget extends StatefulWidget {
     this.helperText,
     this.error,
     this.hasBorderState = true,
-    this.outsidePrefix,
+    // this.outsidePrefix,
     this.prefix,
     this.prefixIcon,
     this.suffixIcon,
@@ -43,6 +44,7 @@ class InputFormWidget extends StatefulWidget {
     this.descriptionStyle,
     this.valueTextStyle,
     this.counterTextStyle,
+    this.backgroundColor,
   })  : isObscure = false,
         onObscureTap = null,
         hasIconState = validator == null ? false : hasIconState,
@@ -68,7 +70,7 @@ class InputFormWidget extends StatefulWidget {
     this.maxLength,
     this.hasBorderState = true,
     this.prefix,
-    this.outsidePrefix,
+    // this.outsidePrefix,
     this.isInputNumber = false,
     this.description,
     this.isNpwpFormat = false,
@@ -81,6 +83,7 @@ class InputFormWidget extends StatefulWidget {
     this.valueTextStyle,
     this.counterTextStyle,
     this.prefixIcon,
+    this.backgroundColor,
   })  : hasIconState = false,
         onBodyTap = null,
         readOnly = false,
@@ -112,7 +115,7 @@ class InputFormWidget extends StatefulWidget {
     this.error,
     this.hasBorderState = true,
     this.prefix,
-    this.outsidePrefix,
+    // this.outsidePrefix,
     this.isInputNumber = false,
     this.suffixIcon,
     this.description,
@@ -126,6 +129,7 @@ class InputFormWidget extends StatefulWidget {
     this.valueTextStyle,
     this.counterTextStyle,
     this.prefixIcon,
+    this.backgroundColor,
   })  : isObscure = false,
         onObscureTap = null,
         readOnly = true,
@@ -164,6 +168,7 @@ class InputFormWidget extends StatefulWidget {
     this.valueTextStyle,
     this.counterTextStyle,
     this.prefixIcon,
+    this.backgroundColor,
   })  : isObscure = false,
         onObscureTap = null,
         hasIconState = validator == null ? false : hasIconState,
@@ -171,7 +176,7 @@ class InputFormWidget extends StatefulWidget {
         readOnly = false,
         isDropdown = false,
         prefix = "IDR",
-        outsidePrefix = null,
+        // outsidePrefix = null,
         isIdrFormatted = true,
         keyboardType = TextInputType.number,
         isInputNumber = true;
@@ -194,7 +199,9 @@ class InputFormWidget extends StatefulWidget {
   final bool isDropdown;
   final int? maxLength;
   final int? maxLines;
-  final String? outsidePrefix;
+  final Color? backgroundColor;
+
+  // final String? outsidePrefix;
   final String? prefix;
   final Widget? suffixIcon;
   final bool clearBorder;
@@ -267,7 +274,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
       enableInteractiveSelection: !widget.isIdrFormatted,
       scrollPadding: widget.scrollPadding ?? const EdgeInsets.all(20.0),
       keyboardType: widget.keyboardType,
-      cursorColor: BaseColor.neutral.shade40,
+      cursorColor: BaseColor.secondaryText,
       key: InputFormWidget.inputFormTextFormFieldKey,
       validator: (value) {
         final isValid = widget.validator?.call(value);
@@ -282,10 +289,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
 
         return widget.hasValidateMessage ? isValid : null;
       },
-      style: widget.valueTextStyle ??
-          (widget.isInputNumber
-              ? BaseTypography.headlineSmall
-              : BaseTypography.headlineSmall),
+      style: widget.valueTextStyle ?? BaseTypography.titleMedium,
       enabled: widget.isActive,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       readOnly: widget.readOnly,
@@ -325,19 +329,18 @@ class _InputFormWidgetState extends State<InputFormWidget> {
       maxLength: widget.maxLength,
       controller: widget.controller,
       decoration: InputDecoration(
-        prefixIcon: widget.prefixIcon ?? _getPrefixIDR(),
-        prefixIconConstraints: BoxConstraints(
-          minWidth: BaseSize.w56,
-        ),
+        prefixIcon:
+            _buildPrefixIcon(child: widget.prefixIcon) ?? _getPrefixIDR(),
+        // prefixIconConstraints: BoxConstraints(
+        //   minWidth: BaseSize.w48,
+        // ),
         errorMaxLines: 2,
         errorText: widget.error,
         helperText: widget.helperText,
         helperStyle: BaseTypography.labelSmall.toNeutral60,
-        fillColor: Colors.transparent,
+        fillColor: Colors.blue,
         hintText: widget.hintText,
-        hintStyle: widget.isInputNumber
-            ? BaseTypography.headlineSmall.fontColor(BaseColor.neutral.shade50)
-            : BaseTypography.headlineSmall.fontColor(BaseColor.neutral.shade50),
+        hintStyle: BaseTypography.titleMedium.toSecondary,
         enabledBorder: _underlineInputBorder(
           color: BaseColor.neutral.shade20,
         ),
@@ -430,22 +433,9 @@ class _InputFormWidgetState extends State<InputFormWidget> {
           ),
           Gap.h8,
         ],
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (widget.outsidePrefix != null) ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 12.3),
-                child: Text(
-                  widget.outsidePrefix.toString(),
-                  style: BaseTypography.titleMedium,
-                ),
-              ),
-              Gap.w12,
-            ],
-            Expanded(child: _getFormField),
-          ],
-        ),
+        _buildBackground(
+          child: _getFormField,
+        )
       ],
     );
   }
@@ -496,6 +486,42 @@ class _InputFormWidgetState extends State<InputFormWidget> {
     } else {
       return null;
     }
+  }
+
+  Widget _buildBackground({
+    required Widget child,
+  }) {
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+          BaseSize.radiusMd,
+        ),
+        color: widget.backgroundColor ?? BaseColor.cardBackground1,
+      ),
+      child: child,
+    );
+  }
+
+  _buildPrefixIcon({Widget? child}) {
+    if (child == null) {
+      return null;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Gap.w12,
+        child,
+        Gap.w12,
+        DividerWidget(
+          axis: Axis.vertical,
+          width: BaseSize.w2,
+          height: BaseSize.w24,
+        ),
+        Gap.w12,
+      ],
+    );
   }
 }
 

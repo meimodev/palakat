@@ -12,10 +12,8 @@ class HomeController extends _$HomeController {
   }
 
   void navigateTo(int index) async {
-    await state.pageController.animateToPage(
+    state.pageController.jumpToPage(
       index,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOutCubic,
     );
     state = state.copyWith(selectedBottomNavIndex: index);
   }

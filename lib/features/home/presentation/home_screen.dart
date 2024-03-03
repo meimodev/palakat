@@ -13,12 +13,7 @@ class HomeScreen extends ConsumerWidget {
     final state = ref.watch(homeControllerProvider);
 
     return ScaffoldWidget(
-      // bottomNavigationBar: BottomNavBar(
-      //   currentIndex: state.selectedBottomNavIndex,
-      //   onPressedItem: (index) {
-      //     controller.navigateTo(index);
-      //   },
-      // ),
+      disableSingleChildScrollView: true,
       child: WillPopScope(
         onWillPop: () async {
           if (state.selectedBottomNavIndex != 0) {
@@ -59,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
                 children: const [
                   DashboardScreen(),
                   PublishingScreen(),
-                  Text("Third"),
+                  SongBookScreen(),
                 ],
               ),
             ),
