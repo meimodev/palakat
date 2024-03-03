@@ -24,7 +24,7 @@ class BottomNavBar extends ConsumerWidget {
             onPressedItem(0);
           },
           activated: currentIndex == 0,
-          icon: Assets.icons.line.home,
+          icon: Assets.icons.line.gridOutline,
         ),
         Gap.w48,
         BottomNavBarItem(
@@ -32,7 +32,7 @@ class BottomNavBar extends ConsumerWidget {
             onPressedItem(1);
           },
           activated: currentIndex == 1,
-          icon: Assets.icons.line.hospital,
+          icon: Assets.icons.line.globeOutline,
         ),
         Gap.w48,
         BottomNavBarItem(
@@ -40,7 +40,7 @@ class BottomNavBar extends ConsumerWidget {
             onPressedItem(2);
           },
           activated: currentIndex == 2,
-          icon: Assets.icons.line.home,
+          icon: Assets.icons.line.musicalNotes,
         ),
       ],
     );
