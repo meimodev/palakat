@@ -30,14 +30,16 @@ class BottomNavBarItem extends StatelessWidget {
           vertical: activated ? BaseSize.customWidth(14) : BaseSize.w12,
         ),
         decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: BaseColor.cardBackground1.withOpacity(.5),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: const Offset(2, 2),
-            ),
-          ],
+          boxShadow: activated
+              ? const []
+              : [
+                  BoxShadow(
+                    color: BaseColor.black.withOpacity(.125),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(10, 10),
+                  ),
+                ],
           color: activated ? BaseColor.primaryText : BaseColor.cardBackground1,
           shape: BoxShape.circle,
         ),
