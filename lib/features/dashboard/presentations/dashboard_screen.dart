@@ -13,12 +13,20 @@ class DashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget(
+          const ScreenTitleWidget.titleOnly(
             title: "Dashboard",
-            variant: ScreenTitleWidgetVariant.titleOnly,
           ),
           Gap.h12,
-          const MembershipCardWidget(),
+          MembershipCardWidget(
+            variant: MembershipCardWidgetVariant.unsigned,
+            title: "Some Very Long Sting for",
+            subTitle: "Subtitle of the card",
+            bipra: "AAA",
+            onPressedCard: () {
+              print("Card Pressed");
+            },
+            columnNumber: '90',
+          ),
           Gap.h24,
           ActivityWidget(
             onPressedViewAll: () {
@@ -33,7 +41,23 @@ class DashboardScreen extends StatelessWidget {
               'act6',
               'act7',
             ],
-            height: BaseSize.customWidth(100),
+            cardsHeight: BaseSize.customWidth(100),
+            onPressedCardDatePreview: () async {
+              await showDialogPreviewDayActivitiesWidget(
+                context: context,
+                data: [
+                  {"title": "This is the activity type", "type": "type1"},
+                  {"title": "This is the activity type", "type": "type2"},
+                  {"title": "This is the activity type", "type": "type3"},
+                  {"title": "This is the activity type", "type": "type4"},
+                  {"title": "This is the activity type", "type": "type5"},
+                  {"title": "This is the activity type", "type": "type6"},
+                  {"title": "This is the activity type", "type": "type7"},
+                ],
+                onPressedConfirm: () {},
+                title: 'Mon, 25 Jan',
+              );
+            },
           ),
           Gap.h12,
           AnnouncementWidget(

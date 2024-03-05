@@ -23,7 +23,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(goRouterProvider);
     return ScreenUtilInit(
-      designSize: const Size(360, 640), // Your design dimensions
+      designSize: const Size(360, 640),
       // designSize: const Size(390, 844),
       ensureScreenSize: true,
       minTextAdapt: true,

@@ -27,9 +27,8 @@ class SongBookScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget(
+          const ScreenTitleWidget.titleOnly(
             title: "Song Book",
-            variant: ScreenTitleWidgetVariant.titleOnly,
           ),
           Gap.h24,
           InputFormWidget(

@@ -9,41 +9,69 @@ class CardAnnouncementWidget extends StatelessWidget {
     super.key,
     required this.title,
     required this.onPressedCard,
+    required this.onPressedDownload,
   });
 
   final String title;
   final VoidCallback onPressedCard;
+  final VoidCallback onPressedDownload;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      onTap: onPressedCard,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w12,
-          vertical: BaseSize.h12,
-        ),
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        ),
-        child: Row(
-          children: [
-            Assets.icons.line.document.svg(
-              width: BaseSize.customFontSize(12),
-              height: BaseSize.customFontSize(12),
-              colorFilter: BaseColor.secondaryText.filterSrcIn,
-            ),
-            Gap.w12,
-            Expanded(
-              child: Text(
-                title,
-                style: BaseTypography.bodySmall,
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: onPressedCard,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: BaseSize.w12,
+                top: BaseSize.h12,
+                bottom: BaseSize.h12,
+              ),
+              decoration: BoxDecoration(
+                color: BaseColor.cardBackground1,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(BaseSize.radiusMd),
+                  bottomLeft: Radius.circular(BaseSize.radiusMd),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Assets.icons.line.document.svg(
+                    width: BaseSize.customFontSize(12),
+                    height: BaseSize.customFontSize(12),
+                    colorFilter: BaseColor.secondaryText.filterSrcIn,
+                  ),
+                  Gap.w12,
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: BaseTypography.bodySmall,
+                    ),
+                  ),
+                  Gap.w12,
+                ],
               ),
             ),
-            Gap.w12,
-            Row(
+          ),
+        ),
+        InkWell(
+          onTap: onPressedDownload,
+          child: Container(
+            padding: EdgeInsets.only(
+              right: BaseSize.w12,
+              top: BaseSize.h12,
+              bottom: BaseSize.h12,          ),
+            decoration: BoxDecoration(
+              color: BaseColor.cardBackground1,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(BaseSize.radiusMd),
+                bottomLeft: Radius.circular(BaseSize.radiusMd),
+              ),
+
+            ),
+            child: Row(
               children: [
                 DividerWidget(
                   color: BaseColor.primaryText,
@@ -57,10 +85,10 @@ class CardAnnouncementWidget extends StatelessWidget {
                   colorFilter: BaseColor.primaryText.filterSrcIn,
                 ),
               ],
-            )
-          ],
-        ),
-      ),
+            ),
+          ),
+        )
+      ],
     );
   }
 }

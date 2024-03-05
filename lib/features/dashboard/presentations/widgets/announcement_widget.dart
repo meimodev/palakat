@@ -30,9 +30,13 @@ class AnnouncementWidget extends StatelessWidget {
               bottom: BaseSize.h6,
             ),
             child: CardAnnouncementWidget(
-              title: e, onPressedCard: () {
+              title: e,
+              onPressedCard: () {
                 print(e);
-            },
+              },
+              onPressedDownload: () {
+                print('Download');
+              },
             ),
           ),
         ),
@@ -40,4 +44,3 @@ class AnnouncementWidget extends StatelessWidget {
     );
   }
 }
-

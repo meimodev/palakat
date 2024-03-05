@@ -3,25 +3,31 @@ import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
 
-enum ScreenTitleWidgetVariant { titleOnly }
-
 class ScreenTitleWidget extends StatelessWidget {
-  const ScreenTitleWidget({
+  const ScreenTitleWidget.titleOnly({
     super.key,
     required this.title,
-    this.variant,
-    this.leadIcon,
-    this.leadIconColor,
-    this.onPressedLeadIcon,
-    this.trailIcon,
-    this.trailIconColor,
-    this.onPressedTrailIcon,
-    this.subTitle,
-  });
+  })  : subTitle = null,
+        leadIcon = null,
+        leadIconColor = null,
+        onPressedLeadIcon = null,
+        trailIcon = null,
+        trailIconColor = null,
+        onPressedTrailIcon = null;
+
+  const ScreenTitleWidget.bottomSheet({
+    super.key,
+    required this.title,
+    required this.trailIcon,
+    required this.trailIconColor,
+    required this.onPressedTrailIcon,
+  })  : subTitle = null,
+        leadIcon = null,
+        leadIconColor = null,
+        onPressedLeadIcon = null;
 
   final String title;
   final String? subTitle;
-  final ScreenTitleWidgetVariant? variant;
 
   final SvgGenImage? leadIcon;
   final Color? leadIconColor;
@@ -34,7 +40,7 @@ class ScreenTitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSize = BaseSize.w24;
-    if (variant == ScreenTitleWidgetVariant.titleOnly) {
+    if (leadIcon == null && trailIcon == null) {
       return Text(
         title,
         style: BaseTypography.headlineLarge,
@@ -43,21 +49,21 @@ class ScreenTitleWidget extends StatelessWidget {
     }
     return Row(
       mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (leadIcon != null)
-          buildIcon(
-            icon: leadIcon!,
-            iconColor: leadIconColor ?? Colors.transparent,
-            iconSize: iconSize,
-            onPressedIcon: onPressedLeadIcon,
-          ),
+        buildIcon(
+          icon: leadIcon ?? Assets.icons.line.close,
+          iconColor: leadIconColor ?? Colors.transparent,
+          iconSize: iconSize,
+          onPressedIcon: leadIcon != null ?  onPressedLeadIcon! : null,
+        ),
         Gap.w24,
         Expanded(
           child: Column(
             children: [
               Text(
                 title,
-                style: BaseTypography.headlineLarge,
+                style: BaseTypography.headlineSmall,
               ),
               if (subTitle != null)
                 Text(
@@ -68,13 +74,12 @@ class ScreenTitleWidget extends StatelessWidget {
           ),
         ),
         Gap.w24,
-        if (trailIcon != null)
-          buildIcon(
-            icon: trailIcon!,
-            iconColor: trailIconColor ?? Colors.transparent,
-            iconSize: iconSize,
-            onPressedIcon: onPressedTrailIcon,
-          ),
+        buildIcon(
+          icon: trailIcon ?? Assets.icons.line.close,
+          iconColor: trailIconColor ?? Colors.transparent,
+          iconSize: iconSize,
+          onPressedIcon: trailIcon != null ?  onPressedTrailIcon! : null,
+        ),
       ],
     );
   }

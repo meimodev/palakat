@@ -37,7 +37,7 @@ class ScaffoldWidget extends StatelessWidget {
               children: [
                 Gap.h48,
                 child,
-                Gap.h56,
+                Gap.h64,
               ],
             ),
           ),

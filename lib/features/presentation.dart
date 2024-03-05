@@ -22,6 +22,8 @@ export 'dashboard/presentations/dashboard_state.dart';
 export 'publishing/presentations/publishing_controller.dart';
 export 'publishing/presentations/publishing_screen.dart';
 export 'publishing/presentations/publishing_state.dart';
+export 'publishing/presentations/widgets/widgets.dart';
+
 
 //Song Book
 export 'song_book/presentations/song_book_controller.dart';

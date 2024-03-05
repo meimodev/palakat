@@ -13,9 +13,8 @@ class PublishingScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget(
+          const ScreenTitleWidget.titleOnly(
             title: "Publishing",
-            variant: ScreenTitleWidgetVariant.titleOnly,
           ),
           Gap.h12,
           PublishingOperationsListWidget(

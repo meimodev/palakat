@@ -8,13 +8,15 @@ class ActivityWidget extends StatelessWidget {
   const ActivityWidget({
     super.key,
     required this.onPressedViewAll,
-    required this.height,
+    required this.cardsHeight,
     required this.activities,
+    required this.onPressedCardDatePreview,
   });
 
   final void Function() onPressedViewAll;
   final List<String> activities;
-  final double height;
+  final double cardsHeight;
+  final VoidCallback onPressedCardDatePreview;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class ActivityWidget extends StatelessWidget {
         ),
         Gap.h6,
         SizedBox(
-          height: height,
+          height: cardsHeight,
           child: ListView.separated(
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
@@ -39,9 +41,7 @@ class ActivityWidget extends StatelessWidget {
               width: 80,
               date: index + 1,
               selected: index == 1,
-              onPressedCardDatePreview: () {
-                print("date preview $index");
-              },
+              onPressedCardDatePreview: onPressedCardDatePreview,
             ),
           ),
         ),
