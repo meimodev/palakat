@@ -1,7 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
-import 'package:palakat/core/widgets/widgets.dart';
 
 Future showGeneralDialogWidget(
   BuildContext context,
