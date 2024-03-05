@@ -32,7 +32,7 @@ Future<T?> showCustomDialogWidget<T>({
           Gap.h24,
           ScreenTitleWidget.bottomSheet(
             title: title,
-            trailIcon: Assets.icons.line.close,
+            trailIcon: Assets.icons.line.times,
             trailIconColor: BaseColor.primaryText,
             onPressedTrailIcon: () {
               if (onPopBottomSheet != null) {

@@ -52,7 +52,7 @@ class ScreenTitleWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildIcon(
-          icon: leadIcon ?? Assets.icons.line.close,
+          icon: leadIcon ?? Assets.icons.line.times,
           iconColor: leadIconColor ?? Colors.transparent,
           iconSize: iconSize,
           onPressedIcon: leadIcon != null ?  onPressedLeadIcon! : null,
@@ -75,7 +75,7 @@ class ScreenTitleWidget extends StatelessWidget {
         ),
         Gap.w24,
         buildIcon(
-          icon: trailIcon ?? Assets.icons.line.close,
+          icon: trailIcon ?? Assets.icons.line.times,
           iconColor: trailIconColor ?? Colors.transparent,
           iconSize: iconSize,
           onPressedIcon: trailIcon != null ?  onPressedTrailIcon! : null,

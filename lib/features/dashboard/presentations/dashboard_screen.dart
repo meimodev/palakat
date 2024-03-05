@@ -18,7 +18,7 @@ class DashboardScreen extends StatelessWidget {
           ),
           Gap.h12,
           MembershipCardWidget(
-            variant: MembershipCardWidgetVariant.unsigned,
+            variant: MembershipCardWidgetVariant.signed,
             title: "Some Very Long Sting for",
             subTitle: "Subtitle of the card",
             bipra: "AAA",

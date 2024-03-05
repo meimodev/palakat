@@ -39,6 +39,7 @@ class CardDatePreviewWidget extends StatelessWidget {
           ),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "SUN",

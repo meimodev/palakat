@@ -16,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
       disableSingleChildScrollView: true,
       child: WillPopScope(
         onWillPop: () async {
+          print("Will Pop scope");
           if (state.selectedBottomNavIndex != 0) {
             controller.navigateTo(0);
             return Future.value(false);

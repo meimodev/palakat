@@ -44,7 +44,7 @@ class CardArticlesWidget extends StatelessWidget {
                     .map(
                       (e) => ChipsWidget(
                         title: e,
-                        icon: Assets.icons.line.hospital,
+                        icon: Assets.icons.line.trash,
                       ),
                     )
                     .toList(),
