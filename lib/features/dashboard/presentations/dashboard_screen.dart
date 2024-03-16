@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
@@ -59,9 +61,7 @@ class DashboardScreen extends StatelessWidget {
                         (index) => ActivityOverview(
                           id: "id $index",
                           title: "Activity Title $index",
-                          type: index % 2 == 0
-                              ? ActivityType.service
-                              : ActivityType.announcement,
+                          type: ActivityType.values[Random().nextInt(ActivityType.values.length)],
                         ),
                       ),
                       onPressedCardActivity: (activityOverview) {

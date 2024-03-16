@@ -2,14 +2,20 @@ enum ActivityType {
   service,
   event,
   announcement,
-  articles,
+  // articles,
 }
 
 enum Bipra {
-  general,
-  fathers,
-  mothers,
-  youths,
-  teens,
-  kids,
+  general("Jemaat","JMT"),
+  fathers("Pria / Kaum Bapa","PKB"),
+  mothers("Wanita / Kaum Ibu","WKI"),
+  youths("Pemuda","PMD"),
+  teens("Remaja","RMJ"),
+  kids("Anak Sekolah Minggu","ASM"),;
+
+  const Bipra(this.name, this.abv);
+
+  final String name;
+  final String abv;
+
 }

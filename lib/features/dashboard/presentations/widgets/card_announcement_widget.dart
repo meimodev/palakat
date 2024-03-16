@@ -38,7 +38,7 @@ class CardAnnouncementWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Assets.icons.line.document.svg(
+                  Assets.icons.line.documentOutline.svg(
                     width: BaseSize.customFontSize(12),
                     height: BaseSize.customFontSize(12),
                     colorFilter: BaseColor.secondaryText.filterSrcIn,

@@ -10,7 +10,8 @@ class ScreenTitleWidget extends StatelessWidget {
     required this.leadIcon,
     required this.leadIconColor,
     required this.onPressedLeadIcon,
-  })  : subTitle = null,
+    this.subTitle,
+  }):
         trailIcon = null,
         trailIconColor = null,
         onPressedTrailIcon = null;
@@ -79,7 +80,8 @@ class ScreenTitleWidget extends StatelessWidget {
               if (subTitle != null)
                 Text(
                   subTitle!,
-                  style: BaseTypography.headlineLarge,
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.titleMedium,
                 ),
             ],
           ),

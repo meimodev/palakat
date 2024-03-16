@@ -25,6 +25,9 @@ export 'input/input_widget.dart';
 export 'input/input_search_widget.dart';
 export 'input/input_multiple_select_widget.dart';
 
+//Output
+export 'output/output_widget.dart';
+
 //Card
 export 'card/card_widget.dart';
 export 'card/membership_card_widget.dart';
