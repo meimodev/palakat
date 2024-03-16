@@ -6,3 +6,4 @@ export 'articles_widget.dart';
 export 'card_articles_widget.dart';
 export 'news_widget.dart';
 export 'dialog_preview_day_activities_widget.dart';
+export 'card_activity_section_widget.dart';

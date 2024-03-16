@@ -17,6 +17,9 @@ export 'authentication/presentations/authentication_state.dart';
 export 'dashboard/presentations/dashboard_controller.dart';
 export 'dashboard/presentations/dashboard_screen.dart';
 export 'dashboard/presentations/dashboard_state.dart';
+export 'dashboard/presentations/widgets/widgets.dart';
+export 'dashboard/presentations/view_all/view_all_screen.dart';
+export 'dashboard/presentations/activity_detail/activity_detail_screen.dart';
 
 //Publishing
 export 'publishing/presentations/publishing_controller.dart';

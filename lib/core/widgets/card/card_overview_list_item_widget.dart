@@ -3,8 +3,8 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
-class CardOverviewPublishingListItemWidget extends StatelessWidget {
-  const CardOverviewPublishingListItemWidget({
+class CardOverviewListItemWidget extends StatelessWidget {
+  const CardOverviewListItemWidget({
     super.key,
     required this.title,
     required this.type,
@@ -13,12 +13,13 @@ class CardOverviewPublishingListItemWidget extends StatelessWidget {
 
   final String title;
   final VoidCallback onPressedCard;
-  final String type;
+  final ActivityType type;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressedCard,
+      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       child: Container(
         padding: EdgeInsets.symmetric(
           vertical: BaseSize.w12,
@@ -33,9 +34,13 @@ class CardOverviewPublishingListItemWidget extends StatelessWidget {
           children: [
             Text(
               title,
-              style: BaseTypography.bodySmall.bold,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: BaseTypography.bodySmall,
             ),
-            ChipsWidget(title: type, ),
+            ChipsWidget(
+              title: type.name,
+            ),
           ],
         ),
       ),

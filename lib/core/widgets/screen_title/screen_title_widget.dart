@@ -4,6 +4,17 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
 
 class ScreenTitleWidget extends StatelessWidget {
+  const ScreenTitleWidget.primary({
+    super.key,
+    required this.title,
+    required this.leadIcon,
+    required this.leadIconColor,
+    required this.onPressedLeadIcon,
+  })  : subTitle = null,
+        trailIcon = null,
+        trailIconColor = null,
+        onPressedTrailIcon = null;
+
   const ScreenTitleWidget.titleOnly({
     super.key,
     required this.title,
@@ -55,7 +66,7 @@ class ScreenTitleWidget extends StatelessWidget {
           icon: leadIcon ?? Assets.icons.line.times,
           iconColor: leadIconColor ?? Colors.transparent,
           iconSize: iconSize,
-          onPressedIcon: leadIcon != null ?  onPressedLeadIcon! : null,
+          onPressedIcon: leadIcon != null ? onPressedLeadIcon! : null,
         ),
         Gap.w24,
         Expanded(
@@ -78,7 +89,7 @@ class ScreenTitleWidget extends StatelessWidget {
           icon: trailIcon ?? Assets.icons.line.times,
           iconColor: trailIconColor ?? Colors.transparent,
           iconSize: iconSize,
-          onPressedIcon: trailIcon != null ?  onPressedTrailIcon! : null,
+          onPressedIcon: trailIcon != null ? onPressedTrailIcon! : null,
         ),
       ],
     );

@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 // import 'package:palakat/core/config/app_config.dart';
 import 'package:palakat/core/routing/routing.dart';
+
 // import 'package:palakat/features/application.dart';
 // import 'package:palakat/features/domain.dart';
 import 'package:palakat/features/presentation.dart';
@@ -11,6 +13,7 @@ import 'package:palakat/features/presentation.dart';
 class AppRoute {
   static String main = 'main';
   static String dashboard = 'dashboard';
+  static String viewAll = 'view-all';
 
   // splash
   static String splash = 'splash';
@@ -43,20 +46,6 @@ class AppRoute {
   // static String addressSearch = 'address-search';
   // static String addressMap = 'address-map';
 
-  // our hospital
-  static String ourHospital = 'our-hospital';
-  static String ourHospitalDetail = 'our-hospital-detail';
-
-  // doctor
-  static String searchDoctor = 'search-doctor';
-  static String doctorList = 'doctor-list';
-  static String doctorDetail = 'doctor-detail';
-  static String doctorProfile = 'doctor-profile';
-
-  // news and special offers
-  static String newsAndSpecialOffers = 'news-and-special-offers';
-  static String newsAndSpecialOffersDetail = 'news-and-special-offers-detail';
-  static String searchNews = 'search-news';
 
   // appointment
   static String appointmentServiceList = 'appointment-service-list';
@@ -72,6 +61,8 @@ class AppRoute {
 
   //Authentication
   static String authentication = "authentication";
+
+  static String activityDetail = "activity-detail";
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -94,16 +85,8 @@ final goRouterProvider = Provider<GoRouter>(
           name: AppRoute.home,
           builder: (context, state) => const HomeScreen(),
         ),
-        GoRoute(
-          path: '/dashboard',
-          name: AppRoute.dashboard,
-          builder: (context, state) => const DashboardScreen(),
-          routes: [
-            authenticationRouting,
-            //publishingRouting
-            //songBookRouting
-          ],
-        ),
+        authenticationRouting,
+        dashboardRouting,
       ],
     );
   },

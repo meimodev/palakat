@@ -1,5 +1,0 @@
-
-enum IdentityType {
-  ktp,
-  passport
-}

@@ -66,8 +66,8 @@ class CardAnnouncementWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: BaseColor.cardBackground1,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusMd),
-                bottomLeft: Radius.circular(BaseSize.radiusMd),
+                topRight: Radius.circular(BaseSize.radiusMd),
+                bottomRight: Radius.circular(BaseSize.radiusMd),
               ),
 
             ),
