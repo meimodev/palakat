@@ -1,40 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/membership.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-
-enum MembershipCardWidgetVariant { signed, unsigned }
 
 class MembershipCardWidget extends StatelessWidget {
   const MembershipCardWidget({
     super.key,
-    required this.variant,
-    required this.title,
-    required this.subTitle,
-    required this.bipra,
     this.onPressedCard,
-    required this.columnNumber,
+    this.membership,
   });
 
-  final MembershipCardWidgetVariant variant;
-
-  final String title;
-  final String subTitle;
-  final String bipra;
-  final String columnNumber;
+  final Membership? membership;
 
   final VoidCallback? onPressedCard;
 
   @override
   Widget build(BuildContext context) {
+    final bool signed = membership != null;
+
+    final Color textColor =
+        signed ? BaseColor.secondaryText : BaseColor.cardBackground1;
+
+    final title = signed
+        ? membership!.account.name
+        : "Sign-in to known whats happening in your local congregation ";
+
     return InkWell(
       onTap: onPressedCard,
       borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       child: Container(
         decoration: BoxDecoration(
-          color: variant == MembershipCardWidgetVariant.signed
-              ? BaseColor.cardBackground1
-              : BaseColor.primaryText,
+          color: signed ? BaseColor.cardBackground1 : BaseColor.primaryText,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         ),
         height: BaseSize.customHeight(62),
@@ -42,84 +39,72 @@ class MembershipCardWidget extends StatelessWidget {
           horizontal: 12,
           vertical: BaseSize.h12,
         ),
-        child: _buildRowLayout(
-          title: title,
-          subTitle: subTitle,
-          bipra: bipra,
-          number: columnNumber,
-          textColor: variant == MembershipCardWidgetVariant.signed
-              ? BaseColor.primaryText
-              : BaseColor.cardBackground1,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              if (signed) ...[
+                Text(
+                  membership!.bipra.abv,
+                  style: BaseTypography.headlineSmall.toSecondary,
+                ),
+                Gap.w12,
+                DividerWidget(
+                  color: textColor,
+                ),
+                Gap.w12,
+              ],
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: BaseTypography.bodyMedium.bold.copyWith(
+                        color: signed
+                            ? BaseColor.primaryText
+                            : BaseColor.cardBackground1,
+                        fontWeight:
+                            signed ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      textAlign: signed ? TextAlign.start : TextAlign.center,
+                    ),
+                    if (signed)
+                      Text(
+                        membership!.church.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: BaseTypography.bodyMedium,
+                        textAlign: TextAlign.start,
+                      ),
+                  ],
+                ),
+              ),
+              Gap.w12,
+              DividerWidget(
+                color: textColor,
+              ),
+              Gap.w12,
+              if (signed)
+                Text(
+                  membership!.columnNumber,
+                  style: BaseTypography.headlineSmall.toSecondary,
+                ),
+              if (!signed)
+                Text(
+                  "SIGN IN",
+                  style: BaseTypography.bodySmall.toBold.copyWith(
+                    color: textColor,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
-
-  _buildRowLayout({
-    required String title,
-    String? subTitle,
-    String? bipra,
-    String? number,
-    required Color textColor,
-  }) =>
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          if (variant == MembershipCardWidgetVariant.signed) ...[
-            Text(
-              bipra ?? "AAA",
-              style: BaseTypography.headlineSmall.toSecondary,
-            ),
-            Gap.w12,
-            DividerWidget(
-              color: textColor,
-            ),
-            Gap.w12,
-          ],
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  title,
-                  style: BaseTypography.bodyMedium.bold.copyWith(
-                    color: textColor,
-                    fontWeight: variant == MembershipCardWidgetVariant.signed
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                  textAlign: variant == MembershipCardWidgetVariant.signed
-                      ? TextAlign.start
-                      : TextAlign.center,
-                ),
-                if (variant == MembershipCardWidgetVariant.signed)
-                  Text(
-                    subTitle ?? "",
-                    style: BaseTypography.bodyMedium,
-                    textAlign: TextAlign.start,
-                  ),
-              ],
-            ),
-          ),
-          Gap.w12,
-          DividerWidget(
-            color: textColor,
-          ),
-          Gap.w12,
-          if (variant == MembershipCardWidgetVariant.signed)
-            Text(
-              number ?? "1",
-              style: BaseTypography.headlineSmall.toSecondary,
-            ),
-          if (variant == MembershipCardWidgetVariant.unsigned)
-            Text(
-              "SIGN IN",
-              style: BaseTypography.bodySmall.toBold.copyWith(
-                color: textColor,
-              ),
-            ),
-        ],
-      );
 }

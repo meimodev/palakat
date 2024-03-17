@@ -30,7 +30,7 @@ class ActivityWidget extends StatelessWidget {
         ),
         Gap.h6,
         SizedBox(
-          height: cardsHeight,
+          height: cardsHeight + BaseSize.w16,
           child: ListView.separated(
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
@@ -38,7 +38,7 @@ class ActivityWidget extends StatelessWidget {
             itemCount: activities.length,
             separatorBuilder: (context, index) => Gap.w12,
             itemBuilder: (context, index) => CardDatePreviewWidget(
-              width: 80,
+              width: cardsHeight,
               date: index + 1,
               selected: index == 1,
               onPressedCardDatePreview: onPressedCardDatePreview,

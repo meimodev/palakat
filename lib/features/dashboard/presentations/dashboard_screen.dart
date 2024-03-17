@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/activity_overview.dart';
+import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -23,11 +23,26 @@ class DashboardScreen extends StatelessWidget {
           ),
           Gap.h12,
           MembershipCardWidget(
-            variant: MembershipCardWidgetVariant.signed,
-            title: "Some Very Long Sting for",
-            subTitle: "Subtitle of the card",
-            bipra: "AAA",
-            columnNumber: '90',
+            membership: Membership(
+              id: "id",
+              account: Account(
+                id: "id",
+                phone: "phone",
+                name: "name",
+                dob: DateTime.now(),
+                gender: Gender.male,
+                maritalStatus: MaritalStatus.married,
+              ),
+              church: Church(
+                id: "id",
+                name: "somename",
+                location: "location",
+              ),
+              columnNumber: "22",
+              baptize: true,
+              sidi: true,
+              bipra: Bipra.youths,
+            ),
             onPressedCard: () {
               print("Card Pressed");
             },
@@ -51,7 +66,7 @@ class DashboardScreen extends StatelessWidget {
                     'act6',
                     'act7',
                   ],
-                  cardsHeight: BaseSize.customWidth(100),
+                  cardsHeight: BaseSize.customWidth(80),
                   onPressedCardDatePreview: () async {
                     await showDialogPreviewDayActivitiesWidget(
                       title: 'Mon, 25 Jan',
@@ -61,7 +76,8 @@ class DashboardScreen extends StatelessWidget {
                         (index) => ActivityOverview(
                           id: "id $index",
                           title: "Activity Title $index",
-                          type: ActivityType.values[Random().nextInt(ActivityType.values.length)],
+                          type: ActivityType.values[
+                              Random().nextInt(ActivityType.values.length)],
                         ),
                       ),
                       onPressedCardActivity: (activityOverview) {

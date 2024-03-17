@@ -1,3 +1,13 @@
+enum Gender {
+  male,
+  female,
+}
+
+enum MaritalStatus {
+  single,
+  married,
+}
+
 enum ActivityType {
   service,
   event,
