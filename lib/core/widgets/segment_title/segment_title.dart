@@ -33,7 +33,7 @@ class SegmentTitleWidget extends StatelessWidget {
                 style: BaseTypography.bodySmall.toSecondary,
               ),
               Gap.w4,
-              Assets.icons.line.chevronRight.svg(
+              Assets.icons.line.chevronForwardOutline.svg(
                 colorFilter: BaseColor.secondaryText.filterSrcIn,
                 width: BaseSize.w12,
                 height: BaseSize.h12,

@@ -31,7 +31,7 @@ class ActivityDetailScreen extends StatelessWidget {
           ScreenTitleWidget.primary(
             title: state.type.name.camelToSentence,
             subTitle: state.title,
-            leadIcon: Assets.icons.line.chevronLeft,
+            leadIcon: Assets.icons.line.chevronBackOutline,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,
           ),

@@ -5,10 +5,11 @@ import 'widgets.dart';
 class PublishingOperationsListWidget extends StatelessWidget {
   const PublishingOperationsListWidget({
     super.key,
-    required this.data,
+    required this.data,required this.onPressedCard,
   });
 
   final List<Map<String, dynamic>> data;
+  final VoidCallback onPressedCard;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class PublishingOperationsListWidget extends StatelessWidget {
         return CardPublishingOperationWidget(
           title: d['title'],
           description: d['description'],
-          onPressedCard: d['onPressed'],
+          onPressedCard: onPressedCard,
         );
       },
       itemCount: data.length,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/activity_overview.dart';
+import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 import 'widgets/widgets.dart';
@@ -18,6 +21,9 @@ class PublishingScreen extends StatelessWidget {
           ),
           Gap.h12,
           PublishingOperationsListWidget(
+            onPressedCard: () {
+              context.pushNamed(AppRoute.activityPublish);
+            },
             data: [
               {
                 "title": "Publish Service",
@@ -63,32 +69,28 @@ class PublishingScreen extends StatelessWidget {
           ),
           Gap.h24,
           PublishByYouWidget(
-            onPressedViewAll: () {
-              print("View All Publish By You");
-            },
             data: [
-              {
-                "title": "This is the title of the published data",
-                "type": "Service",
-                "onPressed": () {
-                  print("service");
-                },
-              },
-              {
-                "title": "This is the title of the published data",
-                "type": "Announcement",
-                "onPressed": () {
-                  print("Announcement");
-                },
-              },
-              {
-                "title": "This is the title of the published data",
-                "type": "Event",
-                "onPressed": () {
-                  print("Event");
-                },
-              },
+              ActivityOverview(
+                id: "1234-1234",
+                title: "This is the title of the published data",
+                type: ActivityType.service,
+              ),
+              ActivityOverview(
+                id: "1234-4411",
+                title: "Second title of the published data",
+                type: ActivityType.event,
+              ),
+              ActivityOverview(
+                id: "1234-4556",
+                title: "published data of the activity overview number 3",
+                type: ActivityType.announcement,
+              ),
             ],
+            onPressedViewAll: () {
+              context.pushNamed(AppRoute.viewAll);
+            },
+            onPressedCard: (activityOverview) {},
+
           ),
         ],
       ),

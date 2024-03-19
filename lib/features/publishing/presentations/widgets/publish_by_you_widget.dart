@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/activity_overview.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 class PublishByYouWidget extends StatelessWidget {
@@ -7,10 +8,12 @@ class PublishByYouWidget extends StatelessWidget {
     super.key,
     required this.onPressedViewAll,
     required this.data,
+    required this.onPressedCard,
   });
 
   final VoidCallback onPressedViewAll;
-  final List<Map<String, dynamic>> data;
+  final void Function(ActivityOverview activityOverview) onPressedCard;
+  final List<ActivityOverview> data;
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +32,11 @@ class PublishByYouWidget extends StatelessWidget {
           separatorBuilder: (context, index) => Gap.h6,
           itemCount: data.length,
           itemBuilder: (context, index) {
-            final d = data[index];
+            final activity = data[index];
             return CardOverviewListItemWidget(
-              title: d["title"],
-              type: d["type"],
-              onPressedCard: d["onPressed"],
+              title: activity.title,
+              type: activity.type,
+              onPressedCard: () => onPressedCard(activity),
             );
           },
         ),
@@ -42,4 +45,3 @@ class PublishByYouWidget extends StatelessWidget {
     );
   }
 }
-

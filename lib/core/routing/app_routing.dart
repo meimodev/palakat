@@ -12,7 +12,6 @@ import 'package:palakat/features/presentation.dart';
 
 class AppRoute {
   static String main = 'main';
-  static String dashboard = 'dashboard';
   static String viewAll = 'view-all';
 
   // splash
@@ -24,34 +23,6 @@ class AppRoute {
   // home
   static String home = 'home';
 
-  // authentication
-  static String login = 'login';
-  static String signup = "signup";
-  static String verifyEmail = "verify-email";
-  static String forgotPassword = "forgot-password";
-  static String resetPassword = "reset-password";
-  static String registration = 'registration';
-
-  // // account
-  // static String biometric = 'biometric';
-  // static String language = 'language';
-  // static String changePassword = 'change-password';
-  // static String help = 'help';
-  // static String profile = 'profile';
-  // static String patientList = 'patient-list';
-  // static String patientDetail = 'patient-detail';
-  // static String patientForm = 'patient-form';
-  // static String addressList = 'address-list';
-  // static String addressForm = 'address-form';
-  // static String addressSearch = 'address-search';
-  // static String addressMap = 'address-map';
-
-
-  // appointment
-  static String appointmentServiceList = 'appointment-service-list';
-  static String appointmentDetail = 'appointment-detail';
-  static String appointmentReschedule = 'appointment-reschedule';
-  static String appointmentRescheduleSummary = 'appointment-reschedule-summary';
 
   //Rating
   static String rating = 'rating';
@@ -62,7 +33,13 @@ class AppRoute {
   //Authentication
   static String authentication = "authentication";
 
+  //Dashboard
+  static String dashboard = 'dashboard';
   static String activityDetail = "activity-detail";
+
+  // Publishing
+  static String publishing = 'publishing';
+  static String activityPublish = "activity-publish";
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -87,6 +64,7 @@ final goRouterProvider = Provider<GoRouter>(
         ),
         authenticationRouting,
         dashboardRouting,
+        publishingRouting,
       ],
     );
   },

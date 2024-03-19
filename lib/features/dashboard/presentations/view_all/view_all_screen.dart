@@ -28,7 +28,7 @@ class ViewAllScreen extends StatelessWidget {
         children: [
           ScreenTitleWidget.primary(
             title: "Activity This Week",
-            leadIcon: Assets.icons.line.chevronLeft,
+            leadIcon: Assets.icons.line.chevronBackOutline,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,
           ),
