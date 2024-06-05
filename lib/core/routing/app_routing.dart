@@ -17,12 +17,8 @@ class AppRoute {
   // splash
   static String splash = 'splash';
 
-  // static String waiting = 'waiting';
-  // static String welcome = 'welcome';
-
   // home
   static String home = 'home';
-
 
   //Rating
   static String rating = 'rating';
@@ -40,6 +36,11 @@ class AppRoute {
   // Publishing
   static String publishing = 'publishing';
   static String activityPublish = "activity-publish";
+
+  //Account
+  static String account = 'account';
+  static String user = 'user';
+  static String membership = 'membership';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -65,6 +66,7 @@ final goRouterProvider = Provider<GoRouter>(
         authenticationRouting,
         dashboardRouting,
         publishingRouting,
+        accountRouting,
       ],
     );
   },

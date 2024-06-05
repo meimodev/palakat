@@ -3,12 +3,17 @@ export 'home/presentation/home_screen.dart';
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_state.dart';
 
-//Account
-export 'account/presentations/account_screen.dart';
-export 'account/presentations/account_controller.dart';
-export 'account/presentations/account_state.dart';
+//Account - User
+export 'account/presentations/user/user_screen.dart';
+export 'account/presentations/user/user_controller.dart';
+export 'account/presentations/user/user_state.dart';
 
-//Account
+//Account - Membership
+export 'account/presentations/membership/membership_controller.dart';
+export 'account/presentations/membership/membership_screen.dart';
+export 'account/presentations/membership/membership_state.dart';
+
+//Authentication
 export 'authentication/presentations/authentication_screen.dart';
 export 'authentication/presentations/authentication_controller.dart';
 export 'authentication/presentations/authentication_state.dart';

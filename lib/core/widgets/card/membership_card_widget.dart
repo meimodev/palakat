@@ -41,7 +41,7 @@ class MembershipCardWidget extends StatelessWidget {
         ),
         child: IntrinsicHeight(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
               if (signed) ...[

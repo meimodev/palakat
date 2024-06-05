@@ -63,12 +63,18 @@ class _InputWidgetState extends State<InputWidget> {
               }
             }
           },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(child: _buildTextFormFiled()),
-              _buildEndIcon(),
-            ],
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+            decoration: BoxDecoration(
+              border: Border.all()
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: _buildTextFormFiled()),
+                _buildEndIcon(),
+              ],
+            ),
           ),
         ),
       ],
@@ -117,24 +123,8 @@ class _InputWidgetState extends State<InputWidget> {
       maxLines: widget.maxLines,
       decoration: InputDecoration(
         hintText: widget.hint,
-        border: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Colors.transparent,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(
-            BaseSize.radiusMd,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: BaseColor.primaryText,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(
-            BaseSize.radiusMd,
-          ),
-        ),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
         fillColor: BaseColor.cardBackground1,
       ),
     );

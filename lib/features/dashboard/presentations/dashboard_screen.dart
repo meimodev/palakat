@@ -14,6 +14,36 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final membership = Membership(
+      id: "id",
+      account: Account(
+        id: "id",
+        phone: "phone",
+        name: "name",
+        dob: DateTime.now(),
+        gender: Gender.male,
+        maritalStatus: MaritalStatus.married,
+      ),
+      church: Church(
+        id: "id",
+        name: "somename",
+        location: "location",
+      ),
+      columnNumber: "22",
+      baptize: true,
+      sidi: true,
+      bipra: Bipra.youths,
+    );
+    final activities = [
+      'act1',
+      'act2',
+      'act3',
+      'act4',
+      'act5',
+      'act6',
+      'act7',
+    ];
+
     return ScaffoldWidget(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -23,29 +53,8 @@ class DashboardScreen extends StatelessWidget {
           ),
           Gap.h12,
           MembershipCardWidget(
-            membership: Membership(
-              id: "id",
-              account: Account(
-                id: "id",
-                phone: "phone",
-                name: "name",
-                dob: DateTime.now(),
-                gender: Gender.male,
-                maritalStatus: MaritalStatus.married,
-              ),
-              church: Church(
-                id: "id",
-                name: "somename",
-                location: "location",
-              ),
-              columnNumber: "22",
-              baptize: true,
-              sidi: true,
-              bipra: Bipra.youths,
-            ),
-            onPressedCard: () {
-              print("Card Pressed");
-            },
+            membership: membership,
+            onPressedCard: () => context.pushNamed(AppRoute.user),
           ),
           Gap.h24,
           Padding(
@@ -54,18 +63,9 @@ class DashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ActivityWidget(
-                  onPressedViewAll: () async {
-                    await context.pushNamed(AppRoute.viewAll);
-                  },
-                  activities: [
-                    'act1',
-                    'act2',
-                    'act3',
-                    'act4',
-                    'act5',
-                    'act6',
-                    'act7',
-                  ],
+                  onPressedViewAll: () async =>
+                      await context.pushNamed(AppRoute.viewAll),
+                  activities: activities,
                   cardsHeight: BaseSize.customWidth(80),
                   onPressedCardDatePreview: () async {
                     await showDialogPreviewDayActivitiesWidget(
