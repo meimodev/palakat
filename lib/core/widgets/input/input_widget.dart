@@ -22,8 +22,8 @@ class InputWidget extends StatefulWidget {
     this.onChanged,
     this.controller,
     this.currentInputValue,
+    this.endIcon,
   })  : onPressedWithResult = null,
-        endIcon = null,
         options = null,
         variant = InputWidgetVariant.text;
 
@@ -59,16 +59,15 @@ class InputWidget extends StatefulWidget {
   final String? hint;
   final String? label;
   final InputWidgetVariant variant;
-
-  final TextEditingController? controller;
   final void Function(String value)? onChanged;
 
-  final Future<String?> Function()? onPressedWithResult;
-
+  //variant text
+  final TextEditingController? controller;
   final SvgGenImage? endIcon;
 
-  final List<String>? options;
+  final Future<String?> Function()? onPressedWithResult;
   final String? currentInputValue;
+  final List<String>? options;
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -90,9 +89,11 @@ class _InputWidgetState extends State<InputWidget> {
             : const SizedBox(),
         widget.variant == InputWidgetVariant.dropdown
             ? InputVariantDropdownWidget(
+                hint: widget.hint!,
                 options: widget.options ?? [],
                 currentInputValue: widget.currentInputValue,
                 onChanged: widget.onChanged!,
+                onPressedWithResult: widget.onPressedWithResult!,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text

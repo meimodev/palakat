@@ -32,7 +32,7 @@ class InputVariantTextWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(child: _buildTextFormFiled()),
-          _buildEndIcon(),
+          endIcon == null ? const SizedBox() : _buildEndIcon(),
         ],
       ),
     );
@@ -57,7 +57,7 @@ class InputVariantTextWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Gap.w12,
-        (endIcon ?? Assets.icons.line.chevronDownOutline).svg(
+        endIcon!.svg(
           width: BaseSize.w12,
           height: BaseSize.w12,
         ),

@@ -34,9 +34,9 @@ class AccountScreen extends StatelessWidget {
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
             onPressedWithResult: () async {
-              print("dob");
-              return "result";
-            }, onChanged: print,
+              return "10 January 2020";
+            },
+            onChanged: print,
           ),
           Gap.h12,
           InputWidget.binaryOption(

@@ -40,45 +40,47 @@ class _InputVariantBinaryOptionWidgetState
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: widget.options.map(
-            (e) {
+        (e) {
           return Expanded(
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  active = e;
-                });
-                widget.onChanged(e);
-              },
-              child: Container(
-                padding: EdgeInsets.all(
-                  BaseSize.w12,
-                ),
-                decoration: BoxDecoration(
-                  color: e == active
-                      ? BaseColor.primary3
-                      : BaseColor.cardBackground1,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: e == widget.options.first
-                        ? Radius.circular(BaseSize.radiusMd)
-                        : Radius.zero,
-                    topLeft: e == widget.options.first
-                        ? Radius.circular(BaseSize.radiusMd)
-                        : Radius.zero,
-                    bottomRight: e == widget.options.last
-                        ? Radius.circular(BaseSize.radiusMd)
-                        : Radius.zero,
-                    topRight: e == widget.options.last
-                        ? Radius.circular(BaseSize.radiusMd)
-                        : Radius.zero,
+            child: Material(
+              clipBehavior: Clip.hardEdge,
+              borderRadius: BorderRadius.only(
+                bottomLeft: e == widget.options.first
+                    ? Radius.circular(BaseSize.radiusMd)
+                    : Radius.zero,
+                topLeft: e == widget.options.first
+                    ? Radius.circular(BaseSize.radiusMd)
+                    : Radius.zero,
+                bottomRight: e == widget.options.last
+                    ? Radius.circular(BaseSize.radiusMd)
+                    : Radius.zero,
+                topRight: e == widget.options.last
+                    ? Radius.circular(BaseSize.radiusMd)
+                    : Radius.zero,
+              ),
+              color:
+                  e == active ? BaseColor.primary3 : BaseColor.cardBackground1,
+              child: InkWell(
+                onTap: e == active
+                    ? null
+                    : () {
+                        setState(() {
+                          active = e;
+                        });
+                        widget.onChanged(e);
+                      },
+                child: Container(
+                  padding: EdgeInsets.all(
+                    BaseSize.w12,
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    e,
-                    style: BaseTypography.titleMedium.bold.copyWith(
-                      color: e == active
-                          ? BaseColor.cardBackground1
-                          : BaseColor.primary3,
+                  child: Center(
+                    child: Text(
+                      e,
+                      style: BaseTypography.titleMedium.bold.copyWith(
+                        color: e == active
+                            ? BaseColor.cardBackground1
+                            : BaseColor.primary3,
+                      ),
                     ),
                   ),
                 ),
@@ -90,4 +92,3 @@ class _InputVariantBinaryOptionWidgetState
     );
   }
 }
-

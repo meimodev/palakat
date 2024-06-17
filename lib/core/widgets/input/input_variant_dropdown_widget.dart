@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/divider/divider_widget.dart';
 
 class InputVariantDropdownWidget extends StatefulWidget {
   const InputVariantDropdownWidget({
     super.key,
+    required this.hint,
     required this.options,
     required this.currentInputValue,
     required this.onChanged,
+    required this.onPressedWithResult,
   });
 
+  final String hint;
   final List<String> options;
   final String? currentInputValue;
   final ValueChanged<String> onChanged;
+  final Future<String?> Function() onPressedWithResult;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
@@ -26,44 +31,55 @@ class _InputVariantDropdownWidgetState
   @override
   void initState() {
     super.initState();
+
+    setState(() {});
     if (widget.currentInputValue != null) {
-      currentValue = widget.currentInputValue ?? "";
+      setState(() {
+        currentValue = widget.currentInputValue!;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // showBottomDialog then catch result
-        setState(() {
-          currentValue = "changed";
-        });
-        widget.onChanged(currentValue);
-      },
-      child: Container(
-        padding: EdgeInsets.all(BaseSize.w12),
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(
-            BaseSize.radiusMd,
-          ),
+    return IntrinsicHeight(
+      child: Material(
+        clipBehavior: Clip.hardEdge,
+        borderRadius: BorderRadius.circular(
+          BaseSize.radiusMd,
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                currentValue,
-                style: BaseTypography.titleMedium,
-              ),
+        color: BaseColor.cardBackground1,
+        child: InkWell(
+          onTap: () async {
+            final String? result = await widget.onPressedWithResult();
+            if (result != null) {
+              setState(() {
+                currentValue = result;
+              });
+              widget.onChanged(result);
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    currentValue.isEmpty ? widget.hint : currentValue,
+                    style: BaseTypography.titleMedium,
+                  ),
+                ),
+                Gap.w8,
+                const DividerWidget(height: double.infinity,),
+                Gap.w8,
+                Assets.icons.line.chevronDownOutline.svg(
+                  width: BaseSize.w12,
+                  height: BaseSize.w12,
+                ),
+              ],
             ),
-            Gap.w12,
-            Assets.icons.line.chevronDownOutline.svg(
-              width: BaseSize.w12,
-              height: BaseSize.w12,
-            ),
-          ],
+          ),
         ),
       ),
     );
