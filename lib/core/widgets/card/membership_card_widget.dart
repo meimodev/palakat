@@ -31,7 +31,7 @@ class MembershipCardWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       child: Container(
         decoration: BoxDecoration(
-          color: signed ? BaseColor.cardBackground1 : BaseColor.primaryText,
+          color: signed ? BaseColor.cardBackground1 : BaseColor.primary3,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         ),
         height: BaseSize.customHeight(62),

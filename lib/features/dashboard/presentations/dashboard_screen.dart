@@ -54,7 +54,7 @@ class DashboardScreen extends StatelessWidget {
           Gap.h12,
           MembershipCardWidget(
             membership: membership,
-            onPressedCard: () => context.pushNamed(AppRoute.user),
+            onPressedCard: () => context.pushNamed(AppRoute.account),
           ),
           Gap.h24,
           Padding(

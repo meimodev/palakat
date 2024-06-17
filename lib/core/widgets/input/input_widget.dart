@@ -3,9 +3,14 @@ import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
 
+import 'input_variant_binary_option_widget.dart';
+import 'input_variant_dropdown_widget.dart';
+import 'input_variant_text_widget.dart';
+
 enum InputWidgetVariant {
   text,
   dropdown,
+  binaryOption,
 }
 
 class InputWidget extends StatefulWidget {
@@ -16,20 +21,39 @@ class InputWidget extends StatefulWidget {
     this.label,
     this.onChanged,
     this.controller,
+    this.currentInputValue,
   })  : onPressedWithResult = null,
         endIcon = null,
+        options = null,
         variant = InputWidgetVariant.text;
 
   const InputWidget.dropdown({
     super.key,
-    this.label,
+    required this.label,
     required this.hint,
-    this.maxLines = 1,
-    this.onChanged,
-    required this.controller,
+    required this.onChanged,
     required this.onPressedWithResult,
-    this.endIcon,
-  }) : variant = InputWidgetVariant.dropdown;
+    this.currentInputValue,
+    this.options,
+  })  : controller = null,
+        endIcon = null,
+        maxLines = 1,
+        variant = InputWidgetVariant.dropdown;
+
+  const InputWidget.binaryOption({
+    super.key,
+    required this.options,
+    required this.label,
+    required this.onChanged,
+    this.currentInputValue,
+  })  : variant = InputWidgetVariant.binaryOption,
+        endIcon = null,
+        maxLines = null,
+        hint = null,
+        controller = null,
+        onPressedWithResult = null,
+        assert(options != null && options.length > 0,
+            "options cannot be null or empty");
 
   final int? maxLines;
   final String? hint;
@@ -37,11 +61,14 @@ class InputWidget extends StatefulWidget {
   final InputWidgetVariant variant;
 
   final TextEditingController? controller;
-  final Function(String text)? onChanged;
+  final void Function(String value)? onChanged;
 
-  final Future<String> Function()? onPressedWithResult;
+  final Future<String?> Function()? onPressedWithResult;
 
   final SvgGenImage? endIcon;
+
+  final List<String>? options;
+  final String? currentInputValue;
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -54,52 +81,35 @@ class _InputWidgetState extends State<InputWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildLabelWidget(),
-        InkWell(
-          onTap: () async {
-            if (widget.onPressedWithResult != null) {
-              final result = await widget.onPressedWithResult!();
-              if (widget.controller != null) {
-                widget.controller!.text = result;
-              }
-            }
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            decoration: BoxDecoration(
-              border: Border.all()
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(child: _buildTextFormFiled()),
-                _buildEndIcon(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEndIcon() {
-    if (widget.endIcon == null && widget.variant == InputWidgetVariant.text) {
-      return const SizedBox();
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Gap.w12,
-        (widget.endIcon ?? Assets.icons.line.chevronDownOutline).svg(
-          width: BaseSize.w12,
-          height: BaseSize.w12,
-        ),
+        widget.variant == InputWidgetVariant.binaryOption
+            ? InputVariantBinaryOptionWidget(
+                options: widget.options!,
+                currentInputValue: widget.currentInputValue,
+                onChanged: widget.onChanged!,
+              )
+            : const SizedBox(),
+        widget.variant == InputWidgetVariant.dropdown
+            ? InputVariantDropdownWidget(
+                options: widget.options ?? [],
+                currentInputValue: widget.currentInputValue,
+                onChanged: widget.onChanged!,
+              )
+            : const SizedBox(),
+        widget.variant == InputWidgetVariant.text
+            ? InputVariantTextWidget(
+                onChanged: widget.onChanged,
+                maxLines: widget.maxLines,
+                hint: widget.hint,
+                controller: widget.controller,
+                endIcon: widget.endIcon,
+              )
+            : const SizedBox(),
       ],
     );
   }
 
   Widget _buildLabelWidget() {
-    if (widget.label == null) {
+    if (widget.label == null || widget.label!.isEmpty) {
       return const SizedBox();
     }
     return Column(
@@ -113,20 +123,6 @@ class _InputWidgetState extends State<InputWidget> {
         ),
         Gap.h6,
       ],
-    );
-  }
-
-  Widget _buildTextFormFiled() {
-    return TextFormField(
-      controller: widget.controller,
-      onChanged: widget.onChanged,
-      maxLines: widget.maxLines,
-      decoration: InputDecoration(
-        hintText: widget.hint,
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        fillColor: BaseColor.cardBackground1,
-      ),
     );
   }
 }

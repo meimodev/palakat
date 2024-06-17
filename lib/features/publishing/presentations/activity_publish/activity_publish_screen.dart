@@ -54,11 +54,11 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
-        controller: TextEditingController(),
         onPressedWithResult: () async {
           //show single selection
           return "Result";
         },
+        onChanged: print,
       ),
       Gap.h12,
       Row(
@@ -67,19 +67,22 @@ class ActivityPublishScreen extends ConsumerWidget {
             child: InputWidget.dropdown(
               hint: "Date",
               label: "Select date and time",
-              controller: TextEditingController(),
+              // controller: TextEditingController(),
               onPressedWithResult: () async {
                 return "Result";
               },
+              onChanged: print,
             ),
           ),
           Expanded(
             child: InputWidget.dropdown(
               hint: "Time",
-              controller: TextEditingController(),
+              // controller: TextEditingController(),
               onPressedWithResult: () async {
                 return "Result";
               },
+              label: '',
+              onChanged: print,
             ),
           ),
         ],
@@ -96,11 +99,12 @@ class ActivityPublishScreen extends ConsumerWidget {
         InputWidget.dropdown(
           hint: "Select BIPRA",
           label: "Where the service mainly will notify",
-          controller: TextEditingController(),
+          // controller: TextEditingController(),
           onPressedWithResult: () async {
             //show single selection
             return "Result";
           },
+          onChanged: print,
         ),
         Gap.h12,
         InputWidget.text(
@@ -113,11 +117,12 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
-        controller: TextEditingController(),
+        // controller: TextEditingController(),
         onPressedWithResult: () async {
           //show single selection
           return "Result";
         },
+        onChanged: print,
       ),
       Gap.h12,
       InputWidget.text(

@@ -4,9 +4,9 @@ export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_state.dart';
 
 //Account - User
-export 'account/presentations/user/user_screen.dart';
-export 'account/presentations/user/user_controller.dart';
-export 'account/presentations/user/user_state.dart';
+export 'account/presentations/account/account_screen.dart';
+export 'account/presentations/account/account_controller.dart';
+export 'account/presentations/account/account_state.dart';
 
 //Account - Membership
 export 'account/presentations/membership/membership_controller.dart';

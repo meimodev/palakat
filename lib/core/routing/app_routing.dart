@@ -39,7 +39,6 @@ class AppRoute {
 
   //Account
   static String account = 'account';
-  static String user = 'user';
   static String membership = 'membership';
 }
 
