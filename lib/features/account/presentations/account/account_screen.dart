@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat/core/widgets/dialog/dialog_date_picker_widget.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -27,14 +29,18 @@ class AccountScreen extends StatelessWidget {
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
-            label: "use to identify your church membership Withour Degree",
+            label: "name without degree for your church membership",
           ),
           Gap.h12,
           InputWidget.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
+            endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
-              return "10 January 2020";
+              final DateTime? result = await showDialogDatePickerWidget(
+                context: context,
+              );
+              return result?.ddMmmmYyyy;
             },
             onChanged: print,
           ),

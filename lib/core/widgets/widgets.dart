@@ -13,9 +13,7 @@ export 'bottom_navbar/bottom_navbar_item.dart';
 export 'appbar/appbar_widget.dart';
 
 // Dialog
-export 'dialog/custom_dialog_widget.dart';
-export 'dialog/success_alert_dialog.dart';
-export 'dialog/general_dialog_widget.dart';
+export 'dialog/dialogs.dart';
 
 // Image Network
 export 'image_network/image_network_widget.dart';

@@ -4,7 +4,7 @@ import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
-Future<T?> showCustomDialogWidget<T>({
+Future<T?> showDialogCustomWidget<T>({
   required BuildContext context,
   required String title,
   required Widget content,

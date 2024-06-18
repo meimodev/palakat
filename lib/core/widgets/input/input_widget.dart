@@ -35,8 +35,8 @@ class InputWidget extends StatefulWidget {
     required this.onPressedWithResult,
     this.currentInputValue,
     this.options,
+    this.endIcon,
   })  : controller = null,
-        endIcon = null,
         maxLines = 1,
         variant = InputWidgetVariant.dropdown;
 
@@ -94,6 +94,7 @@ class _InputWidgetState extends State<InputWidget> {
                 currentInputValue: widget.currentInputValue,
                 onChanged: widget.onChanged!,
                 onPressedWithResult: widget.onPressedWithResult!,
+          endIcon: widget.endIcon,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text

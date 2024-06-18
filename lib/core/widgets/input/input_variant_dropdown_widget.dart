@@ -11,6 +11,7 @@ class InputVariantDropdownWidget extends StatefulWidget {
     required this.currentInputValue,
     required this.onChanged,
     required this.onPressedWithResult,
+    this.endIcon,
   });
 
   final String hint;
@@ -18,6 +19,7 @@ class InputVariantDropdownWidget extends StatefulWidget {
   final String? currentInputValue;
   final ValueChanged<String> onChanged;
   final Future<String?> Function() onPressedWithResult;
+  final SvgGenImage? endIcon;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
@@ -73,7 +75,7 @@ class _InputVariantDropdownWidgetState
                 Gap.w8,
                 const DividerWidget(height: double.infinity,),
                 Gap.w8,
-                Assets.icons.line.chevronDownOutline.svg(
+                (widget.endIcon ?? Assets.icons.line.chevronDownOutline).svg(
                   width: BaseSize.w12,
                   height: BaseSize.w12,
                 ),

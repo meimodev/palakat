@@ -10,7 +10,7 @@ Future<void> showDialogPreviewDayActivitiesWidget({
   required List<ActivityOverview> data,
   required String title,
 }) async {
-  await showCustomDialogWidget(
+  await showDialogCustomWidget(
     context: context,
     title: title,
     scrollControlled: true,

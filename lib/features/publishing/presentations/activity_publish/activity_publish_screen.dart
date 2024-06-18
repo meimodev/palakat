@@ -36,7 +36,8 @@ class ActivityPublishScreen extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
             child: Column(
-              children: _buildInputList(state.type),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _buildInputList(state.type, context),
             ),
           ),
         ],
@@ -44,7 +45,7 @@ class ActivityPublishScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildInputList(ActivityType type) {
+  List<Widget> _buildInputList(ActivityType type, BuildContext context) {
     List<Widget> outputList = [
       InputWidget.text(
         hint: "Location",
@@ -54,35 +55,52 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
+        endIcon: Assets.icons.line.mapOutline,
+        onChanged: print,
         onPressedWithResult: () async {
           //show single selection
           return "Result";
         },
-        onChanged: print,
       ),
       Gap.h12,
+      Text(
+        "Select Date & Time",
+        overflow: TextOverflow.ellipsis,
+        style: BaseTypography.bodyMedium.toSecondary,
+      ),
+      Gap.h4,
       Row(
         children: [
           Expanded(
+            flex: 2,
             child: InputWidget.dropdown(
               hint: "Date",
-              label: "Select date and time",
-              // controller: TextEditingController(),
-              onPressedWithResult: () async {
-                return "Result";
-              },
+              label: '',
+              endIcon: Assets.icons.line.calendarOutline,
               onChanged: print,
+              onPressedWithResult: () async {
+                final res = await showDialogDatePickerWidget(
+                  context: context,
+                  firstDate: DateTime.now(),
+                  initialDate: DateTime.now(),
+                  initialDatePickerMode: DatePickerMode.day,
+                  lastDate: DateTime(DateTime.now().year + 5),
+                );
+                return res?.EddMMMyyyy;
+              },
             ),
           ),
+          Gap.w8,
           Expanded(
             child: InputWidget.dropdown(
-              hint: "Time",
-              // controller: TextEditingController(),
-              onPressedWithResult: () async {
-                return "Result";
-              },
               label: '',
+              hint: "Time",
+              endIcon: Assets.icons.line.timeOutline,
               onChanged: print,
+              onPressedWithResult: () async {
+                final res = await showDialogTimePickerWidget(context: context);
+                return res?.HHmm;
+              },
             ),
           ),
         ],
@@ -99,7 +117,6 @@ class ActivityPublishScreen extends ConsumerWidget {
         InputWidget.dropdown(
           hint: "Select BIPRA",
           label: "Where the service mainly will notify",
-          // controller: TextEditingController(),
           onPressedWithResult: () async {
             //show single selection
             return "Result";
@@ -117,9 +134,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
-        // controller: TextEditingController(),
         onPressedWithResult: () async {
-          //show single selection
           return "Result";
         },
         onChanged: print,

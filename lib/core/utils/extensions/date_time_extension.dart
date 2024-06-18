@@ -1,14 +1,26 @@
 // import 'package:flutter/material.dart';
 // import 'package:palakat/core/utils/utils.dart';
 
+import 'package:jiffy/jiffy.dart';
+
 extension XDateTime on DateTime {
+  String toStringFormatted(String format) {
+    return Jiffy.parseFromDateTime(this).format(pattern: format);
+  }
+
   // String get monthAsMMM {
   //   return DateFormat.MMM().format(this);
   // }
-  //
-  // String get slashDate {
-  //   return DateFormat('dd/MM/yyyy').format(this);
-  // }
+
+  /// 24/01/2002
+  String get slashDate {
+    return toStringFormatted('dd/MM/yyyy');
+  }
+
+  String get EddMMMyyyy {
+    return toStringFormatted('EEEE, dd MMMM yyyy');
+  }
+
   //
   // String get yyyMMdd {
   //   return DateFormat('yyyy-MM-dd').format(this);
@@ -18,10 +30,11 @@ extension XDateTime on DateTime {
   //   return DateFormat('MMM, dd yyyy').format(this);
   // }
   //
-  // /// 10 December 2019
-  // String get ddMmmmYyyy {
-  //   return DateFormat('dd MMMM yyyy').format(this);
-  // }
+  /// 10 December 2019
+  String get ddMmmmYyyy {
+    return toStringFormatted('dd MMMM yyyy');
+  }
+
   //
   // String get mmmddyyy {
   //   return DateFormat('MMM dd, yy').format(this);
@@ -31,9 +44,10 @@ extension XDateTime on DateTime {
   //   return DateFormat('HH:mm aa').format(this);
   // }
   //
-  // String get hhMm {
-  //   return DateFormat('HH:mm').format(this);
-  // }
+  String get HHmm {
+    return toStringFormatted('HH:mm');
+  }
+
   //
   // String get mMMMddyyy {
   //   return DateFormat('MMMM dd, yyyy').format(this);
@@ -58,9 +72,6 @@ extension XDateTime on DateTime {
   //   return DateFormat('EEE, MMMM d yyyy | HH:mm').format(this);
   // }
   //
-  // String toStringFormatted({String format = 'dd/MM/yyyy'}) {
-  //   return DateFormat(format).format(this);
-  // }
 
   DateTime addDay({int days = 0}) {
     return add(Duration(days: days));

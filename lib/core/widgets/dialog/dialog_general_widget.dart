@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-Future showGeneralDialogWidget(
+Future showDialogGeneralWidget(
   BuildContext context,
   // Widget? image,
   // String headerTitle = '',

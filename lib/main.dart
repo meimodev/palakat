@@ -35,6 +35,7 @@ class MyApp extends ConsumerWidget {
         routeInformationProvider: router.routeInformationProvider,
         title: AppConfig.appName,
         theme: BaseTheme.appTheme,
+        locale: const Locale('id','ID'),
       ),
     );
   }
