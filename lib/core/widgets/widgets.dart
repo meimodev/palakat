@@ -27,9 +27,7 @@ export 'input/input_multiple_select_widget.dart';
 export 'output/output_widget.dart';
 
 //Card
-export 'card/card_widget.dart';
-export 'card/membership_card_widget.dart';
-export 'card/card_overview_list_item_widget.dart';
+export 'card/card.dart';
 
 export 'screen_title/screen_title_widget.dart';
 export 'divider/divider_widget.dart';

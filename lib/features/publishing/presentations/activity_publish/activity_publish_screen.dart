@@ -115,13 +115,14 @@ class ActivityPublishScreen extends ConsumerWidget {
     if (type == ActivityType.announcement) {
       outputList = [
         InputWidget.dropdown(
-          hint: "Select BIPRA",
           label: "Where the service mainly will notify",
+          hint: "Select BIPRA",
+          onChanged: print,
           onPressedWithResult: () async {
             //show single selection
-            return "Result";
+            final res = await showDialogBipraPickerWidget(context: context);
+            return res?.name;
           },
-          onChanged: print,
         ),
         Gap.h12,
         InputWidget.text(
@@ -135,7 +136,8 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
         onPressedWithResult: () async {
-          return "Result";
+          final res = await showDialogBipraPickerWidget(context: context);
+          return res?.name;
         },
         onChanged: print,
       ),
