@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -21,7 +20,6 @@ Future<Bipra?> showDialogBipraPickerWidget({
 
 class _DialogBipraPickerWidget extends StatelessWidget {
   const _DialogBipraPickerWidget({
-    super.key,
     required this.onPressedBipraCard,
   });
 
