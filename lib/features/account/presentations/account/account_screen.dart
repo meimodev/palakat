@@ -12,6 +12,18 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
+      presistBottomWidget: Padding(
+        padding: EdgeInsets.only(
+          bottom: BaseSize.h24,
+          left: BaseSize.w12,
+          right: BaseSize.w12,
+          top: BaseSize.h6,
+        ),
+        child: ButtonWidget.primary(
+          text: "Submit",
+          onTap: () {},
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -58,8 +70,6 @@ class AccountScreen extends StatelessWidget {
             label: "use to determine your BIPRA membership",
             onChanged: print,
           ),
-          Gap.h48,
-          ButtonWidget.primary(text: "Submit", onTap: () {}),
         ],
       ),
     );

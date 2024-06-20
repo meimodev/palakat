@@ -29,3 +29,8 @@ enum Bipra {
   final String abv;
 
 }
+
+enum MapOperationType {
+  pinPoint,
+  read,
+}

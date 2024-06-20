@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
@@ -21,6 +23,17 @@ class ActivityPublishScreen extends ConsumerWidget {
     final state = ref.watch(activityPublishControllerProvider);
 
     return ScaffoldWidget(
+      presistBottomWidget: Padding(
+        padding: EdgeInsets.only(
+          bottom: BaseSize.h24,
+          left: BaseSize.w12,
+          right: BaseSize.w12,
+        ),
+        child: ButtonWidget.primary(
+          text: "Publish",
+          onTap: () {},
+        ),
+      ),
       child: Column(
         children: [
           ScreenTitleWidget.primary(
@@ -55,8 +68,15 @@ class ActivityPublishScreen extends ConsumerWidget {
         endIcon: Assets.icons.line.mapOutline,
         onChanged: print,
         onPressedWithResult: () async {
-          //show single selection
-          return "Result";
+          final Location? res = await context.pushNamed<Location?>(
+            AppRoute.publishingMap,
+            extra: const RouteParam(
+              params: {
+                RouteParamKey.mapOperationType: MapOperationType.pinPoint,
+              },
+            ),
+          );
+          return res?.toString();
         },
       ),
       Gap.h12,
@@ -102,11 +122,11 @@ class ActivityPublishScreen extends ConsumerWidget {
           ),
         ],
       ),
-      Gap.h12,
-      InputWidget.text(
-        hint: "Location",
-        label: "Can be Host name, Location name, Column Name, etc",
-      ),
+      // Gap.h12,
+      // InputWidget.text(
+      //   hint: "Location",
+      //   label: "Can be Host name, Location name, Column Name, etc",
+      // ),
     ];
 
     if (type == ActivityType.announcement) {
@@ -146,6 +166,8 @@ class ActivityPublishScreen extends ConsumerWidget {
       Gap.h12,
       ...outputList,
       Gap.h12,
+      const Divider(thickness: 1, color: BaseColor.primary3,),
+      Gap.h6,
       OutputWidget.startIcon(
         label: "Penerbit",
         title: "Jhon Manembo",

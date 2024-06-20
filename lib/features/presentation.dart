@@ -34,6 +34,10 @@ export 'publishing/presentations/widgets/widgets.dart';
 export 'publishing/presentations/activity_publish/activity_publish_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_state.dart';
 export 'publishing/presentations/activity_publish/activity_publish_controller.dart';
+export 'publishing/presentations/maps/map_screen.dart';
+export 'publishing/presentations/maps/map_controller.dart';
+export 'publishing/presentations/maps/map_state.dart';
+
 
 //Song Book
 export 'song_book/presentations/song_book_controller.dart';

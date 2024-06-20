@@ -36,6 +36,7 @@ class AppRoute {
   // Publishing
   static String publishing = 'publishing';
   static String activityPublish = "activity-publish";
+  static String publishingMap = "publish-map";
 
   //Account
   static String account = 'account';

@@ -1,0 +1,1 @@
+-keep class com.meimodev.palakat.palakat.BuildConfig { *; }

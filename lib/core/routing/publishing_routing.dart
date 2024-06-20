@@ -8,7 +8,6 @@ final publishingRouting = GoRoute(
   name: AppRoute.publishing,
   builder: (context, state) => const PublishingScreen(),
   routes: [
-
     GoRoute(
       path: 'activity-publish',
       name: AppRoute.activityPublish,
@@ -22,10 +21,25 @@ final publishingRouting = GoRoute(
         // );
         //
 
-        return const ActivityPublishScreen(id: "",);
+        return const ActivityPublishScreen(
+          id: "",
+        );
       },
     ),
+    GoRoute(
+      path: 'map',
+      name: AppRoute.publishingMap,
+      builder: (context, state) {
+        final params = (state.extra as RouteParam?)?.params;
+        final ot = params?[RouteParamKey.mapOperationType] as MapOperationType?;
 
+        assert(
+          ot != null,
+          'RouteParamKey.mapOperationType cannot be null',
+        );
 
+        return MapScreen(mapOperationType: ot!);
+      },
+    ),
   ],
 );

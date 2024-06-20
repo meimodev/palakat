@@ -10,6 +10,8 @@ class ScaffoldWidget extends StatelessWidget {
     this.backgroundColor,
     this.bottomNavigationBar,
     this.disableSingleChildScrollView = false,
+    this.disablePadding = false,
+    this.presistBottomWidget,
   });
 
   final Widget child;
@@ -18,7 +20,9 @@ class ScaffoldWidget extends StatelessWidget {
   final Color? backgroundColor;
   final Widget? bottomNavigationBar;
   final bool disableSingleChildScrollView;
+  final bool disablePadding;
 
+  final Widget? presistBottomWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -27,22 +31,28 @@ class ScaffoldWidget extends StatelessWidget {
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
         body: Padding(
-          padding:
-              EdgeInsets.only(
-                left: BaseSize.w12,
-                right: BaseSize.w12,
-              ),
+          padding: EdgeInsets.only(
+            left: disablePadding ? 0 : BaseSize.w12,
+            right: disablePadding ? 0 : BaseSize.w12,
+          ),
           child: disableSingleChildScrollView
               ? child
-              : SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Gap.h48,
-                      child,
-                      Gap.h64,
-                    ],
-                  ),
+              : Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            Gap.h48,
+                            child,
+                            Gap.h64,
+                          ],
+                        ),
+                      ),
+                    ),
+                    presistBottomWidget ?? const SizedBox(),
+                  ],
                 ),
         ),
         backgroundColor: backgroundColor ?? BaseColor.white,
