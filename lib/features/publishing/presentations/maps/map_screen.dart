@@ -61,8 +61,8 @@ class _MapScreenState extends State<MapScreen> {
             buildingsEnabled: false,
             rotateGesturesEnabled: false,
             tiltGesturesEnabled: false,
-            scrollGesturesEnabled: !pinPoint,
-            zoomGesturesEnabled: !pinPoint,
+            scrollGesturesEnabled: pinPoint,
+            zoomGesturesEnabled: pinPoint,
             onMapCreated: (GoogleMapController controller) {
               gMapsController.complete(controller);
             },
@@ -106,8 +106,7 @@ class _MapScreenState extends State<MapScreen> {
             right: 0,
             bottom: BaseSize.h48,
             child: pinPoint
-                ? const SizedBox()
-                : Align(
+                ? Align(
                     alignment: Alignment.center,
                     child: SizedBox(
                       width: BaseSize.customWidth(200),
@@ -116,7 +115,8 @@ class _MapScreenState extends State<MapScreen> {
                         onTap: () => context.pop<Location?>(selectedLocation),
                       ),
                     ),
-                  ),
+                  )
+                : const SizedBox(),
           )
         ],
       ),
