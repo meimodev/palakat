@@ -27,7 +27,11 @@ class DashboardScreen extends StatelessWidget {
       church: Church(
         id: "id",
         name: "somename",
-        location: "location",
+        location: Location(
+          latitude: 1,
+          longitude: 1,
+          name: "some location",
+        ),
       ),
       columnNumber: "22",
       baptize: true,

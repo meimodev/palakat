@@ -20,7 +20,7 @@ Future<T?> showDialogCustomWidget<T>({
     enableDrag: dragAble,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(BaseSize.customRadius(16)),
+        top: Radius.circular(BaseSize.customRadius(BaseSize.radiusMd)),
       ),
     ),
     builder: (context) => Padding(

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
-import 'package:palakat/core/widgets/dialog/dialog_date_picker_widget.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -21,7 +21,9 @@ class AccountScreen extends StatelessWidget {
         ),
         child: ButtonWidget.primary(
           text: "Submit",
-          onTap: () {},
+          onTap: () {
+            context.pushNamed(AppRoute.membership);
+          },
         ),
       ),
       child: Column(
