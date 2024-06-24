@@ -4,7 +4,6 @@ import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 class MembershipScreen extends StatelessWidget {

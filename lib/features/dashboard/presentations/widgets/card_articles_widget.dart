@@ -47,7 +47,7 @@ class CardArticlesWidget extends StatelessWidget {
                         icon: Assets.icons.line.trash,
                       ),
                     )
-                    .toList(),
+                ,
               ],
             )
           ],

@@ -17,6 +17,7 @@ extension XDateTime on DateTime {
     return toStringFormatted('dd/MM/yyyy');
   }
 
+  // ignore: non_constant_identifier_names
   String get EddMMMyyyy {
     return toStringFormatted('EEEE, dd MMMM yyyy');
   }
@@ -44,6 +45,8 @@ extension XDateTime on DateTime {
   //   return DateFormat('HH:mm aa').format(this);
   // }
   //
+
+  // ignore: non_constant_identifier_names
   String get HHmm {
     return toStringFormatted('HH:mm');
   }
