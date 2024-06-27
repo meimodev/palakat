@@ -23,6 +23,7 @@ class InputWidget extends StatefulWidget {
     this.controller,
     this.currentInputValue,
     this.endIcon,
+    this.textInputType,
   })  : onPressedWithResult = null,
         options = null,
         variant = InputWidgetVariant.text;
@@ -38,6 +39,7 @@ class InputWidget extends StatefulWidget {
     this.endIcon,
   })  : controller = null,
         maxLines = 1,
+        textInputType = null,
         variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
@@ -52,6 +54,7 @@ class InputWidget extends StatefulWidget {
         hint = null,
         controller = null,
         onPressedWithResult = null,
+        textInputType = null,
         assert(options != null && options.length > 0,
             "options cannot be null or empty");
 
@@ -68,6 +71,7 @@ class InputWidget extends StatefulWidget {
   final Future<String?> Function()? onPressedWithResult;
   final String? currentInputValue;
   final List<String>? options;
+  final TextInputType? textInputType;
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -94,7 +98,7 @@ class _InputWidgetState extends State<InputWidget> {
                 currentInputValue: widget.currentInputValue,
                 onChanged: widget.onChanged!,
                 onPressedWithResult: widget.onPressedWithResult!,
-          endIcon: widget.endIcon,
+                endIcon: widget.endIcon,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
@@ -104,6 +108,7 @@ class _InputWidgetState extends State<InputWidget> {
                 hint: widget.hint,
                 controller: widget.controller,
                 endIcon: widget.endIcon,
+                textInputType: widget.textInputType,
               )
             : const SizedBox(),
       ],

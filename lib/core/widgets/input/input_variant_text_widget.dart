@@ -10,6 +10,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.maxLines,
     this.hint,
     this.endIcon,
+    this.textInputType,
   });
 
   final TextEditingController? controller;
@@ -17,6 +18,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final int? maxLines;
   final String? hint;
   final SvgGenImage? endIcon;
+  final TextInputType? textInputType;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class InputVariantTextWidget extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       maxLines: maxLines,
+      keyboardType: textInputType,
       decoration: InputDecoration(
         hintText: hint,
         border: InputBorder.none,

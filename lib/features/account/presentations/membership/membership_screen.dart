@@ -52,7 +52,10 @@ class MembershipScreen extends StatelessWidget {
           InputWidget.text(
             label: "identify your column number",
             hint: "Column",
+            textInputType: TextInputType.number,
+            onChanged: (value) {
 
+            },
           ),
           Gap.h12,
           InputWidget.binaryOption(

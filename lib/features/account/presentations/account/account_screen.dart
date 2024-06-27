@@ -39,11 +39,18 @@ class AccountScreen extends StatelessWidget {
           InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
+            textInputType: TextInputType.number,
+            onChanged: (value) {
+              print(value);
+            },
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
+            onChanged: (value) {
+              print(value);
+            },
           ),
           Gap.h12,
           InputWidget.dropdown(
