@@ -1,19 +1,28 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
 
 import 'widgets/widgets.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final controller = ref.read(dashboardControllerProvider.notifier);
+    final state = ref.watch(dashboardControllerProvider);
+
     final membership = Membership(
       id: "id",
       account: Account(
@@ -38,15 +47,6 @@ class DashboardScreen extends StatelessWidget {
       sidi: true,
       bipra: Bipra.youths,
     );
-    final activities = [
-      'act1',
-      'act2',
-      'act3',
-      'act4',
-      'act5',
-      'act6',
-      'act7',
-    ];
 
     return ScaffoldWidget(
       child: Column(
@@ -69,27 +69,23 @@ class DashboardScreen extends StatelessWidget {
                 ActivityWidget(
                   onPressedViewAll: () async =>
                       await context.pushNamed(AppRoute.viewAll),
-                  activities: activities,
+                  activities: state.thisWeekActivities,
                   cardsHeight: BaseSize.customWidth(80),
-                  onPressedCardDatePreview: () async {
+                  onPressedCardDatePreview: (DateTime dateTime) async {
+
+                    final thisDayActivities = state.thisWeekActivities.where(
+                        (element) => element.activityDate.isSameDay(dateTime)).toList();
+
                     await showDialogPreviewDayActivitiesWidget(
-                      title: 'Mon, 25 Jan',
+                      title: dateTime.EddMMMyyyy,
                       context: context,
-                      data: List.generate(
-                        3,
-                        (index) => ActivityOverview(
-                          id: "id $index",
-                          title: "Activity Title $index",
-                          type: ActivityType.values[
-                              Random().nextInt(ActivityType.values.length)],
-                        ),
-                      ),
-                      onPressedCardActivity: (activityOverview) {
+                      data: thisDayActivities,
+                      onPressedCardActivity: (activity) {
                         context.pushNamed(
                           AppRoute.activityDetail,
                           extra: RouteParam(
                             params: {
-                              RouteParamKey.activityId: activityOverview.id,
+                              RouteParamKey.activityId: activity.id,
                             },
                           ),
                         );

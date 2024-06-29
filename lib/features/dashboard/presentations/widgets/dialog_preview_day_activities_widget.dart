@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/activity_overview.dart';
+import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 Future<void> showDialogPreviewDayActivitiesWidget({
   required BuildContext context,
-  required void Function(ActivityOverview activityOverview)
+  required void Function(Activity activity)
       onPressedCardActivity,
-  required List<ActivityOverview> data,
+  required List<Activity> data,
   required String title,
 }) async {
   await showDialogCustomWidget(
@@ -27,8 +28,8 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
     required this.onPressedCard,
   });
 
-  final List<ActivityOverview> data;
-  final void Function(ActivityOverview activityOverview) onPressedCard;
+  final List<Activity> data;
+  final void Function(Activity activityOverview) onPressedCard;
 
   @override
   Widget build(BuildContext context) {

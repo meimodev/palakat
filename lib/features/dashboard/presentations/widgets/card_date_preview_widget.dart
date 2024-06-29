@@ -6,21 +6,25 @@ class CardDatePreviewWidget extends StatelessWidget {
   const CardDatePreviewWidget({
     super.key,
     required this.date,
-    this.selected = false,
     required this.onPressedCardDatePreview,
     this.height,
     this.width,
+    required this.eventCount,
+    required this.serviceCount,
   });
 
-  final int date;
-  final bool selected;
+  final DateTime date;
   final VoidCallback onPressedCardDatePreview;
+
+  final int eventCount;
+  final int serviceCount;
 
   final double? height;
   final double? width;
 
   @override
   Widget build(BuildContext context) {
+    final today = date.isSameDay(DateTime.now());
     return InkWell(
       onTap: onPressedCardDatePreview,
       child: Container(
@@ -35,37 +39,52 @@ class CardDatePreviewWidget extends StatelessWidget {
           color: BaseColor.cardBackground1,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
           border: Border.all(
-            color: selected ? BaseColor.primaryText : BaseColor.transparent,
+            color: today ? BaseColor.primaryText : BaseColor.transparent,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "SUN",
+              date.toStringFormatted("E"),
               style: BaseTypography.bodyMedium.toSecondary,
             ),
             Text(
-              date.toString(),
+              date.day.toString(),
               style: BaseTypography.headlineSmall,
             ),
-            Gap.h6,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "2 Service",
-                  style: BaseTypography.labelSmall.toBold,
-                ),
-                Text(
-                  "4 Events",
-                  style: BaseTypography.labelSmall.toBold,
-                ),
-              ],
-            ),
+            serviceCount == 0 && eventCount == 0
+                ? const SizedBox()
+                : _buildCounters()
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCounters() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Gap.h6,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            serviceCount != 0
+                ? Text(
+                    "$serviceCount Services",
+                    style: BaseTypography.labelSmall.toBold,
+                  )
+                : const SizedBox(),
+            eventCount != 0
+                ? Text(
+                    "$eventCount Events",
+                    style: BaseTypography.labelSmall.toBold,
+                  )
+                : const SizedBox(),
+          ],
+        ),
+      ],
     );
   }
 }

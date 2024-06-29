@@ -23,6 +23,8 @@ class ActivityDetailScreen extends StatelessWidget {
       title: "Region 6-9, Youth & Teens Weekly Service",
       type: ActivityType.values[Random().nextInt(ActivityType.values.length)],
       bipra: Bipra.values[Random().nextInt(Bipra.values.length)],
+      publishDate: DateTime.now(),
+      activityDate: DateTime.now(),
     );
 
     return ScaffoldWidget(

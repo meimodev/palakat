@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 import 'widgets.dart';
 
-class ActivityWidget extends StatelessWidget {
+class ActivityWidget extends StatefulWidget {
   const ActivityWidget({
     super.key,
     required this.onPressedViewAll,
@@ -13,10 +15,33 @@ class ActivityWidget extends StatelessWidget {
     required this.onPressedCardDatePreview,
   });
 
-  final void Function() onPressedViewAll;
-  final List<String> activities;
+  final VoidCallback onPressedViewAll;
+  final List<Activity> activities;
   final double cardsHeight;
-  final VoidCallback onPressedCardDatePreview;
+  final void Function(DateTime) onPressedCardDatePreview;
+
+  @override
+  State<ActivityWidget> createState() => _ActivityWidgetState();
+}
+
+class _ActivityWidgetState extends State<ActivityWidget> {
+  List<Activity> thisWeekActivity = [];
+
+  List<DateTime> thisWeek = List.generate(
+    7,
+    (index) => DateTime.now().toStartOfTheWeek.add(
+          Duration(days: index),
+        ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    thisWeekActivity = widget.activities
+        .where((e) => e.activityDate.isOnThisWeek(DateTime.now()))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +49,38 @@ class ActivityWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SegmentTitleWidget(
-          onPressedViewAll: onPressedViewAll,
-          count: activities.length,
-          title: 'Activity',
+          onPressedViewAll: widget.onPressedViewAll,
+          count: widget.activities.length,
+          title: 'Activities',
         ),
         Gap.h6,
         SizedBox(
-          height: cardsHeight + BaseSize.w16,
+          height: widget.cardsHeight + BaseSize.w16,
           child: ListView.separated(
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            itemCount: activities.length,
+            itemCount: thisWeek.length,
             separatorBuilder: (context, index) => Gap.w12,
-            itemBuilder: (context, index) => CardDatePreviewWidget(
-              width: cardsHeight,
-              date: index + 1,
-              selected: index == 1,
-              onPressedCardDatePreview: onPressedCardDatePreview,
-            ),
+            itemBuilder: (context, index) {
+              final day = thisWeek[index];
+              return CardDatePreviewWidget(
+                width: widget.cardsHeight,
+                date: day,
+                eventCount: thisWeekActivity
+                    .where((e) =>
+                        e.activityDate.isSameDay(day) &&
+                        e.type == ActivityType.event)
+                    .length,
+                serviceCount: thisWeekActivity
+                    .where((e) =>
+                        e.activityDate.isSameDay(day) &&
+                        e.type == ActivityType.service)
+                    .length,
+                onPressedCardDatePreview: () =>
+                    widget.onPressedCardDatePreview(day),
+              );
+            },
           ),
         ),
       ],

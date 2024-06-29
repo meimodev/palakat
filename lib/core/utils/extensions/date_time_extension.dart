@@ -4,9 +4,33 @@
 import 'package:jiffy/jiffy.dart';
 
 extension XDateTime on DateTime {
+  Jiffy get toJiffy => Jiffy.parseFromDateTime(this);
+
   String toStringFormatted(String format) {
-    return Jiffy.parseFromDateTime(this).format(pattern: format);
+    return toJiffy.format(pattern: format);
   }
+
+  bool isSameDay(DateTime dateTime) {
+    return toJiffy.isSame(
+      Jiffy.parseFromDateTime(dateTime),
+      unit: Unit.day,
+    );
+  }
+
+  bool isOnThisWeek(DateTime dateTime) {
+    return Jiffy.parseFromDateTime(dateTime).isBetween(
+      toJiffy.startOf(Unit.week),
+      toJiffy.endOf(Unit.week),
+    );
+  }
+
+  DateTime get toStartOfTheWeek {
+    return toJiffy.startOf(Unit.week).dateTime;
+  }
+  DateTime get toEndOfTheWeek {
+    return toJiffy.endOf(Unit.week).dateTime;
+  }
+
 
   // String get monthAsMMM {
   //   return DateFormat.MMM().format(this);
@@ -18,8 +42,13 @@ extension XDateTime on DateTime {
   }
 
   // ignore: non_constant_identifier_names
-  String get EddMMMyyyy {
+  String get EEEEddMMMyyyy {
     return toStringFormatted('EEEE, dd MMMM yyyy');
+  }
+
+  // ignore: non_constant_identifier_names
+  String get EddMMMyyyy {
+    return toStringFormatted('E, dd MMMM yyyy');
   }
 
   //

@@ -103,7 +103,7 @@ class ActivityPublishScreen extends ConsumerWidget {
                   initialDatePickerMode: DatePickerMode.day,
                   lastDate: DateTime(DateTime.now().year + 5),
                 );
-                return res?.EddMMMyyyy;
+                return res?.EEEEddMMMyyyy;
               },
             ),
           ),
