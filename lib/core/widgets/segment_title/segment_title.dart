@@ -6,17 +6,37 @@ import 'package:palakat/core/utils/utils.dart';
 class SegmentTitleWidget extends StatelessWidget {
   const SegmentTitleWidget({
     super.key,
-    required this.onPressedViewAll,
+    this.onPressedViewAll,
     required this.count,
     required this.title,
   });
 
-  final void Function() onPressedViewAll;
+  final VoidCallback? onPressedViewAll;
   final int count;
   final String title;
 
   @override
   Widget build(BuildContext context) {
+    if (count == 0) {
+      return Container(
+        decoration: BoxDecoration(
+          color: BaseColor.cardBackground1,
+          borderRadius: BorderRadius.circular(
+            BaseSize.radiusMd,
+          ),
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: BaseSize.w24,
+          horizontal: BaseSize.w8,
+        ),
+        child: Text(
+          "Seems there is no announcement related -_-",
+          textAlign: TextAlign.center,
+          style: BaseTypography.bodyMedium.toSecondary,
+        ),
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

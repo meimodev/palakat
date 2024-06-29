@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'widgets.dart';
 
@@ -11,10 +14,11 @@ class AnnouncementWidget extends StatelessWidget {
   });
 
   final void Function() onPressedViewAll;
-  final List<String> announcements;
+  final List<Activity> announcements;
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -30,12 +34,20 @@ class AnnouncementWidget extends StatelessWidget {
               bottom: BaseSize.h6,
             ),
             child: CardAnnouncementWidget(
-              title: e,
+              title: e.title,
+              publishedOn: e.publishDate,
               onPressedCard: () {
-                print(e);
+                context.pushNamed(
+                  AppRoute.activityDetail,
+                  extra: RouteParam(
+                    params: {
+                      RouteParamKey.activityId: e.id,
+                    },
+                  ),
+                );
               },
               onPressedDownload: () {
-                print('Download');
+                print('Download ${e.title}');
               },
             ),
           ),

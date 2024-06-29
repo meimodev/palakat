@@ -10,9 +10,11 @@ class CardAnnouncementWidget extends StatelessWidget {
     required this.title,
     required this.onPressedCard,
     required this.onPressedDownload,
+    required this.publishedOn,
   });
 
   final String title;
+  final DateTime publishedOn;
   final VoidCallback onPressedCard;
   final VoidCallback onPressedDownload;
 
@@ -45,9 +47,18 @@ class CardAnnouncementWidget extends StatelessWidget {
                   ),
                   Gap.w12,
                   Expanded(
-                    child: Text(
-                      title,
-                      style: BaseTypography.bodySmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          title,
+                          style: BaseTypography.bodySmall,
+                        ),
+                        Text(
+                          publishedOn.EEEEddMMMyyyy,
+                          style: BaseTypography.labelSmall,
+                        ),
+                      ],
                     ),
                   ),
                   Gap.w12,

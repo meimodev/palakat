@@ -22,30 +22,6 @@ class DashboardScreen extends ConsumerWidget {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
 
-    final membership = Membership(
-      id: "id",
-      account: Account(
-        id: "id",
-        phone: "phone",
-        name: "name",
-        dob: DateTime.now(),
-        gender: Gender.male,
-        maritalStatus: MaritalStatus.married,
-      ),
-      church: Church(
-        id: "id",
-        name: "somename",
-        location: Location(
-          latitude: 1,
-          longitude: 1,
-          name: "some location",
-        ),
-      ),
-      columnNumber: "22",
-      baptize: true,
-      sidi: true,
-      bipra: Bipra.youths,
-    );
 
     return ScaffoldWidget(
       child: Column(
@@ -56,7 +32,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
           Gap.h12,
           MembershipCardWidget(
-            membership: membership,
+            membership: state.membership,
             onPressedCard: () => context.pushNamed(AppRoute.account),
           ),
           Gap.h24,
@@ -97,11 +73,7 @@ class DashboardScreen extends ConsumerWidget {
                   onPressedViewAll: () async {
                     await context.pushNamed(AppRoute.viewAll);
                   },
-                  announcements: [
-                    "announcement about lorem ipsum 1",
-                    "announcement about lorem ipsum 2",
-                    "announcement about lorem ipsum 3",
-                  ],
+                  announcements: controller.getThisWeekAnnouncement(),
                 ),
                 Gap.h12,
                 // ArticlesWidget(

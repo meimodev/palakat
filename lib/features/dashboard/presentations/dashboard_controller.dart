@@ -1,8 +1,7 @@
 import 'dart:math';
 
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/activity.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat/core/models/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -17,10 +16,10 @@ class DashboardController extends _$DashboardController {
       (index) => Activity(
         id: '$index',
         title: 'activity title $index',
-        bipra: Bipra.values[Random().nextInt(Bipra.values.length - 1)],
+        bipra: Bipra.values[Random().nextInt(Bipra.values.length)],
         type: ActivityType
-            .values[Random().nextInt(ActivityType.values.length - 1)],
-        // type: ActivityType.service,
+            .values[Random().nextInt(ActivityType.values.length)],
+        // type: ActivityType.announcement,
         publishDate: DateTime.now(),
         activityDate: DateTime.now().add(
           Duration(days: Random().nextInt(5)),
@@ -28,8 +27,42 @@ class DashboardController extends _$DashboardController {
       ),
     );
 
+    final membership = Membership(
+      id: "id",
+      account: Account(
+        id: "id",
+        phone: "phone",
+        name: "name",
+        dob: DateTime.now(),
+        gender: Gender.male,
+        maritalStatus: MaritalStatus.married,
+      ),
+      church: Church(
+        id: "id",
+        name: "somename",
+        location: Location(
+          latitude: 1,
+          longitude: 1,
+          name: "some location",
+        ),
+      ),
+      columnNumber: "22",
+      baptize: true,
+      sidi: true,
+      bipra: Bipra.youths,
+    );
+
     return DashboardState(
       thisWeekActivities: activities,
+      membership: membership,
     );
+  }
+
+  List<Activity> getThisWeekAnnouncement() {
+    return state.thisWeekActivities
+        .where(
+          (element) => element.type == ActivityType.announcement,
+        )
+        .toList();
   }
 }

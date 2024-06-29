@@ -49,22 +49,22 @@ class PublishingScreen extends StatelessWidget {
                   print("Announcement");
                 }
               },
-              {
-                "title": "Publish Article",
-                "description":
-                    "This is the service that needed to be publish, like yourth service, or general service",
-                "onPressed": () {
-                  print("Article");
-                }
-              },
-              {
-                "title": "Publish Fund Raising",
-                "description":
-                    "This is the service that needed to be publish, like yourth service, or general service",
-                "onPressed": () {
-                  print("Fund Raising");
-                }
-              },
+              // {
+              //   "title": "Publish Article",
+              //   "description":
+              //       "This is the service that needed to be publish, like yourth service, or general service",
+              //   "onPressed": () {
+              //     print("Article");
+              //   }
+              // },
+              // {
+              //   "title": "Publish Fund Raising",
+              //   "description":
+              //       "This is the service that needed to be publish, like yourth service, or general service",
+              //   "onPressed": () {
+              //     print("Fund Raising");
+              //   }
+              // },
             ],
           ),
           Gap.h24,

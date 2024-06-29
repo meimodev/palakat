@@ -7,5 +7,6 @@ part 'dashboard_state.freezed.dart';
 class DashboardState with _$DashboardState {
   const factory DashboardState({
     @Default(<Activity>[]) List<Activity> thisWeekActivities,
+    final Membership? membership,
   }) = _DashboardState;
 }
