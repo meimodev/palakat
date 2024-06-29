@@ -79,3 +79,5 @@ flutter_gen:
   integrations:
     flutter_svg: true
 
+# derry config
+scripts: derry.yaml

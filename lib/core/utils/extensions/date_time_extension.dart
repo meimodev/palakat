@@ -27,10 +27,10 @@ extension XDateTime on DateTime {
   DateTime get toStartOfTheWeek {
     return toJiffy.startOf(Unit.week).dateTime;
   }
+
   DateTime get toEndOfTheWeek {
     return toJiffy.endOf(Unit.week).dateTime;
   }
-
 
   // String get monthAsMMM {
   //   return DateFormat.MMM().format(this);
@@ -50,6 +50,27 @@ extension XDateTime on DateTime {
   String get EddMMMyyyy {
     return toStringFormatted('E, dd MMMM yyyy');
   }
+  // ignore: non_constant_identifier_names
+  String get EEEEddMMM {
+    return toStringFormatted('EEEE, dd MMMM');
+  }
+
+  List<DateTime> get generateThisWeekDates {
+    return [
+      ...List.generate(
+        1,
+        (index) => subtract(
+          Duration(days: index+1),
+        ),
+      ).reversed,
+      ...List.generate(
+        5,
+            (index) => add(
+          Duration(days: index),
+        ),
+      ),
+    ];
+  }
 
   //
   // String get yyyMMdd {
@@ -65,6 +86,10 @@ extension XDateTime on DateTime {
     return toStringFormatted('dd MMMM yyyy');
   }
 
+  /// 10 December 2019
+  String get ddMmmm {
+    return toStringFormatted('dd MMMM');
+  }
   //
   // String get mmmddyyy {
   //   return DateFormat('MMM dd, yy').format(this);

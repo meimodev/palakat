@@ -27,12 +27,7 @@ class ActivityWidget extends StatefulWidget {
 class _ActivityWidgetState extends State<ActivityWidget> {
   List<Activity> thisWeekActivity = [];
 
-  List<DateTime> thisWeek = List.generate(
-    7,
-    (index) => DateTime.now().toStartOfTheWeek.add(
-          Duration(days: index),
-        ),
-  );
+ final List<DateTime> thisWeek = DateTime.now().generateThisWeekDates;
 
   @override
   void initState() {

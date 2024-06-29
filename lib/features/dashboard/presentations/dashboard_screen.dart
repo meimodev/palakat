@@ -104,16 +104,16 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
                 Gap.h12,
-                ArticlesWidget(
-                  onPressedViewAll: () async {
-                    await context.pushNamed(AppRoute.viewAll);
-                  },
-                  data: [
-                    "Title of the article 1",
-                    "Title of the article 2",
-                    "Title of the article 3 lorem ipsum",
-                  ],
-                ),
+                // ArticlesWidget(
+                //   onPressedViewAll: () async {
+                //     await context.pushNamed(AppRoute.viewAll);
+                //   },
+                //   data: [
+                //     "Title of the article 1",
+                //     "Title of the article 2",
+                //     "Title of the article 3 lorem ipsum",
+                //   ],
+                // ),
               ],
             ),
           ),

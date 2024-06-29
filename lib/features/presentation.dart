@@ -24,6 +24,8 @@ export 'dashboard/presentations/dashboard_screen.dart';
 export 'dashboard/presentations/dashboard_state.dart';
 export 'dashboard/presentations/widgets/widgets.dart';
 export 'dashboard/presentations/view_all/view_all_screen.dart';
+export 'dashboard/presentations/view_all/view_all_state.dart';
+export 'dashboard/presentations/view_all/view_all_controller.dart';
 export 'dashboard/presentations/activity_detail/activity_detail_screen.dart';
 
 //Publishing

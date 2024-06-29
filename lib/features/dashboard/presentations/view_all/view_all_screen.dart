@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/activity_overview.dart';
+import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 
-class ViewAllScreen extends StatelessWidget {
+class ViewAllScreen extends ConsumerWidget {
   const ViewAllScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    void onPressedCardActivity(ActivityOverview activityOverview) {
-      context.pushNamed(
-        AppRoute.activityDetail,
-        extra: RouteParam(
-          params: {
-            RouteParamKey.activityId: activityOverview.id,
-          },
-        ),
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(viewAllControllerProvider.notifier);
+    final state = ref.watch(viewAllControllerProvider);
 
     return ScaffoldWidget(
       child: Column(
@@ -37,58 +32,31 @@ class ViewAllScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
             child: Column(
               children: [
-                CardActivitySectionWidget(
-                  title: '12 January 2024',
-                  activities: [
-                    ActivityOverview(
-                      id: "1",
-                      title:
-                          "Long String to show the card rendering capabilities to trim this long string to make no sense",
-                      type: ActivityType.service,
+                ...DateTime.now().generateThisWeekDates.map(
+                      (date) => Column(
+                        children: [
+                          CardActivitySectionWidget(
+                            title: date.EEEEddMMM,
+                            today: date.isSameDay(DateTime.now()),
+                            activities: state.activities
+                                .where((activity) =>
+                                    activity.activityDate.isSameDay(date))
+                                .toList(),
+                            onPressedCard: (Activity activity) {
+                              context.pushNamed(
+                                AppRoute.activityDetail,
+                                extra: RouteParam(
+                                  params: {
+                                    RouteParamKey.activityId: activity.id,
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          Gap.h24,
+                        ],
+                      ),
                     ),
-                    ActivityOverview(
-                      id: "2",
-                      title: "lorem ipsum 2",
-                      type: ActivityType.announcement,
-                    ),
-                  ],
-                  onPressedCard: onPressedCardActivity,
-                ),
-                Gap.h24,
-                CardActivitySectionWidget(
-                  title: '13 January 2024',
-                  today: true,
-                  activities: [
-                    ActivityOverview(
-                      id: "12",
-                      title: "lorem ipsum 1",
-                      type: ActivityType.service,
-                    ),
-                    ActivityOverview(
-                      id: "12",
-                      title: "lorem ipsum 2",
-                      type: ActivityType.event,
-                    ),
-                  ],
-                  onPressedCard: onPressedCardActivity,
-                ),
-                Gap.h24,
-                CardActivitySectionWidget(
-                  title: '14 January 2024',
-                  activities: [
-                    ActivityOverview(
-                      id: "11",
-                      title: "lorem ipsum 1",
-                      type: ActivityType.service,
-                    ),
-                    ActivityOverview(
-                      id: "12",
-                      title: "lorem ipsum 2",
-                      type: ActivityType.event,
-                    ),
-                  ],
-                  onPressedCard: onPressedCardActivity,
-                ),
               ],
             ),
           ),
@@ -97,4 +65,3 @@ class ViewAllScreen extends StatelessWidget {
     );
   }
 }
-

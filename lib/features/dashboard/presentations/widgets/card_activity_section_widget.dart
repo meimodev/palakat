@@ -14,20 +14,28 @@ class CardActivitySectionWidget extends StatelessWidget {
   });
 
   final String title;
-  final List<ActivityOverview> activities;
+  final List<Activity> activities;
   final bool today;
-  final void Function(ActivityOverview activityOverview) onPressedCard;
+  final void Function(Activity activityOverview) onPressedCard;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          today ? "$title (today)" : title,
-          style: today
-              ? BaseTypography.titleMedium.toBold
-              : BaseTypography.titleMedium,
+        Row(
+          children: [
+            Text(
+              "$title ",
+              style: today
+                  ? BaseTypography.titleMedium.toBold
+                  : BaseTypography.titleMedium,
+            ),
+            Text(
+              activities.isNotEmpty ? "(${activities.length})" : "-",
+              style: BaseTypography.bodySmall,
+            ),
+          ],
         ),
         Gap.h12,
         ListView.separated(
