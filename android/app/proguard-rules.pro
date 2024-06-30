@@ -1,1 +1,2 @@
 -keep class com.meimodev.palakat.palakat.BuildConfig { *; }
+-keep class androidx.lifecycle.DefaultLifecycleObserver

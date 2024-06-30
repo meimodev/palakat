@@ -6,21 +6,22 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
+import 'package:palakat/core/utils/utils.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 
 class ActivityPublishScreen extends ConsumerWidget {
   const ActivityPublishScreen({
     super.key,
-    required this.id,
+    required this.type,
   });
 
-  final String id;
+  final ActivityType type;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final controller = ref.read(activityPublishControllerProvider.notifier);
-    final state = ref.watch(activityPublishControllerProvider);
+    final state = ref.watch(activityPublishControllerProvider(type));
 
     return ScaffoldWidget(
       presistBottomWidget: Padding(
@@ -132,20 +133,16 @@ class ActivityPublishScreen extends ConsumerWidget {
     if (type == ActivityType.announcement) {
       outputList = [
         InputWidget.dropdown(
-          label: "Where the service mainly will notify",
-          hint: "Select BIPRA",
+          label: "File that related to the announcement",
+          hint: "Upload File, Image, Pdf",
+          endIcon: Assets.icons.line.download,
           onChanged: print,
           onPressedWithResult: () async {
-            //show single selection
-            final res = await showDialogBipraPickerWidget(context: context);
-            return res?.name;
+            final res = await FilePickerUtil.pickFile();
+            return res?.path;
           },
         ),
-        Gap.h12,
-        InputWidget.text(
-          hint: "Title",
-          label: "Brief explanation of the service",
-        ),
+
       ];
     }
     return [

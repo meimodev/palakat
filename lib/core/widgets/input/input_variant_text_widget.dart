@@ -11,6 +11,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.hint,
     this.endIcon,
     this.textInputType,
+    this.border,
   });
 
   final TextEditingController? controller;
@@ -19,6 +20,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final String? hint;
   final SvgGenImage? endIcon;
   final TextInputType? textInputType;
+  final BoxBorder? border;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class InputVariantTextWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
       decoration: BoxDecoration(
         color: BaseColor.cardBackground1,
+        border: border,
         borderRadius: BorderRadius.circular(
           BaseSize.radiusMd,
         ),

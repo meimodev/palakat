@@ -8,8 +8,8 @@ part 'activity_publish_controller.g.dart';
 @riverpod
 class ActivityPublishController extends _$ActivityPublishController {
   @override
-  ActivityPublishState build() {
-    return const ActivityPublishState(type: ActivityType.event);
+  ActivityPublishState build(ActivityType activityType) {
+    return  ActivityPublishState(type: activityType);
   }
 
 }

@@ -12,17 +12,16 @@ final publishingRouting = GoRoute(
       path: 'activity-publish',
       name: AppRoute.activityPublish,
       builder: (context, state) {
-        // final params = (state.extra as RouteParam?)?.params;
-        // final id = params?[RouteParamKey.activityId] as String?;
-        //
-        // assert(
-        //   id?.isEmpty == false,
-        //   'RouteParamKey.id must be set with non empty String',
-        // );
-        //
+        final params = (state.extra as RouteParam?)?.params;
+        final type = params?[RouteParamKey.activityType] as ActivityType?;
 
-        return const ActivityPublishScreen(
-          id: "",
+        assert(
+          type != null,
+          'RouteParamKey.activityType cannot be null',
+        );
+
+        return ActivityPublishScreen(
+          type: type!,
         );
       },
     ),

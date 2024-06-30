@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -29,11 +30,11 @@ class SongBookScreen extends StatelessWidget {
             title: "Song Book",
           ),
           Gap.h24,
-          // InputFormWidget(
-          //   clearBorder: true,
-          //   prefixIcon: Assets.icons.line.search.svg(),
-          //   hintText: 'Search',
-          // ),
+           InputWidget.text(
+            hint: "Search title / lirics",
+            endIcon: Assets.icons.line.search,
+             border: Border.all(color: BaseColor.primary3),
+          ),
           Gap.h12,
           ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
@@ -55,4 +56,3 @@ class SongBookScreen extends StatelessWidget {
     );
   }
 }
-

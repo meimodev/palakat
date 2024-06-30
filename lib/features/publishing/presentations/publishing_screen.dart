@@ -21,50 +21,42 @@ class PublishingScreen extends StatelessWidget {
           ),
           Gap.h12,
           PublishingOperationsListWidget(
-            onPressedCard: () {
-              context.pushNamed(AppRoute.activityPublish);
-            },
-            data: [
-              {
-                "title": "Publish Service",
-                "description":
+            children: [
+              CardPublishingOperationWidget(
+                title: "Publish Service",
+                description:
                     "This is the service that needed to be publish, like yourth service, or general service",
-                "onPressed": () {
-                  print("Service");
-                }
-              },
-              {
-                "title": "Publish Event",
-                "description":
+                onPressedCard: () {
+                  context.pushNamed(AppRoute.activityPublish,
+                      extra: const RouteParam(params: {
+                        RouteParamKey.activityType: ActivityType.service
+                      }));
+                },
+              ),
+              Gap.h12,
+              CardPublishingOperationWidget(
+                title: "Publish Event",
+                description:
                     "This is the service that needed to be publish, like yourth service, or general service",
-                "onPressed": () {
-                  print("Event");
-                }
-              },
-              {
-                "title": "Publish Announcement",
-                "description":
+                onPressedCard: () {
+                  context.pushNamed(AppRoute.activityPublish,
+                      extra: const RouteParam(params: {
+                        RouteParamKey.activityType: ActivityType.service
+                      }));
+                },
+              ),
+              Gap.h12,
+              CardPublishingOperationWidget(
+                title: "Publish Announcement",
+                description:
                     "This is the service that needed to be publish, like yourth service, or general service",
-                "onPressed": () {
-                  print("Announcement");
-                }
-              },
-              // {
-              //   "title": "Publish Article",
-              //   "description":
-              //       "This is the service that needed to be publish, like yourth service, or general service",
-              //   "onPressed": () {
-              //     print("Article");
-              //   }
-              // },
-              // {
-              //   "title": "Publish Fund Raising",
-              //   "description":
-              //       "This is the service that needed to be publish, like yourth service, or general service",
-              //   "onPressed": () {
-              //     print("Fund Raising");
-              //   }
-              // },
+                onPressedCard: () {
+                  context.pushNamed(AppRoute.activityPublish,
+                      extra: const RouteParam(params: {
+                        RouteParamKey.activityType: ActivityType.announcement
+                      }));
+                },
+              ),
             ],
           ),
           Gap.h24,
@@ -90,7 +82,6 @@ class PublishingScreen extends StatelessWidget {
               context.pushNamed(AppRoute.viewAll);
             },
             onPressedCard: (activityOverview) {},
-
           ),
         ],
       ),
