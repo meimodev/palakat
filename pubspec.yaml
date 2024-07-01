@@ -31,7 +31,7 @@ dependencies:
   json_annotation: ^4.8.1
   google_maps_flutter: ^2.2.8
   file_picker: 8.0.0+1
-  form_builder_validators: 9.0.0
+  form_builder_validators: ^9.1.0
 
 dev_dependencies:
   flutter_test:
