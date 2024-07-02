@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "955551592299",
+    "project_id": "palakat-e70af",
+    "storage_bucket": "palakat-e70af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955551592299:android:0e51940288aae85d7b262e",
+        "android_client_info": {
+          "package_name": "com.meimodev.palakat.palakat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955551592299-t80cuphg38tsd5i4d7i8uilnrpsmqlip.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.meimodev.palakat.palakat",
+            "certificate_hash": "e1ec742a2e60cb6cf208aa57dddd2a8208a68002"
+          }
+        },
+        {
+          "client_id": "955551592299-v5t98l9aiu7vddsat404jgpi1epmq3kj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZriXF-AIKI6RqL9MGvSLNyteUBiciBfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955551592299-v5t98l9aiu7vddsat404jgpi1epmq3kj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "955551592299-bfs7bprap04kmncka1tpa4okhvi5p3dp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.meimodev.palakat.palakat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -20,8 +20,9 @@ class ActivityPublishScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final controller = ref.read(activityPublishControllerProvider.notifier);
-    final state = ref.watch(activityPublishControllerProvider(type));
+    final provider = activityPublishControllerProvider(type);
+    final controller = ref.read(provider.notifier);
+    final state = ref.watch(provider);
 
     return ScaffoldWidget(
       presistBottomWidget: Padding(
@@ -29,10 +30,6 @@ class ActivityPublishScreen extends ConsumerWidget {
           bottom: BaseSize.h24,
           left: BaseSize.w12,
           right: BaseSize.w12,
-        ),
-        child: ButtonWidget.primary(
-          text: "Publish",
-          onTap: () {},
         ),
       ),
       child: Column(
@@ -90,7 +87,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       Row(
         children: [
           Expanded(
-            flex: 2,
+            flex: 1,
             child: InputWidget.dropdown(
               hint: "Date",
               label: '',
@@ -142,13 +139,13 @@ class ActivityPublishScreen extends ConsumerWidget {
             return res?.path;
           },
         ),
-
       ];
     }
     return [
       InputWidget.dropdown(
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
+        errorText:"Must be selected",
         onPressedWithResult: () async {
           final res = await showDialogBipraPickerWidget(context: context);
           return res?.name;
@@ -163,7 +160,10 @@ class ActivityPublishScreen extends ConsumerWidget {
       Gap.h12,
       ...outputList,
       Gap.h12,
-      const Divider(thickness: 1, color: BaseColor.primary3,),
+      const Divider(
+        thickness: 1,
+        color: BaseColor.primary3,
+      ),
       Gap.h6,
       OutputWidget.startIcon(
         label: "Penerbit",
@@ -177,6 +177,11 @@ class ActivityPublishScreen extends ConsumerWidget {
       OutputWidget.startIcon(
         title: "Rabu, 32 January 2028",
         startIcon: Assets.icons.line.calendarOutline,
+      ),
+      Gap.h24,
+      ButtonWidget.primary(
+        text: "Submit",
+        onTap: (){},
       ),
     ];
   }

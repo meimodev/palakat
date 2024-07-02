@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -49,6 +50,10 @@ class InputVariantTextWidget extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       keyboardType: textInputType,
+      autovalidateMode: AutovalidateMode.always,
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.required(),
+      ]),
       decoration: InputDecoration(
         hintText: hint,
         border: InputBorder.none,

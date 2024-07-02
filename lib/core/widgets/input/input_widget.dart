@@ -24,7 +24,8 @@ class InputWidget extends StatefulWidget {
     this.currentInputValue,
     this.endIcon,
     this.textInputType,
-    this.border
+    this.border,
+    this.errorText,
   })  : onPressedWithResult = null,
         options = null,
         variant = InputWidgetVariant.text;
@@ -38,10 +39,11 @@ class InputWidget extends StatefulWidget {
     this.currentInputValue,
     this.options,
     this.endIcon,
+    this.errorText,
   })  : controller = null,
         maxLines = 1,
         textInputType = null,
-  border = null,
+        border = null,
         variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
@@ -50,6 +52,7 @@ class InputWidget extends StatefulWidget {
     required this.label,
     required this.onChanged,
     this.currentInputValue,
+    this.errorText,
   })  : variant = InputWidgetVariant.binaryOption,
         endIcon = null,
         maxLines = null,
@@ -57,7 +60,6 @@ class InputWidget extends StatefulWidget {
         controller = null,
         onPressedWithResult = null,
         border = null,
-
         textInputType = null,
         assert(options != null && options.length > 0,
             "options cannot be null or empty");
@@ -67,6 +69,7 @@ class InputWidget extends StatefulWidget {
   final String? label;
   final InputWidgetVariant variant;
   final void Function(String value)? onChanged;
+  final String? errorText;
 
   //variant text
   final TextEditingController? controller;
@@ -76,7 +79,6 @@ class InputWidget extends StatefulWidget {
   final String? currentInputValue;
   final List<String>? options;
   final TextInputType? textInputType;
-
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -114,9 +116,10 @@ class _InputWidgetState extends State<InputWidget> {
                 controller: widget.controller,
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
-          border: widget.border,
+                border: widget.border,
               )
             : const SizedBox(),
+        _buildLabelWidget(),
       ],
     );
   }

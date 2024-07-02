@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +19,6 @@ class DashboardScreen extends ConsumerWidget {
   ) {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
-
 
     return ScaffoldWidget(
       child: Column(
@@ -46,9 +44,10 @@ class DashboardScreen extends ConsumerWidget {
                   activities: state.thisWeekActivities,
                   cardsHeight: BaseSize.customWidth(80),
                   onPressedCardDatePreview: (DateTime dateTime) async {
-
-                    final thisDayActivities = state.thisWeekActivities.where(
-                        (element) => element.activityDate.isSameDay(dateTime)).toList();
+                    final thisDayActivities = state.thisWeekActivities
+                        .where((element) =>
+                            element.activityDate.isSameDay(dateTime))
+                        .toList();
 
                     await showDialogPreviewDayActivitiesWidget(
                       title: dateTime.EddMMMyyyy,
