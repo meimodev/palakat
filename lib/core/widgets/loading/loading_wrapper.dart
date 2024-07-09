@@ -14,7 +14,7 @@ class LoadingWrapper extends StatelessWidget {
         child: SizedBox(
           height: BaseSize.w16,
           width: BaseSize.w16,
-          child: CircularProgressIndicator(
+          child: const CircularProgressIndicator(
             color: BaseColor.primary3,
           ),
         ),

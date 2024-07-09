@@ -347,8 +347,8 @@ class ButtonWidget extends StatelessWidget {
   /// [INFO] GET OVERLAY COLOR
   ///
   /// if button disable, it will remove overlay color
-  MaterialStateProperty<Color>? _getOverlayColor() {
-    return _isEnabled ? MaterialStateProperty.all(overlayColor) : null;
+  WidgetStateProperty<Color>? _getOverlayColor() {
+    return _isEnabled ? WidgetStateProperty.all(overlayColor) : null;
   }
 
   /// [INFO] GET FOCUS COLOR
