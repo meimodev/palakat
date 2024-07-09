@@ -20,7 +20,7 @@ class ActivityPublishScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = activityPublishControllerProvider(type);
-    final controller = ref.read(provider.notifier);
+    // final controller = ref.read(provider.notifier);
     final state = ref.watch(provider);
 
     return ScaffoldWidget(

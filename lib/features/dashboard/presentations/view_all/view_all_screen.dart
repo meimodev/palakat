@@ -14,7 +14,7 @@ class ViewAllScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(viewAllControllerProvider.notifier);
+    // final controller = ref.read(viewAllControllerProvider.notifier);
     final state = ref.watch(viewAllControllerProvider);
 
     return ScaffoldWidget(
