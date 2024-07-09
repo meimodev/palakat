@@ -25,38 +25,43 @@ class CardDatePreviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = date.isSameDay(DateTime.now());
-    return InkWell(
-      onTap: onPressedCardDatePreview,
-      child: Container(
-        height: height,
-        width: width,
-        padding: EdgeInsets.only(
-          top: BaseSize.h6,
-          left: BaseSize.w6,
-          right: BaseSize.w6,
+    return Material(
+      clipBehavior: Clip.hardEdge,
+      color: BaseColor.cardBackground1,
+      shape: ContinuousRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(
+          width: 3,
+          color: today ? BaseColor.primaryText : BaseColor.transparent,
         ),
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          border: Border.all(
-            color: today ? BaseColor.primaryText : BaseColor.transparent,
+      ),
+      child: InkWell(
+        onTap: onPressedCardDatePreview,
+        child: Container(
+          height: height,
+          width: width,
+          padding: EdgeInsets.only(
+            top: BaseSize.h6,
+            left: BaseSize.w6,
+            right: BaseSize.w6,
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              date.toStringFormatted("E"),
-              style: BaseTypography.bodyMedium.toSecondary,
-            ),
-            Text(
-              date.day.toString(),
-              style: BaseTypography.headlineSmall,
-            ),
-            serviceCount == 0 && eventCount == 0
-                ? const SizedBox()
-                : _buildCounters()
-          ],
+
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                date.toStringFormatted("E"),
+                style: BaseTypography.bodyMedium.toSecondary,
+              ),
+              Text(
+                date.day.toString(),
+                style: BaseTypography.headlineSmall,
+              ),
+              serviceCount == 0 && eventCount == 0
+                  ? const SizedBox()
+                  : _buildCounters()
+            ],
+          ),
         ),
       ),
     );
@@ -72,13 +77,13 @@ class CardDatePreviewWidget extends StatelessWidget {
           children: [
             serviceCount != 0
                 ? Text(
-                    "$serviceCount Services",
+                    "$serviceCount Service",
                     style: BaseTypography.labelSmall.toBold,
                   )
                 : const SizedBox(),
             eventCount != 0
                 ? Text(
-                    "$eventCount Events",
+                    "$eventCount Event",
                     style: BaseTypography.labelSmall.toBold,
                   )
                 : const SizedBox(),

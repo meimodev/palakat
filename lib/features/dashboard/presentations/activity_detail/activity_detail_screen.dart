@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -19,12 +19,12 @@ class ActivityDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = Activity(
-      id: id,
+      serial: id,
       title: "Region 6-9, Youth & Teens Weekly Service",
       type: ActivityType.values[Random().nextInt(ActivityType.values.length)],
       bipra: Bipra.values[Random().nextInt(Bipra.values.length)],
       publishDate: DateTime.now(),
-      activityDate: DateTime.now(),
+      activityDate: DateTime.now(), accountSerial: '', churchSerial: '',
     );
 
     return ScaffoldWidget(

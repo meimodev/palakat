@@ -1,16 +1,18 @@
-class Location {
-  final double latitude;
-  final double longitude;
-  final String name;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  Location({
-    required this.latitude,
-    required this.longitude,
-    this.name = "",
-  });
+part 'location.freezed.dart';
+part 'location.g.dart';
 
-  @override
-  String toString() {
-    return 'Location{latitude: $latitude, longitude: $longitude, name: $name}';
-  }
+@freezed
+class Location with _$Location {
+  const factory Location({
+    @Default(0) double latitude ,
+    @Default(0) double longitude ,
+    @Default("") String name ,
+  }) = _Location;
+
+  factory Location.fromJson(Map<String, dynamic> data) => _$LocationFromJson(data);
+
+
+
 }

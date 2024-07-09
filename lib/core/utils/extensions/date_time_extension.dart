@@ -12,29 +12,33 @@ extension XDateTime on DateTime {
 
   bool isSameDay(DateTime dateTime) {
     return toJiffy.isSame(
-      Jiffy.parseFromDateTime(dateTime),
+      dateTime.toJiffy,
       unit: Unit.day,
     );
   }
 
   bool isOnThisWeek(DateTime dateTime) {
-    return Jiffy.parseFromDateTime(dateTime).isBetween(
+    return dateTime.toJiffy.isBetween(
       toJiffy.startOf(Unit.week),
       toJiffy.endOf(Unit.week),
     );
   }
 
   DateTime get toStartOfTheWeek {
-    return toJiffy.startOf(Unit.week).dateTime;
+    return generateThisWeekDates.first;
   }
 
   DateTime get toEndOfTheWeek {
-    return toJiffy.endOf(Unit.week).dateTime;
+    return generateThisWeekDates.last;
   }
 
-  // String get monthAsMMM {
-  //   return DateFormat.MMM().format(this);
-  // }
+  DateTime get toStartOfTheDay{
+    return toJiffy.startOf(Unit.day).dateTime;
+  }
+
+  DateTime get toEndOfTheDay{
+    return toJiffy.endOf(Unit.day).dateTime;
+  }
 
   /// 24/01/2002
   String get slashDate {
@@ -50,6 +54,7 @@ extension XDateTime on DateTime {
   String get EddMMMyyyy {
     return toStringFormatted('E, dd MMMM yyyy');
   }
+
   // ignore: non_constant_identifier_names
   String get EEEEddMMM {
     return toStringFormatted('EEEE, dd MMMM');
@@ -59,15 +64,15 @@ extension XDateTime on DateTime {
     return [
       ...List.generate(
         1,
-        (index) => subtract(
-          Duration(days: index+1),
-        ),
+        (index) => toJiffy.startOf(Unit.day).dateTime.subtract(
+              Duration(days: index + 1),
+            ),
       ).reversed,
       ...List.generate(
-        5,
-            (index) => add(
-          Duration(days: index),
-        ),
+        6,
+        (index) => toJiffy.startOf(Unit.day).dateTime.add(
+              Duration(days: index),
+            ),
       ),
     ];
   }
@@ -90,6 +95,7 @@ extension XDateTime on DateTime {
   String get ddMmmm {
     return toStringFormatted('dd MMMM');
   }
+
   //
   // String get mmmddyyy {
   //   return DateFormat('MMM dd, yy').format(this);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/widgets/widgets.dart';
 
 Future<void> showDialogPreviewDayActivitiesWidget({

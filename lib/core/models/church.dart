@@ -1,18 +1,16 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/models/models.dart';
 
-class Church {
-  final String id;
-  final String name;
-  final Location location;
+part 'church.freezed.dart';
+part 'church.g.dart';
 
-  Church({
-    required this.id,
-    required this.name,
-    required this.location,
-  });
+@freezed
+class Church with _$Church {
+  const factory Church({
+    @Default("") String serial,
+    @Default("") String name,
+    Location? location,
+  }) = _Church;
 
-  @override
-  String toString() {
-    return 'Church{id: $id, name: $name, location: $location}';
-  }
+  factory Church.fromJson(Map<String, dynamic> data) => _$ChurchFromJson(data);
 }

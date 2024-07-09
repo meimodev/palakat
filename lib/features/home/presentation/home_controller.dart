@@ -12,6 +12,7 @@ class HomeController extends _$HomeController {
   }
 
   void navigateTo(int index) async {
+
     state.pageController.jumpToPage(
       index,
     );

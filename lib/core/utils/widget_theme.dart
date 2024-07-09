@@ -3,12 +3,12 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 
 class WidgetTheme {
-  static Color getCheckboxPrimaryColor(Set<MaterialState> states) {
-    const Set<MaterialState> interactiveStates = <MaterialState>{
-      MaterialState.pressed,
-      MaterialState.hovered,
-      MaterialState.focused,
-      MaterialState.selected
+  static Color getCheckboxPrimaryColor(Set<WidgetState> states) {
+    const Set<WidgetState> interactiveStates = <WidgetState>{
+      WidgetState.pressed,
+      WidgetState.hovered,
+      WidgetState.focused,
+      WidgetState.selected
     };
     if (states.any(interactiveStates.contains)) {
       return BaseColor.primary3;
@@ -16,12 +16,12 @@ class WidgetTheme {
     return BaseColor.neutral.shade40;
   }
 
-  static Color getRadioPrimaryColor(Set<MaterialState> states) {
-    const Set<MaterialState> interactiveStates = <MaterialState>{
-      MaterialState.pressed,
-      MaterialState.hovered,
-      MaterialState.focused,
-      MaterialState.selected
+  static Color getRadioPrimaryColor(Set<WidgetState> states) {
+    const Set<WidgetState> interactiveStates = <WidgetState>{
+      WidgetState.pressed,
+      WidgetState.hovered,
+      WidgetState.focused,
+      WidgetState.selected
     };
     if (states.any(interactiveStates.contains)) {
       return BaseColor.primary3;

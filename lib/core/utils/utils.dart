@@ -11,3 +11,4 @@ export 'file_picker_util.dart';
 export 'permission_util.dart';
 export 'camera_util.dart';
 export 'date_util.dart';
+export 'firestore_util.dart';

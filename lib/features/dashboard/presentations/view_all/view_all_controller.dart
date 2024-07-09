@@ -14,7 +14,7 @@ class ViewAllController extends _$ViewAllController {
     final List<Activity> activities = List<Activity>.generate(
       10,
       (index) => Activity(
-        id: '$index',
+        serial: '$index',
         title: 'activity title $index',
         bipra: Bipra.values[Random().nextInt(Bipra.values.length - 1)],
         type: ActivityType
@@ -22,7 +22,7 @@ class ViewAllController extends _$ViewAllController {
         publishDate: DateTime.now(),
         activityDate: DateTime.now().add(
               Duration(days: Random().nextInt(5)),
-            ),
+            ), accountSerial: '', churchSerial: '',
       ),
     );
 

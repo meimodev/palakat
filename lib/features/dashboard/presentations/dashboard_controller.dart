@@ -1,7 +1,10 @@
-import 'dart:math';
-
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/data_sources/data_sources.dart';
+import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat/features/dashboard/data/activity_repository.dart';
+import 'package:palakat/features/data.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -9,60 +12,94 @@ part 'dashboard_controller.g.dart';
 
 @riverpod
 class DashboardController extends _$DashboardController {
+  AccountRepository get accRepo => ref.read(accountRepositoryProvider);
+
+  ActivityRepository get activityRepo => ref.read(activityRepositoryProvider);
+
+  DateTime get startOfWeek => DateTime.now().toStartOfTheWeek;
+
+  DateTime get endOfWeek => DateTime.now().toEndOfTheWeek;
+
   @override
   DashboardState build() {
-    final List<Activity> activities = List<Activity>.generate(
-      10,
-      (index) => Activity(
-        id: '$index',
-        title: 'activity title $index',
-        bipra: Bipra.values[Random().nextInt(Bipra.values.length)],
-        type: ActivityType
-            .values[Random().nextInt(ActivityType.values.length)],
-        // type: ActivityType.announcement,
-        publishDate: DateTime.now(),
-        activityDate: DateTime.now().add(
-          Duration(days: Random().nextInt(5)),
-        ),
-      ),
-    );
+    fetchMembershipData();
+    fetchThisAnnouncementData();
+    fetchThisWeekActivityData();
 
-    final membership = Membership(
-      id: "id",
-      account: Account(
-        id: "id",
-        phone: "phone",
-        name: "name",
-        dob: DateTime.now(),
-        gender: Gender.male,
-        maritalStatus: MaritalStatus.married,
-      ),
-      church: Church(
-        id: "id",
-        name: "somename",
-        location: Location(
-          latitude: 1,
-          longitude: 1,
-          name: "some location",
-        ),
-      ),
-      columnNumber: "22",
-      baptize: true,
-      sidi: true,
-      bipra: Bipra.youths,
-    );
-
-    return DashboardState(
-      thisWeekActivities: activities,
-      membership: membership,
+    return const DashboardState(
+      membership: null,
+      membershipLoading: true,
+      thisWeekActivitiesLoading: true,
+      thisWeekActivities: [],
+      thisWeekAnnouncementsLoading: true,
+      thisWeekAnnouncements: [],
     );
   }
 
-  List<Activity> getThisWeekAnnouncement() {
-    return state.thisWeekActivities
-        .where(
-          (element) => element.type == ActivityType.announcement,
-        )
-        .toList();
+  void fetchThisWeekActivityData() async {
+    final activities = await activityRepo.getActivities(
+      GetActivitiesRequest(
+        churchSerial: "G41zIX6vKFiTNsrlwCCN",
+        activityDateRange: DateTimeRange(start: startOfWeek, end: endOfWeek),
+      ),
+    );
+
+    activities.when(
+      success: (data) {
+        state = state.copyWith(
+          thisWeekActivities: data,
+          thisWeekActivitiesLoading: false,
+        );
+      },
+      failure: (error, stackTrace) {
+        state = state.copyWith(
+          thisWeekActivitiesLoading: false,
+        );
+      },
+    );
+  }
+
+  void fetchMembershipData() async {
+    final membership = await accRepo.getMembership("DSA9B8UVCBk9dPaCrqfA");
+    membership.when(
+      success: (data) {
+        state = state.copyWith(
+          membership: data,
+          membershipLoading: false,
+        );
+      },
+      failure: (error, stackTrace) {
+        state = state.copyWith(
+          membershipLoading: false,
+        );
+      },
+    );
+  }
+
+  void fetchThisAnnouncementData() async {
+    final activities = await activityRepo.getActivities(
+      GetActivitiesRequest(
+        churchSerial: "G41zIX6vKFiTNsrlwCCN",
+        publishDateRange: DateTimeRange(start: startOfWeek, end: endOfWeek),
+      ),
+    );
+
+    activities.when(
+      success: (data) {
+        state = state.copyWith(
+          thisWeekAnnouncements: data
+              .where(
+                (element) => element.type == ActivityType.announcement,
+              )
+              .toList(),
+          thisWeekAnnouncementsLoading: false,
+        );
+      },
+      failure: (error, stackTrace) {
+        state = state.copyWith(
+          thisWeekAnnouncementsLoading: false,
+        );
+      },
+    );
   }
 }

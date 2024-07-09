@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -25,18 +25,7 @@ class ActivityWidget extends StatefulWidget {
 }
 
 class _ActivityWidgetState extends State<ActivityWidget> {
-  List<Activity> thisWeekActivity = [];
-
- final List<DateTime> thisWeek = DateTime.now().generateThisWeekDates;
-
-  @override
-  void initState() {
-    super.initState();
-
-    thisWeekActivity = widget.activities
-        .where((e) => e.activityDate.isOnThisWeek(DateTime.now()))
-        .toList();
-  }
+  final List<DateTime> thisWeekDates = DateTime.now().generateThisWeekDates;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +34,11 @@ class _ActivityWidgetState extends State<ActivityWidget> {
       children: [
         SegmentTitleWidget(
           onPressedViewAll: widget.onPressedViewAll,
-          count: widget.activities.length,
+          count: widget.activities
+              .where((element) =>
+                  element.type == ActivityType.service ||
+                  element.type == ActivityType.event)
+              .length,
           title: 'Activities',
         ),
         Gap.h6,
@@ -55,19 +48,19 @@ class _ActivityWidgetState extends State<ActivityWidget> {
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            itemCount: thisWeek.length,
+            itemCount: thisWeekDates.length,
             separatorBuilder: (context, index) => Gap.w12,
             itemBuilder: (context, index) {
-              final day = thisWeek[index];
+              final day = thisWeekDates[index];
               return CardDatePreviewWidget(
                 width: widget.cardsHeight,
                 date: day,
-                eventCount: thisWeekActivity
+                eventCount: widget.activities
                     .where((e) =>
                         e.activityDate.isSameDay(day) &&
                         e.type == ActivityType.event)
                     .length,
-                serviceCount: thisWeekActivity
+                serviceCount: widget.activities
                     .where((e) =>
                         e.activityDate.isSameDay(day) &&
                         e.type == ActivityType.service)

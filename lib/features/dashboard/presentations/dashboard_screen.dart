@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,9 +30,12 @@ class DashboardScreen extends ConsumerWidget {
             title: "Dashboard",
           ),
           Gap.h12,
-          MembershipCardWidget(
-            membership: state.membership,
-            onPressedCard: () => context.pushNamed(AppRoute.account),
+          LoadingWrapper(
+            loading: state.membershipLoading,
+            child: MembershipCardWidget(
+              membership: state.membership,
+              onPressedCard: () => context.pushNamed(AppRoute.account),
+            ),
           ),
           Gap.h24,
           Padding(
@@ -38,41 +43,49 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ActivityWidget(
-                  onPressedViewAll: () async =>
-                      await context.pushNamed(AppRoute.viewAll),
-                  activities: state.thisWeekActivities,
-                  cardsHeight: BaseSize.customWidth(80),
-                  onPressedCardDatePreview: (DateTime dateTime) async {
-                    final thisDayActivities = state.thisWeekActivities
-                        .where((element) =>
-                            element.activityDate.isSameDay(dateTime))
-                        .toList();
+                LoadingWrapper(
+                  loading: state.thisWeekActivitiesLoading,
+                  child: ActivityWidget(
+                    onPressedViewAll: () async =>
+                        await context.pushNamed(AppRoute.viewAll),
+                    activities: state.thisWeekActivities,
+                    cardsHeight: BaseSize.customWidth(80),
+                    onPressedCardDatePreview: (DateTime dateTime) async {
+                      final thisDayActivities = state.thisWeekActivities
+                          .where((element) =>
+                              element.activityDate.isSameDay(dateTime))
+                          .toList();
 
-                    await showDialogPreviewDayActivitiesWidget(
-                      title: dateTime.EddMMMyyyy,
-                      context: context,
-                      data: thisDayActivities,
-                      onPressedCardActivity: (activity) {
-                        context.pushNamed(
-                          AppRoute.activityDetail,
-                          extra: RouteParam(
-                            params: {
-                              RouteParamKey.activityId: activity.id,
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
+                      await showDialogPreviewDayActivitiesWidget(
+                        title: dateTime.EddMMMyyyy,
+                        context: context,
+                        data: thisDayActivities,
+                        onPressedCardActivity: (activity) {
+                          context.pushNamed(
+                            AppRoute.activityDetail,
+                            extra: RouteParam(
+                              params: {
+                                RouteParamKey.activityId: activity.serial,
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
+
                 Gap.h12,
-                AnnouncementWidget(
-                  onPressedViewAll: () async {
-                    await context.pushNamed(AppRoute.viewAll);
-                  },
-                  announcements: controller.getThisWeekAnnouncement(),
+                LoadingWrapper(
+                  loading: state.thisWeekAnnouncementsLoading,
+                  child: AnnouncementWidget(
+                    announcements: state.thisWeekAnnouncements,
+                    onPressedViewAll: () async {
+                      await context.pushNamed(AppRoute.viewAll);
+                    },
+                  ),
                 ),
+
                 Gap.h12,
                 // ArticlesWidget(
                 //   onPressedViewAll: () async {

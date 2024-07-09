@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/utils/utils.dart';
 
 class CardChurch extends StatelessWidget {
@@ -33,7 +33,7 @@ class CardChurch extends StatelessWidget {
                 style: BaseTypography.titleMedium.bold,
               ),
               Text(
-                church.location.name,
+                church.location?.name ?? "",
                 style: BaseTypography.bodyMedium,
               ),
             ],

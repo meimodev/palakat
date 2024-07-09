@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -46,7 +46,7 @@ class ViewAllScreen extends ConsumerWidget {
                                 AppRoute.activityDetail,
                                 extra: RouteParam(
                                   params: {
-                                    RouteParamKey.activityId: activity.id,
+                                    RouteParamKey.activityId: activity.serial,
                                   },
                                 ),
                               );

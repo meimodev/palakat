@@ -8,6 +8,8 @@ export 'scaffold/scaffold_widget.dart';
 export 'bottom_navbar/bottom_navbar.dart';
 export 'bottom_navbar/bottom_navbar_item.dart';
 
+// Loading Wrapper
+export 'loading/loading_wrapper.dart';
 
 // App Bar
 export 'appbar/appbar_widget.dart';

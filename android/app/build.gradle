@@ -58,7 +58,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         namespace "com.meimodev.palakat.palakat"
         applicationId "com.meimodev.palakat.palakat"
-        minSdkVersion 22
+        minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
