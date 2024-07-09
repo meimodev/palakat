@@ -25,7 +25,7 @@ class AnnouncementWidget extends StatelessWidget {
         SegmentTitleWidget(
           onPressedViewAll: onPressedViewAll,
           count: announcements.length,
-          title: 'Announcement',
+          title: 'Announcements',
         ),
         Gap.h6,
         ...announcements.map(
