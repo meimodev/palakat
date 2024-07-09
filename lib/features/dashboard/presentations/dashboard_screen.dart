@@ -29,6 +29,8 @@ class DashboardScreen extends ConsumerWidget {
           ),
           Gap.h12,
           LoadingWrapper(
+            paddingTop: BaseSize.h24,
+            paddingBottom: BaseSize.h24,
             loading: state.membershipLoading,
             child: MembershipCardWidget(
               membership: state.membership,
@@ -42,6 +44,8 @@ class DashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 LoadingWrapper(
+                  paddingTop: BaseSize.h48,
+                  paddingBottom: BaseSize.h24,
                   loading: state.thisWeekActivitiesLoading,
                   child: ActivityWidget(
                     onPressedViewAll: () async =>
@@ -75,6 +79,8 @@ class DashboardScreen extends ConsumerWidget {
 
                 Gap.h12,
                 LoadingWrapper(
+                  paddingTop: BaseSize.h24,
+                  paddingBottom: BaseSize.h24,
                   loading: state.thisWeekAnnouncementsLoading,
                   child: AnnouncementWidget(
                     announcements: state.thisWeekAnnouncements,

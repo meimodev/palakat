@@ -32,11 +32,12 @@ class CardAnnouncementWidget extends StatelessWidget {
             ),
             child: InkWell(
               onTap: onPressedCard,
-              child: Padding(
+              child: Container(
+                height: BaseSize.h36,
                 padding: EdgeInsets.only(
                   left: BaseSize.w12,
-                  top: BaseSize.h12,
-                  bottom: BaseSize.h12,
+                  // top: BaseSize.h12,
+                  // bottom: BaseSize.h12,
                 ),
                 child: Row(
                   children: [
@@ -48,6 +49,7 @@ class CardAnnouncementWidget extends StatelessWidget {
                     Gap.w12,
                     Expanded(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
@@ -77,13 +79,15 @@ class CardAnnouncementWidget extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             onTap: onPressedDownload,
-            child: Padding(
+            child: Container(
+              height: BaseSize.h36,
               padding: EdgeInsets.only(
                 right: BaseSize.w12,
-                top: BaseSize.customHeight(18),
-                bottom: BaseSize.customHeight(18),
+                // top: BaseSize.customHeight(18),
+                // bottom: BaseSize.customHeight(18),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   DividerWidget(
                     color: BaseColor.primaryText,

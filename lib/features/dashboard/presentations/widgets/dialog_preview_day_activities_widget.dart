@@ -5,8 +5,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 
 Future<void> showDialogPreviewDayActivitiesWidget({
   required BuildContext context,
-  required void Function(Activity activity)
-      onPressedCardActivity,
+  required void Function(Activity activity) onPressedCardActivity,
   required List<Activity> data,
   required String title,
 }) async {
@@ -32,7 +31,17 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (data.isEmpty) {
+      return const Center(
+        child: Text(
+          "There are no events / service, for this day \n-_-",
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ConstrainedBox(
           constraints: BoxConstraints(

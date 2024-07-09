@@ -27,6 +27,11 @@ class ActivityWidget extends StatefulWidget {
 class _ActivityWidgetState extends State<ActivityWidget> {
   final List<DateTime> thisWeekDates = DateTime.now().generateThisWeekDates;
 
+  late final activities = widget.activities
+      .where((element) =>
+  element.type == ActivityType.service ||
+      element.type == ActivityType.event).toList();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -34,43 +39,41 @@ class _ActivityWidgetState extends State<ActivityWidget> {
       children: [
         SegmentTitleWidget(
           onPressedViewAll: widget.onPressedViewAll,
-          count: widget.activities
-              .where((element) =>
-                  element.type == ActivityType.service ||
-                  element.type == ActivityType.event)
-              .length,
-          title: 'Activities',
+          count: activities.length,
+          title: 'Activities this week',
         ),
         Gap.h6,
-        SizedBox(
-          height: widget.cardsHeight + BaseSize.w16,
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: thisWeekDates.length,
-            separatorBuilder: (context, index) => Gap.w12,
-            itemBuilder: (context, index) {
-              final day = thisWeekDates[index];
-              return CardDatePreviewWidget(
-                width: widget.cardsHeight,
-                date: day,
-                eventCount: widget.activities
-                    .where((e) =>
-                        e.activityDate.isSameDay(day) &&
-                        e.type == ActivityType.event)
-                    .length,
-                serviceCount: widget.activities
-                    .where((e) =>
-                        e.activityDate.isSameDay(day) &&
-                        e.type == ActivityType.service)
-                    .length,
-                onPressedCardDatePreview: () =>
-                    widget.onPressedCardDatePreview(day),
-              );
-            },
-          ),
-        ),
+        activities.isEmpty
+            ? const SizedBox()
+            : SizedBox(
+                height: widget.cardsHeight + BaseSize.w16,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: thisWeekDates.length,
+                  separatorBuilder: (context, index) => Gap.w12,
+                  itemBuilder: (context, index) {
+                    final day = thisWeekDates[index];
+                    return CardDatePreviewWidget(
+                      width: widget.cardsHeight,
+                      date: day,
+                      eventCount: activities
+                          .where((e) =>
+                              e.activityDate.isSameDay(day) &&
+                              e.type == ActivityType.event)
+                          .length,
+                      serviceCount: activities
+                          .where((e) =>
+                              e.activityDate.isSameDay(day) &&
+                              e.type == ActivityType.service)
+                          .length,
+                      onPressedCardDatePreview: () =>
+                          widget.onPressedCardDatePreview(day),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }
