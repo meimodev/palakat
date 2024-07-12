@@ -24,8 +24,10 @@ class InputWidget extends StatefulWidget {
     this.currentInputValue,
     this.endIcon,
     this.textInputType,
-    this.border,
+    this.borderColor,
     this.errorText,
+    this.autoValidateMode = AutovalidateMode.always,
+    this.validators,
   })  : onPressedWithResult = null,
         options = null,
         variant = InputWidgetVariant.text;
@@ -40,10 +42,12 @@ class InputWidget extends StatefulWidget {
     this.options,
     this.endIcon,
     this.errorText,
+    this.autoValidateMode = AutovalidateMode.always,
+    this.validators,
   })  : controller = null,
         maxLines = 1,
         textInputType = null,
-        border = null,
+        borderColor = null,
         variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
@@ -53,13 +57,15 @@ class InputWidget extends StatefulWidget {
     required this.onChanged,
     this.currentInputValue,
     this.errorText,
+    this.autoValidateMode = AutovalidateMode.always,
+    this.validators,
   })  : variant = InputWidgetVariant.binaryOption,
         endIcon = null,
         maxLines = null,
         hint = null,
         controller = null,
         onPressedWithResult = null,
-        border = null,
+        borderColor = null,
         textInputType = null,
         assert(options != null && options.length > 0,
             "options cannot be null or empty");
@@ -74,17 +80,43 @@ class InputWidget extends StatefulWidget {
   //variant text
   final TextEditingController? controller;
   final SvgGenImage? endIcon;
-  final BoxBorder? border;
+  final Color? borderColor;
   final Future<String?> Function()? onPressedWithResult;
   final String? currentInputValue;
   final List<String>? options;
   final TextInputType? textInputType;
+
+  final AutovalidateMode? autoValidateMode;
+  final String? Function(String)? validators;
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
 }
 
 class _InputWidgetState extends State<InputWidget> {
+  String errorMessage = '';
+
+  void validateInput(String input) {
+    if (widget.validators != null) {
+      final validators = widget.validators!;
+      final res = validators(input) ?? "";
+      setState(() {
+        errorMessage = res;
+      });
+    }
+  }
+
+  void onChanged(String val) {
+    validateInput(val);
+    if (widget.onChanged != null) {
+      widget.onChanged!(val);
+    }
+  }
+
+  Color? get borderColor => errorMessage.isNotEmpty
+      ? BaseColor.error.withOpacity(.5)
+      : widget.borderColor;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -95,7 +127,8 @@ class _InputWidgetState extends State<InputWidget> {
             ? InputVariantBinaryOptionWidget(
                 options: widget.options!,
                 currentInputValue: widget.currentInputValue,
-                onChanged: widget.onChanged!,
+                onChanged: onChanged,
+                borderColor: borderColor,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.dropdown
@@ -103,23 +136,26 @@ class _InputWidgetState extends State<InputWidget> {
                 hint: widget.hint!,
                 options: widget.options ?? [],
                 currentInputValue: widget.currentInputValue,
-                onChanged: widget.onChanged!,
+                onChanged: onChanged,
                 onPressedWithResult: widget.onPressedWithResult!,
                 endIcon: widget.endIcon,
+                borderColor: borderColor,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
             ? InputVariantTextWidget(
-                onChanged: widget.onChanged,
+                onChanged: onChanged,
                 maxLines: widget.maxLines,
                 hint: widget.hint,
                 controller: widget.controller,
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
-                border: widget.border,
+                borderColor: borderColor,
+                // autoValidateMode: widget.autoValidateMode,
+                // validators: widget.validators,
               )
             : const SizedBox(),
-        _buildLabelWidget(),
+        _buildErrorWidget(),
       ],
     );
   }
@@ -139,6 +175,25 @@ class _InputWidgetState extends State<InputWidget> {
         ),
         Gap.h6,
       ],
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    if (errorMessage.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: BaseSize.customHeight(3),
+      ),
+      child: Text(
+        errorMessage,
+        maxLines: 1,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
+        style: BaseTypography.bodySmall.toError,
+      ),
     );
   }
 }

@@ -57,6 +57,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Location",
         label: "Can be Host name, Location name, Column Name, etc",
+        onChanged: (_){},
       ),
       Gap.h12,
       InputWidget.dropdown(
@@ -155,6 +156,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Title",
         label: "Brief explanation of the service",
+        onChanged: (_){},
       ),
       Gap.h12,
       ...outputList,

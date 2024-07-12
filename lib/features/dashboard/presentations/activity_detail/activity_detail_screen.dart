@@ -69,7 +69,7 @@ class ActivityDetailScreen extends StatelessWidget {
         startIcon: Assets.icons.line.mapOutline,
         endIcon: Assets.icons.line.navigateCircleOutline,
         onPressedEndIcon: () {
-          print("End icon Location");
+          // print("End icon Location");
         },
       ),
       // Gap.h12,
@@ -107,7 +107,7 @@ class ActivityDetailScreen extends StatelessWidget {
           startIcon: Assets.icons.line.documentOutline,
           endIcon: Assets.icons.line.caretDownCircleOutline,
           onPressedEndIcon: () {
-            print("End icon Location");
+            // print("End icon Location");
           },
         ),
         Gap.h12,

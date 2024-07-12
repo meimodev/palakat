@@ -47,7 +47,7 @@ class AnnouncementWidget extends StatelessWidget {
                 );
               },
               onPressedDownload: () {
-                print('Download ${e.title}');
+                // print('Download ${e.title}');
               },
             ),
           ),

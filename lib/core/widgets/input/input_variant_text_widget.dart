@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -12,7 +11,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.hint,
     this.endIcon,
     this.textInputType,
-    this.border,
+    this.borderColor,
   });
 
   final TextEditingController? controller;
@@ -21,7 +20,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final String? hint;
   final SvgGenImage? endIcon;
   final TextInputType? textInputType;
-  final BoxBorder? border;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,7 @@ class InputVariantTextWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
       decoration: BoxDecoration(
         color: BaseColor.cardBackground1,
-        border: border,
+        border: Border.all(color: borderColor ?? Colors.transparent),
         borderRadius: BorderRadius.circular(
           BaseSize.radiusMd,
         ),
@@ -50,10 +49,6 @@ class InputVariantTextWidget extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       keyboardType: textInputType,
-      autovalidateMode: AutovalidateMode.always,
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-      ]),
       decoration: InputDecoration(
         hintText: hint,
         border: InputBorder.none,

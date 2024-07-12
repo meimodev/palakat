@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
@@ -19,12 +20,7 @@ class AccountScreen extends StatelessWidget {
           right: BaseSize.w12,
           top: BaseSize.h6,
         ),
-        child: ButtonWidget.primary(
-          text: "Submit",
-          onTap: () {
-            context.pushNamed(AppRoute.membership);
-          },
-        ),
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,26 +32,31 @@ class AccountScreen extends StatelessWidget {
             onPressedLeadIcon: context.pop,
           ),
           Gap.h48,
-          InputWidget.text(
+           InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
             textInputType: TextInputType.number,
-            onChanged: (value) {
-              print(value);
+            onChanged: print,
+            validators: (val) {
+              print("validator $val");
             },
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
-            onChanged: (value) {
-              print(value);
+            validators: (p0) {
+
             },
+            onChanged: print,
           ),
           Gap.h12,
           InputWidget.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
+            validators: (p0) {
+
+            },
             endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
               final DateTime? result = await showDialogDatePickerWidget(
@@ -67,18 +68,28 @@ class AccountScreen extends StatelessWidget {
           ),
           Gap.h12,
           InputWidget.binaryOption(
-            currentInputValue: "Male",
-            options: ["Male", "Female"],
             label: "use to determine your BIPRA membership",
+            currentInputValue: Gender.male.name,
+            options: Gender.values.map((e) => e.name).toList(),
             onChanged: print,
+            validators: (val) {
+
+            },
           ),
           Gap.h12,
           InputWidget.binaryOption(
-            currentInputValue: "Married",
-            options: ["Married", "Not Married"],
             label: "use to determine your BIPRA membership",
+            currentInputValue: MaritalStatus.single.name,
+            options: MaritalStatus.values.map((e) => e.name).toList(),
             onChanged: print,
           ),
+          Gap.h24,
+          ButtonWidget.primary(
+            text: "Submit",
+            onTap: () {
+              context.pushNamed(AppRoute.membership);
+            },
+          )
         ],
       ),
     );

@@ -8,11 +8,13 @@ class InputVariantBinaryOptionWidget extends StatefulWidget {
     required this.options,
     this.currentInputValue,
     required this.onChanged,
+    this.borderColor,
   });
 
   final List<String> options;
   final String? currentInputValue;
   final ValueChanged<String> onChanged;
+  final Color? borderColor;
 
   @override
   State<InputVariantBinaryOptionWidget> createState() =>
@@ -39,56 +41,63 @@ class _InputVariantBinaryOptionWidgetState
     return Row(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: widget.options.map(
-        (e) {
-          return Expanded(
-            child: Material(
-              clipBehavior: Clip.hardEdge,
-              borderRadius: BorderRadius.only(
-                bottomLeft: e == widget.options.first
-                    ? Radius.circular(BaseSize.radiusMd)
-                    : Radius.zero,
-                topLeft: e == widget.options.first
-                    ? Radius.circular(BaseSize.radiusMd)
-                    : Radius.zero,
-                bottomRight: e == widget.options.last
-                    ? Radius.circular(BaseSize.radiusMd)
-                    : Radius.zero,
-                topRight: e == widget.options.last
-                    ? Radius.circular(BaseSize.radiusMd)
-                    : Radius.zero,
-              ),
-              color:
-                  e == active ? BaseColor.primary3 : BaseColor.cardBackground1,
-              child: InkWell(
-                onTap: e == active
-                    ? null
-                    : () {
-                        setState(() {
-                          active = e;
-                        });
-                        widget.onChanged(e);
-                      },
-                child: Container(
-                  padding: EdgeInsets.all(
-                    BaseSize.w12,
+      children: widget.options
+          .map(
+            (e) => Expanded(
+              child: Material(
+                clipBehavior: Clip.hardEdge,
+                shape: ContinuousRectangleBorder(
+                  side: BorderSide(
+                    color: widget.borderColor ?? Colors.transparent,
+                    width: 2,
                   ),
-                  child: Center(
-                    child: Text(
-                      e,
-                      style: BaseTypography.titleMedium.bold.copyWith(
-                        color: e == active
-                            ? BaseColor.cardBackground1
-                            : BaseColor.primary3,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: e == widget.options.first
+                        ? Radius.circular(BaseSize.radiusLg * 2)
+                        : Radius.zero,
+                    topLeft: e == widget.options.first
+                        ? Radius.circular(BaseSize.radiusLg * 2)
+                        : Radius.zero,
+                    bottomRight: e == widget.options.last
+                        ? Radius.circular(BaseSize.radiusLg * 2)
+                        : Radius.zero,
+                    topRight: e == widget.options.last
+                        ? Radius.circular(BaseSize.radiusLg * 2)
+                        : Radius.zero,
+                  ),
+                ),
+                color: e == active
+                    ? BaseColor.primary3
+                    : BaseColor.cardBackground1,
+                child: InkWell(
+                  onTap: e == active
+                      ? null
+                      : () {
+                          setState(() {
+                            active = e;
+                          });
+                          widget.onChanged(e);
+                        },
+                  child: Container(
+                    padding: EdgeInsets.all(
+                      BaseSize.w12,
+                    ),
+                    child: Center(
+                      child: Text(
+                        e,
+                        style: BaseTypography.titleMedium.bold.copyWith(
+                          color: e == active
+                              ? BaseColor.cardBackground1
+                              : BaseColor.primary3,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ).toList(),
+          )
+          .toList(),
     );
   }
 }

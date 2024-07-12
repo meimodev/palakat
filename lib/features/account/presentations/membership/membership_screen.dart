@@ -19,12 +19,6 @@ class MembershipScreen extends StatelessWidget {
           right: BaseSize.w12,
           top: BaseSize.h6,
         ),
-        child: ButtonWidget.primary(
-          text: "Submit",
-          onTap: () {
-            context.goNamed(AppRoute.home);
-          },
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,23 +47,28 @@ class MembershipScreen extends StatelessWidget {
             label: "identify your column number",
             hint: "Column",
             textInputType: TextInputType.number,
-            onChanged: (value) {
-
-            },
+            onChanged: (value) {},
           ),
           Gap.h12,
           InputWidget.binaryOption(
             currentInputValue: "Baptis",
-            options: ["Baptis", "Belum Baptis"],
+            options: const ["Baptis", "Belum Baptis"],
             label: "status baptis anda",
             onChanged: print,
           ),
           Gap.h12,
           InputWidget.binaryOption(
             currentInputValue: "Belum Sidi",
-            options: ["Sidi", "Belum Sidi"],
+            options: const ["Sidi", "Belum Sidi"],
             label: "status sidi anda",
             onChanged: print,
+          ),
+          Gap.h24,
+          ButtonWidget.primary(
+            text: "Submit",
+            onTap: () {
+              context.goNamed(AppRoute.home);
+            },
           ),
         ],
       ),

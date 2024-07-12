@@ -12,7 +12,7 @@ final List<Map<String, dynamic>> _data = List.generate(
     "snippet":
         "Lorem ipsum dolor sit amet something something to make, to something",
     "onPressed": () {
-      print("Pressed $index");
+      // print("Pressed $index");
     },
   },
 );
@@ -30,10 +30,10 @@ class SongBookScreen extends StatelessWidget {
             title: "Song Book",
           ),
           Gap.h24,
-           InputWidget.text(
+          InputWidget.text(
             hint: "Search title / lirics",
             endIcon: Assets.icons.line.search,
-             border: Border.all(color: BaseColor.primary3),
+            borderColor: BaseColor.primary3,
           ),
           Gap.h12,
           ListView.separated(

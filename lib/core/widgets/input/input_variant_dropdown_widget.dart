@@ -11,6 +11,7 @@ class InputVariantDropdownWidget extends StatefulWidget {
     required this.currentInputValue,
     required this.onChanged,
     required this.onPressedWithResult,
+    this.borderColor,
     this.endIcon,
   });
 
@@ -20,6 +21,7 @@ class InputVariantDropdownWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final Future<String?> Function() onPressedWithResult;
   final SvgGenImage? endIcon;
+  final Color? borderColor;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
@@ -47,8 +49,14 @@ class _InputVariantDropdownWidgetState
     return IntrinsicHeight(
       child: Material(
         clipBehavior: Clip.hardEdge,
-        borderRadius: BorderRadius.circular(
-          BaseSize.radiusMd,
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            BaseSize.radiusLg,
+          ),
+          side: BorderSide(
+            color: widget.borderColor ?? Colors.transparent,
+            width: 2,
+          ),
         ),
         color: BaseColor.cardBackground1,
         child: InkWell(
@@ -73,7 +81,9 @@ class _InputVariantDropdownWidgetState
                   ),
                 ),
                 Gap.w8,
-                const DividerWidget(height: double.infinity,),
+                const DividerWidget(
+                  height: double.infinity,
+                ),
                 Gap.w8,
                 (widget.endIcon ?? Assets.icons.line.chevronDownOutline).svg(
                   width: BaseSize.w12,
