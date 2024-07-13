@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/song_book/presentations/song_screen.dart';
 
 import 'widgets/widgets.dart';
 
@@ -47,7 +48,14 @@ class SongBookScreen extends StatelessWidget {
               return CardSongSnippetListItemWidget(
                 title: d['title'],
                 snippet: d['snippet'],
-                onPressed: d['onPressed'],
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SongScreen(),
+                    ),
+                  );
+                },
               );
             },
           )
