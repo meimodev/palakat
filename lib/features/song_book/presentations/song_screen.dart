@@ -9,7 +9,7 @@ class SongScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScaffoldWidget(
       child: Column(
-        children: [const ScreenTitleWidget.titleOnly(title: 'Kidung Jemaat')],
+        children: [const ScreenTitleWidget.titleOnly(title: 'Kidung')],
       ),
     );
   }
