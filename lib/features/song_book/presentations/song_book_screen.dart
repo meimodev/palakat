@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat/features/song_detail/presentations/song_details_screen.dart';
+import 'package:palakat/features/presentation.dart';
 
 import 'widgets/widgets.dart';
 
@@ -49,6 +49,7 @@ class SongBookScreen extends StatelessWidget {
                 title: d['title'],
                 snippet: d['snippet'],
                 onPressed: () {
+                  //TODO add parameter passing to songDetail
                   Navigator.push(
                     context,
                     MaterialPageRoute(
