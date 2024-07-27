@@ -27,46 +27,27 @@ class SongDetails extends StatelessWidget {
             },
           ),
           Gap.h24,
-          Text(
-            songPart.data[0],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h6,
-          Text(
-            songPart.data[5],
-            style: BaseTypography.bodyMedium.toPrimary,
-          ),
-          Gap.h12,
-          Text(
-            songPart.data[1],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h6,
-          Text(
-            songPart.data[7],
-            style: BaseTypography.bodyMedium.toPrimary,
-          ),
-          Gap.h12,
-          Text(
-            songPart.data[2],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h12,
-          Text(
-            songPart.data[3],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h12,
-          Text(
-            textAlign: TextAlign.left,
-            songPart.data[4],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h6,
-          Text(
-            songPart.data[6],
-            style: BaseTypography.bodyMedium.toPrimary,
-          ),
+          ...songPart.data.map((item) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    item.type,
+                    style: BaseTypography.bodyMedium.toBold.toSecondary,
+                  ),
+                  if (item.content != null) ...[
+                    Gap.h6,
+                    Text(
+                      item.content!,
+                      style: BaseTypography.bodyMedium.toPrimary,
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
           Gap.h24,
           Text(
             dummyData.youtube,
