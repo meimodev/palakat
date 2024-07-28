@@ -9,7 +9,6 @@ class SongDetails extends StatelessWidget {
   SongDetails({super.key});
 
   final DummyData dummyData = DummyData();
-  final SongPart songPart = SongPart();
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +17,8 @@ class SongDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: dummyData.titles,
-            subTitle: dummyData.subtitles,
+            title: dummyData.titles[0],
+            subTitle: dummyData.titles[1],
             leadIcon: Assets.icons.line.chevronBackOutline,
             leadIconColor: BaseColor.black,
             onPressedLeadIcon: () {
@@ -27,16 +26,18 @@ class SongDetails extends StatelessWidget {
             },
           ),
           Gap.h24,
-          ...songPart.data.map((item) {
+          ...data.map((item) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    item.type,
-                    style: BaseTypography.bodyMedium.toBold.toSecondary,
-                  ),
+                  if (item.type != null) ...[
+                    Text(
+                      item.type!,
+                      style: BaseTypography.bodyMedium.toBold.toSecondary,
+                    ),
+                  ],
                   if (item.content != null) ...[
                     Gap.h6,
                     Text(
@@ -50,12 +51,12 @@ class SongDetails extends StatelessWidget {
           }).toList(),
           Gap.h24,
           Text(
-            dummyData.youtube,
+            dummyData.source[0],
             style: BaseTypography.bodyMedium.toBold.toSecondary,
           ),
           Gap.h6,
           ImageNetworkWidget(
-            imageUrl: dummyData.image,
+            imageUrl: dummyData.source[1],
             height: 336.0,
             width: 736.0,
           )

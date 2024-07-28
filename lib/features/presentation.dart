@@ -1,4 +1,5 @@
 //Home
+export '../core/models/song_details_data.dart';
 export 'account/presentations/account/account_controller.dart';
 //Account - User
 export 'account/presentations/account/account_screen.dart';
@@ -38,7 +39,6 @@ export 'publishing/presentations/widgets/widgets.dart';
 export 'song_book/presentations/song_book_controller.dart';
 export 'song_book/presentations/song_book_screen.dart';
 export 'song_book/presentations/song_book_state.dart';
-export 'song_detail/presentations/song_details_data.dart';
 //Song Details
 export 'song_detail/presentations/song_details_screen.dart';
 //Splash
