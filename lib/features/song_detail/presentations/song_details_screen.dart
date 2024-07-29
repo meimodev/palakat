@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/dummy_data.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat/features/presentation.dart';
 
 class SongDetails extends StatelessWidget {
   SongDetails({super.key});
@@ -26,27 +26,25 @@ class SongDetails extends StatelessWidget {
             },
           ),
           Gap.h24,
-          ...data.map((item) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (item.type != null) ...[
-                    Text(
-                      item.type!,
-                      style: BaseTypography.bodyMedium.toBold.toSecondary,
-                    ),
-                  ],
-                  if (item.content != null) ...[
-                    Gap.h6,
-                    Text(
-                      item.content!,
-                      style: BaseTypography.bodyMedium.toPrimary,
-                    ),
-                  ],
+          ...dummyData.data.map((item) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (item.type.isNotEmpty) ...[
+                  Gap.h6,
+                  Text(
+                    item.type,
+                    style: BaseTypography.bodyMedium.toBold.toSecondary,
+                  ),
                 ],
-              ),
+                if (item.content.isNotEmpty) ...[
+                  Gap.h6,
+                  Text(
+                    item.content,
+                    style: BaseTypography.bodyMedium.toPrimary,
+                  ),
+                ],
+              ],
             );
           }).toList(),
           Gap.h24,
