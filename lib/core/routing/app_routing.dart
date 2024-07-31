@@ -2,45 +2,40 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-// import 'package:palakat/core/config/app_config.dart';
 import 'package:palakat/core/routing/routing.dart';
-
-// import 'package:palakat/features/application.dart';
-// import 'package:palakat/features/domain.dart';
 import 'package:palakat/features/presentation.dart';
 
 class AppRoute {
-  static String main = 'main';
-  static String viewAll = 'view-all';
+  static const String main = 'main';
+  static const String viewAll = 'view-all';
 
   // splash
-  static String splash = 'splash';
+  static const String splash = 'splash';
 
   // home
-  static String home = 'home';
+  static const String home = 'home';
 
   //Rating
-  static String rating = 'rating';
+  static const String rating = 'rating';
 
   //Term and Condition
-  static String termAndCondition = 'term-and-condition';
+  static const String termAndCondition = 'term-and-condition';
 
   //Authentication
-  static String authentication = "authentication";
+  static const String authentication = "authentication";
 
   //Dashboard
-  static String dashboard = 'dashboard';
-  static String activityDetail = "activity-detail";
+  static const String dashboard = 'dashboard';
+  static const String activityDetail = "activity-detail";
 
   // Publishing
-  static String publishing = 'publishing';
-  static String activityPublish = "activity-publish";
-  static String publishingMap = "publish-map";
+  static const String publishing = 'publishing';
+  static const String activityPublish = "activity-publish";
+  static const String publishingMap = "publish-map";
 
   //Account
-  static String account = 'account';
-  static String membership = 'membership';
+  static const String account = 'account';
+  static const String membership = 'membership';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
