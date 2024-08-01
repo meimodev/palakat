@@ -17,8 +17,8 @@ class SongDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: dummyData.titles[0],
-            subTitle: dummyData.titles[1],
+            title: dummyData.title,
+            subTitle: dummyData.subTitle,
             leadIcon: Assets.icons.line.chevronBackOutline,
             leadIconColor: BaseColor.black,
             onPressedLeadIcon: () {
@@ -26,7 +26,11 @@ class SongDetails extends StatelessWidget {
             },
           ),
           Gap.h24,
-          ...dummyData.data.map((item) {
+          ...dummyData.data.asMap().entries.map((entry) {
+            int index = entry.key;
+            var item = entry.value;
+            bool isBeforeLastItem = index == dummyData.data.length - 2;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -44,20 +48,18 @@ class SongDetails extends StatelessWidget {
                     style: BaseTypography.bodyMedium.toPrimary,
                   ),
                 ],
+                if (isBeforeLastItem) ...[
+                  Gap.h24,
+                ],
               ],
             );
           }).toList(),
           Gap.h24,
-          Text(
-            dummyData.source[0],
-            style: BaseTypography.bodyMedium.toBold.toSecondary,
-          ),
-          Gap.h6,
           ImageNetworkWidget(
-            imageUrl: dummyData.source[1],
+            imageUrl: dummyData.source[0],
             height: 336.0,
             width: 736.0,
-          )
+          ),
         ],
       ),
     );
