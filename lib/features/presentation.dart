@@ -1,5 +1,5 @@
 //Home
-export '../core/models/song_details_data.dart';
+export '../core/models/song_part.dart';
 export 'account/presentations/account/account_controller.dart';
 //Account - User
 export 'account/presentations/account/account_screen.dart';

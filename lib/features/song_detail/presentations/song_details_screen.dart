@@ -29,13 +29,12 @@ class SongDetails extends StatelessWidget {
           ...dummyData.data.asMap().entries.map((entry) {
             int index = entry.key;
             var item = entry.value;
-            bool isBeforeLastItem = index == dummyData.data.length - 2;
-
+            bool isBeforeLastItemType = index == dummyData.data.length - 3;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (item.type.isNotEmpty) ...[
-                  Gap.h6,
+                  Gap.h12,
                   Text(
                     item.type,
                     style: BaseTypography.bodyMedium.toBold.toSecondary,
@@ -48,18 +47,20 @@ class SongDetails extends StatelessWidget {
                     style: BaseTypography.bodyMedium.toPrimary,
                   ),
                 ],
-                if (isBeforeLastItem) ...[
+                if (isBeforeLastItemType) ...[
                   Gap.h24,
+                ],
+                if (item.source.isNotEmpty) ...[
+                  Gap.h6,
+                  ImageNetworkWidget(
+                    imageUrl: item.source,
+                    height: 336.0,
+                    width: 736.0,
+                  )
                 ],
               ],
             );
-          }).toList(),
-          Gap.h24,
-          ImageNetworkWidget(
-            imageUrl: dummyData.source[0],
-            height: 336.0,
-            width: 736.0,
-          ),
+          }),
         ],
       ),
     );
