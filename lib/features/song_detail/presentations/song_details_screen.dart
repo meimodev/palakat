@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/dummy_data.dart';
+import 'package:palakat/core/models/song_part.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -29,34 +30,32 @@ class SongDetails extends StatelessWidget {
           ...dummyData.data.asMap().entries.map((entry) {
             int index = entry.key;
             var item = entry.value;
-            bool isBeforeLastItemType = index == dummyData.data.length - 3;
+            bool isBeforeLastItemType = index == dummyData.data.length - 2;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (item.type.isNotEmpty) ...[
+                if (item.type != SongPartType) ...[
                   Gap.h12,
                   Text(
-                    item.type,
+                    item.type.displayName,
                     style: BaseTypography.bodyMedium.toBold.toSecondary,
                   ),
                 ],
                 if (item.content.isNotEmpty) ...[
                   Gap.h6,
-                  Text(
-                    item.content,
-                    style: BaseTypography.bodyMedium.toPrimary,
-                  ),
+                  Uri.tryParse(item.content)?.isAbsolute ?? false
+                      ? ImageNetworkWidget(
+                          imageUrl: item.content,
+                          height: 336.0,
+                          width: 736.0,
+                        )
+                      : Text(
+                          item.content,
+                          style: BaseTypography.bodyMedium.toPrimary,
+                        ),
                 ],
                 if (isBeforeLastItemType) ...[
                   Gap.h24,
-                ],
-                if (item.source.isNotEmpty) ...[
-                  Gap.h6,
-                  ImageNetworkWidget(
-                    imageUrl: item.source,
-                    height: 336.0,
-                    width: 736.0,
-                  )
                 ],
               ],
             );
