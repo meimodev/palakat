@@ -24,7 +24,6 @@ class AccountScreen extends ConsumerWidget {
           right: BaseSize.w12,
           top: BaseSize.h6,
         ),
-
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,25 +35,25 @@ class AccountScreen extends ConsumerWidget {
             onPressedLeadIcon: context.pop,
           ),
           Gap.h48,
-           InputWidget.text(
+          InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
             textInputType: TextInputType.number,
             onChanged: print,
-            validators: (val) =>state.errorTextPhone,
+            validators: (val) => state.errorTextPhone,
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
-            validators: (val) =>state.errorTextName,
+            validators: (val) => state.errorTextName,
             onChanged: print,
           ),
           Gap.h12,
           InputWidget.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
-            validators: (p0) =>state.errorTextDob,
+            validators: (p0) => state.errorTextDob,
             endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
               final DateTime? result = await showDialogDatePickerWidget(
@@ -70,7 +69,7 @@ class AccountScreen extends ConsumerWidget {
             currentInputValue: Gender.male.name,
             options: Gender.values.map((e) => e.name).toList(),
             onChanged: print,
-            validators: (val)=>state.errorTextGender,
+            validators: (val) => state.errorTextGender,
           ),
           Gap.h12,
           InputWidget.binaryOption(
@@ -78,7 +77,7 @@ class AccountScreen extends ConsumerWidget {
             currentInputValue: MaritalStatus.single.name,
             options: MaritalStatus.values.map((e) => e.name).toList(),
             onChanged: print,
-            validators: (val) => state.errorTextMaritalStatus ,
+            validators: (val) => state.errorTextMaritalStatus,
           ),
           Gap.h24,
           ButtonWidget.primary(

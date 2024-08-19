@@ -36,6 +36,11 @@ class AppRoute {
   //Account
   static const String account = 'account';
   static const String membership = 'membership';
+
+  //song
+  static const String songBook = 'song-book';
+  static const String songBookDetail = 'song-book-detail';
+
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -61,6 +66,7 @@ final goRouterProvider = Provider<GoRouter>(
         authenticationRouting,
         dashboardRouting,
         publishingRouting,
+        songRouting,
         accountRouting,
       ],
     );

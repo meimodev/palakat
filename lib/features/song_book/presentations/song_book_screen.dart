@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -49,13 +51,13 @@ class SongBookScreen extends StatelessWidget {
                 title: d['title'],
                 snippet: d['snippet'],
                 onPressed: () {
-                  //TODO add parameter passing to songDetail
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SongDetails(),
-                    ),
-                  );
+                  context.pushNamed(AppRoute.songBookDetail);
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => SongDetailScreen(),
+                  //   ),
+                  // );
                 },
               );
             },

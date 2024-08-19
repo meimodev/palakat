@@ -6,8 +6,8 @@ import 'package:palakat/core/models/song_part.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
-class SongDetails extends StatelessWidget {
-  SongDetails({super.key});
+class SongDetailScreen extends StatelessWidget {
+  SongDetailScreen({super.key});
 
   final DummyData dummyData = DummyData();
 
