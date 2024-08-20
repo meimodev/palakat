@@ -43,3 +43,60 @@ enum MapOperationType {
   pinPoint,
   read,
 }
+
+enum SongPartType {
+  @JsonValue("INTRO")
+  intro,
+
+  @JsonValue("OUTRO")
+  outro,
+
+  @JsonValue("VERSE")
+  verse,
+
+  @JsonValue("VERSE2")
+  verse2,
+
+  @JsonValue("VERSE4")
+  verse3,
+
+  @JsonValue("VERSE4")
+  verse4,
+
+  @JsonValue("VERSE5")
+  verse5,
+
+  @JsonValue("VERSE6")
+  verse6,
+
+  @JsonValue("VERSE7")
+  verse7,
+
+  @JsonValue("VERSE8")
+  verse8,
+
+  @JsonValue("REFRAIN")
+  refrain,
+
+  @JsonValue("PRECHORUS")
+  preChorus,
+
+  @JsonValue("CHORUS")
+  chorus,
+
+  @JsonValue("CHORUS2")
+  chorus2,
+
+  @JsonValue("CHORUS3")
+  chorus3,
+
+  @JsonValue("CHORUS4")
+  chorus4,
+
+  @JsonValue("BRIDGE")
+  bridge,
+
+  @JsonValue("HOOK")
+  hook,
+}
+

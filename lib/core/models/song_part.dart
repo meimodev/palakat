@@ -1,19 +1,18 @@
-class SongPart {
-  final SongPartType type;
-  final String content;
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat/core/constants/constants.dart';
 
-  SongPart({required this.type, required this.content});
+part 'song_part.freezed.dart';
+
+part 'song_part.g.dart';
+
+@freezed
+class SongPart with _$SongPart {
+  const factory SongPart({
+    required SongPartType type,
+    required String content,
+  }) = _SongPart;
+
+  factory SongPart.fromJson(Map<String, dynamic> data) => _$SongPartFromJson(data);
+
 }
 
-enum SongPartType {
-  verse1('Verse 1'),
-  verse2('Verse 2'),
-  backToVerse1('Back to Verse 1'),
-  backToVerse3('Back to Verse 3'),
-  chorus('Chorus'),
-  youtubeLink('Link youtube / video title');
-
-  final String displayName;
-
-  const SongPartType(this.displayName);
-}

@@ -13,7 +13,7 @@ class AccountScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(accountControllerProvider.notifier);
+    // final controller = ref.read(accountControllerProvider.notifier);
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
