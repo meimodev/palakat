@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/models.dart';
 
-// StateNotifier untuk mengelola daftar lagu
 class SongDetail extends StateNotifier<List<Song>> {
   SongDetail() : super(_initialSongs);
 
@@ -44,7 +43,6 @@ class SongDetail extends StateNotifier<List<Song>> {
     ),
   );
 
-  // Fungsi untuk pencarian lagu berdasarkan judul atau subtitle
   void searchSongs(String query) {
     state = _initialSongs
         .where((song) =>
@@ -54,7 +52,6 @@ class SongDetail extends StateNotifier<List<Song>> {
   }
 }
 
-// Riverpod provider untuk daftar lagu
 final songProvider = StateNotifierProvider<SongDetail, List<Song>>((ref) {
   return SongDetail();
 });
