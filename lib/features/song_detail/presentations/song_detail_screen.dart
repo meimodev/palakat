@@ -18,10 +18,10 @@ class SongDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(songDetailControllerProvider.notifier).loadSongParts(song);
-    });
-    final parts = ref.watch(songDetailControllerProvider);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(songDetailControllerProvider.notifier).loadSongParts(song);
+    // });
+    final state = ref.watch(songDetailControllerProvider(song));
     // final parts = song.composition
     //     .map(
     //       (e) => song.definition.firstWhere((f) => f.type == e),
@@ -46,34 +46,38 @@ class SongDetailScreen extends ConsumerWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ...parts.map(
-                    (e) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          e.type.name,
-                          style: BaseTypography.bodyMedium.toBold.toSecondary,
-                        ),
-                        Text(
-                          e.content,
-                          style: BaseTypography.bodyMedium.toPrimary,
-                        ),
-                        Gap.h12,
-                      ],
+              child: state.when(
+                data: (songParts) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ...songParts.map(
+                      (songPart) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            songPart.type.name,
+                            style: BaseTypography.bodyMedium.toBold.toSecondary,
+                          ),
+                          Text(
+                            songPart.content,
+                            style: BaseTypography.bodyMedium.toPrimary,
+                          ),
+                          Gap.h12,
+                        ],
+                      ),
                     ),
-                  ),
-                  Gap.h24,
-                  song.urlImage.isEmpty
-                      ? const SizedBox()
-                      : ImageNetworkWidget(
-                          imageUrl: song.urlImage,
-                          height: BaseSize.customHeight(300),
-                        ),
-                  Gap.h24,
-                ],
+                    Gap.h24,
+                    song.urlImage.isEmpty
+                        ? const SizedBox()
+                        : ImageNetworkWidget(
+                            imageUrl: song.urlImage,
+                            height: BaseSize.customHeight(300),
+                          ),
+                    Gap.h24,
+                  ],
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ),
