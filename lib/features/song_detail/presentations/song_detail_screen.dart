@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/models/song.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
-class SongDetailScreen extends StatelessWidget {
+import 'song_detail_controller.dart';
+
+class SongDetailScreen extends ConsumerWidget {
   const SongDetailScreen({
     super.key,
     required this.song,
@@ -14,12 +17,16 @@ class SongDetailScreen extends StatelessWidget {
   final Song song;
 
   @override
-  Widget build(BuildContext context) {
-    final parts = song.composition
-        .map(
-          (e) => song.definition.firstWhere((f) => f.type == e),
-        )
-        .toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(songDetailControllerProvider.notifier).loadSongParts(song);
+    // });
+    final state = ref.watch(songDetailControllerProvider(song));
+    // final parts = song.composition
+    //     .map(
+    //       (e) => song.definition.firstWhere((f) => f.type == e),
+    //     )
+    //     .toList();
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -39,34 +46,38 @@ class SongDetailScreen extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ...parts.map(
-                    (e) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          e.type.name,
-                          style: BaseTypography.bodyMedium.toBold.toSecondary,
-                        ),
-                        Text(
-                          e.content,
-                          style: BaseTypography.bodyMedium.toPrimary,
-                        ),
-                        Gap.h12,
-                      ],
+              child: state.when(
+                data: (songParts) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ...songParts.map(
+                      (songPart) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            songPart.type.name,
+                            style: BaseTypography.bodyMedium.toBold.toSecondary,
+                          ),
+                          Text(
+                            songPart.content,
+                            style: BaseTypography.bodyMedium.toPrimary,
+                          ),
+                          Gap.h12,
+                        ],
+                      ),
                     ),
-                  ),
-                  Gap.h24,
-                  song.urlImage.isEmpty
-                      ? const SizedBox()
-                      : ImageNetworkWidget(
-                          imageUrl: song.urlImage,
-                          height: BaseSize.customHeight(300),
-                        ),
-                  Gap.h24,
-                ],
+                    Gap.h24,
+                    song.urlImage.isEmpty
+                        ? const SizedBox()
+                        : ImageNetworkWidget(
+                            imageUrl: song.urlImage,
+                            height: BaseSize.customHeight(300),
+                          ),
+                    Gap.h24,
+                  ],
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ),
