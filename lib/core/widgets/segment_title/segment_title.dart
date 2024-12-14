@@ -30,7 +30,7 @@ class SegmentTitleWidget extends StatelessWidget {
           horizontal: BaseSize.w8,
         ),
         child: Text(
-          "Seems there is no $title related -_-",
+          "Seems there is no related $title  -_-",
           textAlign: TextAlign.center,
           style: BaseTypography.bodyMedium.toSecondary,
         ),

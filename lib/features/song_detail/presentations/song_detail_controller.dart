@@ -5,6 +5,7 @@ part 'song_detail_controller.g.dart';
 
 @riverpod
 class SongDetailController extends _$SongDetailController {
+  @override
   Future<List<SongPart>> build(Song song) async {
     state = const AsyncValue.loading();
     try {

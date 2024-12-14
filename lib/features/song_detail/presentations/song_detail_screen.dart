@@ -18,15 +18,7 @@ class SongDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   ref.read(songDetailControllerProvider.notifier).loadSongParts(song);
-    // });
     final state = ref.watch(songDetailControllerProvider(song));
-    // final parts = song.composition
-    //     .map(
-    //       (e) => song.definition.firstWhere((f) => f.type == e),
-    //     )
-    //     .toList();
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
