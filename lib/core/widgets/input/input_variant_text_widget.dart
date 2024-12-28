@@ -3,16 +3,17 @@ import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 class InputVariantTextWidget extends StatelessWidget {
-  const InputVariantTextWidget({
-    super.key,
-    this.controller,
-    this.onChanged,
-    this.maxLines,
-    this.hint,
-    this.endIcon,
-    this.textInputType,
-    this.borderColor,
-  });
+  const InputVariantTextWidget(
+      {super.key,
+      this.controller,
+      this.onChanged,
+      this.maxLines,
+      this.hint,
+      this.endIcon,
+      this.textInputType,
+      this.borderColor,
+      this.validators,
+      this.autoValidateMode});
 
   final TextEditingController? controller;
   final void Function(String value)? onChanged;
@@ -21,6 +22,8 @@ class InputVariantTextWidget extends StatelessWidget {
   final SvgGenImage? endIcon;
   final TextInputType? textInputType;
   final Color? borderColor;
+  final String? Function(String?)? validators;
+  final AutovalidateMode? autoValidateMode;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +52,8 @@ class InputVariantTextWidget extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       keyboardType: textInputType,
+      autovalidateMode: autoValidateMode,
+      validator: validators,
       decoration: InputDecoration(
         hintText: hint,
         border: InputBorder.none,

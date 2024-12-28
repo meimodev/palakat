@@ -10,12 +10,14 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 
 class ActivityPublishScreen extends ConsumerWidget {
-  const ActivityPublishScreen({
+  ActivityPublishScreen({
     super.key,
     required this.type,
   });
 
   final ActivityType type;
+
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,9 +44,13 @@ class ActivityPublishScreen extends ConsumerWidget {
           Gap.h24,
           Padding(
             padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _buildInputList(state.type, context),
+            child: Form(
+              key: formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _buildInputList(state.type, context),
+              ),
             ),
           ),
         ],
@@ -57,6 +63,11 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Location",
         label: "Can be Host name, Location name, Column Name, etc",
+        validators: (value) {
+          if (value == null || value.isEmpty) {
+            return "Location cannot be empty";
+          }
+        },
         onChanged: (_) {},
       ),
       Gap.h12,
@@ -64,6 +75,11 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
         endIcon: Assets.icons.line.mapOutline,
+        validators: (value) {
+          if (value == null || value.isEmpty) {
+            return "Pinpoint Location cannot be empty";
+          }
+        },
         onChanged: print,
         onPressedWithResult: () async {
           final Location? res = await context.pushNamed<Location?>(
@@ -93,6 +109,11 @@ class ActivityPublishScreen extends ConsumerWidget {
               label: '',
               endIcon: Assets.icons.line.calendarOutline,
               onChanged: print,
+              validators: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Date cannot be empty";
+                }
+              },
               onPressedWithResult: () async {
                 final res = await showDialogDatePickerWidget(
                   context: context,
@@ -112,6 +133,11 @@ class ActivityPublishScreen extends ConsumerWidget {
               hint: "Time",
               endIcon: Assets.icons.line.timeOutline,
               onChanged: print,
+              validators: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Time cannot be empty";
+                }
+              },
               onPressedWithResult: () async {
                 final res = await showDialogTimePickerWidget(context: context);
                 return res?.HHmm;
@@ -134,6 +160,11 @@ class ActivityPublishScreen extends ConsumerWidget {
           hint: "Upload File, Image, Pdf",
           endIcon: Assets.icons.line.download,
           onChanged: print,
+          validators: (value) {
+            if (value == null || value.isEmpty) {
+              return "File cannot be empty";
+            }
+          },
           onPressedWithResult: () async {
             final res = await FilePickerUtil.pickFile();
             return res?.path;
@@ -146,6 +177,11 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
         errorText: "Must be selected",
+        validators: (value) {
+          if (value == null || value.isEmpty) {
+            return "BIPRA cannot be empty";
+          }
+        },
         onPressedWithResult: () async {
           final res = await showDialogBipraPickerWidget(context: context);
           return res?.name;
@@ -157,6 +193,11 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Title",
         label: "Brief explanation of the service",
         onChanged: (_) {},
+        validators: (value) {
+          if (value == null || value.isEmpty) {
+            return "Title cannot be empty";
+          }
+        },
       ),
       Gap.h12,
       ...specificInputs,
@@ -182,7 +223,21 @@ class ActivityPublishScreen extends ConsumerWidget {
       Gap.h24,
       ButtonWidget.primary(
         text: "Submit",
-        onTap: () {},
+        onTap: () {
+          if (formKey.currentState?.validate() ?? false) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Upload Successfully'),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please fill all required fields'),
+              ),
+            );
+          }
+        },
       ),
     ];
   }

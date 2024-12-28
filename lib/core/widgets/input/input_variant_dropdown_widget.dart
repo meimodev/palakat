@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/divider/divider_widget.dart';
 
 class InputVariantDropdownWidget extends StatefulWidget {
@@ -13,6 +14,9 @@ class InputVariantDropdownWidget extends StatefulWidget {
     required this.onPressedWithResult,
     this.borderColor,
     this.endIcon,
+    this.errorText,
+    this.validators,
+    this.autoValidateMode,
   });
 
   final String hint;
@@ -22,6 +26,9 @@ class InputVariantDropdownWidget extends StatefulWidget {
   final Future<String?> Function() onPressedWithResult;
   final SvgGenImage? endIcon;
   final Color? borderColor;
+  final String? errorText;
+  final String? Function(String?)? validators;
+  final AutovalidateMode? autoValidateMode;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
@@ -31,6 +38,8 @@ class InputVariantDropdownWidget extends StatefulWidget {
 class _InputVariantDropdownWidgetState
     extends State<InputVariantDropdownWidget> {
   String currentValue = "";
+
+  String? errorText;
 
   @override
   void initState() {
@@ -42,6 +51,7 @@ class _InputVariantDropdownWidgetState
         currentValue = widget.currentInputValue!;
       });
     }
+    errorText = widget.errorText;
   }
 
   @override
@@ -65,6 +75,7 @@ class _InputVariantDropdownWidgetState
             if (result != null) {
               setState(() {
                 currentValue = result;
+                errorText = null;
               });
               widget.onChanged(result);
             }
@@ -89,6 +100,13 @@ class _InputVariantDropdownWidgetState
                   width: BaseSize.w12,
                   height: BaseSize.w12,
                 ),
+                if (errorText != null) ...[
+                  Gap.h4,
+                  Text(
+                    errorText!,
+                    style: BaseTypography.bodySmall.toError,
+                  ),
+                ],
               ],
             ),
           ),
