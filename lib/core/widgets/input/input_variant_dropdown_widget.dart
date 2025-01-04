@@ -56,6 +56,10 @@ class _InputVariantDropdownWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = errorText != null && errorText!.isNotEmpty
+        ? BaseColor.error
+        : (widget.borderColor ?? Colors.transparent);
+
     return IntrinsicHeight(
       child: Material(
         clipBehavior: Clip.hardEdge,
@@ -64,7 +68,7 @@ class _InputVariantDropdownWidgetState
             BaseSize.radiusLg,
           ),
           side: BorderSide(
-            color: widget.borderColor ?? Colors.transparent,
+            color: borderColor,
             width: 2,
           ),
         ),

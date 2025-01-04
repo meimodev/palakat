@@ -42,7 +42,7 @@ class InputWidget extends StatefulWidget {
     this.options,
     this.endIcon,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.always,
+    this.autoValidateMode = AutovalidateMode.disabled,
     this.validators,
   })  : controller = null,
         maxLines = 1,
@@ -140,9 +140,9 @@ class _InputWidgetState extends State<InputWidget> {
                 onPressedWithResult: widget.onPressedWithResult!,
                 endIcon: widget.endIcon,
                 borderColor: borderColor,
-                errorText: errorMessage,
-                validators: widget.validators,
-                autoValidateMode: widget.autoValidateMode,
+                errorText: widget.errorText,
+                // validators: widget.validators,
+                // autoValidateMode: widget.autoValidateMode,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
@@ -154,8 +154,9 @@ class _InputWidgetState extends State<InputWidget> {
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
-                autoValidateMode: widget.autoValidateMode,
-                validators: widget.validators,
+                errorText: widget.errorText,
+                // autoValidateMode: widget.autoValidateMode,
+                // validators: widget.validators,
               )
             : const SizedBox(),
         _buildErrorWidget(),

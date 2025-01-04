@@ -12,6 +12,7 @@ class InputVariantTextWidget extends StatelessWidget {
       this.endIcon,
       this.textInputType,
       this.borderColor,
+      this.errorText,
       this.validators,
       this.autoValidateMode});
 
@@ -22,6 +23,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final SvgGenImage? endIcon;
   final TextInputType? textInputType;
   final Color? borderColor;
+  final String? errorText;
   final String? Function(String?)? validators;
   final AutovalidateMode? autoValidateMode;
 
@@ -59,6 +61,7 @@ class InputVariantTextWidget extends StatelessWidget {
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         fillColor: BaseColor.cardBackground1,
+        errorText: errorText,
       ),
     );
   }
