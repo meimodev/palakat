@@ -26,7 +26,6 @@ class InputWidget extends StatefulWidget {
     this.textInputType,
     this.borderColor,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.always,
     this.validators,
   })  : onPressedWithResult = null,
         options = null,
@@ -42,7 +41,6 @@ class InputWidget extends StatefulWidget {
     this.options,
     this.endIcon,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.always,
     this.validators,
   })  : controller = null,
         maxLines = 1,
@@ -57,7 +55,6 @@ class InputWidget extends StatefulWidget {
     required this.onChanged,
     this.currentInputValue,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.always,
     this.validators,
   })  : variant = InputWidgetVariant.binaryOption,
         endIcon = null,
@@ -86,7 +83,6 @@ class InputWidget extends StatefulWidget {
   final List<String>? options;
   final TextInputType? textInputType;
 
-  final AutovalidateMode? autoValidateMode;
   final String? Function(String)? validators;
 
   @override
@@ -95,6 +91,17 @@ class InputWidget extends StatefulWidget {
 
 class _InputWidgetState extends State<InputWidget> {
   String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.errorText != null) {
+      setState(() {
+        errorMessage = widget.errorText!;
+      });
+    }
+
+  }
 
   void validateInput(String input) {
     if (widget.validators != null) {
