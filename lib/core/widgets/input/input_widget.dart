@@ -26,7 +26,6 @@ class InputWidget extends StatefulWidget {
     this.textInputType,
     this.borderColor,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.disabled,
     this.validators,
   })  : onPressedWithResult = null,
         options = null,
@@ -42,7 +41,6 @@ class InputWidget extends StatefulWidget {
     this.options,
     this.endIcon,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.disabled,
     this.validators,
   })  : controller = null,
         maxLines = 1,
@@ -57,7 +55,6 @@ class InputWidget extends StatefulWidget {
     required this.onChanged,
     this.currentInputValue,
     this.errorText,
-    this.autoValidateMode = AutovalidateMode.always,
     this.validators,
   })  : variant = InputWidgetVariant.binaryOption,
         endIcon = null,
@@ -86,8 +83,7 @@ class InputWidget extends StatefulWidget {
   final List<String>? options;
   final TextInputType? textInputType;
 
-  final AutovalidateMode? autoValidateMode;
-  final String? Function(String?)? validators;
+  final String? Function(String)? validators;
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -95,6 +91,17 @@ class InputWidget extends StatefulWidget {
 
 class _InputWidgetState extends State<InputWidget> {
   String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.errorText != null) {
+      setState(() {
+        errorMessage = widget.errorText!;
+      });
+    }
+
+  }
 
   void validateInput(String input) {
     if (widget.validators != null) {
@@ -140,9 +147,6 @@ class _InputWidgetState extends State<InputWidget> {
                 onPressedWithResult: widget.onPressedWithResult!,
                 endIcon: widget.endIcon,
                 borderColor: borderColor,
-                errorText: widget.errorText,
-                // validators: widget.validators,
-                // autoValidateMode: widget.autoValidateMode,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
@@ -154,7 +158,6 @@ class _InputWidgetState extends State<InputWidget> {
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
-                errorText: widget.errorText,
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,
               )
