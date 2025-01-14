@@ -42,13 +42,9 @@ class ActivityPublishScreen extends ConsumerWidget {
           Gap.h24,
           Padding(
             padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Form(
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children:
-                    _buildInputList(state.type, state, controller, context),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _buildInputList(state.type, state, controller, context),
             ),
           ),
         ],
@@ -200,11 +196,9 @@ class ActivityPublishScreen extends ConsumerWidget {
       Gap.h24,
       ButtonWidget.primary(
         text: "Submit",
-        onTap: () {
-          controller.validateForm();
-
-          if (state.isFormValid) {
-            controller.submit();
+        onTap: () async {
+          final isSuccess = await controller.submit();
+          if (isSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Submission Successful')),
             );

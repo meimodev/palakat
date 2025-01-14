@@ -104,6 +104,11 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   Future<bool> submit() async {
-    return true;
+    validateForm();
+    if (state.isFormValid) {
+      await Future.delayed(const Duration(seconds: 1));
+      return true;
+    }
+    return false;
   }
 }
