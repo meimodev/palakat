@@ -24,6 +24,7 @@ class ActivityPublishScreen extends ConsumerWidget {
     final state = ref.watch(provider);
 
     return ScaffoldWidget(
+      loading: state.loading ?? false,
       presistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -41,12 +42,13 @@ class ActivityPublishScreen extends ConsumerWidget {
           ),
           Gap.h24,
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _buildInputList(state.type, state, controller, context),
-            ),
-          ),
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children:
+                        _buildInputList(state.type, state, controller, context),
+                  ),
+                ),
         ],
       ),
     );
@@ -58,7 +60,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Location",
         label: "Can be Host name, Location name, Column Name, etc",
-        validators: controller.validateLocation,
+        // validators: controller.validateLocation,
         errorText: state.errorLocation,
         onChanged: print,
       ),
@@ -67,7 +69,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
         endIcon: Assets.icons.line.mapOutline,
-        validators: controller.validatePinpointLocation,
+        // validators: controller.validatePinpointLocation,
         errorText: state.errorPinpointLocation,
         onChanged: print,
         onPressedWithResult: () async {
@@ -98,7 +100,7 @@ class ActivityPublishScreen extends ConsumerWidget {
               label: '',
               endIcon: Assets.icons.line.calendarOutline,
               onChanged: print,
-              validators: controller.validateDate,
+              // validators: controller.validateDate,
               errorText: state.errorDate,
               onPressedWithResult: () async {
                 final res = await showDialogDatePickerWidget(
@@ -119,7 +121,7 @@ class ActivityPublishScreen extends ConsumerWidget {
               hint: "Time",
               endIcon: Assets.icons.line.timeOutline,
               onChanged: print,
-              validators: controller.validateTime,
+              // validators: controller.validateTime,
               errorText: state.errorTime,
               onPressedWithResult: () async {
                 final res = await showDialogTimePickerWidget(context: context);
@@ -143,7 +145,7 @@ class ActivityPublishScreen extends ConsumerWidget {
           hint: "Upload File, Image, Pdf",
           endIcon: Assets.icons.line.download,
           onChanged: print,
-          validators: controller.validateFile,
+          // validators: controller.validateFile,
           errorText: state.errorFile,
           onPressedWithResult: () async {
             final res = await FilePickerUtil.pickFile();
@@ -157,7 +159,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
         errorText: state.errorBipra,
-        validators: controller.validateBipra,
+        // validators: controller.validateBipra,
         onPressedWithResult: () async {
           final res = await showDialogBipraPickerWidget(context: context);
           return res?.name;
@@ -170,7 +172,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         label: "Brief explanation of the service",
         errorText: state.errorTitle,
         onChanged: print,
-        validators: controller.validateTitle,
+        // validators: controller.validateTitle,
       ),
       Gap.h12,
       ...specificInputs,

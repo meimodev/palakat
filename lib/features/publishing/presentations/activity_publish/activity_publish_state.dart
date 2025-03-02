@@ -21,6 +21,7 @@ class ActivityPublishState with _$ActivityPublishState {
     String? errorFile,
     String? errorTitle,
     String? errorBipra,
+    bool? loading,
     @Default(false) bool isFormValid,
   }) = _ActivityPublishState;
 }

@@ -11,7 +11,8 @@ class ActivityPublishController extends _$ActivityPublishController {
     return ActivityPublishState(type: activityType);
   }
 
-  void validateForm() {
+  Future<void> validateForm() async {
+    state = state.copyWith(loading: true);
     String? locationError = validateLocation(state.location);
     String? pinpointLocationError =
         validatePinpointLocation(state.pinpointLocation);
@@ -37,6 +38,8 @@ class ActivityPublishController extends _$ActivityPublishController {
           fileError == null &&
           bipraError == null,
     );
+    await Future.delayed(const Duration(milliseconds: 400));
+    state = state.copyWith(loading: false); 
   }
 
   String? validateLocation(String? value) {
@@ -105,10 +108,10 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   Future<bool> submit() async {
     validateForm();
-    if (state.isFormValid) {
-      await Future.delayed(const Duration(seconds: 1));
-      return true;
-    }
+    // if (state.isFormValid) { 
+    //   await Future.delayed(const Duration(seconds: 1));
+    //   return true;
+    // }
     return false;
   }
 }
