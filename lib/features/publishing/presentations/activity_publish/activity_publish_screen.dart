@@ -20,10 +20,11 @@ class ActivityPublishScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = activityPublishControllerProvider(type);
-    // final controller = ref.read(provider.notifier);
+    final controller = ref.read(provider.notifier);
     final state = ref.watch(provider);
 
     return ScaffoldWidget(
+      loading: state.loading ?? false,
       presistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -41,29 +42,35 @@ class ActivityPublishScreen extends ConsumerWidget {
           ),
           Gap.h24,
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _buildInputList(state.type, context),
-            ),
-          ),
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children:
+                        _buildInputList(state.type, state, controller, context),
+                  ),
+                ),
         ],
       ),
     );
   }
 
-  List<Widget> _buildInputList(ActivityType type, BuildContext context) {
+  List<Widget> _buildInputList(ActivityType type, ActivityPublishState state,
+      ActivityPublishController controller, BuildContext context) {
     List<Widget> specificInputs = [
       InputWidget.text(
         hint: "Location",
         label: "Can be Host name, Location name, Column Name, etc",
-        onChanged: (_) {},
+        // validators: controller.validateLocation,
+        errorText: state.errorLocation,
+        onChanged: print,
       ),
       Gap.h12,
       InputWidget.dropdown(
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
         endIcon: Assets.icons.line.mapOutline,
+        // validators: controller.validatePinpointLocation,
+        errorText: state.errorPinpointLocation,
         onChanged: print,
         onPressedWithResult: () async {
           final Location? res = await context.pushNamed<Location?>(
@@ -93,6 +100,8 @@ class ActivityPublishScreen extends ConsumerWidget {
               label: '',
               endIcon: Assets.icons.line.calendarOutline,
               onChanged: print,
+              // validators: controller.validateDate,
+              errorText: state.errorDate,
               onPressedWithResult: () async {
                 final res = await showDialogDatePickerWidget(
                   context: context,
@@ -112,6 +121,8 @@ class ActivityPublishScreen extends ConsumerWidget {
               hint: "Time",
               endIcon: Assets.icons.line.timeOutline,
               onChanged: print,
+              // validators: controller.validateTime,
+              errorText: state.errorTime,
               onPressedWithResult: () async {
                 final res = await showDialogTimePickerWidget(context: context);
                 return res?.HHmm;
@@ -134,6 +145,8 @@ class ActivityPublishScreen extends ConsumerWidget {
           hint: "Upload File, Image, Pdf",
           endIcon: Assets.icons.line.download,
           onChanged: print,
+          // validators: controller.validateFile,
+          errorText: state.errorFile,
           onPressedWithResult: () async {
             final res = await FilePickerUtil.pickFile();
             return res?.path;
@@ -145,7 +158,8 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
-        errorText: "Must be selected",
+        errorText: state.errorBipra,
+        // validators: controller.validateBipra,
         onPressedWithResult: () async {
           final res = await showDialogBipraPickerWidget(context: context);
           return res?.name;
@@ -156,7 +170,9 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Title",
         label: "Brief explanation of the service",
-        onChanged: (_) {},
+        errorText: state.errorTitle,
+        onChanged: print,
+        // validators: controller.validateTitle,
       ),
       Gap.h12,
       ...specificInputs,
@@ -182,7 +198,18 @@ class ActivityPublishScreen extends ConsumerWidget {
       Gap.h24,
       ButtonWidget.primary(
         text: "Submit",
-        onTap: () {},
+        onTap: () async {
+          final isSuccess = await controller.submit();
+          if (isSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Submission Successful')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please fill all required fields')),
+            );
+          }
+        },
       ),
     ];
   }
