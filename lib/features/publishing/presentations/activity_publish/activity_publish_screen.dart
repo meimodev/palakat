@@ -25,7 +25,7 @@ class ActivityPublishScreen extends ConsumerWidget {
 
     return ScaffoldWidget(
       loading: state.loading ?? false,
-      presistBottomWidget: Padding(
+      persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
           left: BaseSize.w12,
@@ -42,13 +42,12 @@ class ActivityPublishScreen extends ConsumerWidget {
           ),
           Gap.h24,
           Padding(
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children:
-                        _buildInputList(state.type, state, controller, context),
-                  ),
-                ),
+            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _buildInputList(state.type, state, controller, context),
+            ),
+          ),
         ],
       ),
     );
@@ -62,7 +61,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         label: "Can be Host name, Location name, Column Name, etc",
         // validators: controller.validateLocation,
         errorText: state.errorLocation,
-        onChanged: print,
+        onChanged: controller.onChangedLocation,
       ),
       Gap.h12,
       InputWidget.dropdown(
@@ -71,7 +70,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         endIcon: Assets.icons.line.mapOutline,
         // validators: controller.validatePinpointLocation,
         errorText: state.errorPinpointLocation,
-        onChanged: print,
+        onChanged: controller.onChangedPinpointLocation,
         onPressedWithResult: () async {
           final Location? res = await context.pushNamed<Location?>(
             AppRoute.publishingMap,
@@ -99,7 +98,7 @@ class ActivityPublishScreen extends ConsumerWidget {
               hint: "Date",
               label: '',
               endIcon: Assets.icons.line.calendarOutline,
-              onChanged: print,
+              onChanged: controller.onChangedDate,
               // validators: controller.validateDate,
               errorText: state.errorDate,
               onPressedWithResult: () async {
@@ -120,7 +119,7 @@ class ActivityPublishScreen extends ConsumerWidget {
               label: '',
               hint: "Time",
               endIcon: Assets.icons.line.timeOutline,
-              onChanged: print,
+              onChanged: controller.onChangedTime,
               // validators: controller.validateTime,
               errorText: state.errorTime,
               onPressedWithResult: () async {
@@ -144,7 +143,7 @@ class ActivityPublishScreen extends ConsumerWidget {
           label: "File that related to the announcement",
           hint: "Upload File, Image, Pdf",
           endIcon: Assets.icons.line.download,
-          onChanged: print,
+          onChanged: controller.onChangedFile,
           // validators: controller.validateFile,
           errorText: state.errorFile,
           onPressedWithResult: () async {
@@ -160,18 +159,18 @@ class ActivityPublishScreen extends ConsumerWidget {
         label: "Where the service mainly will notify",
         errorText: state.errorBipra,
         // validators: controller.validateBipra,
+        onChanged: controller.onChangedBipra,
         onPressedWithResult: () async {
           final res = await showDialogBipraPickerWidget(context: context);
           return res?.name;
         },
-        onChanged: print,
       ),
       Gap.h12,
       InputWidget.text(
         hint: "Title",
         label: "Brief explanation of the service",
         errorText: state.errorTitle,
-        onChanged: print,
+        onChanged: controller.onChangedTitle,
         // validators: controller.validateTitle,
       ),
       Gap.h12,
@@ -199,18 +198,24 @@ class ActivityPublishScreen extends ConsumerWidget {
       ButtonWidget.primary(
         text: "Submit",
         onTap: () async {
-          final isSuccess = await controller.submit();
-          if (isSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Submission Successful')),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please fill all required fields')),
-            );
+          final success = await controller.submit();
+          if(context.mounted){
+            if (!success) {
+              showSnackBar(context, "Please Fill All the field");
+              return;
+            }
+            controller.publish();
           }
         },
       ),
     ];
+  }
+
+  void showSnackBar(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+      ),
+    );
   }
 }

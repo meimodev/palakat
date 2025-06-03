@@ -12,7 +12,7 @@ class MembershipScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
-      presistBottomWidget: Padding(
+      persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
           left: BaseSize.w12,

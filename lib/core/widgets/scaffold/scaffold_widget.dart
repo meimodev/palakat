@@ -13,7 +13,7 @@ class ScaffoldWidget extends StatelessWidget {
     this.bottomNavigationBar,
     this.disableSingleChildScrollView = false,
     this.disablePadding = false,
-    this.presistBottomWidget,
+    this.persistBottomWidget,
     this.loading = false,
   });
 
@@ -25,29 +25,31 @@ class ScaffoldWidget extends StatelessWidget {
   final bool disableSingleChildScrollView;
   final bool disablePadding;
   final bool loading;
-  final Widget? presistBottomWidget;
+  final Widget? persistBottomWidget;
 
   @override
   Widget build(BuildContext context) {
+    final Widget childWrapper = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      child: LoadingWrapper(
+        paddingTop: BaseSize.h48,
+        paddingBottom: BaseSize.h48,
+        loading: loading,
+        child: child,
+      ),
+    );
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
-        body: loading
-            ? const AnimatedSwitcher(
-                duration: Duration(microseconds: 400),
-                child: LoadingWrapper(
-                  loading: true,
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            : Padding(
+        body: Padding(
                 padding: EdgeInsets.only(
                   left: disablePadding ? 0 : BaseSize.w12,
                   right: disablePadding ? 0 : BaseSize.w12,
                 ),
                 child: disableSingleChildScrollView
-                    ? child
+                    ? childWrapper
                     : Column(
                         children: [
                           Expanded(
@@ -56,13 +58,13 @@ class ScaffoldWidget extends StatelessWidget {
                               child: Column(
                                 children: [
                                   Gap.h48,
-                                  child,
+                                  childWrapper,
                                   Gap.h64,
                                 ],
                               ),
                             ),
                           ),
-                          presistBottomWidget ?? const SizedBox(),
+                          persistBottomWidget ?? const SizedBox(),
                         ],
                       ),
               ),

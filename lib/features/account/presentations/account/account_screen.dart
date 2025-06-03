@@ -17,7 +17,7 @@ class AccountScreen extends ConsumerWidget {
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
-      presistBottomWidget: Padding(
+      persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
           left: BaseSize.w12,

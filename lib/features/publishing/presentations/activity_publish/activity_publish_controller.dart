@@ -1,4 +1,5 @@
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/models/activity.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,38 +14,43 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
-    String? locationError = validateLocation(state.location);
-    String? pinpointLocationError =
-        validatePinpointLocation(state.pinpointLocation);
-    String? dateError = validateDate(state.date);
-    String? timeError = validateTime(state.time);
-    String? titleError = validateTitle(state.title);
-    String? fileError = validateFile(state.file);
-    String? bipraError = validateBipra(state.bipra);
 
-    state = state.copyWith(
-      errorLocation: locationError,
-      errorPinpointLocation: pinpointLocationError,
-      errorDate: dateError,
-      errorTime: timeError,
-      errorTitle: titleError,
-      errorFile: fileError,
-      errorBipra: bipraError,
-      isFormValid: locationError == null &&
-          pinpointLocationError == null &&
-          dateError == null &&
-          timeError == null &&
-          titleError == null &&
-          fileError == null &&
-          bipraError == null,
-    );
+
+    if (state.type == ActivityType.service) {
+
+    }
+
+    if (state.type == ActivityType.event) {
+    }
+
+    if (state.type == ActivityType.announcement) {
+    }
+
+    // state = state.copyWith(
+    //   errorLocation: locationError,
+    //   errorPinpointLocation: pinpointLocationError,
+    //   errorDate: dateError,
+    //   errorTime: timeError,
+    //   errorTitle: titleError,
+    //   errorFile: fileError,
+    //   errorBipra: bipraError,
+    //   isFormValid: locationError == null &&
+    //       pinpointLocationError == null &&
+    //       dateError == null &&
+    //       timeError == null &&
+    //       titleError == null &&
+    //       fileError == null &&
+    //       bipraError == null,
+    // );
+
+
     await Future.delayed(const Duration(milliseconds: 400));
-    state = state.copyWith(loading: false); 
+    state = state.copyWith(loading: false);
   }
 
   String? validateLocation(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Location is required';
+      return BaseTranslation.locationRequired;
     }
     return null;
   }
@@ -107,11 +113,41 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   Future<bool> submit() async {
-    validateForm();
-    // if (state.isFormValid) { 
-    //   await Future.delayed(const Duration(seconds: 1));
-    //   return true;
-    // }
+    await validateForm();
+    if (state.isFormValid) {
+      print("Input Valid");
+      return true;
+    }
     return false;
+  }
+
+  void publish() {}
+
+  void onChangedBipra(String value) {
+    state = state.copyWith(bipra: value);
+  }
+
+  void onChangedLocation(String value) {
+    state = state.copyWith(location: value);
+  }
+
+  void onChangedPinpointLocation(String value) {
+    state = state.copyWith(pinpointLocation: value);
+  }
+
+  void onChangedDate(String value) {
+    state = state.copyWith(date: value);
+  }
+
+  void onChangedTime(String value) {
+    state = state.copyWith(time: value);
+  }
+
+  void onChangedFile(String value) {
+    state = state.copyWith(file: value);
+  }
+
+  void onChangedTitle(String value) {
+    state = state.copyWith(title: value);
   }
 }
