@@ -21,7 +21,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       final dateError = validateDate(state.date);
       final timeError = validateTime(state.time);
       final reminderError = validateReminder(state.reminder);
-      final noteError = validateNote(state.note);
+      // final noteError = validateNote(state.note);
       final titleError = validateTitle(state.title);
       final bipraError = validateBipra(state.bipra);
 
@@ -30,7 +30,7 @@ class ActivityPublishController extends _$ActivityPublishController {
           dateError == null &&
           timeError == null &&
           reminderError == null &&
-          noteError == null &&
+          // noteError == null &&
           titleError == null &&
           bipraError == null;
 
@@ -40,7 +40,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         errorDate: dateError,
         errorTime: timeError,
         errorReminder: reminderError,
-        errorNote: noteError,
+        // errorNote: noteError,
         errorTitle: titleError,
         errorBipra: bipraError,
         isFormValid: isValid,
@@ -168,7 +168,9 @@ class ActivityPublishController extends _$ActivityPublishController {
     return false;
   }
 
-  void publish() {}
+  void publish() {
+
+  }
 
   void onChangedBipra(String value) {
     state = state.copyWith(bipra: value);

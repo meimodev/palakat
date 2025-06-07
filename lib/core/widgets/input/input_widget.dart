@@ -158,6 +158,7 @@ class _InputWidgetState extends State<InputWidget> {
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
+                initialValue: widget.currentInputValue,
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,
               )

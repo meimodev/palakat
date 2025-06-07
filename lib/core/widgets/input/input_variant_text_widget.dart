@@ -13,8 +13,10 @@ class InputVariantTextWidget extends StatelessWidget {
     this.textInputType,
     this.borderColor,
     this.errorText,
+    this.initialValue,
   });
 
+  final String? initialValue;
   final TextEditingController? controller;
   final void Function(String value)? onChanged;
   final int? maxLines;
@@ -51,6 +53,7 @@ class InputVariantTextWidget extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       keyboardType: textInputType,
+      initialValue: initialValue,
       decoration: InputDecoration(
         hintText: hint,
         border: InputBorder.none,
