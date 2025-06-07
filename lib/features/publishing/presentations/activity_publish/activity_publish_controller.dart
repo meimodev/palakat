@@ -1,5 +1,4 @@
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/activity.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,16 +14,11 @@ class ActivityPublishController extends _$ActivityPublishController {
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
 
+    if (state.type == ActivityType.service) {}
 
-    if (state.type == ActivityType.service) {
+    if (state.type == ActivityType.event) {}
 
-    }
-
-    if (state.type == ActivityType.event) {
-    }
-
-    if (state.type == ActivityType.announcement) {
-    }
+    if (state.type == ActivityType.announcement) {}
 
     // state = state.copyWith(
     //   errorLocation: locationError,
@@ -42,7 +36,6 @@ class ActivityPublishController extends _$ActivityPublishController {
     //       fileError == null &&
     //       bipraError == null,
     // );
-
 
     await Future.delayed(const Duration(milliseconds: 400));
     state = state.copyWith(loading: false);
@@ -72,6 +65,20 @@ class ActivityPublishController extends _$ActivityPublishController {
   String? validateTime(String? value) {
     if (value == null || value.isEmpty) {
       return 'Time is required';
+    }
+    return null;
+  }
+
+  String? validateReminder(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Reminder is required';
+    }
+    return null;
+  }
+
+  String? validateNote(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Note is required';
     }
     return null;
   }
@@ -107,6 +114,8 @@ class ActivityPublishController extends _$ActivityPublishController {
     return validateLocation(state.location) == null &&
         validateDate(state.date) == null &&
         validateTime(state.time) == null &&
+        validateReminder(state.reminder) == null &&
+        validateNote(state.note) == null &&
         validateTitle(state.title) == null &&
         validatePinpointLocation(state.pinpointLocation) == null &&
         validateBipra(state.bipra) == null;
@@ -145,6 +154,14 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onChangedFile(String value) {
     state = state.copyWith(file: value);
+  }
+
+  void onChangedReminder(String? value) {
+    state = state.copyWith(reminder: value);
+  }
+
+  void onChangeNote(String? value) {
+    state = state.copyWith(note: value);
   }
 
   void onChangedTitle(String value) {
