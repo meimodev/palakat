@@ -163,6 +163,14 @@ class ActivityPublishScreen extends ConsumerWidget {
 
     if (type == ActivityType.announcement) {
       specificInputs = [
+        InputWidget.text(
+          hint: "Description",
+          label: "Brief reason about the announcement",
+          errorText: state.errorTitle,
+          onChanged: controller.onChangedDescription,
+          // validators: controller.validateTitle,
+        ),
+        Gap.h12,
         InputWidget.dropdown(
           label: "File that related to the announcement",
           hint: "Upload File, Image, Pdf",

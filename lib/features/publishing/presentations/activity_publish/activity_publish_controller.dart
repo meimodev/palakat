@@ -14,28 +14,58 @@ class ActivityPublishController extends _$ActivityPublishController {
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
 
-    if (state.type == ActivityType.service) {}
+    if (state.type == ActivityType.service ||
+        state.type == ActivityType.event) {
+      final locationError = validateLocation(state.location);
+      final pinpointError = validatePinpointLocation(state.pinpointLocation);
+      final dateError = validateDate(state.date);
+      final timeError = validateTime(state.time);
+      final reminderError = validateReminder(state.reminder);
+      final noteError = validateNote(state.note);
+      final titleError = validateTitle(state.title);
+      final bipraError = validateBipra(state.bipra);
 
-    if (state.type == ActivityType.event) {}
+      final isValid = locationError == null &&
+          pinpointError == null &&
+          dateError == null &&
+          timeError == null &&
+          reminderError == null &&
+          noteError == null &&
+          titleError == null &&
+          bipraError == null;
 
-    if (state.type == ActivityType.announcement) {}
+      state = state.copyWith(
+        errorLocation: locationError,
+        errorPinpointLocation: pinpointError,
+        errorDate: dateError,
+        errorTime: timeError,
+        errorReminder: reminderError,
+        errorNote: noteError,
+        errorTitle: titleError,
+        errorBipra: bipraError,
+        isFormValid: isValid,
+      );
+    }
 
-    // state = state.copyWith(
-    //   errorLocation: locationError,
-    //   errorPinpointLocation: pinpointLocationError,
-    //   errorDate: dateError,
-    //   errorTime: timeError,
-    //   errorTitle: titleError,
-    //   errorFile: fileError,
-    //   errorBipra: bipraError,
-    //   isFormValid: locationError == null &&
-    //       pinpointLocationError == null &&
-    //       dateError == null &&
-    //       timeError == null &&
-    //       titleError == null &&
-    //       fileError == null &&
-    //       bipraError == null,
-    // );
+    if (state.type == ActivityType.announcement) {
+      final titleError = validateTitle(state.title);
+      final descriptionError = validateDescription(state.description);
+      final fileError = validateFile(state.file);
+      final bipraError = validateBipra(state.bipra);
+
+      final isValid = titleError == null &&
+          descriptionError == null &&
+          fileError == null &&
+          bipraError == null;
+
+      state = state.copyWith(
+        errorTitle: titleError,
+        errorDescription: descriptionError,
+        errorFile: fileError,
+        errorBipra: bipraError,
+        isFormValid: isValid,
+      );
+    }
 
     await Future.delayed(const Duration(milliseconds: 400));
     state = state.copyWith(loading: false);
@@ -90,6 +120,13 @@ class ActivityPublishController extends _$ActivityPublishController {
     return null;
   }
 
+  String? validateDescription(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Description is required';
+    }
+    return null;
+  }
+
   String? validateFile(String? value) {
     if (value == null || value.isEmpty) {
       return 'File is required';
@@ -106,6 +143,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   bool validateAnnouncement() {
     return validateTitle(state.title) == null &&
+        validateDescription(state.description) == null &&
         validateFile(state.file) == null &&
         validateBipra(state.bipra) == null;
   }
@@ -152,15 +190,19 @@ class ActivityPublishController extends _$ActivityPublishController {
     state = state.copyWith(time: value);
   }
 
+  void onChangedDescription(String value) {
+    state = state.copyWith(description: value);
+  }
+
   void onChangedFile(String value) {
     state = state.copyWith(file: value);
   }
 
-  void onChangedReminder(String? value) {
+  void onChangedReminder(String value) {
     state = state.copyWith(reminder: value);
   }
 
-  void onChangeNote(String? value) {
+  void onChangeNote(String value) {
     state = state.copyWith(note: value);
   }
 
