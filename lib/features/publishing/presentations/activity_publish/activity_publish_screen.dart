@@ -130,6 +130,30 @@ class ActivityPublishScreen extends ConsumerWidget {
           ),
         ],
       ),
+      Gap.h12,
+      Text(
+        "Select Which time the reminder will be sent",
+        overflow: TextOverflow.ellipsis,
+        style: BaseTypography.bodyMedium.toSecondary,
+      ),
+      Gap.h4,
+      InputWidget.dropdown(
+        label: '',
+        hint: 'Select Reminder',
+        onChanged: controller.onChangedReminder,
+        errorText: state.errorReminder,
+        onPressedWithResult: () async {
+          final res = await showDialogReminderPickerWidget(context: context);
+          return res?.name;
+        },
+      ),
+      Gap.h12,
+      InputWidget.text(
+        label: 'Other things attendee need to know',
+        hint: 'Note',
+        errorText: state.errorNote,
+        onChanged: controller.onChangeNote,
+      )
       // Gap.h12,
       // InputWidget.text(
       //   hint: "Location",
@@ -139,6 +163,14 @@ class ActivityPublishScreen extends ConsumerWidget {
 
     if (type == ActivityType.announcement) {
       specificInputs = [
+        InputWidget.text(
+          hint: "Description",
+          label: "Brief reason about the announcement",
+          errorText: state.errorTitle,
+          onChanged: controller.onChangedDescription,
+          // validators: controller.validateTitle,
+        ),
+        Gap.h12,
         InputWidget.dropdown(
           label: "File that related to the announcement",
           hint: "Upload File, Image, Pdf",
@@ -199,7 +231,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         text: "Submit",
         onTap: () async {
           final success = await controller.submit();
-          if(context.mounted){
+          if (context.mounted) {
             if (!success) {
               showSnackBar(context, "Please Fill All the field");
               return;
