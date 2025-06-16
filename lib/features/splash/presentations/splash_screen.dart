@@ -24,7 +24,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
     controller.init(
       () {
-        context.goNamed(AppRoute.home);
+        context.goNamed(AppRoute.account);
       },
     );
   }
