@@ -13,7 +13,7 @@ class AccountScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final controller = ref.read(accountControllerProvider.notifier);
+    final controller = ref.read(accountControllerProvider.notifier);
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
@@ -38,21 +38,24 @@ class AccountScreen extends ConsumerWidget {
           InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
+            currentInputValue: state.textPhone,
             textInputType: TextInputType.number,
-            onChanged: print,
+            onChanged: controller.onChangedTextPhone,
             validators: (val) => state.errorTextPhone,
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
+            currentInputValue: state.textName,
             validators: (val) => state.errorTextName,
-            onChanged: print,
+            onChanged: controller.onChangedTextName,
           ),
           Gap.h12,
           InputWidget.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
+            currentInputValue: state.textDob,
             validators: (p0) => state.errorTextDob,
             endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
@@ -61,14 +64,14 @@ class AccountScreen extends ConsumerWidget {
               );
               return result?.ddMmmmYyyy;
             },
-            onChanged: print,
+            onChanged: controller.onChangedDOB,
           ),
           Gap.h12,
           InputWidget.binaryOption(
             label: "use to determine your BIPRA membership",
             currentInputValue: Gender.male.name,
             options: Gender.values.map((e) => e.name).toList(),
-            onChanged: print,
+            onChanged: controller.onChangedGender,
             validators: (val) => state.errorTextGender,
           ),
           Gap.h12,
@@ -76,17 +79,33 @@ class AccountScreen extends ConsumerWidget {
             label: "use to determine your BIPRA membership",
             currentInputValue: MaritalStatus.single.name,
             options: MaritalStatus.values.map((e) => e.name).toList(),
-            onChanged: print,
+            onChanged: controller.onChangedMaritalStatus,
             validators: (val) => state.errorTextMaritalStatus,
           ),
           Gap.h24,
           ButtonWidget.primary(
             text: "Submit",
-            onTap: () {
-              context.pushNamed(AppRoute.membership);
+            onTap: () async {
+              final success = await controller.submit();
+              if (context.mounted) {
+                if (!success) {
+                  showSnackBar(context, "Please Fill All the field");
+                  controller.publish();
+                  return;
+                }
+                context.goNamed(AppRoute.membership);
+              }
             },
           )
         ],
+      ),
+    );
+  }
+
+  void showSnackBar(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
       ),
     );
   }
