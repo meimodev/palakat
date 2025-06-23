@@ -8,5 +8,6 @@ class Endpoint {
   }
 
   static String account = _baseUrl(path: "/account");
+  static String membership = _baseUrl(path: "/membership");
   static String auth = _baseUrl(path: "/auth");
 }

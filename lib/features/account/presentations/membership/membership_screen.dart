@@ -38,7 +38,7 @@ class MembershipScreen extends StatelessWidget {
               final Church? result = await showDialogChurchPickerWidget(
                 context: context,
               );
-              return "${result?.name} ${result?.location}";
+              return "${result?.name}";
             },
             onChanged: print,
           ),
