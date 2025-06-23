@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
@@ -13,8 +13,7 @@ import 'core/constants/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
-  await FlutterConfig.loadEnvVariables();
-
+  await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
