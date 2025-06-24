@@ -12,7 +12,7 @@ import 'core/config/config.dart';
 import 'core/constants/constants.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(
