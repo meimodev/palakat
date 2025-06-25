@@ -33,7 +33,7 @@ class CardChurch extends StatelessWidget {
                 style: BaseTypography.titleMedium.bold,
               ),
               Text(
-                church.location?.name ?? "",
+                church.address ,
                 style: BaseTypography.bodyMedium,
               ),
             ],

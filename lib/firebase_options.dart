@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:955551592299:android:0e51940288aae85d7b262e',
     messagingSenderId: '955551592299',
     projectId: 'palakat-e70af',
-    storageBucket: 'palakat-e70af.appspot.com',
+    storageBucket: 'palakat-e70af.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,9 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:955551592299:ios:7d231d2102491c4a7b262e',
     messagingSenderId: '955551592299',
     projectId: 'palakat-e70af',
-    storageBucket: 'palakat-e70af.appspot.com',
-    androidClientId: '955551592299-t80cuphg38tsd5i4d7i8uilnrpsmqlip.apps.googleusercontent.com',
-    iosClientId: '955551592299-bfs7bprap04kmncka1tpa4okhvi5p3dp.apps.googleusercontent.com',
+    storageBucket: 'palakat-e70af.firebasestorage.app',
     iosBundleId: 'com.meimodev.palakat.palakat',
   );
 

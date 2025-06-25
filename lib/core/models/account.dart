@@ -11,12 +11,12 @@ part 'account.g.dart';
 @freezed
 class Account with _$Account {
   const factory Account({
-    required String serial,
+    required int id,
     required String phone,
     required String name,
     @DateTimeConverterTimestamp() required DateTime dob,
     required Gender gender,
-    @JsonKey(name: "marital_status") required MaritalStatus maritalStatus,
+    required bool married,
   }) = _Account;
 
   factory Account.fromJson(Map<String, dynamic> data) =>

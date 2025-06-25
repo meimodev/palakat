@@ -45,7 +45,7 @@ class MembershipCardWidget extends StatelessWidget {
               children: [
                 if (signed) ...[
                   Text(
-                    membership!.bipra.abv,
+                    "bipra",
                     style: BaseTypography.headlineSmall.toSecondary,
                   ),
                   Gap.w12,
