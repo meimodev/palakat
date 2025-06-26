@@ -6,18 +6,13 @@ import 'package:palakat/core/models/membership.dart';
 // cuman kalo sampe repository pake bagitu le, smo tamba banya boilerplate
 // jdi ini langsung implementasi class biasa
 class MembershipRepository {
-  final MembershipApiContract membershipApi;
+  final MembershipApiContract _membershipApi;
 
-  MembershipRepository(this.membershipApi);
+  MembershipRepository(this._membershipApi);
 
-  Future<Membership?> getMembership(String membershipId) async {
-    final result = await membershipApi.getMembership(membershipId);
-    return result.when(
-      success: (data) {
-        return Membership.fromJson(data);
-      },
-      failure: (e, st) => null,
-    );
+  Future<Membership> getMembership(int membershipId) async {
+      final result = await _membershipApi.getMembership(membershipId);
+      return Membership.fromJson(result);
   }
 }
 

@@ -1,5 +1,5 @@
-
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -11,15 +11,17 @@ class DashboardController extends _$DashboardController {
 
   // ActivityRepository get activityRepo => ref.read(activityRepositoryProvider);
 
-  DateTime get startOfWeek => DateTime.now().toStartOfTheWeek;
+  // DateTime get startOfWeek => DateTime.now().toStartOfTheWeek;
 
-  DateTime get endOfWeek => DateTime.now().toEndOfTheWeek;
+  // DateTime get endOfWeek => DateTime.now().toEndOfTheWeek;
 
   @override
   DashboardState build() {
     fetchMembershipData();
     fetchThisAnnouncementData();
     fetchThisWeekActivityData();
+
+    // test();
 
     return const DashboardState(
       membership: null,
@@ -29,6 +31,14 @@ class DashboardController extends _$DashboardController {
       thisWeekAnnouncementsLoading: true,
       thisWeekAnnouncements: [],
     );
+  }
+
+  void test() async {
+    // ignore: avoid_manual_providers_as_generated_provider_dependency
+    MembershipRepository repo = ref.read(membershipRepositoryProvider);
+    final res = await repo.getMembership(1);
+    print("test fetch");
+    print(res);
   }
 
   void fetchThisWeekActivityData() async {

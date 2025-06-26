@@ -4,7 +4,7 @@ import 'package:palakat/core/models/models.dart';
 part 'account_state.freezed.dart';
 
 @freezed
-class AccountState with _$AccountState {
+abstract class AccountState with _$AccountState {
   const factory AccountState({
     Account? account,
     required String errorTextPhone,

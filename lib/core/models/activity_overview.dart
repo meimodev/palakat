@@ -6,7 +6,7 @@ part 'activity_overview.freezed.dart';
 part 'activity_overview.g.dart';
 
 @freezed
-class ActivityOverview  with _$ActivityOverview{
+abstract class ActivityOverview  with _$ActivityOverview{
   const factory ActivityOverview({
     required String serial,
     required String title,

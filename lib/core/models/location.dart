@@ -4,7 +4,7 @@ part 'location.freezed.dart';
 part 'location.g.dart';
 
 @freezed
-class Location with _$Location {
+abstract class Location with _$Location {
   const factory Location({
     @Default(0) double latitude ,
     @Default(0) double longitude ,

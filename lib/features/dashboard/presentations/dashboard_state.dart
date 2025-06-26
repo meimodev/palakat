@@ -4,7 +4,7 @@ import 'package:palakat/core/models/models.dart';
 part 'dashboard_state.freezed.dart';
 
 @freezed
-class DashboardState with _$DashboardState {
+abstract class DashboardState with _$DashboardState {
   const factory DashboardState({
     @Default(true) bool thisWeekActivitiesLoading,
     @Default(<Activity>[]) List<Activity> thisWeekActivities,

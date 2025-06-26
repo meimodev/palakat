@@ -8,12 +8,12 @@ class Debounce {
     this.delay,
   );
 
-  call(void Function() callback) {
+  void call(void Function() callback) {
     _timer?.cancel();
     _timer = Timer(delay, callback);
   }
 
-  dispose() {
+  void dispose() {
     _timer?.cancel();
   }
 }

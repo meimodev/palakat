@@ -1,9 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat/core/models/membership.dart';
 
 part 'result.freezed.dart';
 
 @freezed
-class Result<T> with _$Result<T> {
+sealed class Result<T> with _$Result<T> {
+  const Result._();
   /// [INFO]
   /// This function is returning when it success, usually call it inside try
   /// of try...catch, so it will be safe to get data from this function.
