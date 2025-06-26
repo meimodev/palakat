@@ -51,7 +51,7 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
             padding: EdgeInsets.symmetric(
               horizontal: BaseSize.w12,
             ),
-            separatorBuilder: (_, __) => Gap.h12,
+            separatorBuilder: (_, _) => Gap.h12,
             itemCount: data.length,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {

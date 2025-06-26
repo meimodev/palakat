@@ -121,7 +121,7 @@ class _InputWidgetState extends State<InputWidget> {
   }
 
   Color? get borderColor => errorMessage.isNotEmpty
-      ? BaseColor.error.withOpacity(.5)
+      ? BaseColor.error.withValues(alpha: .5)
       : widget.borderColor;
 
   @override
