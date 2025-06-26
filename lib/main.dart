@@ -6,6 +6,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'core/data_sources/local/hive_service.dart';
 import 'firebase_options.dart';
 
 import 'core/config/config.dart';
@@ -18,8 +19,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await HiveService.openAllBox();
 
   await Jiffy.setLocale('id');
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

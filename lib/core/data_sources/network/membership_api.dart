@@ -9,20 +9,12 @@ class MembershipApi implements MembershipApiContract {
   MembershipApi(this._dio);
 
   @override
-  Future<Result<Map<String, dynamic>>> getMembership(String membershipId) async {
+  Future<Map<String, dynamic>> getMembership(int membershipId) async {
     try {
-      final response = await _dio.get(
-        "${Endpoint.membership}/$membershipId",
-      );
-      return Result.success(
-        response['data']
-      );
+      final response = await _dio.get("${Endpoint.membership}/$membershipId");
+      return response['data'];
     } catch (e, st) {
-      NetworkExceptions.fromDioException(e, st);
-      return Result.failure(
-        e,
-        st,
-      );
+      throw NetworkExceptions.fromDioException(e, st);
     }
   }
 }

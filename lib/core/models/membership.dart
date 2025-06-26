@@ -8,7 +8,7 @@ part 'membership.freezed.dart';
 part 'membership.g.dart';
 
 @freezed
-class Membership with _$Membership {
+abstract class Membership with _$Membership {
   const factory Membership({
     required int id,
     required int accountId,

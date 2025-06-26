@@ -12,7 +12,7 @@ class NetworkExceptions {
   /// This function called in the catch in try...catch, and then get the error
   /// and stacktrace, then in this function, will detect,
   /// and convert to NetworkExceptions error so later can be handled on one place
-   NetworkExceptions.fromDioException(error, stackTrace) {
+   NetworkExceptions.fromDioException(dynamic error, dynamic stackTrace) {
 
     if (error is! Exception) {
       message = "Unknown error, Exception not defined";

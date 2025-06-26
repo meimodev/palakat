@@ -11,6 +11,20 @@ class HiveService {
   final userSource = Hive.box<String>(HiveKey.userBox);
   final authSource = Hive.box<String>(HiveKey.authBox);
 
+  static Future<void> openAllBox() async {
+    await Hive.initFlutter('cache');
+    if (!Hive.isBoxOpen(HiveKey.userBox)) {
+      await Hive.openLazyBox(HiveKey.userBox);
+    }
+    if (!Hive.isBoxOpen(HiveKey.authBox)) {
+      await Hive.openLazyBox(HiveKey.authBox);
+    }
+  }
+
+  static Future<void> hiveClose() async {
+    await Hive.close();
+  }
+
   AuthData? getAuth() {
     final auth = authSource.get(HiveKey.auth);
 
@@ -19,24 +33,15 @@ class HiveService {
       return null;
     }
 
-    return AuthData.fromJson(
-      json.decode(auth),
-    );
+    return AuthData.fromJson(json.decode(auth));
   }
 
   Future saveAuth(AuthData value) async {
-    await authSource.put(
-      HiveKey.auth,
-      json.encode(
-        value.toJson(),
-      ),
-    );
+    await authSource.put(HiveKey.auth, json.encode(value.toJson()));
   }
 
   Future deleteAuth() async {
-    await userSource.delete(
-      HiveKey.auth,
-    );
+    await userSource.delete(HiveKey.auth);
   }
 }
 
