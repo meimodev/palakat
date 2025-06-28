@@ -8,11 +8,11 @@ part 'column.freezed.dart';
 part 'column.g.dart';
 
 @freezed
-class Column with _$Column {
+abstract class Column with _$Column {
   const factory Column({
-    @Default('') String serial,
-    @Default('') String name,
-    @JsonKey(name: "church_serial") @Default('') String churchSerial,
+    required int id,
+    required String name,
+    required int churchId,
     Church? church,
   }) = _Column;
 

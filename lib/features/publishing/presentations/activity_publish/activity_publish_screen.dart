@@ -59,6 +59,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.text(
         hint: "Location",
         label: "Can be Host name, Location name, Column Name, etc",
+        currentInputValue: state.location,
         // validators: controller.validateLocation,
         errorText: state.errorLocation,
         onChanged: controller.onChangedLocation,
@@ -68,6 +69,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         hint: "Pinpoint Location",
         label: "Pin point location to make other easier to find",
         endIcon: Assets.icons.line.mapOutline,
+        currentInputValue: state.pinpointLocation,
         // validators: controller.validatePinpointLocation,
         errorText: state.errorPinpointLocation,
         onChanged: controller.onChangedPinpointLocation,
@@ -99,6 +101,7 @@ class ActivityPublishScreen extends ConsumerWidget {
               label: '',
               endIcon: Assets.icons.line.calendarOutline,
               onChanged: controller.onChangedDate,
+              currentInputValue: state.date,
               // validators: controller.validateDate,
               errorText: state.errorDate,
               onPressedWithResult: () async {
@@ -118,6 +121,7 @@ class ActivityPublishScreen extends ConsumerWidget {
             child: InputWidget.dropdown(
               label: '',
               hint: "Time",
+              currentInputValue: state.time,
               endIcon: Assets.icons.line.timeOutline,
               onChanged: controller.onChangedTime,
               // validators: controller.validateTime,
@@ -140,6 +144,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         label: '',
         hint: 'Select Reminder',
+        currentInputValue: state.reminder,
         onChanged: controller.onChangedReminder,
         errorText: state.errorReminder,
         onPressedWithResult: () async {
@@ -166,6 +171,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         InputWidget.text(
           hint: "Description",
           label: "Brief reason about the announcement",
+          currentInputValue: state.description,
           errorText: state.errorTitle,
           onChanged: controller.onChangedDescription,
           // validators: controller.validateTitle,
@@ -174,6 +180,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         InputWidget.dropdown(
           label: "File that related to the announcement",
           hint: "Upload File, Image, Pdf",
+          currentInputValue: state.file,
           endIcon: Assets.icons.line.download,
           onChanged: controller.onChangedFile,
           // validators: controller.validateFile,
@@ -189,6 +196,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       InputWidget.dropdown(
         hint: "Select BIPRA",
         label: "Where the service mainly will notify",
+        currentInputValue: state.bipra,
         errorText: state.errorBipra,
         // validators: controller.validateBipra,
         onChanged: controller.onChangedBipra,
@@ -203,6 +211,7 @@ class ActivityPublishScreen extends ConsumerWidget {
         label: "Brief explanation of the service",
         errorText: state.errorTitle,
         onChanged: controller.onChangedTitle,
+        currentInputValue: state.title,
         // validators: controller.validateTitle,
       ),
       Gap.h12,
@@ -234,9 +243,10 @@ class ActivityPublishScreen extends ConsumerWidget {
           if (context.mounted) {
             if (!success) {
               showSnackBar(context, "Please Fill All the field");
+              controller.publish();
+              Navigator.pop(context);
               return;
             }
-            controller.publish();
           }
         },
       ),

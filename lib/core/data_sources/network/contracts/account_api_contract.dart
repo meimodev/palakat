@@ -1,10 +1,9 @@
 
-import 'package:palakat/core/data_sources/network/model/model.dart';
 
 abstract class AccountApiContract{
-  Future<Result<Map<String, dynamic>>> getAccount(String uid);
-  Future<Result<Map<String, dynamic>>> signIn();
-  Future<Result<Map<String, dynamic>>> signOut();
-  Future<Result<Map<String, dynamic>>> signUp();
+  Future<Map<String, dynamic>> getAccount(String uid);
+  Future<Map<String, dynamic>> signIn();
+  Future<Map<String, dynamic>> signOut();
+  Future<Map<String, dynamic>> signUp();
 
 }

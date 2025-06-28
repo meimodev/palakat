@@ -34,13 +34,11 @@ class _DialogChurchPickerWidget extends StatelessWidget {
     final List<Church> churches = List<Church>.generate(
       15,
       (index) => Church(
-        serial: "index $index",
+        id: index,
         name: "c $index",
-        location: Location(
-          latitude: 1,
-          longitude: 1,
-          name: "name $index",
-        ),
+        latitude: "1",
+        longitude: "1",
+        address: 'some address',
       ),
     );
 

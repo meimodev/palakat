@@ -4,7 +4,7 @@ import 'package:palakat/core/constants/enums/enums.dart';
 part 'activity_publish_state.freezed.dart';
 
 @freezed
-class ActivityPublishState with _$ActivityPublishState {
+abstract class ActivityPublishState with _$ActivityPublishState {
   const factory ActivityPublishState({
     required ActivityType type,
     String? location,

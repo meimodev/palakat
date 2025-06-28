@@ -6,12 +6,12 @@ import 'package:palakat/core/constants/constants.dart';
 class BaseShadow {
   static List<BoxShadow> shadow = [
     BoxShadow(
-      color: BaseColor.shadow.withOpacity(0.06),
+      color: BaseColor.shadow.withValues(alpha: 0.06),
       offset: const Offset(0, 0.36),
       blurRadius: 0.73,
     ),
     BoxShadow(
-      color: BaseColor.shadow.withOpacity(0.1),
+      color: BaseColor.shadow.withValues(alpha: 0.1),
       offset: const Offset(0, 0.36),
       blurRadius: 1.09,
     ),
@@ -19,13 +19,13 @@ class BaseShadow {
 
   static List<BoxShadow> shadowReversed = [
     BoxShadow(
-      color: BaseColor.shadow.withOpacity(0.06),
+      color: BaseColor.shadow.withValues(alpha: 0.06),
       offset: const Offset(0, -0.36),
       blurRadius: 3,
       spreadRadius: 3,
     ),
     BoxShadow(
-      color: BaseColor.shadow.withOpacity(0.1),
+      color: BaseColor.shadow.withValues(alpha: 0.1),
       offset: const Offset(0, -0.36),
       blurRadius: 3,
       spreadRadius: 3,

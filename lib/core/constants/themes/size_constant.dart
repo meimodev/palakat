@@ -64,13 +64,13 @@ class BaseSize {
 
   /// [INFO]
   /// Sizes for custom width or height outside the 8 pixel rules
-  static customWidth(double value) => value.w;
+  static double customWidth(double value) => value.w;
 
-  static customHeight(double value) => value.h;
+  static double customHeight(double value) => value.h;
 
-  static customRadius(double value) => value.r;
+  static double customRadius(double value) => value.r;
 
-  static customFontSize(double value) => value.sp;
+  static double customFontSize(double value) => value.sp;
 }
 
 /// [INFO]
@@ -122,14 +122,14 @@ class Gap {
 
   /// [INFO]
   /// Gaps for custom width or height outside the 8 pixel rules
-  static customGapWidth(double value) => SizedBox(width: value.w);
+  static SizedBox customGapWidth(double value) => SizedBox(width: value.w);
 
-  static customGapHeight(double value) => SizedBox(height: value.h);
+  static SizedBox customGapHeight(double value) => SizedBox(height: value.h);
 
   /// [INFO]
   /// to get BuildContext.viewPadding.bottom
   /// used for give the empty space to fill the Bottom Outside SafeArea
-  static bottomPadding(BuildContext context) {
+  static dynamic bottomPadding(BuildContext context) {
     return customGapHeight(context.bottomPadding);
   }
 }

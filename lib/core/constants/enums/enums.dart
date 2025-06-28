@@ -39,12 +39,11 @@ enum Bipra {
   final String abv;
 }
 
-@JsonEnum(valueField: 'abv')
 enum Reminder {
-  tenminutes("10 Minutes Before"),
-  thirtyminutes("30 Minutes Before"),
-  onehour("1 Hour Before"),
-  twohour("2 Hour Before");
+  tenMinutes("10 Minutes Before"),
+  thirtyMinutes("30 Minutes Before"),
+  oneHour("1 Hour Before"),
+  twoHour("2 Hour Before");
 
   const Reminder(this.name);
 
