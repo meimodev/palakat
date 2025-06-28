@@ -17,6 +17,7 @@ class AccountScreen extends ConsumerWidget {
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
+      loading: state.loading ?? false,
       persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -38,25 +39,25 @@ class AccountScreen extends ConsumerWidget {
           InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
-            currentInputValue: state.textPhone,
+            currentInputValue: state.phone,
             textInputType: TextInputType.number,
             onChanged: controller.onChangedTextPhone,
-            validators: (val) => state.errorTextPhone,
+            validators: (val) => state.errorPhone,
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
-            currentInputValue: state.textName,
-            validators: (val) => state.errorTextName,
+            currentInputValue: state.name,
+            validators: (val) => state.errorName,
             onChanged: controller.onChangedTextName,
           ),
           Gap.h12,
           InputWidget.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
-            currentInputValue: state.textDob,
-            validators: (p0) => state.errorTextDob,
+            currentInputValue: state.dob,
+            validators: (p0) => state.errorDob,
             endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
               final DateTime? result = await showDialogDatePickerWidget(
@@ -69,18 +70,18 @@ class AccountScreen extends ConsumerWidget {
           Gap.h12,
           InputWidget.binaryOption(
             label: "use to determine your BIPRA membership",
-            currentInputValue: Gender.male.name,
+            currentInputValue: state.gender,
             options: Gender.values.map((e) => e.name).toList(),
             onChanged: controller.onChangedGender,
-            validators: (val) => state.errorTextGender,
+            validators: (val) => state.errorGender,
           ),
           Gap.h12,
           InputWidget.binaryOption(
             label: "use to determine your BIPRA membership",
-            currentInputValue: MaritalStatus.single.name,
+            currentInputValue: state.married,
             options: MaritalStatus.values.map((e) => e.name).toList(),
             onChanged: controller.onChangedMaritalStatus,
-            validators: (val) => state.errorTextMaritalStatus,
+            validators: (val) => state.errormarried,
           ),
           Gap.h24,
           ButtonWidget.primary(
@@ -93,7 +94,7 @@ class AccountScreen extends ConsumerWidget {
                   controller.publish();
                   return;
                 }
-                context.goNamed(AppRoute.membership);
+                context.pushNamed(AppRoute.membership);
               }
             },
           )

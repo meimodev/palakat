@@ -7,7 +7,7 @@ part 'account_controller.g.dart';
 class AccountController extends _$AccountController {
   @override
   AccountState build() {
-    return const AccountState(textGender: "MALE", textMaritalStatus: "SINGLE");
+    return const AccountState(gender: "MALE", married: "SINGLE");
   }
 
   String? validateTextPhone(String? value) {
@@ -46,54 +46,53 @@ class AccountController extends _$AccountController {
   }
 
   void onChangedTextPhone(String value) {
-    state = state.copyWith(textPhone: value);
+    state = state.copyWith(phone: value, errorPhone: null);
   }
 
   void onChangedTextName(String value) {
-    state = state.copyWith(textName: value);
+    state = state.copyWith(name: value, errorName: null);
   }
 
   void onChangedDOB(String value) {
-    state = state.copyWith(textDob: value);
+    state = state.copyWith(dob: value, errorDob: null);
   }
 
   void onChangedGender(String value) {
-    state = state.copyWith(textGender: value);
+    state = state.copyWith(gender: value, errorGender: null);
   }
 
   void onChangedMaritalStatus(String value) {
-    state = state.copyWith(textMaritalStatus: value);
-    print(value);
+    state = state.copyWith(married: value, errormarried: null);
   }
 
   bool validateAccount() {
-    return validateTextPhone(state.textPhone) == null &&
-        validateTextName(state.textName) == null &&
-        validateDOB(state.textDob) == null &&
-        validateGender(state.textGender) == null &&
-        validateMaritalStatus(state.textMaritalStatus) == null;
+    return validateTextPhone(state.phone) == null &&
+        validateTextName(state.name) == null &&
+        validateDOB(state.dob) == null &&
+        validateGender(state.gender) == null &&
+        validateMaritalStatus(state.married) == null;
   }
 
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
-    final errorTextPhone = validateTextPhone(state.textPhone);
-    final errorTextname = validateTextName(state.textName);
-    final errorDOB = validateDOB(state.textDob);
-    final errorGender = validateGender(state.textGender);
-    final errorMaritalStatus = validateMaritalStatus(state.textMaritalStatus);
+    final errorPhone = validateTextPhone(state.phone);
+    final errorName = validateTextName(state.name);
+    final errorDob = validateDOB(state.dob);
+    final errorGender = validateGender(state.gender);
+    final errorMarried = validateMaritalStatus(state.married);
 
-    final isValid = errorTextPhone == null &&
-        errorTextname == null &&
-        errorDOB == null &&
+    final isValid = errorPhone == null &&
+        errorName == null &&
+        errorDob == null &&
         errorGender == null &&
-        errorMaritalStatus == null;
+        errorMarried == null;
 
     state = state.copyWith(
-      errorTextPhone: errorTextPhone,
-      errorTextName: errorTextname,
-      errorTextDob: errorDOB,
-      errorTextGender: errorGender,
-      errorTextMaritalStatus: errorMaritalStatus,
+      errorPhone: errorPhone,
+      errorName: errorName,
+      errorDob: errorDob,
+      errorGender: errorGender,
+      errormarried: errorMarried,
       isFormValid: isValid,
     );
 
