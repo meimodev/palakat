@@ -24,7 +24,7 @@ class DashboardController extends _$DashboardController {
 
     return const DashboardState(
       membership: null,
-      membershipLoading: true,
+      membershipLoading: false,
       thisWeekActivitiesLoading: true,
       thisWeekActivities: [],
       thisWeekAnnouncementsLoading: true,
