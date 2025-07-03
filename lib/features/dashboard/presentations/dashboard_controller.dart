@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
@@ -20,8 +22,6 @@ class DashboardController extends _$DashboardController {
     fetchThisAnnouncementData();
     fetchThisWeekActivityData();
 
-    // test();
-
     return const DashboardState(
       membership: null,
       membershipLoading: false,
@@ -32,13 +32,22 @@ class DashboardController extends _$DashboardController {
     );
   }
 
-  void test() async {
-    // ignore: avoid_manual_providers_as_generated_provider_dependency
-    MembershipRepository repo = ref.read(membershipRepositoryProvider);
-    final res = await repo.getMembership(1);
-    print("test fetch");
-    print(res);
-  }
+  // void test() async {
+  //   MembershipRepository repo = ref.read(membershipRepositoryProvider );
+  //   HiveService hiveService = ref.read(hiveServiceProvider);
+  //
+  //   await hiveService.saveAuth(
+  //     AuthData(
+  //       accessToken:
+  //           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6InNlY3JldC1mcm9udGVuZC11c2VybmFtZSIsInNvdXJjZSI6ImNsaWVudC1zdHJhdGVneSIsImlhdCI6MTc0OTU1NjAwMX0.LWs9yiwgFAnUx5jmIPHvZh8_dwrHmLWt2jaLqI2eq6E",
+  //       refreshToken: 'refreshToken',
+  //     ),
+  //   );
+  //   final res = await repo.getMembership(1);
+  //
+  //   log("test fetch");
+  //   log(res.toString());
+  // }
 
   void fetchThisWeekActivityData() async {
     // final activities = await activityRepo.getActivities(

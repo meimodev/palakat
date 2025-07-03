@@ -1,32 +1,25 @@
 import 'dart:convert';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat/core/constants/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'dart:developer' as dev;
 
 import 'local.dart';
 
-class HiveService {
-  final userSource = Hive.box<String>(HiveKey.userBox);
-  final authSource = Hive.box<String>(HiveKey.authBox);
+part 'hive_service.g.dart';
 
-  static Future<void> openAllBox() async {
-    await Hive.initFlutter('cache');
-    if (!Hive.isBoxOpen(HiveKey.userBox)) {
-      await Hive.openLazyBox(HiveKey.userBox);
-    }
-    if (!Hive.isBoxOpen(HiveKey.authBox)) {
-      await Hive.openLazyBox(HiveKey.authBox);
-    }
+
+@riverpod
+class HiveService extends _$HiveService{
+  @override
+  HiveService build() {
+    return HiveService();
   }
 
-  static Future<void> hiveClose() async {
-    await Hive.close();
-  }
+   Box<String> get _userSource => Hive.box<String>(HiveKey.userBox);
+   Box<String> get _authSource => Hive.box<String>(HiveKey.authBox);
 
   AuthData? getAuth() {
-    final auth = authSource.get(HiveKey.auth);
+    final auth = _authSource.get(HiveKey.auth);
 
     if (auth == null) {
       dev.log("[HIVE SERVICE] access token not saved");
@@ -37,14 +30,36 @@ class HiveService {
   }
 
   Future saveAuth(AuthData value) async {
-    await authSource.put(HiveKey.auth, json.encode(value.toJson()));
+    await _authSource.put(HiveKey.auth, json.encode(value.toJson()));
   }
 
   Future deleteAuth() async {
-    await userSource.delete(HiveKey.auth);
+    await _authSource.delete(HiveKey.auth);
   }
 }
 
-final hiveServiceProvider = Provider<HiveService>((ref) {
-  return HiveService();
-});
+Future<void> hiveInit() async {
+  await Hive.initFlutter('cache');
+  await Hive.openBox<String>(HiveKey.authBox);
+  await Hive.openBox<String>(HiveKey.userBox);
+}
+
+Future<void> hiveClose() async {
+  await Hive.close();
+}
+
+class HiveKey {
+  static const String userBox = 'userBox';
+  static const String user = 'user';
+
+  static const String authBox = 'authBox';
+  static const String auth = 'auth';
+
+}
+
+
+//
+// final hiveServiceProvider = Provider<HiveService>((ref) {
+//   return HiveService();
+// });
+//

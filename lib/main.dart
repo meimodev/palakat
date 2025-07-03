@@ -3,10 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:palakat/core/data_sources/local/local.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'core/data_sources/local/hive_service.dart';
 import 'firebase_options.dart';
 
 import 'core/config/config.dart';
@@ -16,10 +16,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await HiveService.openAllBox();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await hiveInit();
 
   await Jiffy.setLocale('id');
 
@@ -45,7 +43,7 @@ class MyApp extends ConsumerWidget {
         routeInformationProvider: router.routeInformationProvider,
         title: AppConfig.appName,
         theme: BaseTheme.appTheme,
-        locale: const Locale('id','ID'),
+        locale: const Locale('id', 'ID'),
       ),
     );
   }
