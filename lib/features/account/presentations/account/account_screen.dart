@@ -43,13 +43,14 @@ class AccountScreen extends ConsumerWidget {
             textInputType: TextInputType.number,
             onChanged: controller.onChangedTextPhone,
             validators: (val) => state.errorPhone,
+            errorText: state.errorPhone,
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
             currentInputValue: state.name,
-            validators: (val) => state.errorName,
+            errorText: state.errorName,
             onChanged: controller.onChangedTextName,
           ),
           Gap.h12,
@@ -57,7 +58,7 @@ class AccountScreen extends ConsumerWidget {
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
             currentInputValue: state.dob,
-            validators: (p0) => state.errorDob,
+            errorText: state.errorDob,
             endIcon: Assets.icons.line.calendarOutline,
             onPressedWithResult: () async {
               final DateTime? result = await showDialogDatePickerWidget(
@@ -73,7 +74,7 @@ class AccountScreen extends ConsumerWidget {
             currentInputValue: state.gender,
             options: Gender.values.map((e) => e.name).toList(),
             onChanged: controller.onChangedGender,
-            validators: (val) => state.errorGender,
+            errorText: state.errorGender,
           ),
           Gap.h12,
           InputWidget.binaryOption(
@@ -81,7 +82,8 @@ class AccountScreen extends ConsumerWidget {
             currentInputValue: state.married,
             options: MaritalStatus.values.map((e) => e.name).toList(),
             onChanged: controller.onChangedMaritalStatus,
-            validators: (val) => state.errormarried,
+            // validators: (val) => state.errormarried,
+            errorText: state.errorMarried,
           ),
           Gap.h24,
           ButtonWidget.primary(
@@ -97,17 +99,13 @@ class AccountScreen extends ConsumerWidget {
                 context.pushNamed(AppRoute.membership);
               }
             },
-          )
+          ),
         ],
       ),
     );
   }
 
   void showSnackBar(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }

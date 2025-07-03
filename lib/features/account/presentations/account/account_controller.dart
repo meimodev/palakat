@@ -62,7 +62,7 @@ class AccountController extends _$AccountController {
   }
 
   void onChangedMaritalStatus(String value) {
-    state = state.copyWith(married: value, errormarried: null);
+    state = state.copyWith(married: value, errorMarried: null);
   }
 
   bool validateAccount() {
@@ -81,7 +81,8 @@ class AccountController extends _$AccountController {
     final errorGender = validateGender(state.gender);
     final errorMarried = validateMaritalStatus(state.married);
 
-    final isValid = errorPhone == null &&
+    final isValid =
+        errorPhone == null &&
         errorName == null &&
         errorDob == null &&
         errorGender == null &&
@@ -92,7 +93,7 @@ class AccountController extends _$AccountController {
       errorName: errorName,
       errorDob: errorDob,
       errorGender: errorGender,
-      errormarried: errorMarried,
+      errorMarried: errorMarried,
       isFormValid: isValid,
     );
 

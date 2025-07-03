@@ -16,7 +16,7 @@ abstract class AccountState with _$AccountState {
     String? errorName,
     String? errorDob,
     String? errorGender,
-    String? errormarried,
+    String? errorMarried,
     bool? loading,
     @Default(false) bool submitLoading,
     @Default(false) bool isFormValid,
