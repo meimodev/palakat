@@ -15,7 +15,7 @@ class HiveService extends _$HiveService{
     return HiveService();
   }
 
-   Box<String> get _userSource => Hive.box<String>(HiveKey.userBox);
+   // Box<String> get _userSource => Hive.box<String>(HiveKey.userBox);
    Box<String> get _authSource => Hive.box<String>(HiveKey.authBox);
 
   AuthData? getAuth() {
