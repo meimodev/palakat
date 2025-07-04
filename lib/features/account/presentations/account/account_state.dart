@@ -7,12 +7,18 @@ part 'account_state.freezed.dart';
 abstract class AccountState with _$AccountState {
   const factory AccountState({
     Account? account,
-    required String errorTextPhone,
-    required String errorTextName,
-    required String errorTextDob,
-    required String errorTextGender,
-    required String errorTextMaritalStatus,
-    @Default(true) bool loading,
+    String? phone,
+    String? name,
+    String? dob,
+    String? gender,
+    String? married,
+    String? errorPhone,
+    String? errorName,
+    String? errorDob,
+    String? errorGender,
+    String? errorMarried,
+    bool? loading,
     @Default(false) bool submitLoading,
+    @Default(false) bool isFormValid,
   }) = _AccountState;
 }
