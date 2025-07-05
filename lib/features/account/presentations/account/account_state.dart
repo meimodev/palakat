@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/core/models/models.dart';
 
 part 'account_state.freezed.dart';
@@ -9,16 +10,15 @@ abstract class AccountState with _$AccountState {
     Account? account,
     String? phone,
     String? name,
-    String? dob,
-    String? gender,
-    String? married,
+    DateTime? dob,
+    Gender? gender,
+    MaritalStatus? maritalStatus,
     String? errorPhone,
     String? errorName,
     String? errorDob,
     String? errorGender,
     String? errorMarried,
-    bool? loading,
-    @Default(false) bool submitLoading,
+    @Default(false) bool loading,
     @Default(false) bool isFormValid,
   }) = _AccountState;
 }

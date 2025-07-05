@@ -1,3 +1,4 @@
+import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,7 +8,7 @@ part 'account_controller.g.dart';
 class AccountController extends _$AccountController {
   @override
   AccountState build() {
-    return const AccountState(gender: "MALE", married: "SINGLE");
+    return const AccountState();
   }
 
   String? validateTextPhone(String? value) {
@@ -24,22 +25,22 @@ class AccountController extends _$AccountController {
     return null;
   }
 
-  String? validateDOB(String? value) {
-    if (value == null || value.isEmpty) {
+  String? validateDOB(DateTime? value) {
+    if (value == null ) {
       return 'Date Of Birth is required';
     }
     return null;
   }
 
-  String? validateGender(String? value) {
-    if (value == null || value.isEmpty) {
+  String? validateGender(Gender? value) {
+    if (value == null ) {
       return 'Gender is required';
     }
     return null;
   }
 
-  String? validateMaritalStatus(String? value) {
-    if (value == null || value.isEmpty) {
+  String? validateMaritalStatus(MaritalStatus? value) {
+    if (value == null ) {
       return 'Marital Status is required';
     }
     return null;
@@ -53,16 +54,16 @@ class AccountController extends _$AccountController {
     state = state.copyWith(name: value, errorName: null);
   }
 
-  void onChangedDOB(String value) {
+  void onChangedDOB(DateTime value) {
     state = state.copyWith(dob: value, errorDob: null);
   }
 
-  void onChangedGender(String value) {
+  void onChangedGender(Gender value) {
     state = state.copyWith(gender: value, errorGender: null);
   }
 
-  void onChangedMaritalStatus(String value) {
-    state = state.copyWith(married: value, errorMarried: null);
+  void onChangedMaritalStatus(MaritalStatus value) {
+    state = state.copyWith(maritalStatus: value, errorMarried: null);
   }
 
   bool validateAccount() {
@@ -70,7 +71,7 @@ class AccountController extends _$AccountController {
         validateTextName(state.name) == null &&
         validateDOB(state.dob) == null &&
         validateGender(state.gender) == null &&
-        validateMaritalStatus(state.married) == null;
+        validateMaritalStatus(state.maritalStatus) == null;
   }
 
   Future<void> validateForm() async {
@@ -79,7 +80,7 @@ class AccountController extends _$AccountController {
     final errorName = validateTextName(state.name);
     final errorDob = validateDOB(state.dob);
     final errorGender = validateGender(state.gender);
-    final errorMarried = validateMaritalStatus(state.married);
+    final errorMarried = validateMaritalStatus(state.maritalStatus);
 
     final isValid =
         errorPhone == null &&
@@ -103,11 +104,7 @@ class AccountController extends _$AccountController {
 
   Future<bool> submit() async {
     await validateForm();
-    if (state.isFormValid) {
-      print("Input Valid");
-      return true;
-    }
-    return false;
+    return state.isFormValid;
   }
 
   void publish() {}

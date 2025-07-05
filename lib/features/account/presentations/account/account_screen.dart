@@ -17,7 +17,7 @@ class AccountScreen extends ConsumerWidget {
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
-      loading: state.loading ?? false,
+      loading: state.loading ,
       persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -54,36 +54,34 @@ class AccountScreen extends ConsumerWidget {
             onChanged: controller.onChangedTextName,
           ),
           Gap.h12,
-          InputWidget.dropdown(
+          InputWidget<DateTime>.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
             currentInputValue: state.dob,
             errorText: state.errorDob,
             endIcon: Assets.icons.line.calendarOutline,
-            onPressedWithResult: () async {
-              final DateTime? result = await showDialogDatePickerWidget(
-                context: context,
-              );
-              return result?.ddMmmmYyyy;
-            },
+            optionLabel: (DateTime option) => option.ddMmmmYyyy,
             onChanged: controller.onChangedDOB,
+            onPressedWithResult: () async =>
+                await showDialogDatePickerWidget(context: context),
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<Gender>.binaryOption(
             label: "use to determine your BIPRA membership",
             currentInputValue: state.gender,
-            options: Gender.values.map((e) => e.name).toList(),
+            options: Gender.values,
             onChanged: controller.onChangedGender,
             errorText: state.errorGender,
+            optionLabel: (Gender option) => option.name,
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<MaritalStatus>.binaryOption(
             label: "use to determine your BIPRA membership",
-            currentInputValue: state.married,
-            options: MaritalStatus.values.map((e) => e.name).toList(),
+            currentInputValue: state.maritalStatus,
+            options: MaritalStatus.values,
             onChanged: controller.onChangedMaritalStatus,
-            // validators: (val) => state.errormarried,
             errorText: state.errorMarried,
+            optionLabel: (MaritalStatus option) => option.name,
           ),
           Gap.h24,
           ButtonWidget.primary(

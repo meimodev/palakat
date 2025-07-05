@@ -30,17 +30,14 @@ class MembershipScreen extends StatelessWidget {
             onPressedLeadIcon: context.pop,
           ),
           Gap.h48,
-          InputWidget.dropdown(
+          InputWidget<Church>.dropdown(
             label: "identify your church membership",
             hint: "Church",
             endIcon: Assets.icons.line.homeOutline,
-            onPressedWithResult: () async {
-              final Church? result = await showDialogChurchPickerWidget(
-                context: context,
-              );
-              return "${result?.name}";
-            },
             onChanged: print,
+            optionLabel: (Church option) => option.name,
+            onPressedWithResult: () async =>
+                await showDialogChurchPickerWidget(context: context),
           ),
           Gap.h12,
           InputWidget.text(
@@ -50,18 +47,20 @@ class MembershipScreen extends StatelessWidget {
             onChanged: (value) {},
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<String>.binaryOption(
             currentInputValue: "Baptis",
             options: const ["Baptis", "Belum Baptis"],
             label: "status baptis anda",
             onChanged: print,
+            optionLabel: (String option) => option,
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<String>.binaryOption(
             currentInputValue: "Belum Sidi",
             options: const ["Sidi", "Belum Sidi"],
             label: "status sidi anda",
             onChanged: print,
+            optionLabel: (String option) => option,
           ),
           Gap.h24,
           ButtonWidget.primary(

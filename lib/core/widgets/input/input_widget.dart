@@ -7,13 +7,9 @@ import 'input_variant_binary_option_widget.dart';
 import 'input_variant_dropdown_widget.dart';
 import 'input_variant_text_widget.dart';
 
-enum InputWidgetVariant {
-  text,
-  dropdown,
-  binaryOption,
-}
+enum InputWidgetVariant { text, dropdown, binaryOption }
 
-class InputWidget extends StatefulWidget {
+class InputWidget<T> extends StatefulWidget {
   const InputWidget.text({
     super.key,
     this.maxLines = 1,
@@ -27,9 +23,10 @@ class InputWidget extends StatefulWidget {
     this.borderColor,
     this.errorText,
     this.validators,
-  })  : onPressedWithResult = null,
-        options = null,
-        variant = InputWidgetVariant.text;
+  }) : onPressedWithResult = null,
+       options = null,
+       optionLabel = null,
+       variant = InputWidgetVariant.text;
 
   const InputWidget.dropdown({
     super.key,
@@ -42,11 +39,12 @@ class InputWidget extends StatefulWidget {
     this.endIcon,
     this.errorText,
     this.validators,
-  })  : controller = null,
-        maxLines = 1,
-        textInputType = null,
-        borderColor = null,
-        variant = InputWidgetVariant.dropdown;
+    required this.optionLabel,
+  }) : controller = null,
+       maxLines = 1,
+       textInputType = null,
+       borderColor = null,
+       variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
     super.key,
@@ -56,40 +54,44 @@ class InputWidget extends StatefulWidget {
     this.currentInputValue,
     this.errorText,
     this.validators,
-  })  : variant = InputWidgetVariant.binaryOption,
-        endIcon = null,
-        maxLines = null,
-        hint = null,
-        controller = null,
-        onPressedWithResult = null,
-        borderColor = null,
-        textInputType = null,
-        assert(options != null && options.length > 0,
-            "options cannot be null or empty");
+    required this.optionLabel,
+  }) : variant = InputWidgetVariant.binaryOption,
+       endIcon = null,
+       maxLines = null,
+       hint = null,
+       controller = null,
+       onPressedWithResult = null,
+       borderColor = null,
+       textInputType = null,
+       assert(
+         options != null && options.length > 0,
+         "options cannot be null or empty",
+       );
 
   final int? maxLines;
   final String? hint;
   final String? label;
   final InputWidgetVariant variant;
-  final void Function(String value)? onChanged;
+  final void Function(T value)? onChanged;
   final String? errorText;
 
   //variant text
   final TextEditingController? controller;
   final SvgGenImage? endIcon;
   final Color? borderColor;
-  final Future<String?> Function()? onPressedWithResult;
-  final String? currentInputValue;
-  final List<String>? options;
+  final Future<T?> Function()? onPressedWithResult;
+  final T? currentInputValue;
+  final List<T>? options;
   final TextInputType? textInputType;
+  final String Function(T option)? optionLabel;
 
   final String? Function(String)? validators;
 
   @override
-  State<InputWidget> createState() => _InputWidgetState();
+  State<InputWidget> createState() => _InputWidgetState<T>();
 }
 
-class _InputWidgetState extends State<InputWidget> {
+class _InputWidgetState<T> extends State<InputWidget<T>> {
   String errorMessage = '';
 
   @override
@@ -100,7 +102,6 @@ class _InputWidgetState extends State<InputWidget> {
         errorMessage = widget.errorText!;
       });
     }
-
   }
 
   void validateInput(String input) {
@@ -113,8 +114,11 @@ class _InputWidgetState extends State<InputWidget> {
     }
   }
 
-  void onChanged(String val) {
-    validateInput(val);
+  void onChanged(T val) {
+    validateInput(
+      widget.optionLabel != null ? widget.optionLabel!(val) : val as String,
+    );
+
     if (widget.onChanged != null) {
       widget.onChanged!(val);
     }
@@ -131,15 +135,16 @@ class _InputWidgetState extends State<InputWidget> {
       children: [
         _buildLabelWidget(),
         widget.variant == InputWidgetVariant.binaryOption
-            ? InputVariantBinaryOptionWidget(
+            ? InputVariantBinaryOptionWidget<T>(
                 options: widget.options!,
                 currentInputValue: widget.currentInputValue,
                 onChanged: onChanged,
                 borderColor: borderColor,
+                optionLabel: widget.optionLabel!,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.dropdown
-            ? InputVariantDropdownWidget(
+            ? InputVariantDropdownWidget<T>(
                 hint: widget.hint!,
                 options: widget.options ?? [],
                 currentInputValue: widget.currentInputValue,
@@ -147,18 +152,20 @@ class _InputWidgetState extends State<InputWidget> {
                 onPressedWithResult: widget.onPressedWithResult!,
                 endIcon: widget.endIcon,
                 borderColor: borderColor,
+                optionLabel: widget.optionLabel!,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
             ? InputVariantTextWidget(
-                onChanged: onChanged,
+                onChanged: (value)=>
+                  onChanged(value as T),
                 maxLines: widget.maxLines,
                 hint: widget.hint,
                 controller: widget.controller,
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
-                initialValue: widget.currentInputValue,
+                initialValue: widget.currentInputValue?.toString(),
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,
               )
@@ -192,9 +199,7 @@ class _InputWidgetState extends State<InputWidget> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(
-        top: BaseSize.customHeight(3),
-      ),
+      padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
       child: Text(
         errorMessage,
         maxLines: 1,

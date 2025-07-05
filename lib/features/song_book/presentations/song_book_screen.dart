@@ -66,9 +66,9 @@ class SongBookScreen extends ConsumerWidget {
             endIcon: Assets.icons.line.search,
             borderColor: BaseColor.primary3,
             onChanged: (query) {
-              ref
-                  .read(songProvider.notifier)
-                  .searchSongs(query); // Mengubah state sesuai input
+              // ref
+              //     .read(songProvider.notifier)
+              //     .searchSongs(query); // Mengubah state sesuai input
             },
           ),
           Gap.h12,
