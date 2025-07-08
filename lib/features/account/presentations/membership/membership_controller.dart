@@ -1,0 +1,109 @@
+import 'package:palakat/features/presentation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../core/models/models.dart';
+
+part 'membership_controller.g.dart';
+
+@riverpod
+class MembershipController extends _$MembershipController {
+  @override
+  MembershipState build() {
+    return const MembershipState();
+  }
+
+  String? validateChurch(Church? value) {
+    if (value == null) {
+      return 'Church Number is required';
+    }
+    return null;
+  }
+
+  String? validateColumn(Column? value) {
+    if (value == null) {
+      return 'Column is required';
+    }
+    return null;
+  }
+
+  String? validateBaptize(String? value) {
+    if (value == null) {
+      return 'Baptize is required';
+    }
+    return null;
+  }
+
+  String? validateSidi(String? value) {
+    if (value == null) {
+      return 'Sidi is required';
+    }
+    return null;
+  }
+
+  void onChangedChurch(Church? value) {
+    state = state.copyWith(church: value, errorChurch: null);
+  }
+
+  void onChangedColumn(String value) {
+    final id = int.tryParse(value);
+
+    if (id == null) {
+      state = state.copyWith(
+        column: null,
+        errorColumn: "Column must be number",
+      );
+      return;
+    }
+
+    final column = Column(id: id, name: 'Column $id', churchId: 0);
+
+    state = state.copyWith(column: column, errorColumn: null);
+  }
+
+  void onChangedBaptize(String value) {
+    state = state.copyWith(baptize: value, errorBaptize: null);
+  }
+
+  void onChangedSidi(String value) {
+    state = state.copyWith(sidi: value, errorSidi: null);
+  }
+
+  bool validateMembership() {
+    return validateChurch(state.church) == null &&
+        validateColumn(state.column) == null &&
+        validateBaptize(state.baptize) == null &&
+        validateSidi(state.sidi) == null;
+  }
+
+  Future<void> validateForm() async {
+    state = state.copyWith(loading: true);
+    final errorChurch = validateChurch(state.church);
+    final errorColumn = validateColumn(state.column);
+    final errorBaptize = validateBaptize(state.baptize);
+    final errorSidi = validateSidi(state.sidi);
+
+    final isValid =
+        errorChurch == null &&
+        errorColumn == null &&
+        errorBaptize == null &&
+        errorSidi == null;
+
+    state = state.copyWith(
+      errorChurch: errorChurch,
+      errorColumn: errorColumn,
+      errorBaptize: errorBaptize,
+      errorSidi: errorSidi,
+      isFormValid: isValid,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 400));
+    state = state.copyWith(loading: false);
+  }
+
+  Future<bool> submit() async {
+    await validateForm();
+    return state.isFormValid;
+  }
+
+  void publish() {}
+}
