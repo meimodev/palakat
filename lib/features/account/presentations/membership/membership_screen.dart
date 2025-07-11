@@ -58,21 +58,21 @@ class MembershipScreen extends ConsumerWidget {
             validators: (val) => state.errorColumn,
           ),
           Gap.h12,
-          InputWidget<String>.binaryOption(
+          InputWidget<bool>.binaryOption(
             currentInputValue: state.baptize,
-            options: const ["Baptis", "Belum Baptis"],
+            options: const [true, false],
             label: "status baptis anda",
             onChanged: controller.onChangedBaptize,
-            optionLabel: (String option) => option,
+            optionLabel: (bool option) => option ? "Baptis" : "Belum Baptis",
             errorText: state.errorBaptize,
           ),
           Gap.h12,
-          InputWidget<String>.binaryOption(
+          InputWidget<bool>.binaryOption(
             currentInputValue: state.sidi,
-            options: const ["Sidi", "Belum Sidi"],
+            options: const [true, false],
             label: "status sidi anda",
             onChanged: controller.onChangedSidi,
-            optionLabel: (String option) => option,
+            optionLabel: (bool option) => option ? "Sidi" : "Belum Sidi",
             errorText: state.errorSidi,
           ),
           Gap.h24,

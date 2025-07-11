@@ -26,14 +26,14 @@ class MembershipController extends _$MembershipController {
     return null;
   }
 
-  String? validateBaptize(String? value) {
+  String? validateBaptize(bool? value) {
     if (value == null) {
       return 'Baptize is required';
     }
     return null;
   }
 
-  String? validateSidi(String? value) {
+  String? validateSidi(bool? value) {
     if (value == null) {
       return 'Sidi is required';
     }
@@ -46,7 +46,6 @@ class MembershipController extends _$MembershipController {
 
   void onChangedColumn(String value) {
     final id = int.tryParse(value);
-
     if (id == null) {
       state = state.copyWith(
         column: null,
@@ -54,17 +53,16 @@ class MembershipController extends _$MembershipController {
       );
       return;
     }
-
     final column = Column(id: id, name: 'Column $id', churchId: 0);
 
     state = state.copyWith(column: column, errorColumn: null);
   }
 
-  void onChangedBaptize(String value) {
+  void onChangedBaptize(bool value) {
     state = state.copyWith(baptize: value, errorBaptize: null);
   }
 
-  void onChangedSidi(String value) {
+  void onChangedSidi(bool value) {
     state = state.copyWith(sidi: value, errorSidi: null);
   }
 
