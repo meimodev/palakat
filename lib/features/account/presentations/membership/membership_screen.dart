@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
+import 'package:palakat/core/models/models.dart' as model;
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
@@ -36,26 +36,28 @@ class MembershipScreen extends ConsumerWidget {
             onPressedLeadIcon: context.pop,
           ),
           Gap.h48,
-          InputWidget<Church>.dropdown(
+          InputWidget<model.Church>.dropdown(
             label: "identify your church membership",
             hint: "Church",
             currentInputValue: state.church,
             errorText: state.errorChurch,
             endIcon: Assets.icons.line.homeOutline,
             onChanged: controller.onChangedChurch,
-            optionLabel: (Church option) => option.name,
+            optionLabel: (model.Church option) => option.name,
             onPressedWithResult: () async =>
                 await showDialogChurchPickerWidget(context: context),
           ),
           Gap.h12,
-          InputWidget.text(
+          InputWidget<model.Column>.dropdown(
             label: "identify your column number",
             hint: "Column",
-            textInputType: TextInputType.number,
-            onChanged: controller.onChangedColumn,
-            currentInputValue: state.column?.id.toString(),
+            currentInputValue: state.column,
             errorText: state.errorColumn,
-            validators: (val) => state.errorColumn,
+            endIcon: Assets.icons.line.homeOutline,
+            onChanged: controller.onChangedColumn,
+            optionLabel: (model.Column option) => option.name,
+            onPressedWithResult: () async =>
+                await showDialogColumnPickerWidget(context: context),
           ),
           Gap.h12,
           InputWidget<bool>.binaryOption(

@@ -44,18 +44,8 @@ class MembershipController extends _$MembershipController {
     state = state.copyWith(church: value, errorChurch: null);
   }
 
-  void onChangedColumn(String value) {
-    final id = int.tryParse(value);
-    if (id == null) {
-      state = state.copyWith(
-        column: null,
-        errorColumn: "Column must be number",
-      );
-      return;
-    }
-    final column = Column(id: id, name: 'Column $id', churchId: 0);
-
-    state = state.copyWith(column: column, errorColumn: null);
+  void onChangedColumn(Column value) {
+    state = state.copyWith(column: value, errorColumn: null);
   }
 
   void onChangedBaptize(bool value) {
