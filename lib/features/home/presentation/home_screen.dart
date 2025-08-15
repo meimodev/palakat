@@ -14,12 +14,12 @@ class HomeScreen extends ConsumerWidget {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
-      child: WillPopScope(
-        onWillPop: () async {
-          // print("Will Pop scope");
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, _) {
+
           if (state.selectedBottomNavIndex != 0) {
             controller.navigateTo(0);
-            return Future.value(false);
           } else {
             DateTime now = DateTime.now();
 
@@ -34,11 +34,16 @@ class HomeScreen extends ConsumerWidget {
                     'Press back again to exit',
                     style: BaseTypography.titleMedium,
                   ),
+                  duration: const Duration(
+                    seconds: 2,
+                  ),
                 ),
               );
-              return Future.value(false);
+
+            } else {
+
+              Navigator.of(context).pop();
             }
-            return Future.value(true);
           }
         },
         child: Stack(
@@ -69,7 +74,7 @@ class HomeScreen extends ConsumerWidget {
                   controller.navigateTo(index);
                 },
               ),
-            )
+            ),
           ],
         ),
       ),

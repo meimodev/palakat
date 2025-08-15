@@ -17,6 +17,7 @@ class AccountScreen extends ConsumerWidget {
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
+      loading: state.loading ,
       persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -38,49 +39,49 @@ class AccountScreen extends ConsumerWidget {
           InputWidget.text(
             hint: "Phone Number",
             label: "active phone to receive authentication message",
-            currentInputValue: state.textPhone,
+            currentInputValue: state.phone,
             textInputType: TextInputType.number,
             onChanged: controller.onChangedTextPhone,
-            validators: (val) => state.errorTextPhone,
+            validators: (val) => state.errorPhone,
+            errorText: state.errorPhone,
           ),
           Gap.h12,
           InputWidget.text(
             hint: "Full Name",
             label: "name without degree for your church membership",
-            currentInputValue: state.textName,
-            validators: (val) => state.errorTextName,
+            currentInputValue: state.name,
+            errorText: state.errorName,
             onChanged: controller.onChangedTextName,
           ),
           Gap.h12,
-          InputWidget.dropdown(
+          InputWidget<DateTime>.dropdown(
             label: "use to determine your BIPRA membership",
             hint: "Date Of Birth",
-            currentInputValue: state.textDob,
-            validators: (p0) => state.errorTextDob,
+            currentInputValue: state.dob,
+            errorText: state.errorDob,
             endIcon: Assets.icons.line.calendarOutline,
-            onPressedWithResult: () async {
-              final DateTime? result = await showDialogDatePickerWidget(
-                context: context,
-              );
-              return result?.ddMmmmYyyy;
-            },
+            optionLabel: (DateTime option) => option.ddMmmmYyyy,
             onChanged: controller.onChangedDOB,
+            onPressedWithResult: () async =>
+                await showDialogDatePickerWidget(context: context),
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<Gender>.binaryOption(
             label: "use to determine your BIPRA membership",
-            currentInputValue: Gender.male.name,
-            options: Gender.values.map((e) => e.name).toList(),
+            currentInputValue: state.gender,
+            options: Gender.values,
             onChanged: controller.onChangedGender,
-            validators: (val) => state.errorTextGender,
+            errorText: state.errorGender,
+            optionLabel: (Gender option) => option.name,
           ),
           Gap.h12,
-          InputWidget.binaryOption(
+          InputWidget<MaritalStatus>.binaryOption(
             label: "use to determine your BIPRA membership",
-            currentInputValue: MaritalStatus.single.name,
-            options: MaritalStatus.values.map((e) => e.name).toList(),
+            currentInputValue: state.maritalStatus,
+            options: MaritalStatus.values,
             onChanged: controller.onChangedMaritalStatus,
-            validators: (val) => state.errorTextMaritalStatus,
+            errorText: state.errorMarried,
+            optionLabel: (MaritalStatus option) => option.name,
           ),
           Gap.h24,
           ButtonWidget.primary(
@@ -93,20 +94,16 @@ class AccountScreen extends ConsumerWidget {
                   controller.publish();
                   return;
                 }
-                context.goNamed(AppRoute.membership);
+                context.pushNamed(AppRoute.membership);
               }
             },
-          )
+          ),
         ],
       ),
     );
   }
 
   void showSnackBar(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }

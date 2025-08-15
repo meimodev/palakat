@@ -43,7 +43,7 @@ class CardActivitySectionWidget extends StatelessWidget {
           itemCount: activities.length,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          separatorBuilder: (_, __) => Gap.h12,
+          separatorBuilder: (_, _) => Gap.h12,
           itemBuilder: (_, index) {
             final activity = activities[index];
             return CardOverviewListItemWidget(

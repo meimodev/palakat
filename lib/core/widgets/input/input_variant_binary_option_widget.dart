@@ -2,28 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/utils.dart';
 
-class InputVariantBinaryOptionWidget extends StatefulWidget {
+class InputVariantBinaryOptionWidget<T> extends StatefulWidget {
   const InputVariantBinaryOptionWidget({
     super.key,
     required this.options,
+    required this.optionLabel,
     this.currentInputValue,
     required this.onChanged,
     this.borderColor,
   });
 
-  final List<String> options;
-  final String? currentInputValue;
-  final ValueChanged<String> onChanged;
+  final List<T> options;
+  final String Function(T option) optionLabel;
+  final T? currentInputValue;
+  final ValueChanged<T> onChanged;
   final Color? borderColor;
 
   @override
   State<InputVariantBinaryOptionWidget> createState() =>
-      _InputVariantBinaryOptionWidgetState();
+      _InputVariantBinaryOptionWidgetState<T>();
 }
 
-class _InputVariantBinaryOptionWidgetState
-    extends State<InputVariantBinaryOptionWidget> {
-  String active = "";
+class _InputVariantBinaryOptionWidgetState<T>
+    extends State<InputVariantBinaryOptionWidget<T>> {
+  T? active;
 
   @override
   void initState() {
@@ -31,7 +33,7 @@ class _InputVariantBinaryOptionWidgetState
 
     if (widget.currentInputValue != null) {
       setState(() {
-        active = widget.currentInputValue!;
+        active = widget.currentInputValue;
       });
     }
   }
@@ -84,7 +86,7 @@ class _InputVariantBinaryOptionWidgetState
                     ),
                     child: Center(
                       child: Text(
-                        e,
+                        widget.optionLabel(e),
                         style: BaseTypography.titleMedium.bold.copyWith(
                           color: e == active
                               ? BaseColor.cardBackground1

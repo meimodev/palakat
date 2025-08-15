@@ -4,7 +4,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/divider/divider_widget.dart';
 
-class InputVariantDropdownWidget extends StatefulWidget {
+class InputVariantDropdownWidget<T> extends StatefulWidget {
   const InputVariantDropdownWidget({
     super.key,
     required this.hint,
@@ -12,6 +12,7 @@ class InputVariantDropdownWidget extends StatefulWidget {
     required this.currentInputValue,
     required this.onChanged,
     required this.onPressedWithResult,
+    required this.optionLabel,
     this.borderColor,
     this.endIcon,
     this.errorText,
@@ -20,24 +21,25 @@ class InputVariantDropdownWidget extends StatefulWidget {
   });
 
   final String hint;
-  final List<String> options;
-  final String? currentInputValue;
-  final ValueChanged<String> onChanged;
-  final Future<String?> Function() onPressedWithResult;
+  final List<T> options;
+  final T? currentInputValue;
+  final ValueChanged<T> onChanged;
+  final Future<T?> Function() onPressedWithResult;
   final SvgGenImage? endIcon;
   final Color? borderColor;
   final String? errorText;
   final String? Function(String?)? validators;
   final AutovalidateMode? autoValidateMode;
+  final String Function(T option) optionLabel;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
-      _InputVariantDropdownWidgetState();
+      _InputVariantDropdownWidgetState<T>();
 }
 
-class _InputVariantDropdownWidgetState
-    extends State<InputVariantDropdownWidget> {
-  String currentValue = "";
+class _InputVariantDropdownWidgetState<T>
+    extends State<InputVariantDropdownWidget<T>> {
+  T? currentValue ;
 
   String? errorText;
 
@@ -48,7 +50,7 @@ class _InputVariantDropdownWidgetState
     setState(() {});
     if (widget.currentInputValue != null) {
       setState(() {
-        currentValue = widget.currentInputValue!;
+        currentValue = widget.currentInputValue;
       });
     }
     errorText = widget.errorText;
@@ -75,7 +77,7 @@ class _InputVariantDropdownWidgetState
         color: BaseColor.cardBackground1,
         child: InkWell(
           onTap: () async {
-            final String? result = await widget.onPressedWithResult();
+            final result = await widget.onPressedWithResult();
             if (result != null) {
               setState(() {
                 currentValue = result;
@@ -91,7 +93,7 @@ class _InputVariantDropdownWidgetState
               children: [
                 Expanded(
                   child: Text(
-                    currentValue.isEmpty ? widget.hint : currentValue,
+                    currentValue != null ? widget.optionLabel(currentValue as T) : widget.hint,
                     style: BaseTypography.titleMedium,
                   ),
                 ),

@@ -162,7 +162,7 @@ class ActivityPublishController extends _$ActivityPublishController {
   Future<bool> submit() async {
     await validateForm();
     if (state.isFormValid) {
-      print("Input Valid");
+
       return true;
     }
     return false;

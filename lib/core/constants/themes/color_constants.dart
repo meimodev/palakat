@@ -22,7 +22,7 @@ class BaseColor {
   static const Color secondaryText = Color(0xFF929292);
   static const Color disabled = Color(0xFFD9D9D9);
 
-  static Color  primaryLight = primary3.withOpacity(.5);
+  static Color  primaryLight = primary3.withValues(alpha: .5);
 
   static const MaterialColor neutral = MaterialColor(
     _neutralPrimaryValue,

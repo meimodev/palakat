@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +10,10 @@ import 'package:palakat/core/constants/constants.dart';
 
 import '../data_sources.dart';
 
-
 class DioClient {
   late Dio _dio;
   late String baseUrl;
   late HiveService hiveService;
-
 
   DioClient({
     required this.baseUrl,
@@ -30,9 +29,7 @@ class DioClient {
       ..options.connectTimeout = defaultConnectTimeout
       ..options.receiveTimeout = defaultReceiveTimeout
       ..httpClientAdapter
-      ..options.headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-      };
+      ..options.headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
     // _tokenDio = Dio();
     // _tokenDio.options = _dio.options;
@@ -40,30 +37,26 @@ class DioClient {
     if (withAuth) {
       _dio.interceptors.add(
         QueuedInterceptorsWrapper(
-          onRequest: (
-              RequestOptions options,
-              RequestInterceptorHandler handler,
+          onRequest:
+              (
+                RequestOptions options,
+                RequestInterceptorHandler handler,
               ) async {
-            final auth = hiveService.getAuth();
-            if (auth != null) {
-              options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
-            }
+                final auth = hiveService.getAuth();
+                if (auth != null) {
+                  options.headers['Authorization'] =
+                      'Bearer ${auth.accessToken}';
+                }
 
-
-            if (options.data != null &&
-                (options.data is Map || options.data is List)) {
-              options.data = json.encode(options.data);
-            }
-
-            handler.next(options);
-          },
-          onError: (e, handler) => {
-            //print log the error in here
-          },
+                if (options.data != null &&
+                    (options.data is Map || options.data is List)) {
+                  options.data = json.encode(options.data);
+                }
+                handler.next(options);
+              },
         ),
       );
     }
-
 
     if (kDebugMode) {
       final logInterceptor = LogInterceptor(
@@ -72,39 +65,31 @@ class DioClient {
         requestHeader: true,
         responseHeader: false,
         request: false,
+        requestBody: true,
         logPrint: (obj) {
           log(obj.toString());
         },
-        requestBody: true,
       );
       _dio.interceptors.add(logInterceptor);
-      // _tokenDio.interceptors.add(logInterceptor);
+      _dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: false));
 
-      // _dio.interceptors.add(
-      //   CurlLoggerDioInterceptor(printOnSuccess: true),
-      // );
-      // _tokenDio.interceptors.add(
-      //   CurlLoggerDioInterceptor(printOnSuccess: true),
-      // );
+
     }
-
-
   }
 
-
   Future<T?> get<T>(
-      String uri, {
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-
-        CancelToken? cancelToken,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     try {
       var response = await _dio.get<T>(
         uri,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
+        options: options,
         onReceiveProgress: onReceiveProgress,
       );
       return response.data;
@@ -118,14 +103,14 @@ class DioClient {
   }
 
   Future<T?> post<T>(
-      String uri, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     try {
       var response = await _dio.post<T>(
         uri,
@@ -145,14 +130,14 @@ class DioClient {
   }
 
   Future<T?> patch<T>(
-      String uri, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     try {
       var response = await _dio.patch<T>(
         uri,
@@ -172,14 +157,14 @@ class DioClient {
   }
 
   Future<T?> put<T>(
-      String uri, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     try {
       var response = await _dio.put<T>(
         uri,
@@ -199,12 +184,12 @@ class DioClient {
   }
 
   Future<T?> delete<T>(
-      String uri, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-      }) async {
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
     try {
       var response = await _dio.delete<T>(
         uri,
@@ -229,7 +214,5 @@ final dioClientProvider = Provider<DioClient>((ref) {
     baseUrl: Endpoint.baseUrl,
     defaultConnectTimeout: const Duration(minutes: 3),
     defaultReceiveTimeout: const Duration(minutes: 3),
-
   );
 });
-
