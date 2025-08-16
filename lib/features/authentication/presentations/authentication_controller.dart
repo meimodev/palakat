@@ -40,17 +40,6 @@ class AuthenticationController extends _$AuthenticationController {
     startTimer();
   }
 
-  void hideOtpVerification() {
-    _timer?.cancel();
-    state = state.copyWith(
-      showOtpVerification: false,
-      otp: '',
-      remainingTime: 120,
-      canResendOtp: false,
-      errorMessage: null,
-    );
-  }
-
   void startTimer() {
     _timer?.cancel();
 

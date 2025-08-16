@@ -179,13 +179,6 @@ class AuthenticationScreen extends ConsumerWidget {
                 },
               ),
               Gap.h12,
-              TextButton(
-                onPressed: controller.hideOtpVerification,
-                child: const Text(
-                  'Change Phone Number',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ),
             ],
           ),
         ),
