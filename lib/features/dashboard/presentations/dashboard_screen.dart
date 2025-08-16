@@ -13,10 +13,7 @@ class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(
-    BuildContext context,
-    WidgetRef ref,
-  ) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
 
@@ -24,9 +21,7 @@ class DashboardScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget.titleOnly(
-            title: "Dashboard",
-          ),
+          const ScreenTitleWidget.titleOnly(title: "Dashboard"),
           // ButtonWidget.primary(text: "Test Fetch", onTap: controller.test,),
           Gap.h12,
           LoadingWrapper(
@@ -35,7 +30,7 @@ class DashboardScreen extends ConsumerWidget {
             loading: state.membershipLoading,
             child: MembershipCardWidget(
               membership: state.membership,
-              onPressedCard: () => context.pushNamed(AppRoute.account),
+              onPressedCard: () => context.pushNamed(AppRoute.authentication),
             ),
           ),
           Gap.h24,
@@ -55,8 +50,10 @@ class DashboardScreen extends ConsumerWidget {
                     cardsHeight: BaseSize.customWidth(80),
                     onPressedCardDatePreview: (DateTime dateTime) async {
                       final thisDayActivities = state.thisWeekActivities
-                          .where((element) =>
-                              element.activityDate.isSameDay(dateTime))
+                          .where(
+                            (element) =>
+                                element.activityDate.isSameDay(dateTime),
+                          )
                           .toList();
 
                       await showDialogPreviewDayActivitiesWidget(
