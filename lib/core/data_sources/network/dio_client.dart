@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'dart:developer' as dev;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +16,9 @@ class DioClient {
   late Dio _dio;
   late String baseUrl;
   late HiveService hiveService;
+
+  static final int _refreshAuthTokenMaxAttempt = 3;
+  static int _refreshAuthTokenAttempt = 0;
 
   DioClient({
     required this.baseUrl,
@@ -29,10 +34,10 @@ class DioClient {
       ..options.connectTimeout = defaultConnectTimeout
       ..options.receiveTimeout = defaultReceiveTimeout
       ..httpClientAdapter
-      ..options.headers = {'Content-Type': 'application/json; charset=UTF-8'};
-
-    // _tokenDio = Dio();
-    // _tokenDio.options = _dio.options;
+      ..options.headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+      };
 
     if (withAuth) {
       _dio.interceptors.add(
@@ -54,6 +59,23 @@ class DioClient {
                 }
                 handler.next(options);
               },
+
+          onError: (error, handler) async {
+            if (error.response?.statusCode == 401) {
+              await _refreshAuthToken();
+            }
+            handler.next(error);
+          },
+          onResponse: (response, handler) {
+            if(response.data == null){
+              throw Failure("response is returned null");
+            }
+            final body = response.data as Map<String, dynamic>;
+            if (body['data'] != null) {
+              throw Failure("property data is unavailable in the body response, see backend response scheme");
+            }
+            handler.next(response);
+          },
         ),
       );
     }
@@ -72,9 +94,39 @@ class DioClient {
       );
       _dio.interceptors.add(logInterceptor);
       _dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: false));
-
-
     }
+  }
+
+  Future<void> _refreshAuthToken() async {
+    _refreshAuthTokenAttempt++;
+    dev.log(
+      "[DIO CLIENT] refresh auth token Attempt: $_refreshAuthTokenAttempt of max $_refreshAuthTokenMaxAttempt",
+    );
+
+    if (_refreshAuthTokenAttempt >= _refreshAuthTokenMaxAttempt) {
+      return;
+    }
+
+    if (hiveService.getAuth() != null) {
+      await hiveService.deleteAuth();
+    }
+
+    final username = dotenv.env['x-username'];
+    final password = dotenv.env['x-password'];
+
+    final response = await get<Map<String, dynamic>>(
+      Endpoint.signing,
+      options: Options(
+        headers: {'x-username': username, 'x-password': password},
+      ),
+    );
+
+
+    final token = response?['data'] as String;
+    final authData = AuthData(accessToken: token, refreshToken: token);
+    await hiveService.saveAuth(authData);
+
+    dev.log("[DIO CLIENT]Token successfully obtained and saved");
   }
 
   Future<T?> get<T>(
@@ -212,7 +264,7 @@ final dioClientProvider = Provider<DioClient>((ref) {
     dio: Dio(),
     hiveService: ref.read(hiveServiceProvider),
     baseUrl: Endpoint.baseUrl,
-    defaultConnectTimeout: const Duration(minutes: 3),
-    defaultReceiveTimeout: const Duration(minutes: 3),
+    // defaultConnectTimeout: const Duration(minutes: 3),
+    // defaultReceiveTimeout: const Duration(minutes: 3),
   );
 });

@@ -41,7 +41,7 @@ class HiveService extends _$HiveService{
 Future<void> hiveInit() async {
   await Hive.initFlutter('cache');
   await Hive.openBox<String>(HiveKey.authBox);
-  await Hive.openBox<String>(HiveKey.userBox);
+  await Hive.openBox<String>(HiveKey.accountBox);
 }
 
 Future<void> hiveClose() async {
@@ -49,17 +49,10 @@ Future<void> hiveClose() async {
 }
 
 class HiveKey {
-  static const String userBox = 'userBox';
-  static const String user = 'user';
+  static const String accountBox = 'accountBox';
+  static const String account = 'account';
 
   static const String authBox = 'authBox';
   static const String auth = 'auth';
 
 }
-
-
-//
-// final hiveServiceProvider = Provider<HiveService>((ref) {
-//   return HiveService();
-// });
-//
