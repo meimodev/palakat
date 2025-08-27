@@ -2,14 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:pinput/pinput.dart';
-
-import '../../../core/routing/routing.dart';
 
 class AuthenticationScreen extends ConsumerWidget {
   const AuthenticationScreen({super.key});
@@ -128,14 +125,16 @@ class AuthenticationScreen extends ConsumerWidget {
                       focusedPinTheme: focusedPinTheme,
                       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                       showCursor: true,
-                      onChanged: controller.onChangedOtp,
-                      onCompleted: (pin) {
-                        // Auto verify when completed
+                      onChanged: (pin) {
                         controller.onChangedOtp(pin);
+                      },
+                      onCompleted: (pin) async {
+                        controller.onChangedOtp(pin);
+                        final success = await controller.verifyOtp(context);
                       },
                     ),
                   ),
-                  Gap.h24,
+                  Gap.h12,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -167,17 +166,17 @@ class AuthenticationScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              Gap.h24,
-              ButtonWidget.primary(
-                text: "Continue",
-                isLoading: state.loading,
-                onTap: () async {
-                  final success = await controller.verifyOtp();
-                  if (success && context.mounted) {
-                    context.pushNamed(AppRoute.membership);
-                  }
-                },
-              ),
+              // Gap.h24,
+              // ButtonWidget.primary(
+              //   text: "Continue",
+              //   isLoading: state.loading,
+              //   onTap: () async {
+              //     final success = await controller.verifyOtp();
+              //     if (success && context.mounted) {
+              //       context.pushNamed(AppRoute.membership);
+              //     }
+              //   },
+              // ),
               Gap.h12,
             ],
           ),

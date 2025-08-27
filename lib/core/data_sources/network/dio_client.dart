@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:developer';
 import 'dart:io';
 
-import 'dart:developer' as dev;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -33,6 +33,7 @@ class DioClient {
       ..options.baseUrl = baseUrl
       ..options.connectTimeout = defaultConnectTimeout
       ..options.receiveTimeout = defaultReceiveTimeout
+      ..options.responseType = ResponseType.json
       ..httpClientAdapter
       ..options.headers = {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -67,12 +68,14 @@ class DioClient {
             handler.next(error);
           },
           onResponse: (response, handler) {
-            if(response.data == null){
+            if (response.data == null) {
               throw Failure("response is returned null");
             }
             final body = response.data as Map<String, dynamic>;
-            if (body['data'] != null) {
-              throw Failure("property data is unavailable in the body response, see backend response scheme");
+            if (body['data'] == null) {
+              throw Failure(
+                "property data is unavailable in the body response, see backend response scheme",
+              );
             }
             handler.next(response);
           },
@@ -120,7 +123,6 @@ class DioClient {
         headers: {'x-username': username, 'x-password': password},
       ),
     );
-
 
     final token = response?['data'] as String;
     final authData = AuthData(accessToken: token, refreshToken: token);

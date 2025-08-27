@@ -1,7 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../core/routing/routing.dart';
+import '../../account/data/account_repository.dart';
 
 part 'authentication_controller.g.dart';
 
@@ -104,16 +109,19 @@ class AuthenticationController extends _$AuthenticationController {
     }
   }
 
-  Future<bool> verifyOtp() async {
-    if (!validateOtp()) return false;
+  Future<bool> verifyOtp(BuildContext context) async {
+    if (!validateOtp()) {
+      return false;
+    }
 
     state = state.copyWith(loading: true, errorMessage: null);
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      final success = state.otp == "123456";
+      //Dummy OTP verification using "123456"
+      await Future.delayed(const Duration(milliseconds: 500));
+      final otpVerified = state.otp == "123456";
 
-      if (!success) {
+      if (!otpVerified) {
         state = state.copyWith(
           loading: false,
           errorMessage: "Invalid OTP code",
@@ -121,9 +129,42 @@ class AuthenticationController extends _$AuthenticationController {
         return false;
       }
 
-      state = state.copyWith(loading: false);
-      return true;
-    } catch (e) {
+      //  validateAccountByPhone
+      final repo = ref.read(accountRepositoryProvider);
+      final result = await repo.validateAccountByPhone(state.phone);
+
+      await result.when(
+        onSuccess: (account) async {
+          state = state.copyWith(loading: false, user: account);
+
+          if (context.mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                context.goNamed(AppRoute.home);
+              }
+            });
+          }
+        },
+        onFailure: (failure) async {
+          state = state.copyWith(loading: false);
+
+          if (failure.message.contains("404")) {
+            if (context.mounted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.goNamed(AppRoute.account);
+                }
+              });
+            }
+          } else {
+            state = state.copyWith(errorMessage: failure.message);
+          }
+        },
+      );
+
+      final success = state.errorMessage == null;
+      return success;
+    } catch (e, stackTrace) {
       state = state.copyWith(
         loading: false,
         errorMessage: "Verification failed: ${e.toString()}",

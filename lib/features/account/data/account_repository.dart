@@ -3,12 +3,11 @@ import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/core/models/models.dart';
 
 class AccountRepository {
-  late AccountApiContract _accountApi;
+  final AccountApiContract _accountApi;
 
-  AccountRepository(AccountApiContract accountApi);
+  AccountRepository(this._accountApi);
 
   Future<Result<Account?, Failure>> checkSignedInAccount() async {
-
     // call firebase auth api -> check user signed in ad d p function dari d p package
     // kalo signed in, return account pake validateAccountByPhone(phone)
     // kalo signed out, return null
@@ -23,8 +22,22 @@ class AccountRepository {
     // langsung dari JSON yang dari body response yang so convert jadi Map<String, dynamic>
     // di class repository baru trng transform ke model ato transformasi laeng dari class api yang lain
     // biasanya di transform di repository / panggil beberapa api dari yang lain disini biar di controller tinggal panggil 1 function ini saja per kebutuhan
-    final result = await _accountApi.getAccountByPhone(phone);
-    return result.mapTo<Account, Failure>(onSuccess: Account.fromJson);
+    try {
+      final result = await _accountApi.getAccountByPhone(phone);
+
+      return result.mapTo<Account, Failure>(
+        onSuccess: (data) {
+          try {
+            final account = Account.fromJson(Map<String, dynamic>.from(data));
+            return account;
+          } catch (e) {
+            throw e;
+          }
+        },
+      );
+    } catch (e) {
+      return Result.failure(Failure("Repository error: ${e.toString()}"));
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/endpoint/endpoint.dart';
 import 'package:palakat/core/data_sources/network/model/result.dart';
@@ -37,22 +38,38 @@ class AccountApi implements AccountApiContract {
   Future<Result<Map<String, dynamic>, Failure>> getAccountByPhone(
     String phone,
   ) async {
-    // di class api ini baru boleh panggil api yang bersangkutan karna biasanya disini banyak error catching yg terjadi
-    // nanti hasil dari error catching itu + response body hasil fetch yang di passing ke repository untuk di transformasi
-    // pake helper class Result biar lebe rapi
-
     try {
-      final result = await _dio.get<Map<String, dynamic>?>(
+      final response = await _dio.get(
         Endpoint.validatePhone,
         queryParameters: {'phone': phone},
       );
-      return Result.success(result!["data"]);
-    } catch (e) {
+      if (response != null && response is Map<String, dynamic>) {
+        final result = response as Map<String, dynamic>;
+        if (result['message'] == 'OK' && result['data'] != null) {
+          return Result.success(result['data']);
+        } else if (result['message'] != 'OK') {
+          return Result.failure(
+            Failure("Invalid response: ${result['message']}"),
+          );
+        } else {
+          return Result.failure(Failure("No account data found"));
+        }
+      } else {
+        return Result.failure(Failure("Invalid response format"));
+      }
+    } catch (e, stackTrace) {
+      if (e is DioException) {
+        if (e.response?.statusCode == 404) {
+          return Result.failure(Failure("Account not found (404)"));
+        }
+        return Result.failure(Failure("Dio error: ${e.message}"));
+      }
+
       return Result.failure(Failure(e.toString()));
     }
   }
 }
 
-final accountApiProvider = Provider<AccountApi>((ref) {
+final accountApiProvider = Provider<AccountApiContract>((ref) {
   return AccountApi(ref.read(dioClientProvider));
 });
