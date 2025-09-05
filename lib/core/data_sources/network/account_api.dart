@@ -1,6 +1,3 @@
-import 'dart:developer' as dev;
-
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/endpoint/endpoint.dart';
 import 'package:palakat/core/data_sources/data_sources.dart';

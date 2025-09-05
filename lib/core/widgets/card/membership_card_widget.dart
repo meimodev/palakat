@@ -90,7 +90,7 @@ class MembershipCardWidget extends StatelessWidget {
                 Gap.w12,
                 if (signed)
                   Text(
-                    "Kolom ${membership?.column?.id}" ?? "",
+                    "Kolom ${membership?.column?.id}" ,
                     style: BaseTypography.bodySmall.toSecondary,
                   ),
                 if (!signed)

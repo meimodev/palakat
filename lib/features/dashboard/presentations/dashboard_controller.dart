@@ -1,4 +1,3 @@
-import 'package:palakat/core/models/models.dart';
 import 'package:palakat/features/account/data/account_repository.dart';
 import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -66,7 +65,6 @@ class DashboardController extends _$DashboardController {
     result.when(
       onSuccess: (data) {
         state = state.copyWith(membershipLoading: false, membership: data);
-        print(state.membership);
       },
       onFailure: (failure) {
         state = state.copyWith(membershipLoading: false, membership: null);

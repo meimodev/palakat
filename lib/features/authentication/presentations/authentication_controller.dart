@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:palakat/core/models/account.dart';
+import 'package:palakat/features/account/data/account_repository.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../core/routing/routing.dart';
-import '../../account/data/account_repository.dart';
 
 part 'authentication_controller.g.dart';
 
