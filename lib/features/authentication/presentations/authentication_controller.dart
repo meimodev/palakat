@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat/core/models/account.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -14,11 +16,15 @@ part 'authentication_controller.g.dart';
 class AuthenticationController extends _$AuthenticationController {
   Timer? _timer;
 
+  late AccountRepository _accountRepo;
+
   @override
   AuthenticationState build() {
     ref.onDispose(() {
       _timer?.cancel();
     });
+
+    _accountRepo = ref.read(accountRepositoryProvider);
 
     return const AuthenticationState();
   }
@@ -83,7 +89,10 @@ class AuthenticationController extends _$AuthenticationController {
 
   bool validateOtp() {
     if (state.otp.length < 6) {
-      state = state.copyWith(errorMessage: "Please enter complete OTP");
+      state = state.copyWith(
+        loading: false,
+        errorMessage: "Please enter complete OTP",
+      );
       return false;
     }
     return true;
@@ -109,68 +118,54 @@ class AuthenticationController extends _$AuthenticationController {
     }
   }
 
-  Future<bool> verifyOtp(BuildContext context) async {
+  void verifyOtp({
+    required void Function(Account account) onAlreadyRegistered,
+    required VoidCallback onNotRegistered,
+  }) async {
     if (!validateOtp()) {
-      return false;
+      return;
     }
 
     state = state.copyWith(loading: true, errorMessage: null);
 
-    try {
-      //Dummy OTP verification using "123456"
-      await Future.delayed(const Duration(milliseconds: 500));
-      final otpVerified = state.otp == "123456";
+    //Dummy OTP verification using "123456"
+    await Future.delayed(const Duration(milliseconds: 500));
+    final otpVerified = state.otp == "123456";
 
-      if (!otpVerified) {
+    if (!otpVerified) {
+      state = state.copyWith(loading: false, errorMessage: "Invalid OTP code");
+      return;
+    }
+
+    final validateAccountByPhoneResult = await _accountRepo
+        .validateAccountByPhone(state.phone);
+    validateAccountByPhoneResult.when(
+      onSuccess: (account) async {
         state = state.copyWith(
           loading: false,
-          errorMessage: "Invalid OTP code",
+          user: account,
+          errorMessage: null,
         );
-        return false;
-      }
+        final resultSignIn = await _accountRepo.signIn(account);
+        resultSignIn.when(
+          onSuccess: (data) {
+            onAlreadyRegistered(data);
+          },
+        );
+      },
+      onFailure: (failure) {
+        if (failure.code == 404) {
+          onNotRegistered();
+          return;
+        }
 
-      //  validateAccountByPhone
-      final repo = ref.read(accountRepositoryProvider);
-      final result = await repo.validateAccountByPhone(state.phone);
-
-      await result.when(
-        onSuccess: (account) async {
-          state = state.copyWith(loading: false, user: account);
-
-          if (context.mounted) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) {
-                context.goNamed(AppRoute.home);
-              }
-            });
-          }
-        },
-        onFailure: (failure) async {
-          state = state.copyWith(loading: false);
-
-          if (failure.message.contains("404")) {
-            if (context.mounted) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  context.goNamed(AppRoute.account);
-                }
-              });
-            }
-          } else {
-            state = state.copyWith(errorMessage: failure.message);
-          }
-        },
-      );
-
-      final success = state.errorMessage == null;
-      return success;
-    } catch (e, stackTrace) {
-      state = state.copyWith(
-        loading: false,
-        errorMessage: "Verification failed: ${e.toString()}",
-      );
-      return false;
-    }
+        state = state.copyWith(
+          loading: false,
+          errorMessage: failure.message,
+          user: null,
+        );
+      },
+    );
   }
 
   void clearError() {

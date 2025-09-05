@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 class Result<T, Failure> {
   final T? _success;
   final Failure? _failure;
@@ -13,7 +15,9 @@ class Result<T, Failure> {
     if (_success != null) {
       return onSuccess(_success as T);
     }
-    onFailure!(_failure as Failure);
+    if (_failure != null) {
+      onFailure!(_failure as Failure);
+    }
     return null;
   }
 
@@ -31,11 +35,36 @@ class Result<T, Failure> {
       return Result.failure(_failure as dynamic);
     }
   }
+
+  @override
+  String toString() {
+    return 'Result(success: $_success, failure: $_failure)';
+  }
 }
 
-class Failure implements Exception{
+class Failure implements Exception {
   final String message;
   final int? code;
 
   Failure(this.message, [this.code]);
+  
+  factory Failure.fromException(Object exception) {
+    if (exception is DioException) {
+      return Failure(
+        exception.response?.data?['message']?.toString() ?? 
+        exception.message ?? 
+        'A network error occurred',
+        exception.response?.statusCode,
+      );
+    } else if (exception is Exception) {
+      return Failure(exception.toString());
+    } else {
+      return Failure('An unknown error occurred');
+    }
+  }
+
+  @override
+  String toString() {
+    return 'Failure(message: $message, code: $code)';
+  }
 }

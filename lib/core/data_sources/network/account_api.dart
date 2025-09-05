@@ -1,25 +1,40 @@
+import 'dart:developer' as dev;
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/endpoint/endpoint.dart';
-import 'package:palakat/core/data_sources/network/model/result.dart';
+import 'package:palakat/core/data_sources/data_sources.dart';
+import 'package:palakat/core/models/models.dart';
 
-import 'contracts/contract.dart';
 import 'dio_client.dart';
 
 class AccountApi implements AccountApiContract {
   final DioClient _dio;
+  final HiveService _hive;
 
-  AccountApi(this._dio);
+  AccountApi(this._dio, this._hive);
 
   @override
-  Future<Map<String, dynamic>> getAccount(String uid) async {
-    throw UnimplementedError();
+  Future<Result<Map<String, dynamic>?, Failure>> getSignedInAccount() async {
+    //Biasanya ini ada request ke API di server, tapi disini cuma read dri local storage
+    try {
+      final result = _hive.getAccount();
+      return Result.success(result?.toJson());
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
   }
 
   @override
-  Future<Map<String, dynamic>> signIn() {
-    // TODO: implement signIn
-    throw UnimplementedError();
+  Future<Result<Map<String, dynamic>, Failure>> signIn(Account account) async {
+    //Biasanya ini ada request ke API di server, tapi disini cuma save ke local storage
+    // karna utk session & token dihandle di firebase auth
+    try {
+      _hive.saveAccount(account);
+      return Result.success(account.toJson());
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
   }
 
   @override
@@ -43,33 +58,13 @@ class AccountApi implements AccountApiContract {
         Endpoint.validatePhone,
         queryParameters: {'phone': phone},
       );
-      if (response != null && response is Map<String, dynamic>) {
-        final result = response as Map<String, dynamic>;
-        if (result['message'] == 'OK' && result['data'] != null) {
-          return Result.success(result['data']);
-        } else if (result['message'] != 'OK') {
-          return Result.failure(
-            Failure("Invalid response: ${result['message']}"),
-          );
-        } else {
-          return Result.failure(Failure("No account data found"));
-        }
-      } else {
-        return Result.failure(Failure("Invalid response format"));
-      }
-    } catch (e, stackTrace) {
-      if (e is DioException) {
-        if (e.response?.statusCode == 404) {
-          return Result.failure(Failure("Account not found (404)"));
-        }
-        return Result.failure(Failure("Dio error: ${e.message}"));
-      }
-
-      return Result.failure(Failure(e.toString()));
+      return Result.success(response['data']);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }
 
 final accountApiProvider = Provider<AccountApiContract>((ref) {
-  return AccountApi(ref.read(dioClientProvider));
+  return AccountApi(ref.read(dioClientProvider), ref.read(hiveServiceProvider));
 });

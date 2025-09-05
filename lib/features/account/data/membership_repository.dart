@@ -10,9 +10,9 @@ class MembershipRepository {
 
   MembershipRepository(this._membershipApi);
 
-  Future<Membership> getMembership(int membershipId) async {
+  Future<Result<Membership, Failure>> getMembership(int membershipId) async {
       final result = await _membershipApi.getMembership(membershipId);
-      return Membership.fromJson(result);
+      return result.mapTo(onSuccess: Membership.fromJson) ;
   }
 }
 

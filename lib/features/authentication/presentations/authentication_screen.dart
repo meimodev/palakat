@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/utils/extensions/build_context_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:pinput/pinput.dart';
@@ -128,9 +131,20 @@ class AuthenticationScreen extends ConsumerWidget {
                       onChanged: (pin) {
                         controller.onChangedOtp(pin);
                       },
+
                       onCompleted: (pin) async {
                         controller.onChangedOtp(pin);
-                        final success = await controller.verifyOtp(context);
+                        controller.verifyOtp(
+                          onAlreadyRegistered: (account) {
+                            context.popUntilNamedWithResult(
+                              targetRouteName: AppRoute.home,
+                              result: account,
+                            );
+                          },
+                          onNotRegistered: () {
+                            context.goNamed(AppRoute.account);
+                          },
+                        );
                       },
                     ),
                   ),

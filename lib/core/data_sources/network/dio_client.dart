@@ -13,27 +13,30 @@ import 'package:palakat/core/constants/constants.dart';
 import '../data_sources.dart';
 
 class DioClient {
-  late Dio _dio;
+  final Dio _dio;
+  final HiveService _hiveService;
   late String baseUrl;
-  late HiveService hiveService;
-
   static final int _refreshAuthTokenMaxAttempt = 3;
   static int _refreshAuthTokenAttempt = 0;
 
   DioClient({
     required this.baseUrl,
     required Dio dio,
-    required this.hiveService,
+    required HiveService hiveService,
     bool withAuth = true,
     Duration defaultConnectTimeout = const Duration(minutes: 2),
     Duration defaultReceiveTimeout = const Duration(minutes: 2),
-  }) {
-    _dio = dio;
+  })  : _dio = dio,
+        _hiveService = hiveService{
     _dio
       ..options.baseUrl = baseUrl
       ..options.connectTimeout = defaultConnectTimeout
       ..options.receiveTimeout = defaultReceiveTimeout
       ..options.responseType = ResponseType.json
+      ..options.validateStatus = (status) {
+        // Consider status codes less than 500 except 401 as success
+        return status! < 500 && status != 401;
+      }
       ..httpClientAdapter
       ..options.headers = {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -62,20 +65,64 @@ class DioClient {
               },
 
           onError: (error, handler) async {
+
             if (error.response?.statusCode == 401) {
-              await _refreshAuthToken();
+              try {
+                _refreshAuthTokenAttempt++;
+                dev.log(
+                  "[DIO CLIENT] refresh auth token Attempt: $_refreshAuthTokenAttempt of max $_refreshAuthTokenMaxAttempt",
+                );
+                if (_refreshAuthTokenAttempt < _refreshAuthTokenMaxAttempt) {
+                  await _refreshToken();
+                  final options = error.response!.requestOptions;
+
+                  try {
+                    final response = await _dio.fetch(options);
+
+                    if (response.statusCode != null && response.statusCode! >= 400) {
+                      return handler.reject(DioException(
+                        requestOptions: options,
+                        response: response,
+                        error: response.statusMessage,
+                        type: DioExceptionType.badResponse,
+                      ));
+                    }
+                    return handler.resolve(response);
+                  } catch (retryError) {
+                    dev.log("[DIO CLIENT] catch retry error $retryError");
+                    return handler.next(retryError is DioException ? retryError : DioException(
+                      requestOptions: options,
+                      error: retryError.toString(),
+                    ));
+                  }
+                }
+              } catch (e) {
+                dev.log("[DIO CLIENT] catch refresh token $e");
+                return handler.next(e is DioException ? e : DioException(
+                  requestOptions: error.requestOptions,
+                  error: e.toString(),
+                ));
+              }
             }
-            handler.next(error);
+            return handler.next(error);
           },
           onResponse: (response, handler) {
             if (response.data == null) {
-              throw Failure("response is returned null");
+             return handler.reject(DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              error: "response is returned null",
+              type: DioExceptionType.badResponse,
+             ));
             }
             final body = response.data as Map<String, dynamic>;
             if (body['data'] == null) {
-              throw Failure(
-                "property data is unavailable in the body response, see backend response scheme",
-              );
+              return handler.reject(DioException(
+                requestOptions: response.requestOptions,
+                response: response,
+                error: "property data is unavailable in the body response, see backend response scheme",
+                type: DioExceptionType.badResponse,
+              ));
             }
             handler.next(response);
           },
@@ -100,35 +147,26 @@ class DioClient {
     }
   }
 
-  Future<void> _refreshAuthToken() async {
-    _refreshAuthTokenAttempt++;
-    dev.log(
-      "[DIO CLIENT] refresh auth token Attempt: $_refreshAuthTokenAttempt of max $_refreshAuthTokenMaxAttempt",
-    );
-
-    if (_refreshAuthTokenAttempt >= _refreshAuthTokenMaxAttempt) {
-      return;
+  Future<void> _refreshToken() async {
+    if (_hiveService.getAuth() != null) {
+      await _hiveService.deleteAuth();
     }
 
-    if (hiveService.getAuth() != null) {
-      await hiveService.deleteAuth();
-    }
+    final username = dotenv.env['X_USERNAME'];
+    final password = dotenv.env['X_PASSWORD'];
 
-    final username = dotenv.env['x-username'];
-    final password = dotenv.env['x-password'];
-
-    final response = await get<Map<String, dynamic>>(
+    final response = await _dio.get<Map<String, dynamic>>(
       Endpoint.signing,
       options: Options(
         headers: {'x-username': username, 'x-password': password},
       ),
     );
 
-    final token = response?['data'] as String;
+    final token = response.data?['data'] as String;
     final authData = AuthData(accessToken: token, refreshToken: token);
-    await hiveService.saveAuth(authData);
+    await _hiveService.saveAuth(authData);
 
-    dev.log("[DIO CLIENT]Token successfully obtained and saved");
+    dev.log("[DIO CLIENT] Token successfully obtained and saved");
   }
 
   Future<T?> get<T>(
@@ -266,7 +304,5 @@ final dioClientProvider = Provider<DioClient>((ref) {
     dio: Dio(),
     hiveService: ref.read(hiveServiceProvider),
     baseUrl: Endpoint.baseUrl,
-    // defaultConnectTimeout: const Duration(minutes: 3),
-    // defaultReceiveTimeout: const Duration(minutes: 3),
   );
 });

@@ -17,6 +17,7 @@ abstract class Account with _$Account {
     // @DateTimeConverterTimestamp() DateTime? dob,
     required Gender gender,
     required bool married,
+    int? membershipId,
     @DateTimeConverterTimestamp() DateTime? createdAt,
     @DateTimeConverterTimestamp() DateTime? updatedAt,
   }) = _Account;

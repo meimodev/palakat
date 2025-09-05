@@ -14,7 +14,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final controller = ref.read(dashboardControllerProvider.notifier);
+    final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
 
     return ScaffoldWidget(
@@ -30,7 +30,10 @@ class DashboardScreen extends ConsumerWidget {
             loading: state.membershipLoading,
             child: MembershipCardWidget(
               membership: state.membership,
-              onPressedCard: () => context.pushNamed(AppRoute.authentication),
+              onPressedCard: () async {
+                await context.pushNamed(AppRoute.authentication);
+                controller.fetchData();
+              },
             ),
           ),
           Gap.h24,
