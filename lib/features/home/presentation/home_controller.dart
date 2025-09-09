@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'home_controller.g.dart';
 
@@ -12,10 +12,7 @@ class HomeController extends _$HomeController {
   }
 
   void navigateTo(int index) async {
-
-    state.pageController.jumpToPage(
-      index,
-    );
+    state.pageController.jumpToPage(index);
     state = state.copyWith(selectedBottomNavIndex: index);
   }
 

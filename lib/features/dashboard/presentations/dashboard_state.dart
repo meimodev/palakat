@@ -12,5 +12,6 @@ abstract class DashboardState with _$DashboardState {
     @Default(<Activity>[]) List<Activity> thisWeekAnnouncements,
     final Membership? membership,
     @Default(true) bool membershipLoading,
+    final Account? account,
   }) = _DashboardState;
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
+import '../widgets.dart';
+
 class InputVariantTextWidget extends StatelessWidget {
   const InputVariantTextWidget({
     super.key,
@@ -14,6 +16,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.borderColor,
     this.errorText,
     this.initialValue,
+    this.leadIcon,
   });
 
   final String? initialValue;
@@ -21,6 +24,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final void Function(String value)? onChanged;
   final int? maxLines;
   final String? hint;
+  final SvgGenImage? leadIcon;
   final SvgGenImage? endIcon;
   final TextInputType? textInputType;
   final Color? borderColor;
@@ -33,13 +37,12 @@ class InputVariantTextWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: BaseColor.cardBackground1,
         border: Border.all(color: borderColor ?? Colors.transparent),
-        borderRadius: BorderRadius.circular(
-          BaseSize.radiusMd,
-        ),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          leadIcon == null ? const SizedBox() : _buildLeadIcon(),
           Expanded(child: _buildTextFormFiled()),
           endIcon == null ? const SizedBox() : _buildEndIcon(),
         ],
@@ -64,15 +67,24 @@ class InputVariantTextWidget extends StatelessWidget {
     );
   }
 
+  Widget _buildLeadIcon() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        leadIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
+        Gap.w12,
+        DividerWidget(height: BaseSize.h20),
+        Gap.w12,
+      ],
+    );
+  }
+
   Widget _buildEndIcon() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Gap.w12,
-        endIcon!.svg(
-          width: BaseSize.w12,
-          height: BaseSize.w12,
-        ),
+        endIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
       ],
     );
   }

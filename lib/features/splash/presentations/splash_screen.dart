@@ -22,21 +22,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    controller.init(
-      () {
-        context.goNamed(AppRoute.home);
-      },
-    );
+    controller.init(() {
+      context.goNamed(AppRoute.home);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
       child: Center(
-        child: Text(
-          "Splash Screen",
-          style: BaseTypography.headlineSmall,
-        ),
+        child: Text("Splash Screen", style: BaseTypography.headlineSmall),
       ),
     );
   }

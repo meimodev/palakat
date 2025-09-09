@@ -2,10 +2,10 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/constants/enums/enums.dart';
-import 'package:palakat/core/models/date_time_converter.dart';
+
+import 'models.dart';
 
 part 'account.freezed.dart';
-
 part 'account.g.dart';
 
 @freezed
@@ -14,9 +14,12 @@ abstract class Account with _$Account {
     required int id,
     required String phone,
     required String name,
-    @DateTimeConverterTimestamp() required DateTime dob,
+    // @DateTimeConverterTimestamp() DateTime? dob,
     required Gender gender,
     required bool married,
+    int? membershipId,
+    @DateTimeConverterTimestamp() DateTime? createdAt,
+    @DateTimeConverterTimestamp() DateTime? updatedAt,
   }) = _Account;
 
   factory Account.fromJson(Map<String, dynamic> data) =>

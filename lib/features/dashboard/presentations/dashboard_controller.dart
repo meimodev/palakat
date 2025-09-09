@@ -1,3 +1,5 @@
+import 'package:palakat/features/account/data/account_repository.dart';
+import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -5,7 +7,8 @@ part 'dashboard_controller.g.dart';
 
 @riverpod
 class DashboardController extends _$DashboardController {
-  // AccountRepository get accRepo => ref.read(accountRepositoryProvider);
+  late AccountRepository _accountRepo;
+  late MembershipRepository _membershipRepo;
 
   // ActivityRepository get activityRepo => ref.read(activityRepositoryProvider);
 
@@ -15,13 +18,15 @@ class DashboardController extends _$DashboardController {
 
   @override
   DashboardState build() {
-    fetchMembershipData();
-    fetchThisAnnouncementData();
-    fetchThisWeekActivityData();
+    _accountRepo = ref.read(accountRepositoryProvider);
+    _membershipRepo = ref.read(membershipRepositoryProvider);
+
+    fetchData();
 
     return const DashboardState(
+      account: null,
       membership: null,
-      membershipLoading: false,
+      membershipLoading: true,
       thisWeekActivitiesLoading: true,
       thisWeekActivities: [],
       thisWeekAnnouncementsLoading: true,
@@ -29,87 +34,45 @@ class DashboardController extends _$DashboardController {
     );
   }
 
-  // void test() async {
-  //   MembershipRepository repo = ref.read(membershipRepositoryProvider );
-  //   HiveService hiveService = ref.read(hiveServiceProvider);
-  //
-  //   await hiveService.saveAuth(
-  //     AuthData(
-  //       accessToken:
-  //           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6InNlY3JldC1mcm9udGVuZC11c2VybmFtZSIsInNvdXJjZSI6ImNsaWVudC1zdHJhdGVneSIsImlhdCI6MTc0OTU1NjAwMX0.LWs9yiwgFAnUx5jmIPHvZh8_dwrHmLWt2jaLqI2eq6E",
-  //       refreshToken: 'refreshToken',
-  //     ),
-  //   );
-  //   final res = await repo.getMembership(1);
-  //
-  //   log("test fetch");
-  //   log(res.toString());
-  // }
-
-  void fetchThisWeekActivityData() async {
-    // final activities = await activityRepo.getActivities(
-    //   GetActivitiesRequest(
-    //     churchSerial: "G41zIX6vKFiTNsrlwCCN",
-    //     activityDateRange: DateTimeRange(start: startOfWeek, end: endOfWeek),
-    //   ),
-    // );
-
-    // activities.when(
-    //   success: (data) {
-    //     state = state.copyWith(
-    //       thisWeekActivities: data,
-    //       thisWeekActivitiesLoading: false,
-    //     );
-    //   },
-    //   failure: (error, stackTrace) {
-    //     state = state.copyWith(
-    //       thisWeekActivitiesLoading: false,
-    //     );
-    //   },
-    // );
+  void fetchData() async {
+    await fetchAccountData();
+    await fetchMembershipData();
+    await fetchThisAnnouncementData();
+    await fetchThisWeekActivityData();
   }
 
-  void fetchMembershipData() async {
-    // final membership = await accRepo.getMembership("DSA9B8UVCBk9dPaCrqfA");
-    // membership.when(
-    //   success: (data) {
-    //     state = state.copyWith(
-    //       membership: data,
-    //       membershipLoading: false,
-    //     );
-    //   },
-    //   failure: (error, stackTrace) {
-    //     state = state.copyWith(
-    //       membershipLoading: false,
-    //     );
-    //   },
-    // );
+  Future<void> fetchAccountData() async {
+    final result = await _accountRepo.getSignedInAccount();
+    result.when(
+      onSuccess: (account) {
+        state = state.copyWith(account: account);
+      },
+    );
   }
 
-  void fetchThisAnnouncementData() async {
-    // final activities = await activityRepo.getActivities(
-    //   GetActivitiesRequest(
-    //     churchSerial: "G41zIX6vKFiTNsrlwCCN",
-    //     publishDateRange: DateTimeRange(start: startOfWeek, end: endOfWeek),
-    //   ),
-    // );
-    //
-    // activities.when(
-    //   success: (data) {
-    //     state = state.copyWith(
-    //       thisWeekAnnouncements: data
-    //           .where(
-    //             (element) => element.type == ActivityType.announcement,
-    //           )
-    //           .toList(),
-    //       thisWeekAnnouncementsLoading: false,
-    //     );
-    //   },
-    //   failure: (error, stackTrace) {
-    //     state = state.copyWith(
-    //       thisWeekAnnouncementsLoading: false,
-    //     );
-    //   },
-    // );
+  Future<void> fetchMembershipData() async {
+    final account = state.account;
+    if (account == null) {
+      return;
+    }
+    if (account.membershipId == null) {
+      return;
+    }
+
+    final result = await _membershipRepo.getMembership(
+      state.account!.membershipId!,
+    );
+    result.when(
+      onSuccess: (data) {
+        state = state.copyWith(membershipLoading: false, membership: data);
+      },
+      onFailure: (failure) {
+        state = state.copyWith(membershipLoading: false, membership: null);
+      },
+    );
   }
+
+  Future<void> fetchThisWeekActivityData() async {}
+
+  Future<void> fetchThisAnnouncementData() async {}
 }
