@@ -101,20 +101,28 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
   @override
   void initState() {
     super.initState();
-    if (widget.errorText != null) {
-      setState(() {
-        errorMessage = widget.errorText!;
-      });
+    errorMessage = widget.errorText ?? '';
+  }
+
+  @override
+  void didUpdateWidget(InputWidget<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.errorText != oldWidget.errorText) {
+      errorMessage = widget.errorText ?? '';
     }
   }
 
   void validateInput(String input) {
     if (widget.validators != null) {
       final validators = widget.validators!;
-      final res = validators(input) ?? "";
-      setState(() {
-        errorMessage = res;
-      });
+      final newErrorMessage = validators(input) ?? "";
+
+      // Only call setState if error message actually changed
+      if (errorMessage != newErrorMessage) {
+        setState(() {
+          errorMessage = newErrorMessage;
+        });
+      }
     }
   }
 

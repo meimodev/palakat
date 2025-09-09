@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/models/account.dart';
 import 'package:palakat/features/account/data/account_repository.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat/core/constants/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
 
 part 'authentication_controller.g.dart';
 
@@ -51,9 +51,12 @@ class AuthenticationController extends _$AuthenticationController {
   void startTimer() {
     _timer?.cancel();
 
-    state = state.copyWith(remainingTime: 120, canResendOtp: false);
+    state = state.copyWith(
+      remainingTime: AppConstants.otpTimerDurationSeconds,
+      canResendOtp: false,
+    );
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(AppConstants.timerInterval, (timer) {
       if (state.remainingTime > 0) {
         state = state.copyWith(remainingTime: state.remainingTime - 1);
       } else {
@@ -85,7 +88,7 @@ class AuthenticationController extends _$AuthenticationController {
   }
 
   bool validateOtp() {
-    if (state.otp.length < 6) {
+    if (state.otp.length < AppConstants.otpLength) {
       state = state.copyWith(
         loading: false,
         errorMessage: "Please enter complete OTP",
@@ -125,14 +128,17 @@ class AuthenticationController extends _$AuthenticationController {
 
     state = state.copyWith(loading: true, errorMessage: null);
 
-    //Dummy OTP verification using "123456"
+    //Dummy OTP verification using demo code - TODO: Replace with real OTP service
     await Future.delayed(const Duration(milliseconds: 500));
-    final otpVerified = state.otp == "123456";
+    final otpVerified = state.otp == AppConstants.demoOtpCode;
 
     if (!otpVerified) {
       state = state.copyWith(loading: false, errorMessage: "Invalid OTP code");
       return;
     }
+
+    // Cancel timer when verification is successful
+    _timer?.cancel();
 
     final validateAccountByPhoneResult = await _accountRepo
         .validateAccountByPhone(state.phone);

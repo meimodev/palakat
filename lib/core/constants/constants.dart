@@ -7,3 +7,4 @@ export 'pagination/pagination.dart';
 export 'api/api_fault_code.dart';
 export 'translation/translation.dart';
 export 'exceptions/exceptions.dart';
+export 'app_constants.dart';

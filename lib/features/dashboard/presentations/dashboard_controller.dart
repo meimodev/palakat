@@ -35,10 +35,13 @@ class DashboardController extends _$DashboardController {
   }
 
   void fetchData() async {
-    await fetchAccountData();
-    await fetchMembershipData();
-    await fetchThisAnnouncementData();
-    await fetchThisWeekActivityData();
+    // Parallelize independent API calls for better performance
+    await Future.wait([
+      fetchAccountData(),
+      fetchMembershipData(),
+      fetchThisAnnouncementData(),
+      fetchThisWeekActivityData(),
+    ]);
   }
 
   Future<void> fetchAccountData() async {
