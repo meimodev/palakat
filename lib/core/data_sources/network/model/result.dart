@@ -18,6 +18,9 @@ class Result<T, Failure> {
     if (_failure != null) {
       onFailure!(_failure as Failure);
     }
+    if (_success == null && _failure == null) {
+      return onSuccess(_success as T);
+    }
     return null;
   }
 
@@ -47,13 +50,13 @@ class Failure implements Exception {
   final int? code;
 
   Failure(this.message, [this.code]);
-  
+
   factory Failure.fromException(Object exception) {
     if (exception is DioException) {
       return Failure(
-        exception.response?.data?['message']?.toString() ?? 
-        exception.message ?? 
-        'A network error occurred',
+        exception.response?.data?['message']?.toString() ??
+            exception.message ??
+            'A network error occurred',
         exception.response?.statusCode,
       );
     } else if (exception is Exception) {
