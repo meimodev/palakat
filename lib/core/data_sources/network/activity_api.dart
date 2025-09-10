@@ -1,8 +1,16 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'model/model.dart';
 
-class ActivityApi {
+part 'activity_api.g.dart';
+
+@riverpod
+class ActivityApi extends _$ActivityApi {
+  @override
+  ActivityApi build() {
+    return this;
+  }
+
   Future<List<Map<String, dynamic>>> getActivities(
     GetActivitiesRequest req,
   ) async {
@@ -63,7 +71,3 @@ class ActivityApi {
     // }
   }
 }
-
-final activityApiProvider = Provider<ActivityApi>((ref) {
-  return ActivityApi();
-});

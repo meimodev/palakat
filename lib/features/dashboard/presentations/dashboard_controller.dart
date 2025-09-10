@@ -45,7 +45,25 @@ class DashboardController extends _$DashboardController {
     final result = await _accountRepo.getSignedInAccount();
     result.when(
       onSuccess: (account) {
+        if (account == null) {
+          state = state.copyWith(
+            account: null,
+            membership: null,
+            membershipLoading: false,
+            thisWeekActivitiesLoading: false,
+            thisWeekAnnouncementsLoading: false,
+          );
+        }
         state = state.copyWith(account: account);
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          account: null,
+          membership: null,
+          membershipLoading: false,
+          thisWeekActivitiesLoading: false,
+          thisWeekAnnouncementsLoading: false,
+        );
       },
     );
   }
@@ -53,9 +71,23 @@ class DashboardController extends _$DashboardController {
   Future<void> fetchMembershipData() async {
     final account = state.account;
     if (account == null) {
+      state = state.copyWith(
+        account: null,
+        membership: null,
+        membershipLoading: false,
+        thisWeekActivitiesLoading: false,
+        thisWeekAnnouncementsLoading: false,
+      );
       return;
     }
     if (account.membershipId == null) {
+      state = state.copyWith(
+        account: null,
+        membership: null,
+        membershipLoading: false,
+        thisWeekActivitiesLoading: false,
+        thisWeekAnnouncementsLoading: false,
+      );
       return;
     }
 
