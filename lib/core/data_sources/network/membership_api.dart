@@ -3,10 +3,16 @@ import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/core/data_sources/network/dio_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class MembershipApi implements MembershipApiContract {
-  final DioClient _dio;
+part 'membership_api.g.dart';
 
-  MembershipApi(this._dio);
+@riverpod
+class MembershipApi extends _$MembershipApi implements MembershipApiContract {
+  @override
+  MembershipApiContract build() {
+    return this;
+  }
+
+  DioClient get _dio => ref.read(dioClientProvider());
 
   @override
   Future<Result<Map<String, dynamic>, Failure>> getMembership(int membershipId) async {
@@ -18,7 +24,3 @@ class MembershipApi implements MembershipApiContract {
     }
   }
 }
-
-final membershipApiProvider = Provider<MembershipApi>((ref) {
-  return MembershipApi(ref.read(dioClientProvider));
-});

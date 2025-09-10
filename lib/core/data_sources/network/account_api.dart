@@ -1,19 +1,24 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/core/constants/endpoint/endpoint.dart';
 import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/core/models/models.dart';
 
 import 'dio_client.dart';
 
-class AccountApi implements AccountApiContract {
-  final DioClient _dio;
-  final HiveService _hive;
+part 'account_api.g.dart';
 
-  AccountApi(this._dio, this._hive);
+@riverpod
+class AccountApi extends _$AccountApi implements AccountApiContract {
+  @override
+  AccountApiContract build() {
+    return this;
+  }
+
+  DioClient get _dio => ref.read(dioClientProvider());
+  HiveService get _hive => ref.read(hiveServiceProvider);
 
   @override
   Future<Result<Map<String, dynamic>?, Failure>> getSignedInAccount() async {
-    //Biasanya ini ada request ke API di server, tapi disini cuma read dri local storage
     try {
       final result = _hive.getAccount();
       return Result.success(result?.toJson());
@@ -24,8 +29,6 @@ class AccountApi implements AccountApiContract {
 
   @override
   Future<Result<Map<String, dynamic>, Failure>> signIn(Account account) async {
-    //Biasanya ini ada request ke API di server, tapi disini cuma save ke local storage
-    // karna utk session & token dihandle di firebase auth
     try {
       _hive.saveAccount(account);
       return Result.success(account.toJson());
@@ -62,6 +65,3 @@ class AccountApi implements AccountApiContract {
   }
 }
 
-final accountApiProvider = Provider<AccountApiContract>((ref) {
-  return AccountApi(ref.read(dioClientProvider), ref.read(hiveServiceProvider));
-});

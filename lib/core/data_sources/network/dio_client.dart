@@ -7,31 +7,36 @@ import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 import '../data_sources.dart';
 
-class DioClient {
-  final Dio _dio;
-  final HiveService _hiveService;
-  late String baseUrl;
+part 'dio_client.g.dart';
+
+@riverpod
+class DioClient extends _$DioClient {
+  late final Dio _dio;
+  late String _baseUrl;
   static final int _refreshAuthTokenMaxAttempt = 3;
   static int _refreshAuthTokenAttempt = 0;
 
-  DioClient({
-    required this.baseUrl,
-    required Dio dio,
-    required HiveService hiveService,
-    bool withAuth = true,
-    Duration defaultConnectTimeout = const Duration(minutes: 2),
-    Duration defaultReceiveTimeout = const Duration(minutes: 2),
-  })  : _dio = dio,
-        _hiveService = hiveService{
+  @override
+  DioClient build({bool withAuth = true}) {
+    _baseUrl = Endpoint.baseUrl;
+    _dio = Dio();
+    
+    _initializeDio(withAuth);
+    return this;
+  }
+
+  HiveService get _hiveService => ref.read(hiveServiceProvider);
+
+  void _initializeDio(bool withAuth) {
     _dio
-      ..options.baseUrl = baseUrl
-      ..options.connectTimeout = defaultConnectTimeout
-      ..options.receiveTimeout = defaultReceiveTimeout
+      ..options.baseUrl = _baseUrl
+      ..options.connectTimeout = const Duration(minutes: 2)
+      ..options.receiveTimeout = const Duration(minutes: 2)
       ..options.responseType = ResponseType.json
       ..options.validateStatus = (status) {
         // Consider status codes less than 500 except 401 as success
@@ -51,7 +56,7 @@ class DioClient {
                 RequestOptions options,
                 RequestInterceptorHandler handler,
               ) async {
-                final auth = hiveService.getAuth();
+                final auth = _hiveService.getAuth();
                 if (auth != null) {
                   options.headers['Authorization'] =
                       'Bearer ${auth.accessToken}';
@@ -299,10 +304,3 @@ class DioClient {
   }
 }
 
-final dioClientProvider = Provider<DioClient>((ref) {
-  return DioClient(
-    dio: Dio(),
-    hiveService: ref.read(hiveServiceProvider),
-    baseUrl: Endpoint.baseUrl,
-  );
-});
