@@ -14,10 +14,36 @@ class MembershipApi extends _$MembershipApi implements MembershipApiContract {
 
   DioClient get _dio => ref.read(dioClientProvider());
 
+  HiveService get _hive => ref.read(hiveServiceProvider);
+
   @override
-  Future<Result<Map<String, dynamic>, Failure>> getMembership(int membershipId) async {
+  Future<Result<Map<String, dynamic>, Failure>> getMembership(
+    int membershipId,
+  ) async {
     try {
       final response = await _dio.get("${Endpoint.membership}/$membershipId");
+      return Result.success(response['data']);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>?, Failure>> getSignedInMembership() async {
+    try {
+      final membership = _hive.getMembership();
+      if (membership != null) {
+        return Result.success(membership.toJson());
+      }
+      final account = _hive.getAccount();
+
+      if (account == null || account.membershipId == null) {
+        return Result.success(null);
+      }
+
+      final response = await _dio.get(
+        "${Endpoint.membership}/${account.membershipId}",
+      );
       return Result.success(response['data']);
     } catch (e) {
       return Result.failure(Failure.fromException(e));

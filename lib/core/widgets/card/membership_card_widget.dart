@@ -5,11 +5,7 @@ import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 class MembershipCardWidget extends StatelessWidget {
-  const MembershipCardWidget({
-    super.key,
-    this.onPressedCard,
-    this.membership,
-  });
+  const MembershipCardWidget({super.key, this.onPressedCard, this.membership});
 
   final Membership? membership;
 
@@ -19,8 +15,9 @@ class MembershipCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool signed = membership != null;
 
-    final Color textColor =
-        signed ? BaseColor.secondaryText : BaseColor.cardBackground1;
+    final Color textColor = signed
+        ? BaseColor.secondaryText
+        : BaseColor.cardBackground1;
 
     final title = signed
         ? membership!.account?.name
@@ -34,10 +31,7 @@ class MembershipCardWidget extends StatelessWidget {
         onTap: onPressedCard,
         child: Container(
           height: BaseSize.customHeight(62),
-          padding: EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: BaseSize.h12,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: BaseSize.h12),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -49,9 +43,7 @@ class MembershipCardWidget extends StatelessWidget {
                     style: BaseTypography.headlineSmall.toSecondary,
                   ),
                   Gap.w12,
-                  DividerWidget(
-                    color: textColor,
-                  ),
+                  DividerWidget(color: textColor),
                   Gap.w12,
                 ],
                 Expanded(
@@ -67,8 +59,9 @@ class MembershipCardWidget extends StatelessWidget {
                           color: signed
                               ? BaseColor.primaryText
                               : BaseColor.cardBackground1,
-                          fontWeight:
-                              signed ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: signed
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                         textAlign: signed ? TextAlign.start : TextAlign.center,
                       ),
@@ -84,13 +77,11 @@ class MembershipCardWidget extends StatelessWidget {
                   ),
                 ),
                 Gap.w12,
-                DividerWidget(
-                  color: textColor,
-                ),
+                DividerWidget(color: textColor),
                 Gap.w12,
                 if (signed)
                   Text(
-                    "Kolom ${membership?.column?.id}" ,
+                    "Kolom ${membership?.column?.id}",
                     style: BaseTypography.bodySmall.toSecondary,
                   ),
                 if (!signed)
