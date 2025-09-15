@@ -1,4 +1,6 @@
+import 'package:palakat/core/data_sources/network/model/result.dart';
+
 abstract class MembershipApiContract {
 
-  Future<Map<String, dynamic>> getMembership(int membershipId);
+  Future<Result<Map<String, dynamic>, Failure>> getMembership(int membershipId);
 }

@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/features/presentation.dart';
+
+part 'app_routing.g.dart';
 
 class AppRoute {
   static const String main = 'main';
@@ -45,33 +48,32 @@ class AppRoute {
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-final goRouterProvider = Provider<GoRouter>(
-  (ref) {
-    return GoRouter(
-      navigatorKey: navigatorKey,
-      initialLocation: '/',
-      debugLogDiagnostics: kDebugMode,
-      routerNeglect: true,
-      routes: [
-        GoRoute(
-          path: '/',
-          name: AppRoute.splash,
-          builder: (context, state) => const SplashScreen(),
-        ),
-        GoRoute(
-          path: '/home',
-          name: AppRoute.home,
-          builder: (context, state) => const HomeScreen(),
-        ),
-        authenticationRouting,
-        dashboardRouting,
-        publishingRouting,
-        songRouting,
-        accountRouting,
-      ],
-    );
-  },
-);
+@riverpod
+GoRouter goRouter(Ref ref) {
+  return GoRouter(
+    navigatorKey: navigatorKey,
+    initialLocation: '/',
+    debugLogDiagnostics: kDebugMode,
+    routerNeglect: true,
+    routes: [
+      GoRoute(
+        path: '/',
+        name: AppRoute.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        name: AppRoute.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      authenticationRouting,
+      dashboardRouting,
+      publishingRouting,
+      songRouting,
+      accountRouting,
+    ],
+  );
+}
 
 class RouteParam {
   final Map<String, dynamic> params;

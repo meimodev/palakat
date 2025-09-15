@@ -7,5 +7,4 @@ export 'date_time_converter.dart';
 export 'location.dart';
 export 'membership.dart';
 export 'song.dart';
-export 'song_detail.dart';
 export 'song_part.dart';

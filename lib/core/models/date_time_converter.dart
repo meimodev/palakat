@@ -6,13 +6,26 @@ class DateTimeConverterTimestamp implements JsonConverter<DateTime, dynamic> {
 
   @override
   DateTime fromJson(dynamic json) {
-    if (json.runtimeType == Timestamp) {
-      final data = json as Timestamp;
-      return data.toDate();
+    if (json == null) {
+      return DateTime.now();
     }
-    return (json as DateTime);
+    try {
+      if (json.runtimeType == Timestamp) {
+        final data = json as Timestamp;
+        return data.toDate();
+      } else if (json is String) {
+        return DateTime.parse(json);
+      } else if (json is DateTime) {
+        return json;
+      }
+      return DateTime.now();
+    } catch (e) {
+      return DateTime.now();
+    }
   }
 
   @override
-  dynamic toJson(DateTime data) => Timestamp.fromDate(data).toString();
+  dynamic toJson(DateTime data) {
+    return Timestamp.fromDate(data).toString();
+  }
 }

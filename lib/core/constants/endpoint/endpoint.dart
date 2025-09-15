@@ -11,4 +11,5 @@ class Endpoint {
   static String membership = _baseUrl(path: "/membership");
   static String auth = _baseUrl(path: "/auth");
   static String signing = '$auth/signing';
+  static String validatePhone = '$auth/validate';
 }
