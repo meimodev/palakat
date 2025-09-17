@@ -42,7 +42,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                   width: BaseSize.w48,
                   height: BaseSize.w48,
                   decoration: BoxDecoration(
-                    color: _getReportTypeColor(report.type).withOpacity(0.1),
+                    color: _getReportTypeColor(report.type).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Icon(

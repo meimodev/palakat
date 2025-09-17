@@ -27,7 +27,7 @@ class ReportButtonWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.neutral20.withOpacity(0.1),
+            color: BaseColor.neutral20.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -47,7 +47,7 @@ class ReportButtonWidget extends StatelessWidget {
                   width: BaseSize.w48,
                   height: BaseSize.w48,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: isLoading

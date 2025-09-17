@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/models/membership.dart';
-import 'package:palakat/features/operations/domain/entities/report.dart';
 
 part 'operations_state.freezed.dart';
 

@@ -12,10 +12,9 @@ class ApprovalScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(approvalControllerProvider.notifier);
     final state = ref.watch(approvalControllerProvider);
 
-    String _formatDate(DateTime? dt) =>
+    String formatDate(DateTime? dt) =>
         (dt ?? DateTime.now()).toIso8601String().split('T').first;
 
     return ScaffoldWidget(
@@ -28,12 +27,9 @@ class ApprovalScreen extends ConsumerWidget {
           ...state.approvals.map((approval) {
             final requesterName =
                 approval.supervisor.account?.name ?? 'Unknown';
-            final dateStr = _formatDate(approval.createdAt);
+            final dateStr = formatDate(approval.createdAt);
             final title = approval.description; // Using description as title
             final description = approval.description;
-
-            print("currentMembershipID: ${state.membership?.id}");
-            print("approval: $approval");
 
             return Padding(
               padding: EdgeInsets.only(bottom: BaseSize.h12),

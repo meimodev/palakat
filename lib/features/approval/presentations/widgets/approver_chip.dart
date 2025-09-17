@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 
 class ApproverChip extends StatelessWidget {
@@ -22,7 +21,6 @@ class ApproverChip extends StatelessWidget {
       case ApprovalStatus.rejected:
         return BaseColor.red.shade500;
       case ApprovalStatus.unconfirmed:
-      default:
         return BaseColor.yellow.shade700;
     }
   }

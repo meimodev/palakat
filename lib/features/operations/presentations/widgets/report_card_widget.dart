@@ -22,7 +22,7 @@ class ReportCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.neutral20.withOpacity(0.1),
+            color: BaseColor.neutral20.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -47,7 +47,7 @@ class ReportCardWidget extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _getReportTypeColor(
                           report.type,
-                        ).withOpacity(0.1),
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Icon(

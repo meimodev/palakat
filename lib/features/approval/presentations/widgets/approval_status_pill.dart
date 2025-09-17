@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/constants/enums/enums.dart';
 
 class ApprovalStatusPill extends StatelessWidget {
   const ApprovalStatusPill({super.key, required this.status});
@@ -14,7 +13,6 @@ class ApprovalStatusPill extends StatelessWidget {
       case ApprovalStatus.rejected:
         return BaseColor.red.shade500;
       case ApprovalStatus.unconfirmed:
-      default:
         return BaseColor.yellow.shade700;
     }
   }
@@ -34,7 +32,6 @@ class ApprovalStatusPill extends StatelessWidget {
         label = 'Rejected';
         break;
       case ApprovalStatus.unconfirmed:
-      default:
         icon = Icons.hourglass_bottom_rounded;
         label = 'Unconfirmed';
     }

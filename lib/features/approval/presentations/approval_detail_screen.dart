@@ -4,9 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/models/models.dart' hide Column;
-import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
 
@@ -30,18 +28,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Color _statusColor(ApprovalStatus status) {
-      switch (status) {
-        case ApprovalStatus.approved:
-          return BaseColor.green.shade600;
-        case ApprovalStatus.rejected:
-          return BaseColor.red.shade500;
-        case ApprovalStatus.unconfirmed:
-        return BaseColor.yellow.shade700;
-      }
-    }
-
-    ApprovalStatus _overallStatus(List<Approver> items) {
+    ApprovalStatus overallStatus(List<Approver> items) {
       final hasRejected = items.any((e) => e.status == ApprovalStatus.rejected);
       if (hasRejected) return ApprovalStatus.rejected;
       final hasUnconfirmed =
@@ -50,9 +37,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       return ApprovalStatus.approved;
     }
 
-    Widget _statusPill(ApprovalStatus s) => ApprovalStatusPill(status: s);
+    Widget statusPill(ApprovalStatus s) => ApprovalStatusPill(status: s);
 
-    final overall = _overallStatus(approvers);
+    final overall = overallStatus(approvers);
     final bool isMinePending = approvers.any(
       (ap) => ap.status == ApprovalStatus.unconfirmed &&
           ap.membership.id == currentMembershipId,
@@ -271,10 +258,10 @@ class ApprovalDetailScreen extends ConsumerWidget {
           ],
           Gap.h12,
           if (overall == ApprovalStatus.unconfirmed) ...[
-            if (!isMinePending) _statusPill(ApprovalStatus.unconfirmed),
+            if (!isMinePending) statusPill(ApprovalStatus.unconfirmed),
             if (!isMinePending) Gap.h8,
           ] else ...[
-            _statusPill(overall),
+            statusPill(overall),
           ],
         ],
       ),

@@ -10,7 +10,6 @@ class OperationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(operationsControllerProvider.notifier);
     final state = ref.watch(operationsControllerProvider);
 
     return ScaffoldWidget(

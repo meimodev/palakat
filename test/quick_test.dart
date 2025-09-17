@@ -31,7 +31,6 @@ Future<void> main() async {
       final data = res.data["data"];
       expect(res.statusCode, 200);
       expect(data, hasLength(greaterThan(5)));
-      print(data.toString());
       token = data.toString();
     });
 
@@ -43,7 +42,6 @@ Future<void> main() async {
       final data = res.data["data"];
       expect(res.statusCode, 200);
       expect(data, isList);
-      print(data.toString());
     });
 
   },);
