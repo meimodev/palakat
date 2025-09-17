@@ -14,9 +14,6 @@ class ApprovalScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(approvalControllerProvider);
 
-    String formatDate(DateTime? dt) =>
-        (dt ?? DateTime.now()).toIso8601String().split('T').first;
-
     return ScaffoldWidget(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -25,9 +22,6 @@ class ApprovalScreen extends ConsumerWidget {
           Gap.h16,
           // Render approvals from state
           ...state.approvals.map((approval) {
-            final requesterName =
-                approval.supervisor.account?.name ?? 'Unknown';
-            final dateStr = formatDate(approval.createdAt);
             final title = approval.description; // Using description as title
             final description = approval.description;
 
@@ -41,11 +35,7 @@ class ApprovalScreen extends ConsumerWidget {
                     AppRoute.approvalDetail,
                     extra: RouteParam(
                       params: {
-                        'title': title,
-                        'description': description,
-                        'requestedBy': requesterName,
-                        'requestDate': dateStr,
-                        'approvers': approval.approvers,
+                        'approvalId': approval.id,
                         'currentMembershipId': state.membership?.id,
                       },
                     ),

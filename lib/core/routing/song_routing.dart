@@ -14,15 +14,15 @@ final songRouting = GoRoute(
       name: AppRoute.songBookDetail,
       builder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
-        final song = params?[RouteParamKey.song] as Map<String, dynamic>?;
+        final songMap = params?[RouteParamKey.song] as Map<String, dynamic>?;
 
         assert(
-          song != null,
+          songMap != null,
           'RouteParamKey.song cannot be null',
         );
 
         return SongDetailScreen(
-          song: Song.fromJson(song!),
+          song: Song.fromJson(songMap!),
         );
       },
     ),

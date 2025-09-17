@@ -15,14 +15,17 @@ final approvalRouting = GoRoute(
       builder: (context, state) {
         final extra = state.extra as RouteParam?;
         final params = extra?.params ?? const <String, dynamic>{};
+        final approvalId = params['approvalId'] as int?;
+        final currentMembershipId = params['currentMembershipId'] as int?;
+
+        if (approvalId == null) {
+          // Fallback if nothing was passed
+          return const ApprovalScreen();
+        }
+
         return ApprovalDetailScreen(
-          title: params['title'] as String? ?? '',
-          description: params['description'] as String? ?? '',
-          requestedBy: params['requestedBy'] as String? ?? '',
-          requestDate: params['requestDate'] as String? ?? '',
-          approvers:
-              (params['approvers'] as List?)?.cast<Approver>() ?? const <Approver>[],
-          currentMembershipId: params['currentMembershipId'] as int?,
+          approvalId: approvalId,
+          currentMembershipId: currentMembershipId,
         );
       },
     ),

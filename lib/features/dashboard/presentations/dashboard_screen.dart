@@ -67,7 +67,7 @@ class DashboardScreen extends ConsumerWidget {
                             AppRoute.activityDetail,
                             extra: RouteParam(
                               params: {
-                                RouteParamKey.activityId: activity.serial,
+                                RouteParamKey.activity: activity.toJson(),
                               },
                             ),
                           );

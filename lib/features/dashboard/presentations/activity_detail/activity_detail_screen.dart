@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
@@ -11,21 +9,14 @@ import 'package:palakat/core/widgets/widgets.dart';
 class ActivityDetailScreen extends StatelessWidget {
   const ActivityDetailScreen({
     super.key,
-    required this.id,
+    required this.activity,
   });
 
-  final String id;
+  final Activity activity;
 
   @override
   Widget build(BuildContext context) {
-    final state = Activity(
-      serial: id,
-      title: "Region 6-9, Youth & Teens Weekly Service",
-      type: ActivityType.values[Random().nextInt(ActivityType.values.length)],
-      bipra: Bipra.values[Random().nextInt(Bipra.values.length)],
-      publishDate: DateTime.now(),
-      activityDate: DateTime.now(), accountSerial: '', churchSerial: '',
-    );
+    final state = activity;
 
     return ScaffoldWidget(
       child: Column(

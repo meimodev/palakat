@@ -24,6 +24,10 @@ extension XDateTime on DateTime {
     );
   }
 
+  String get toFromNow {
+    return toJiffy.fromNow();
+  }
+
   DateTime get toStartOfTheWeek {
     return generateThisWeekDates.first;
   }
