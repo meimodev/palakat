@@ -24,4 +24,11 @@ class MembershipRepository extends _$MembershipRepository {
       onSuccess: (data) => data == null ? null : Membership.fromJson(data),
     );
   }
+
+  Future<Result<Membership, Failure>> signInMembership(
+    Membership membership,
+  ) async {
+    final result = await _membershipApi.signInMembership(membership);
+    return result.mapTo<Membership, Failure>(onSuccess: Membership.fromJson);
+  }
 }

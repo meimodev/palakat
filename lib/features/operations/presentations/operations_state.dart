@@ -8,6 +8,6 @@ part 'operations_state.freezed.dart';
 abstract class OperationsState with _$OperationsState {
   const factory OperationsState({
     Membership? membership,
-    @Default(false) bool loadingScreen,
+    @Default(true) bool loadingScreen,
   }) = _OperationsState;
 }

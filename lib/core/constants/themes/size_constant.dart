@@ -14,7 +14,9 @@ class BaseSize {
   static final w8 = 8.0.w;
   static final w12 = 12.0.w;
   static final w16 = 16.0.w;
+  static final w18 = 18.0.w;
   static final w20 = 20.0.w;
+  static final w22 = 22.0.w;
   static final w24 = 24.0.w;
   static final w28 = 28.0.w;
   static final w32 = 32.0.w;
@@ -62,6 +64,7 @@ class BaseSize {
 
 
 
+
   /// [INFO]
   /// Sizes for custom width or height outside the 8 pixel rules
   static double customWidth(double value) => value.w;
@@ -96,6 +99,7 @@ class Gap {
   static final w80 = SizedBox(width: BaseSize.w80);
 
   static final w3 = SizedBox(width: BaseSize.w3);
+  static final w6 = SizedBox(width: BaseSize.w6);
 
 
   /// [INFO]
@@ -118,6 +122,7 @@ class Gap {
   static final h80 = SizedBox(height: BaseSize.h80);
 
   static final h6 = SizedBox(height: BaseSize.h6);
+
 
 
   /// [INFO]

@@ -55,6 +55,15 @@ enum MapOperationType {
   read,
 }
 
+enum ApprovalStatus {
+  @JsonValue("UNCONFIRMED")
+  unconfirmed,
+  @JsonValue("APPROVED")
+  approved,
+  @JsonValue("REJECTED")
+  rejected,
+}
+
 enum SongPartType {
   @JsonValue("INTRO")
   intro,

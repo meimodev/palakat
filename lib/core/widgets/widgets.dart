@@ -37,4 +37,5 @@ export 'divider/divider_widget.dart';
 export 'segment_title/segment_title.dart';
 
 export 'chips/chips_widget.dart';
+export 'info_box_widget.dart';
 

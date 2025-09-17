@@ -1,4 +1,3 @@
-import 'package:palakat/features/account/data/account_repository.dart';
 import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
@@ -7,107 +6,33 @@ part 'dashboard_controller.g.dart';
 
 @riverpod
 class DashboardController extends _$DashboardController {
-  late AccountRepository _accountRepo;
-  late MembershipRepository _membershipRepo;
-
-  // ActivityRepository get activityRepo => ref.read(activityRepositoryProvider);
-
-  // DateTime get startOfWeek => DateTime.now().toStartOfTheWeek;
-
-  // DateTime get endOfWeek => DateTime.now().toEndOfTheWeek;
-
   @override
   DashboardState build() {
-    _accountRepo = ref.read(accountRepositoryProvider);
-    _membershipRepo = ref.read(membershipRepositoryProvider);
-
     fetchData();
 
-    return const DashboardState(
-      account: null,
-      membership: null,
-      membershipLoading: true,
-      thisWeekActivitiesLoading: true,
-      thisWeekActivities: [],
-      thisWeekAnnouncementsLoading: true,
-      thisWeekAnnouncements: [],
-    );
+    return const DashboardState();
   }
+
+  MembershipRepository get _membershipRepo =>
+      ref.read(membershipRepositoryProvider);
 
   void fetchData() async {
-    // Parallelize independent API calls for better performance
-    await Future.wait([
-      fetchAccountData(),
-      fetchMembershipData(),
-      fetchThisAnnouncementData(),
-      fetchThisWeekActivityData(),
-    ]);
-  }
-
-  Future<void> fetchAccountData() async {
-    final result = await _accountRepo.getSignedInAccount();
-    result.when(
-      onSuccess: (account) {
-        if (account == null) {
-          state = state.copyWith(
-            account: null,
-            membership: null,
-            membershipLoading: false,
-            thisWeekActivitiesLoading: false,
-            thisWeekAnnouncementsLoading: false,
-          );
-        }
-        state = state.copyWith(account: account);
-      },
-      onFailure: (failure) {
-        state = state.copyWith(
-          account: null,
-          membership: null,
-          membershipLoading: false,
-          thisWeekActivitiesLoading: false,
-          thisWeekAnnouncementsLoading: false,
-        );
-      },
-    );
+    await fetchMembershipData();
   }
 
   Future<void> fetchMembershipData() async {
-    final account = state.account;
-    if (account == null) {
-      state = state.copyWith(
-        account: null,
-        membership: null,
-        membershipLoading: false,
-        thisWeekActivitiesLoading: false,
-        thisWeekAnnouncementsLoading: false,
-      );
-      return;
-    }
-    if (account.membershipId == null) {
-      state = state.copyWith(
-        account: null,
-        membership: null,
-        membershipLoading: false,
-        thisWeekActivitiesLoading: false,
-        thisWeekAnnouncementsLoading: false,
-      );
-      return;
-    }
-
-    final result = await _membershipRepo.getMembership(
-      state.account!.membershipId!,
-    );
+    final result = await _membershipRepo.getSignedInMembership();
     result.when(
-      onSuccess: (data) {
-        state = state.copyWith(membershipLoading: false, membership: data);
+      onSuccess: (membership) {
+        state = state.copyWith(
+          membershipLoading: false,
+          membership: membership,
+          account: membership?.account,
+        );
       },
       onFailure: (failure) {
         state = state.copyWith(membershipLoading: false, membership: null);
       },
     );
   }
-
-  Future<void> fetchThisWeekActivityData() async {}
-
-  Future<void> fetchThisAnnouncementData() async {}
 }

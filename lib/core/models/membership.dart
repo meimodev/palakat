@@ -16,11 +16,12 @@ abstract class Membership with _$Membership {
     required int columnId,
     required bool baptize,
     required bool sidi,
+    @Default([]) List<MemberPosition> membershipPositions,
     Account? account,
     Church? church,
     Column? column,
   }) = _Membership;
 
-  factory Membership.fromJson(Map<String, dynamic> data) =>
-      _$MembershipFromJson(data);
+  factory Membership.fromJson(Map<String, dynamic> json) =>
+      _$MembershipFromJson(json);
 }

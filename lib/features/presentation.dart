@@ -28,6 +28,8 @@ export 'dashboard/presentations/widgets/widgets.dart';
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';
 export 'home/presentation/home_state.dart';
+export 'operations/presentations/operations_screen.dart';
+export 'approval/presentations/approval_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_controller.dart';
 export 'publishing/presentations/activity_publish/activity_publish_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_state.dart';

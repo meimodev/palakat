@@ -22,7 +22,6 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const ScreenTitleWidget.titleOnly(title: "Dashboard"),
-          // ButtonWidget.primary(text: "Test Fetch", onTap: controller.test,),
           Gap.h12,
           LoadingWrapper(
             paddingTop: BaseSize.h24,

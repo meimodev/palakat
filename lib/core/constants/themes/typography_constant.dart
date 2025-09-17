@@ -14,6 +14,10 @@ class BaseTypography {
     fontWeight: FontWeight.w400,
   );
 
+  static TextStyle titleLarge = TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w400,
+  );
   static TextStyle titleMedium = TextStyle(
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
@@ -35,4 +39,10 @@ class BaseTypography {
     fontSize: 6.sp,
     fontWeight: FontWeight.w400,
   );
+  static TextStyle labelMedium = TextStyle(
+    fontSize: 8.sp,
+    fontWeight: FontWeight.w400,
+  );
+
+
 }

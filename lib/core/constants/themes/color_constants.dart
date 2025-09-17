@@ -22,6 +22,18 @@ class BaseColor {
   static const Color secondaryText = Color(0xFF929292);
   static const Color disabled = Color(0xFFD9D9D9);
 
+  // Individual neutral color constants for easy access
+  static const Color neutral0 = Color(0xFFFFFFFF);   // White
+  static const Color neutral10 = Color(0xFFF7F7F7);  // Very light gray
+  static const Color neutral20 = Color(0xFFEDEDED);  // Light gray
+  static const Color neutral30 = Color(0xFFE0E0E0);  // Light medium gray
+  static const Color neutral40 = Color(0xFFCDCDCD);  // Medium gray
+  static const Color neutral50 = Color(0xFFB8B8B8);  // Base neutral
+  static const Color neutral60 = Color(0xFF878787);  // Medium dark gray
+  static const Color neutral70 = Color(0xFF606060);  // Dark gray
+  static const Color neutral80 = Color(0xFF383838);  // Very dark gray
+  static const Color neutral90 = Color(0xFF151515);  // Almost black
+
   static Color  primaryLight = primary3.withValues(alpha: .5);
 
   static const MaterialColor neutral = MaterialColor(

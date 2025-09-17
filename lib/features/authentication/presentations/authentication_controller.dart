@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:palakat/core/models/account.dart';
 import 'package:palakat/features/account/data/account_repository.dart';
+import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -13,18 +14,19 @@ part 'authentication_controller.g.dart';
 class AuthenticationController extends _$AuthenticationController {
   Timer? _timer;
 
-  late AccountRepository _accountRepo;
-
   @override
   AuthenticationState build() {
     ref.onDispose(() {
       _timer?.cancel();
     });
 
-    _accountRepo = ref.read(accountRepositoryProvider);
-
     return const AuthenticationState();
   }
+
+  AccountRepository get _accountRepo => ref.read(accountRepositoryProvider);
+
+  MembershipRepository get _membershipRepo =>
+      ref.read(membershipRepositoryProvider);
 
   void onChangedTextPhone(String value) {
     state = state.copyWith(
@@ -152,6 +154,9 @@ class AuthenticationController extends _$AuthenticationController {
         final resultSignIn = await _accountRepo.signIn(account);
         resultSignIn.when(
           onSuccess: (data) {
+            if (data.membershipId != null) {
+              signInMembership(data.membershipId!);
+            }
             onAlreadyRegistered(data);
           },
         );
@@ -178,5 +183,14 @@ class AuthenticationController extends _$AuthenticationController {
   void reset() {
     _timer?.cancel();
     state = const AuthenticationState();
+  }
+
+  void signInMembership(int membershipId) async {
+    final resultMembership = await _membershipRepo.getMembership(membershipId);
+    resultMembership.when(
+      onSuccess: (data) async {
+        await _membershipRepo.signInMembership(data);
+      },
+    );
   }
 }

@@ -13,8 +13,19 @@ class ChipsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w6,
-        vertical: BaseSize.w6,
+        horizontal: BaseSize.w12,
+        vertical: BaseSize.h8,
+      ),
+      decoration: BoxDecoration(
+        color: BaseColor.primary4.withValues(alpha: 0.08),
+        border: Border.all(
+          color: BaseColor.primary4.withValues(alpha: 0.24),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(
+          BaseSize.radiusLg,
+        ),
+
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -26,9 +37,13 @@ class ChipsWidget extends StatelessWidget {
               colorFilter: BaseColor.secondaryText.filterSrcIn,
             ),
           if (icon != null) Gap.w3,
-          Text(title, style: BaseTypography.labelSmall.toBold),
+          Text(title, style: BaseTypography.labelMedium.copyWith(
+            color: BaseColor.primary4,
+            fontWeight: FontWeight.w600,
+          )),
         ],
       ),
     );
+
   }
 }

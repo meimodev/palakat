@@ -6,6 +6,7 @@ import 'package:palakat/core/constants/enums/enums.dart';
 import 'models.dart';
 
 part 'account.freezed.dart';
+
 part 'account.g.dart';
 
 @freezed
@@ -14,10 +15,11 @@ abstract class Account with _$Account {
     required int id,
     required String phone,
     required String name,
-    // @DateTimeConverterTimestamp() DateTime? dob,
+    @DateTimeConverterTimestamp() required DateTime dob,
     required Gender gender,
     required bool married,
     int? membershipId,
+    Membership? membership,
     @DateTimeConverterTimestamp() DateTime? createdAt,
     @DateTimeConverterTimestamp() DateTime? updatedAt,
   }) = _Account;

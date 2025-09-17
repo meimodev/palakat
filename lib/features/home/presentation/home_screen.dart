@@ -14,10 +14,10 @@ class HomeScreen extends ConsumerWidget {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
+      disablePadding: true,
       child: PopScope(
         canPop: false,
         onPopInvokedWithResult: (bool didPop, _) {
-
           if (state.selectedBottomNavIndex != 0) {
             controller.navigateTo(0);
           } else {
@@ -34,14 +34,10 @@ class HomeScreen extends ConsumerWidget {
                     'Press back again to exit',
                     style: BaseTypography.titleMedium,
                   ),
-                  duration: const Duration(
-                    seconds: 2,
-                  ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
-
             } else {
-
               Navigator.of(context).pop();
             }
           }
@@ -61,11 +57,13 @@ class HomeScreen extends ConsumerWidget {
                   DashboardScreen(),
                   PublishingScreen(),
                   SongBookScreen(),
+                  OperationsScreen(),
+                  ApprovalScreen(),
                 ],
               ),
             ),
             Positioned(
-              bottom: BaseSize.h24,
+              bottom: 0,
               left: 0,
               right: 0,
               child: BottomNavBar(

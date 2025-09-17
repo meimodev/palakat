@@ -8,15 +8,12 @@ part 'operations_controller.g.dart';
 
 @riverpod
 class OperationsController extends _$OperationsController {
-  late MembershipRepository _membershipRepository;
-  late AccountRepository _accountRepository;
+  MembershipRepository get _membershipRepository =>
+      ref.read(membershipRepositoryProvider);
 
   @override
   OperationsState build() {
-    _membershipRepository = ref.read(membershipRepositoryProvider);
-    _accountRepository = ref.read(accountRepositoryProvider);
     fetchData();
-
     return const OperationsState();
   }
 
@@ -25,26 +22,10 @@ class OperationsController extends _$OperationsController {
   }
 
   Future<void> fetchMembership() async {
-    final resAccount = await _accountRepository.getSignedInAccount();
-    resAccount.when(
-      onSuccess: (account) async {
-        if (account == null) {
-          state = state.copyWith(membership: null, loadingScreen: false);
-          return;
-        }
-
-        final resMembership = await _membershipRepository.getMembership(
-          account.id,
-        );
-        resMembership.when(
-          onSuccess: (membership) {
-            state = state.copyWith(
-              membership: membership,
-              loadingScreen: false,
-            );
-          },
-          onFailure: (failure) {},
-        );
+    final result = await _membershipRepository.getSignedInMembership();
+    result.when(
+      onSuccess: (data) {
+        state = state.copyWith(membership: data, loadingScreen: false);
       },
     );
   }
