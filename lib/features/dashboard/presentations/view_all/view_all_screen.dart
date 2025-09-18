@@ -39,7 +39,7 @@ class ViewAllScreen extends ConsumerWidget {
                             today: date.isSameDay(DateTime.now()),
                             activities: state.activities
                                 .where((activity) =>
-                                    activity.activityDate.isSameDay(date))
+                                    activity.date.isSameDay(date))
                                 .toList(),
                             onPressedCard: (Activity activity) {
                               context.pushNamed(

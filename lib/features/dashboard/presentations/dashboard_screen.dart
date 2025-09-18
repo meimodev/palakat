@@ -54,7 +54,7 @@ class DashboardScreen extends ConsumerWidget {
                       final thisDayActivities = state.thisWeekActivities
                           .where(
                             (element) =>
-                                element.activityDate.isSameDay(dateTime),
+                                element.date.isSameDay(dateTime),
                           )
                           .toList();
 

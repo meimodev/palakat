@@ -17,7 +17,7 @@ class ApprovalCardWidget extends StatelessWidget {
     required this.onReject,
   });
 
-  final Approval approval;
+  final Activity approval;
   final int? currentMembershipId;
   final VoidCallback onTap;
   final VoidCallback onApprove;
@@ -62,7 +62,7 @@ class ApprovalCardWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      approval.description,
+                      approval.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: BaseTypography.titleMedium.copyWith(
@@ -111,7 +111,7 @@ class ApprovalCardWidget extends StatelessWidget {
                   ),
                   Gap.w4,
                   Text(
-                    approval.createdAt?.slashDate ?? "",
+                    approval.createdAt.slashDate ?? "",
                     style: BaseTypography.bodySmall.copyWith(),
                   ),
                 ],

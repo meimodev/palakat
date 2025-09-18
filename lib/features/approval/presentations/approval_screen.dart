@@ -20,10 +20,9 @@ class ApprovalScreen extends ConsumerWidget {
         children: [
           const ScreenTitleWidget.titleOnly(title: "Approvals"),
           Gap.h16,
-          // Render approvals from state
+          // Render activities (migrated from approvals)
           ...state.approvals.map((approval) {
-            final title = approval.description; // Using description as title
-            final description = approval.description;
+            final title = approval.title;
 
             return Padding(
               padding: EdgeInsets.only(bottom: BaseSize.h12),
@@ -35,7 +34,7 @@ class ApprovalScreen extends ConsumerWidget {
                     AppRoute.approvalDetail,
                     extra: RouteParam(
                       params: {
-                        'approvalId': approval.id,
+                        'activityId': approval.id,
                         'currentMembershipId': state.membership?.id,
                       },
                     ),

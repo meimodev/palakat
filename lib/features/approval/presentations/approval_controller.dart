@@ -32,10 +32,7 @@ class ApprovalController extends _$ApprovalController {
   }
 
   void _setDummyApprovals() {
-    final a1 = Approval(
-      id: 1,
-      description: 'Buying of the office supplies',
-      supervisor: Membership(
+    final a1Supervisor = Membership(
         id: 1,
         accountId: 1,
         churchId: 10,
@@ -50,7 +47,21 @@ class ApprovalController extends _$ApprovalController {
           gender: Gender.female,
           married: false,
         ),
-      ),
+      );
+
+    final a1 = Activity(
+      id: 1,
+      supervisorId: a1Supervisor.id,
+      bipra: Bipra.fathers,
+      title: 'Buying of the office supplies',
+      description: 'Buying of the office supplies',
+      date: DateTime.now(),
+      note: null,
+      fileUrl: null,
+      type: ActivityType.announcement,
+      createdAt: DateTime(2025, 9, 14),
+      updatedAt: DateTime(2025, 9, 14),
+      supervisor: a1Supervisor,
       approvers: [
         Approver(
           id: 5001,
@@ -97,13 +108,9 @@ class ApprovalController extends _$ApprovalController {
           ),
         ),
       ],
-      createdAt: DateTime(2025, 9, 14),
     );
 
-    final a2 = Approval(
-      id: 2,
-      description: 'Income: Donation Transfer',
-      supervisor: Membership(
+    final a2Supervisor = Membership(
         id: 102,
         accountId: 1002,
         churchId: 10,
@@ -118,7 +125,21 @@ class ApprovalController extends _$ApprovalController {
           gender: Gender.male,
           married: true,
         ),
-      ),
+      );
+
+    final a2 = Activity(
+      id: 2,
+      supervisorId: a2Supervisor.id,
+      bipra: Bipra.general,
+      title: 'Income: Donation Transfer',
+      description: 'Income: Donation Transfer',
+      date: DateTime.now(),
+      note: null,
+      fileUrl: null,
+      type: ActivityType.announcement,
+      createdAt: DateTime(2025, 9, 12),
+      updatedAt: DateTime(2025, 9, 12),
+      supervisor: a2Supervisor,
       approvers: [
         Approver(
           id: 5002,
@@ -143,13 +164,9 @@ class ApprovalController extends _$ApprovalController {
           ),
         ),
       ],
-      createdAt: DateTime(2025, 9, 12),
     );
 
-    final a3 = Approval(
-      id: 2,
-      description: 'Document Request',
-      supervisor: Membership(
+    final a3Supervisor = Membership(
         id: 102,
         accountId: 1002,
         churchId: 10,
@@ -164,7 +181,21 @@ class ApprovalController extends _$ApprovalController {
           gender: Gender.male,
           married: true,
         ),
-      ),
+      );
+
+    final a3 = Activity(
+      id: 3,
+      supervisorId: a3Supervisor.id,
+      bipra: Bipra.mothers,
+      title: 'Document Request',
+      description: 'Document Request',
+      date: DateTime.now(),
+      note: null,
+      fileUrl: null,
+      type: ActivityType.announcement,
+      createdAt: DateTime(2025, 9, 12),
+      updatedAt: DateTime(2025, 9, 12),
+      supervisor: a3Supervisor,
       approvers: [
         Approver(
           id: 5002,
@@ -189,7 +220,6 @@ class ApprovalController extends _$ApprovalController {
           ),
         ),
       ],
-      createdAt: DateTime(2025, 9, 12),
     );
 
     state = state.copyWith(approvals: [a1, a2, a3]);

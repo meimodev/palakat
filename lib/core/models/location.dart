@@ -1,18 +1,22 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'date_time_converter.dart';
+
 part 'location.freezed.dart';
+
 part 'location.g.dart';
 
 @freezed
 abstract class Location with _$Location {
   const factory Location({
-    @Default(0) double latitude ,
-    @Default(0) double longitude ,
-    @Default("") String name ,
+    required int id,
+    required double latitude,
+    required double longitude,
+    required String name,
+    @DateTimeConverterTimestamp() DateTime? createdAt,
+    @DateTimeConverterTimestamp() DateTime? updatedAt,
   }) = _Location;
 
-  factory Location.fromJson(Map<String, dynamic> data) => _$LocationFromJson(data);
-
-
-
+  factory Location.fromJson(Map<String, dynamic> data) =>
+      _$LocationFromJson(data);
 }

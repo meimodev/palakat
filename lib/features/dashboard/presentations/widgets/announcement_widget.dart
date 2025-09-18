@@ -35,13 +35,13 @@ class AnnouncementWidget extends StatelessWidget {
             ),
             child: CardAnnouncementWidget(
               title: e.title,
-              publishedOn: e.publishDate,
+              publishedOn: e.date,
               onPressedCard: () {
                 context.pushNamed(
                   AppRoute.activityDetail,
                   extra: RouteParam(
                     params: {
-                      RouteParamKey.activityId: e.serial,
+                      RouteParamKey.activityId: e.id,
                     },
                   ),
                 );

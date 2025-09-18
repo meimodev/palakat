@@ -3,6 +3,7 @@ class RouteParamKey {
   static const String activity = "activity";
   static const String mapOperationType = "mapOperationType";
   static const String activityType = "activityType";
+  static const String location = "location";
 
   static const String song = "song";
 }

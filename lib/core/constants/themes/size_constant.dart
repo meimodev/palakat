@@ -12,6 +12,7 @@ class BaseSize {
   static final w2 = 2.0.w;
   static final w4 = 4.0.w;
   static final w8 = 8.0.w;
+  static final w10 = 10.0.w;
   static final w12 = 12.0.w;
   static final w16 = 16.0.w;
   static final w18 = 18.0.w;
@@ -61,6 +62,7 @@ class BaseSize {
   static final radiusSm = 6.r;
   static final radiusMd = 12.r;
   static final radiusLg = 24.r;
+
 
 
 

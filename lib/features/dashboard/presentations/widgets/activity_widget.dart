@@ -60,12 +60,12 @@ class _ActivityWidgetState extends State<ActivityWidget> {
                       date: day,
                       eventCount: activities
                           .where((e) =>
-                              e.activityDate.isSameDay(day) &&
+                              e.date.isSameDay(day) &&
                               e.type == ActivityType.event)
                           .length,
                       serviceCount: activities
                           .where((e) =>
-                              e.activityDate.isSameDay(day) &&
+                              e.date.isSameDay(day) &&
                               e.type == ActivityType.service)
                           .length,
                       onPressedCardDatePreview: () =>

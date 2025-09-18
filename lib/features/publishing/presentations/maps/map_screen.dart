@@ -69,8 +69,10 @@ class _MapScreenState extends State<MapScreen> {
             onCameraMove: (position) {
               final target = position.target;
               selectedLocation = Location(
+                id: 0,
                 latitude: target.latitude,
                 longitude: target.longitude,
+                name: '',
               );
             },
           ),
@@ -92,13 +94,7 @@ class _MapScreenState extends State<MapScreen> {
             bottom: 0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  color: Colors.red,
-                  width: 10,
-                  height: 10,
-                ),
-              ],
+              children: [Container(color: Colors.red, width: 10, height: 10)],
             ),
           ),
           Positioned(
@@ -117,7 +113,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   )
                 : const SizedBox(),
-          )
+          ),
         ],
       ),
     );

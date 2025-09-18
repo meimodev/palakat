@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/models/membership.dart';
-import 'package:palakat/core/models/approval.dart';
+import 'package:palakat/core/models/activity.dart';
 
 part 'approval_state.freezed.dart';
 
@@ -9,6 +9,6 @@ abstract class ApprovalState with _$ApprovalState {
   const factory ApprovalState({
     Membership? membership,
     @Default(true) bool loadingScreen,
-    @Default(<Approval>[]) List<Approval> approvals,
+    @Default(<Activity>[]) List<Activity> approvals,
   }) = _ApprovalState;
 }
