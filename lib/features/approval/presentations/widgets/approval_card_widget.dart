@@ -111,7 +111,7 @@ class ApprovalCardWidget extends StatelessWidget {
                   ),
                   Gap.w4,
                   Text(
-                    approval.createdAt.slashDate ?? "",
+                    "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
                     style: BaseTypography.bodySmall.copyWith(),
                   ),
                 ],

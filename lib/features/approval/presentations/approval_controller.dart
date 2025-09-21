@@ -31,6 +31,46 @@ class ApprovalController extends _$ApprovalController {
     );
   }
 
+  // Date filter controls
+  void setDateRange({DateTime? start, DateTime? end}) {
+    state = state.copyWith(
+      filterStartDate: start,
+      filterEndDate: end,
+    );
+    _applyFilters();
+  }
+
+  void clearDateFilter() {
+    state = state.copyWith(filterStartDate: null, filterEndDate: null);
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    final start = state.filterStartDate;
+    final end = state.filterEndDate;
+
+    if (start == null && end == null) {
+      state = state.copyWith(filteredApprovals: state.approvals);
+      return;
+    }
+
+    bool inRange(DateTime d) {
+      final sOk = start == null || !d.isBefore(_atStartOfDay(start));
+      final eOk = end == null || !d.isAfter(_atEndOfDay(end));
+      return sOk && eOk;
+    }
+
+    final filtered = state.approvals.where((a) {
+      final activityDate = a.date; // use activity date for filtering
+      return inRange(activityDate);
+    }).toList();
+
+    state = state.copyWith(filteredApprovals: filtered);
+  }
+
+  DateTime _atStartOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
+  DateTime _atEndOfDay(DateTime d) => DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
+
   void _setDummyApprovals() {
     final a1Supervisor = Membership(
         id: 1,
@@ -133,7 +173,7 @@ class ApprovalController extends _$ApprovalController {
       bipra: Bipra.general,
       title: 'Income: Donation Transfer',
       description: 'Income: Donation Transfer',
-      date: DateTime.now(),
+      date: DateTime.now().subtract(const Duration(days: 5)),
       note: null,
       fileUrl: null,
       type: ActivityType.announcement,
@@ -189,7 +229,7 @@ class ApprovalController extends _$ApprovalController {
       bipra: Bipra.mothers,
       title: 'Document Request',
       description: 'Document Request',
-      date: DateTime.now(),
+      date: DateTime.now().subtract(const Duration(days: 10)),
       note: null,
       fileUrl: null,
       type: ActivityType.announcement,
@@ -222,6 +262,7 @@ class ApprovalController extends _$ApprovalController {
       ],
     );
 
-    state = state.copyWith(approvals: [a1, a2, a3]);
+    final approvals = [a1, a2, a3];
+    state = state.copyWith(approvals: approvals, filteredApprovals: approvals);
   }
 }

@@ -65,3 +65,19 @@
 - Updated `lib/features/approval/presentations/approval_detail_screen.dart` to conditionally render cards:
   - Hide Location card when `activity.location == null`.
   - Hide Note card when `activity.note` is null/empty.
+
+## 2025-09-18T23:17:05+08:00 — Model: Cascade
+- Added date filter card on approvals screen.
+- Updated `lib/features/approval/presentations/approval_state.dart` to include `filterStartDate`, `filterEndDate`, and `filteredApprovals`.
+- Updated `lib/features/approval/presentations/approval_controller.dart` with `setDateRange`, `clearDateFilter`, and `_applyFilters()` to populate `filteredApprovals`.
+- Updated `lib/features/approval/presentations/approval_screen.dart` to render filter UI (uses `showDateRangePicker`) and list `state.filteredApprovals`.
+- Regenerated code with `build_runner`.
+
+## 2025-09-18T23:31:46+08:00 — Model: Cascade
+- Converted the approvals date filter card to a dropdown date range picker with presets (All, Today, Last 7/30, This/Last Month, This Year) and a "Custom range…" option opening `showDateRangePicker`.
+- Updated `lib/features/approval/presentations/approval_screen.dart` to add `_DateRangeDropdown`, range detection, and helpers.
+
+## 2025-09-18T23:34:48+08:00 — Model: Cascade
+- Redesigned the approvals filter UI to match app style by replacing custom Card/dropdown with `InputWidget.dropdown`.
+- Added bottom sheet preset picker integrated with shared input component.
+- File updated: `lib/features/approval/presentations/approval_screen.dart`.

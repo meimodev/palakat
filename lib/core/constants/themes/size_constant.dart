@@ -62,6 +62,7 @@ class BaseSize {
   static final radiusSm = 6.r;
   static final radiusMd = 12.r;
   static final radiusLg = 24.r;
+  static final radiusXl = 32.r;
 
 
 

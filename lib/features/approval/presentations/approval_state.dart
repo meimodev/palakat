@@ -10,5 +10,10 @@ abstract class ApprovalState with _$ApprovalState {
     Membership? membership,
     @Default(true) bool loadingScreen,
     @Default(<Activity>[]) List<Activity> approvals,
+    // Date filter fields
+    DateTime? filterStartDate,
+    DateTime? filterEndDate,
+    // Computed/derived list based on filters
+    @Default(<Activity>[]) List<Activity> filteredApprovals,
   }) = _ApprovalState;
 }
