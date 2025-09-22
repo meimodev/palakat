@@ -81,3 +81,15 @@
 - Redesigned the approvals filter UI to match app style by replacing custom Card/dropdown with `InputWidget.dropdown`.
 - Added bottom sheet preset picker integrated with shared input component.
 - File updated: `lib/features/approval/presentations/approval_screen.dart`.
+
+## 2025-09-21T13:37:39+08:00 — Model: Cascade
+- Updated `lib/features/approval/presentations/approval_screen.dart` so that when a custom date range is picked, the dropdown displays the formatted selected range instead of a generic label.
+
+## 2025-09-21T15:22:10+08:00 — Model: Cascade
+- Enhanced bottom sheet preset picker to display the corresponding date range under each preset label (except "All dates" and "Custom range").
+- Added `_rangeForPreset(...)` helper and used it to render `subtitle` in each `ListTile` in `approval_screen.dart`.
+
+## 2025-09-21T15:33:39+08:00 — Model: Cascade
+- Extracted a reusable `DateRangePresetInput` widget at `lib/core/widgets/input/date_range_preset_input.dart` encapsulating dropdown + bottom sheet presets and custom range picker.
+- Refactored `lib/features/approval/presentations/approval_screen.dart` to use `DateRangePresetInput` and removed local helpers/bottom sheet.
+- Exported the new widget in `lib/core/widgets/widgets.dart` for easy import.

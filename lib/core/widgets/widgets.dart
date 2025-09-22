@@ -24,6 +24,7 @@ export 'image_network/image_network_widget.dart';
 export 'input/input_widget.dart';
 export 'input/input_search_widget.dart';
 export 'input/input_multiple_select_widget.dart';
+export 'input/date_range_preset_input.dart';
 
 //Output
 export 'output/output_widget.dart';
