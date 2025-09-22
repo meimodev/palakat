@@ -22,7 +22,7 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const ScreenTitleWidget.titleOnly(title: "Dashboard"),
-          Gap.h12,
+          Gap.h16,
           LoadingWrapper(
             paddingTop: BaseSize.h24,
             paddingBottom: BaseSize.h24,
@@ -36,73 +36,58 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
           Gap.h24,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LoadingWrapper(
-                  paddingTop: BaseSize.h48,
-                  paddingBottom: BaseSize.h24,
-                  loading: state.thisWeekActivitiesLoading,
-                  child: ActivityWidget(
-                    onPressedViewAll: () async =>
-                        await context.pushNamed(AppRoute.viewAll),
-                    activities: state.thisWeekActivities,
-                    cardsHeight: BaseSize.customWidth(80),
-                    onPressedCardDatePreview: (DateTime dateTime) async {
-                      final thisDayActivities = state.thisWeekActivities
-                          .where(
-                            (element) =>
-                                element.date.isSameDay(dateTime),
-                          )
-                          .toList();
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LoadingWrapper(
+                paddingTop: BaseSize.h48,
+                paddingBottom: BaseSize.h24,
+                loading: state.thisWeekActivitiesLoading,
+                child: ActivityWidget(
+                  onPressedViewAll: () async =>
+                      await context.pushNamed(AppRoute.viewAll),
+                  activities: state.thisWeekActivities,
+                  cardsHeight: BaseSize.customWidth(80),
+                  onPressedCardDatePreview: (DateTime dateTime) async {
+                    final thisDayActivities = state.thisWeekActivities
+                        .where(
+                          (element) =>
+                              element.date.isSameDay(dateTime),
+                        )
+                        .toList();
 
-                      await showDialogPreviewDayActivitiesWidget(
-                        title: dateTime.EddMMMyyyy,
-                        context: context,
-                        data: thisDayActivities,
-                        onPressedCardActivity: (activity) {
-                          context.pushNamed(
-                            AppRoute.activityDetail,
-                            extra: RouteParam(
-                              params: {
-                                RouteParamKey.activity: activity.toJson(),
-                              },
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                    await showDialogPreviewDayActivitiesWidget(
+                      title: dateTime.ddMmmm,
+                      context: context,
+                      data: thisDayActivities,
+                      onPressedCardActivity: (activity) {
+                        context.pushNamed(
+                          AppRoute.activityDetail,
+                          extra: RouteParam(
+                            params: {
+                              RouteParamKey.activity: activity.toJson(),
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
+              ),
 
-                Gap.h12,
-                LoadingWrapper(
-                  paddingTop: BaseSize.h24,
-                  paddingBottom: BaseSize.h24,
-                  loading: state.thisWeekAnnouncementsLoading,
-                  child: AnnouncementWidget(
-                    announcements: state.thisWeekAnnouncements,
-                    onPressedViewAll: () async {
-                      await context.pushNamed(AppRoute.viewAll);
-                    },
-                  ),
+              Gap.h12,
+              LoadingWrapper(
+                paddingTop: BaseSize.h24,
+                paddingBottom: BaseSize.h24,
+                loading: state.thisWeekAnnouncementsLoading,
+                child: AnnouncementWidget(
+                  announcements: state.thisWeekAnnouncements,
+                  onPressedViewAll: () async {
+                    await context.pushNamed(AppRoute.viewAll);
+                  },
                 ),
-
-                Gap.h12,
-                // ArticlesWidget(
-                //   onPressedViewAll: () async {
-                //     await context.pushNamed(AppRoute.viewAll);
-                //   },
-                //   data: [
-                //     "Title of the article 1",
-                //     "Title of the article 2",
-                //     "Title of the article 3 lorem ipsum",
-                //   ],
-                // ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

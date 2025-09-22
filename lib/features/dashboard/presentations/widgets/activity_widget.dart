@@ -41,6 +41,9 @@ class _ActivityWidgetState extends State<ActivityWidget> {
           onPressedViewAll: widget.onPressedViewAll,
           count: activities.length,
           title: 'Activities this week',
+          leadingIcon: Icons.calendar_today,
+          leadingBg: BaseColor.blue[50],
+          leadingFg: BaseColor.blue[700],
         ),
         Gap.h6,
         activities.isEmpty

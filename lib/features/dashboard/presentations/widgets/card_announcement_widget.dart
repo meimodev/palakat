@@ -24,8 +24,8 @@ class CardAnnouncementWidget extends StatelessWidget {
       children: [
         Expanded(
           child: Material(
-            clipBehavior: Clip.hardEdge,
             color: BaseColor.cardBackground1,
+            clipBehavior: Clip.hardEdge,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(BaseSize.radiusMd),
               bottomLeft: Radius.circular(BaseSize.radiusMd),
@@ -44,7 +44,7 @@ class CardAnnouncementWidget extends StatelessWidget {
                     Assets.icons.line.documentOutline.svg(
                       width: BaseSize.customFontSize(12),
                       height: BaseSize.customFontSize(12),
-                      colorFilter: BaseColor.secondaryText.filterSrcIn,
+                      colorFilter: BaseColor.yellow[700]!.filterSrcIn,
                     ),
                     Gap.w12,
                     Expanded(
@@ -58,7 +58,8 @@ class CardAnnouncementWidget extends StatelessWidget {
                           ),
                           Text(
                             publishedOn.EEEEddMMMyyyy,
-                            style: BaseTypography.labelSmall,
+                            style: BaseTypography.labelSmall
+                                .copyWith(color: BaseColor.yellow[700]),
                           ),
                         ],
                       ),
@@ -90,7 +91,6 @@ class CardAnnouncementWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   DividerWidget(
-                    color: BaseColor.primaryText,
                     height: BaseSize.h12,
                     thickness: 1,
                   ),
@@ -98,7 +98,6 @@ class CardAnnouncementWidget extends StatelessWidget {
                   Assets.icons.line.download.svg(
                     width: BaseSize.customFontSize(12),
                     height: BaseSize.customFontSize(12),
-                    colorFilter: BaseColor.primaryText.filterSrcIn,
                   ),
                 ],
               ),

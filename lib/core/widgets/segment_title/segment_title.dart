@@ -9,11 +9,17 @@ class SegmentTitleWidget extends StatelessWidget {
     this.onPressedViewAll,
     required this.count,
     required this.title,
+    this.leadingIcon,
+    this.leadingBg,
+    this.leadingFg,
   });
 
   final VoidCallback? onPressedViewAll;
   final int count;
   final String title;
+  final IconData? leadingIcon;
+  final Color? leadingBg;
+  final Color? leadingFg;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +46,30 @@ class SegmentTitleWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "$title ($count)",
-          style: BaseTypography.titleMedium.toSecondary,
+        Row(
+          children: [
+            if (leadingIcon != null)
+              Container(
+                width: BaseSize.w20,
+                height: BaseSize.w20,
+                decoration: BoxDecoration(
+                  color: leadingBg ?? BaseColor.neutral20,
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  border: Border.all(color: (leadingBg ?? BaseColor.neutral20)),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  leadingIcon,
+                  size: BaseSize.w14,
+                  color: leadingFg ?? BaseColor.primaryText,
+                ),
+              ),
+            if (leadingIcon != null) Gap.w8,
+            Text(
+              "$title ($count)",
+              style: BaseTypography.titleMedium.toSecondary,
+            ),
+          ],
         ),
         GestureDetector(
           onTap: onPressedViewAll,

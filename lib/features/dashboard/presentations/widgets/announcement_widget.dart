@@ -26,6 +26,9 @@ class AnnouncementWidget extends StatelessWidget {
           onPressedViewAll: onPressedViewAll,
           count: announcements.length,
           title: 'Announcements',
+          leadingIcon: Icons.campaign,
+          leadingBg: BaseColor.yellow[50],
+          leadingFg: BaseColor.yellow[700],
         ),
         Gap.h6,
         ...announcements.map(
@@ -41,7 +44,7 @@ class AnnouncementWidget extends StatelessWidget {
                   AppRoute.activityDetail,
                   extra: RouteParam(
                     params: {
-                      RouteParamKey.activityId: e.id,
+                      RouteParamKey.activity: e.toJson(),
                     },
                   ),
                 );

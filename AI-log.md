@@ -93,3 +93,37 @@
 - Extracted a reusable `DateRangePresetInput` widget at `lib/core/widgets/input/date_range_preset_input.dart` encapsulating dropdown + bottom sheet presets and custom range picker.
 - Refactored `lib/features/approval/presentations/approval_screen.dart` to use `DateRangePresetInput` and removed local helpers/bottom sheet.
 - Exported the new widget in `lib/core/widgets/widgets.dart` for easy import.
+
+## 2025-09-22T10:57:20+08:00 — Model: Cascade
+- Updated dashboard to align with Operations/Approvals UI and show dummy data:
+  - Edited `lib/features/dashboard/presentations/dashboard_controller.dart` to populate dummy `Activity` lists for `thisWeekActivities` and `thisWeekAnnouncements`, keeping membership fetch. Loading flags now rely on `DashboardState` defaults and are turned off after dummy load.
+  - Adjusted `lib/features/dashboard/presentations/dashboard_screen.dart` spacing to use `Gap.h16` after the title for consistency.
+- No schema changes required; reused existing `Activity`, `Membership`, and enums. Navigation continues to use `go_router` with `RouteParam`.
+
+## 2025-09-22T11:19:45+08:00 — Model: Cascade
+- Made the weekly activity day card more compact and added colored icon chips for counts:
+  - Updated `lib/features/dashboard/presentations/widgets/card_date_preview_widget.dart` to use tighter padding, and display small pill chips with icons/colors for Service (green) and Event (blue) counts.
+  - Preserved the "today" emphasis border; no breaking API changes to the widget.
+
+## 2025-09-22T11:28:49+08:00 — Model: Cascade
+- Fixed dashboard announcement navigation error by passing the full `Activity` via `RouteParamKey.activity` (JSON) to match `dashboard_routing.dart` expectations.
+- File updated: `lib/features/dashboard/presentations/widgets/announcement_widget.dart`.
+
+## 2025-09-22T11:52:26+08:00 — Model: Cascade
+- Implemented Account age getters and fixed Membership bipra logic:
+  - Added `ageYears`, `ageMonths`, `ageDays`, and `ageYmdFormatted` getters in `lib/core/utils/extensions/account_extension.dart`.
+  - Completed `lib/core/utils/extensions/membership_extension.dart` to infer `Bipra` based on marital status and `ageYears` for unmarried accounts; avoids circular imports.
+  - Updated `lib/core/widgets/card/membership_card_widget.dart` to display `membership.bipra.name`.
+
+## 2025-09-22T12:03:04+08:00 — Model: Cascade
+- Simplified `lib/core/widgets/card/membership_card_widget.dart`:
+  - Removed `IntrinsicHeight`, reduced nesting, and extracted a local `footer()` builder.
+  - Consolidated title text style and alignment into variables; coalesced `title` to non-null `String`.
+  - Preserved visuals; continued using existing colors/typography per design.
+
+## 2025-09-22T12:10:30+08:00 — Model: Cascade
+- Redesigned `lib/core/widgets/card/membership_card_widget.dart` to align with dashboard UI:
+  - Switched to `ContinuousRectangleBorder` with larger radius and subtle border when signed in.
+  - Added header icon tile and adjusted spacing to match `SegmentTitleWidget`/`CardDatePreviewWidget`.
+  - Used pill chips for Bipra and Column; shows a bordered sign-in CTA chip when unsigned.
+  - Updated typography to use `titleMedium` for name and `bodySmall.toSecondary` for subtitle.

@@ -40,10 +40,9 @@ class CardDatePreviewWidget extends StatelessWidget {
         child: Container(
           height: height,
           width: width,
-          padding: EdgeInsets.only(
-            top: BaseSize.h6,
-            left: BaseSize.w6,
-            right: BaseSize.w6,
+          padding: EdgeInsets.symmetric(
+            vertical: BaseSize.h6,
+            horizontal: BaseSize.w6,
           ),
 
           child: Column(
@@ -68,28 +67,61 @@ class CardDatePreviewWidget extends StatelessWidget {
   }
 
   Widget _buildCounters() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Gap.h6,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            serviceCount != 0
-                ? Text(
-                    "$serviceCount Service",
-                    style: BaseTypography.labelSmall.toBold,
-                  )
-                : const SizedBox(),
-            eventCount != 0
-                ? Text(
-                    "$eventCount Event",
-                    style: BaseTypography.labelSmall.toBold,
-                  )
-                : const SizedBox(),
-          ],
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.only(top: BaseSize.h6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (serviceCount != 0)
+            _pillChip(
+              icon: Icons.church,
+              label: serviceCount.toString(),
+              bg: BaseColor.green[50]!,
+              fg: BaseColor.green[700]!,
+              border: BaseColor.green[200]!,
+            ),
+          if (serviceCount != 0 && eventCount != 0) Gap.w6,
+          if (eventCount != 0)
+            _pillChip(
+              icon: Icons.event,
+              label: eventCount.toString(),
+              bg: BaseColor.blue[50]!,
+              fg: BaseColor.blue[700]!,
+              border: BaseColor.blue[200]!,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pillChip({
+    required IconData icon,
+    required String label,
+    required Color bg,
+    required Color fg,
+    required Color border,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w8,
+        vertical: BaseSize.h4,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: BaseSize.radiusSm, color: fg),
+          Gap.w4,
+          Text(
+            label,
+            style: BaseTypography.labelSmall.copyWith(color: fg),
+          ),
+        ],
+      ),
     );
   }
 }
