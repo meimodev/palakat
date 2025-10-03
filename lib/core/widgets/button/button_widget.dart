@@ -10,12 +10,6 @@ enum _ButtonType {
   text,
 }
 
-enum ButtonSize {
-  small,
-  medium,
-  large,
-}
-
 class ButtonWidget extends StatelessWidget {
   // [INFO]
   // for text inside button

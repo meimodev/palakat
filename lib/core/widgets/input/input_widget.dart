@@ -7,8 +7,6 @@ import 'input_variant_binary_option_widget.dart';
 import 'input_variant_dropdown_widget.dart';
 import 'input_variant_text_widget.dart';
 
-enum InputWidgetVariant { text, dropdown, binaryOption }
-
 class InputWidget<T> extends StatefulWidget {
   const InputWidget.text({
     super.key,

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat/core/constants/constants.dart';
 
 part 'report.freezed.dart';
 part 'report.g.dart';
@@ -15,15 +16,6 @@ abstract class Report with _$Report {
   }) = _Report;
 
   factory Report.fromJson(Map<String, dynamic> json) => _$ReportFromJson(json);
-}
-
-enum ReportType {
-  @JsonValue('income')
-  income,
-  @JsonValue('expense')
-  expense,
-  @JsonValue('inventory')
-  inventory,
 }
 
 extension ReportTypeExtension on ReportType {

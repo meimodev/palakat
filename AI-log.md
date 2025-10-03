@@ -127,3 +127,13 @@
   - Added header icon tile and adjusted spacing to match `SegmentTitleWidget`/`CardDatePreviewWidget`.
   - Used pill chips for Bipra and Column; shows a bordered sign-in CTA chip when unsigned.
   - Updated typography to use `titleMedium` for name and `bodySmall.toSecondary` for subtitle.
+
+## 2025-09-23T05:05:04+08:00 — Model: Cascade
+- Centralized reusable enums into `lib/core/constants/enums/enums.dart`:
+  - Added `ButtonSize`, `ScreenDensity`, `InputWidgetVariant`, and `ReportType`.
+- Removed local enum declarations and updated imports to use the centralized definitions:
+  - `core/widgets/button/button_widget.dart`: removed local `ButtonSize`.
+  - `core/constants/themes/size_constant.dart`: removed local `ScreenDensity`.
+  - `core/widgets/input/input_widget.dart`: removed local `InputWidgetVariant`.
+  - `features/operations/domain/entities/report.dart`: removed local `ReportType`, added `constants.dart` import; kept `ReportTypeExtension` intact.
+- Verified `constants.dart` exports `enums/enums.dart`, so feature files can import a single constants barrel.

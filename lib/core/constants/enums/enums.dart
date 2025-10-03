@@ -119,3 +119,19 @@ enum SongPartType {
   @JsonValue("HOOK")
   hook,
 }
+
+/// Reusable enums centralized here
+enum ButtonSize { small, medium, large }
+
+enum ScreenDensity { ldpi, mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi }
+
+enum InputWidgetVariant { text, dropdown, binaryOption }
+
+enum ReportType {
+  @JsonValue('income')
+  income,
+  @JsonValue('expense')
+  expense,
+  @JsonValue('inventory')
+  inventory,
+}
