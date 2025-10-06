@@ -1,13 +1,21 @@
+import 'dart:ui';
+
 import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../core/models/models.dart';
+import '../../data/account_repository.dart';
 
 part 'account_controller.g.dart';
 
 @riverpod
 class AccountController extends _$AccountController {
+  late AccountRepository _accountRepo;
+
   @override
   AccountState build() {
+    _accountRepo = ref.read(accountRepositoryProvider.notifier);
     return const AccountState();
   }
 
@@ -26,21 +34,21 @@ class AccountController extends _$AccountController {
   }
 
   String? validateDOB(DateTime? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Date Of Birth is required';
     }
     return null;
   }
 
   String? validateGender(Gender? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Gender is required';
     }
     return null;
   }
 
   String? validateMaritalStatus(MaritalStatus? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Marital Status is required';
     }
     return null;
@@ -107,5 +115,64 @@ class AccountController extends _$AccountController {
     return state.isFormValid;
   }
 
-  void publish() {}
+  Future<bool> publish({
+    VoidCallback? onSuccess,
+    void Function(String message)? onError,
+  }) async {
+    if (!state.isFormValid) {
+      return false;
+    }
+
+    state = state.copyWith(loading: true, errorMessage: null);
+
+    try {
+      final newAccount = Account(
+        phone: state.phone!,
+        name: state.name!,
+        gender: state.gender!,
+        married: state.maritalStatus == MaritalStatus.married,
+        dob: state.dob,
+        id: 0,
+      );
+      print('[ACCOUNT CONTROLLER] Publishing account: ${newAccount.toJson()}');
+
+      final result = await _accountRepo.signUp(newAccount);
+
+      bool isSuccess = false;
+
+      result.when(
+        onSuccess: (createdAccount) {
+          state = state.copyWith(
+            loading: false,
+            account: createdAccount,
+            errorMessage: null,
+          );
+          onSuccess?.call();
+          return true;
+        },
+        onFailure: (failure) {
+          state = state.copyWith(loading: false, errorMessage: failure.message);
+          onError?.call(failure.message);
+          isSuccess = false;
+        },
+      );
+
+      return isSuccess;
+    } catch (e) {
+      state = state.copyWith(loading: false, errorMessage: e.toString());
+      onError?.call(e.toString());
+      return false;
+    }
+  }
+
+  void clearError() {
+    state = state.copyWith(
+      errorDob: null,
+      errorName: null,
+      errorGender: null,
+      errorMarried: null,
+      errorPhone: null,
+      errorMessage: null,
+    );
+  }
 }

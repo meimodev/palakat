@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/constants/enums/enums.dart';
+import 'package:palakat/core/models/date_time_converter_iso8601.dart';
 
 import 'models.dart';
 
@@ -14,7 +15,7 @@ abstract class Account with _$Account {
     required int id,
     required String phone,
     required String name,
-    // @DateTimeConverterTimestamp() DateTime? dob,
+    @DateTimeConverterIso8601() DateTime? dob,
     required Gender gender,
     required bool married,
     int? membershipId,
