@@ -10,5 +10,5 @@ abstract class AccountApiContract {
 
   Future<Map<String, dynamic>> signOut();
 
-  Future<Map<String, dynamic>> signUp();
+  Future<Result<Map<String, dynamic>, Failure>> signUp(Account account);
 }

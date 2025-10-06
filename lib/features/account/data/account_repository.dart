@@ -1,6 +1,6 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/core/models/models.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'account_repository.g.dart';
 
@@ -27,6 +27,11 @@ class AccountRepository extends _$AccountRepository {
 
   Future<Result<Account, Failure>> validateAccountByPhone(String phone) async {
     final result = await _accountApi.getAccountByPhone(phone);
+    return result.mapTo<Account, Failure>(onSuccess: Account.fromJson);
+  }
+
+  Future<Result<Account, Failure>> signUp(Account account) async {
+    final result = await _accountApi.signUp(account);
     return result.mapTo<Account, Failure>(onSuccess: Account.fromJson);
   }
 }

@@ -1,7 +1,7 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/core/constants/endpoint/endpoint.dart';
 import 'package:palakat/core/data_sources/data_sources.dart';
 import 'package:palakat/core/models/models.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'dio_client.dart';
 
@@ -44,9 +44,31 @@ class AccountApi extends _$AccountApi implements AccountApiContract {
   }
 
   @override
-  Future<Map<String, dynamic>> signUp() {
-    // TODO: implement signUp
-    throw UnimplementedError();
+  Future<Result<Map<String, dynamic>, Failure>> signUp(Account account) async {
+    try {
+      final requestData = {
+        'name': account.name,
+        'phone': account.phone,
+        'gender': account.gender.name.toUpperCase(),
+        'married': account.married,
+        'dob': account.dob?.toUtc().toIso8601String(),
+      };
+
+      print('[ACCOUNT API] Sending signup: $requestData');
+
+      final response = await _dio.post(Endpoint.account, data: requestData);
+
+      print('[ACCOUNT API] Response: $response');
+
+      if (response != null && response is Map<String, dynamic>) {
+        return Result.success(response['data']);
+      }
+
+      return Result.failure(Failure('Invalid response format'));
+    } catch (e) {
+      print('[ACCOUNT API] Signup error: $e');
+      return Result.failure(Failure.fromException(e));
+    }
   }
 
   @override
@@ -64,4 +86,3 @@ class AccountApi extends _$AccountApi implements AccountApiContract {
     }
   }
 }
-

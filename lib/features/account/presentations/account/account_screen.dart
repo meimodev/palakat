@@ -6,7 +6,8 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/utils/extensions/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat/features/account/presentations/account/account_controller.dart';
+
+import '../../../presentation.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -17,7 +18,7 @@ class AccountScreen extends ConsumerWidget {
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
-      loading: state.loading ,
+      loading: state.loading,
       persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -87,14 +88,30 @@ class AccountScreen extends ConsumerWidget {
           ButtonWidget.primary(
             text: "Submit",
             onTap: () async {
-              final success = await controller.submit();
-              if (context.mounted) {
-                if (!success) {
-                  showSnackBar(context, "Please Fill All the field");
-                  controller.publish();
+              {
+                final isValid = await controller.submit();
+                if (!isValid) {
+                  if (context.mounted) {
+                    showSnackBar(
+                      context,
+                      "Please fill all the required fields",
+                    );
+                  }
                   return;
                 }
-                context.pushNamed(AppRoute.membership);
+
+                await controller.publish(
+                  onSuccess: () {
+                    if (context.mounted) {
+                      context.pushNamed(AppRoute.membership);
+                    }
+                  },
+                  onError: (message) {
+                    if (context.mounted) {
+                      showSnackBar(context, message);
+                    }
+                  },
+                );
               }
             },
           ),
