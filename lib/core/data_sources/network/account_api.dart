@@ -41,9 +41,35 @@ class AccountApi implements AccountApiContract {
   }
 
   @override
-  Future<Map<String, dynamic>> signUp() {
+  Future<Result<Map<String, dynamic>, Failure>> signUp(Account account) async {
     // TODO: implement signUp
-    throw UnimplementedError();
+    try {
+      final requestData = {
+        'name': account.name,
+        'phone': account.phone,
+        'gender': account.gender.name.toUpperCase(), // MALE atau FEMALE
+        'married': account.married,
+        'dob': account.dob?.toUtc().toIso8601String(), // Format ISO 8601
+      };
+
+      print('[ACCOUNT API] Sending signup request: $requestData');
+
+      final response = await _dio.post(Endpoint.account, data: requestData);
+
+      print('[ACCOUNT API] Signup response: $response');
+
+      // Backend mengembalikan { message: 'OK', data: {...} }
+      if (response != null && response is Map<String, dynamic>) {
+        return Result.success(response['data']);
+      }
+
+      return Result.failure(
+        Failure.fromException(Exception('Invalid response format from server')),
+      );
+    } catch (e) {
+      print('[ACCOUNT API] Signup error: $e');
+      return Result.failure(Failure.fromException(e));
+    }
   }
 
   @override

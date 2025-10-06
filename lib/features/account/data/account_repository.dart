@@ -34,6 +34,11 @@ class AccountRepository {
     final result = await _accountApi.getAccountByPhone(phone);
     return result.mapTo<Account, Failure>(onSuccess: Account.fromJson);
   }
+
+  Future<Result<Account, Failure>> signUp(Account account) async {
+    final result = await _accountApi.signUp(account);
+    return result.mapTo<Account, Failure>(onSuccess: Account.fromJson);
+  }
 }
 
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {

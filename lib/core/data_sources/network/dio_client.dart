@@ -26,8 +26,8 @@ class DioClient {
     bool withAuth = true,
     Duration defaultConnectTimeout = const Duration(minutes: 2),
     Duration defaultReceiveTimeout = const Duration(minutes: 2),
-  })  : _dio = dio,
-        _hiveService = hiveService{
+  }) : _dio = dio,
+       _hiveService = hiveService {
     _dio
       ..options.baseUrl = baseUrl
       ..options.connectTimeout = defaultConnectTimeout
@@ -65,7 +65,6 @@ class DioClient {
               },
 
           onError: (error, handler) async {
-
             if (error.response?.statusCode == 401) {
               try {
                 _refreshAuthTokenAttempt++;
@@ -79,50 +78,68 @@ class DioClient {
                   try {
                     final response = await _dio.fetch(options);
 
-                    if (response.statusCode != null && response.statusCode! >= 400) {
-                      return handler.reject(DioException(
-                        requestOptions: options,
-                        response: response,
-                        error: response.statusMessage,
-                        type: DioExceptionType.badResponse,
-                      ));
+                    if (response.statusCode != null &&
+                        response.statusCode! >= 400) {
+                      return handler.reject(
+                        DioException(
+                          requestOptions: options,
+                          response: response,
+                          error: response.statusMessage,
+                          type: DioExceptionType.badResponse,
+                        ),
+                      );
                     }
                     return handler.resolve(response);
                   } catch (retryError) {
                     dev.log("[DIO CLIENT] catch retry error $retryError");
-                    return handler.next(retryError is DioException ? retryError : DioException(
-                      requestOptions: options,
-                      error: retryError.toString(),
-                    ));
+                    return handler.next(
+                      retryError is DioException
+                          ? retryError
+                          : DioException(
+                              requestOptions: options,
+                              error: retryError.toString(),
+                            ),
+                    );
                   }
                 }
               } catch (e) {
                 dev.log("[DIO CLIENT] catch refresh token $e");
-                return handler.next(e is DioException ? e : DioException(
-                  requestOptions: error.requestOptions,
-                  error: e.toString(),
-                ));
+                return handler.next(
+                  e is DioException
+                      ? e
+                      : DioException(
+                          requestOptions: error.requestOptions,
+                          error: e.toString(),
+                        ),
+                );
               }
             }
             return handler.next(error);
           },
           onResponse: (response, handler) {
             if (response.data == null) {
-             return handler.reject(DioException(
-              requestOptions: response.requestOptions,
-              response: response,
-              error: "response is returned null",
-              type: DioExceptionType.badResponse,
-             ));
+              return handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  response: response,
+                  error: "response is returned null",
+                  type: DioExceptionType.badResponse,
+                ),
+              );
+            }
+            if (response.data is! Map<String, dynamic>) {
+              return handler.next(response);
             }
             final body = response.data as Map<String, dynamic>;
-            if (body['data'] == null) {
-              return handler.reject(DioException(
-                requestOptions: response.requestOptions,
-                response: response,
-                error: "property data is unavailable in the body response, see backend response scheme",
-                type: DioExceptionType.badResponse,
-              ));
+            if (body['data'] == null && body['message'] != 'OK') {
+              return handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  response: response,
+                  error: "property data is unavailable in the body response",
+                  type: DioExceptionType.badResponse,
+                ),
+              );
             }
             handler.next(response);
           },

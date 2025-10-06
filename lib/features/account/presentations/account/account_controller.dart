@@ -2,18 +2,27 @@ import 'package:palakat/core/constants/enums/enums.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/models/models.dart';
+import '../../data/account_repository.dart';
+
 part 'account_controller.g.dart';
 
 @riverpod
 class AccountController extends _$AccountController {
+  late AccountRepository _accountRepo;
+
   @override
   AccountState build() {
+    _accountRepo = ref.read(accountRepositoryProvider);
     return const AccountState();
   }
 
   String? validateTextPhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Phone Number is required';
+    }
+    if (value.length < 10) {
+      return 'Phone Number must be at least 10 digits';
     }
     return null;
   }
@@ -26,21 +35,21 @@ class AccountController extends _$AccountController {
   }
 
   String? validateDOB(DateTime? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Date Of Birth is required';
     }
     return null;
   }
 
   String? validateGender(Gender? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Gender is required';
     }
     return null;
   }
 
   String? validateMaritalStatus(MaritalStatus? value) {
-    if (value == null ) {
+    if (value == null) {
       return 'Marital Status is required';
     }
     return null;
@@ -76,6 +85,7 @@ class AccountController extends _$AccountController {
 
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
+
     final errorPhone = validateTextPhone(state.phone);
     final errorName = validateTextName(state.name);
     final errorDob = validateDOB(state.dob);
@@ -107,5 +117,72 @@ class AccountController extends _$AccountController {
     return state.isFormValid;
   }
 
-  void publish() {}
+  // IMPLEMENTED: publish method untuk POST ke backend
+  Future<bool> publish() async {
+    if (!state.isFormValid) {
+      return false;
+    }
+
+    state = state.copyWith(loading: true, errorMessage: null);
+
+    try {
+      // Buat Account object dari state
+      final newAccount = Account(
+        phone: state.phone!,
+        name: state.name!,
+        gender: state.gender!,
+        married: state.maritalStatus == MaritalStatus.married,
+        dob: state.dob,
+      );
+
+      print('[ACCOUNT CONTROLLER] Publishing account: ${newAccount.toJson()}');
+
+      // Panggil repository untuk signup
+      final result = await _accountRepo.signUp(newAccount);
+
+      // Gunakan when dengan explicit return
+      bool isSuccess = false;
+
+      result.when(
+        onSuccess: (createdAccount) {
+          print(
+            '[ACCOUNT CONTROLLER] Account created: ${createdAccount.toJson()}',
+          );
+
+          state = state.copyWith(
+            loading: false,
+            account: createdAccount,
+            errorMessage: null,
+          );
+          isSuccess = true;
+        },
+        onFailure: (failure) {
+          print(
+            '[ACCOUNT CONTROLLER] Failed to create account: ${failure.message}',
+          );
+
+          state = state.copyWith(loading: false, errorMessage: failure.message);
+          isSuccess = false;
+        },
+      );
+
+      return isSuccess;
+    } catch (e) {
+      print('[ACCOUNT CONTROLLER] Exception: $e');
+
+      state = state.copyWith(loading: false, errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  void clearError() {
+    state = state.copyWith(
+      errorDob: null,
+      errorName: null,
+      errorGender: null,
+      errorMarried: null,
+      errorPhone: null,
+      errorMessage: null,
+    );
+  }
 }

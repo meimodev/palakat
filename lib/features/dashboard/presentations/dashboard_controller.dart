@@ -1,7 +1,7 @@
 import 'package:palakat/features/account/data/account_repository.dart';
 import 'package:palakat/features/account/data/membership_repository.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dashboard_controller.g.dart';
 
@@ -26,7 +26,7 @@ class DashboardController extends _$DashboardController {
     return const DashboardState(
       account: null,
       membership: null,
-      membershipLoading: true,
+      membershipLoading: false,
       thisWeekActivitiesLoading: true,
       thisWeekActivities: [],
       thisWeekAnnouncementsLoading: true,
