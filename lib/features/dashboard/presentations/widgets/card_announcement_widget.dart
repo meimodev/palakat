@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
-import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/extensions.dart';
 
 class CardAnnouncementWidget extends StatelessWidget {
   const CardAnnouncementWidget({
@@ -20,91 +19,95 @@ class CardAnnouncementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Material(
-            color: BaseColor.cardBackground1,
-            clipBehavior: Clip.hardEdge,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(BaseSize.radiusMd),
-              bottomLeft: Radius.circular(BaseSize.radiusMd),
-            ),
-            child: InkWell(
-              onTap: onPressedCard,
-              child: Container(
-                height: BaseSize.h36,
-                padding: EdgeInsets.only(
-                  left: BaseSize.w12,
-                  // top: BaseSize.h12,
-                  // bottom: BaseSize.h12,
-                ),
-                child: Row(
-                  children: [
-                    Assets.icons.line.documentOutline.svg(
-                      width: BaseSize.customFontSize(12),
-                      height: BaseSize.customFontSize(12),
-                      colorFilter: BaseColor.yellow[700]!.filterSrcIn,
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.yellow[50],
+      clipBehavior: Clip.hardEdge,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: onPressedCard,
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              // Document icon in circle
+              Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.yellow[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.yellow[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                    Gap.w12,
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            title,
-                            style: BaseTypography.bodySmall,
-                          ),
-                          Text(
-                            publishedOn.EEEEddMMMyyyy,
-                            style: BaseTypography.labelSmall
-                                .copyWith(color: BaseColor.yellow[700]),
-                          ),
-                        ],
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Assets.icons.line.documentOutline.svg(
+                  width: BaseSize.w20,
+                  height: BaseSize.w20,
+                  colorFilter: BaseColor.yellow[700]!.filterSrcIn,
+                ),
+              ),
+              Gap.w12,
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: BaseTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Gap.h4,
+                    Text(
+                      publishedOn.EEEEddMMMyyyy,
+                      style: BaseTypography.labelMedium.copyWith(
+                        color: BaseColor.yellow[700],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Gap.w12,
                   ],
                 ),
               ),
-            ),
+              Gap.w12,
+              // Download button
+              Material(
+                color: BaseColor.yellow[50],
+                elevation: 2,
+                shadowColor: Colors.black.withValues(alpha: 0.1),
+                shape: const CircleBorder(),
+                clipBehavior: Clip.hardEdge,
+                child: InkWell(
+                  onTap: onPressedDownload,
+                  child: Container(
+                    width: BaseSize.w40,
+                    height: BaseSize.w40,
+                    alignment: Alignment.center,
+                    child: Assets.icons.line.download.svg(
+                      width: BaseSize.w20,
+                      height: BaseSize.w20,
+                      colorFilter: BaseColor.yellow[700]!.filterSrcIn,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        Material(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(BaseSize.radiusMd),
-            bottomRight: Radius.circular(BaseSize.radiusMd),
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-            onTap: onPressedDownload,
-            child: Container(
-              height: BaseSize.h36,
-              padding: EdgeInsets.only(
-                right: BaseSize.w12,
-                // top: BaseSize.customHeight(18),
-                // bottom: BaseSize.customHeight(18),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  DividerWidget(
-                    height: BaseSize.h12,
-                    thickness: 1,
-                  ),
-                  Gap.w12,
-                  Assets.icons.line.download.svg(
-                    width: BaseSize.customFontSize(12),
-                    height: BaseSize.customFontSize(12),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

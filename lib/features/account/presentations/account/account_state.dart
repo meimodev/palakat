@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat/core/constants/enums/enums.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_admin/core/models/models.dart';
 
 part 'account_state.freezed.dart';
 

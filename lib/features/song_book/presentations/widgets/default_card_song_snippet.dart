@@ -16,32 +16,43 @@ class DefaultCardSongSnippet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      onTap: onPressed,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w12,
-          vertical: BaseSize.w12,
-        ),
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (title.isNotEmpty) ...[
-              Text(
-                title,
-                style: BaseTypography.bodySmall,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.red[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onPressed,
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.library_music_outlined,
+                size: BaseSize.w24,
+                color: BaseColor.red[600],
               ),
+              Gap.h4,
+              if (title.isNotEmpty) ...[
+                Text(
+                  title,
+                  style: BaseTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BaseColor.black,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

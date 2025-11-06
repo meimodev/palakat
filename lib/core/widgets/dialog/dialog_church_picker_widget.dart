@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/models/models.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_admin/core/models/models.dart';
 
 Future<Church?> showDialogChurchPickerWidget({
   required BuildContext context,
@@ -36,9 +36,12 @@ class _DialogChurchPickerWidget extends StatelessWidget {
       (index) => Church(
         id: index,
         name: "c $index",
-        latitude: "1",
-        longitude: "1",
-        address: 'some address',
+        location: Location(
+          id: index,
+          name: "l $index",
+          latitude: index.toDouble(),
+          longitude: index.toDouble(),
+        ),
       ),
     );
 

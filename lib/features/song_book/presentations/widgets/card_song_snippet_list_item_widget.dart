@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
 
 class CardSongSnippetListItemWidget extends StatelessWidget {
   const CardSongSnippetListItemWidget({
@@ -16,27 +15,80 @@ class CardSongSnippetListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      onTap: onPressed,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w12,
-          vertical: BaseSize.w12,
-        ),
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              title,
-              style: BaseTypography.bodySmall.toBold,
-            ),
-            Text(snippet, style: BaseTypography.bodyMedium)
-          ],
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.red[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onPressed,
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              // Music note icon
+              Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.red[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.red[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.music_note,
+                  size: BaseSize.w20,
+                  color: BaseColor.red[700],
+                ),
+              ),
+              Gap.w16,
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: BaseColor.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Gap.h4,
+                    Text(
+                      snippet,
+                      style: BaseTypography.bodyMedium.copyWith(
+                        color: BaseColor.secondaryText,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Gap.w8,
+              // Arrow icon
+              Icon(
+                Icons.chevron_right,
+                size: BaseSize.w24,
+                color: BaseColor.secondaryText,
+              ),
+            ],
+          ),
         ),
       ),
     );

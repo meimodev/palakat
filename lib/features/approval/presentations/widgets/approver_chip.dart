@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat_admin/core/extension/date_time_extension.dart';
 
 class ApproverChip extends StatelessWidget {
   const ApproverChip({
@@ -30,55 +30,58 @@ class ApproverChip extends StatelessWidget {
     final color = _statusColor(status);
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
-        vertical: BaseSize.h4,
+        horizontal: BaseSize.w12,
+        vertical: BaseSize.h8,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withValues(alpha: 0.6),
+          color: color.withValues(alpha: 0.4),
+          width: 1,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: BaseSize.w6,
-            height: BaseSize.w6,
+            width: BaseSize.w8,
+            height: BaseSize.w8,
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
             ),
           ),
-          Gap.w8,
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: name,
-                  style: BaseTypography.labelMedium.copyWith(
-                    color: BaseColor.primaryText,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (updatedAt != null && status != ApprovalStatus.unconfirmed) ...[
+          SizedBox(width: BaseSize.customWidth(10)),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                children: [
                   TextSpan(
-                    text: '  •  ',
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.secondaryText,
+                    text: name,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.black,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  TextSpan(
-                    text: "${updatedAt!.slashDate} - ${updatedAt!.HHmm}",
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.secondaryText,
-                      fontWeight: FontWeight.w600,
+                  if (updatedAt != null && status != ApprovalStatus.unconfirmed) ...[
+                    TextSpan(
+                      text: '  •  ',
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.secondaryText,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
+                    TextSpan(
+                      text: "${updatedAt!.slashDate} ${updatedAt!.HHmm}",
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.secondaryText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 Future<void> showDialogPreviewDayActivitiesWidget({
   required BuildContext context,
@@ -58,7 +58,7 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
               final activity = data[index];
               return CardOverviewListItemWidget(
                 title: activity.title,
-                type: activity.type,
+                type: activity.activityType,
                 onPressedCard: () => onPressedCard(activity),
               );
             },

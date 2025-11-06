@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/routing.dart';
@@ -87,4 +86,12 @@ class RouteParam {
   final Map<String, dynamic> params;
 
   const RouteParam({required this.params});
+}
+
+class RouteParamKey {
+  static const String activity = 'activity';
+  static const String activityType = 'activityType';
+  static const String song = 'song';
+  static const String mapOperationType = 'mapOperationType';
+  static const String location = 'location';
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/membership.dart';
-import 'package:palakat/core/utils/extensions/extension.dart';
-import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/core/extension/membership_extension.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class MembershipCardWidget extends StatelessWidget {
   const MembershipCardWidget({super.key, this.onPressedCard, this.membership});
@@ -15,129 +14,188 @@ class MembershipCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool signed = membership != null;
 
-    final Color textColor = signed
-        ? BaseColor.secondaryText
-        : BaseColor.cardBackground1;
-
-    final String title = signed
-        ? (membership!.account?.name ?? '')
-        : 'Sign-in to known whats happening in your local congregation ';
-
-    final Color titleColor = signed
-        ? BaseColor.black
-        : BaseColor.cardBackground1;
-    final FontWeight titleWeight = signed ? FontWeight.bold : FontWeight.normal;
-    final TextAlign titleAlign = signed ? TextAlign.start : TextAlign.center;
-
 
     return Material(
       clipBehavior: Clip.hardEdge,
-      color: signed ? BaseColor.teal[50] : BaseColor.primary3,
-      shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(
-          width: signed ? 1 : 0,
-          color: signed
-              ? (BaseColor.teal[100] ?? BaseColor.neutral20)
-              : BaseColor.transparent,
-        ),
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: signed ? BaseColor.teal[50] : null,
+      color: signed ? BaseColor.teal[50] : Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: signed
+            ? BorderSide(
+                width: 1,
+                color: BaseColor.teal[100] ?? BaseColor.neutral20,
+              )
+            : BorderSide.none,
       ),
-      child: InkWell(
-        onTap: onPressedCard,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: BaseSize.h12),
-          child: Column(
+      child: Container(
+        decoration: signed
+            ? null
+            : BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    BaseColor.blue[600]!,
+                    BaseColor.teal[500]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+        child: InkWell(
+          onTap: onPressedCard,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: BaseSize.w16,
+              vertical: BaseSize.h16,
+            ),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
-                  Container(
-                    width: BaseSize.w20,
-                    height: BaseSize.w20,
-                    decoration: BoxDecoration(
-                      color: signed
-                          ? (BaseColor.teal[100] ?? BaseColor.neutral20)
-                          : BaseColor.cardBackground1,
-                      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                      border: Border.all(
-                        color: signed
-                            ? (BaseColor.teal[100] ?? BaseColor.neutral20)
-                            : BaseColor.cardBackground1,
+                  if (signed)
+                    Container(
+                      width: BaseSize.w40,
+                      height: BaseSize.w40,
+                      decoration: BoxDecoration(
+                        color: BaseColor.teal[100] ?? BaseColor.neutral20,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (BaseColor.teal[200] ?? BaseColor.neutral40)
+                                .withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.church_outlined,
+                        size: BaseSize.w20,
+                        color: BaseColor.teal[700] ?? BaseColor.primaryText,
                       ),
                     ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      signed ? Icons.church : Icons.login,
-                      size: BaseSize.w14,
-                      color: signed
-                          ? (BaseColor.teal[700] ?? BaseColor.primaryText)
-                          : BaseColor.primary3,
-                    ),
-                  ),
-                  Gap.w12,
+                  if (signed) Gap.w12,
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: signed
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.center,
+                      mainAxisAlignment: signed
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.center,
                       children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: BaseTypography.titleMedium.copyWith(
-                            color: titleColor,
-                            fontWeight: titleWeight,
+                        if (signed) ...[
+                          Text(
+                            membership!.account?.name ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: BaseTypography.titleLarge.copyWith(
+                              color: BaseColor.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          textAlign: titleAlign,
-                        ),
-                        Text(
-                          membership?.church?.name ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: BaseTypography.bodySmall.toSecondary,
-                          textAlign: TextAlign.start,
-                        ),
+                          if (membership?.church?.name != null) ...[
+                            Gap.h4,
+                            Text(
+                              membership!.church!.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: BaseTypography.bodyMedium.copyWith(
+                                color: BaseColor.secondaryText,
+                              ),
+                            ),
+                          ],
+                        ] else ...[
+                          Icon(
+                            Icons.waving_hand,
+                            size: BaseSize.w32,
+                            color: Colors.white,
+                          ),
+                          Gap.h8,
+                          Text(
+                            'Welcome!',
+                            style: BaseTypography.titleLarge.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Gap.h4,
+                          Text(
+                            'Sign in to see your congregation',
+                            style: BaseTypography.bodyMedium.copyWith(
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ],
               ),
-              DividerWidget(color: textColor),
-              Gap.h6,
+              if (signed) Gap.h16,
               // Footer: chips or CTA
               if (signed)
                 Row(
                   children: [
                     _pillChip(
-                      icon: Icons.group,
+                      icon: Icons.group_outlined,
                       label: (membership?.bipra?.name ?? '').isEmpty
-                          ? '-'
+                          ? 'Not Set'
                           : (membership?.bipra?.name ?? ''),
                       bg: BaseColor.teal[50] ?? BaseColor.neutral20,
                       fg: BaseColor.teal[700] ?? BaseColor.primaryText,
                       border: BaseColor.teal[200] ?? BaseColor.neutral40,
                     ),
-                    Gap.w6,
+                    Gap.w8,
                     _pillChip(
-                      icon: Icons.location_city,
-                      label: 'Kolom ${membership?.column?.id ?? '-'}',
-                      bg: BaseColor.blue[50] ?? BaseColor.neutral20,
-                      fg: BaseColor.blue[700] ?? BaseColor.primaryText,
-                      border: BaseColor.blue[200] ?? BaseColor.neutral40,
+                      icon: Icons.location_city_outlined,
+                      label: membership?.column?.id != null
+                          ? 'Column ${membership!.column!.id}'
+                          : 'Not Set',
+                      bg: BaseColor.teal[50] ?? BaseColor.neutral20,
+                      fg: BaseColor.teal[700] ?? BaseColor.primaryText,
+                      border: BaseColor.teal[200] ?? BaseColor.neutral40,
                     ),
                   ],
                 )
-              else
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _ctaChip(
-                    icon: Icons.login,
-                    label: 'Sign in',
-                    fg: BaseColor.cardBackground1,
-                    border: BaseColor.cardBackground1,
+              else ...[
+                Gap.h16,
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: onPressedCard,
+                    icon: const Icon(Icons.login, size: 20),
+                    label: Text(
+                      'Sign In',
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: BaseColor.blue[700],
+                      elevation: 4,
+                      shadowColor: Colors.black.withValues(alpha: 0.2),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: BaseSize.w32,
+                        vertical: BaseSize.h12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
-            ],
+              ],
+              ],
+            ),
           ),
         ),
       ),
@@ -155,8 +213,8 @@ Widget _pillChip({
 }) {
   return Container(
     padding: EdgeInsets.symmetric(
-      horizontal: BaseSize.w8,
-      vertical: BaseSize.h4,
+      horizontal: BaseSize.w10,
+      vertical: BaseSize.h6,
     ),
     decoration: BoxDecoration(
       color: bg,
@@ -166,38 +224,11 @@ Widget _pillChip({
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: BaseSize.radiusSm, color: fg),
-        Gap.w4,
-        Text(label, style: BaseTypography.labelSmall.copyWith(color: fg)),
-      ],
-    ),
-  );
-}
-
-Widget _ctaChip({
-  required IconData icon,
-  required String label,
-  required Color fg,
-  required Color border,
-}) {
-  return Container(
-    padding: EdgeInsets.symmetric(
-      horizontal: BaseSize.w10,
-      vertical: BaseSize.h6,
-    ),
-    decoration: BoxDecoration(
-      color: BaseColor.transparent,
-      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-      border: Border.all(color: border),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: BaseSize.w14, color: fg),
+        Icon(icon, size: BaseSize.w12, color: fg),
         Gap.w6,
         Text(
-          label.toUpperCase(),
-          style: BaseTypography.bodySmall.toBold.copyWith(color: fg),
+          label,
+          style: BaseTypography.labelMedium.copyWith(color: fg),
         ),
       ],
     ),

@@ -1,4 +1,4 @@
-import 'package:palakat/features/account/data/membership_repository.dart';
+import 'package:palakat_admin/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/operations/presentations/operations_state.dart';
 

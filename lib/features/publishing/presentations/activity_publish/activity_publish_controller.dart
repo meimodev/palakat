@@ -73,7 +73,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   String? validateLocation(String? value) {
     if (value == null || value.isEmpty) {
-      return BaseTranslation.locationRequired;
+      return"Location Required";
     }
     return null;
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/activity_overview.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 import 'package:palakat/core/widgets/widgets.dart';
 
 class PublishByYouWidget extends StatelessWidget {
@@ -12,8 +12,8 @@ class PublishByYouWidget extends StatelessWidget {
   });
 
   final VoidCallback onPressedViewAll;
-  final void Function(ActivityOverview activityOverview) onPressedCard;
-  final List<ActivityOverview> data;
+  final void Function(Activity activityOverview) onPressedCard;
+  final List<Activity> data;
 
   @override
   Widget build(BuildContext context) {
@@ -23,24 +23,66 @@ class PublishByYouWidget extends StatelessWidget {
         SegmentTitleWidget(
           onPressedViewAll: onPressedViewAll,
           count: data.length,
-          title: 'Publish By You',
+          title: 'Published By You',
+          leadingIcon: Icons.person_outline,
+          leadingBg: BaseColor.teal[50],
+          leadingFg: BaseColor.teal[700],
         ),
         Gap.h12,
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          separatorBuilder: (context, index) => Gap.h6,
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            final activity = data[index];
-            return CardOverviewListItemWidget(
-              title: activity.title,
-              type: activity.type,
-              onPressedCard: () => onPressedCard(activity),
-            );
-          },
-        ),
-        Gap.h6,
+        if (data.isEmpty)
+          Container(
+            padding: EdgeInsets.all(BaseSize.w24),
+            decoration: BoxDecoration(
+              color: BaseColor.cardBackground1,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: BaseColor.neutral20,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.publish_outlined,
+                  size: BaseSize.w48,
+                  color: BaseColor.secondaryText,
+                ),
+                Gap.h12,
+                Text(
+                  "No published activities",
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.titleMedium.copyWith(
+                    color: BaseColor.secondaryText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Gap.h4,
+                Text(
+                  "Start publishing activities to see them here",
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.bodyMedium.copyWith(
+                    color: BaseColor.secondaryText,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => Gap.h8,
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final activity = data[index];
+              return CardOverviewListItemWidget(
+                title: activity.title,
+                type: activity.activityType,
+                onPressedCard: () => onPressedCard(activity),
+              );
+            },
+          ),
       ],
     );
   }

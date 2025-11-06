@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/extensions/extension.dart';
 import 'package:palakat/core/widgets/divider/divider_widget.dart';
 
 class InputVariantDropdownWidget<T> extends StatefulWidget {

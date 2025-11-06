@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat_admin/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class ViewAllScreen extends ConsumerWidget {
   const ViewAllScreen({super.key});
@@ -26,38 +26,33 @@ class ViewAllScreen extends ConsumerWidget {
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,
           ),
-          Gap.h24,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: Column(
-              children: [
-                ...DateTime.now().generateThisWeekDates.map(
-                      (date) => Column(
-                        children: [
-                          CardActivitySectionWidget(
-                            title: date.EEEEddMMM,
-                            today: date.isSameDay(DateTime.now()),
-                            activities: state.activities
-                                .where((activity) =>
-                                    activity.date.isSameDay(date))
-                                .toList(),
-                            onPressedCard: (Activity activity) {
-                              context.pushNamed(
-                                AppRoute.activityDetail,
-                                extra: RouteParam(
-                                  params: {
-                                    RouteParamKey.activity: activity.toJson(),
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                          Gap.h24,
-                        ],
+          Gap.h16,
+          Column(
+            children: [
+              ...DateTime.now().generateThisWeekDates.map(
+                    (date) => Padding(
+                      padding: EdgeInsets.only(bottom: BaseSize.h16),
+                      child: CardActivitySectionWidget(
+                        title: date.EEEEddMMM,
+                        today: date.isSameDay(DateTime.now()),
+                        activities: state.activities
+                            .where((activity) =>
+                                activity.date.isSameDay(date))
+                            .toList(),
+                        onPressedCard: (Activity activity) {
+                          context.pushNamed(
+                            AppRoute.activityDetail,
+                            extra: RouteParam(
+                              params: {
+                                RouteParamKey.activity: activity.toJson(),
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
-              ],
-            ),
+                  ),
+            ],
           ),
         ],
       ),

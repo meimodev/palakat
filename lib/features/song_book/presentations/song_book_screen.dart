@@ -37,10 +37,10 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const ScreenTitleWidget.titleOnly(title: "Song Book"),
-          Gap.h24,
+          Gap.h16,
           InputWidget.text(
             controller: _searchController,
-            hint: "Search Title",
+            hint: "Search song title or number",
             endIcon: Assets.icons.line.search,
             borderColor: BaseColor.primary3,
             onChanged: (String? query) {
@@ -51,52 +51,116 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
               }
             },
           ),
-          Gap.h12,
-          state.songs.isEmpty && isSearching
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'No songs found.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                )
-              : isSearching
-              ? ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: state.songs.length,
-                  separatorBuilder: (context, index) => Gap.h12,
-                  itemBuilder: (context, index) {
-                    final song = state.songs[index];
-                    return CardSongSnippetListItemWidget(
-                      title: song.title,
-                      snippet: song.subTitle,
-                      onPressed: () {
-                        context.pushNamed(
-                          AppRoute.songBookDetail,
-                          extra: RouteParam(
-                            params: {RouteParamKey.song: song.toJson()},
+          Gap.h16,
+          // Search results or default categories
+          if (isSearching)
+            state.songs.isEmpty
+                ? Container(
+                    padding: EdgeInsets.all(BaseSize.w24),
+                    decoration: BoxDecoration(
+                      color: BaseColor.cardBackground1,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: BaseColor.neutral20,
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: BaseSize.w48,
+                          color: BaseColor.secondaryText,
+                        ),
+                        Gap.h12,
+                        Text(
+                          "No songs found",
+                          textAlign: TextAlign.center,
+                          style: BaseTypography.titleMedium.copyWith(
+                            color: BaseColor.secondaryText,
+                            fontWeight: FontWeight.w600,
                           ),
-                        );
-                      },
-                    );
-                  },
-                )
-              : GridView.count(
+                        ),
+                        Gap.h4,
+                        Text(
+                          "Try searching with different keywords",
+                          textAlign: TextAlign.center,
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: BaseColor.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: state.songs.length,
+                    separatorBuilder: (context, index) => Gap.h12,
+                    itemBuilder: (context, index) {
+                      final song = state.songs[index];
+                      return CardSongSnippetListItemWidget(
+                        title: song.title,
+                        snippet: song.subTitle,
+                        onPressed: () {
+                          context.pushNamed(
+                            AppRoute.songBookDetail,
+                            extra: RouteParam(
+                              params: {RouteParamKey.song: song.toJson()},
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: BaseSize.w32,
+                      height: BaseSize.w32,
+                      decoration: BoxDecoration(
+                        color: BaseColor.red[100],
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.library_books_outlined,
+                        size: BaseSize.w16,
+                        color: BaseColor.red[700],
+                      ),
+                    ),
+                    Gap.w12,
+                    Expanded(
+                      child: Text(
+                        "Song Categories",
+                        style: BaseTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: BaseColor.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gap.h16,
+                GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 2.5,
+                  childAspectRatio: 1.5,
                   children: [
                     DefaultCardSongSnippet(
                       title: "Nanyikanlah Nyanyian Baru Bagi Tuhan (NNBT)",
                       searchQuery: "NNBT",
                       onPressed: () {
                         _searchController.text = "NNBT";
-                       controller.searchSongs("NNBT");
+                        controller.searchSongs("NNBT");
                         setState(() {});
                       },
                     ),
@@ -129,6 +193,8 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                     ),
                   ],
                 ),
+              ],
+            ),
         ],
       ),
     );

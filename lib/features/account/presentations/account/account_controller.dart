@@ -1,4 +1,4 @@
-import 'package:palakat/core/constants/enums/enums.dart';
+import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

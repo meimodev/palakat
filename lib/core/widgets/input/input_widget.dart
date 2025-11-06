@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
 
 import 'input_variant_binary_option_widget.dart';
 import 'input_variant_dropdown_widget.dart';
 import 'input_variant_text_widget.dart';
+
+enum InputWidgetVariant {
+  text,
+  dropdown,
+  binaryOption,
+}
 
 class InputWidget<T> extends StatefulWidget {
   const InputWidget.text({

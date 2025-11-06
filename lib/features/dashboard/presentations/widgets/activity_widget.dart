@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
+import 'package:palakat_admin/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 import 'widgets.dart';
@@ -28,9 +28,9 @@ class _ActivityWidgetState extends State<ActivityWidget> {
   final List<DateTime> thisWeekDates = DateTime.now().generateThisWeekDates;
 
   late final activities = widget.activities
-      .where((element) =>
-  element.type == ActivityType.service ||
-      element.type == ActivityType.event).toList();
+      .where((Activity element) =>
+  element.activityType == ActivityType.service ||
+      element.activityType == ActivityType.event).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
           leadingBg: BaseColor.blue[50],
           leadingFg: BaseColor.blue[700],
         ),
-        Gap.h6,
+        Gap.h12,
         activities.isEmpty
             ? const SizedBox()
             : SizedBox(
@@ -55,7 +55,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   itemCount: thisWeekDates.length,
-                  separatorBuilder: (context, index) => Gap.w12,
+                  separatorBuilder: (context, index) => SizedBox(width: BaseSize.customWidth(12)),
                   itemBuilder: (context, index) {
                     final day = thisWeekDates[index];
                     return CardDatePreviewWidget(
@@ -64,12 +64,12 @@ class _ActivityWidgetState extends State<ActivityWidget> {
                       eventCount: activities
                           .where((e) =>
                               e.date.isSameDay(day) &&
-                              e.type == ActivityType.event)
+                              e.activityType == ActivityType.event)
                           .length,
                       serviceCount: activities
                           .where((e) =>
                               e.date.isSameDay(day) &&
-                              e.type == ActivityType.service)
+                              e.activityType == ActivityType.service)
                           .length,
                       onPressedCardDatePreview: () =>
                           widget.onPressedCardDatePreview(day),

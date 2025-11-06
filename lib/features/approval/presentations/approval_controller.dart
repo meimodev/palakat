@@ -1,8 +1,8 @@
-import 'package:palakat/features/account/data/membership_repository.dart';
+import 'package:palakat_admin/core/models/models.dart';
+import 'package:palakat_admin/core/repositories/membership_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
-import 'package:palakat/core/constants/enums/enums.dart';
+import 'package:palakat/core/constants/constants.dart';
 
 part 'approval_controller.g.dart';
 
@@ -61,7 +61,7 @@ class ApprovalController extends _$ApprovalController {
     }
 
     final filtered = state.approvals.where((a) {
-      final activityDate = a.date; // use activity date for filtering
+      final activityDate = a.createdAt; // use activity date for filtering
       return inRange(activityDate);
     }).toList();
 
@@ -73,19 +73,16 @@ class ApprovalController extends _$ApprovalController {
 
   void _setDummyApprovals() {
     final a1Supervisor = Membership(
-        id: 1,
-        accountId: 1,
-        churchId: 10,
-        columnId: 1,
+        id: 101,
         baptize: true,
         sidi: true,
         account: Account(
-          id: 1,
-          phone: '+1 555-0001',
+          id: 1001,
+          phone: '+62 812-3456-7890',
           name: 'Jane Doe',
           dob: DateTime(1990, 5, 20),
           gender: Gender.female,
-          married: false,
+          maritalStatus: MaritalStatus.single,
         ),
       );
 
@@ -94,56 +91,50 @@ class ApprovalController extends _$ApprovalController {
       supervisorId: a1Supervisor.id,
       bipra: Bipra.fathers,
       title: 'Buying of the office supplies',
-      description: 'Buying of the office supplies',
+      description: 'Purchase of printer paper, pens, and folders for church office',
       date: DateTime.now(),
-      note: null,
-      fileUrl: null,
-      type: ActivityType.announcement,
-      createdAt: DateTime(2025, 9, 14),
-      updatedAt: DateTime(2025, 9, 14),
+      note: 'Urgent - office supplies running low',
+      fileUrl: 'https://example.com/receipts/office-supplies-2025.pdf',
+      activityType: ActivityType.service,
+      createdAt: DateTime(2025, 9, 14, 8, 30),
+      updatedAt: DateTime(2025, 9, 14, 14, 45),
       supervisor: a1Supervisor,
       approvers: [
         Approver(
           id: 5001,
           status: ApprovalStatus.unconfirmed,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
+          createdAt: DateTime(2025, 9, 14, 9, 15),
+          updatedAt: DateTime(2025, 9, 14, 9, 15),
           membership: Membership(
-            id: 1,
-            accountId: 1,
-            churchId: 10,
-            columnId: 2,
+            id: 201,
             baptize: true,
             sidi: false,
             account: Account(
               id: 2001,
-              phone: '+1 555-0101',
-              name: 'Manembo Jhon',
+              phone: '+62 813-9876-5432',
+              name: 'Robert Manembo',
               dob: DateTime(1988, 2, 14),
               gender: Gender.male,
-              married: true,
+              maritalStatus: MaritalStatus.married,
             ),
           ),
         ),
         Approver(
-          id: 5001,
+          id: 5002,
           status: ApprovalStatus.approved,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
+          createdAt: DateTime(2025, 9, 14, 10, 22),
+          updatedAt: DateTime(2025, 9, 14, 14, 45),
           membership: Membership(
-            id: 201,
-            accountId: 2001,
-            churchId: 10,
-            columnId: 2,
+            id: 202,
             baptize: true,
-            sidi: false,
+            sidi: true,
             account: Account(
-              id: 2001,
-              phone: '+1 555-0101',
-              name: 'John Smith',
-              dob: DateTime(1988, 2, 14),
-              gender: Gender.male,
-              married: true,
+              id: 2002,
+              phone: '+62 815-2468-1357',
+              name: 'Sarah Williams',
+              dob: DateTime(1985, 11, 8),
+              gender: Gender.female,
+              maritalStatus: MaritalStatus.married,
             ),
           ),
         ),
@@ -152,54 +143,66 @@ class ApprovalController extends _$ApprovalController {
 
     final a2Supervisor = Membership(
         id: 102,
-        accountId: 1002,
-        churchId: 10,
-        columnId: 1,
         baptize: true,
         sidi: true,
         account: Account(
           id: 1002,
-          phone: '+1 555-0002',
-          name: 'John Smith',
+          phone: '+62 821-5555-7777',
+          name: 'Michael Chen',
           dob: DateTime(1985, 7, 11),
           gender: Gender.male,
-          married: true,
+          maritalStatus: MaritalStatus.married,
         ),
       );
 
     final a2 = Activity(
       id: 2,
       supervisorId: a2Supervisor.id,
-      bipra: Bipra.general,
       title: 'Income: Donation Transfer',
-      description: 'Income: Donation Transfer',
+      description: 'Monthly donation from parish members via bank transfer',
       date: DateTime.now().subtract(const Duration(days: 5)),
-      note: null,
-      fileUrl: null,
-      type: ActivityType.announcement,
-      createdAt: DateTime(2025, 9, 12),
-      updatedAt: DateTime(2025, 9, 12),
+      note: 'Total received: Rp 15,000,000',
+      fileUrl: 'https://example.com/transactions/donation-sept-2025.pdf',
+      activityType: ActivityType.service,
+      createdAt: DateTime(2025, 9, 12, 11, 20),
+      updatedAt: DateTime(2025, 9, 12, 16, 30),
       supervisor: a2Supervisor,
       approvers: [
         Approver(
-          id: 5002,
+          id: 5003,
           status: ApprovalStatus.approved,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
+          createdAt: DateTime(2025, 9, 12, 13, 45),
+          updatedAt: DateTime(2025, 9, 12, 16, 30),
           membership: Membership(
-            id: 202,
-            accountId: 2002,
-            churchId: 10,
-            columnId: 2,
+            id: 203,
             baptize: true,
             sidi: true,
             account: Account(
-              id: 2002,
-              phone: '+1 555-0102',
-              name: 'Alex Johnson',
+              id: 2003,
+              phone: '+62 822-1122-3344',
+              name: 'David Lumbantobing',
               dob: DateTime(1992, 3, 9),
               gender: Gender.male,
-              married: false,
+              maritalStatus: MaritalStatus.single,
+            ),
+          ),
+        ),
+        Approver(
+          id: 5004,
+          status: ApprovalStatus.approved,
+          createdAt: DateTime(2025, 9, 12, 14, 10),
+          updatedAt: DateTime(2025, 9, 12, 15, 55),
+          membership: Membership(
+            id: 204,
+            baptize: true,
+            sidi: true,
+            account: Account(
+              id: 2004,
+              phone: '+62 823-9988-7766',
+              name: 'Grace Sihombing',
+              dob: DateTime(1990, 6, 25),
+              gender: Gender.female,
+              maritalStatus: MaritalStatus.married,
             ),
           ),
         ),
@@ -207,19 +210,16 @@ class ApprovalController extends _$ApprovalController {
     );
 
     final a3Supervisor = Membership(
-        id: 102,
-        accountId: 1002,
-        churchId: 10,
-        columnId: 1,
+        id: 103,
         baptize: true,
         sidi: true,
         account: Account(
-          id: 1002,
-          phone: '+1 555-0002',
-          name: 'John Smith',
-          dob: DateTime(1985, 7, 11),
-          gender: Gender.male,
-          married: true,
+          id: 1003,
+          phone: '+62 856-4321-8765',
+          name: 'Patricia Situmorang',
+          dob: DateTime(1987, 12, 3),
+          gender: Gender.female,
+          maritalStatus: MaritalStatus.married,
         ),
       );
 
@@ -228,34 +228,50 @@ class ApprovalController extends _$ApprovalController {
       supervisorId: a3Supervisor.id,
       bipra: Bipra.mothers,
       title: 'Document Request',
-      description: 'Document Request',
+      description: 'Request for baptism certificates for 5 children',
       date: DateTime.now().subtract(const Duration(days: 10)),
-      note: null,
+      note: 'Rejected due to incomplete parent information',
       fileUrl: null,
-      type: ActivityType.announcement,
-      createdAt: DateTime(2025, 9, 12),
-      updatedAt: DateTime(2025, 9, 12),
+      activityType: ActivityType.service,
+      createdAt: DateTime(2025, 9, 5, 9, 0),
+      updatedAt: DateTime(2025, 9, 6, 10, 15),
       supervisor: a3Supervisor,
       approvers: [
         Approver(
-          id: 5002,
+          id: 5005,
           status: ApprovalStatus.rejected,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
+          createdAt: DateTime(2025, 9, 5, 15, 30),
+          updatedAt: DateTime(2025, 9, 6, 10, 15),
           membership: Membership(
-            id: 202,
-            accountId: 2002,
-            churchId: 10,
-            columnId: 2,
+            id: 205,
             baptize: true,
             sidi: true,
             account: Account(
-              id: 2002,
-              phone: '+1 555-0102',
-              name: 'Alex Johnson',
-              dob: DateTime(1992, 3, 9),
+              id: 2005,
+              phone: '+62 857-6655-4433',
+              name: 'Thomas Hutabarat',
+              dob: DateTime(1983, 8, 17),
               gender: Gender.male,
-              married: false,
+              maritalStatus: MaritalStatus.married,
+            ),
+          ),
+        ),
+        Approver(
+          id: 5006,
+          status: ApprovalStatus.rejected,
+          createdAt: DateTime(2025, 9, 5, 16, 45),
+          updatedAt: DateTime(2025, 9, 6, 9, 20),
+          membership: Membership(
+            id: 206,
+            baptize: true,
+            sidi: false,
+            account: Account(
+              id: 2006,
+              phone: '+62 858-3322-1100',
+              name: 'Maria Simbolon',
+              dob: DateTime(1995, 1, 30),
+              gender: Gender.female,
+              maritalStatus: MaritalStatus.single,
             ),
           ),
         ),

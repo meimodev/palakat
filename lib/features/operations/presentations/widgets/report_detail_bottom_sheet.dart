@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/features/operations/domain/entities/report.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class ReportDetailBottomSheet extends StatelessWidget {
   final Report report;
@@ -42,12 +42,14 @@ class ReportDetailBottomSheet extends StatelessWidget {
                   width: BaseSize.w48,
                   height: BaseSize.w48,
                   decoration: BoxDecoration(
-                    color: _getReportTypeColor(report.type).withValues(alpha: 0.1),
+                    color: _getGenerationTypeColor(
+                      report.generatedBy,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Icon(
-                    _getReportTypeIcon(report.type),
-                    color: _getReportTypeColor(report.type),
+                    _getGenerationTypeIcon(report.generatedBy),
+                    color: _getGenerationTypeColor(report.generatedBy),
                     size: BaseSize.w24,
                   ),
                 ),
@@ -57,14 +59,16 @@ class ReportDetailBottomSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        report.title,
+                        report.name,
                         style: BaseTypography.titleLarge.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Gap.h4,
                       Text(
-                        'Generated on ${_formatDate(report.generatedDate)}',
+                        report.createdAt != null
+                            ? 'Generated on ${_formatDate(report.createdAt!)}'
+                            : 'No generation date',
                         style: BaseTypography.bodySmall.copyWith(
                           color: BaseColor.neutral60,
                         ),
@@ -122,313 +126,110 @@ class ReportDetailBottomSheet extends StatelessWidget {
   }
 
   Widget _buildReportContent() {
-    switch (report.type) {
-      case ReportType.income:
-        return _buildIncomeReportContent();
-      case ReportType.expense:
-        return _buildExpenseReportContent();
-      case ReportType.inventory:
-        return _buildInventoryReportContent();
-    }
-  }
-
-  Widget _buildIncomeReportContent() {
-    try {
-      final data = IncomeReportData.fromJson(report.data);
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryCard([
-            _SummaryItem('Total Income', _formatCurrency(data.totalIncome)),
-            _SummaryItem('Donations', _formatCurrency(data.donations)),
-            _SummaryItem('Tithes', _formatCurrency(data.tithes)),
-            _SummaryItem('Offerings', _formatCurrency(data.offerings)),
-            _SummaryItem('Other Income', _formatCurrency(data.otherIncome)),
-          ]),
-
-          Gap.h24,
-
-          Text(
-            'Recent Transactions',
-            style: BaseTypography.titleMedium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Report Details Card
+        Container(
+          padding: EdgeInsets.all(BaseSize.w16),
+          decoration: BoxDecoration(
+            color: BaseColor.neutral10,
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
           ),
-          Gap.h12,
-
-          ...data.items.map(
-            (item) => _buildTransactionItem(
-              item.description,
-              _formatCurrency(item.amount),
-              item.category,
-              _formatDate(item.date),
-            ),
-          ),
-        ],
-      );
-    } catch (e) {
-      return const Text('Error loading report data');
-    }
-  }
-
-  Widget _buildExpenseReportContent() {
-    try {
-      final data = ExpenseReportData.fromJson(report.data);
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryCard([
-            _SummaryItem('Total Expense', _formatCurrency(data.totalExpense)),
-            _SummaryItem('Utilities', _formatCurrency(data.utilities)),
-            _SummaryItem('Maintenance', _formatCurrency(data.maintenance)),
-            _SummaryItem('Supplies', _formatCurrency(data.supplies)),
-            _SummaryItem('Salaries', _formatCurrency(data.salaries)),
-            _SummaryItem('Other Expenses', _formatCurrency(data.otherExpenses)),
-          ]),
-
-          Gap.h24,
-
-          Text(
-            'Recent Expenses',
-            style: BaseTypography.titleMedium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Gap.h12,
-
-          ...data.items.map(
-            (item) => _buildTransactionItem(
-              item.description,
-              _formatCurrency(item.amount),
-              item.category,
-              _formatDate(item.date),
-            ),
-          ),
-        ],
-      );
-    } catch (e) {
-      return const Text('Error loading report data');
-    }
-  }
-
-  Widget _buildInventoryReportContent() {
-    try {
-      final data = InventoryReportData.fromJson(report.data);
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryCard([
-            _SummaryItem('Total Items', data.totalItems.toString()),
-            _SummaryItem('Total Value', _formatCurrency(data.totalValue)),
-          ]),
-
-          Gap.h24,
-
-          Text(
-            'Category Breakdown',
-            style: BaseTypography.titleMedium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Gap.h12,
-
-          ...data.categoryCount.entries.map(
-            (entry) => _buildCategoryItem(entry.key, entry.value.toString()),
-          ),
-
-          Gap.h24,
-
-          Text(
-            'Sample Items',
-            style: BaseTypography.titleMedium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Gap.h12,
-
-          ...data.items
-              .take(5)
-              .map(
-                (item) => _buildInventoryItem(
-                  item.name,
-                  item.category,
-                  item.quantity,
-                  _formatCurrency(item.unitValue),
-                ),
+          child: Column(
+            children: [
+              _buildInfoRow('Report Name', report.name),
+              Gap.h12,
+              _buildInfoRow(
+                'Generation Type',
+                _getGenerationTypeLabel(report.generatedBy),
               ),
-        ],
-      );
-    } catch (e) {
-      return const Text('Error loading report data');
-    }
-  }
-
-  Widget _buildSummaryCard(List<_SummaryItem> items) {
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w16),
-      decoration: BoxDecoration(
-        color: BaseColor.neutral10,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      ),
-      child: Column(
-        children: items
-            .map(
-              (item) => Padding(
-                padding: EdgeInsets.symmetric(vertical: BaseSize.h4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item.label, style: BaseTypography.bodyMedium),
-                    Text(
-                      item.value,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildTransactionItem(
-    String description,
-    String amount,
-    String category,
-    String date,
-  ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: BaseSize.h8),
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        border: Border.all(color: BaseColor.neutral20),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  description,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Gap.h4,
-                Text(
-                  '$category • $date',
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral60,
-                  ),
-                ),
+              Gap.h12,
+              if (report.church != null)
+                _buildInfoRow('Church', report.church!.name),
+              if (report.church != null) Gap.h12,
+              _buildInfoRow('File', _getFileName(report.file.url)),
+              Gap.h12,
+              if (report.createdAt != null)
+                _buildInfoRow('Created', _formatDate(report.createdAt!)),
+              if (report.updatedAt != null) ...[
+                Gap.h12,
+                _buildInfoRow('Last Updated', _formatDate(report.updatedAt!)),
               ],
-            ),
+            ],
           ),
-          Text(
-            amount,
-            style: BaseTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w600,
-              color: _getReportTypeColor(report.type),
-            ),
+        ),
+        Gap.h16,
+        Text(
+          'To view the full report details, please download the file.',
+          style: BaseTypography.bodySmall.copyWith(
+            color: BaseColor.neutral60,
+            fontStyle: FontStyle.italic,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCategoryItem(String category, String count) {
-    return Container(
-      margin: EdgeInsets.only(bottom: BaseSize.h8),
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        border: Border.all(color: BaseColor.neutral20),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(category, style: BaseTypography.bodyMedium),
-          Text(
-            '$count items',
-            style: BaseTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: BaseTypography.bodyMedium.copyWith(
+            color: BaseColor.neutral60,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInventoryItem(
-    String name,
-    String category,
-    int quantity,
-    String value,
-  ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: BaseSize.h8),
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        border: Border.all(color: BaseColor.neutral20),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Gap.h4,
-                Text(
-                  '$category • Qty: $quantity',
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral60,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
+        ),
+        Gap.w16,
+        Flexible(
+          child: Text(
             value,
             style: BaseTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
             ),
+            textAlign: TextAlign.right,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Color _getReportTypeColor(ReportType type) {
+  Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
-      case ReportType.income:
-        return const Color(0xFF10B981);
-      case ReportType.expense:
-        return const Color(0xFFEF4444);
-      case ReportType.inventory:
-        return const Color(0xFF3B82F6);
+      case GeneratedBy.manual:
+        return const Color(0xFF3B82F6); // Blue
+      case GeneratedBy.system:
+        return const Color(0xFF10B981); // Green
     }
   }
 
-  IconData _getReportTypeIcon(ReportType type) {
+  IconData _getGenerationTypeIcon(GeneratedBy type) {
     switch (type) {
-      case ReportType.income:
-        return Icons.trending_up;
-      case ReportType.expense:
-        return Icons.trending_down;
-      case ReportType.inventory:
-        return Icons.inventory_2;
+      case GeneratedBy.manual:
+        return Icons.person_outline;
+      case GeneratedBy.system:
+        return Icons.auto_awesome;
+    }
+  }
+
+  String _getGenerationTypeLabel(GeneratedBy type) {
+    switch (type) {
+      case GeneratedBy.manual:
+        return 'Manual Report';
+      case GeneratedBy.system:
+        return 'System Generated';
+    }
+  }
+
+  String _getFileName(String url) {
+    try {
+      final uri = Uri.parse(url);
+      final segments = uri.pathSegments;
+      return segments.isNotEmpty ? segments.last : 'Unknown';
+    } catch (e) {
+      return 'Unknown';
     }
   }
 
@@ -451,20 +252,4 @@ class ReportDetailBottomSheet extends StatelessWidget {
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  String _formatCurrency(double amount) {
-    if (amount >= 1000000) {
-      return 'Rp ${(amount / 1000000).toStringAsFixed(1)}M';
-    } else if (amount >= 1000) {
-      return 'Rp ${(amount / 1000).toStringAsFixed(0)}K';
-    } else {
-      return 'Rp ${amount.toStringAsFixed(0)}';
-    }
-  }
-}
-
-class _SummaryItem {
-  final String label;
-  final String value;
-
-  _SummaryItem(this.label, this.value);
 }

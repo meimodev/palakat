@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
 
 class CardPublishingOperationWidget extends StatelessWidget {
   const CardPublishingOperationWidget({
@@ -16,45 +15,87 @@ class CardPublishingOperationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressedCard,
+    return Material(
+      color: Colors.transparent,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: BaseSize.w12,
-          horizontal: BaseSize.w12,
-        ),
         decoration: BoxDecoration(
-          color: BaseColor.primaryText,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              BaseColor.blue[600]!,
+              BaseColor.teal[500]!,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: BaseColor.teal[300]!.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        clipBehavior: Clip.hardEdge,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressedCard,
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w16),
+              child: Row(
                 children: [
-                  Text(
-                    title,
-                    style: BaseTypography.titleMedium.bold.toCardBackground1,
+                  // Plus icon
+                  Container(
+                    width: BaseSize.w48,
+                    height: BaseSize.w48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.add,
+                      size: BaseSize.w32,
+                      color: Colors.white,
+                    ),
                   ),
-                  Text(
-                    description,
-                    style: BaseTypography.bodySmall.toCardBackground1,
+                  Gap.w16,
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: BaseTypography.titleLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Gap.h4,
+                        Text(
+                          description,
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Gap.w8,
+                  // Arrow icon
+                  Icon(
+                    Icons.arrow_forward,
+                    size: BaseSize.w24,
+                    color: Colors.white,
                   ),
                 ],
               ),
             ),
-            Gap.w12,
-            SizedBox(
-              width: BaseSize.w24,
-              child: Center(
-                child: Text(
-                  "+",
-                  style: BaseTypography.headlineSmall.toCardBackground1,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

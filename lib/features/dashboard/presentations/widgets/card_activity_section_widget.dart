@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
-import 'package:palakat/core/utils/utils.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class CardActivitySectionWidget extends StatelessWidget {
   const CardActivitySectionWidget({
@@ -23,37 +22,93 @@ class CardActivitySectionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Section header with badge
         Row(
           children: [
-            Text(
-              "$title ",
-              style: today
-                  ? BaseTypography.titleMedium.toBold
-                  : BaseTypography.titleMedium,
+            Flexible(
+              child: Text(
+                title,
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: today ? FontWeight.bold : FontWeight.w600,
+                  color: BaseColor.black,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            Text(
-              activities.isNotEmpty ? "(${activities.length})" : "-",
-              style: BaseTypography.bodySmall,
+            Gap.w8,
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: BaseSize.w10,
+                vertical: BaseSize.h4,
+              ),
+              decoration: BoxDecoration(
+                color: today ? BaseColor.teal[100] : BaseColor.teal[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: today ? BaseColor.teal[300]! : BaseColor.teal[200]!,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                activities.length.toString(),
+                style: BaseTypography.labelMedium.copyWith(
+                  color: BaseColor.teal[700],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
         Gap.h12,
-        ListView.separated(
-          padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-          itemCount: activities.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          separatorBuilder: (_, _) => Gap.h12,
-          itemBuilder: (_, index) {
-            final activity = activities[index];
-            return CardOverviewListItemWidget(
-              title: activity.title,
-              type: activity.type,
-              onPressedCard: () => onPressedCard(activity),
-            );
-          },
-        ),
-        Gap.h12,
+        // List of activities
+        if (activities.isEmpty)
+          Container(
+            padding: EdgeInsets.all(BaseSize.w16),
+            decoration: BoxDecoration(
+              color: BaseColor.cardBackground1,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: BaseColor.neutral20,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.event_busy_outlined,
+                  size: BaseSize.w24,
+                  color: BaseColor.secondaryText,
+                ),
+                Gap.h8,
+                Text(
+                  "No activities",
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.bodySmall.copyWith(
+                    color: BaseColor.secondaryText,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: activities.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (_, _) => Gap.h8,
+            itemBuilder: (_, index) {
+              final activity = activities[index];
+              return CardOverviewListItemWidget(
+                title: activity.title,
+                type: activity.activityType,
+                onPressedCard: () => onPressedCard(activity),
+              );
+            },
+          ),
+        Gap.h16,
       ],
     );
   }

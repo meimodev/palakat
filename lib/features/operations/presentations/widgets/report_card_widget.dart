@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/features/operations/domain/entities/report.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class ReportCardWidget extends StatelessWidget {
   final Report report;
@@ -45,14 +45,14 @@ class ReportCardWidget extends StatelessWidget {
                       width: BaseSize.w40,
                       height: BaseSize.w40,
                       decoration: BoxDecoration(
-                        color: _getReportTypeColor(
-                          report.type,
+                        color: _getGenerationTypeColor(
+                          report.generatedBy,
                         ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Icon(
-                        _getReportTypeIcon(report.type),
-                        color: _getReportTypeColor(report.type),
+                        _getGenerationTypeIcon(report.generatedBy),
+                        color: _getGenerationTypeColor(report.generatedBy),
                         size: BaseSize.w20,
                       ),
                     ),
@@ -64,7 +64,7 @@ class ReportCardWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            report.title,
+                            report.name,
                             style: BaseTypography.titleMedium.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -73,9 +73,9 @@ class ReportCardWidget extends StatelessWidget {
                           ),
                           Gap.h4,
                           Text(
-                            report.type.displayName,
+                            _getGenerationTypeLabel(report.generatedBy),
                             style: BaseTypography.bodySmall.copyWith(
-                              color: _getReportTypeColor(report.type),
+                              color: _getGenerationTypeColor(report.generatedBy),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -122,36 +122,36 @@ class ReportCardWidget extends StatelessWidget {
 
                 Gap.h12,
 
-                // Description
-                if (report.description != null)
-                  Text(
-                    report.description!,
-                    style: BaseTypography.bodySmall.copyWith(
-                      color: BaseColor.neutral60,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                // File info
+                Text(
+                  'File: ${_getFileName(report.file.url)}',
+                  style: BaseTypography.bodySmall.copyWith(
+                    color: BaseColor.neutral60,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
 
                 Gap.h8,
 
                 // Generated Date
-                Row(
-                  children: [
-                    Icon(
-                      Icons.schedule,
-                      size: BaseSize.w16,
-                      color: BaseColor.neutral60,
-                    ),
-                    Gap.w4,
-                    Text(
-                      'Generated on ${_formatDate(report.generatedDate)}',
-                      style: BaseTypography.bodySmall.copyWith(
+                if (report.createdAt != null)
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: BaseSize.w16,
                         color: BaseColor.neutral60,
                       ),
-                    ),
-                  ],
-                ),
+                      Gap.w4,
+                      Text(
+                        'Generated on ${_formatDate(report.createdAt!)}',
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.neutral60,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -160,25 +160,40 @@ class ReportCardWidget extends StatelessWidget {
     );
   }
 
-  Color _getReportTypeColor(ReportType type) {
+  Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
-      case ReportType.income:
-        return const Color(0xFF10B981); // Green
-      case ReportType.expense:
-        return const Color(0xFFEF4444); // Red
-      case ReportType.inventory:
+      case GeneratedBy.manual:
         return const Color(0xFF3B82F6); // Blue
+      case GeneratedBy.system:
+        return const Color(0xFF10B981); // Green
     }
   }
 
-  IconData _getReportTypeIcon(ReportType type) {
+  IconData _getGenerationTypeIcon(GeneratedBy type) {
     switch (type) {
-      case ReportType.income:
-        return Icons.trending_up;
-      case ReportType.expense:
-        return Icons.trending_down;
-      case ReportType.inventory:
-        return Icons.inventory_2;
+      case GeneratedBy.manual:
+        return Icons.person_outline;
+      case GeneratedBy.system:
+        return Icons.auto_awesome;
+    }
+  }
+
+  String _getGenerationTypeLabel(GeneratedBy type) {
+    switch (type) {
+      case GeneratedBy.manual:
+        return 'Manual Report';
+      case GeneratedBy.system:
+        return 'System Generated';
+    }
+  }
+
+  String _getFileName(String url) {
+    try {
+      final uri = Uri.parse(url);
+      final segments = uri.pathSegments;
+      return segments.isNotEmpty ? segments.last : 'Unknown';
+    } catch (e) {
+      return 'Unknown';
     }
   }
 

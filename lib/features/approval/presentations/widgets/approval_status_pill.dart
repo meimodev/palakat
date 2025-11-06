@@ -24,37 +24,37 @@ class ApprovalStatusPill extends StatelessWidget {
     String label;
     switch (status) {
       case ApprovalStatus.approved:
-        icon = Icons.check_circle_rounded;
+        icon = Icons.check_circle;
         label = 'Approved';
         break;
       case ApprovalStatus.rejected:
-        icon = Icons.cancel_rounded;
+        icon = Icons.cancel;
         label = 'Rejected';
         break;
       case ApprovalStatus.unconfirmed:
-        icon = Icons.hourglass_bottom_rounded;
-        label = 'Unconfirmed';
+        icon = Icons.pending;
+        label = 'Pending';
     }
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
-        vertical: BaseSize.h6,
+        horizontal: BaseSize.w12,
+        vertical: BaseSize.h8,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.6)),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        color: color.withValues(alpha: 0.1),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: BaseSize.w16, color: color),
-          Gap.w6,
+          Icon(icon, size: BaseSize.w20, color: color),
+          Gap.w8,
           Text(
             label,
             style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.primaryText,
-              fontWeight: FontWeight.w600,
+              color: BaseColor.black,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],

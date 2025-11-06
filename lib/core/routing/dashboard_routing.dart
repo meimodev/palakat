@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/activity.dart';
+import 'package:palakat_admin/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -32,15 +31,6 @@ final dashboardRouting = GoRoute(
         );
       },
     ),
-    // GoRoute(
-    //   path: 'patient-list',
-    //   name: AppRoute.patientList,
-    //   builder: (context, state) => const PatientListScreen(),
-    // ),
-    // GoRoute(
-    //   path: 'patient-form',
-    //   name: AppRoute.patientForm,
-    //   builder: (context, state) => const PatientFormScreen(),
-    // ),
+
   ],
 );

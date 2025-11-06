@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 
 class ScreenTitleWidget extends StatelessWidget {
   const ScreenTitleWidget.primary({
@@ -52,13 +52,24 @@ class ScreenTitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSize = BaseSize.w24;
+
+    // Title only variant - simple and clean
     if (leadIcon == null && trailIcon == null) {
-      return Text(
-        title,
-        style: BaseTypography.headlineLarge,
-        textAlign: TextAlign.start,
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: BaseSize.h8),
+        child: Text(
+          title,
+          style: BaseTypography.headlineLarge.copyWith(
+            fontWeight: FontWeight.bold,
+            color: BaseColor.black,
+            letterSpacing: -0.5,
+          ),
+          textAlign: TextAlign.start,
+        ),
       );
     }
+
+    // Primary and bottom sheet variants
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -75,14 +86,21 @@ class ScreenTitleWidget extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: BaseTypography.headlineSmall,
+                style: BaseTypography.headlineSmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: BaseColor.black,
+                ),
               ),
-              if (subTitle != null)
+              if (subTitle != null) ...[
+                Gap.h4,
                 Text(
                   subTitle!,
                   textAlign: TextAlign.center,
-                  style: BaseTypography.titleMedium,
+                  style: BaseTypography.titleMedium.copyWith(
+                    color: BaseColor.secondaryText,
+                  ),
                 ),
+              ],
             ],
           ),
         ),

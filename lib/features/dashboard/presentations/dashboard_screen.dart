@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat/core/utils/extensions/date_time_extension.dart';
+import 'package:palakat_admin/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
 
@@ -35,7 +35,7 @@ class DashboardScreen extends ConsumerWidget {
               },
             ),
           ),
-          Gap.h24,
+          Gap.h16,
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -47,7 +47,7 @@ class DashboardScreen extends ConsumerWidget {
                   onPressedViewAll: () async =>
                       await context.pushNamed(AppRoute.viewAll),
                   activities: state.thisWeekActivities,
-                  cardsHeight: BaseSize.customWidth(80),
+                  cardsHeight: BaseSize.customWidth(92),
                   onPressedCardDatePreview: (DateTime dateTime) async {
                     final thisDayActivities = state.thisWeekActivities
                         .where(
@@ -75,7 +75,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
 
-              Gap.h12,
+              Gap.h16,
               LoadingWrapper(
                 paddingTop: BaseSize.h24,
                 paddingBottom: BaseSize.h24,

@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:palakat/core/models/account.dart';
-import 'package:palakat/features/account/data/account_repository.dart';
-import 'package:palakat/features/account/data/membership_repository.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_admin/core/models/models.dart';
+import 'package:palakat_admin/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'authentication_controller.g.dart';
@@ -23,7 +22,7 @@ class AuthenticationController extends _$AuthenticationController {
     return const AuthenticationState();
   }
 
-  AccountRepository get _accountRepo => ref.read(accountRepositoryProvider);
+  AuthRepository get _authRepo => ref.read(authRepositoryProvider);
 
   MembershipRepository get _membershipRepo =>
       ref.read(membershipRepositoryProvider);
@@ -54,7 +53,7 @@ class AuthenticationController extends _$AuthenticationController {
     _timer?.cancel();
 
     state = state.copyWith(
-      remainingTime: AppConstants.otpTimerDurationSeconds,
+      remainingTime: AppConstants.otpTimerDurationInSeconds,
       canResendOtp: false,
     );
 
@@ -142,24 +141,19 @@ class AuthenticationController extends _$AuthenticationController {
     // Cancel timer when verification is successful
     _timer?.cancel();
 
-    final validateAccountByPhoneResult = await _accountRepo
+    final validateAccountByPhoneResult = await _authRepo
         .validateAccountByPhone(state.phone);
     validateAccountByPhoneResult.when(
-      onSuccess: (account) async {
+      onSuccess: (auth) async {
         state = state.copyWith(
           loading: false,
-          user: account,
+          user: auth.account,
           errorMessage: null,
         );
-        final resultSignIn = await _accountRepo.signIn(account);
-        resultSignIn.when(
-          onSuccess: (data) {
-            if (data.membershipId != null) {
-              signInMembership(data.membershipId!);
-            }
-            onAlreadyRegistered(data);
-          },
-        );
+        if (auth.account.membership != null) {
+          signInMembership(auth.account.membership!.id!);
+        }
+        onAlreadyRegistered(auth.account);
       },
       onFailure: (failure) {
         if (failure.code == 404) {
@@ -188,7 +182,7 @@ class AuthenticationController extends _$AuthenticationController {
   void signInMembership(int membershipId) async {
     final resultMembership = await _membershipRepo.getMembership(membershipId);
     resultMembership.when(
-      onSuccess: (data) async {
+      onSuccess: (Membership data) async {
         await _membershipRepo.signInMembership(data);
       },
     );

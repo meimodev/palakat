@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/extensions/extension.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 
 class ChipsWidget extends StatelessWidget {
   const ChipsWidget({super.key, required this.title, this.icon});

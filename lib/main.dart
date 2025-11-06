@@ -3,13 +3,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:palakat/core/data_sources/local/local.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat_admin/services.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-import 'core/config/config.dart';
 import 'core/constants/constants.dart';
 
 void main() async {
@@ -17,7 +16,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await hiveInit();
+  await LocalStorageService.initHive();
 
   await Jiffy.setLocale('id');
 
@@ -32,8 +31,8 @@ class MyApp extends ConsumerWidget {
     final router = ref.read(goRouterProvider);
     return ScreenUtilInit(
       designSize: const Size(
-        AppConstants.defaultDesignWidth,
-        AppConstants.defaultDesignHeight,
+        360,
+        640,
       ),
       ensureScreenSize: true,
       minTextAdapt: true,
@@ -43,7 +42,7 @@ class MyApp extends ConsumerWidget {
         routerDelegate: router.routerDelegate,
         routeInformationParser: router.routeInformationParser,
         routeInformationProvider: router.routeInformationProvider,
-        title: AppConfig.appName,
+        title: "PALAKAT",
         theme: BaseTheme.appTheme,
         locale: const Locale('id', 'ID'),
       ),

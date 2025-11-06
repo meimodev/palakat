@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat/core/models/membership.dart';
-import 'package:palakat/core/models/activity.dart';
+import 'package:palakat_admin/core/models/models.dart';
+
 
 part 'approval_state.freezed.dart';
 

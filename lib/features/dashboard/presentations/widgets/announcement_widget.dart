@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 import 'widgets.dart';
 
 class AnnouncementWidget extends StatelessWidget {
@@ -18,7 +18,6 @@ class AnnouncementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -30,31 +29,37 @@ class AnnouncementWidget extends StatelessWidget {
           leadingBg: BaseColor.yellow[50],
           leadingFg: BaseColor.yellow[700],
         ),
-        Gap.h6,
-        ...announcements.map(
-          (e) => Padding(
-            padding: EdgeInsets.only(
-              bottom: BaseSize.h6,
-            ),
-            child: CardAnnouncementWidget(
-              title: e.title,
-              publishedOn: e.date,
-              onPressedCard: () {
-                context.pushNamed(
-                  AppRoute.activityDetail,
-                  extra: RouteParam(
-                    params: {
-                      RouteParamKey.activity: e.toJson(),
-                    },
-                  ),
-                );
-              },
-              onPressedDownload: () {
-                // print('Download ${e.title}');
-              },
-            ),
+        Gap.h12,
+        if (announcements.isEmpty)
+          const SizedBox()
+        else
+          ListView.separated(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: announcements.length,
+            separatorBuilder: (_, _) => Gap.h12,
+            itemBuilder: (context, index) {
+              final announcement = announcements[index];
+              return CardAnnouncementWidget(
+                title: announcement.title,
+                publishedOn: announcement.date,
+                onPressedCard: () {
+                  context.pushNamed(
+                    AppRoute.activityDetail,
+                    extra: RouteParam(
+                      params: {
+                        RouteParamKey.activity: announcement.toJson(),
+                      },
+                    ),
+                  );
+                },
+                onPressedDownload: () {
+                  // TODO: Implement download functionality
+                },
+              );
+            },
           ),
-        ),
       ],
     );
   }

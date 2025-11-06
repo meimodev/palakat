@@ -137,3 +137,10 @@
   - `core/widgets/input/input_widget.dart`: removed local `InputWidgetVariant`.
   - `features/operations/domain/entities/report.dart`: removed local `ReportType`, added `constants.dart` import; kept `ReportTypeExtension` intact.
 - Verified `constants.dart` exports `enums/enums.dart`, so feature files can import a single constants barrel.
+
+## 2025-11-03T14:46:22+08:00 — Model: Cascade
+- Fixed errors in palakat_admin repository method calls:
+  - Updated `activity_controller.dart` to properly handle `Result<T, Failure>` returned by repository methods using `.when()`.
+  - Updated `report_controller.dart` to properly handle `Result<T, Failure>` returned by repository methods using `.when()`.
+  - All CRUD methods now unwrap Result types correctly, handling both success and failure cases.
+  - Files modified: `palakat_admin/lib/features/activity/presentation/state/activity_controller.dart`, `palakat_admin/lib/features/report/presentation/state/report_controller.dart`.

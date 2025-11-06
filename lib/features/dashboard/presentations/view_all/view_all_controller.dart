@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -20,9 +20,6 @@ class ViewAllController extends _$ViewAllController {
 
         final supervisor = Membership(
           id: index + 1,
-          accountId: 1,
-          churchId: 1,
-          columnId: 1,
           baptize: false,
           sidi: false,
         );
@@ -36,7 +33,6 @@ class ViewAllController extends _$ViewAllController {
           date: now.add(Duration(days: r % 5)),
           note: 'Sample note for activity $index',
           fileUrl: '',
-          type: ActivityType.values[r],
           createdAt: now,
           updatedAt: now,
           supervisor: supervisor,

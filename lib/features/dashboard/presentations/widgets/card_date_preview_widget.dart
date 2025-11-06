@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 
 class CardDatePreviewWidget extends StatelessWidget {
   const CardDatePreviewWidget({
@@ -25,69 +25,96 @@ class CardDatePreviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = date.isSameDay(DateTime.now());
+    final hasEvents = serviceCount > 0 || eventCount > 0;
+
     return Material(
       clipBehavior: Clip.hardEdge,
-      color: BaseColor.cardBackground1,
-      shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(
-          width: 3,
-          color: today ? BaseColor.primaryText : BaseColor.transparent,
-        ),
+      elevation: today ? 2 : 1,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
+      surfaceTintColor: today ? BaseColor.teal[300] : BaseColor.teal[50],
+      color: today ? Colors.transparent : BaseColor.cardBackground1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: InkWell(
-        onTap: onPressedCardDatePreview,
-        child: Container(
-          height: height,
-          width: width,
-          padding: EdgeInsets.symmetric(
-            vertical: BaseSize.h6,
-            horizontal: BaseSize.w6,
-          ),
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                date.toStringFormatted("E"),
-                style: BaseTypography.bodyMedium.toSecondary,
-              ),
-              Text(
-                date.day.toString(),
-                style: BaseTypography.headlineSmall,
-              ),
-              serviceCount == 0 && eventCount == 0
-                  ? const SizedBox()
-                  : _buildCounters()
-            ],
+      child: Container(
+        decoration: today
+            ? BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    BaseColor.blue[600]!,
+                    BaseColor.teal[500]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              )
+            : null,
+        child: InkWell(
+          onTap: onPressedCardDatePreview,
+          child: Container(
+            height: height,
+            width: width,
+            padding: EdgeInsets.symmetric(
+              vertical: BaseSize.customHeight(10),
+              horizontal: BaseSize.customWidth(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Day name
+                Text(
+                  date.toStringFormatted("E"),
+                  style: BaseTypography.bodySmall.copyWith(
+                    color: today ? Colors.white.withValues(alpha: 0.9) : BaseColor.secondaryText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Gap.h4,
+                // Day number
+                Text(
+                  date.day.toString(),
+                  style: BaseTypography.headlineSmall.copyWith(
+                    color: today ? Colors.white : BaseColor.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                // Event counters
+                if (hasEvents) ...[
+                  Gap.h6,
+                  _buildCounters(today),
+                ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCounters() {
-    return Padding(
-      padding: EdgeInsets.only(top: BaseSize.h6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildCounters(bool isToday) {
+    return Flexible(
+      child: Wrap(
+        spacing: BaseSize.w4,
+        runSpacing: BaseSize.h4,
+        alignment: WrapAlignment.center,
         children: [
           if (serviceCount != 0)
             _pillChip(
-              icon: Icons.church,
+              icon: Icons.church_outlined,
               label: serviceCount.toString(),
-              bg: BaseColor.green[50]!,
-              fg: BaseColor.green[700]!,
-              border: BaseColor.green[200]!,
+              bg: isToday ? Colors.white.withValues(alpha: 0.2) : BaseColor.green[50]!,
+              fg: isToday ? Colors.white : BaseColor.green[700]!,
+              border: isToday ? Colors.white.withValues(alpha: 0.3) : BaseColor.green[200]!,
             ),
-          if (serviceCount != 0 && eventCount != 0) Gap.w6,
           if (eventCount != 0)
             _pillChip(
-              icon: Icons.event,
+              icon: Icons.event_outlined,
               label: eventCount.toString(),
-              bg: BaseColor.blue[50]!,
-              fg: BaseColor.blue[700]!,
-              border: BaseColor.blue[200]!,
+              bg: isToday ? Colors.white.withValues(alpha: 0.2) : BaseColor.blue[50]!,
+              fg: isToday ? Colors.white : BaseColor.blue[700]!,
+              border: isToday ? Colors.white.withValues(alpha: 0.3) : BaseColor.blue[200]!,
             ),
         ],
       ),
@@ -103,22 +130,25 @@ class CardDatePreviewWidget extends StatelessWidget {
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w6,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-        border: Border.all(color: border),
+        border: Border.all(color: border, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: BaseSize.radiusSm, color: fg),
+          Icon(icon, size: BaseSize.customWidth(12), color: fg),
           Gap.w4,
           Text(
             label,
-            style: BaseTypography.labelSmall.copyWith(color: fg),
+            style: BaseTypography.labelSmall.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

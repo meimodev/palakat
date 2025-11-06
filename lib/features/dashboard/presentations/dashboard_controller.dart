@@ -1,8 +1,8 @@
-import 'package:palakat/features/account/data/membership_repository.dart';
+import 'package:palakat_admin/core/models/models.dart';
+import 'package:palakat_admin/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
-import 'package:palakat/core/models/models.dart' hide Column;
-import 'package:palakat/core/constants/enums/enums.dart';
+import 'package:palakat/core/constants/constants.dart';
 
 part 'dashboard_controller.g.dart';
 
@@ -10,9 +10,10 @@ part 'dashboard_controller.g.dart';
 class DashboardController extends _$DashboardController {
   @override
   DashboardState build() {
-    fetchData();
+    Future.microtask(() {
+      fetchData();
+    });
 
-    // Use defaults from Freezed state (loading flags true initially)
     return const DashboardState();
   }
 
@@ -25,6 +26,7 @@ class DashboardController extends _$DashboardController {
   }
 
   Future<void> fetchMembershipData() async {
+    state = state.copyWith(membershipLoading: true);
     final result = await _membershipRepo.getSignedInMembership();
     result.when(
       onSuccess: (membership) {
@@ -44,35 +46,29 @@ class DashboardController extends _$DashboardController {
     // Create a couple of dummy supervisors for activities/announcements
     final supervisor1 = Membership(
       id: 101,
-      accountId: 1001,
-      churchId: 10,
-      columnId: 1,
       baptize: true,
       sidi: true,
       account: Account(
         id: 1001,
-        phone: '+1 555-0101',
+        phone: '+62 812-3456-7890',
         name: 'Jane Doe',
         dob: DateTime(1990, 5, 20),
         gender: Gender.female,
-        married: false,
+        maritalStatus: MaritalStatus.single,
       ),
     );
 
     final supervisor2 = Membership(
       id: 102,
-      accountId: 1002,
-      churchId: 10,
-      columnId: 1,
       baptize: true,
       sidi: true,
       account: Account(
         id: 1002,
-        phone: '+1 555-0102',
+        phone: '+62 821-5555-7777',
         name: 'John Smith',
         dob: DateTime(1985, 7, 11),
         gender: Gender.male,
-        married: true,
+        maritalStatus: MaritalStatus.married,
       ),
     );
 
@@ -94,13 +90,16 @@ class DashboardController extends _$DashboardController {
       Activity(
         id: 1,
         supervisorId: supervisor1.id,
-        bipra: Bipra.general,
         title: 'Sunday Service',
         description: 'Weekly worship service',
-        date: DateTime(now.year, now.month, now.day).add(const Duration(days: 1)),
+        date: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 1)),
         note: null,
         fileUrl: null,
-        type: ActivityType.service,
+        activityType: ActivityType.service,
         createdAt: now.subtract(const Duration(days: 2)),
         updatedAt: now.subtract(const Duration(days: 1)),
         supervisor: supervisor1,
@@ -112,10 +111,14 @@ class DashboardController extends _$DashboardController {
         bipra: Bipra.youths,
         title: 'Community Outreach',
         description: 'Neighborhood clean-up event',
-        date: DateTime(now.year, now.month, now.day).add(const Duration(days: 3)),
+        date: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 3)),
         note: null,
         fileUrl: null,
-        type: ActivityType.event,
+        activityType: ActivityType.event,
         createdAt: now.subtract(const Duration(days: 1)),
         updatedAt: now,
         supervisor: supervisor2,
@@ -123,7 +126,7 @@ class DashboardController extends _$DashboardController {
       ),
     ];
 
-    // Announcements (use Activity with type announcement)
+    // Announcements (use Activity with type service)
     final announcements = <Activity>[
       Activity(
         id: 3,
@@ -134,7 +137,7 @@ class DashboardController extends _$DashboardController {
         date: now,
         note: null,
         fileUrl: null,
-        type: ActivityType.announcement,
+        activityType: ActivityType.service,
         createdAt: now.subtract(const Duration(days: 1)),
         updatedAt: now,
         supervisor: supervisor1,
@@ -143,13 +146,12 @@ class DashboardController extends _$DashboardController {
       Activity(
         id: 4,
         supervisorId: supervisor2.id,
-        bipra: Bipra.general,
         title: 'Donation Transfer Received',
         description: 'Income: Donation transfer has been received',
         date: now.subtract(const Duration(days: 2)),
         note: null,
         fileUrl: null,
-        type: ActivityType.announcement,
+        activityType: ActivityType.service,
         createdAt: now.subtract(const Duration(days: 2)),
         updatedAt: now.subtract(const Duration(days: 1)),
         supervisor: supervisor2,

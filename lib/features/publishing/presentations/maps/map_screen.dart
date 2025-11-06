@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/models/location.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({

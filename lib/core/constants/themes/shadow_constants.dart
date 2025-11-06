@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/constants/themes/color_constants.dart';
 
 /// [INFO]
 /// Constant for shadows to be used in the app with following the design system

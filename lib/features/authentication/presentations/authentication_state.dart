@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat_admin/core/models/models.dart';
 
-import '../../../core/models/models.dart';
 
 part 'authentication_state.freezed.dart';
 

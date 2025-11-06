@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat/core/models/models.dart';
+import 'package:palakat_admin/core/models/models.dart';
 
 part 'song_book_state.freezed.dart';
 

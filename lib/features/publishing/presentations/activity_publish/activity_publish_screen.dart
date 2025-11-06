@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 
 class ActivityPublishScreen extends ConsumerWidget {
   const ActivityPublishScreen({
@@ -33,7 +33,7 @@ class ActivityPublishScreen extends ConsumerWidget {
       child: Column(
         children: [
           ScreenTitleWidget.primary(
-            title: state.type.name.camelToSentence,
+            title: state.type.name.toCamelCase,
             leadIcon: Assets.icons.line.chevronBackOutline,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,

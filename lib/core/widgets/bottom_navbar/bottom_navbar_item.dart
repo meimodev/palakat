@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 
 class BottomNavBarItem extends StatelessWidget {
   const BottomNavBarItem({

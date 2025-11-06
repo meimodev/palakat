@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/utils/utils.dart';
 
 class InputVariantBinaryOptionWidget<T> extends StatefulWidget {
   const InputVariantBinaryOptionWidget({
