@@ -1,0 +1,25 @@
+{
+  "recommendations": [
+    // Flutter/Dart
+    "dart-code.dart-code",
+    "dart-code.flutter",
+
+    // Node.js/TypeScript
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+
+    // General Development
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+
+    // Database/Backend Tools
+    "prisma.prisma",
+    "ms-azuretools.vscode-docker",
+
+    // YAML/Config
+    "redhat.vscode-yaml"
+  ],
+  "unwantedRecommendations": []
+}

@@ -1,5 +1,16 @@
 # Project Structure
 
+## Monorepo Context
+
+This app is part of a monorepo located at `apps/palakat/` within the larger Palakat monorepo. The monorepo also contains:
+- `apps/palakat_admin/` - Admin app providing shared models, repositories, and services
+- `apps/palakat_backend/` - NestJS backend API
+- `packages/` - Shared packages (for future use)
+
+The monorepo is managed with:
+- **Melos** - Flutter/Dart workspace management
+- **pnpm workspaces** - Node.js package management for the backend
+
 ## Root Organization
 
 ```
@@ -104,11 +115,14 @@ abstract class FeatureState with _$FeatureState {
 
 ## External Dependencies
 
-The app depends on `palakat_admin` package (local path dependency) which provides:
-- Core models
-- Repositories
-- Services
-- Extensions
-- Constants
+The app depends on `palakat_admin` package (located at `../palakat_admin/` in the monorepo) which provides:
+- Core models (Activity, Church, Membership, Song, Revenue, Expense, etc.)
+- Repositories (AuthRepository, ActivityRepository, ChurchRepository, MemberRepository, etc.)
+- Services (ApiService, HttpService, LocalStorageService, ApproverService)
+- Widgets (AppTable, PaginationBar, ValidatedTextField, StatusChip, DateRangePicker, etc.)
+- Extensions (AccountExtension, StringExtension, date formatting, etc.)
+- Constants and Enums (ActivityType, Gender, MaritalStatus, PaymentMethod, etc.)
 
 Import from `palakat_admin` for shared business logic and data access.
+
+The backend API is provided by `palakat_backend` (located at `../palakat_backend/` in the monorepo).

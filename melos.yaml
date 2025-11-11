@@ -1,0 +1,47 @@
+name: palakat_monorepo
+
+packages:
+  - apps/palakat/**
+  - apps/palakat_admin/**
+  - packages/*
+
+scripts:
+  analyze:
+    description: Run flutter analyze across all packages
+    run: melos exec -- flutter analyze
+
+  format:
+    description: Run dart format across all packages
+    run: melos exec -- dart format .
+
+  format:check:
+    description: Check formatting without modifying files
+    run: melos exec -- dart format --set-exit-if-changed .
+
+  test:
+    description: Run flutter test across all packages
+    run: melos exec --fail-fast -- flutter test
+
+  build:runner:
+    description: Run build_runner to generate code
+    run: melos exec --depends-on build_runner -- dart run build_runner build --delete-conflicting-outputs
+
+  build:runner:watch:
+    description: Run build_runner in watch mode for development
+    run: melos exec --depends-on build_runner -- dart run build_runner watch -d
+
+  clean:
+    description: Run flutter clean across all packages
+    run: melos exec -- flutter clean
+
+  get:
+    description: Run flutter pub get across all packages
+    run: melos exec -- flutter pub get
+
+  upgrade:
+    description: Run flutter pub upgrade across all packages
+    run: melos exec -- flutter pub upgrade
+
+command:
+  bootstrap:
+    runPubGetInParallel: false

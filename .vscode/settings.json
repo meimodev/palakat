@@ -1,3 +1,75 @@
 {
-    "kiroAgent.configureMCP": "Disabled"
+  // Search exclusions for better performance
+  "search.exclude": {
+    "**/*.g.dart": true,
+    "**/*.freezed.dart": true,
+    "**/*.gen.dart": true,
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.dart_tool": true,
+    "**/.fvm": true,
+    "**/coverage": true
+  },
+
+  // Files to exclude from file explorer
+  "files.exclude": {
+    "**/.dart_tool": true,
+    "**/.fvm": false
+  },
+
+  // Dart/Flutter settings
+  "dart.lineLength": 80,
+  "dart.analysisExcludedFolders": [
+    "**/build",
+    "**/.dart_tool",
+    "**/node_modules"
+  ],
+
+  // Editor settings
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "editor.rulers": [
+    80,
+    120
+  ],
+
+  // File associations
+  "files.associations": {
+    "*.yaml": "yaml",
+    "melos.yaml": "yaml",
+    "pubspec.yaml": "yaml",
+    "analysis_options.yaml": "yaml"
+  },
+
+  // TypeScript/JavaScript settings (for backend)
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Prettier configuration
+  "prettier.enable": true,
+  "prettier.requireConfig": true,
+
+  // ESLint configuration
+  "eslint.workingDirectories": [
+    {
+      "directory": "./apps/palakat_backend",
+      "changeProcessCWD": true
+    }
+  ],
+
+  // Git settings
+  "git.ignoreLimitWarning": true
 }

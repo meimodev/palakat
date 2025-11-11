@@ -1,5 +1,11 @@
 # Tech Stack
 
+## Monorepo Setup
+
+This app is part of a monorepo managed with:
+- **Melos** - Flutter/Dart workspace management (run commands across all Flutter apps)
+- **pnpm workspaces** - Node.js package management for the backend
+
 ## Framework & Language
 - **Flutter** (SDK: ^3.8.1)
 - **Dart** programming language
@@ -28,7 +34,43 @@
 
 ## Common Commands
 
-### Build & Code Generation
+### Monorepo Commands
+
+From the monorepo root:
+
+```bash
+# Bootstrap all Flutter apps (set up dependencies)
+melos bootstrap
+
+# Analyze all Flutter apps
+melos run analyze
+
+# Test all Flutter apps
+melos run test
+
+# Generate code for all apps
+melos run build:runner
+
+# Watch mode for code generation
+melos run build:runner:watch
+
+# Format all Dart code
+melos run format
+
+# Clean all Flutter apps
+melos clean
+
+# Run commands for this app only
+melos run analyze --scope=palakat
+melos run test --scope=palakat
+melos run build:runner --scope=palakat
+```
+
+### App-Specific Commands
+
+These commands should be run from the `apps/palakat/` directory:
+
+#### Build & Code Generation
 ```bash
 # Clean and rebuild with code generation
 derry build
@@ -44,7 +86,7 @@ dart run build_runner build --delete-conflicting-outputs
 dart run build_runner watch -d
 ```
 
-### Standard Flutter Commands
+#### Standard Flutter Commands
 ```bash
 # Get dependencies
 flutter pub get

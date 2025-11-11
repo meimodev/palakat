@@ -1,0 +1,99 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Palakat App",
+      "type": "dart",
+      "request": "launch",
+      "program": "apps/palakat/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/palakat",
+      "args": []
+    },
+    {
+      "name": "Palakat App (Profile Mode)",
+      "type": "dart",
+      "request": "launch",
+      "program": "apps/palakat/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/palakat",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Palakat App (Release Mode)",
+      "type": "dart",
+      "request": "launch",
+      "program": "apps/palakat/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/palakat",
+      "flutterMode": "release"
+    },
+    {
+      "name": "Palakat Admin",
+      "type": "dart",
+      "request": "launch",
+      "program": "apps/palakat_admin/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/palakat_admin",
+      "args": []
+    },
+    {
+      "name": "Palakat Backend",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "run",
+        "start:dev"
+      ],
+      "cwd": "${workspaceFolder}/apps/palakat_backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Palakat Backend (Debug)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "cwd": "${workspaceFolder}/apps/palakat_backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "restart": true,
+      "port": 9229
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack (App + Backend)",
+      "configurations": [
+        "Palakat App",
+        "Palakat Backend"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "full-stack",
+        "order": 1
+      },
+      "stopAll": true
+    },
+    {
+      "name": "Full Stack Debug",
+      "configurations": [
+        "Palakat App",
+        "Palakat Backend (Debug)"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "full-stack",
+        "order": 2
+      },
+      "stopAll": true
+    }
+  ]
+}

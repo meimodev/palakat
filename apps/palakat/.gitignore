@@ -1,11 +1,3 @@
-# Monorepo-specific
-.melos_tool/
-melos_*.yaml
-
-# Environment files (all apps)
-.env
-**/.env
-
 # Miscellaneous
 *.class
 *.log
@@ -16,8 +8,9 @@ melos_*.yaml
 .buildlog/
 .history
 .svn/
+.env
 
-# Flutter/Dart Generated Files
+# Generated File
 *.g.dart
 *.freezed.dart
 *.gen.dart
@@ -28,8 +21,9 @@ melos_*.yaml
 *.iws
 .idea/
 
-# VS Code
-# Uncomment if you don't want to track VS Code settings
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
 #.vscode/
 
 # Flutter/Dart/Pub related
@@ -42,7 +36,6 @@ melos_*.yaml
 .pub-cache/
 .pub/
 /build/
-**/build/
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -53,25 +46,10 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio build artifacts
+# Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
 
 # FVM Version Cache
 .fvm/
-
-# Node.js / Backend patterns
-node_modules/
-dist/
-coverage/
-.nyc_output/
-.pnpm-debug.log*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-store/
-
-# OS
-Thumbs.db
