@@ -30,11 +30,6 @@ class AppRoute {
   static const String dashboard = 'dashboard';
   static const String activityDetail = "activity-detail";
 
-  // Publishing
-  static const String publishing = 'publishing';
-  static const String activityPublish = "activity-publish";
-  static const String publishingMap = "publish-map";
-
   //Account
   static const String account = 'account';
   static const String membership = 'membership';
@@ -45,6 +40,8 @@ class AppRoute {
 
   //operations
   static const String operations = 'operations';
+  static const String activityPublish = "activity-publish";
+  static const String publishingMap = "publish-map";
 
   // approvals
   static const String approvals = 'approvals';
@@ -73,7 +70,6 @@ GoRouter goRouter(Ref ref) {
       ),
       authenticationRouting,
       dashboardRouting,
-      publishingRouting,
       songRouting,
       operationsRouting,
       approvalRouting,

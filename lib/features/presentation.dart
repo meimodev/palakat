@@ -36,10 +36,7 @@ export 'publishing/presentations/maps/map_controller.dart';
 export 'publishing/presentations/maps/map_screen.dart';
 export 'publishing/presentations/maps/map_state.dart';
 
-//Publishing
-export 'publishing/presentations/publishing_controller.dart';
-export 'publishing/presentations/publishing_screen.dart';
-export 'publishing/presentations/publishing_state.dart';
+//Publishing (activity publish and maps only)
 export 'publishing/presentations/widgets/widgets.dart';
 
 //Song Book

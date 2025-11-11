@@ -20,5 +20,6 @@ abstract class AccountState with _$AccountState {
     String? errorMarried,
     @Default(false) bool loading,
     @Default(false) bool isFormValid,
+    final String? errorMessage,
   }) = _AccountState;
 }

@@ -215,4 +215,8 @@ class ApprovalDetailController extends _$ApprovalDetailController {
         );
     }
   }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
 }

@@ -4,6 +4,7 @@ import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_admin/core/models/models.dart' hide Column;
+import 'package:palakat_admin/widgets.dart';
 
 import 'song_detail_controller.dart';
 
@@ -118,7 +119,18 @@ class SongDetailScreen extends ConsumerWidget {
                     ],
                   ],
                 ),
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => LoadingShimmer(
+                  isLoading: true,
+                  child: Column(
+                    children: [
+                      PalakatShimmerPlaceholders.infoCard(),
+                      Gap.h12,
+                      PalakatShimmerPlaceholders.infoCard(),
+                      Gap.h12,
+                      PalakatShimmerPlaceholders.infoCard(),
+                    ],
+                  ),
+                ),
                 error: (err, stack) => Center(
                   child: Container(
                     padding: EdgeInsets.all(BaseSize.w24),

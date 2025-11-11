@@ -17,5 +17,6 @@ abstract class MembershipState with _$MembershipState {
     String? errorSidi,
     @Default(false) bool loading,
     @Default(false) bool isFormValid,
+    final String? errorMessage,
   }) = _MembershipState;
 }

@@ -27,8 +27,9 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(songBookControllerProvider);
     final controller = ref.read(songBookControllerProvider.notifier);
+    final state = ref.watch(songBookControllerProvider);
+
     final searchText = _searchController.text;
     final isSearching = searchText.isNotEmpty;
 
@@ -54,8 +55,22 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
           Gap.h16,
           // Search results or default categories
           if (isSearching)
-            state.songs.isEmpty
-                ? Container(
+            LoadingWrapper(
+              loading: state.isLoading,
+              hasError: state.errorMessage != null && state.isLoading == false,
+              errorMessage: state.errorMessage,
+              onRetry: () => controller.refreshSongs(),
+              shimmerPlaceholder: Column(
+                children: [
+                  PalakatShimmerPlaceholders.listItemCard(),
+                  Gap.h12,
+                  PalakatShimmerPlaceholders.listItemCard(),
+                  Gap.h12,
+                  PalakatShimmerPlaceholders.listItemCard(),
+                ],
+              ),
+              child: state.songs.isEmpty
+                  ? Container(
                     padding: EdgeInsets.all(BaseSize.w24),
                     decoration: BoxDecoration(
                       color: BaseColor.cardBackground1,
@@ -113,7 +128,8 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                         },
                       );
                     },
-                  )
+                  ),
+            )
           else
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

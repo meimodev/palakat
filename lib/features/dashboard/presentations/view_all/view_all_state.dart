@@ -7,5 +7,6 @@ part 'view_all_state.freezed.dart';
 abstract class ViewAllState with _$ViewAllState {
   const factory ViewAllState({
     @Default(<Activity>[]) List<Activity> activities,
+    final String? errorMessage,
   }) = _ViewAllState;
 }

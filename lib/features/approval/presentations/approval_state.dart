@@ -15,5 +15,6 @@ abstract class ApprovalState with _$ApprovalState {
     DateTime? filterEndDate,
     // Computed/derived list based on filters
     @Default(<Activity>[]) List<Activity> filteredApprovals,
+    final String? errorMessage,
   }) = _ApprovalState;
 }

@@ -23,7 +23,6 @@ class SongBookController extends _$SongBookController {
   }
 
   Future<void> fetchSongs() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
       final songs = _getMockSongs();
@@ -144,6 +143,10 @@ class SongBookController extends _$SongBookController {
       'Damai Sejahtera',
     ];
     return subtitles[index % subtitles.length];
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
   }
 }
 

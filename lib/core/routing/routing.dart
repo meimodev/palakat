@@ -3,6 +3,5 @@ export 'authentication_routing.dart';
 export 'dashboard_routing.dart';
 export 'membership_routing.dart';
 export 'operations_routing.dart';
-export 'publishing_routing.dart';
 export 'song_routing.dart';
 export 'approval_routing.dart';

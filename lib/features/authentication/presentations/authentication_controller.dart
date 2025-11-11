@@ -24,9 +24,6 @@ class AuthenticationController extends _$AuthenticationController {
 
   AuthRepository get _authRepo => ref.read(authRepositoryProvider);
 
-  MembershipRepository get _membershipRepo =>
-      ref.read(membershipRepositoryProvider);
-
   void onChangedTextPhone(String value) {
     state = state.copyWith(
       phone: value,
@@ -151,7 +148,7 @@ class AuthenticationController extends _$AuthenticationController {
           errorMessage: null,
         );
         if (auth.account.membership != null) {
-          signInMembership(auth.account.membership!.id!);
+          updateLocallySavedAuth(auth);
         }
         onAlreadyRegistered(auth.account);
       },
@@ -179,12 +176,9 @@ class AuthenticationController extends _$AuthenticationController {
     state = const AuthenticationState();
   }
 
-  void signInMembership(int membershipId) async {
-    final resultMembership = await _membershipRepo.getMembership(membershipId);
-    resultMembership.when(
-      onSuccess: (Membership data) async {
-        await _membershipRepo.signInMembership(data);
-      },
-    );
+  void updateLocallySavedAuth(AuthResponse auth)async {
+     await _authRepo.updateLocallySavedAuth(auth);
   }
+
+ 
 }

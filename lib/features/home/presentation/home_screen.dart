@@ -55,7 +55,6 @@ class HomeScreen extends ConsumerWidget {
                 controller: state.pageController,
                 children: const [
                   DashboardScreen(),
-                  PublishingScreen(),
                   SongBookScreen(),
                   OperationsScreen(),
                   ApprovalScreen(),

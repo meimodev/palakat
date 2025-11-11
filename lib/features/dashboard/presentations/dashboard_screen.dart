@@ -27,8 +27,12 @@ class DashboardScreen extends ConsumerWidget {
             paddingTop: BaseSize.h24,
             paddingBottom: BaseSize.h24,
             loading: state.membershipLoading,
+            hasError: state.errorMessage != null && state.membershipLoading == false,
+            errorMessage: state.errorMessage,
+            onRetry: () => controller.fetchData(),
+            shimmerPlaceholder: PalakatShimmerPlaceholders.membershipCard(),
             child: MembershipCardWidget(
-              membership: state.membership,
+              account: state.account,
               onPressedCard: () async {
                 await context.pushNamed(AppRoute.authentication);
                 controller.fetchData();
@@ -43,6 +47,18 @@ class DashboardScreen extends ConsumerWidget {
                 paddingTop: BaseSize.h48,
                 paddingBottom: BaseSize.h24,
                 loading: state.thisWeekActivitiesLoading,
+                hasError: state.errorMessage != null && state.thisWeekActivitiesLoading == false,
+                errorMessage: state.errorMessage,
+                onRetry: () => controller.fetchThisWeekActivities(),
+                shimmerPlaceholder: Column(
+                  children: [
+                    PalakatShimmerPlaceholders.activityCard(),
+                    Gap.h8,
+                    PalakatShimmerPlaceholders.activityCard(),
+                    Gap.h8,
+                    PalakatShimmerPlaceholders.activityCard(),
+                  ],
+                ),
                 child: ActivityWidget(
                   onPressedViewAll: () async =>
                       await context.pushNamed(AppRoute.viewAll),
@@ -80,6 +96,16 @@ class DashboardScreen extends ConsumerWidget {
                 paddingTop: BaseSize.h24,
                 paddingBottom: BaseSize.h24,
                 loading: state.thisWeekAnnouncementsLoading,
+                hasError: state.errorMessage != null && state.thisWeekAnnouncementsLoading == false,
+                errorMessage: state.errorMessage,
+                onRetry: () => controller.fetchThisWeekActivities(),
+                shimmerPlaceholder: Column(
+                  children: [
+                    PalakatShimmerPlaceholders.announcementCard(),
+                    Gap.h12,
+                    PalakatShimmerPlaceholders.announcementCard(),
+                  ],
+                ),
                 child: AnnouncementWidget(
                   announcements: state.thisWeekAnnouncements,
                   onPressedViewAll: () async {

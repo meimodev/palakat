@@ -43,4 +43,8 @@ class ViewAllController extends _$ViewAllController {
 
     return ViewAllState(activities: activities);
   }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
 }

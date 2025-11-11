@@ -10,6 +10,10 @@ export 'bottom_navbar/bottom_navbar_item.dart';
 
 // Loading Wrapper
 export 'loading/loading_wrapper.dart';
+export 'loading/shimmer_widgets.dart';
+
+// Error
+export 'error/error.dart';
 
 // App Bar
 export 'appbar/appbar_widget.dart';

@@ -8,5 +8,6 @@ abstract class ApprovalDetailState with _$ApprovalDetailState {
   const factory ApprovalDetailState({
     @Default(true) bool loadingScreen,
     Activity? activity,
+    final String? errorMessage,
   }) = _ApprovalDetailState;
 }

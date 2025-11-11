@@ -1,5 +1,5 @@
 import 'package:palakat_admin/core/models/models.dart';
-import 'package:palakat_admin/core/repositories/membership_repository.dart';
+import 'package:palakat_admin/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat/core/constants/constants.dart';
@@ -8,8 +8,8 @@ part 'approval_controller.g.dart';
 
 @riverpod
 class ApprovalController extends _$ApprovalController {
-  MembershipRepository get _membershipRepository =>
-      ref.read(membershipRepositoryProvider);
+  AuthRepository get _authRepository =>
+      ref.read(authRepositoryProvider);
 
   @override
   ApprovalState build() {
@@ -23,10 +23,16 @@ class ApprovalController extends _$ApprovalController {
   }
 
   Future<void> fetchMembership() async {
-    final result = await _membershipRepository.getSignedInMembership();
+    final result = await _authRepository.getSignedInAccount();
     result.when(
-      onSuccess: (data) {
-        state = state.copyWith(membership: data, loadingScreen: false);
+      onSuccess: (account) {
+        state = state.copyWith(membership: account?.membership, loadingScreen: false);
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          loadingScreen: false,
+          errorMessage: failure.message ,
+        );
       },
     );
   }
@@ -280,5 +286,9 @@ class ApprovalController extends _$ApprovalController {
 
     final approvals = [a1, a2, a3];
     state = state.copyWith(approvals: approvals, filteredApprovals: approvals);
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
   }
 }

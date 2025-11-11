@@ -8,5 +8,6 @@ abstract class OperationsState with _$OperationsState {
   const factory OperationsState({
     Membership? membership,
     @Default(true) bool loadingScreen,
+    final String? errorMessage,
   }) = _OperationsState;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
+import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({
@@ -15,24 +16,39 @@ class BottomNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Check auth state to determine which items to show
+    final storage = ref.watch(localStorageServiceProvider);
+    final hasAuth = storage.currentAuth?.account != null;
+
+    // Define visible indices: [0: Home, 1: Songs, 2: Ops, 3: Approval]
+    // Without auth: only show Home and Songs
+    final visibleIndices = hasAuth ? [0, 1, 2, 3] : [0, 1];
+
+    // Map currentIndex to visual position in the filtered list
+    final selectedVisualIndex = visibleIndices.indexOf(currentIndex);
+    final safeSelectedIndex = selectedVisualIndex >= 0 ? selectedVisualIndex : 0;
+
     final double iconSize = BaseSize.w24;
     // Per-tab selected color palette aligned with Operations accents
-    final List<Color> selectedPalette = <Color>[
+    final List<Color> allSelectedColors = <Color>[
       BaseColor.primary4,               // Home - Green
-      BaseColor.blue.shade600,          // Explore - Blue
       BaseColor.yellow.shade600,        // Songs - Yellow/Orange
       BaseColor.red.shade600,           // Ops - Red
       BaseColor.teal.shade600,          // Approval - Teal
     ];
-    final Color selectedColor = selectedPalette[currentIndex];
+
+    // Filter colors based on visible indices
+    final List<Color> selectedPalette = visibleIndices
+        .map((i) => allSelectedColors[i])
+        .toList();
+
+    final Color selectedColor = selectedPalette[safeSelectedIndex];
+
     // Per-tab unselected palette using lighter opacity of each accent
-    final List<Color> unselectedPalette = <Color>[
-      selectedPalette[0].withValues(alpha: 0.5),
-      selectedPalette[1].withValues(alpha: 0.5),
-      selectedPalette[2].withValues(alpha: 0.5),
-      selectedPalette[3].withValues(alpha: 0.5),
-      selectedPalette[4].withValues(alpha: 0.5),
-    ];
+    final List<Color> unselectedPalette = selectedPalette
+        .map((color) => color.withValues(alpha: 0.5))
+        .toList();
+
     // Keep unselected label neutral for readability
     final Color unselectedColor = BaseColor.secondaryText;
 
@@ -72,8 +88,12 @@ class BottomNavBar extends ConsumerWidget {
             ),
             child: NavigationBar(
               animationDuration: const Duration(milliseconds: 400),
-              selectedIndex: currentIndex,
-              onDestinationSelected: (index) => onPressedItem(index),
+              selectedIndex: safeSelectedIndex,
+              onDestinationSelected: (visualIndex) {
+                // Map visual index back to logical index
+                final logicalIndex = visibleIndices[visualIndex];
+                onPressedItem(logicalIndex);
+              },
               backgroundColor: Colors.transparent,
               elevation: 0,
               // Stronger indicator with per-tab accent color
@@ -82,78 +102,79 @@ class BottomNavBar extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: [
-            NavigationDestination(
-              icon: Assets.icons.line.gridOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(unselectedPalette[0], BlendMode.srcIn),
+              destinations: _buildDestinations(
+                visibleIndices,
+                iconSize,
+                unselectedPalette,
+                selectedColor,
               ),
-              selectedIcon: Assets.icons.line.gridOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-              ),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Assets.icons.line.globeOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(unselectedPalette[1], BlendMode.srcIn),
-              ),
-              selectedIcon: Assets.icons.line.globeOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-              ),
-              label: 'Explore',
-            ),
-            NavigationDestination(
-              icon: Assets.icons.line.musicalNotes.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(unselectedPalette[2], BlendMode.srcIn),
-              ),
-              selectedIcon: Assets.icons.line.musicalNotes.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-              ),
-              label: 'Songs',
-            ),
-            NavigationDestination(
-              icon: Assets.icons.line.documentOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(unselectedPalette[3], BlendMode.srcIn),
-              ),
-              selectedIcon: Assets.icons.line.documentOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-              ),
-              label: 'Ops',
-            ),
-            NavigationDestination(
-              // No dedicated settings icon in line set; using reader_outline for Approval for now.
-              icon: Assets.icons.line.readerOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(unselectedPalette[4], BlendMode.srcIn),
-              ),
-              selectedIcon: Assets.icons.line.readerOutline.svg(
-                width: iconSize,
-                height: iconSize,
-                colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-              ),
-              label: 'Approval',
-            ),
-          ],
         ),
       ),
     ),
   ),
     );
   }
+
+  /// Builds navigation destinations based on visible indices
+  List<NavigationDestination> _buildDestinations(
+    List<int> visibleIndices,
+    double iconSize,
+    List<Color> unselectedPalette,
+    Color selectedColor,
+  ) {
+    // Map of all possible destinations
+    final allDestinations = <int, _DestinationData>{
+      0: _DestinationData(
+        icon: Assets.icons.line.gridOutline,
+        label: 'Home',
+      ),
+      1: _DestinationData(
+        icon: Assets.icons.line.musicalNotes,
+        label: 'Songs',
+      ),
+      2: _DestinationData(
+        icon: Assets.icons.line.documentOutline,
+        label: 'Ops',
+      ),
+      3: _DestinationData(
+        icon: Assets.icons.line.readerOutline,
+        label: 'Approval',
+      ),
+    };
+
+    // Build destinations for visible indices
+    return visibleIndices.asMap().entries.map((entry) {
+      final visualIndex = entry.key;
+      final logicalIndex = entry.value;
+      final data = allDestinations[logicalIndex]!;
+
+      return NavigationDestination(
+        icon: data.icon.svg(
+          width: iconSize,
+          height: iconSize,
+          colorFilter: ColorFilter.mode(
+            unselectedPalette[visualIndex],
+            BlendMode.srcIn,
+          ),
+        ),
+        selectedIcon: data.icon.svg(
+          width: iconSize,
+          height: iconSize,
+          colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
+        ),
+        label: data.label,
+      );
+    }).toList();
+  }
+}
+
+/// Helper class to store destination data
+class _DestinationData {
+  final SvgGenImage icon;
+  final String label;
+
+  const _DestinationData({
+    required this.icon,
+    required this.label,
+  });
 }

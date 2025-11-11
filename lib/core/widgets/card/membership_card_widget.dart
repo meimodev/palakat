@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/core/extension/membership_extension.dart';
+import 'package:palakat_admin/core/extension/extension.dart';
 import 'package:palakat_admin/core/models/models.dart' hide Column;
 
 class MembershipCardWidget extends StatelessWidget {
-  const MembershipCardWidget({super.key, this.onPressedCard, this.membership});
+  const MembershipCardWidget({super.key, required this.onPressedCard, this.account});
 
-  final Membership? membership;
+  final Account? account;
 
-  final VoidCallback? onPressedCard;
+  final VoidCallback onPressedCard;
 
   @override
   Widget build(BuildContext context) {
-    final bool signed = membership != null;
-
+    final bool signed = account != null;
+    final membership = account?.membership;
 
     return Material(
       clipBehavior: Clip.hardEdge,
@@ -92,7 +92,7 @@ class MembershipCardWidget extends StatelessWidget {
                       children: [
                         if (signed) ...[
                           Text(
-                            membership!.account?.name ?? '',
+                            account?.name ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: BaseTypography.titleLarge.copyWith(
@@ -128,7 +128,7 @@ class MembershipCardWidget extends StatelessWidget {
                           ),
                           Gap.h4,
                           Text(
-                            'Sign in to see your congregation',
+                            'Sign in to see your congregation information',
                             style: BaseTypography.bodyMedium.copyWith(
                               color: Colors.white.withValues(alpha: 0.9),
                             ),
@@ -147,9 +147,9 @@ class MembershipCardWidget extends StatelessWidget {
                   children: [
                     _pillChip(
                       icon: Icons.group_outlined,
-                      label: (membership?.bipra?.name ?? '').isEmpty
+                      label: (account?.calculateBipra.name ?? '').isEmpty
                           ? 'Not Set'
-                          : (membership?.bipra?.name ?? ''),
+                          : (account?.calculateBipra.name ?? ''),
                       bg: BaseColor.teal[50] ?? BaseColor.neutral20,
                       fg: BaseColor.teal[700] ?? BaseColor.primaryText,
                       border: BaseColor.teal[200] ?? BaseColor.neutral40,
@@ -157,8 +157,8 @@ class MembershipCardWidget extends StatelessWidget {
                     Gap.w8,
                     _pillChip(
                       icon: Icons.location_city_outlined,
-                      label: membership?.column?.id != null
-                          ? 'Column ${membership!.column!.id}'
+                      label: membership?.column?.name != null
+                          ? 'Column ${membership!.column!.name}'
                           : 'Not Set',
                       bg: BaseColor.teal[50] ?? BaseColor.neutral20,
                       fg: BaseColor.teal[700] ?? BaseColor.primaryText,

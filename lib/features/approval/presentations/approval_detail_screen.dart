@@ -23,61 +23,27 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(
+      approvalDetailControllerProvider(activityId: activityId).notifier,
+    );
     final detailState = ref.watch(
       approvalDetailControllerProvider(activityId: activityId),
     );
     final activity = detailState.activity;
 
-    if (detailState.loadingScreen) {
-      return ScaffoldWidget(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ScreenTitleWidget.primary(
-              leadIcon: Assets.icons.line.chevronBackOutline,
-              title: "Approval Details",
-              onPressedLeadIcon: () => context.pop(),
-              leadIconColor: BaseColor.primary3,
-            ),
-            Gap.h16,
-            const Center(child: CircularProgressIndicator()),
-          ],
-        ),
-      );
-    }
-
-    if (activity == null) {
-      return ScaffoldWidget(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ScreenTitleWidget.primary(
-              leadIcon: Assets.icons.line.chevronBackOutline,
-              title: "Approval Details",
-              onPressedLeadIcon: () => context.pop(),
-              leadIconColor: BaseColor.primary3,
-            ),
-            Gap.h16,
-            const InfoBoxWidget(
-              message:
-                  'Approval not found. It may have been removed or is unavailable.',
-            ),
-          ],
-        ),
-      );
-    }
-
-    final overall = _getOverallStatus(activity.approvers);
-    final bool isMinePending = activity.approvers.any(
-      (ap) =>
-          ap.status == ApprovalStatus.unconfirmed &&
-          ap.membership!.id == currentMembershipId,
-    );
+    final overall = activity != null ? _getOverallStatus(activity.approvers) : null;
+    final bool isMinePending = activity != null &&
+        activity.approvers.any(
+          (ap) =>
+              ap.status == ApprovalStatus.unconfirmed &&
+              ap.membership!.id == currentMembershipId,
+        );
 
     return ScaffoldWidget(
-      persistBottomWidget: (overall == ApprovalStatus.unconfirmed && isMinePending)
-          ? _buildActionButtons(context)
-          : null,
+      persistBottomWidget:
+          (overall == ApprovalStatus.unconfirmed && isMinePending)
+              ? _buildActionButtons(context)
+              : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -88,7 +54,48 @@ class ApprovalDetailScreen extends ConsumerWidget {
             leadIconColor: BaseColor.primary3,
           ),
           Gap.h16,
-          _buildActivityInfoCard(activity),
+          LoadingWrapper(
+            loading: detailState.loadingScreen,
+            hasError: detailState.errorMessage != null && detailState.loadingScreen == false,
+            errorMessage: detailState.errorMessage,
+            onRetry: () => controller.fetch(activityId),
+            shimmerPlaceholder: Column(
+              children: [
+                PalakatShimmerPlaceholders.infoCard(),
+                Gap.h12,
+                PalakatShimmerPlaceholders.infoCard(),
+                Gap.h12,
+                PalakatShimmerPlaceholders.approvalCard(),
+              ],
+            ),
+            child: activity == null
+                ? const InfoBoxWidget(
+                    message:
+                        'Approval not found. It may have been removed or is unavailable.',
+                  )
+                : _buildActivityDetails(context, ref, activity),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityDetails(
+    BuildContext context,
+    WidgetRef ref,
+    Activity activity,
+  ) {
+    final overall = _getOverallStatus(activity.approvers);
+    final bool isMinePending = activity.approvers.any(
+      (ap) =>
+          ap.status == ApprovalStatus.unconfirmed &&
+          ap.membership!.id == currentMembershipId,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildActivityInfoCard(activity),
           Gap.h12,
           _buildSupervisorCard(activity),
           Gap.h12,
@@ -121,8 +128,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             ApprovalStatusPill(status: overall),
           ],
         ],
-      ),
-    );
+      );
   }
 
   ApprovalStatus _getOverallStatus(List<Approver> items) {
