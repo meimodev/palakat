@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class CardDatePreviewWidget extends StatelessWidget {
   const CardDatePreviewWidget({

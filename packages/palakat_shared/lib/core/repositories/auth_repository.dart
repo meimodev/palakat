@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:palakat_admin/core/models/account.dart';
+import 'package:palakat_shared/core/models/account.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_admin/core/config/endpoint.dart';
-import 'package:palakat_admin/core/models/auth_credentials.dart';
-import 'package:palakat_admin/core/models/auth_response.dart';
-import 'package:palakat_admin/core/models/auth_tokens.dart';
-import 'package:palakat_admin/core/models/result.dart';
-import 'package:palakat_admin/core/services/local_storage_service.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
-import 'package:palakat_admin/core/services/http_service.dart';
-import 'package:palakat_admin/core/utils/error_mapper.dart';
+import 'package:palakat_shared/core/config/endpoint.dart';
+import 'package:palakat_shared/core/models/auth_credentials.dart';
+import 'package:palakat_shared/core/models/auth_response.dart';
+import 'package:palakat_shared/core/models/auth_tokens.dart';
+import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/services/local_storage_service.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/services/http_service.dart';
+import 'package:palakat_shared/core/utils/error_mapper.dart';
 
 part 'auth_repository.g.dart';
 

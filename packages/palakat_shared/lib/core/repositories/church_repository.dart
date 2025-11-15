@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:palakat_admin/core/models/column_detail.dart';
+import 'package:palakat_shared/core/models/column_detail.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/church.dart';

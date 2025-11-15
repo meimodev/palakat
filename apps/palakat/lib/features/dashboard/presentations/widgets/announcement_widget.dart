@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat_admin/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'widgets.dart';
 
 class AnnouncementWidget extends StatelessWidget {

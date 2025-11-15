@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
-import 'package:palakat_admin/core/models/approver.dart';
-import 'package:palakat_admin/core/repositories/approver_repository.dart';
-import 'package:palakat_admin/core/utils/date_utils.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/models/approver.dart';
+import 'package:palakat_shared/core/repositories/approver_repository.dart';
+import 'package:palakat_shared/core/utils/date_utils.dart';
 
 /// Compact approver card for displaying in table cells (wrapped layout)
 class ApproverCardCompact extends ConsumerWidget {

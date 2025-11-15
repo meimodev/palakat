@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_admin/core/services/local_storage_service.dart';
+import 'package:palakat_shared/core/services/local_storage_service.dart';
 
 part 'local_storage_service_provider.g.dart';
 

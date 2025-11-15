@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/constants/date_range_preset.dart';
-import 'package:palakat_admin/core/models/member_position.dart';
-import 'package:palakat_admin/core/widgets/pagination_bar.dart';
+import 'package:palakat_shared/core/constants/date_range_preset.dart';
+import 'package:palakat_shared/core/models/member_position.dart';
+import 'package:palakat_shared/core/widgets/pagination_bar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:palakat_admin/core/utils/debouncer.dart';
+import 'package:palakat_shared/core/utils/debouncer.dart';
 
 /// Generic, reusable data table for consistent tables across the app.
 ///

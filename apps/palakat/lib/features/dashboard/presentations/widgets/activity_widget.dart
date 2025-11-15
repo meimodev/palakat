@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/core/models/models.dart' hide Column;
-import 'package:palakat_admin/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 import 'widgets.dart';

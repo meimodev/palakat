@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/models/models.dart';
+import 'package:palakat_shared/core/models/models.dart';
 
 part 'approval_detail_state.freezed.dart';
 

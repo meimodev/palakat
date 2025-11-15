@@ -1,7 +1,7 @@
 import 'dart:developer' as dev;
 
 import 'package:dio/dio.dart';
-import 'package:palakat_admin/core/models/app_error.dart';
+import 'package:palakat_shared/core/models/app_error.dart';
 
 /// Centralized error mapping utilities with comprehensive logging
 class ErrorMapper {

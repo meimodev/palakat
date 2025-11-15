@@ -6,7 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
-import 'package:palakat_admin/core/models/models.dart' as model;
+import 'package:palakat_shared/core/models/models.dart' as model;
 
 class MembershipScreen extends ConsumerWidget {
   const MembershipScreen({super.key});

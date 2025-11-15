@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+
 // import removed: no longer needed
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:palakat_shared/core/config/app_config.dart';
+// import 'package:palakat_shared/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/core/config/endpoint.dart';
+import 'package:palakat_shared/core/models/auth_tokens.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_admin/core/config/app_config.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
-import 'package:palakat_admin/features/auth/application/auth_controller.dart';
-import 'package:palakat_admin/core/config/endpoint.dart';
-import 'package:palakat_admin/core/models/auth_tokens.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
@@ -68,13 +69,15 @@ class HttpService {
       //     enabled: true, // Set to false in production
       //   ),
       // );
-    _dio.interceptors.add(TalkerDioLogger(
-      settings: const TalkerDioLoggerSettings(
-        printRequestHeaders: true,
-        printResponseHeaders: false,
-        printResponseMessage: true,
-      ),
-    ));
+      _dio.interceptors.add(
+        TalkerDioLogger(
+          settings: const TalkerDioLoggerSettings(
+            printRequestHeaders: true,
+            printResponseHeaders: false,
+            printResponseMessage: true,
+          ),
+        ),
+      );
     }
 
     // Custom error interceptor
@@ -269,7 +272,6 @@ HttpService httpService(Ref ref) {
   final localStorage = ref.watch(localStorageServiceProvider);
   final headers = <String, String>{};
 
-
   return HttpService(
     baseUrl: config.apiBaseUrl,
     connectTimeout: const Duration(seconds: 10),
@@ -303,7 +305,9 @@ HttpService httpService(Ref ref) {
     },
     onUnauthorized: () async {
       // Ensure controller state resets so router guard reacts
-      await ref.read(authControllerProvider.notifier).forceSignOut();
+      // TODO: Implement auth controller in consuming app
+      // await ref.read(authControllerProvider.notifier).forceSignOut();
+      await localStorage.clear();
     },
   );
 }

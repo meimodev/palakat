@@ -1,9 +1,9 @@
 
 import 'dart:developer' as dev show log;
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:palakat_admin/core/models/auth_response.dart';
-import 'package:palakat_admin/core/models/auth_tokens.dart';
-import 'package:palakat_admin/core/models/membership.dart';
+import 'package:palakat_shared/core/models/auth_response.dart';
+import 'package:palakat_shared/core/models/auth_tokens.dart';
+import 'package:palakat_shared/core/models/membership.dart';
 
 /// Auth persistence service backed by Hive. Stores the full AuthResponse
 /// (tokens + account) as JSON, enabling session restore and account caching.

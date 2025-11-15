@@ -1,27 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/models/billing.dart';
-import 'package:palakat_admin/core/models/result.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
-import 'package:palakat_admin/core/utils/error_mapper.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/billing.dart';
+import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/utils/error_mapper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'billing_repository.g.dart';
 
 @riverpod
-BillingRepository billingRepository(Ref ref) => BillingRepository(ref);
+BillingRepository billingRepository(Ref ref) => BillingRepository();
 
 class BillingRepository {
-  BillingRepository(this._ref);
-
-  final Ref _ref;
+  BillingRepository();
 
   /// Fetch all billing items (with mock data for now)
   Future<Result<List<BillingItem>, Failure>> getBillingItemsAsync() async {
     try {
       await Future.delayed(const Duration(milliseconds: 800));
       final items = _generateMockBillingItems();
-      
+
       return Result.success(items);
     } on DioException catch (e, st) {
       final error = ErrorMapper.fromDio(e, 'Failed to fetch billing items', st);
@@ -40,17 +38,25 @@ class BillingRepository {
       // final payments = (response.data as List)
       //     .map((json) => PaymentHistory.fromJson(json))
       //     .toList();
-      
+
       // Mock data for now
       await Future.delayed(const Duration(milliseconds: 600));
       final payments = _generateMockPaymentHistory();
-      
+
       return Result.success(payments);
     } on DioException catch (e, st) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch payment history', st);
+      final error = ErrorMapper.fromDio(
+        e,
+        'Failed to fetch payment history',
+        st,
+      );
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch payment history', e, st);
+      final error = ErrorMapper.unknown(
+        'Failed to fetch payment history',
+        e,
+        st,
+      );
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
@@ -73,7 +79,7 @@ class BillingRepository {
       //     'notes': notes,
       //   },
       // );
-      
+
       await Future.delayed(const Duration(milliseconds: 500));
       return Result.success(null);
     } on DioException catch (e, st) {
@@ -94,15 +100,17 @@ class BillingRepository {
   ) {
     return items.where((item) {
       final q = searchQuery.trim().toLowerCase();
-      final matchesQuery = q.isEmpty ||
+      final matchesQuery =
+          q.isEmpty ||
           (item.id?.toLowerCase().contains(q) ?? false) ||
           item.description.toLowerCase().contains(q) ||
           item.type.displayName.toLowerCase().contains(q) ||
           item.status.displayName.toLowerCase().contains(q);
 
       final matchesStatus = statusFilter == null || item.status == statusFilter;
-      
-      final matchesDate = dateRange == null || _isInDateRange(item.dueDate, dateRange);
+
+      final matchesDate =
+          dateRange == null || _isInDateRange(item.dueDate, dateRange);
 
       return matchesQuery && matchesStatus && matchesDate;
     }).toList();
@@ -121,12 +129,23 @@ class BillingRepository {
 
   /// Check if a date is within a date range
   bool _isInDateRange(DateTime date, DateTimeRange range) {
-    final start = DateTime(range.start.year, range.start.month, range.start.day);
-    final end = DateTime(range.end.year, range.end.month, range.end.day, 23, 59, 59);
+    final start = DateTime(
+      range.start.year,
+      range.start.month,
+      range.start.day,
+    );
+    final end = DateTime(
+      range.end.year,
+      range.end.month,
+      range.end.day,
+      23,
+      59,
+      59,
+    );
     final checkDate = DateTime(date.year, date.month, date.day);
-    
+
     return (checkDate.isAtSameMomentAs(start) || checkDate.isAfter(start)) &&
-           (checkDate.isAtSameMomentAs(end) || checkDate.isBefore(end));
+        (checkDate.isAtSameMomentAs(end) || checkDate.isBefore(end));
   }
 
   /// Generate mock billing items

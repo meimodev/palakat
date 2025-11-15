@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/models/member_position.dart';
+import 'package:palakat_shared/core/models/member_position.dart';
 
 /// A reusable widget for selecting member positions with a dropdown + chips pattern.
 /// 

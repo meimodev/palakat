@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 /// Custom page transition builder that provides smooth and elegant transitions
 class SmoothPageTransition<T> extends CustomTransitionPage<T> {

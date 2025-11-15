@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/features/auth/application/auth_controller.dart';
-import 'package:palakat_admin/core/extension/string_extension.dart';
+import 'package:go_router/go_router.dart';
+// import 'package:palakat_shared/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/core/extension/string_extension.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
@@ -10,16 +10,18 @@ class AppSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final route = GoRouterState.of(context).uri.toString();
-    final auth = ref.watch(authControllerProvider).asData?.value;
-    final account = auth?.account;
-    final displayName = account?.name ?? 'Admin User';
+    // TODO: Implement auth controller in consuming app
+    // final auth = ref.watch(authControllerProvider).asData?.value;
+    // final account = auth?.account;
+    final displayName = 'Admin User'; // account?.name ?? 'Admin User';
 
-    final church = ref
-        .read(authControllerProvider)
-        .value
-        ?.account
-        .membership
-        ?.church;
+    // final church = ref
+    //     .read(authControllerProvider)
+    //     .value
+    //     ?.account
+    //     .membership
+    //     ?.church;
+    String? churchName;
 
     return Drawer(
       elevation: 0,
@@ -176,7 +178,7 @@ class AppSidebar extends ConsumerWidget {
                 ),
                 title: Text(displayName),
                 subtitle: Text(
-                  church?.name ?? '',
+                  churchName ?? '',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 onTap: () => context.go('/account'),

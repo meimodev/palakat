@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
 import 'package:palakat/core/widgets/error/error_display_widget.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/widgets.dart';
 
 /// Wrapper widget that handles three states: loading, error, and content
 ///

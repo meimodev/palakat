@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 part 'billing.freezed.dart';
 part 'billing.g.dart';

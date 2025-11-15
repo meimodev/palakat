@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/models/approval_status.dart';
+import 'package:palakat_shared/core/models/approval_status.dart';
 
 class CompactStatusChip extends StatelessWidget {
   final String label;

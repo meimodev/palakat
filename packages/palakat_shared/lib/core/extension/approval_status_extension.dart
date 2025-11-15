@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Extension for ApprovalStatus enum providing display properties
 extension ApprovalStatusExtension on ApprovalStatus {

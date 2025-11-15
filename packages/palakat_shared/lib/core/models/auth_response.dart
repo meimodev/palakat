@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/models/auth_tokens.dart';
+import 'package:palakat_shared/core/models/auth_tokens.dart';
 
 import 'account.dart';
 

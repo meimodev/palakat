@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_admin/core/services/http_service.dart';
-import 'package:palakat_admin/core/models/document.dart';
-import 'package:palakat_admin/core/models/app_error.dart';
-import 'package:palakat_admin/core/models/result.dart';
-import 'package:palakat_admin/core/models/request/request.dart';
-import 'package:palakat_admin/core/models/response/response.dart';
-import 'package:palakat_admin/core/utils/error_mapper.dart';
-import 'package:palakat_admin/core/config/endpoint.dart';
-import 'package:palakat_admin/core/repositories/church_repository.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/services/http_service.dart';
+import 'package:palakat_shared/core/models/document.dart';
+import 'package:palakat_shared/core/models/app_error.dart';
+import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/models/request/request.dart';
+import 'package:palakat_shared/core/models/response/response.dart';
+import 'package:palakat_shared/core/utils/error_mapper.dart';
+import 'package:palakat_shared/core/config/endpoint.dart';
+import 'package:palakat_shared/core/repositories/church_repository.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
 part 'document_repository.g.dart';
 

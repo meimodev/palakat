@@ -1,4 +1,4 @@
-import 'package:palakat_admin/core/models/models.dart';
+import 'package:palakat_shared/core/models/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/approval/presentations/approval_detail_state.dart';

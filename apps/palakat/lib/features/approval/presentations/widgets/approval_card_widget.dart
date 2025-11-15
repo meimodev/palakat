@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
-import 'package:palakat_admin/models.dart' hide Column;
+import 'package:palakat_shared/models.dart' hide Column;
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
 

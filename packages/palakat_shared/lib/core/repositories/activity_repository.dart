@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:palakat_admin/core/models/request/request.dart';
+import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/activity.dart';
 import '../models/result.dart';

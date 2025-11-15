@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat_admin/services.dart';
+import 'package:palakat_shared/services.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';

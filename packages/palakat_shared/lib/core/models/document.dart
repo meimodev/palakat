@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/models/church.dart';
-import 'package:palakat_admin/core/models/file_manager.dart';
+import 'package:palakat_shared/core/models/church.dart';
+import 'package:palakat_shared/core/models/file_manager.dart';
 
 part 'document.freezed.dart';
 

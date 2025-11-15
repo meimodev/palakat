@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
-import 'package:palakat_admin/core/widgets/loading_shimmer.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
 
 /// Reusable quick statistic card with built-in shimmer loading
 class QuickStatCard extends StatelessWidget {

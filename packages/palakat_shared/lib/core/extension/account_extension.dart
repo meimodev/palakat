@@ -1,5 +1,5 @@
-import 'package:palakat_admin/core/constants/enums.dart';
-import 'package:palakat_admin/core/models/account.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/account.dart';
 
 /// Data class to hold age information in years, months, and days
 class AgeInfo {

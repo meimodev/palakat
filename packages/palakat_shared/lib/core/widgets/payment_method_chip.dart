@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
-import 'package:palakat_admin/core/models/billing.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/billing.dart';
 
 /// A chip widget that displays a payment method with its icon and label
 class PaymentMethodChip extends StatelessWidget {

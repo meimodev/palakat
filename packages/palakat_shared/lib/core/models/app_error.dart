@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 part 'app_error.freezed.dart';
 part 'app_error.g.dart';

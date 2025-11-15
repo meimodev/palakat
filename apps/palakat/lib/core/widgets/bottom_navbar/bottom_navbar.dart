@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({

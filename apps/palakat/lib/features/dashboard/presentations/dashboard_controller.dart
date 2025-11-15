@@ -1,7 +1,7 @@
-import 'package:palakat_admin/core/models/models.dart';
-import 'package:palakat_admin/core/repositories/repositories.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
-import 'package:palakat_admin/constants.dart';
+import 'package:palakat_shared/core/models/models.dart';
+import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/presentation.dart';
 

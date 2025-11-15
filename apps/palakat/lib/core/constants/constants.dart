@@ -2,6 +2,6 @@
 library;
 
 // Export all constants and enums from palakat_admin
-export 'package:palakat_admin/constants.dart';
+export 'package:palakat_shared/constants.dart';
 
 export 'themes/themes.dart';

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat_admin/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/account/account_controller.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 /// Extension to get display name for Gender enum
 extension GenderExtension on Gender {

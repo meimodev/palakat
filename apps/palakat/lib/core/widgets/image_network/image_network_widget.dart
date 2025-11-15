@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class ImageNetworkWidget extends StatelessWidget {
   const ImageNetworkWidget(

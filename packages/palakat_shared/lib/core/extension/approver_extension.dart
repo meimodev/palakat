@@ -1,5 +1,5 @@
-import 'package:palakat_admin/core/constants/enums.dart';
-import 'package:palakat_admin/core/models/approver.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/approver.dart';
 
 /// Extension methods for List of approver
 extension ApproverListExtension on List<Approver> {

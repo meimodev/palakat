@@ -1,17 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:palakat_admin/core/models/membership.dart';
-import 'package:palakat_admin/core/models/request/request.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
-import 'package:palakat_admin/features/member/presentation/state/member_screen_state.dart';
-import 'package:palakat_admin/core/models/member_position.dart';
+// import 'package:palakat_shared/features/member/presentation/state/member_screen_state.dart';
+import 'package:palakat_shared/core/models/member_position.dart';
+import 'package:palakat_shared/core/models/membership.dart';
+import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../config/endpoint.dart';
 import '../models/account.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
 import '../services/http_service.dart';
-import '../services/local_storage_service.dart';
 import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
 
 part 'membership_repository.g.dart';
 
@@ -52,7 +51,9 @@ class MembershipRepository {
     }
   }
 
-  Future<Result<Account, Failure>> fetchAccount({required int accountId}) async {
+  Future<Result<Account, Failure>> fetchAccount({
+    required int accountId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -89,7 +90,9 @@ class MembershipRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update account response payload'));
+        return Result.failure(
+          Failure('Invalid update account response payload'),
+        );
       }
 
       return Result.success(Account.fromJson(json));
@@ -137,32 +140,47 @@ class MembershipRepository {
     }
   }
 
-  Future<Result<MemberScreenStateCounts, Failure>> fetchCounts(GetFetchAccountsRequest request) async {
-    try {
-      final http = _ref.read(httpServiceProvider);
+  // TODO: Move MemberScreenStateCounts to shared package or implement in consuming app
+  // Future<Result<MemberScreenStateCounts, Failure>> fetchCounts(
+  //   GetFetchAccountsRequest request,
+  // ) async {
+  //   try {
+  //     final http = _ref.read(httpServiceProvider);
+  //
+  //     final response = await http.get<Map<String, dynamic>>(
+  //       Endpoints.accountCount,
+  //       queryParameters: request.toJson(),
+  //     );
+  //
+  //     final data = response.data;
+  //     final Map<String, dynamic> json = data?['data'] ?? {};
+  //     if (json.isEmpty) {
+  //       return Result.failure(
+  //         Failure('Invalid fetch account counts response payload'),
+  //       );
+  //     }
+  //
+  //     return Result.success(MemberScreenStateCounts.fromJson(json));
+  //   } on DioException catch (e, st) {
+  //     final error = ErrorMapper.fromDio(
+  //       e,
+  //       'Failed to fetch account counts',
+  //       st,
+  //     );
+  //     return Result.failure(Failure(error.message, error.statusCode));
+  //   } catch (e, st) {
+  //     final error = ErrorMapper.unknown(
+  //       'Failed to fetch account counts',
+  //       e,
+  //       st,
+  //     );
+  //     return Result.failure(Failure(error.message, error.statusCode));
+  //   }
+  // }
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.accountCount,
-        queryParameters: request.toJson(),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
-      if (json.isEmpty) {
-        return Result.failure(Failure('Invalid fetch account counts response payload'));
-      }
-
-      return Result.success(MemberScreenStateCounts.fromJson(json));
-    } on DioException catch (e, st) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch account counts',st);
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch account counts', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
-    }
-  }
-
-  Future<Result<Account, Failure>> createAccount({required Map<String, dynamic> data}) async {
+  Future<Result<Account, Failure>> createAccount({
+    required Map<String, dynamic> data,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
@@ -173,7 +191,9 @@ class MembershipRepository {
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create account response payload'));
+        return Result.failure(
+          Failure('Invalid create account response payload'),
+        );
       }
       return Result.success(Account.fromJson(json));
     } on DioException catch (e) {
@@ -185,9 +205,9 @@ class MembershipRepository {
     }
   }
 
-  Future<Result<PaginationResponseWrapper<MemberPosition>, Failure>> fetchMemberPositionsPagination({
-    required PaginationRequestWrapper<GetFetchMemberPosition>
-    paginationRequest,
+  Future<Result<PaginationResponseWrapper<MemberPosition>, Failure>>
+  fetchMemberPositionsPagination({
+    required PaginationRequestWrapper<GetFetchMemberPosition> paginationRequest,
   }) async {
     try {
       final http = _ref.read(httpServiceProvider);
@@ -209,7 +229,11 @@ class MembershipRepository {
       final error = ErrorMapper.fromDio(e, 'Failed to fetch member positions');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch member positions', e, st);
+      final error = ErrorMapper.unknown(
+        'Failed to fetch member positions',
+        e,
+        st,
+      );
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
@@ -224,7 +248,9 @@ class MembershipRepository {
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid fetch membership response payload'));
+        return Result.failure(
+          Failure('Invalid fetch membership response payload'),
+        );
       }
       return Result.success(Membership.fromJson(json));
     } on DioException catch (e) {
@@ -235,5 +261,4 @@ class MembershipRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
-
 }

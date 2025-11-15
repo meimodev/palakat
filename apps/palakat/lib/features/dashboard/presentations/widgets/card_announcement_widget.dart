@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_admin/extensions.dart';
+import 'package:palakat_shared/extensions.dart';
 
 class CardAnnouncementWidget extends StatelessWidget {
   const CardAnnouncementWidget({

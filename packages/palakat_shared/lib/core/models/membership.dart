@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/models/account.dart';
-import 'package:palakat_admin/core/models/church.dart';
-import 'package:palakat_admin/core/models/column.dart';
-import 'package:palakat_admin/core/models/member_position.dart';
+import 'package:palakat_shared/core/models/account.dart';
+import 'package:palakat_shared/core/models/church.dart';
+import 'package:palakat_shared/core/models/column.dart';
+import 'package:palakat_shared/core/models/member_position.dart';
 
 part 'membership.freezed.dart';
 
