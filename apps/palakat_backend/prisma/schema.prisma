@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator customClient {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_POSTGRES_URL")
+}
+
+model Church {
+  id                    Int                  @id @default(autoincrement())
+  name                  String
+  phoneNumber           String?
+  email                 String?
+  description           String?
+  documentAccountNumber String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  locationId            Int                  @unique
+  location              Location             @relation(fields: [locationId], references: [id])
+  columns               Column[]
+  memberships           Membership[]
+  membershipPositions   MembershipPosition[]
+  revenues              Revenue[]
+  expenses              Expense[]
+  reports               Report[]
+  documents             Document[]
+  approvalRules         ApprovalRule[]
+
+  @@index([name])
+}
+
+model Column {
+  id          Int          @id @default(autoincrement())
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  churchId    Int?
+  church      Church?      @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  memberships Membership[]
+
+  @@unique([churchId, name])
+}
+
+model Membership {
+  id                   Int                  @id @default(autoincrement())
+  baptize              Boolean              @default(false)
+  sidi                 Boolean              @default(false)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  accountId            Int                  @unique
+  columnId             Int?
+  churchId             Int?
+  supervisorActivities Activity[]           @relation("SupervisorActivities")
+  approvers            Approver[]
+  account              Account              @relation(fields: [accountId], references: [id])
+  church               Church?              @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  column               Column?              @relation(fields: [columnId], references: [id], onDelete: SetNull)
+  membershipPositions  MembershipPosition[]
+
+  @@index([churchId, columnId])
+}
+
+model MembershipPosition {
+  id             Int           @id @default(autoincrement())
+  name           String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  membershipId   Int?
+  membership     Membership?   @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  churchId       Int?
+  church         Church?       @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  approvalRuleId Int?
+  approvalRule   ApprovalRule? @relation(fields: [approvalRuleId], references: [id], onDelete: SetNull)
+}
+
+model Account {
+  id                    Int           @id @default(autoincrement())
+  name                  String
+  phone                 String        @unique
+  email                 String?       @unique
+  passwordHash          String?
+  isActive              Boolean       @default(true)
+  claimed               Boolean       @default(false)
+  failedLoginAttempts   Int           @default(0)
+  lockUntil             DateTime?
+  refreshTokenHash      String?
+  refreshTokenExpiresAt DateTime?
+  refreshTokenJti       String?
+  gender                Gender
+  maritalStatus         MaritalStatus
+  dob                   DateTime
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  membership            Membership?
+}
+
+model ApprovalRule {
+  id          Int                  @id @default(autoincrement())
+  name        String
+  description String?
+  active      Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  churchId    Int
+  church      Church               @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  positions   MembershipPosition[]
+
+  @@index([churchId])
+  @@index([active])
+}
+
+model Activity {
+  id           Int          @id @default(autoincrement())
+  supervisorId Int
+  bipra        Bipra
+  title        String
+  description  String?
+  locationId   Int?
+  date         DateTime?
+  note         String?
+  activityType ActivityType
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  supervisor   Membership   @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
+  approvers    Approver[]
+  location     Location?    @relation(fields: [locationId], references: [id])
+  revenue      Revenue?
+  expense      Expense?
+
+  @@index([date])
+  @@index([supervisorId])
+  @@index([supervisorId, date])
+  @@index([activityType])
+  @@index([bipra])
+}
+
+model Revenue {
+  id            Int           @id @default(autoincrement())
+  accountNumber String
+  amount        Int
+  churchId      Int
+  church        Church        @relation(fields: [churchId], references: [id])
+  activityId    Int?          @unique
+  activity      Activity?     @relation(fields: [activityId], references: [id])
+  paymentMethod PaymentMethod
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Expense {
+  id            Int           @id @default(autoincrement())
+  accountNumber String
+  amount        Int
+  churchId      Int
+  church        Church        @relation(fields: [churchId], references: [id])
+  activityId    Int?          @unique
+  activity      Activity?     @relation(fields: [activityId], references: [id])
+  paymentMethod PaymentMethod
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Location {
+  id         Int        @id @default(autoincrement())
+  name       String
+  latitude   Float
+  longitude  Float
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  activities Activity[]
+  church     Church?
+}
+
+model Approver {
+  id           Int            @id @default(autoincrement())
+  membershipId Int
+  membership   Membership     @relation(fields: [membershipId], references: [id])
+  activityId   Int
+  activity     Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  status       ApprovalStatus @default(UNCONFIRMED)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([activityId, membershipId])
+  @@index([activityId])
+  @@index([membershipId])
+  @@index([status])
+}
+
+model Song {
+  id        Int        @id @default(autoincrement())
+  title     String
+  index     Int        @unique
+  book      Book
+  link      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  parts     SongPart[]
+}
+
+model SongPart {
+  id      Int    @id @default(autoincrement())
+  index   Int
+  name    String
+  content String
+  songId  Int
+  song    Song   @relation(fields: [songId], references: [id])
+
+  @@unique([songId, index])
+  @@index([songId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Bipra {
+  PKB
+  WKI
+  PMD
+  RMJ
+  ASM
+}
+
+enum ActivityType {
+  SERVICE
+  EVENT
+  ANNOUNCEMENT
+}
+
+enum Book {
+  NKB
+  NNBT
+  KJ
+  DSL
+}
+
+enum ApprovalStatus {
+  UNCONFIRMED
+  APPROVED
+  REJECTED
+}
+
+enum MaritalStatus {
+  MARRIED
+  SINGLE
+}
+
+enum PaymentMethod {
+  CASH
+  CASHLESS
+}
+
+enum GeneratedBy {
+  MANUAL
+  SYSTEM
+}
+
+model FileManager {
+  id        Int       @id @default(autoincrement())
+  sizeInKB  Float
+  url       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  report    Report?
+  document  Document?
+}
+
+model Report {
+  id          Int         @id @default(autoincrement())
+  name        String
+  generatedBy GeneratedBy
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  churchId    Int
+  church      Church      @relation(fields: [churchId], references: [id])
+  fileId      Int         @unique
+  file        FileManager @relation(fields: [fileId], references: [id])
+
+  @@index([churchId])
+  @@index([generatedBy])
+}
+
+model Document {
+  id            Int          @id @default(autoincrement())
+  name          String
+  accountNumber String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  churchId      Int
+  church        Church       @relation(fields: [churchId], references: [id])
+  fileId        Int?         @unique
+  file          FileManager? @relation(fields: [fileId], references: [id])
+
+  @@index([churchId])
+  @@index([accountNumber])
+}

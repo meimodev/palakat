@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "Column API",
+    "description": "Column management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Columns",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/column?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["column"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Column by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/column/:id",
+          "host": ["{{base_url}}"],
+          "path": ["column", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Column",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Kolom Dewasa\",\n  \"church\": {\n    \"connect\": {\"id\": 1}\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/column",
+          "host": ["{{base_url}}"],
+          "path": ["column"]
+        }
+      }
+    },
+    {
+      "name": "Update Column",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Kolom Dewasa (Updated)\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/column/:id",
+          "host": ["{{base_url}}"],
+          "path": ["column", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Column",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/column/:id",
+          "host": ["{{base_url}}"],
+          "path": ["column", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

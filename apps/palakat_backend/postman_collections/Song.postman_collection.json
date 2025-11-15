@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "Song API",
+    "description": "Song management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Songs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/song?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["song"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Song by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/song/:id",
+          "host": ["{{base_url}}"],
+          "path": ["song", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Song",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Amazing Grace\",\n  \"index\": 101,\n  \"book\": \"NNBT\",\n  \"link\": \"https://example.com/song/nnbt-101\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/song",
+          "host": ["{{base_url}}"],
+          "path": ["song"]
+        },
+        "description": "Book: NKB | NNBT | KJ | DSL"
+      }
+    },
+    {
+      "name": "Update Song",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Amazing Grace (Updated)\",\n  \"link\": \"https://example.com/song/nnbt-101-v2\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/song/:id",
+          "host": ["{{base_url}}"],
+          "path": ["song", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Song",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/song/:id",
+          "host": ["{{base_url}}"],
+          "path": ["song", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

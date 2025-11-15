@@ -1,0 +1,108 @@
+{
+  "info": {
+    "name": "Document API",
+    "description": "Document management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Documents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/document?page=1&pageSize=10&search=&churchId=",
+          "host": ["{{base_url}}"],
+          "path": ["document"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"},
+            {"key": "search", "value": "", "description": "Search by account number"},
+            {"key": "churchId", "value": "", "description": "Filter by church ID"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Document by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/document/:id",
+          "host": ["{{base_url}}"],
+          "path": ["document", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Document (with file)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"DOC-001-0001\",\n  \"church\": {\"connect\": {\"id\": 1}},\n  \"file\": {\"connect\": {\"id\": 1}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/document",
+          "host": ["{{base_url}}"],
+          "path": ["document"]
+        }
+      }
+    },
+    {
+      "name": "Create Document (without file)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"DOC-001-0002\",\n  \"church\": {\"connect\": {\"id\": 1}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/document",
+          "host": ["{{base_url}}"],
+          "path": ["document"]
+        },
+        "description": "File is optional"
+      }
+    },
+    {
+      "name": "Update Document",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"DOC-001-0001-UPDATED\",\n  \"file\": {\"connect\": {\"id\": 2}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/document/:id",
+          "host": ["{{base_url}}"],
+          "path": ["document", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Document",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/document/:id",
+          "host": ["{{base_url}}"],
+          "path": ["document", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

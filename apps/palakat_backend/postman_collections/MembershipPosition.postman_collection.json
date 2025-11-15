@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "Membership Position API",
+    "description": "Membership position management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Positions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership-position?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["membership-position"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Position by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership-position/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership-position", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Position",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Penatua PKB\",\n  \"membership\": {\n    \"connect\": {\"id\": 1}\n  },\n  \"church\": {\n    \"connect\": {\"id\": 1}\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/membership-position",
+          "host": ["{{base_url}}"],
+          "path": ["membership-position"]
+        }
+      }
+    },
+    {
+      "name": "Update Position",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Penatua Kolom\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/membership-position/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership-position", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Position",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership-position/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership-position", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

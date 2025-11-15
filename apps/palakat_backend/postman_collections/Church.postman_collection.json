@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "Church API",
+    "description": "Church management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get All Churches",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/church?page=1&pageSize=10&search=&latitude=&longitude=",
+          "host": ["{{base_url}}"],
+          "path": ["church"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            },
+            {
+              "key": "search",
+              "value": "",
+              "description": "Search by church name (min 3 characters)"
+            },
+            {
+              "key": "latitude",
+              "value": "",
+              "description": "User latitude for distance sorting (e.g., -6.1751)"
+            },
+            {
+              "key": "longitude",
+              "value": "",
+              "description": "User longitude for distance sorting (e.g., 106.8650)"
+            }
+          ]
+        },
+        "description": "Get churches with optional distance-based sorting"
+      }
+    },
+    {
+      "name": "Get Church by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/church/:id",
+          "host": ["{{base_url}}"],
+          "path": ["church", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Get church details with location, columns, and membership positions"
+      }
+    },
+    {
+      "name": "Create Church",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"GKI Jakarta Pusat\",\n  \"phoneNumber\": \"0211234567\",\n  \"email\": \"info@gkijp.com\",\n  \"description\": \"Gereja Kristen Indonesia di pusat kota Jakarta\",\n  \"location\": {\n    \"create\": {\n      \"name\": \"Jakarta Pusat\",\n      \"latitude\": -6.1751,\n      \"longitude\": 106.8650\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/church",
+          "host": ["{{base_url}}"],
+          "path": ["church"]
+        },
+        "description": "Create new church with location"
+      }
+    },
+    {
+      "name": "Update Church",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"GKI Jakarta Pusat (Updated)\",\n  \"phoneNumber\": \"0211234568\",\n  \"description\": \"Updated church description\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/church/:id",
+          "host": ["{{base_url}}"],
+          "path": ["church", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Update church information"
+      }
+    },
+    {
+      "name": "Delete Church",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/church/:id",
+          "host": ["{{base_url}}"],
+          "path": ["church", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Delete church by ID"
+      }
+    }
+  ]
+}

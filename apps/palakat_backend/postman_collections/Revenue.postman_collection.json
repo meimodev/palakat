@@ -1,0 +1,106 @@
+{
+  "info": {
+    "name": "Revenue API",
+    "description": "Revenue management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Revenues",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/revenue?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["revenue"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Revenue by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/revenue/:id",
+          "host": ["{{base_url}}"],
+          "path": ["revenue", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Revenue (CASH)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"REV-2024-001\",\n  \"amount\": 5000000,\n  \"paymentMethod\": \"CASH\",\n  \"church\": {\n    \"connect\": {\"id\": 1}\n  },\n  \"activity\": {\n    \"connect\": {\"id\": 1}\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/revenue",
+          "host": ["{{base_url}}"],
+          "path": ["revenue"]
+        },
+        "description": "PaymentMethod: CASH | CASHLESS"
+      }
+    },
+    {
+      "name": "Create Revenue (CASHLESS)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"REV-2024-002\",\n  \"amount\": 3500000,\n  \"paymentMethod\": \"CASHLESS\",\n  \"church\": {\n    \"connect\": {\"id\": 1}\n  },\n  \"activity\": {\n    \"connect\": {\"id\": 2}\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/revenue",
+          "host": ["{{base_url}}"],
+          "path": ["revenue"]
+        }
+      }
+    },
+    {
+      "name": "Update Revenue",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 5500000,\n  \"accountNumber\": \"REV-2024-001-UPDATED\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/revenue/:id",
+          "host": ["{{base_url}}"],
+          "path": ["revenue", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Revenue",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/revenue/:id",
+          "host": ["{{base_url}}"],
+          "path": ["revenue", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

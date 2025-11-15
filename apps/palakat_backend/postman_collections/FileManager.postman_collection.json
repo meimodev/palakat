@@ -1,0 +1,107 @@
+{
+  "info": {
+    "name": "FileManager API",
+    "description": "FileManager management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All FileManagers",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/file-manager?page=1&pageSize=10&search=",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"},
+            {"key": "search", "value": "", "description": "Search by URL (min 3 chars)"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get FileManager by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/file-manager/:id",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        },
+        "description": "Get file manager with related report and document"
+      }
+    },
+    {
+      "name": "Create FileManager (PDF)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sizeInKB\": 1024.5,\n  \"url\": \"https://storage.example.com/documents/report-2024.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/file-manager",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager"]
+        }
+      }
+    },
+    {
+      "name": "Create FileManager (Excel)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sizeInKB\": 2048.75,\n  \"url\": \"https://cdn.example.com/files/financial-report.xlsx\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/file-manager",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager"]
+        }
+      }
+    },
+    {
+      "name": "Update FileManager",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sizeInKB\": 1500.25,\n  \"url\": \"https://storage.example.com/documents/report-2024-updated.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/file-manager/:id",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete FileManager",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/file-manager/:id",
+          "host": ["{{base_url}}"],
+          "path": ["file-manager", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}

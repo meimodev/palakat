@@ -1,0 +1,215 @@
+{
+  "info": {
+    "name": "Activity API",
+    "description": "Activity management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get All Activities",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/activity?page=1&pageSize=10&membershipId=&churchId=&columnId=&startDate=&endDate=&activityType=&search=",
+          "host": ["{{base_url}}"],
+          "path": ["activity"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            },
+            {
+              "key": "membershipId",
+              "value": "",
+              "description": "Filter by supervisor membership ID"
+            },
+            {
+              "key": "churchId",
+              "value": "",
+              "description": "Filter by church ID"
+            },
+            {
+              "key": "columnId",
+              "value": "",
+              "description": "Filter by column ID"
+            },
+            {
+              "key": "startDate",
+              "value": "",
+              "description": "Filter from date (YYYY-MM-DD)"
+            },
+            {
+              "key": "endDate",
+              "value": "",
+              "description": "Filter to date (YYYY-MM-DD)"
+            },
+            {
+              "key": "activityType",
+              "value": "",
+              "description": "SERVICE | EVENT | ANNOUNCEMENT"
+            },
+            {
+              "key": "search",
+              "value": "",
+              "description": "Search by title or description"
+            }
+          ]
+        },
+        "description": "Get activities with multiple filter options"
+      }
+    },
+    {
+      "name": "Get Activity by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/activity/:id",
+          "host": ["{{base_url}}"],
+          "path": ["activity", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Get activity details with supervisor, location, revenue, and expense"
+      }
+    },
+    {
+      "name": "Create Activity (SERVICE)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Kebaktian Minggu Pagi\",\n  \"description\": \"Kebaktian umum minggu pagi\",\n  \"activityType\": \"SERVICE\",\n  \"bipra\": \"PKB\",\n  \"date\": \"2024-12-25T10:00:00Z\",\n  \"note\": \"Harap datang tepat waktu\",\n  \"supervisor\": {\n    \"connect\": {\n      \"id\": 1\n    }\n  },\n  \"location\": {\n    \"connect\": {\n      \"id\": 1\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/activity",
+          "host": ["{{base_url}}"],
+          "path": ["activity"]
+        },
+        "description": "ActivityType: SERVICE | EVENT | ANNOUNCEMENT, Bipra: PKB | WKI | PMD | RMJ | ASM"
+      }
+    },
+    {
+      "name": "Create Activity (EVENT)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Retreat Pemuda\",\n  \"description\": \"Retreat untuk pemuda gereja\",\n  \"activityType\": \"EVENT\",\n  \"bipra\": \"WKI\",\n  \"date\": \"2024-12-28T08:00:00Z\",\n  \"note\": \"Membawa perlengkapan pribadi\",\n  \"supervisor\": {\n    \"connect\": {\n      \"id\": 2\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/activity",
+          "host": ["{{base_url}}"],
+          "path": ["activity"]
+        },
+        "description": "Create event activity"
+      }
+    },
+    {
+      "name": "Create Activity (ANNOUNCEMENT)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Pengumuman Acara Natal\",\n  \"description\": \"Informasi acara perayaan Natal\",\n  \"activityType\": \"ANNOUNCEMENT\",\n  \"bipra\": \"PKB\",\n  \"date\": \"2024-12-20T10:00:00Z\",\n  \"supervisor\": {\n    \"connect\": {\n      \"id\": 1\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/activity",
+          "host": ["{{base_url}}"],
+          "path": ["activity"]
+        },
+        "description": "Create announcement activity"
+      }
+    },
+    {
+      "name": "Update Activity",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Kebaktian Minggu Pagi (Updated)\",\n  \"description\": \"Updated description\",\n  \"date\": \"2024-12-25T11:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/activity/:id",
+          "host": ["{{base_url}}"],
+          "path": ["activity", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Update activity information"
+      }
+    },
+    {
+      "name": "Delete Activity",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/activity/:id",
+          "host": ["{{base_url}}"],
+          "path": ["activity", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Delete activity by ID"
+      }
+    }
+  ]
+}

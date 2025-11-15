@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "Membership API",
+    "description": "Membership management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}]
+  },
+  "variable": [{"key": "base_url", "value": "http://localhost:3000"}],
+  "item": [
+    {
+      "name": "Get All Memberships",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["membership"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "pageSize", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Membership by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Create Membership",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"baptize\": true,\n  \"sidi\": false,\n  \"account\": {\n    \"connect\": {\"id\": 1}\n  },\n  \"church\": {\n    \"connect\": {\"id\": 1}\n  },\n  \"column\": {\n    \"connect\": {\"id\": 1}\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/membership",
+          "host": ["{{base_url}}"],
+          "path": ["membership"]
+        }
+      }
+    },
+    {
+      "name": "Update Membership",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"baptize\": true,\n  \"sidi\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/membership/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    },
+    {
+      "name": "Delete Membership",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/membership/:id",
+          "host": ["{{base_url}}"],
+          "path": ["membership", ":id"],
+          "variable": [{"key": "id", "value": "1"}]
+        }
+      }
+    }
+  ]
+}
