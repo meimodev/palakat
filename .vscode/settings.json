@@ -18,12 +18,19 @@
     "**/.fvm": false
   },
 
+  // Exclude from file watcher for better performance
+  "files.watcherExclude": {
+    "**/apps/palakat_backend/node_modules/**": true,
+    "**/apps/palakat_backend/dist/**": true
+  },
+
   // Dart/Flutter settings
   "dart.lineLength": 80,
   "dart.analysisExcludedFolders": [
     "**/build",
     "**/.dart_tool",
-    "**/node_modules"
+    "**/node_modules",
+    "${workspaceFolder}/apps/palakat_backend"
   ],
 
   // Editor settings
@@ -36,6 +43,11 @@
     80,
     120
   ],
+
+  // Language-specific formatter settings
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code"
+  },
 
   // File associations
   "files.associations": {
@@ -62,7 +74,16 @@
   "prettier.enable": true,
   "prettier.requireConfig": true,
 
+  // TypeScript configuration (scoped to backend)
+  "typescript.tsdk": "apps/palakat_backend/node_modules/typescript/lib",
+  "typescript.disableAutomaticTypeAcquisition": true,
+
   // ESLint configuration
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
   "eslint.workingDirectories": [
     {
       "directory": "./apps/palakat_backend",
@@ -71,5 +92,9 @@
   ],
 
   // Git settings
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "cSpell.words": [
+    "riverpod",
+    "screenutil"
+  ]
 }

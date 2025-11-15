@@ -2,6 +2,7 @@ name: palakat
 description: A new Flutter project.
 
 publish_to: 'none'
+resolution: workspace
 
 version: 1.0.0+1
 

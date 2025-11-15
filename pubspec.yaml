@@ -8,3 +8,7 @@ environment:
 workspace:
   - apps/palakat
   - apps/palakat_admin
+  - packages/palakat_shared
+
+dev_dependencies:
+  melos: ^6.2.0

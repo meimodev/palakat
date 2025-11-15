@@ -1,6 +1,7 @@
 name: palakat_shared
 description: Shared models, repositories, services, and widgets for Palakat applications
 publish_to: 'none'
+resolution: workspace
 
 version: 1.0.0
 
