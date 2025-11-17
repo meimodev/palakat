@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -6,11 +7,7 @@ import 'input_variant_binary_option_widget.dart';
 import 'input_variant_dropdown_widget.dart';
 import 'input_variant_text_widget.dart';
 
-enum InputWidgetVariant {
-  text,
-  dropdown,
-  binaryOption,
-}
+enum InputWidgetVariant { text, dropdown, binaryOption }
 
 class InputWidget<T> extends StatefulWidget {
   const InputWidget.text({
@@ -27,6 +24,7 @@ class InputWidget<T> extends StatefulWidget {
     this.errorText,
     this.validators,
     this.leadIcon,
+    this.inputFormatters,
   }) : onPressedWithResult = null,
        options = null,
        optionLabel = null,
@@ -49,6 +47,7 @@ class InputWidget<T> extends StatefulWidget {
        maxLines = 1,
        textInputType = null,
        borderColor = null,
+       inputFormatters = null,
        variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
@@ -69,6 +68,7 @@ class InputWidget<T> extends StatefulWidget {
        onPressedWithResult = null,
        borderColor = null,
        textInputType = null,
+       inputFormatters = null,
        assert(
          options != null && options.length > 0,
          "options cannot be null or empty",
@@ -91,6 +91,7 @@ class InputWidget<T> extends StatefulWidget {
   final List<T>? options;
   final TextInputType? textInputType;
   final String Function(T option)? optionLabel;
+  final List<TextInputFormatter>? inputFormatters;
 
   final String? Function(String)? validators;
 
@@ -180,6 +181,7 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
                 endIcon: widget.endIcon,
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
+                inputFormatters: widget.inputFormatters,
                 initialValue: widget.currentInputValue?.toString(),
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,

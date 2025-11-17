@@ -21,5 +21,9 @@ abstract class AccountState with _$AccountState {
     @Default(false) bool loading,
     @Default(false) bool isFormValid,
     final String? errorMessage,
+    // Registration flow fields
+    String? verifiedPhone, // Phone number verified via Firebase
+    @Default(false) bool isPhoneVerified, // Whether phone is pre-verified
+    @Default(false) bool isRegistering, // Loading state for registration
   }) = _AccountState;
 }

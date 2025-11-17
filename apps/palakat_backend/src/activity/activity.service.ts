@@ -19,13 +19,26 @@ export class ActivitiesService {
       take,
     } = query;
 
-    const where: any = {
-      supervisorId: membershipId,
-      supervisor: {
-        churchId: churchId,
-        columnId: columnId,
-      },
-    };
+    const where: any = {};
+
+    // Only filter by membershipId if provided
+    if (membershipId !== undefined && membershipId !== null) {
+      where.supervisorId = membershipId;
+    }
+
+    // Only filter by churchId or columnId if provided
+    if (
+      (churchId !== undefined && churchId !== null) ||
+      (columnId !== undefined && columnId !== null)
+    ) {
+      where.supervisor = {};
+      if (churchId !== undefined && churchId !== null) {
+        where.supervisor.churchId = churchId;
+      }
+      if (columnId !== undefined && columnId !== null) {
+        where.supervisor.columnId = columnId;
+      }
+    }
 
     if (startDate || endDate) {
       where.createdAt = {};

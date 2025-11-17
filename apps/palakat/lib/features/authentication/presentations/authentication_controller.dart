@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:palakat/features/presentation.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/features/authentication/data/firebase_auth_repository.dart';
+import 'package:palakat/features/authentication/data/utils/phone_number_formatter.dart';
+import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -23,40 +25,253 @@ class AuthenticationController extends _$AuthenticationController {
   }
 
   AuthRepository get _authRepo => ref.read(authRepositoryProvider);
+  FirebaseAuthRepository get _firebaseAuthRepo =>
+      ref.read(firebaseAuthRepositoryProvider);
 
-  void onChangedTextPhone(String value) {
+  // ========== Phone Input Methods ==========
+
+  /// Updates the phone number and formats it for display
+  void onPhoneNumberChanged(String value) {
+    // Clear error when user starts typing
+    state = state.copyWith(phoneNumber: value, errorMessage: null);
+
+    // Update full phone number with formatting
+    if (value.isNotEmpty) {
+      final fullPhone = PhoneNumberFormatter.toE164(value);
+      state = state.copyWith(fullPhoneNumber: fullPhone);
+    } else {
+      state = state.copyWith(fullPhoneNumber: '');
+    }
+  }
+
+  /// Validates the phone number format
+  /// Phone must start with 0 and be 12-13 digits total
+  bool validatePhoneNumber() {
+    if (state.phoneNumber.isEmpty) {
+      state = state.copyWith(errorMessage: "Please enter phone number");
+      return false;
+    }
+
+    // Remove all non-digit characters for validation
+    final cleanPhone = state.phoneNumber.replaceAll(RegExp(r'\D'), '');
+
+    // Check if phone contains only digits
+    if (cleanPhone.isEmpty) {
+      state = state.copyWith(
+        errorMessage: "Phone number must contain only digits",
+      );
+      return false;
+    }
+
+    // Must start with 0
+    if (!cleanPhone.startsWith('0')) {
+      state = state.copyWith(errorMessage: "Phone number must start with 0");
+      return false;
+    }
+
+    // Check length: 12-13 digits
+    if (cleanPhone.length < 12) {
+      state = state.copyWith(
+        errorMessage: "Phone number must be at least 12 digits",
+      );
+      return false;
+    }
+
+    if (cleanPhone.length > 13) {
+      state = state.copyWith(
+        errorMessage: "Phone number must be at most 13 digits",
+      );
+      return false;
+    }
+
+    // Additional validation: check for invalid patterns
+    // (e.g., all zeros, all same digit)
+    if (RegExp(r'^0+$').hasMatch(cleanPhone)) {
+      state = state.copyWith(errorMessage: "Please enter a valid phone number");
+      return false;
+    }
+
+    // Check for repeating digits (e.g., 000000000000)
+    if (cleanPhone.length >= 8) {
+      final firstDigit = cleanPhone[0];
+      if (cleanPhone.split('').every((d) => d == firstDigit)) {
+        state = state.copyWith(
+          errorMessage: "Please enter a valid phone number",
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Sends OTP via Firebase Phone Authentication
+  Future<bool> sendOtp() async {
+    if (!validatePhoneNumber()) return false;
+
+    state = state.copyWith(isSendingOtp: true, errorMessage: null);
+
+    try {
+      // Convert phone to E.164 format for Firebase
+      final e164Phone = PhoneNumberFormatter.toE164(state.phoneNumber);
+
+      // Add timeout wrapper for the entire operation
+      await Future.any([
+        _firebaseAuthRepo.verifyPhoneNumber(
+          phoneNumber: e164Phone,
+          timeout: const Duration(seconds: 60),
+          onCodeSent: (verificationId, resendToken) {
+            // Update state with verification ID and resend token
+            state = state.copyWith(
+              verificationId: verificationId,
+              resendToken: resendToken,
+              isSendingOtp: false,
+              showOtpScreen: true,
+            );
+            // Start the countdown timer
+            startTimer();
+          },
+          onVerificationCompleted: (credential) {
+            // Auto-verification completed (Android only)
+            // This happens when SMS is automatically retrieved
+            state = state.copyWith(isSendingOtp: false, showOtpScreen: true);
+          },
+          onVerificationFailed: (failure) {
+            // Handle verification failure with specific error messages
+            String errorMessage = failure.message;
+
+            // Provide more context for specific error types
+            if (failure.code == 429) {
+              errorMessage =
+                  'Too many attempts. Please wait a few minutes before trying again';
+            } else if (failure.code == 503 || failure.code == 408) {
+              errorMessage =
+                  'Network error. Please check your connection and try again';
+            } else if (failure.code == 400) {
+              errorMessage =
+                  'Invalid phone number format. Please check and try again';
+            }
+
+            state = state.copyWith(
+              isSendingOtp: false,
+              errorMessage: errorMessage,
+            );
+          },
+        ),
+        Future.delayed(const Duration(seconds: 90)).then((_) {
+          // Timeout after 90 seconds (30 seconds more than Firebase timeout)
+          if (state.isSendingOtp) {
+            state = state.copyWith(
+              isSendingOtp: false,
+              errorMessage:
+                  'Request timed out. Please check your connection and try again',
+            );
+          }
+        }),
+      ]);
+
+      // Success is handled in onCodeSent callback
+      return true;
+    } catch (e) {
+      // Handle unexpected errors
+      String errorMessage = 'Failed to send OTP. Please try again';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage = 'Network error. Please check your connection';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again';
+      }
+
+      state = state.copyWith(isSendingOtp: false, errorMessage: errorMessage);
+      return false;
+    }
+  }
+
+  /// Clears the error message
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  // ========== Navigation Methods ==========
+
+  /// Shows the OTP verification screen
+  void showOtpScreen() {
     state = state.copyWith(
-      phone: value,
-      isFormValid: value.isNotEmpty,
-      errorMessage: null,
+      showOtpScreen: true,
+      showOtpVerification: true, // Legacy field
     );
   }
 
-  void onChangedOtp(String value) {
+  /// Navigates back to phone input screen from OTP screen
+  void goBackToPhoneInput() {
+    // Cancel timer and Firebase verification session
+    stopTimer();
+
+    // Reset OTP-related state but preserve phone number
+    state = state.copyWith(
+      showOtpScreen: false,
+      showOtpVerification: false, // Legacy field
+      otp: '',
+      verificationId: null,
+      errorMessage: null,
+      isVerifyingOtp: false,
+      isValidatingAccount: false,
+    );
+  }
+
+  // ========== Legacy Methods (Updated for new state fields) ==========
+
+  void onChangedTextPhone(String value) {
+    // Delegate to new method
+    onPhoneNumberChanged(value);
+    // Keep legacy field for backward compatibility
+    state = state.copyWith(phone: value, isFormValid: value.isNotEmpty);
+  }
+
+  // ========== OTP Verification Methods ==========
+
+  /// Updates the OTP value as user types
+  void onOtpChanged(String value) {
     state = state.copyWith(otp: value, errorMessage: null);
   }
 
+  /// Legacy method for backward compatibility
+  void onChangedOtp(String value) {
+    onOtpChanged(value);
+  }
+
   void showOtpVerification() {
-    if (state.phone.isEmpty) {
+    if (state.phoneNumber.isEmpty) {
       state = state.copyWith(errorMessage: "Please fill phone number");
       return;
     }
 
-    state = state.copyWith(showOtpVerification: true);
+    state = state.copyWith(
+      showOtpScreen: true,
+      showOtpVerification: true, // Legacy field
+    );
     startTimer();
   }
 
+  // ========== Timer Methods ==========
+
+  /// Starts the countdown timer for OTP resend
   void startTimer() {
     _timer?.cancel();
 
     state = state.copyWith(
-      remainingTime: AppConstants.otpTimerDurationInSeconds,
+      remainingSeconds: AppConstants.otpTimerDurationInSeconds,
+      remainingTime: AppConstants.otpTimerDurationInSeconds, // Legacy field
       canResendOtp: false,
     );
 
     _timer = Timer.periodic(AppConstants.timerInterval, (timer) {
-      if (state.remainingTime > 0) {
-        state = state.copyWith(remainingTime: state.remainingTime - 1);
+      if (state.remainingSeconds > 0) {
+        state = state.copyWith(
+          remainingSeconds: state.remainingSeconds - 1,
+          remainingTime: state.remainingSeconds - 1, // Legacy field
+        );
       } else {
         timer.cancel();
         state = state.copyWith(canResendOtp: true);
@@ -64,10 +279,87 @@ class AuthenticationController extends _$AuthenticationController {
     });
   }
 
-  void resendOtp() {
-    if (state.canResendOtp) {
-      startTimer();
-      state = state.copyWith(errorMessage: "OTP code resent!");
+  /// Stops the countdown timer
+  void stopTimer() {
+    _timer?.cancel();
+    state = state.copyWith(canResendOtp: false);
+  }
+
+  /// Resends OTP using Firebase with resend token
+  Future<void> resendOtp() async {
+    if (!state.canResendOtp) {
+      return;
+    }
+
+    state = state.copyWith(isSendingOtp: true, errorMessage: null);
+
+    try {
+      // Convert phone to E.164 format for Firebase
+      final e164Phone = PhoneNumberFormatter.toE164(state.phoneNumber);
+
+      // Add timeout wrapper for the resend operation
+      await Future.any([
+        _firebaseAuthRepo.resendOtp(
+          phoneNumber: e164Phone,
+          resendToken: state.resendToken,
+          timeout: const Duration(seconds: 60),
+          onCodeSent: (verificationId, resendToken) {
+            // Update state with new verification ID and resend token
+            state = state.copyWith(
+              verificationId: verificationId,
+              resendToken: resendToken,
+              isSendingOtp: false,
+              otp: '', // Clear previous OTP
+            );
+            // Restart the countdown timer
+            startTimer();
+          },
+          onVerificationCompleted: (credential) {
+            // Auto-verification completed (Android only)
+            state = state.copyWith(isSendingOtp: false);
+          },
+          onVerificationFailed: (failure) {
+            // Handle resend failure with specific error messages
+            String errorMessage = failure.message;
+
+            // Provide more context for specific error types
+            if (failure.code == 429) {
+              errorMessage =
+                  'Too many resend attempts. Please wait before trying again';
+            } else if (failure.code == 503 || failure.code == 408) {
+              errorMessage =
+                  'Network error. Please check your connection and try again';
+            }
+
+            state = state.copyWith(
+              isSendingOtp: false,
+              errorMessage: errorMessage,
+            );
+          },
+        ),
+        Future.delayed(const Duration(seconds: 90)).then((_) {
+          // Timeout after 90 seconds
+          if (state.isSendingOtp) {
+            state = state.copyWith(
+              isSendingOtp: false,
+              errorMessage:
+                  'Request timed out. Please check your connection and try again',
+            );
+          }
+        }),
+      ]);
+    } catch (e) {
+      // Handle unexpected errors
+      String errorMessage = 'Failed to resend OTP. Please try again';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage = 'Network error. Please check your connection';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Request timed out. Please try again';
+      }
+
+      state = state.copyWith(isSendingOtp: false, errorMessage: errorMessage);
     }
   }
 
@@ -78,45 +370,49 @@ class AuthenticationController extends _$AuthenticationController {
   }
 
   bool validatePhone() {
-    if (state.phone.isEmpty) {
-      state = state.copyWith(errorMessage: "Please fill phone number");
-      return false;
-    }
-    return true;
+    // Delegate to new method
+    return validatePhoneNumber();
   }
 
+  /// Validates that OTP is 6 digits
   bool validateOtp() {
-    if (state.otp.length < AppConstants.otpLength) {
+    if (state.otp.isEmpty) {
+      state = state.copyWith(errorMessage: "Please enter verification code");
+      return false;
+    }
+
+    // Remove any non-digit characters
+    final cleanOtp = state.otp.replaceAll(RegExp(r'\D'), '');
+
+    if (cleanOtp.length < AppConstants.otpLength) {
       state = state.copyWith(
-        loading: false,
-        errorMessage: "Please enter complete OTP",
+        errorMessage:
+            "Please enter complete ${AppConstants.otpLength}-digit verification code",
       );
       return false;
     }
+
+    if (cleanOtp.length > AppConstants.otpLength) {
+      state = state.copyWith(
+        errorMessage:
+            "Verification code must be ${AppConstants.otpLength} digits",
+      );
+      return false;
+    }
+
+    // Check if OTP contains only digits
+    if (!RegExp(r'^\d+$').hasMatch(cleanOtp)) {
+      state = state.copyWith(
+        errorMessage: "Verification code must contain only numbers",
+      );
+      return false;
+    }
+
     return true;
   }
 
-  Future<bool> sendOtp() async {
-    if (!validatePhone()) return false;
-
-    state = state.copyWith(loading: true, errorMessage: null);
-
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      state = state.copyWith(loading: false);
-      showOtpVerification();
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        loading: false,
-        errorMessage: "Failed to send OTP: ${e.toString()}",
-      );
-      return false;
-    }
-  }
-
-  void verifyOtp({
+  /// Verifies OTP with Firebase and validates account with backend
+  Future<void> verifyOtp({
     required void Function(Account account) onAlreadyRegistered,
     required VoidCallback onNotRegistered,
   }) async {
@@ -124,51 +420,243 @@ class AuthenticationController extends _$AuthenticationController {
       return;
     }
 
-    state = state.copyWith(loading: true, errorMessage: null);
-
-    //Dummy OTP verification using demo code - TODO: Replace with real OTP service
-    await Future.delayed(const Duration(milliseconds: 500));
-    final otpVerified = state.otp == AppConstants.demoOtpCode;
-
-    if (!otpVerified) {
-      state = state.copyWith(loading: false, errorMessage: "Invalid OTP code");
+    // Check if we have a verification ID from Firebase
+    if (state.verificationId == null) {
+      state = state.copyWith(
+        errorMessage: "Verification session expired. Please request a new code",
+      );
       return;
     }
 
-    // Cancel timer when verification is successful
-    _timer?.cancel();
+    state = state.copyWith(
+      isVerifyingOtp: true,
+      loading: true, // Legacy field
+      errorMessage: null,
+    );
 
-    final validateAccountByPhoneResult = await _authRepo
-        .validateAccountByPhone(state.phone);
-    validateAccountByPhoneResult.when(
-      onSuccess: (auth) async {
-        state = state.copyWith(
-          loading: false,
-          user: auth.account,
-          errorMessage: null,
+    try {
+      // Add timeout wrapper for OTP verification
+      await Future.any([
+        _verifyOtpWithTimeout(
+          onAlreadyRegistered: onAlreadyRegistered,
+          onNotRegistered: onNotRegistered,
+        ),
+        Future.delayed(const Duration(seconds: 30)).then((_) {
+          // Timeout after 30 seconds
+          if (state.isVerifyingOtp) {
+            state = state.copyWith(
+              isVerifyingOtp: false,
+              loading: false,
+              errorMessage: 'Verification timed out. Please try again',
+            );
+          }
+        }),
+      ]);
+    } catch (e) {
+      // Handle unexpected errors
+      String errorMessage = 'Verification failed. Please try again';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage = 'Network error. Please check your connection';
+      }
+
+      state = state.copyWith(
+        isVerifyingOtp: false,
+        loading: false,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+
+  /// Internal method to verify OTP with Firebase
+  Future<void> _verifyOtpWithTimeout({
+    required void Function(Account account) onAlreadyRegistered,
+    required VoidCallback onNotRegistered,
+  }) async {
+    // Step 1: Verify OTP with Firebase
+    final firebaseResult = await _firebaseAuthRepo.verifyOtp(
+      verificationId: state.verificationId!,
+      smsCode: state.otp,
+    );
+
+    // Handle Firebase verification failure
+    await firebaseResult.when(
+      onSuccess: (userCredential) async {
+        // Firebase verification successful, now validate with backend
+        await _validateWithBackend(
+          onAlreadyRegistered: onAlreadyRegistered,
+          onNotRegistered: onNotRegistered,
         );
-        if (auth.account.membership != null) {
-          updateLocallySavedAuth(auth);
-        }
-        onAlreadyRegistered(auth.account);
       },
       onFailure: (failure) {
-        if (failure.code == 404) {
-          onNotRegistered();
-          return;
+        // Firebase verification failed with specific error handling
+        String errorMessage = failure.message;
+
+        // Provide more context for specific error types
+        if (failure.code == 401) {
+          errorMessage =
+              'Invalid verification code. Please check and try again';
+        } else if (failure.code == 408) {
+          errorMessage = 'Verification code expired. Please request a new one';
+        } else if (failure.code == 429) {
+          errorMessage = 'Too many attempts. Please wait before trying again';
+        } else if (failure.code == 503) {
+          errorMessage = 'Network error. Please check your connection';
         }
 
         state = state.copyWith(
-          loading: false,
-          errorMessage: failure.message,
-          user: null,
+          isVerifyingOtp: false,
+          loading: false, // Legacy field
+          errorMessage: errorMessage,
         );
       },
     );
   }
 
-  void clearError() {
-    state = state.copyWith(errorMessage: null);
+  /// Internal method to validate account with backend after Firebase success
+  Future<void> _validateWithBackend({
+    required void Function(Account account) onAlreadyRegistered,
+    required VoidCallback onNotRegistered,
+  }) async {
+    // Cancel timer when Firebase verification is successful
+    _timer?.cancel();
+
+    // Update state to show backend validation is in progress
+    state = state.copyWith(isValidatingAccount: true);
+
+    // Use fullPhoneNumber (E.164 format) for backend validation
+    final phoneToValidate = state.fullPhoneNumber.isNotEmpty
+        ? state.fullPhoneNumber
+        : state.phoneNumber;
+
+    try {
+      // Add timeout wrapper for backend validation
+      await Future.any([
+        _performBackendValidation(
+          phoneToValidate: phoneToValidate,
+          onAlreadyRegistered: onAlreadyRegistered,
+          onNotRegistered: onNotRegistered,
+        ),
+        Future.delayed(const Duration(seconds: 30)).then((_) {
+          // Timeout after 30 seconds
+          if (state.isValidatingAccount) {
+            state = state.copyWith(
+              isVerifyingOtp: false,
+              isValidatingAccount: false,
+              loading: false,
+              errorMessage: 'Server connection timed out. Please try again',
+            );
+          }
+        }),
+      ]);
+    } catch (e) {
+      // Handle unexpected errors during backend validation
+      String errorMessage = 'Failed to validate account. Please try again';
+
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage = 'Network error. Please check your connection';
+      }
+
+      state = state.copyWith(
+        isVerifyingOtp: false,
+        isValidatingAccount: false,
+        loading: false,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+
+  /// Performs the actual backend validation
+  Future<void> _performBackendValidation({
+    required String phoneToValidate,
+    required void Function(Account account) onAlreadyRegistered,
+    required VoidCallback onNotRegistered,
+  }) async {
+    // Step 2: Validate account with backend
+    final validateAccountByPhoneResult = await _authRepo.validateAccountByPhone(
+      phoneToValidate,
+    );
+
+    validateAccountByPhoneResult.when(
+      onSuccess: (auth) async {
+        // Account exists - store tokens and account data
+        state = state.copyWith(
+          isVerifyingOtp: false,
+          isValidatingAccount: false,
+          loading: false, // Legacy field
+          account: auth.account,
+          user: auth.account, // Legacy field
+          tokens: auth.tokens,
+          errorMessage: null,
+          showSuccessFeedback: true,
+        );
+
+        // Update local storage with auth data
+        if (auth.account.membership != null) {
+          await updateLocallySavedAuth(auth);
+        }
+
+        // Show success feedback briefly before navigation
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        // Reset success feedback
+        state = state.copyWith(showSuccessFeedback: false);
+
+        // Navigate to home screen
+        onAlreadyRegistered(auth.account);
+      },
+      onFailure: (failure) async {
+        // Handle different failure scenarios with specific error messages
+        if (failure.code == 404 || failure.message.contains('not found')) {
+          // Account not found - new user, navigate to registration
+          state = state.copyWith(
+            isVerifyingOtp: false,
+            isValidatingAccount: false,
+            loading: false, // Legacy field
+            errorMessage: null,
+            showSuccessFeedback: true,
+          );
+
+          // Show success feedback briefly before navigation
+          await Future.delayed(const Duration(milliseconds: 800));
+
+          // Reset success feedback
+          state = state.copyWith(showSuccessFeedback: false);
+
+          onNotRegistered();
+          return;
+        }
+
+        // Handle specific backend error codes
+        String errorMessage = failure.message;
+
+        if (failure.code == 500) {
+          errorMessage = 'Server error occurred. Please try again in a moment';
+        } else if (failure.code == 503) {
+          errorMessage =
+              'Server is temporarily unavailable. Please try again later';
+        } else if (failure.code == 408 || failure.code == 504) {
+          errorMessage =
+              'Server connection timed out. Please check your connection';
+        } else if (failure.message.contains('network') ||
+            failure.message.contains('connection')) {
+          errorMessage =
+              'Cannot connect to server. Please check your internet connection';
+        }
+
+        // Other backend errors - show error message with retry option
+        state = state.copyWith(
+          isVerifyingOtp: false,
+          isValidatingAccount: false,
+          loading: false, // Legacy field
+          errorMessage: errorMessage,
+          account: null,
+          user: null, // Legacy field
+        );
+      },
+    );
   }
 
   void reset() {
@@ -176,9 +664,7 @@ class AuthenticationController extends _$AuthenticationController {
     state = const AuthenticationState();
   }
 
-  void updateLocallySavedAuth(AuthResponse auth)async {
-     await _authRepo.updateLocallySavedAuth(auth);
+  Future<void> updateLocallySavedAuth(AuthResponse auth) async {
+    await _authRepo.updateLocallySavedAuth(auth);
   }
-
- 
 }

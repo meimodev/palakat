@@ -1,5 +1,5 @@
-
 import 'dart:developer' as dev show log;
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
@@ -25,7 +25,10 @@ class LocalStorageService {
 
   Future<void> init() async {
     await _ensureBoxOpen();
-    dev.log('AuthService.init: loading cached auth from Hive', name: 'AuthService');
+    dev.log(
+      'AuthService.init: loading cached auth from Hive',
+      name: 'AuthService',
+    );
     _loadFromBox();
     _loadMembershipFromBox();
   }
@@ -55,7 +58,13 @@ class LocalStorageService {
     await _ensureBoxOpen();
     final box = Hive.box(_kAuthBox);
     _auth = null;
+    _membership = null;
     await box.delete(_kAuthKey);
+    await box.delete(_kMembershipKey);
+    dev.log(
+      'LocalStorageService.clear: cleared all auth data from Hive',
+      name: 'LocalStorageService',
+    );
   }
 
   Future<void> saveMembership(Membership membership) async {
@@ -63,7 +72,10 @@ class LocalStorageService {
     final box = Hive.box(_kAuthBox);
     _membership = membership;
     await box.put(_kMembershipKey, membership.toJson());
-    dev.log('LocalStorageService.saveMembership: saved membership to Hive', name: 'LocalStorageService');
+    dev.log(
+      'LocalStorageService.saveMembership: saved membership to Hive',
+      name: 'LocalStorageService',
+    );
   }
 
   Future<void> clearMembership() async {
@@ -71,13 +83,19 @@ class LocalStorageService {
     final box = Hive.box(_kAuthBox);
     _membership = null;
     await box.delete(_kMembershipKey);
-    dev.log('LocalStorageService.clearMembership: cleared membership from Hive', name: 'LocalStorageService');
+    dev.log(
+      'LocalStorageService.clearMembership: cleared membership from Hive',
+      name: 'LocalStorageService',
+    );
   }
 
   static Future<void> initHive() async {
     await Hive.initFlutter();
     await Hive.openBox(_kAuthBox);
-    dev.log('LocalStorageService.initHive: Hive initialized and auth box opened', name: 'LocalStorageService');
+    dev.log(
+      'LocalStorageService.initHive: Hive initialized and auth box opened',
+      name: 'LocalStorageService',
+    );
   }
 
   Future<void> _ensureBoxOpen() async {
@@ -96,7 +114,10 @@ class LocalStorageService {
         dev.log('AuthService._loadFromBox: $_auth', name: 'AuthService');
       } catch (_) {
         _auth = null;
-        dev.log('AuthService._loadFromBox: failed to parse cached auth, ignoring', name: 'AuthService');
+        dev.log(
+          'AuthService._loadFromBox: failed to parse cached auth, ignoring',
+          name: 'AuthService',
+        );
       }
     }
   }
@@ -108,10 +129,16 @@ class LocalStorageService {
       try {
         final normalized = _normalizeJson(data) as Map<String, dynamic>;
         _membership = Membership.fromJson(normalized);
-        dev.log('LocalStorageService._loadMembershipFromBox: $_membership', name: 'LocalStorageService');
+        dev.log(
+          'LocalStorageService._loadMembershipFromBox: $_membership',
+          name: 'LocalStorageService',
+        );
       } catch (_) {
         _membership = null;
-        dev.log('LocalStorageService._loadMembershipFromBox: failed to parse cached membership, ignoring', name: 'LocalStorageService');
+        dev.log(
+          'LocalStorageService._loadMembershipFromBox: failed to parse cached membership, ignoring',
+          name: 'LocalStorageService',
+        );
       }
     }
   }
@@ -129,4 +156,3 @@ class LocalStorageService {
     return value;
   }
 }
-

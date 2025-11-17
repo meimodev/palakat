@@ -49,8 +49,10 @@ class _InputVariantBinaryOptionWidgetState<T>
                 clipBehavior: Clip.hardEdge,
                 shape: ContinuousRectangleBorder(
                   side: BorderSide(
-                    color: widget.borderColor ?? Colors.transparent,
-                    width: 2,
+                    color: e == active
+                        ? BaseColor.teal[700]!
+                        : (widget.borderColor ?? BaseColor.neutral30),
+                    width: e == active ? 2 : 1.5,
                   ),
                   borderRadius: BorderRadius.only(
                     bottomLeft: e == widget.options.first
@@ -67,9 +69,9 @@ class _InputVariantBinaryOptionWidgetState<T>
                         : Radius.zero,
                   ),
                 ),
-                color: e == active
-                    ? BaseColor.primary3
-                    : BaseColor.cardBackground1,
+                color: e == active ? BaseColor.teal[50] : BaseColor.white,
+                shadowColor: Colors.black.withValues(alpha: 0.04),
+                elevation: e == active ? 2 : 1,
                 child: InkWell(
                   onTap: e == active
                       ? null
@@ -80,16 +82,14 @@ class _InputVariantBinaryOptionWidgetState<T>
                           widget.onChanged(e);
                         },
                   child: Container(
-                    padding: EdgeInsets.all(
-                      BaseSize.w12,
-                    ),
+                    padding: EdgeInsets.all(BaseSize.w12),
                     child: Center(
                       child: Text(
                         widget.optionLabel(e),
                         style: BaseTypography.titleMedium.bold.copyWith(
                           color: e == active
-                              ? BaseColor.cardBackground1
-                              : BaseColor.primary3,
+                              ? BaseColor.teal[700]
+                              : BaseColor.neutral70,
                         ),
                       ),
                     ),

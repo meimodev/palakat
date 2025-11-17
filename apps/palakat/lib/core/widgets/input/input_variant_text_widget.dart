@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 
@@ -17,6 +18,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.errorText,
     this.initialValue,
     this.leadIcon,
+    this.inputFormatters,
   });
 
   final String? initialValue;
@@ -29,23 +31,51 @@ class InputVariantTextWidget extends StatelessWidget {
   final TextInputType? textInputType;
   final Color? borderColor;
   final String? errorText;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.cardBackground1,
-        border: Border.all(color: borderColor ?? Colors.transparent),
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          leadIcon == null ? const SizedBox() : _buildLeadIcon(),
-          Expanded(child: _buildTextFormFiled()),
-          endIcon == null ? const SizedBox() : _buildEndIcon(),
-        ],
+    return Focus(
+      child: Builder(
+        builder: (context) {
+          final hasFocus = Focus.of(context).hasFocus;
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+            decoration: BoxDecoration(
+              color: BaseColor.white,
+              border: Border.all(
+                color: hasFocus
+                    ? BaseColor.teal[700]!
+                    : (borderColor ?? BaseColor.neutral30),
+                width: hasFocus ? 2 : 1.5,
+              ),
+              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              boxShadow: hasFocus
+                  ? [
+                      BoxShadow(
+                        color: BaseColor.teal[200]!.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                leadIcon == null ? const SizedBox() : _buildLeadIcon(),
+                Expanded(child: _buildTextFormFiled()),
+                endIcon == null ? const SizedBox() : _buildEndIcon(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -57,12 +87,24 @@ class InputVariantTextWidget extends StatelessWidget {
       maxLines: maxLines,
       keyboardType: textInputType,
       initialValue: initialValue,
+      inputFormatters: inputFormatters,
+      style: TextStyle(
+        color: BaseColor.black,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+      ),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: TextStyle(
+          color: BaseColor.neutral50,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
-        fillColor: BaseColor.cardBackground1,
+        fillColor: BaseColor.white,
         errorText: errorText,
+        contentPadding: EdgeInsets.symmetric(vertical: BaseSize.h12),
       ),
     );
   }

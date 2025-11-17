@@ -38,7 +38,7 @@ class InputVariantDropdownWidget<T> extends StatefulWidget {
 
 class _InputVariantDropdownWidgetState<T>
     extends State<InputVariantDropdownWidget<T>> {
-  T? currentValue ;
+  T? currentValue;
 
   String? errorText;
 
@@ -59,21 +59,18 @@ class _InputVariantDropdownWidgetState<T>
   Widget build(BuildContext context) {
     final borderColor = errorText != null && errorText!.isNotEmpty
         ? BaseColor.error
-        : (widget.borderColor ?? Colors.transparent);
+        : (widget.borderColor ?? BaseColor.neutral30);
 
     return IntrinsicHeight(
       child: Material(
         clipBehavior: Clip.hardEdge,
         shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            BaseSize.radiusLg,
-          ),
-          side: BorderSide(
-            color: borderColor,
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+          side: BorderSide(color: borderColor, width: 1.5),
         ),
-        color: BaseColor.cardBackground1,
+        color: BaseColor.white,
+        shadowColor: Colors.black.withValues(alpha: 0.04),
+        elevation: 1,
         child: InkWell(
           onTap: () async {
             final result = await widget.onPressedWithResult();
@@ -92,25 +89,33 @@ class _InputVariantDropdownWidgetState<T>
               children: [
                 Expanded(
                   child: Text(
-                    currentValue != null ? widget.optionLabel(currentValue as T) : widget.hint,
-                    style: BaseTypography.titleMedium,
+                    currentValue != null
+                        ? widget.optionLabel(currentValue as T)
+                        : widget.hint,
+                    style: BaseTypography.titleMedium.copyWith(
+                      color: currentValue != null
+                          ? BaseColor.black
+                          : BaseColor.neutral50,
+                      fontWeight: currentValue != null
+                          ? FontWeight.w500
+                          : FontWeight.w400,
+                    ),
                   ),
                 ),
                 Gap.w8,
-                const DividerWidget(
-                  height: double.infinity,
-                ),
+                const DividerWidget(height: double.infinity),
                 Gap.w8,
                 (widget.endIcon ?? Assets.icons.line.chevronDownOutline).svg(
                   width: BaseSize.w12,
                   height: BaseSize.w12,
+                  colorFilter: ColorFilter.mode(
+                    BaseColor.neutral60,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 if (errorText != null) ...[
                   Gap.h4,
-                  Text(
-                    errorText!,
-                    style: BaseTypography.bodySmall.toError,
-                  ),
+                  Text(errorText!, style: BaseTypography.bodySmall.toError),
                 ],
               ],
             ),

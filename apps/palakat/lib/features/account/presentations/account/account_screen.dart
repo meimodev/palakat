@@ -4,20 +4,40 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/account/account_controller.dart';
+import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
-class AccountScreen extends ConsumerWidget {
-  const AccountScreen({super.key});
+class AccountScreen extends ConsumerStatefulWidget {
+  final String? verifiedPhone;
+
+  const AccountScreen({super.key, this.verifiedPhone});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends ConsumerState<AccountScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with verified phone if provided
+    if (widget.verifiedPhone != null && widget.verifiedPhone!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(accountControllerProvider.notifier)
+            .initializeWithVerifiedPhone(widget.verifiedPhone!);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(accountControllerProvider.notifier);
     final state = ref.watch(accountControllerProvider);
 
     return ScaffoldWidget(
-      loading: state.loading ,
+      loading: state.loading || state.isRegistering,
       persistBottomWidget: Padding(
         padding: EdgeInsets.only(
           bottom: BaseSize.h24,
@@ -80,10 +100,16 @@ class AccountScreen extends ConsumerWidget {
                   Gap.h16,
                   InputWidget.text(
                     hint: "Phone Number",
-                    label: "active phone to receive authentication message",
+                    label: state.isPhoneVerified
+                        ? "verified phone number (cannot be changed)"
+                        : "active phone to receive authentication message",
                     currentInputValue: state.phone,
                     textInputType: TextInputType.number,
-                    onChanged: controller.onChangedTextPhone,
+                    onChanged: state.isPhoneVerified
+                        ? (
+                            _,
+                          ) {} // Make read-only if verified by ignoring changes
+                        : controller.onChangedTextPhone,
                     validators: (val) => state.errorPhone,
                     errorText: state.errorPhone,
                   ),
@@ -132,15 +158,34 @@ class AccountScreen extends ConsumerWidget {
           Gap.h16,
           ButtonWidget.primary(
             text: "Submit",
+            isLoading: state.isRegistering,
             onTap: () async {
-              final success = await controller.submit();
-              if (context.mounted) {
-                if (!success) {
-                  showSnackBar(context, "Please Fill All the field");
-                  controller.publish();
-                  return;
+              // If phone is verified (coming from auth flow), register account
+              if (state.isPhoneVerified) {
+                final authResponse = await controller.registerAccount();
+                if (context.mounted) {
+                  if (authResponse == null) {
+                    // Show error message from state
+                    showSnackBar(
+                      context,
+                      state.errorMessage ?? "Registration failed",
+                    );
+                    return;
+                  }
+                  // Registration successful, navigate to home
+                  context.goNamed(AppRoute.home);
                 }
-                context.pushNamed(AppRoute.membership);
+              } else {
+                // Legacy flow: just validate and go to membership
+                final success = await controller.submit();
+                if (context.mounted) {
+                  if (!success) {
+                    showSnackBar(context, "Please Fill All the field");
+                    controller.publish();
+                    return;
+                  }
+                  context.pushNamed(AppRoute.membership);
+                }
               }
             },
           ),

@@ -8,13 +8,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { ValidatedClient } from './strategies/client.strategy';
-import { SignInDto } from './dto/sign-in.dto';
+import { AuthService } from './auth.service';
 import { RefreshDto } from './dto/refresh.dto';
-import { JwtService } from '@nestjs/jwt';
+import { SignInDto } from './dto/sign-in.dto';
+import { ValidatedClient } from './strategies/client.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +31,31 @@ export class AuthController {
 
   @Get('validate')
   async validate(@Query('phone') phone?: string) {
-    return this.authService.validate(phone as string);
+    if (!phone) {
+      throw new BadRequestException('Phone number is required');
+    }
+
+    // Normalize phone number to Indonesian format (0XXXXXXXXXX)
+    let normalizedPhone = phone.trim();
+
+    // Remove all spaces and dashes
+    normalizedPhone = normalizedPhone.replace(/[\s-]/g, '');
+
+    // Handle different formats:
+    // +6281234567890 -> 081234567890
+    // 6281234567890 -> 081234567890
+    // 081234567890 -> 081234567890
+    if (normalizedPhone.startsWith('+62')) {
+      normalizedPhone = '0' + normalizedPhone.substring(3);
+    } else if (
+      normalizedPhone.startsWith('62') &&
+      normalizedPhone.length > 11
+    ) {
+      // Only convert if it's clearly a phone number (62 followed by 10+ digits)
+      normalizedPhone = '0' + normalizedPhone.substring(2);
+    }
+
+    return this.authService.validate(normalizedPhone);
   }
 
   @Post('sign-in')

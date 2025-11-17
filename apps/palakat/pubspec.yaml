@@ -35,11 +35,16 @@ dependencies:
   google_maps_flutter: ^2.13.1
   file_picker: ^10.3.3
 
-  firebase_core: ^4.2.0
-  firebase_auth: ^6.1.1
   flutter_dotenv: ^6.0.0
 
   pinput: ^5.0.2
+  
+  # Firebase
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.3
+  
+  # Phone number utilities
+  intl_phone_number_input: ^0.7.4
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +58,7 @@ dev_dependencies:
   riverpod_generator: ^3.0.3
   freezed: ^3.2.3
   json_serializable: ^6.11.1
+  mocktail: ^1.0.4
 
 flutter:
   uses-material-design: true

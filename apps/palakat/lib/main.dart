@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,16 +7,16 @@ import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat_shared/services.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
 import 'core/constants/constants.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await LocalStorageService.initHive();
 
   await Jiffy.setLocale('id');
@@ -30,10 +31,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(goRouterProvider);
     return ScreenUtilInit(
-      designSize: const Size(
-        360,
-        640,
-      ),
+      designSize: const Size(360, 640),
       ensureScreenSize: true,
       minTextAdapt: true,
       splitScreenMode: true,

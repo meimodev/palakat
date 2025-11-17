@@ -1,33 +1,32 @@
+import { BadRequestException } from '@nestjs/common';
+import { ActivityType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
   IsOptional,
   IsString,
-  Min,
   ValidateIf,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';
-import { BadRequestException } from '@nestjs/common';
-import { ActivityType } from '@prisma/client';
 
 export class ActivityListQueryDto extends PaginationQueryDto {
   @IsOptional()
   @Type(() => Number)
+  @ValidateIf((o) => o.membershipId !== undefined && o.membershipId !== null)
   @IsInt()
-  @Min(1)
   membershipId?: number;
 
   @IsOptional()
   @Type(() => Number)
+  @ValidateIf((o) => o.churchId !== undefined && o.churchId !== null)
   @IsInt()
-  @Min(1)
   churchId?: number;
 
   @IsOptional()
   @Type(() => Number)
+  @ValidateIf((o) => o.columnId !== undefined && o.columnId !== null)
   @IsInt()
-  @Min(1)
   columnId?: number;
 
   @IsOptional()
@@ -39,6 +38,12 @@ export class ActivityListQueryDto extends PaginationQueryDto {
   endDate?: Date;
 
   @IsOptional()
+  @ValidateIf(
+    (o) =>
+      o.activityType !== undefined &&
+      o.activityType !== null &&
+      o.activityType !== '',
+  )
   @IsEnum(ActivityType)
   activityType?: ActivityType;
 

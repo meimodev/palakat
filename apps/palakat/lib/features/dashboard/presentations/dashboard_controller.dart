@@ -1,9 +1,9 @@
+import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/constants.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
-import 'package:palakat_shared/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat/features/presentation.dart';
 
 part 'dashboard_controller.g.dart';
 
@@ -11,9 +11,8 @@ part 'dashboard_controller.g.dart';
 class DashboardController extends _$DashboardController {
   @override
   DashboardState build() {
-    Future.microtask(() {
-      fetchData();
-    });
+    // Fetch data on initialization
+    Future.microtask(() => fetchData());
     return const DashboardState();
   }
 
@@ -22,23 +21,37 @@ class DashboardController extends _$DashboardController {
   AuthRepository get _authRepo => ref.read(authRepositoryProvider);
 
   Future<void> fetchData() async {
-    final result = await _authRepo.getSignedInAccount();
-    result.when(
-      onSuccess: (account) {
-        if (account != null) {
-          state = state.copyWith(account: account, membershipLoading: false);
-
-          fetchThisWeekActivities();
-        }
-      },
-      onFailure: (failure) {
-        state = state.copyWith(
-          account: null,
-          membershipLoading: false,
-          errorMessage: failure.message,
-        );
-      },
-    );
+    try {
+      final result = await _authRepo.getSignedInAccount();
+      result.when(
+        onSuccess: (account) {
+          if (account != null) {
+            state = state.copyWith(account: account, membershipLoading: false);
+            fetchThisWeekActivities();
+          } else {
+            state = state.copyWith(
+              account: null,
+              membershipLoading: false,
+              thisWeekAnnouncementsLoading: false,
+              thisWeekActivitiesLoading: false,
+            );
+          }
+        },
+        onFailure: (failure) {
+          state = state.copyWith(
+            account: null,
+            membershipLoading: false,
+            errorMessage: failure.message,
+          );
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        account: null,
+        membershipLoading: false,
+        errorMessage: 'Failed to fetch account: $e',
+      );
+    }
   }
 
   Future<void> fetchThisWeekActivities() async {

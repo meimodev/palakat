@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:palakat_shared/core/models/account.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat_shared/core/config/endpoint.dart';
+import 'package:palakat_shared/core/models/account.dart';
 import 'package:palakat_shared/core/models/auth_credentials.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
 import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/services/http_service.dart';
 import 'package:palakat_shared/core/services/local_storage_service.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
 import 'package:palakat_shared/core/utils/error_mapper.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_repository.g.dart';
 
@@ -74,10 +74,16 @@ class AuthRepository {
     } catch (_) {
       // ignore network errors on logout
     } finally {
-      await _localStorageService.clear();
+      await clearAuth();
     }
     // Always succeed after clearing local storage
     return Result.success(null);
+  }
+
+  /// Clears all authentication data from local storage
+  /// This includes tokens, account data, and membership information
+  Future<void> clearAuth() async {
+    await _localStorageService.clear();
   }
 
   Future<Result<Account?, Failure>> getSignedInAccount() async {
@@ -119,8 +125,8 @@ class AuthRepository {
   }
 
   Future<Result<AuthResponse?, Failure>> updateLocallySavedAuth(
-      AuthResponse auth,
-      ) async {
+    AuthResponse auth,
+  ) async {
     try {
       await _localStorageService.saveAuth(auth);
       return Result.success(auth);

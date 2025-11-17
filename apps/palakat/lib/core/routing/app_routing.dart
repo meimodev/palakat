@@ -1,18 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_routing.g.dart';
 
 class AppRoute {
   static const String main = 'main';
   static const String viewAll = 'view-all';
-
-  // splash
-  static const String splash = 'splash';
 
   // home
   static const String home = 'home';
@@ -25,6 +22,8 @@ class AppRoute {
 
   //Authentication
   static const String authentication = "authentication";
+  static const String phoneInput = "phone-input";
+  static const String otpVerification = "otp-verification";
 
   //Dashboard
   static const String dashboard = 'dashboard';
@@ -54,15 +53,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 GoRouter goRouter(Ref ref) {
   return GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: '/',
+    initialLocation: '/home',
     debugLogDiagnostics: kDebugMode,
     routerNeglect: true,
     routes: [
-      GoRoute(
-        path: '/',
-        name: AppRoute.splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
       GoRoute(
         path: '/home',
         name: AppRoute.home,
