@@ -344,6 +344,59 @@ interface Location {
 - Data queries filtered by user's church affiliation
 - Separate columns, members, and activities per church
 
+#### 9. Church Registration Request System
+
+**Components**:
+- `ChurchRequestController` - Church request CRUD operations
+- `ChurchRequestService` - Request management business logic
+- `ChurchRequestRepository` (Mobile) - API communication layer
+
+**Data Model**:
+```typescript
+interface ChurchRequest {
+  id: number;
+  churchName: string;
+  churchAddress: string;
+  contactPerson: string;
+  contactPhone: string;
+  status: RequestStatus; // TODO, DOING, DONE
+  requesterId: number;
+  requester: Account;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+enum RequestStatus {
+  TODO = 'TODO',     // Pending review
+  DOING = 'DOING',   // In progress
+  DONE = 'DONE'      // Completed
+}
+```
+
+**Mobile App Features**:
+- Submit church registration request from membership screen
+- View request status on membership screen with status-specific messages
+- Display compact status card on dashboard when request exists
+- Form validation for church name, address, contact person, and phone
+- One request per user account enforcement
+
+**Backend Features**:
+- RESTful endpoints for CRUD operations
+- Automatic requester association via JWT authentication
+- Pagination and search support for admin panel
+- Status workflow management (TODO → DOING → DONE)
+- Complete account data serialization for proper JSON deserialization
+
+**UI Components**:
+- `ChurchRequestBottomSheet` - Form for submitting new requests
+- `ChurchRequestStatusCardWidget` - Compact status display for dashboard
+- `InfoBoxWidget` / `InfoBoxWithActionWidget` - Status messages on membership screen
+
+**Status Messages**:
+- **TODO**: "Your request is waiting to be reviewed by our team"
+- **DOING**: "We are processing your request. This usually takes 1-2 business days"
+- **DONE**: "Your church has been registered! You can now select it in your membership"
+
 ### Shared Package (palakat_shared)
 
 The shared package provides reusable code for both Flutter apps:
@@ -471,6 +524,7 @@ The PostgreSQL database uses Prisma ORM with the following key relationships:
 
 **One-to-One**:
 - Account ↔ Membership
+- Account ↔ ChurchRequest
 - Church ↔ Location
 - Activity ↔ Revenue
 - Activity ↔ Expense
@@ -499,6 +553,7 @@ The PostgreSQL database uses Prisma ORM with the following key relationships:
 - Membership: churchId + columnId
 - Account: phone (unique), email (unique)
 - Song: index (unique)
+- ChurchRequest: requesterId (unique), createdAt, status
 
 ## Error Handling
 

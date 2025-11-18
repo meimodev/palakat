@@ -217,3 +217,26 @@ Palakat is a comprehensive church activity management system designed to digitiz
 4. THE Backend_API SHALL use Prisma middleware to enforce timestamp management
 5. THE Backend_API SHALL store all timestamps in UTC format
 6. THE Mobile_App SHALL display timestamps in the user's local timezone
+
+### Requirement 15: Church Registration Request
+
+**User Story:** As a church member, I want to request registration of a new church when my church is not in the system, so that I can eventually join my church's membership in the application.
+
+#### Acceptance Criteria
+
+1. THE Mobile_App SHALL allow members without church membership to submit a church registration request with church name, address, contact person, and contact phone number
+2. THE Backend_API SHALL associate each church request with the requesting user's account
+3. THE Backend_API SHALL enforce one church request per user account
+4. THE Backend_API SHALL support three request statuses: TODO (pending review), DOING (in progress), and DONE (completed)
+5. THE Mobile_App SHALL display the current status of the user's church request on the membership screen
+6. THE Mobile_App SHALL display a compact status card on the dashboard when a church request exists
+7. THE Mobile_App SHALL show different status messages based on request status:
+   - TODO: "Your request is waiting to be reviewed by our team"
+   - DOING: "We are processing your request. This usually takes 1-2 business days"
+   - DONE: "Your church has been registered! You can now select it in your membership"
+8. THE Backend_API SHALL allow administrators to view all church requests with pagination and search
+9. THE Backend_API SHALL allow administrators to update church request status
+10. THE Backend_API SHALL allow administrators to delete church requests
+11. THE Mobile_App SHALL prevent submission of duplicate church requests from the same user
+12. THE Mobile_App SHALL validate church request form inputs including minimum/maximum length requirements
+13. THE Backend_API SHALL return complete account information (including dob, gender, maritalStatus) when fetching church requests to support proper JSON deserialization
