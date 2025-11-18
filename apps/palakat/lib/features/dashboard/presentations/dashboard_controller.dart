@@ -20,6 +20,9 @@ class DashboardController extends _$DashboardController {
 
   AuthRepository get _authRepo => ref.read(authRepositoryProvider);
 
+  ChurchRequestRepository get _churchRequestRepo =>
+      ref.read(churchRequestRepositoryProvider);
+
   Future<void> fetchData() async {
     try {
       final result = await _authRepo.getSignedInAccount();
@@ -28,12 +31,14 @@ class DashboardController extends _$DashboardController {
           if (account != null) {
             state = state.copyWith(account: account, membershipLoading: false);
             fetchThisWeekActivities();
+            fetchChurchRequest();
           } else {
             state = state.copyWith(
               account: null,
               membershipLoading: false,
               thisWeekAnnouncementsLoading: false,
               thisWeekActivitiesLoading: false,
+              churchRequestLoading: false,
             );
           }
         },
@@ -51,6 +56,31 @@ class DashboardController extends _$DashboardController {
         membershipLoading: false,
         errorMessage: 'Failed to fetch account: $e',
       );
+    }
+  }
+
+  Future<void> fetchChurchRequest() async {
+    state = state.copyWith(churchRequestLoading: true);
+
+    try {
+      final result = await _churchRequestRepo.getMyChurchRequest();
+
+      result.when(
+        onSuccess: (churchRequest) {
+          state = state.copyWith(
+            churchRequest: churchRequest,
+            churchRequestLoading: false,
+          );
+        },
+        onFailure: (failure) {
+          state = state.copyWith(
+            churchRequest: null,
+            churchRequestLoading: false,
+          );
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(churchRequest: null, churchRequestLoading: false);
     }
   }
 

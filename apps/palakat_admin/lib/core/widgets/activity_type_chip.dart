@@ -36,12 +36,17 @@ class ActivityTypeChip extends StatelessWidget {
         children: [
           Icon(icon, size: iconSize ?? 14, color: color),
           const SizedBox(width: 6),
-          Text(
-            type.displayName,
-            style: (theme.textTheme.labelMedium ?? const TextStyle()).copyWith(
-              color: color,
-              fontSize: fontSize,
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              type.displayName,
+              style: (theme.textTheme.labelMedium ?? const TextStyle())
+                  .copyWith(
+                    color: color,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w500,
+                  ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],

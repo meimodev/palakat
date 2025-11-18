@@ -49,10 +49,7 @@ enum Reminder {
   final String name;
 }
 
-enum MapOperationType {
-  pinPoint,
-  read,
-}
+enum MapOperationType { pinPoint, read }
 
 enum ApprovalStatus {
   @JsonValue('UNCONFIRMED')
@@ -63,6 +60,14 @@ enum ApprovalStatus {
   rejected,
 }
 
+enum RequestStatus {
+  @JsonValue('TODO')
+  todo,
+  @JsonValue('DOING')
+  doing,
+  @JsonValue('DONE')
+  done,
+}
 
 // ===== Centralized reusable enums =====
 
@@ -182,7 +187,6 @@ enum GeneratedBy {
   system,
 }
 
-
 extension ActivityTypeExtension on ActivityType {
   String get displayName {
     switch (this) {
@@ -195,7 +199,6 @@ extension ActivityTypeExtension on ActivityType {
     }
   }
 }
-
 
 enum SongPartType {
   @JsonValue("INTRO")
@@ -253,8 +256,4 @@ enum SongPartType {
   hook,
 }
 
-enum ReportType {
-  income,
-  expense,
-  inventory,
-}
+enum ReportType { income, expense, inventory }

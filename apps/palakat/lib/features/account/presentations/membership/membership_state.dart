@@ -18,5 +18,7 @@ abstract class MembershipState with _$MembershipState {
     @Default(false) bool loading,
     @Default(false) bool isFormValid,
     final String? errorMessage,
+    ChurchRequest? churchRequest,
+    @Default(false) bool hasCheckedChurchRequest,
   }) = _MembershipState;
 }

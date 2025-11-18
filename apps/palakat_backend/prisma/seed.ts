@@ -1,16 +1,16 @@
 import {
-  PrismaClient,
-  Gender,
-  Bipra,
   ActivityType,
-  Book,
-  MaritalStatus,
   ApprovalStatus,
-  PaymentMethod,
+  Bipra,
+  Book,
+  Gender,
   GeneratedBy,
+  MaritalStatus,
+  PaymentMethod,
+  PrismaClient,
 } from '@prisma/client';
-import * as process from 'node:process';
 import * as bcrypt from 'bcryptjs';
+import * as process from 'node:process';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,7 @@ const prisma = new PrismaClient();
 let seed = 12345; // Fixed seed for consistent results
 
 function seededRandom(): number {
-  seed = (seed + 0x6D2B79F5) | 0;
+  seed = (seed + 0x6d2b79f5) | 0;
   let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
   t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -260,8 +260,8 @@ const SONG_TITLES = {
   NKB: [
     'Tuhan Allah Hadir',
     'Batu Penjuru',
-    'Kar\'na Jemaat',
-    'Yesus Kristus Jurus\'lamat',
+    "Kar'na Jemaat",
+    "Yesus Kristus Jurus'lamat",
     'Hai Umat, Nyanyilah',
   ],
   NNBT: [
@@ -282,7 +282,7 @@ const SONG_TITLES = {
     'Dia Sanggup',
     'Kasih-Mu Seperti Surga',
     'Ku Percaya Janjimu Tuhan',
-    'S\'gala Kemuliaan',
+    "S'gala Kemuliaan",
     'Tuhan Setia',
   ],
 };
@@ -331,11 +331,7 @@ function generateChurchName(index: number): string {
   return `${prefix} ${location}${suffix}`;
 }
 
-function generateActivityData(
-  type: ActivityType,
-  bipra: Bipra,
-  index: number,
-) {
+function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
   const title = randomElement(ACTIVITY_TITLES[type]);
   const weekStart = getStartOfWeek();
   const weekEnd = getEndOfWeek();
@@ -372,6 +368,7 @@ async function cleanDatabase() {
     prisma.approvalRule.deleteMany(),
     prisma.membershipPosition.deleteMany(),
     prisma.membership.deleteMany(),
+    prisma.churchRequest.deleteMany(),
     prisma.column.deleteMany(),
     prisma.church.deleteMany(),
     prisma.account.deleteMany(),
@@ -391,21 +388,19 @@ async function seedAccounts(passwordHash: string) {
       ...generateAccountData(i),
       passwordHash,
     };
-    
+
     // Ensure the first account has the specific phone number
     if (i === 0) {
       accountData.phone = '081111111111';
     }
-    
+
     accountsData.push(accountData);
   }
 
   // Create accounts without membership
   for (let i = 0; i < CONFIG.extraAccountsWithoutMembership; i++) {
     accountsData.push({
-      ...generateAccountData(
-        CONFIG.churches * CONFIG.accountsPerChurch + i,
-      ),
+      ...generateAccountData(CONFIG.churches * CONFIG.accountsPerChurch + i),
       passwordHash,
     });
   }
@@ -539,7 +534,7 @@ async function seedApprovalRules(churches: any[]) {
   for (const church of churches) {
     // Get all membership positions for this church that don't have an approval rule yet
     const churchPositions = await prisma.membershipPosition.findMany({
-      where: { 
+      where: {
         churchId: church.id,
         approvalRuleId: null,
       },
@@ -553,9 +548,10 @@ async function seedApprovalRules(churches: any[]) {
 
       // Calculate how many positions to assign to this rule
       const availablePositions = churchPositions.filter(
-        (p) => !approvalRules.some((r) =>
-          r.positions?.some((rp: any) => rp.id === p.id),
-        ),
+        (p) =>
+          !approvalRules.some((r) =>
+            r.positions?.some((rp: any) => rp.id === p.id),
+          ),
       );
 
       if (availablePositions.length === 0) continue;
@@ -957,7 +953,7 @@ async function seedDocuments(churches: any[], files: any[]) {
     const churchIndex = Math.floor(i / CONFIG.documentsPerChurch);
     const church = churches[churchIndex];
     const docIndex = i % CONFIG.documentsPerChurch;
-    
+
     // Every 3rd document (docIndex === 2) will have no file
     const hasFile = docIndex !== 2;
     const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(i).padStart(4, '0')}`;
@@ -980,6 +976,41 @@ async function seedDocuments(churches: any[], files: any[]) {
   return documents;
 }
 
+async function seedChurchRequests(accounts: any[]) {
+  console.log('⛪ Creating church requests...');
+
+  const churchRequests = [];
+
+  // Get accounts without membership (they would request churches)
+  const accountsWithoutMembership = accounts.filter(
+    (account) => !account.membership,
+  );
+
+  // Create 2-3 church requests from accounts without membership
+  const numRequests = Math.min(3, accountsWithoutMembership.length);
+
+  for (let i = 0; i < numRequests; i++) {
+    const requester = accountsWithoutMembership[i];
+    const churchPrefix = randomElement(CHURCH_PREFIXES);
+    const location = randomElement(CHURCH_LOCATIONS);
+
+    const churchRequest = await prisma.churchRequest.create({
+      data: {
+        churchName: `${churchPrefix} ${location} Baru`,
+        churchAddress: `Jl. ${location} No. ${Math.floor(seededRandom() * 100) + 1}, ${randomElement(AREAS)}`,
+        contactPerson: requester.name,
+        contactPhone: requester.phone,
+        requesterId: requester.id,
+      },
+    });
+
+    churchRequests.push(churchRequest);
+  }
+
+  console.log(`✅ Created ${churchRequests.length} church requests`);
+  return churchRequests;
+}
+
 async function printSummary(
   accounts: any[],
   churches: any[],
@@ -992,7 +1023,9 @@ async function printSummary(
   console.log(`🏛️  Churches: ${churches.length}`);
   console.log(`👤 Accounts: ${accounts.length}`);
   console.log(`🤝 Memberships: ${memberships.length}`);
-  console.log(`📋 Membership Positions: ${await prisma.membershipPosition.count()}`);
+  console.log(
+    `📋 Membership Positions: ${await prisma.membershipPosition.count()}`,
+  );
   console.log(`📜 Approval Rules: ${await prisma.approvalRule.count()}`);
   console.log(`📅 Activities: ${activities.length}`);
   console.log(`💰 Revenues: ${await prisma.revenue.count()}`);
@@ -1001,6 +1034,7 @@ async function printSummary(
   console.log(`📁 Files: ${await prisma.fileManager.count()}`);
   console.log(`📊 Reports: ${await prisma.report.count()}`);
   console.log(`📄 Documents: ${await prisma.document.count()}`);
+  console.log(`⛪ Church Requests: ${await prisma.churchRequest.count()}`);
 
   // Enum coverage
   console.log('\n📋 Enum Coverage:');
@@ -1120,7 +1154,7 @@ async function main() {
   try {
     // Reset seed for consistent results
     seed = 12345;
-    
+
     // Clean database
     await cleanDatabase();
 
@@ -1141,6 +1175,7 @@ async function main() {
     const files = await seedFiles();
     await seedReports(churches, files);
     await seedDocuments(churches, files);
+    await seedChurchRequests(accounts);
 
     // Print summary
     await printSummary(accounts, churches, memberships, activities, songs);

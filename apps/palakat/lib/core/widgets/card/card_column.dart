@@ -63,49 +63,19 @@ class CardColumn extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Gap.h6,
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w8,
-                        vertical: BaseSize.h4,
+                    Text(
+                      'Column ${column.id}',
+                      style: BaseTypography.labelMedium.copyWith(
+                        color: BaseColor.blue[700],
+                        fontWeight: FontWeight.w600,
                       ),
-                      decoration: BoxDecoration(
-                        color: BaseColor.blue[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: BaseColor.blue[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.tag,
-                            size: BaseSize.w12,
-                            color: BaseColor.blue[700],
-                          ),
-                          Gap.w4,
-                          Text(
-                            'Column ${column.id}',
-                            style: BaseTypography.labelSmall.copyWith(
-                              color: BaseColor.blue[700],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    )
                   ],
                 ),
               ),
-              Gap.w8,
-              // Arrow indicator
-              Icon(
-                Icons.chevron_right,
-                size: BaseSize.w24,
-                color: BaseColor.secondaryText,
-              ),
+
+
+
             ],
           ),
         ),

@@ -45,14 +45,19 @@ class _InputVariantDropdownWidgetState<T>
   @override
   void initState() {
     super.initState();
-
-    setState(() {});
-    if (widget.currentInputValue != null) {
-      setState(() {
-        currentValue = widget.currentInputValue;
-      });
-    }
+    currentValue = widget.currentInputValue;
     errorText = widget.errorText;
+  }
+
+  @override
+  void didUpdateWidget(InputVariantDropdownWidget<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentInputValue != oldWidget.currentInputValue) {
+      currentValue = widget.currentInputValue;
+    }
+    if (widget.errorText != oldWidget.errorText) {
+      errorText = widget.errorText;
+    }
   }
 
   @override

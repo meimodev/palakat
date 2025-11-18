@@ -10,11 +10,14 @@ abstract class AccountState with _$AccountState {
     Account? account,
     String? phone,
     String? name,
+    String? email,
     DateTime? dob,
     Gender? gender,
     MaritalStatus? maritalStatus,
+    @Default(false) bool claimed,
     String? errorPhone,
     String? errorName,
+    String? errorEmail,
     String? errorDob,
     String? errorGender,
     String? errorMarried,
@@ -25,5 +28,7 @@ abstract class AccountState with _$AccountState {
     String? verifiedPhone, // Phone number verified via Firebase
     @Default(false) bool isPhoneVerified, // Whether phone is pre-verified
     @Default(false) bool isRegistering, // Loading state for registration
+    @Default(false)
+    bool isFetchingAccount, // Loading state for fetching account
   }) = _AccountState;
 }

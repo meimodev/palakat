@@ -2,15 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/column_detail.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../config/endpoint.dart';
 import '../models/church.dart';
 import '../models/column.dart' as cm;
 import '../models/location.dart';
-import '../models/member_position_detail.dart';
 import '../models/member_position.dart';
+import '../models/member_position_detail.dart';
+import '../models/request/request.dart';
+import '../models/response/response.dart';
 import '../models/result.dart';
 import '../services/http_service.dart';
 import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
 
 part 'church_repository.g.dart';
 
@@ -21,6 +23,35 @@ class ChurchRepository {
   ChurchRepository(this._ref);
 
   final Ref _ref;
+
+  Future<Result<PaginationResponseWrapper<Church>, Failure>> fetchChurches({
+    required PaginationRequestWrapper<GetFetchChurchesRequest>
+    paginationRequest,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+
+      final query = paginationRequest.toJsonFlat((p) => p.toJson());
+
+      final response = await http.get<Map<String, dynamic>>(
+        Endpoints.churches,
+        queryParameters: query,
+      );
+
+      final data = response.data ?? {};
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => Church.fromJson(e as Map<String, dynamic>),
+      );
+      return Result.success(result);
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to fetch churches');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to fetch churches', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
 
   Future<Result<Church, Failure>> fetchChurchProfile(int churchId) async {
     try {
@@ -40,7 +71,11 @@ class ChurchRepository {
       final error = ErrorMapper.fromDio(e, 'Failed to fetch church profile');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch church profile', e, st);
+      final error = ErrorMapper.unknown(
+        'Failed to fetch church profile',
+        e,
+        st,
+      );
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
@@ -59,14 +94,20 @@ class ChurchRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?["data"] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update church response payload'));
+        return Result.failure(
+          Failure('Invalid update church response payload'),
+        );
       }
       return Result.success(Church.fromJson(json));
     } on DioException catch (e) {
       final error = ErrorMapper.fromDio(e, 'Failed to update church profile');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update church profile', e, st);
+      final error = ErrorMapper.unknown(
+        'Failed to update church profile',
+        e,
+        st,
+      );
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
@@ -109,7 +150,9 @@ class ChurchRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update location response payload'));
+        return Result.failure(
+          Failure('Invalid update location response payload'),
+        );
       }
 
       return Result.success(Location.fromJson(json));
@@ -137,7 +180,9 @@ class ChurchRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update column response payload'));
+        return Result.failure(
+          Failure('Invalid update column response payload'),
+        );
       }
 
       return Result.success(cm.Column.fromJson(json));
@@ -150,7 +195,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<ColumnDetail, Failure>> fetchColumn({required int columnId}) async {
+  Future<Result<ColumnDetail, Failure>> fetchColumn({
+    required int columnId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -172,7 +219,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<cm.Column, Failure>> createColumn({required Map<String, dynamic> data}) async {
+  Future<Result<cm.Column, Failure>> createColumn({
+    required Map<String, dynamic> data,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
@@ -183,7 +232,9 @@ class ChurchRepository {
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create column response payload'));
+        return Result.failure(
+          Failure('Invalid create column response payload'),
+        );
       }
       return Result.success(cm.Column.fromJson(json));
     } on DioException catch (e) {
@@ -209,20 +260,25 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<List<cm.Column>, Failure>> fetchColumns({required int churchId}) async {
+  Future<Result<PaginationResponseWrapper<cm.Column>, Failure>> fetchColumns({
+    required PaginationRequestWrapper<GetFetchColumnsRequest> paginationRequest,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
+
+      final query = paginationRequest.toJsonFlat((p) => p.toJson());
+
       final response = await http.get<Map<String, dynamic>>(
         Endpoints.columns,
-        queryParameters: {'churchId': churchId, 'pageSize': 100},
+        queryParameters: query,
       );
 
-      final data = response.data;
-      final List<dynamic> jsonList = (data?['data'] as List?) ?? const [];
-      final columns = jsonList
-          .map((e) => cm.Column.fromJson(e as Map<String, dynamic>))
-          .toList();
-      return Result.success(columns);
+      final data = response.data ?? {};
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => cm.Column.fromJson(e as Map<String, dynamic>),
+      );
+      return Result.success(result);
     } on DioException catch (e) {
       final error = ErrorMapper.fromDio(e, 'Failed to fetch columns');
       return Result.failure(Failure(error.message, error.statusCode));
@@ -232,7 +288,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<List<MemberPosition>, Failure>> fetchPositions({required int churchId}) async {
+  Future<Result<List<MemberPosition>, Failure>> fetchPositions({
+    required int churchId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -255,7 +313,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<MemberPositionDetail, Failure>> fetchPosition({required int positionId}) async {
+  Future<Result<MemberPositionDetail, Failure>> fetchPosition({
+    required int positionId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -277,7 +337,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<void, Failure>> deletePosition({required int positionId}) async {
+  Future<Result<void, Failure>> deletePosition({
+    required int positionId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       await http.delete<void>(
@@ -308,7 +370,9 @@ class ChurchRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update position response payload'));
+        return Result.failure(
+          Failure('Invalid update position response payload'),
+        );
       }
 
       return Result.success(MemberPosition.fromJson(json));
@@ -321,7 +385,9 @@ class ChurchRepository {
     }
   }
 
-  Future<Result<MemberPosition, Failure>> createMemberPosition({required Map<String, dynamic> data}) async {
+  Future<Result<MemberPosition, Failure>> createMemberPosition({
+    required Map<String, dynamic> data,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
@@ -332,7 +398,9 @@ class ChurchRepository {
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create position response payload'));
+        return Result.failure(
+          Failure('Invalid create position response payload'),
+        );
       }
       return Result.success(MemberPosition.fromJson(json));
     } on DioException catch (e) {

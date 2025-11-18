@@ -261,4 +261,59 @@ class MembershipRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
+
+  Future<Result<Membership, Failure>> createMembership({
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      final response = await http.post<Map<String, dynamic>>(
+        Endpoints.memberships,
+        data: data,
+      );
+
+      final body = response.data;
+      final Map<String, dynamic> json = body?['data'] ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid create membership response payload'),
+        );
+      }
+      return Result.success(Membership.fromJson(json));
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to create membership');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to create membership', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  Future<Result<Membership, Failure>> updateMembership({
+    required int membershipId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      final response = await http.patch<Map<String, dynamic>>(
+        Endpoints.membership(membershipId: membershipId),
+        data: data,
+      );
+
+      final body = response.data;
+      final Map<String, dynamic> json = body?['data'] ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid update membership response payload'),
+        );
+      }
+      return Result.success(Membership.fromJson(json));
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to update membership');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to update membership', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
 }

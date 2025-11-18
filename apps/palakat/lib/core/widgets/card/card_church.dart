@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
-
 class CardChurch extends StatelessWidget {
-  const CardChurch({
-    super.key,
-    required this.church,
-    required this.onPressed,
-  });
+  const CardChurch({super.key, required this.church, required this.onPressed});
 
   final Church church;
   final VoidCallback onPressed;
@@ -20,9 +15,7 @@ class CardChurch extends StatelessWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onPressed,
@@ -68,54 +61,17 @@ class CardChurch extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (church.location?.name != null) ...[
-                      Gap.h6,
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w8,
-                          vertical: BaseSize.h4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: BaseColor.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: BaseColor.blue[200]!,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              size: BaseSize.w12,
-                              color: BaseColor.blue[700],
-                            ),
-                            Gap.w4,
-                            Flexible(
-                              child: Text(
-                                church.location!.name,
-                                style: BaseTypography.labelSmall.copyWith(
-                                  color: BaseColor.blue[700],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
+                    Text(
+                      church.location?.name ?? '',
+                      style: BaseTypography.labelMedium.copyWith(
+                        color: BaseColor.blue[700],
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
-              ),
-              Gap.w8,
-              // Arrow indicator
-              Icon(
-                Icons.chevron_right,
-                size: BaseSize.w24,
-                color: BaseColor.secondaryText,
               ),
             ],
           ),

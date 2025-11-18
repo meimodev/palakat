@@ -7,19 +7,20 @@ This folder contains separate Postman collection files for each API module in th
 1. **Auth.postman_collection.json** - Authentication & Authorization
 2. **Account.postman_collection.json** - Account Management
 3. **Church.postman_collection.json** - Church Management
-4. **Activity.postman_collection.json** - Activity Management  
-5. **ApprovalRule.postman_collection.json** - Approval Rule Management
-6. **Membership.postman_collection.json** - Membership Management
-7. **Column.postman_collection.json** - Column Management
-8. **MembershipPosition.postman_collection.json** - Position Management
-9. **Location.postman_collection.json** - Location Management
-10. **Revenue.postman_collection.json** - Revenue Management
-11. **Expense.postman_collection.json** - Expense Management
-12. **File.postman_collection.json** - File Management
-13. **Report.postman_collection.json** - Report Management
-14. **Document.postman_collection.json** - Document Management
-15. **Song.postman_collection.json** - Song Management
-16. **SongPart.postman_collection.json** - Song Part Management
+4. **ChurchRequest.postman_collection.json** - Church Registration Requests
+5. **Activity.postman_collection.json** - Activity Management  
+6. **ApprovalRule.postman_collection.json** - Approval Rule Management
+7. **Membership.postman_collection.json** - Membership Management
+8. **Column.postman_collection.json** - Column Management
+9. **MembershipPosition.postman_collection.json** - Position Management
+10. **Location.postman_collection.json** - Location Management
+11. **Revenue.postman_collection.json** - Revenue Management
+12. **Expense.postman_collection.json** - Expense Management
+13. **File.postman_collection.json** - File Management
+14. **Report.postman_collection.json** - Report Management
+15. **Document.postman_collection.json** - Document Management
+16. **Song.postman_collection.json** - Song Management
+17. **SongPart.postman_collection.json** - Song Part Management
 
 ## 🚀 How to Import
 

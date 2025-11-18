@@ -13,5 +13,7 @@ abstract class DashboardState with _$DashboardState {
     @Default(true) bool membershipLoading,
     final Account? account,
     final String? errorMessage,
+    @Default(false) bool churchRequestLoading,
+    final ChurchRequest? churchRequest,
   }) = _DashboardState;
 }
