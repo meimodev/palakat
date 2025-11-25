@@ -51,7 +51,7 @@ abstract class AuthenticationState with _$AuthenticationState {
     @Deprecated('Use remainingSeconds instead') @Default(120) int remainingTime,
     @Default(false) bool isFormValid,
     @Deprecated('Use account instead') Account? user,
-    Timer? timer,
+    @JsonKey(includeFromJson: false, includeToJson: false) Timer? timer,
   }) = _AuthenticationState;
 
   factory AuthenticationState.fromJson(Map<String, dynamic> json) =>

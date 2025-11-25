@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,10 +20,12 @@ class SongBookScreen extends ConsumerStatefulWidget {
 
 class _SongBookScreenState extends ConsumerState<SongBookScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -47,9 +51,18 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
             onChanged: (String? query) {
               setState(() {});
 
-              if (query != null && query.isNotEmpty) {
-                controller.searchSongs(query);
-              }
+              // Cancel previous timer to implement debouncing (Requirement 1.1)
+              _debounceTimer?.cancel();
+
+              // Debounce search API calls by 500ms to avoid excessive requests
+              _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+                if (query != null && query.isNotEmpty) {
+                  controller.searchSongs(query);
+                } else {
+                  // Clear search when query is empty
+                  controller.searchSongs('');
+                }
+              });
             },
           ),
           Gap.h16,
@@ -69,66 +82,66 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                   PalakatShimmerPlaceholders.listItemCard(),
                 ],
               ),
-              child: state.songs.isEmpty
+              child: state.filteredSongs.isEmpty
                   ? Container(
-                    padding: EdgeInsets.all(BaseSize.w24),
-                    decoration: BoxDecoration(
-                      color: BaseColor.cardBackground1,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: BaseColor.neutral20,
-                        width: 1,
+                      padding: EdgeInsets.all(BaseSize.w24),
+                      decoration: BoxDecoration(
+                        color: BaseColor.cardBackground1,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: BaseColor.neutral20,
+                          width: 1,
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.search_off,
-                          size: BaseSize.w48,
-                          color: BaseColor.secondaryText,
-                        ),
-                        Gap.h12,
-                        Text(
-                          "No songs found",
-                          textAlign: TextAlign.center,
-                          style: BaseTypography.titleMedium.copyWith(
-                            color: BaseColor.secondaryText,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Gap.h4,
-                        Text(
-                          "Try searching with different keywords",
-                          textAlign: TextAlign.center,
-                          style: BaseTypography.bodyMedium.copyWith(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: BaseSize.w48,
                             color: BaseColor.secondaryText,
                           ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: state.songs.length,
-                    separatorBuilder: (context, index) => Gap.h12,
-                    itemBuilder: (context, index) {
-                      final song = state.songs[index];
-                      return CardSongSnippetListItemWidget(
-                        title: song.title,
-                        snippet: song.subTitle,
-                        onPressed: () {
-                          context.pushNamed(
-                            AppRoute.songBookDetail,
-                            extra: RouteParam(
-                              params: {RouteParamKey.song: song.toJson()},
+                          Gap.h12,
+                          Text(
+                            "No songs found",
+                            textAlign: TextAlign.center,
+                            style: BaseTypography.titleMedium.copyWith(
+                              color: BaseColor.secondaryText,
+                              fontWeight: FontWeight.w600,
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                          ),
+                          Gap.h4,
+                          Text(
+                            "Try searching with different keywords",
+                            textAlign: TextAlign.center,
+                            style: BaseTypography.bodyMedium.copyWith(
+                              color: BaseColor.secondaryText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: state.filteredSongs.length,
+                      separatorBuilder: (context, index) => Gap.h12,
+                      itemBuilder: (context, index) {
+                        final song = state.filteredSongs[index];
+                        return CardSongSnippetListItemWidget(
+                          title: song.title,
+                          snippet: song.subTitle,
+                          onPressed: () {
+                            context.pushNamed(
+                              AppRoute.songBookDetail,
+                              extra: RouteParam(
+                                params: {RouteParamKey.song: song.toJson()},
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
             )
           else
             Column(

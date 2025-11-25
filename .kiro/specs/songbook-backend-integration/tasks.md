@@ -1,0 +1,85 @@
+# Implementation Plan
+
+- [x] 1. Update Song model mapping in palakat_shared
+  - [x] 1.1 Create Song mapper extension to transform backend response to Flutter model
+    - Add `SongMapper` extension on `Map<String, dynamic>` in `palakat_shared/lib/core/models/song.dart`
+    - Map backend fields (id, title, index, book, parts) to Flutter Song model fields
+    - Handle part name to SongPartType conversion
+    - _Requirements: 5.3_
+  - [x] 1.2 Write property test for Song model mapping
+    - **Property 8: Backend response to Song model mapping**
+    - **Validates: Requirements 5.3**
+
+- [x] 2. Update SongBookController to use SongRepository
+  - [x] 2.1 Add SongRepository dependency to SongBookController
+    - Import `songRepositoryProvider` from `palakat_shared`
+    - Add getter for repository: `SongRepository get _songRepo => ref.read(songRepositoryProvider);`
+    - _Requirements: 5.1, 5.2_
+  - [x] 2.2 Implement fetchSongs method with real API call
+    - Replace mock data generation with `_songRepo.getSongs()` call
+    - Handle Result success/failure using `result.when()`
+    - Update state with fetched songs or error message
+    - _Requirements: 1.2, 4.1, 4.2_
+  - [ ] 2.3 Write property test for successful response state update
+    - **Property 2: Successful response updates state with songs**
+    - **Validates: Requirements 1.2, 2.2, 4.2**
+  - [x] 2.4 Implement searchSongs method with API call
+    - Call `_songRepo.searchSongs(query: query)` for non-empty queries
+    - Clear search state for empty queries
+    - Update state with search results or error
+    - _Requirements: 1.1, 1.3, 1.4_
+  - [ ] 2.5 Write property test for search triggering repository call
+    - **Property 1: Search triggers repository call with correct query**
+    - **Validates: Requirements 1.1, 2.1**
+  - [ ] 2.6 Write property test for empty query handling
+    - **Property 3: Empty query clears search state**
+    - **Validates: Requirements 1.3**
+  - [ ]* 2.7 Write property test for error response handling
+    - **Property 4: Error response updates state with error message**
+    - **Validates: Requirements 1.4, 4.3**
+  - [x] 2.8 Implement refreshSongs method for retry functionality
+    - Clear error state and set loading to true
+    - Re-call fetchSongs or searchSongs based on current search query
+    - _Requirements: 4.4_
+  - [ ] 2.9 Write property test for loading state during fetch
+    - **Property 6: Loading state during fetch**
+    - **Validates: Requirements 4.1**
+  - [ ] 2.10 Write property test for retry triggering new fetch
+    - **Property 7: Retry triggers new fetch**
+    - **Validates: Requirements 4.4**
+
+- [ ] 3. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Update SongBookScreen to handle API states
+  - [x] 4.1 Update search field onChange to use new searchSongs method
+    - Ensure debouncing is applied to avoid excessive API calls
+    - Handle loading state display during search
+    - _Requirements: 1.1_
+  - [x] 4.2 Update category selection to use searchSongs with category filter
+    - Map category buttons (KJ, NNBT, NKB, DSL) to search queries
+    - _Requirements: 2.1, 2.2_
+  - [x] 4.3 Ensure error state displays retry button correctly
+    - Verify LoadingWrapper onRetry calls controller.refreshSongs()
+    - _Requirements: 4.3, 4.4_
+
+- [x] 5. Update SongDetailController for complete song data
+  - [x] 5.1 Add fallback fetch for incomplete song data
+    - Check if song.definition is empty or incomplete
+    - Call `_songRepo.getSongById(songId)` if needed
+    - _Requirements: 3.3_
+  - [ ]* 5.2 Write property test for song detail part ordering
+    - **Property 5: Song detail receives complete song data with correct part ordering**
+    - **Validates: Requirements 3.1, 3.2**
+
+- [x] 6. Update SongRepository response parsing
+  - [x] 6.1 Update getSongs to use Song mapper for response transformation
+    - Apply `SongMapper.toSong()` to each item in response data array
+    - Ensure pagination metadata is preserved
+    - _Requirements: 5.3_
+  - [x] 6.2 Update getSongById to use Song mapper
+    - Apply mapper to single song response
+    - _Requirements: 5.3_
+
+- [ ] 7. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

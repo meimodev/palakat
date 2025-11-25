@@ -147,6 +147,12 @@ clean_backend() {
             print_success "Removed coverage"
         fi
 
+        # Remove old Prisma generated folder (if exists from Prisma 6)
+        if [ -d "prisma/generated" ]; then
+            rm -rf prisma/generated
+            print_success "Removed old Prisma generated folder"
+        fi
+
         cd ../..
         print_success "Backend cleaned"
     else

@@ -208,9 +208,9 @@ wait_for_postgres() {
     exit 1
 }
 
-# Push database schema
-push_database() {
-    print_section "Pushing Database Schema"
+# Setup database
+setup_database() {
+    print_section "Setting Up Database"
 
     cd "$BACKEND_DIR"
 
@@ -223,14 +223,24 @@ push_database() {
 
     # Install dependencies if node_modules doesn't exist
     if [ ! -d "node_modules" ]; then
-        print_info "Installing dependencies..."
+        print_info "Installing dependencies (including Prisma 7)..."
         pnpm install
     fi
 
-    print_info "Pushing database schema..."
-    pnpm run db:push
+    # Generate Prisma Client
+    print_info "Generating Prisma Client..."
+    pnpm run prisma:generate
 
-    print_success "Database schema pushed successfully"
+    # Check if migrations exist
+    if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations)" ]; then
+        print_info "Running database migrations..."
+        pnpm run db:migrate
+    else
+        print_info "No migrations found. Pushing database schema..."
+        pnpm run db:push
+    fi
+
+    print_success "Database setup completed successfully"
 }
 
 # Seed database
@@ -292,7 +302,7 @@ main() {
     check_docker
     start_docker
     wait_for_postgres
-    push_database
+    setup_database
     seed_database
     start_backend_server
 }

@@ -59,6 +59,7 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.11.1
   mocktail: ^1.0.4
+  kiri_check: ^1.3.0
 
 flutter:
   uses-material-design: true

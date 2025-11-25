@@ -75,15 +75,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ScreenTitleWidget.primary(
             title: "Account",
             leadIcon: Assets.icons.line.chevronBackOutline,
-            leadIconColor: Colors.black,
+            leadIconColor: BaseColor.black,
             onPressedLeadIcon: context.pop,
           ),
           Gap.h16,
           Material(
             color: BaseColor.cardBackground1,
             elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
-            surfaceTintColor: BaseColor.teal[50],
+            shadowColor: BaseColor.black.withValues(alpha: 0.05),
+            surfaceTintColor: BaseColor.primary[50],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -98,14 +98,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         width: BaseSize.w32,
                         height: BaseSize.w32,
                         decoration: BoxDecoration(
-                          color: BaseColor.teal[100],
+                          color: BaseColor.primary[100],
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
                         child: Icon(
                           Icons.person_outline,
                           size: BaseSize.w16,
-                          color: BaseColor.teal[700],
+                          color: BaseColor.primary[700],
                         ),
                       ),
                       Gap.w12,
@@ -201,11 +201,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   Gap.h16,
                   // Claimed checkbox
                   Material(
-                    color: BaseColor.teal[50],
+                    color: BaseColor.primary[50],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        color: BaseColor.teal[200] ?? BaseColor.neutral40,
+                        color: BaseColor.primary[200] ?? BaseColor.neutral40,
                       ),
                     ),
                     child: CheckboxListTile(
@@ -238,7 +238,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             : "Claimed account can only be modified by the owner, not the church",
                         style: BaseTypography.bodySmall.toSecondary,
                       ),
-                      activeColor: BaseColor.teal[700],
+                      activeColor: BaseColor.primary[700],
                       checkColor: BaseColor.white,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: BaseSize.w16,
@@ -340,7 +340,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Future<bool?> _showClaimConfirmation(BuildContext context) {
     return showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: BaseColor.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: BaseColor.white,
@@ -371,14 +371,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               width: BaseSize.w56,
               height: BaseSize.w56,
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: BaseColor.yellow[50],
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 Icons.warning_amber_rounded,
                 size: BaseSize.w32,
-                color: Colors.orange.shade700,
+                color: BaseColor.yellow[700],
               ),
             ),
             Gap.h16,
@@ -426,7 +426,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: BaseColor.teal[700],
+                      backgroundColor: BaseColor.primary[700],
                       foregroundColor: BaseColor.white,
                       padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
                       elevation: 0,

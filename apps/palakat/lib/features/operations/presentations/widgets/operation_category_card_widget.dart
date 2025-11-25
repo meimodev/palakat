@@ -1,0 +1,181 @@
+import 'package:flutter/material.dart';
+import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/features/operations/data/operation_models.dart';
+import 'package:palakat/features/operations/presentations/widgets/operation_item_card_widget.dart';
+
+/// Collapsible category card that groups related operations.
+/// Uses ExpansionTile pattern with custom styling.
+///
+/// Requirements: 2.3, 2.4, 3.1, 3.2
+class OperationCategoryCard extends StatelessWidget {
+  const OperationCategoryCard({
+    super.key,
+    required this.category,
+    required this.onExpansionChanged,
+    required this.onOperationTap,
+  });
+
+  /// The category data to display
+  final OperationCategory category;
+
+  /// Callback when the category expansion state changes
+  final ValueChanged<bool> onExpansionChanged;
+
+  /// Callback when an operation item is tapped
+  final ValueChanged<OperationItem> onOperationTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: BaseColor.surfaceMedium,
+        borderRadius: BorderRadius.circular(BaseSize.w16),
+        boxShadow: [
+          BoxShadow(
+            color: BaseColor.shadow.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Category header with expand/collapse functionality
+          _CategoryHeader(
+            category: category,
+            onTap: () => onExpansionChanged(!category.isExpanded),
+          ),
+
+          // Operation items - only visible when expanded
+          AnimatedCrossFade(
+            firstChild: _buildOperationsList(category.operations),
+            secondChild: const SizedBox.shrink(),
+            crossFadeState: category.isExpanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOperationsList(List<OperationItem> operations) {
+    if (operations.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(BaseSize.w16),
+        child: Text(
+          'No operations available',
+          style: BaseTypography.bodyMedium.copyWith(
+            color: BaseColor.textSecondary,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: BaseSize.w8,
+        right: BaseSize.w8,
+        bottom: BaseSize.w8,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: operations
+            .map(
+              (operation) => Padding(
+                padding: EdgeInsets.only(bottom: BaseSize.w8),
+                child: OperationItemCard(
+                  operation: operation,
+                  onTap: () => onOperationTap(operation),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+}
+
+/// Category header with icon, title, and expand/collapse indicator
+class _CategoryHeader extends StatelessWidget {
+  const _CategoryHeader({required this.category, required this.onTap});
+
+  final OperationCategory category;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: BaseColor.primary[50],
+      child: InkWell(
+        onTap: onTap, // Always tappable for expand/collapse
+        splashColor: BaseColor.primary.withValues(alpha: 0.1),
+        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              // Category icon
+              Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                ),
+                child: Icon(
+                  category.icon,
+                  color: BaseColor.primary,
+                  size: BaseSize.w24,
+                ),
+              ),
+              Gap.w12,
+              // Category title
+              Expanded(
+                child: Text(
+                  category.title,
+                  style: BaseTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BaseColor.textPrimary,
+                  ),
+                ),
+              ),
+              // Operation count badge
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: BaseSize.w8,
+                  vertical: BaseSize.w4,
+                ),
+                decoration: BoxDecoration(
+                  color: BaseColor.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                ),
+                child: Text(
+                  '${category.operations.length}',
+                  style: BaseTypography.labelSmall.copyWith(
+                    color: BaseColor.primary[700],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              // Expand/collapse icon with animation (always visible)
+              Gap.w8,
+              AnimatedRotation(
+                turns: category.isExpanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: BaseColor.primary,
+                  size: BaseSize.w24,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -29,7 +29,7 @@ class ReportCardWidget extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: BaseColor.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
@@ -75,7 +75,9 @@ class ReportCardWidget extends StatelessWidget {
                           Text(
                             _getGenerationTypeLabel(report.generatedBy),
                             style: BaseTypography.bodySmall.copyWith(
-                              color: _getGenerationTypeColor(report.generatedBy),
+                              color: _getGenerationTypeColor(
+                                report.generatedBy,
+                              ),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -93,19 +95,19 @@ class ReportCardWidget extends StatelessWidget {
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
                               Icon(
                                 Icons.delete_outline,
                                 size: 16,
-                                color: Colors.red,
+                                color: BaseColor.error,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Delete',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(color: BaseColor.error),
                               ),
                             ],
                           ),
@@ -163,9 +165,9 @@ class ReportCardWidget extends StatelessWidget {
   Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return const Color(0xFF3B82F6); // Blue
+        return BaseColor.blue[500]!; // Blue for manual
       case GeneratedBy.system:
-        return const Color(0xFF10B981); // Green
+        return BaseColor.primary[500]!; // Teal for system
     }
   }
 

@@ -16,21 +16,15 @@ class CardPublishingOperationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: BaseColor.transparent,
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              BaseColor.blue[600]!,
-              BaseColor.teal[500]!,
-            ],
-          ),
+          // Solid teal primary color instead of gradient (Requirements 1.1, 3.1)
+          color: BaseColor.primary[500],
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: BaseColor.teal[300]!.withValues(alpha: 0.4),
+              color: BaseColor.primary[300]!.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -38,26 +32,28 @@ class CardPublishingOperationWidget extends StatelessWidget {
         ),
         clipBehavior: Clip.hardEdge,
         child: Material(
-          color: Colors.transparent,
+          color: BaseColor.transparent,
           child: InkWell(
             onTap: onPressedCard,
+            splashColor: BaseColor.primary[400]!.withValues(alpha: 0.3),
+            highlightColor: BaseColor.primary[600]!.withValues(alpha: 0.2),
             child: Padding(
               padding: EdgeInsets.all(BaseSize.w16),
               child: Row(
                 children: [
-                  // Plus icon
+                  // Plus icon with neutral background
                   Container(
                     width: BaseSize.w48,
                     height: BaseSize.w48,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: BaseColor.textOnPrimary.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
                     child: Icon(
                       Icons.add,
                       size: BaseSize.w32,
-                      color: Colors.white,
+                      color: BaseColor.textOnPrimary,
                     ),
                   ),
                   Gap.w16,
@@ -70,14 +66,16 @@ class CardPublishingOperationWidget extends StatelessWidget {
                           title,
                           style: BaseTypography.titleLarge.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: BaseColor.textOnPrimary,
                           ),
                         ),
                         Gap.h4,
                         Text(
                           description,
                           style: BaseTypography.bodyMedium.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: BaseColor.textOnPrimary.withValues(
+                              alpha: 0.9,
+                            ),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -90,7 +88,7 @@ class CardPublishingOperationWidget extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward,
                     size: BaseSize.w24,
-                    color: Colors.white,
+                    color: BaseColor.textOnPrimary,
                   ),
                 ],
               ),

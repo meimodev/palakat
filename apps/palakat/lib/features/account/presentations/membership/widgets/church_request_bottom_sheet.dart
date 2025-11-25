@@ -496,7 +496,7 @@ class _ChurchRequestBottomSheetState
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
+                  Icon(Icons.check_circle, color: BaseColor.white),
                   Gap.w8,
                   const Expanded(
                     child: Text(
@@ -505,7 +505,7 @@ class _ChurchRequestBottomSheetState
                   ),
                 ],
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: BaseColor.success,
               duration: const Duration(seconds: 3),
             ),
           );
@@ -525,12 +525,12 @@ class _ChurchRequestBottomSheetState
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.white),
+                  Icon(Icons.error_outline, color: BaseColor.white),
                   Gap.w8,
                   Expanded(child: Text(failure.message)),
                 ],
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: BaseColor.error,
               duration: const Duration(seconds: 4),
             ),
           );
@@ -548,12 +548,12 @@ class _ChurchRequestBottomSheetState
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.white),
+              Icon(Icons.error_outline, color: BaseColor.white),
               Gap.w8,
               Expanded(child: Text('Error: ${e.toString()}')),
             ],
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: BaseColor.error,
           duration: const Duration(seconds: 4),
         ),
       );
@@ -569,14 +569,14 @@ class _ChurchRequestBottomSheetState
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.white),
+              Icon(Icons.error_outline, color: BaseColor.white),
               Gap.w8,
               const Expanded(
                 child: Text('An unexpected error occurred. Please try again.'),
               ),
             ],
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: BaseColor.error,
           duration: const Duration(seconds: 4),
         ),
       );

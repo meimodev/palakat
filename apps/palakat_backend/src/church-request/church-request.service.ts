@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '../prisma.service';
 import { ChurchRequestListQueryDto } from './dto/church-request-list.dto';
 import { CreateChurchRequestDto } from './dto/create-church-request.dto';
 import { UpdateChurchRequestDto } from './dto/update-church-request.dto';

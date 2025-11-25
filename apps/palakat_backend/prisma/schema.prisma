@@ -2,11 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator customClient {
-  provider = "prisma-client-js"
-  output   = "../prisma/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_POSTGRES_URL")
@@ -80,14 +75,14 @@ model MembershipPosition {
 }
 
 model Account {
-  id                    Int             @id @default(autoincrement())
+  id                    Int            @id @default(autoincrement())
   name                  String
-  phone                 String          @unique
-  email                 String?         @unique
+  phone                 String         @unique
+  email                 String?        @unique
   passwordHash          String?
-  isActive              Boolean         @default(true)
-  claimed               Boolean         @default(false)
-  failedLoginAttempts   Int             @default(0)
+  isActive              Boolean        @default(true)
+  claimed               Boolean        @default(false)
+  failedLoginAttempts   Int            @default(0)
   lockUntil             DateTime?
   refreshTokenHash      String?
   refreshTokenExpiresAt DateTime?
@@ -95,8 +90,8 @@ model Account {
   gender                Gender
   maritalStatus         MaritalStatus
   dob                   DateTime
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
   membership            Membership?
   churchRequest         ChurchRequest?
 }
@@ -311,16 +306,16 @@ model Document {
 }
 
 model ChurchRequest {
-  id             Int           @id @default(autoincrement())
-  churchName     String
-  churchAddress  String
-  contactPerson  String
-  contactPhone   String
-  status         RequestStatus @default(TODO)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  requesterId    Int           @unique
-  requester      Account       @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  id            Int           @id @default(autoincrement())
+  churchName    String
+  churchAddress String
+  contactPerson String
+  contactPhone  String
+  status        RequestStatus @default(TODO)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  requesterId   Int           @unique
+  requester     Account       @relation(fields: [requesterId], references: [id], onDelete: Cascade)
 
   @@index([requesterId])
   @@index([createdAt])

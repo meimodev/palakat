@@ -50,7 +50,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
           title: "Add Income",
           description: "Generate detailed income and donation reports",
           icon: Icons.trending_up,
-          color: const Color(0xFF10B981),
+          type: ReportButtonType.primary, // Teal for income
           isLoading: false,
           onPressed: () {},
         ),
@@ -59,7 +59,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
           title: "Add Expense",
           description: "Generate expense and spending reports",
           icon: Icons.trending_down,
-          color: const Color(0xFFEF4444),
+          type: ReportButtonType.error, // Red for expense
           isLoading: false,
           onPressed: () {},
         ),
@@ -68,7 +68,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
           title: "Add Report",
           description: "Generate inventory and asset reports",
           icon: Icons.inventory_2,
-          color: const Color(0xFF3B82F6),
+          type: ReportButtonType.info, // Info teal for reports
           isLoading: false,
           onPressed: () {},
         ),

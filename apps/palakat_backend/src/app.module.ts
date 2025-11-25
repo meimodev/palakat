@@ -1,5 +1,4 @@
 import { Logger, Module } from '@nestjs/common';
-import { PrismaModule } from 'nestjs-prisma';
 import { HelperService } from '../common/helper/helper.service';
 import { AccountModule } from './account/account.module';
 import { ActivitiesModule } from './activity/activity.module';
@@ -17,6 +16,7 @@ import { FileModule } from './file/file.module';
 import { LocationModule } from './location/location.module';
 import { MembershipPositionModule } from './membership-position/membership-position.module';
 import { MembershipModule } from './membership/membership.module';
+import { PrismaModule } from './prisma.module';
 import { ReportModule } from './report/report.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { SongPartModule } from './song-part/song-part.module';
@@ -24,7 +24,7 @@ import { SongModule } from './song/song.module';
 
 @Module({
   imports: [
-    PrismaModule.forRoot({ isGlobal: true }),
+    PrismaModule,
     AuthModule,
     AccountModule,
     MembershipModule,

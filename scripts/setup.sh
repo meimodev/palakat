@@ -115,12 +115,16 @@ bootstrap_flutter() {
 setup_backend() {
     print_section "Setting up Backend"
 
-    print_info "Installing backend dependencies..."
+    print_info "Installing backend dependencies (Prisma 7 + NestJS)..."
     cd apps/palakat_backend
     pnpm install
+
+    print_info "Generating Prisma Client..."
+    pnpm run prisma:generate
+
     cd ../..
 
-    print_success "Backend dependencies installed"
+    print_success "Backend dependencies installed and Prisma Client generated"
 }
 
 # Setup environment files

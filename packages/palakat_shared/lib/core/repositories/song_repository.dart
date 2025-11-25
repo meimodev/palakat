@@ -35,9 +35,10 @@ class SongRepository {
       );
 
       final data = response.data ?? {};
+      // Use SongMapper to transform backend response to Flutter Song model
       final result = PaginationResponseWrapper.fromJson(
         data,
-        (e) => Song.fromJson(e as Map<String, dynamic>),
+        (e) => (e as Map<String, dynamic>).toSong(),
       );
       return Result.success(result);
     } on DioException catch (e) {
@@ -76,7 +77,8 @@ class SongRepository {
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid song response payload'));
       }
-      return Result.success(Song.fromJson(json));
+      // Use SongMapper to transform backend response to Flutter Song model
+      return Result.success(json.toSong());
     } on DioException catch (e) {
       final error = ErrorMapper.fromDio(e, 'Failed to fetch song');
       return Result.failure(Failure(error.message, error.statusCode));

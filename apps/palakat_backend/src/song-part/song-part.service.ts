@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'nestjs-prisma';
-import { Prisma } from '../../prisma/generated/prisma';
+import { PrismaService } from '../prisma.service';
+import { Prisma } from '@prisma/client';
 import { SongPartListQueryDto } from './dto/song-part-list.dto';
 
 @Injectable()
