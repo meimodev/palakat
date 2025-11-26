@@ -1,0 +1,132 @@
+# Implementation Plan
+
+- [-] 1. Create song category data models
+  - [x] 1.1 Create SongCategory Freezed model
+    - Create song_category_model.dart with @freezed annotation
+    - SongCategory: id, title, abbreviation, icon, isExpanded
+    - Run build_runner to generate freezed files
+    - _Requirements: 1.1, 1.2_
+  - [ ]* 1.2 Write property test for song category membership
+    - **Property 1: Song Category Membership**
+    - **Validates: Requirements 1.2**
+
+- [x] 2. Update song book state and controller
+  - [x] 2.1 Update SongBookState with category support
+    - Add categories list to state
+    - Add categoryExpansionState map for tracking expanded categories
+    - Update state to use new SongCategory model
+    - _Requirements: 1.1, 7.1, 7.4_
+  - [x] 2.2 Implement category expansion logic in controller
+    - Add toggleCategoryExpansion method
+    - Add initializeCategories method to create category structure
+    - Implement getSongsForCategory method to filter songs by hymnal type
+    - _Requirements: 1.3, 7.1, 7.2, 7.3_
+  - [ ]* 2.3 Write property test for category expansion toggle
+    - **Property 2: Category Expansion Toggle**
+    - **Validates: Requirements 1.3, 7.1**
+  - [ ]* 2.4 Write property test for multiple category expansion
+    - **Property 6: Multiple Category Expansion**
+    - **Validates: Requirements 7.3**
+  - [ ]* 2.5 Write property test for initial expansion state
+    - **Property 7: Initial Expansion State**
+    - **Validates: Requirements 7.4**
+
+- [ ] 3. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Create song category widgets
+  - [x] 4.1 Create SongCategoryCard widget
+    - Implement collapsible card with same pattern as OperationCategoryCard
+    - Use teal primary color for header
+    - Add expand/collapse icon animation
+    - Display song count badge
+    - _Requirements: 1.1, 1.4, 2.1, 2.2_
+  - [x] 4.2 Create SongItemCard widget
+    - Display title, subtitle (hymnal abbreviation), and music icon
+    - Use neutral surface colors for background
+    - Add ripple effect with primary color at 10% opacity
+    - Use same visual pattern as OperationItemCard
+    - Add 12px border radius
+    - _Requirements: 2.3, 4.1, 4.2, 4.4_
+  - [ ]* 4.3 Write property test for song card completeness
+    - **Property 5: Song Card Completeness**
+    - **Validates: Requirements 3.3, 4.2**
+
+- [-] 5. Update search functionality
+  - [x] 5.1 Refactor search logic for category integration
+    - Update searchSongs method to work with category view
+    - Implement search state transition (category view vs search results)
+    - Maintain 500ms debounce for search
+    - _Requirements: 3.1, 3.2, 3.4_
+  - [ ]* 5.2 Write property test for search filter correctness
+    - **Property 3: Search Filter Correctness**
+    - **Validates: Requirements 3.2**
+  - [ ]* 5.3 Write property test for search state transition
+    - **Property 4: Search State Transition**
+    - **Validates: Requirements 3.4**
+
+- [ ] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Redesign song book screen
+  - [x] 7.1 Refactor SongBookScreen with category-based layout
+    - Replace current grid layout with category list
+    - Integrate SongCategoryCard for each hymnal type
+    - Implement conditional rendering (search vs category view)
+    - Apply 8px grid spacing throughout
+    - _Requirements: 1.1, 1.4, 2.4, 3.4_
+  - [x] 7.2 Update empty state widget styling
+    - Use consistent styling with Operations screen empty state
+    - Use neutral colors and teal accents
+    - _Requirements: 1.5, 2.2_
+  - [ ]* 7.3 Write property test for spacing grid alignment
+    - **Property 11: Spacing Grid Alignment**
+    - **Validates: Requirements 2.4**
+
+- [x] 8. Implement responsive layout
+  - [x] 8.1 Create responsive category grid
+    - Use LayoutBuilder to detect screen width
+    - Display 2 columns when width > 600px
+    - Display 1 column when width <= 600px
+    - Ensure minimum touch target of 48x48 pixels
+    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+  - [ ]* 8.2 Write property test for responsive column count
+    - **Property 8: Responsive Column Count**
+    - **Validates: Requirements 8.2, 8.3**
+  - [ ]* 8.3 Write property test for touch target minimum size
+    - **Property 10: Touch Target Minimum Size**
+    - **Validates: Requirements 6.4, 8.4**
+
+- [ ] 9. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 10. Redesign bottom navigation bar
+  - [x] 10.1 Update BottomNavBar with unified teal color
+    - Replace per-tab colors with unified teal primary color
+    - Update selected icon color to BaseColor.primary
+    - Update unselected icon color to BaseColor.textSecondary
+    - Update indicator color to BaseColor.primary at 15% opacity
+    - Update top border to BaseColor.primary at 12% opacity
+    - _Requirements: 5.1, 5.2, 5.3, 5.5_
+  - [x] 10.2 Update navigation item styling
+    - Ensure consistent icon sizing (24px)
+    - Update label typography for consistency
+    - Maintain 400ms animation duration
+    - _Requirements: 5.4, 6.1, 6.2_
+  - [ ]* 10.3 Write property test for navigation item visibility
+    - **Property 9: Navigation Item Visibility**
+    - **Validates: Requirements 6.3**
+
+- [x] 11. Final integration and cleanup
+  - [x] 11.1 Remove deprecated song book widgets
+    - Remove or refactor DefaultCardSongSnippet if no longer needed
+    - Update widgets.dart barrel export
+    - _Requirements: 1.4_
+  - [x] 11.2 Verify visual consistency
+    - Review song book screen for color system compliance
+    - Review bottom navbar for design consistency
+    - Fix any remaining color inconsistencies
+    - _Requirements: 2.1, 2.2, 2.5, 5.1_
+
+- [ ] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

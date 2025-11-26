@@ -1,0 +1,187 @@
+# Implementation Plan
+
+- [ ] 1. Set up Activity Repository and API integration
+  - [ ] 1.1 Create ActivityRepository interface and implementation
+    - Create `activity_repository.dart` in `packages/palakat_shared/lib/core/repositories/`
+    - Define `createActivity` method with `CreateActivityRequest` parameter
+    - Implement API call to POST `/activity` endpoint
+    - Handle success and error responses with Result type
+    - _Requirements: 6.1, 6.4_
+  - [ ] 1.2 Create CreateActivityRequest model
+    - Create freezed model with fields: supervisorId, bipra, title, description, locationId, date, note, activityType
+    - Add JSON serialization
+    - _Requirements: 6.1_
+  - [ ]* 1.3 Write property test for CreateActivityRequest serialization
+    - **Property: Serialization round trip**
+    - **Validates: Requirements 6.1**
+    - Test that for any valid CreateActivityRequest, toJson then fromJson produces equivalent object
+
+- [ ] 2. Enhance ActivityPublishState with complete form fields
+  - [ ] 2.1 Update ActivityPublishState freezed class
+    - Add all form fields: bipra, title, location, pinpointLocation, date, time, reminder, note, description, file
+    - Add corresponding error fields for each form field
+    - Add loading, isFormValid, errorMessage fields
+    - Add author info fields: authorName, churchName, currentDate
+    - Run build_runner to generate freezed code
+    - _Requirements: 2.1, 2.2, 2.3, 7.1, 7.2, 7.3_
+  - [ ]* 2.2 Write property test for activity type initialization
+    - **Property 1: Activity type initialization**
+    - **Validates: Requirements 1.1**
+    - Test that for any ActivityType, the state is initialized with that type
+
+- [ ] 3. Implement form field configuration by activity type
+  - [ ] 3.1 Create FormFieldType enum and ActivityType extension
+    - Define FormFieldType enum with all field types
+    - Create extension on ActivityType with `requiredFields` and `optionalFields` getters
+    - SERVICE/EVENT: bipra, title, location, pinpointLocation, date, time, reminder (required), note (optional)
+    - ANNOUNCEMENT: bipra, title, description, file (required)
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [ ]* 3.2 Write property test for form fields match activity type
+    - **Property 2: Form fields match activity type**
+    - **Validates: Requirements 2.1, 2.2, 2.3**
+    - Test that for any ActivityType, requiredFields returns the correct set of fields
+
+- [ ] 4. Implement ActivityPublishController with field handlers
+  - [ ] 4.1 Implement all onChanged handlers
+    - Add onChangedBipra, onChangedTitle, onChangedLocation, onChangedPinpointLocation
+    - Add onChangedDate, onChangedTime, onChangedReminder, onChangedNote
+    - Add onChangedDescription, onChangedFile
+    - Each handler updates the corresponding state field
+    - _Requirements: 2.4_
+  - [ ]* 4.2 Write property test for state updates on field change
+    - **Property 3: State updates on field change**
+    - **Validates: Requirements 2.4**
+    - Test that for any field and any valid input, the state contains that value after change
+
+- [ ] 5. Implement form validation logic
+  - [ ] 5.1 Implement individual field validators
+    - validateBipra: returns "Must be selected" if empty
+    - validateTitle: returns "Title is required" if empty
+    - validateLocation: returns "Location is required" if empty (SERVICE/EVENT only)
+    - validatePinpointLocation: returns "Pinpoint location is required" if empty (SERVICE/EVENT only)
+    - validateDate: returns "Date is required" if empty (SERVICE/EVENT only)
+    - validateTime: returns "Time is required" if empty (SERVICE/EVENT only)
+    - validateReminder: returns "Reminder is required" if empty (SERVICE/EVENT only)
+    - validateDescription: returns "Description is required" if empty (ANNOUNCEMENT only)
+    - validateFile: returns "File is required" if empty (ANNOUNCEMENT only)
+    - _Requirements: 3.1, 3.4, 3.5_
+  - [ ] 5.2 Implement validateForm method
+    - Call validators based on activity type's required fields
+    - Update state with error messages
+    - Set isFormValid based on all validations passing
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [ ]* 5.3 Write property test for validation errors
+    - **Property 4: Validation errors for empty required fields**
+    - **Validates: Requirements 3.1, 3.2**
+    - Test that for any combination of empty required fields, errors are set for exactly those fields
+  - [ ]* 5.4 Write property test for form validity
+    - **Property 5: Form validity when all required fields valid**
+    - **Validates: Requirements 3.3**
+    - Test that when all required fields are valid, isFormValid is true
+
+- [ ] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 7. Implement date and time formatting utilities
+  - [ ] 7.1 Create date formatting function
+    - Format DateTime to "EEEE, dd MMM yyyy" pattern using Jiffy
+    - Add to existing date extension or create new utility
+    - _Requirements: 5.2_
+  - [ ] 7.2 Create time formatting function
+    - Format TimeOfDay to "HH:mm" pattern
+    - Add to existing time extension or create new utility
+    - _Requirements: 5.4_
+  - [ ]* 7.3 Write property test for date formatting
+    - **Property 6: Date formatting consistency**
+    - **Validates: Requirements 5.2**
+    - Test that for any valid DateTime, formatted string matches expected pattern
+  - [ ]* 7.4 Write property test for time formatting
+    - **Property 7: Time formatting consistency**
+    - **Validates: Requirements 5.4**
+    - Test that for any valid TimeOfDay, formatted string matches "HH:mm" pattern
+
+- [ ] 8. Implement author info fetching
+  - [ ] 8.1 Implement fetchAuthorInfo method in controller
+    - Get signed-in account from AuthRepository
+    - Extract author name from account.name
+    - Extract church name from account.membership.church.name
+    - Set current date using date formatting utility
+    - Update state with author info
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [ ]* 8.2 Write property test for author info
+    - **Property 10: Author info matches signed-in account**
+    - **Validates: Requirements 7.1, 7.2**
+    - Test that authorName equals account.name and churchName equals church.name
+
+- [ ] 9. Implement form submission
+  - [ ] 9.1 Implement submit method in controller
+    - Validate form first
+    - If invalid, return false
+    - Set loading state to true
+    - Build CreateActivityRequest from state
+    - Call ActivityRepository.createActivity
+    - Handle success: set loading false, return true
+    - Handle failure: set loading false, set errorMessage, return false
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ]* 9.2 Write property test for loading state during submission
+    - **Property 8: Loading state during submission**
+    - **Validates: Requirements 6.2**
+    - Test that loading is true during API call and false after
+  - [ ]* 9.3 Write property test for error state on API failure
+    - **Property 9: Error state on API failure**
+    - **Validates: Requirements 6.4**
+    - Test that on API failure, errorMessage is non-null
+
+- [ ] 10. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 11. Build ActivityPublishScreen UI
+  - [ ] 11.1 Implement screen layout with ScaffoldWidget
+    - Use ScaffoldWidget with loading state from controller
+    - Add ScreenTitleWidget with activity type name and back button
+    - Add persistent bottom widget for submit button
+    - _Requirements: 1.2, 1.3_
+  - [ ] 11.2 Implement form fields for SERVICE/EVENT type
+    - Add Bipra dropdown using InputWidget.dropdown with Bipra picker dialog
+    - Add Title text input using InputWidget.text
+    - Add Location text input using InputWidget.text
+    - Add Pinpoint Location dropdown using InputWidget.dropdown with map navigation
+    - Add Date dropdown using InputWidget.dropdown with date picker dialog
+    - Add Time dropdown using InputWidget.dropdown with time picker dialog
+    - Add Reminder dropdown using InputWidget.dropdown with reminder picker dialog
+    - Add Note text input using InputWidget.text
+    - Wire all fields to controller handlers
+    - _Requirements: 2.2, 4.1, 4.2, 5.1, 5.3_
+  - [ ] 11.3 Implement form fields for ANNOUNCEMENT type
+    - Add Bipra dropdown (same as SERVICE/EVENT)
+    - Add Title text input (same as SERVICE/EVENT)
+    - Add Description text input using InputWidget.text
+    - Add File upload dropdown using InputWidget.dropdown with file picker
+    - Wire all fields to controller handlers
+    - _Requirements: 2.3, 8.1, 8.2_
+  - [ ] 11.4 Implement author info section
+    - Add divider below form fields
+    - Display publisher name with icon using OutputWidget.startIcon
+    - Display church name with icon using OutputWidget.startIcon
+    - Display current date with icon using OutputWidget.startIcon
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [ ] 11.5 Implement submit button and feedback
+    - Add ButtonWidget.primary for submit
+    - Call controller.submit on tap
+    - Show snackbar on validation failure
+    - Navigate back on success
+    - _Requirements: 6.1, 6.3_
+
+- [ ] 12. Wire navigation from Operations screen
+  - [ ] 12.1 Verify route configuration
+    - Confirm AppRoute.activityPublish route exists and accepts ActivityType parameter
+    - Verify RouteParamKey.activityType is defined
+    - _Requirements: 1.1_
+  - [ ] 12.2 Test navigation flow
+    - Verify tapping publishing cards navigates to Create Activity Screen
+    - Verify activity type is correctly passed and displayed
+    - Verify back navigation returns to Operations screen
+    - _Requirements: 1.1, 1.2, 1.3_
+
+- [ ] 13. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

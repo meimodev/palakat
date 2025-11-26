@@ -1,2 +1,2 @@
-export 'card_song_snippet_list_item_widget.dart';
-export 'default_card_song_snippet.dart';
+export 'song_category_card_widget.dart';
+export 'song_item_card_widget.dart';

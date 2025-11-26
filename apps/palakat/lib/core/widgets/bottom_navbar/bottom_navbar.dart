@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
+import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
 class BottomNavBar extends ConsumerWidget {
@@ -26,31 +26,14 @@ class BottomNavBar extends ConsumerWidget {
 
     // Map currentIndex to visual position in the filtered list
     final selectedVisualIndex = visibleIndices.indexOf(currentIndex);
-    final safeSelectedIndex = selectedVisualIndex >= 0 ? selectedVisualIndex : 0;
+    final safeSelectedIndex = selectedVisualIndex >= 0
+        ? selectedVisualIndex
+        : 0;
 
-    final double iconSize = BaseSize.w24;
-    // Per-tab selected color palette aligned with Operations accents
-    final List<Color> allSelectedColors = <Color>[
-      BaseColor.primary4,               // Home - Green
-      BaseColor.yellow.shade600,        // Songs - Yellow/Orange
-      BaseColor.red.shade600,           // Ops - Red
-      BaseColor.teal.shade600,          // Approval - Teal
-    ];
-
-    // Filter colors based on visible indices
-    final List<Color> selectedPalette = visibleIndices
-        .map((i) => allSelectedColors[i])
-        .toList();
-
-    final Color selectedColor = selectedPalette[safeSelectedIndex];
-
-    // Per-tab unselected palette using lighter opacity of each accent
-    final List<Color> unselectedPalette = selectedPalette
-        .map((color) => color.withValues(alpha: 0.5))
-        .toList();
-
-    // Keep unselected label neutral for readability
-    final Color unselectedColor = BaseColor.secondaryText;
+    // Unified teal primary color for all selected states (Requirements 5.1)
+    const Color selectedColor = BaseColor.primary;
+    // Neutral color for unselected states (Requirements 5.2)
+    const Color unselectedColor = BaseColor.textSecondary;
 
     final selectedLabelStyle = BaseTypography.labelMedium.copyWith(
       color: selectedColor,
@@ -71,6 +54,7 @@ class BottomNavBar extends ConsumerWidget {
           color: BaseColor.white,
           border: Border(
             top: BorderSide(
+              // Top border using primary color at 12% opacity (Requirements 5.5)
               color: selectedColor.withValues(alpha: 0.12),
               width: 1,
             ),
@@ -81,12 +65,15 @@ class BottomNavBar extends ConsumerWidget {
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) return selectedLabelStyle;
+                if (states.contains(WidgetState.selected)) {
+                  return selectedLabelStyle;
+                }
                 return unselectedLabelStyle;
               }),
               height: 70,
             ),
             child: NavigationBar(
+              // 400ms animation duration (Requirements 6.1)
               animationDuration: const Duration(milliseconds: 400),
               selectedIndex: safeSelectedIndex,
               onDestinationSelected: (visualIndex) {
@@ -96,42 +83,38 @@ class BottomNavBar extends ConsumerWidget {
               },
               backgroundColor: Colors.transparent,
               elevation: 0,
-              // Stronger indicator with per-tab accent color
+              // Indicator using primary color at 15% opacity (Requirements 5.3)
               indicatorColor: selectedColor.withValues(alpha: 0.15),
               indicatorShape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
+              // Always show labels (Requirements 6.2)
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               destinations: _buildDestinations(
                 visibleIndices,
-                iconSize,
-                unselectedPalette,
                 selectedColor,
+                unselectedColor,
               ),
+            ),
+          ),
         ),
       ),
-    ),
-  ),
     );
   }
 
   /// Builds navigation destinations based on visible indices
   List<NavigationDestination> _buildDestinations(
     List<int> visibleIndices,
-    double iconSize,
-    List<Color> unselectedPalette,
     Color selectedColor,
+    Color unselectedColor,
   ) {
+    // Consistent icon sizing at 24px (Requirements 5.4)
+    const double iconSize = 24.0;
+
     // Map of all possible destinations
     final allDestinations = <int, _DestinationData>{
-      0: _DestinationData(
-        icon: Assets.icons.line.gridOutline,
-        label: 'Home',
-      ),
-      1: _DestinationData(
-        icon: Assets.icons.line.musicalNotes,
-        label: 'Songs',
-      ),
+      0: _DestinationData(icon: Assets.icons.line.gridOutline, label: 'Home'),
+      1: _DestinationData(icon: Assets.icons.line.musicalNotes, label: 'Songs'),
       2: _DestinationData(
         icon: Assets.icons.line.documentOutline,
         label: 'Ops',
@@ -143,19 +126,14 @@ class BottomNavBar extends ConsumerWidget {
     };
 
     // Build destinations for visible indices
-    return visibleIndices.asMap().entries.map((entry) {
-      final visualIndex = entry.key;
-      final logicalIndex = entry.value;
+    return visibleIndices.map((logicalIndex) {
       final data = allDestinations[logicalIndex]!;
 
       return NavigationDestination(
         icon: data.icon.svg(
           width: iconSize,
           height: iconSize,
-          colorFilter: ColorFilter.mode(
-            unselectedPalette[visualIndex],
-            BlendMode.srcIn,
-          ),
+          colorFilter: ColorFilter.mode(unselectedColor, BlendMode.srcIn),
         ),
         selectedIcon: data.icon.svg(
           width: iconSize,
@@ -173,8 +151,5 @@ class _DestinationData {
   final SvgGenImage icon;
   final String label;
 
-  const _DestinationData({
-    required this.icon,
-    required this.label,
-  });
+  const _DestinationData({required this.icon, required this.label});
 }

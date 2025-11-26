@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 import 'package:mocktail/mocktail.dart';
@@ -5,7 +6,6 @@ import 'package:palakat/features/song_book/presentations/song_book_controller.da
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/song_repository.dart';
-import 'package:riverpod/riverpod.dart';
 
 // Mock classes
 class MockSongRepository extends Mock implements SongRepository {}
@@ -14,6 +14,97 @@ class FakeGetFetchSongsRequest extends Fake implements GetFetchSongsRequest {}
 
 class FakePaginationRequestWrapper extends Fake
     implements PaginationRequestWrapper<GetFetchSongsRequest> {}
+
+/// Helper to create a properly configured ProviderContainer with mocked repository
+ProviderContainer createTestContainer(MockSongRepository mockRepo) {
+  return ProviderContainer(
+    overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
+  );
+}
+
+/// Helper to setup mock repository with default successful responses
+void setupMockRepoWithEmptySongs(MockSongRepository mockRepo) {
+  when(
+    () => mockRepo.getSongs(paginationRequest: any(named: 'paginationRequest')),
+  ).thenAnswer(
+    (_) async => Result.success(
+      PaginationResponseWrapper<Song>(
+        message: 'Success',
+        pagination: const PaginationResponseWrapperResponse(
+          page: 1,
+          pageSize: 50,
+          total: 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        ),
+        data: [],
+      ),
+    ),
+  );
+
+  when(
+    () => mockRepo.searchSongs(
+      query: any(named: 'query'),
+      page: any(named: 'page'),
+      pageSize: any(named: 'pageSize'),
+    ),
+  ).thenAnswer(
+    (_) async => Result.success(
+      PaginationResponseWrapper<Song>(
+        message: 'Success',
+        pagination: const PaginationResponseWrapperResponse(
+          page: 1,
+          pageSize: 20,
+          total: 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        ),
+        data: [],
+      ),
+    ),
+  );
+}
+
+/// Helper to setup mock repository with provided songs
+void setupMockRepoWithSongs(MockSongRepository mockRepo, List<Song> songs) {
+  when(
+    () => mockRepo.getSongs(paginationRequest: any(named: 'paginationRequest')),
+  ).thenAnswer(
+    (_) async => Result.success(
+      PaginationResponseWrapper<Song>(
+        message: 'Success',
+        pagination: const PaginationResponseWrapperResponse(
+          page: 1,
+          pageSize: 50,
+          total: 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        ),
+        data: songs,
+      ),
+    ),
+  );
+}
+
+/// Helper to run test with proper provider lifecycle management
+Future<T> runWithProvider<T>(
+  ProviderContainer container,
+  Future<T> Function(SongBookController controller) testFn,
+) async {
+  // Keep a listener alive to prevent auto-dispose
+  final subscription = container.listen(songBookControllerProvider, (_, __) {});
+
+  try {
+    final controller = container.read(songBookControllerProvider.notifier);
+    await Future.delayed(const Duration(milliseconds: 200));
+    return await testFn(controller);
+  } finally {
+    subscription.close();
+  }
+}
 
 void main() {
   KiriCheck.verbosity = Verbosity.verbose;
@@ -51,67 +142,33 @@ void main() {
       forAll(nonEmptyQueryArb(), (query) async {
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithEmptySongs(mockRepo);
+        final container = createTestContainer(mockRepo);
 
-        // Mock getSongs for initial fetch in build()
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 50,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: [],
-            ),
-          ),
-        );
+        try {
+          // Keep a listener alive to prevent auto-dispose
+          final subscription = container.listen(
+            songBookControllerProvider,
+            (_, __) {},
+          );
 
-        // Mock searchSongs to capture the query parameter
-        when(
-          () => mockRepo.searchSongs(
-            query: any(named: 'query'),
-            page: any(named: 'page'),
-            pageSize: any(named: 'pageSize'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 20,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: [],
-            ),
-          ),
-        );
+          // Act - Initialize controller and wait for initial fetch
+          final controller = container.read(
+            songBookControllerProvider.notifier,
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
 
-        // Act - Initialize controller and wait for initial fetch
-        final controller = container.read(songBookControllerProvider.notifier);
-        await Future.delayed(const Duration(milliseconds: 100));
+          // Call searchSongs with the generated query
+          await controller.searchSongs(query);
+          await Future.delayed(const Duration(milliseconds: 50));
 
-        // Call searchSongs with the generated query
-        await controller.searchSongs(query);
+          // Assert - Verify searchSongs was called with the exact query
+          verify(() => mockRepo.searchSongs(query: query)).called(1);
 
-        // Assert - Verify searchSongs was called with the exact query
-        verify(() => mockRepo.searchSongs(query: query)).called(1);
-
-        container.dispose();
+          subscription.close();
+        } finally {
+          container.dispose();
+        }
       });
     });
 
@@ -135,10 +192,6 @@ void main() {
         forAll(specialQueryArb, (query) async {
           // Arrange
           final mockRepo = MockSongRepository();
-          final container = ProviderContainer(
-            overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-          );
-
           String? capturedQuery;
 
           when(
@@ -186,17 +239,22 @@ void main() {
             );
           });
 
-          // Act
-          final controller = container.read(
-            songBookControllerProvider.notifier,
-          );
-          await Future.delayed(const Duration(milliseconds: 100));
-          await controller.searchSongs(query);
+          final container = createTestContainer(mockRepo);
 
-          // Assert - The captured query should be exactly the input query
-          expect(capturedQuery, equals(query));
+          try {
+            // Act
+            final controller = container.read(
+              songBookControllerProvider.notifier,
+            );
+            await Future.delayed(const Duration(milliseconds: 200));
+            await controller.searchSongs(query);
+            await Future.delayed(const Duration(milliseconds: 50));
 
-          container.dispose();
+            // Assert - The captured query should be exactly the input query
+            expect(capturedQuery, equals(query));
+          } finally {
+            container.dispose();
+          }
         });
       },
     );
@@ -256,47 +314,28 @@ void main() {
         forAll(songListArb(), (songs) async {
           // Arrange
           final mockRepo = MockSongRepository();
-          final container = ProviderContainer(
-            overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-          );
+          setupMockRepoWithSongs(mockRepo, songs);
+          final container = createTestContainer(mockRepo);
 
-          // Create a successful response with the generated songs
-          final response = PaginationResponseWrapper<Song>(
-            message: 'Success',
-            pagination: const PaginationResponseWrapperResponse(
-              page: 1,
-              pageSize: 50,
-              total: 0,
-              totalPages: 1,
-              hasNext: false,
-              hasPrev: false,
-            ),
-            data: songs,
-          );
+          try {
+            // Act - Read the controller to trigger build() which calls fetchSongs()
+            container.read(songBookControllerProvider);
 
-          when(
-            () => mockRepo.getSongs(
-              paginationRequest: any(named: 'paginationRequest'),
-            ),
-          ).thenAnswer((_) async => Result.success(response));
+            // Wait for the async fetchSongs to complete
+            await Future.delayed(const Duration(milliseconds: 200));
 
-          // Act - Read the controller to trigger build() which calls fetchSongs()
-          container.read(songBookControllerProvider);
+            // Assert
+            final state = container.read(songBookControllerProvider);
 
-          // Wait for the async fetchSongs to complete
-          await Future.delayed(const Duration(milliseconds: 100));
-
-          // Assert
-          final state = container.read(songBookControllerProvider);
-
-          // filteredSongs should contain exactly the songs from the response
-          expect(state.filteredSongs.length, equals(songs.length));
-          for (var i = 0; i < songs.length; i++) {
-            expect(state.filteredSongs[i].id, equals(songs[i].id));
-            expect(state.filteredSongs[i].title, equals(songs[i].title));
+            // filteredSongs should contain exactly the songs from the response
+            expect(state.filteredSongs.length, equals(songs.length));
+            for (var i = 0; i < songs.length; i++) {
+              expect(state.filteredSongs[i].id, equals(songs[i].id));
+              expect(state.filteredSongs[i].title, equals(songs[i].title));
+            }
+          } finally {
+            container.dispose();
           }
-
-          container.dispose();
         });
       },
     );
@@ -305,38 +344,20 @@ void main() {
       forAll(songListArb(), (songs) async {
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        final response = PaginationResponseWrapper<Song>(
-          message: 'Success',
-          pagination: const PaginationResponseWrapperResponse(
-            page: 1,
-            pageSize: 50,
-            total: 0,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-          ),
-          data: songs,
-        );
+        try {
+          // Act
+          container.read(songBookControllerProvider);
+          await Future.delayed(const Duration(milliseconds: 200));
 
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer((_) async => Result.success(response));
-
-        // Act
-        container.read(songBookControllerProvider);
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        // Assert
-        final state = container.read(songBookControllerProvider);
-        expect(state.isLoading, isFalse);
-
-        container.dispose();
+          // Assert
+          final state = container.read(songBookControllerProvider);
+          expect(state.isLoading, isFalse);
+        } finally {
+          container.dispose();
+        }
       });
     });
 
@@ -344,38 +365,20 @@ void main() {
       forAll(songListArb(), (songs) async {
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        final response = PaginationResponseWrapper<Song>(
-          message: 'Success',
-          pagination: const PaginationResponseWrapperResponse(
-            page: 1,
-            pageSize: 50,
-            total: 0,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-          ),
-          data: songs,
-        );
+        try {
+          // Act
+          container.read(songBookControllerProvider);
+          await Future.delayed(const Duration(milliseconds: 200));
 
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer((_) async => Result.success(response));
-
-        // Act
-        container.read(songBookControllerProvider);
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        // Assert
-        final state = container.read(songBookControllerProvider);
-        expect(state.errorMessage, isNull);
-
-        container.dispose();
+          // Assert
+          final state = container.read(songBookControllerProvider);
+          expect(state.errorMessage, isNull);
+        } finally {
+          container.dispose();
+        }
       });
     });
 
@@ -383,41 +386,23 @@ void main() {
       forAll(songListArb(), (songs) async {
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        final response = PaginationResponseWrapper<Song>(
-          message: 'Success',
-          pagination: const PaginationResponseWrapperResponse(
-            page: 1,
-            pageSize: 50,
-            total: 0,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-          ),
-          data: songs,
-        );
+        try {
+          // Act
+          container.read(songBookControllerProvider);
+          await Future.delayed(const Duration(milliseconds: 200));
 
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer((_) async => Result.success(response));
+          // Assert
+          final state = container.read(songBookControllerProvider);
 
-        // Act
-        container.read(songBookControllerProvider);
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        // Assert
-        final state = container.read(songBookControllerProvider);
-
-        // Both songs and filteredSongs should have the same data
-        expect(state.songs.length, equals(songs.length));
-        expect(state.songs.length, equals(state.filteredSongs.length));
-
-        container.dispose();
+          // Both songs and filteredSongs should have the same data
+          expect(state.songs.length, equals(songs.length));
+          expect(state.songs.length, equals(state.filteredSongs.length));
+        } finally {
+          container.dispose();
+        }
       });
     });
   });
@@ -489,44 +474,25 @@ void main() {
 
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        // Mock getSongs for initial fetch
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 50,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: songs,
-            ),
-          ),
-        );
+        try {
+          // Act - Initialize controller and wait for initial fetch
+          final controller = container.read(
+            songBookControllerProvider.notifier,
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
 
-        // Act - Initialize controller and wait for initial fetch
-        final controller = container.read(songBookControllerProvider.notifier);
-        await Future.delayed(const Duration(milliseconds: 100));
+          // Call searchSongs with empty/whitespace query
+          await controller.searchSongs(emptyQuery);
 
-        // Call searchSongs with empty/whitespace query
-        await controller.searchSongs(emptyQuery);
-
-        // Assert
-        final state = container.read(songBookControllerProvider);
-        expect(state.isSearching, isFalse);
-
-        container.dispose();
+          // Assert
+          final state = container.read(songBookControllerProvider);
+          expect(state.isSearching, isFalse);
+        } finally {
+          container.dispose();
+        }
       });
     });
 
@@ -539,41 +505,23 @@ void main() {
 
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 50,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: songs,
-            ),
-          ),
-        );
+        try {
+          // Act
+          final controller = container.read(
+            songBookControllerProvider.notifier,
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
+          await controller.searchSongs(emptyQuery);
 
-        // Act
-        final controller = container.read(songBookControllerProvider.notifier);
-        await Future.delayed(const Duration(milliseconds: 100));
-        await controller.searchSongs(emptyQuery);
-
-        // Assert
-        final state = container.read(songBookControllerProvider);
-        expect(state.searchQuery, equals(''));
-
-        container.dispose();
+          // Assert
+          final state = container.read(songBookControllerProvider);
+          expect(state.searchQuery, equals(''));
+        } finally {
+          container.dispose();
+        }
       });
     });
 
@@ -586,47 +534,29 @@ void main() {
 
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
+        final container = createTestContainer(mockRepo);
 
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 50,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: songs,
-            ),
-          ),
-        );
+        try {
+          // Act
+          final controller = container.read(
+            songBookControllerProvider.notifier,
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
+          await controller.searchSongs(emptyQuery);
 
-        // Act
-        final controller = container.read(songBookControllerProvider.notifier);
-        await Future.delayed(const Duration(milliseconds: 100));
-        await controller.searchSongs(emptyQuery);
+          // Assert
+          final state = container.read(songBookControllerProvider);
 
-        // Assert
-        final state = container.read(songBookControllerProvider);
-
-        // filteredSongs should equal the full songs list
-        expect(state.filteredSongs.length, equals(songs.length));
-        for (var i = 0; i < songs.length; i++) {
-          expect(state.filteredSongs[i].id, equals(songs[i].id));
-          expect(state.filteredSongs[i].title, equals(songs[i].title));
+          // filteredSongs should equal the full songs list
+          expect(state.filteredSongs.length, equals(songs.length));
+          for (var i = 0; i < songs.length; i++) {
+            expect(state.filteredSongs[i].id, equals(songs[i].id));
+            expect(state.filteredSongs[i].title, equals(songs[i].title));
+          }
+        } finally {
+          container.dispose();
         }
-
-        container.dispose();
       });
     });
 
@@ -639,30 +569,7 @@ void main() {
 
         // Arrange
         final mockRepo = MockSongRepository();
-        final container = ProviderContainer(
-          overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
-        );
-
-        when(
-          () => mockRepo.getSongs(
-            paginationRequest: any(named: 'paginationRequest'),
-          ),
-        ).thenAnswer(
-          (_) async => Result.success(
-            PaginationResponseWrapper<Song>(
-              message: 'Success',
-              pagination: const PaginationResponseWrapperResponse(
-                page: 1,
-                pageSize: 50,
-                total: 0,
-                totalPages: 1,
-                hasNext: false,
-                hasPrev: false,
-              ),
-              data: songs,
-            ),
-          ),
-        );
+        setupMockRepoWithSongs(mockRepo, songs);
 
         // Mock searchSongs - should NOT be called
         when(
@@ -688,21 +595,27 @@ void main() {
           ),
         );
 
-        // Act
-        final controller = container.read(songBookControllerProvider.notifier);
-        await Future.delayed(const Duration(milliseconds: 100));
-        await controller.searchSongs(emptyQuery);
+        final container = createTestContainer(mockRepo);
 
-        // Assert - searchSongs should NOT have been called
-        verifyNever(
-          () => mockRepo.searchSongs(
-            query: any(named: 'query'),
-            page: any(named: 'page'),
-            pageSize: any(named: 'pageSize'),
-          ),
-        );
+        try {
+          // Act
+          final controller = container.read(
+            songBookControllerProvider.notifier,
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
+          await controller.searchSongs(emptyQuery);
 
-        container.dispose();
+          // Assert - searchSongs should NOT have been called
+          verifyNever(
+            () => mockRepo.searchSongs(
+              query: any(named: 'query'),
+              page: any(named: 'page'),
+              pageSize: any(named: 'pageSize'),
+            ),
+          );
+        } finally {
+          container.dispose();
+        }
       });
     });
   });
