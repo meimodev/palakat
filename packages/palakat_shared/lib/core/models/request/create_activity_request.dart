@@ -21,8 +21,14 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
     /// Optional description (required for ANNOUNCEMENT type)
     String? description,
 
-    /// Optional location ID (required for SERVICE/EVENT types)
-    int? locationId,
+    /// Location name (required for SERVICE/EVENT types)
+    String? locationName,
+
+    /// Location latitude (required for SERVICE/EVENT types)
+    double? locationLatitude,
+
+    /// Location longitude (required for SERVICE/EVENT types)
+    double? locationLongitude,
 
     /// Optional date for the activity (required for SERVICE/EVENT types)
     DateTime? date,

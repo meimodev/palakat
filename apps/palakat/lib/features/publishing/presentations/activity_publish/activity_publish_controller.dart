@@ -196,7 +196,8 @@ class ActivityPublishController extends _$ActivityPublishController {
       }
 
       // Step 4: Build CreateActivityRequest from state
-      final bipra = _parseBipra(state.bipra);
+      // Use selectedBipra directly instead of parsing from string
+      final bipra = state.selectedBipra;
       if (bipra == null) {
         state = state.copyWith(
           loading: false,
@@ -205,18 +206,32 @@ class ActivityPublishController extends _$ActivityPublishController {
         return false;
       }
 
-      // Parse date if available (for SERVICE/EVENT types)
+      // Combine selectedDate and selectedTime into a single DateTime
       DateTime? activityDate;
-      if (state.date != null && state.date!.isNotEmpty) {
-        activityDate = _parseDate(state.date!);
+      if (state.selectedDate != null) {
+        activityDate = state.selectedDate!;
+        if (state.selectedTime != null) {
+          activityDate = DateTime(
+            state.selectedDate!.year,
+            state.selectedDate!.month,
+            state.selectedDate!.day,
+            state.selectedTime!.hour,
+            state.selectedTime!.minute,
+          );
+        }
       }
+
+      // Get location data from selectedMapLocation
+      final location = state.selectedMapLocation;
 
       final request = CreateActivityRequest(
         supervisorId: membership.id!,
         bipra: bipra,
         title: state.title ?? '',
         description: state.description,
-        locationId: _parseLocationId(state.pinpointLocation),
+        locationName: location?.name ?? state.location,
+        locationLatitude: location?.latitude,
+        locationLongitude: location?.longitude,
         date: activityDate,
         note: state.note,
         activityType: state.type,
@@ -249,37 +264,6 @@ class ActivityPublishController extends _$ActivityPublishController {
       );
       return false;
     }
-  }
-
-  /// Parses the bipra string value to Bipra enum.
-  /// The bipra field stores the display name, so we match by name.
-  Bipra? _parseBipra(String? value) {
-    if (value == null || value.isEmpty) return null;
-    try {
-      return Bipra.values.firstWhere((b) => b.name == value || b.abv == value);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Parses the date string to DateTime.
-  /// The date is stored in "EEEE, dd MMM yyyy" format.
-  DateTime? _parseDate(String value) {
-    try {
-      // Try to parse using Jiffy if available, otherwise return null
-      // The date picker should store the actual DateTime, but if it's a string,
-      // we need to parse it back
-      return DateTime.tryParse(value);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Parses the location ID from the pinpoint location string.
-  /// Returns null if not a valid integer.
-  int? _parseLocationId(String? value) {
-    if (value == null || value.isEmpty) return null;
-    return int.tryParse(value);
   }
 
   void publish() {}

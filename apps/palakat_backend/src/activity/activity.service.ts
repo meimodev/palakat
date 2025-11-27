@@ -186,8 +186,36 @@ export class ActivitiesService {
   async create(
     createActivityDto: any,
   ): Promise<{ message: string; data: any }> {
+    const {
+      locationName,
+      locationLatitude,
+      locationLongitude,
+      ...activityData
+    } = createActivityDto;
+
+    // Build the activity create data
+    const createData: any = {
+      ...activityData,
+    };
+
+    // If location data is provided, create a nested location
+    if (
+      locationLatitude !== undefined &&
+      locationLongitude !== undefined &&
+      locationLatitude !== null &&
+      locationLongitude !== null
+    ) {
+      createData.location = {
+        create: {
+          name: locationName || '',
+          latitude: locationLatitude,
+          longitude: locationLongitude,
+        },
+      };
+    }
+
     const activity = await (this.prisma as any).activity.create({
-      data: createActivityDto,
+      data: createData,
       include: {
         supervisor: true,
         location: true,
