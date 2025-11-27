@@ -1,32 +1,40 @@
-# Product Overview
+# Palakat - Church Activity Management System
 
-Palakat is a church activity management and event notification system designed for church communities.
+Palakat is a church management platform for Indonesian churches (GMIM - Gereja Masehi Injili di Minahasa).
 
 ## Core Purpose
-
-Provides digital tools for church administration and member engagement, including event notifications, activity approvals, financial tracking, and digital song book access.
+- Event notification and activity management for church members
+- Administrative tools for church staff and leadership
+- Digital song book access (NKB, NNBT, KJ, DSL hymnals)
 
 ## Applications
 
-**Palakat Mobile App** - Flutter mobile application for church members to view events, receive notifications, access the digital song book, submit activity approvals, and view church operations.
+### Mobile App (`apps/palakat`)
+- Church member-facing Flutter mobile app
+- View upcoming activities and events
+- Receive notifications
+- Access digital song book
+- Submit and track activity approvals
+- Firebase authentication (phone-based)
 
-**Palakat Admin** - Flutter web/desktop admin panel for church administrators to manage members, activities, finances, documents, and approval workflows.
-
-**Palakat Backend** - NestJS REST API providing data persistence, business logic, authentication, and integration with PostgreSQL database.
-
-## Key Features
-
-- Event and activity management with approval workflows
-- Member directory and position management
-- Financial tracking (revenues and expenses)
+### Admin Panel (`apps/palakat_admin`)
+- Web-based Flutter admin dashboard
+- Member management
+- Activity and event management
+- Approval workflows
+- Financial tracking (revenue/expenses)
 - Document management
-- Digital song book
-- Location-based church information
-- Role-based access control
-- Real-time notifications via Firebase
+- Reporting
 
-## Target Users
+### Backend API (`apps/palakat_backend`)
+- NestJS REST API
+- PostgreSQL database via Prisma ORM
+- JWT authentication
+- Handles all business logic and data persistence
 
-- Church members (mobile app)
-- Church administrators and staff (admin panel)
-- Church leadership (oversight and approvals)
+## Domain Concepts
+- **Church**: Organization with members, columns (groups), and positions
+- **Membership**: Church member with account, column assignment, and positions
+- **Activity**: Events/services with approval workflows (PKB, WKI, PMD, RMJ, ASM bipra types)
+- **Approval**: Multi-level approval system with configurable rules
+- **Song**: Hymnal entries with parts/verses from various song books

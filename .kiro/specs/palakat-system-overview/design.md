@@ -45,7 +45,7 @@ graph TB
     
     subgraph "External Services"
         FB[Firebase Auth<br/>Phone OTP]
-        GMAPS[Google Maps API]
+        GM[Google Maps API]
     end
     
     MA --> PS
@@ -53,15 +53,10 @@ graph TB
     MA --> API
     AP --> API
     MA --> FB
-    MA --> GMAPS
+    MA --> GM
     API --> AUTH
     API --> PRISMA
     PRISMA --> DB
-    
-    style MA fill:#4CAF50
-    style AP fill:#2196F3
-    style API fill:#FF9800
-    style DB fill:#9C27B0
 ```
 
 ### Mobile App Architecture
@@ -112,6 +107,7 @@ Module Structure
     ├── Filters (Exception handling)
     └── Utilities (Helpers, Validators)
 ```
+
 
 ## Components and Interfaces
 
@@ -183,10 +179,10 @@ sequenceDiagram
 - `AccountService` - Account operations
 
 **Relationships**:
-- One Account → One Membership (1:1)
-- One Membership → Many MembershipPositions (1:N)
-- One Membership → One Column (N:1)
-- One Membership → One Church (N:1)
+- One Account to One Membership (1:1)
+- One Membership to Many MembershipPositions (1:N)
+- One Membership to One Column (N:1)
+- One Membership to One Church (N:1)
 
 ### 4. Financial Management System
 
@@ -215,13 +211,14 @@ interface FinancialRecord {
 - `SongController` - Song CRUD operations
 - `SongPartController` - Song part management
 - `SongService` - Song business logic
+- `SongRepository` (Flutter) - API integration for mobile/admin
 
 **Song Structure**:
 ```typescript
 interface Song {
   id: number;
   title: string;
-  index: number; // Unique song number
+  index: number;
   book: 'NKB' | 'NNBT' | 'KJ' | 'DSL';
   link: string;
   parts: SongPart[];
@@ -230,7 +227,7 @@ interface Song {
 interface SongPart {
   id: number;
   index: number;
-  name: string; // e.g., "Verse 1", "Chorus"
+  name: string;
   content: string;
   songId: number;
 }
@@ -257,6 +254,44 @@ interface ChurchRequest {
   updatedAt: Date;
 }
 ```
+
+### 7. Create Activity Screen (Mobile)
+
+**Components**:
+- `CreateActivityScreen` - Main UI screen
+- `CreateActivityController` - Form state and submission logic
+- `CreateActivityState` - Immutable form state
+
+**Form Fields by Activity Type**:
+
+| Field | SERVICE | EVENT | ANNOUNCEMENT |
+|-------|---------|-------|--------------|
+| Bipra | Yes | Yes | Yes |
+| Title | Yes | Yes | Yes |
+| Location | Yes | Yes | No |
+| Pinpoint Location | Yes | Yes | No |
+| Date | Yes | Yes | No |
+| Time | Yes | Yes | No |
+| Reminder | Yes | Yes | No |
+| Note | Yes | Yes | No |
+| Description | No | No | Yes |
+| File Upload | No | No | Yes |
+
+### 8. UI Design System
+
+**Color System**:
+- Primary Color: Teal (0xFF009688)
+- Surface Colors: Neutral grays with teal undertone
+- Semantic Colors: Tonal variations of primary (error remains red)
+
+**Component Patterns**:
+- Category Cards: Collapsible sections with teal headers
+- Operation Cards: Icon + title + description + chevron
+- Song Cards: Same pattern as operation cards
+- Shadows: Subtle elevation with 16px border radius
+- Spacing: 8px grid system
+- Touch targets: Minimum 48x48 pixels
+
 
 ## Data Models
 
@@ -321,17 +356,17 @@ enum GeneratedBy { MANUAL, SYSTEM }
 ### Database Schema Key Relationships
 
 **One-to-One**:
-- Account ↔ Membership
-- Account ↔ ChurchRequest
-- Church ↔ Location
-- Activity ↔ Revenue
-- Activity ↔ Expense
+- Account and Membership
+- Account and ChurchRequest
+- Church and Location
+- Activity and Revenue
+- Activity and Expense
 
 **One-to-Many**:
-- Church → Columns, Memberships, Revenues, Expenses, Documents, Reports, ApprovalRules
-- Membership → MembershipPositions, Activities (as supervisor), Approvers
-- Activity → Approvers
-- Song → SongParts
+- Church to Columns, Memberships, Revenues, Expenses, Documents, Reports, ApprovalRules
+- Membership to MembershipPositions, Activities (as supervisor), Approvers
+- Activity to Approvers
+- Song to SongParts
 
 **Indexes**:
 - Activity: date, supervisorId, activityType, bipra
@@ -344,123 +379,114 @@ enum GeneratedBy { MANUAL, SYSTEM }
 
 *A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
-Based on the prework analysis, the following correctness properties have been identified:
+### Property 1: Authentication Token Lifecycle
+*For any* valid user credentials, authenticating should return a JWT access token and refresh token with valid structure. *For any* invalid credentials, authentication should be rejected with an appropriate error response.
+**Validates: Requirements 1.1, 1.2**
 
-### Property 1: Authentication Token Generation
-*For any* valid user credentials (phone and password), authenticating should return a JWT access token and refresh token with valid structure and expiration times.
-**Validates: Requirements 1.1**
-
-### Property 2: Invalid Credentials Rejection
-*For any* invalid credential combination (wrong phone or wrong password), authentication should be rejected with an appropriate error response.
-**Validates: Requirements 1.2**
-
-### Property 3: Account Lockout Enforcement
+### Property 2: Account Lockout Enforcement
 *For any* account with 5 or more consecutive failed login attempts, subsequent authentication attempts (even with valid credentials) should be rejected until the 30-minute lockout period expires.
 **Validates: Requirements 1.3**
 
-### Property 4: Refresh Token Rotation
-*For any* valid refresh token, using it to obtain a new access token should invalidate the old refresh token and return a new one (one-time use).
+### Property 3: Refresh Token Rotation
+*For any* valid refresh token, using it to obtain a new access token should invalidate the old refresh token and return a new one (one-time use). After sign-out, the refresh token should be invalidated.
 **Validates: Requirements 1.4, 1.5**
 
-### Property 5: Account Uniqueness Constraints
+### Property 4: Account Uniqueness Constraints
 *For any* account creation or update, the system should reject duplicate phone numbers across all accounts, and reject duplicate email addresses where email is provided.
 **Validates: Requirements 3.6, 3.7**
 
-### Property 6: Member Data Persistence
-*For any* member creation with name, phone, email, gender, marital status, and date of birth, all fields should be correctly stored and retrievable.
+### Property 5: Member Data Persistence
+*For any* member creation with name, phone, email, gender, marital status, and date of birth, all fields should be correctly stored and retrievable with correct enum values.
 **Validates: Requirements 3.1, 3.8**
 
-### Property 7: Member Update Timestamps
+### Property 6: Member Update Timestamps
 *For any* member information update, the updatedAt timestamp should be greater than the previous value.
-**Validates: Requirements 3.4, 14.2**
+**Validates: Requirements 3.4, 20.2**
 
-### Property 8: Activity Creation with Required Fields
+### Property 7: Activity Creation with Required Fields
 *For any* activity creation with title, description, date, location, activity type, and BIPRA, all fields should be correctly stored and the activity should be retrievable.
 **Validates: Requirements 4.1**
 
-### Property 9: Automatic Approver Assignment
+### Property 8: Automatic Approver Assignment
 *For any* activity creation, the system should automatically assign approvers based on active approval rules matching the activity type and BIPRA, by finding members with the associated membership positions.
-**Validates: Requirements 4.2, 5.4**
+**Validates: Requirements 4.2, 6.4**
 
-### Property 10: Activity Enum Validation
+### Property 9: Activity Enum Validation
 *For any* activity, the activityType must be one of SERVICE, EVENT, or ANNOUNCEMENT, and bipra must be one of PKB, WKI, PMD, RMJ, or ASM.
 **Validates: Requirements 4.8, 4.9**
 
-### Property 11: Activity Cascade Delete
+### Property 10: Activity Cascade Delete
 *For any* activity deletion, all associated approver records should also be deleted.
 **Validates: Requirements 4.7**
 
-### Property 12: Approval Status Update
+### Property 11: Approval Status Update
 *For any* approver reviewing an activity, updating the status to APPROVED or REJECTED should persist correctly and be retrievable.
 **Validates: Requirements 4.4**
 
-### Property 13: Activity Filtering
-*For any* activity query with date, type, status, or BIPRA filters, only activities matching all specified criteria should be returned.
-**Validates: Requirements 4.6**
-
-### Property 14: Approval Rule Position Assignment
-*For any* approval rule, multiple membership positions can be assigned, and all assignments should be correctly stored and retrievable.
-**Validates: Requirements 5.1, 5.2**
-
-### Property 15: Approval Rule Active State
+### Property 12: Approval Rule Active State
 *For any* approval rule, toggling the active state should persist correctly, and only active rules should be applied during activity creation.
-**Validates: Requirements 5.3**
+**Validates: Requirements 6.3**
 
-### Property 16: Financial Record Creation
+### Property 13: Financial Record Creation
 *For any* revenue or expense creation with account number, amount, and payment method (CASH or CASHLESS), all fields should be correctly stored and the record should be associated with the correct church.
-**Validates: Requirements 6.1, 6.2, 6.3, 6.6**
+**Validates: Requirements 7.1, 7.2, 7.3, 7.6**
 
-### Property 17: Financial Record Activity Association
+### Property 14: Financial Record Activity Association
 *For any* financial record associated with an activity, the relationship should be one-to-one (only one revenue and one expense per activity).
-**Validates: Requirements 6.5**
+**Validates: Requirements 7.5**
 
-### Property 18: Financial Aggregation
+### Property 15: Financial Aggregation
 *For any* date range query, the total revenue and expense amounts should equal the sum of individual records within that range.
-**Validates: Requirements 6.7**
-
-### Property 19: Song Index Uniqueness
-*For any* song creation, the index number must be unique across all songs in the system.
-**Validates: Requirements 7.6**
-
-### Property 20: Song Parts Ordering
-*For any* song with multiple parts, retrieving the song should return parts in sequential order by part index.
 **Validates: Requirements 7.7**
 
-### Property 21: Song Search
+### Property 16: Song Index Uniqueness
+*For any* song creation, the index number must be unique across all songs in the system.
+**Validates: Requirements 8.6**
+
+### Property 17: Song Parts Ordering
+*For any* song with multiple parts, retrieving the song should return parts in sequential order by part index.
+**Validates: Requirements 8.7**
+
+### Property 18: Song Search
 *For any* search query by title or index number, all returned songs should match the search criteria.
-**Validates: Requirements 7.3**
+**Validates: Requirements 8.3**
 
-### Property 22: Column Name Uniqueness
+### Property 19: Song Data Transformation
+*For any* song fetched from the Backend API, the Song model mapping should correctly transform the response format to the Flutter Song model without data loss.
+**Validates: Requirements 10.10**
+
+### Property 20: Column Name Uniqueness
 *For any* column creation within a church, the column name must be unique within that church (but can be duplicated across different churches).
-**Validates: Requirements 8.4**
+**Validates: Requirements 11.4**
 
-### Property 23: Church Location Association
+### Property 21: Church Location Association
 *For any* church, exactly one location (with name, latitude, longitude) must be associated.
-**Validates: Requirements 8.2**
+**Validates: Requirements 11.2**
 
-### Property 24: Church Request Uniqueness
+### Property 22: Church Request Uniqueness
 *For any* user account, only one church registration request can exist at a time.
-**Validates: Requirements 9.3, 9.10**
+**Validates: Requirements 12.3**
 
-### Property 25: Church Request Status Messages
-*For any* church request, the displayed status message should correspond to the current status: TODO shows "waiting to be reviewed", DOING shows "processing", DONE shows "registered".
-**Validates: Requirements 9.7**
+### Property 23: Church Request Status Enum
+*For any* church request, the status must be one of TODO, DOING, or DONE.
+**Validates: Requirements 12.4**
 
-### Property 26: Multi-Church Data Isolation
+### Property 24: Multi-Church Data Isolation
 *For any* authenticated user, all queries should return only data belonging to the user's church, and data from other churches should never be accessible.
-**Validates: Requirements 11.1, 11.2, 11.4, 11.5, 11.6**
+**Validates: Requirements 14.1, 14.2, 14.4, 14.5, 14.6**
 
-### Property 27: Pagination Correctness
+### Property 25: Pagination Correctness
 *For any* paginated list endpoint, the returned page should contain at most the requested page size (max 100), and pagination metadata (total count, current page, total pages) should be mathematically consistent.
-**Validates: Requirements 12.1, 12.2, 12.5**
+**Validates: Requirements 18.1, 18.2, 18.5**
 
-### Property 28: Validation Error Response
-*For any* request with invalid data, the Backend_API should return a 400 Bad Request response with detailed error messages.
-**Validates: Requirements 13.2**
+### Property 26: Validation Error Response
+*For any* request with invalid data, the Backend API should return a 400 Bad Request response with detailed error messages.
+**Validates: Requirements 19.2**
 
-### Property 29: Timestamp Management
-*For any* record creation, createdAt should be automatically set to the current UTC time. For any record update, updatedAt should be automatically updated to the current UTC time.
-**Validates: Requirements 14.1, 14.2, 14.4**
+### Property 27: Timestamp Management
+*For any* record creation, createdAt should be automatically set to the current UTC time. *For any* record update, updatedAt should be automatically updated to the current UTC time. All timestamps should be stored in UTC format.
+**Validates: Requirements 20.1, 20.2, 20.4**
+
 
 ## Error Handling
 
@@ -486,7 +512,7 @@ interface ErrorResponse {
 - 400 Bad Request - Validation failures
 - 401 Unauthorized - Invalid/missing token
 - 403 Forbidden - Insufficient permissions
-- 404 Not Found - Resource doesn't exist
+- 404 Not Found - Resource does not exist
 - 409 Conflict - Unique constraint violation
 - 500 Internal Server Error - Unexpected errors
 
@@ -548,7 +574,7 @@ The system uses both unit testing and property-based testing:
 - State management logic
 
 **Property-Based Tests**:
-- Use `glados` or `quickcheck` Dart package
+- Use glados or quickcheck Dart package
 - Focus on data model serialization/deserialization
 - Form validation logic
 
@@ -562,7 +588,7 @@ Each correctness property from this design document must be implemented as a pro
 
 Example format:
 ```typescript
-// **Feature: palakat-system-overview, Property 5: Account Uniqueness Constraints**
+// **Feature: palakat-system-overview, Property 4: Account Uniqueness Constraints**
 // **Validates: Requirements 3.6, 3.7**
 describe('Account uniqueness', () => {
   it('should reject duplicate phone numbers', () => {
@@ -589,8 +615,8 @@ describe('Account uniqueness', () => {
 - Unique indexes on natural keys (phone, email, song index)
 
 **Query Optimization**:
-- Use Prisma's `select` to fetch only needed fields
-- Use `include` judiciously to avoid N+1 queries
+- Use Prisma select to fetch only needed fields
+- Use include judiciously to avoid N+1 queries
 - Implement cursor-based pagination for large datasets
 
 ### API Performance
@@ -606,6 +632,10 @@ describe('Account uniqueness', () => {
 - Infinite scroll for activity lists
 - On-demand image loading with caching
 - Deferred loading of non-critical data
+
+**Search Optimization**:
+- 500ms debounce on search input
+- Cancel previous requests on new search
 
 ## Security Considerations
 

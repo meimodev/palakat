@@ -1,179 +1,100 @@
-# Technology Stack
+# Tech Stack
 
-## Build System
-
-**Monorepo Management**: Melos for Flutter workspace coordination
-**Package Manager**: pnpm for Node.js backend, pub for Flutter apps
-**Version Control**: Git with monorepo structure
+## Monorepo Management
+- **Melos** for Flutter workspace management
+- **pnpm** for Node.js package management
+- Dart SDK ^3.8.1, Flutter ^3.8.1
 
 ## Flutter Apps (Mobile & Admin)
 
-### Core Framework
-- Flutter SDK ^3.8.1
-- Dart SDK ^3.8.1
-- FVM (Flutter Version Management) recommended for version consistency
-
 ### State Management
-- Riverpod 3.x (flutter_riverpod, hooks_riverpod, riverpod_annotation)
-- Riverpod code generation via riverpod_generator
+- **Riverpod** with `riverpod_annotation` for code generation
+- `@riverpod` annotated controllers and providers
 
-### Data Layer
-- Freezed for immutable models with code generation
-- JSON serialization (json_annotation, json_serializable)
-- Hive for local key-value storage
+### Data Models
+- **Freezed** for immutable data classes (`@freezed`)
+- **json_serializable** for JSON serialization
 
 ### Navigation
-- go_router ^16.x for declarative routing
-- Route data passed via `extra` parameter with `RouteParam` wrapper
+- **go_router** for declarative routing
+- Pass Freezed models via `extra` with `RouteParam` wrapper
 
-### HTTP & API
-- Dio ^5.x for HTTP client
-- talker_dio_logger for request/response logging
+### Local Storage
+- **Hive** for key-value storage
+- `LocalStorageService` for auth tokens and cached data
 
-### UI Components
-- Material 3 design system
-- flutter_screenutil for responsive sizing
-- cached_network_image for image loading
-- shimmer for loading states
-- Custom font: OpenSans (weights 300-800)
+### UI
+- Material 3 design
+- **flutter_screenutil** for responsive sizing (mobile)
+- OpenSans font family
 
-### Firebase Integration
-- firebase_core for initialization
-- firebase_auth for authentication
-- Google Maps integration (google_maps_flutter)
+### Authentication
+- **Firebase Auth** (phone-based) for mobile app
+- JWT tokens for API authentication
 
-### Utilities
-- Jiffy for date/time manipulation
-- flutter_dotenv for environment variables
-- device_info_plus for device information
-- file_picker for file selection
-
-### Code Quality
-- flutter_lints ^6.x
-- custom_lint with riverpod_lint
-- Dart formatter
+### Other Key Dependencies
+- `dio` for HTTP client
+- `jiffy` for date/time utilities (Indonesian locale)
+- `google_maps_flutter` for maps
+- `flutter_dotenv` for environment variables
 
 ## Backend (NestJS)
 
-### Core Framework
-- NestJS ^10.x (Node.js framework)
+### Framework
+- **NestJS** ^10.x
 - TypeScript ^5.x
-- Express platform
 
 ### Database
-- PostgreSQL (primary database)
-- Prisma ORM 6.x for database access
-- Prisma Client code generation
-- Database migrations via Prisma Migrate
+- **PostgreSQL** via Docker
+- **Prisma** ^6.x ORM with `@prisma/client`
 
 ### Authentication
-- Passport.js with JWT strategy
-- bcryptjs for password hashing
-- @nestjs/jwt for token management
+- **Passport** with JWT strategy
+- `bcryptjs` for password hashing
 
-### Validation & Transformation
-- class-validator for DTO validation
-- class-transformer for object mapping
+### Validation
+- `class-validator` and `class-transformer`
 
-### Development Tools
-- ESLint with TypeScript support
-- Prettier for code formatting
-- Jest for testing
-- Docker Compose for local PostgreSQL
+### Testing
+- **Jest** for unit/e2e tests
+- **fast-check** for property-based testing
 
 ## Common Commands
 
 ### Monorepo (from root)
 ```bash
-# Bootstrap all Flutter apps
-melos bootstrap
-
-# Analyze all apps
-melos run analyze
-
-# Format all Dart code
-melos run format
-
-# Run tests
-melos run test
-
-# Generate code (Riverpod, Freezed, JSON)
-melos run build:runner
-
-# Watch mode for code generation
-melos run build:runner:watch
-
-# Clean all apps
-melos clean
-
-# Target specific app
-melos run analyze --scope=palakat
-melos run build:runner --scope=palakat_admin
+melos bootstrap          # Install all Flutter dependencies
+melos run analyze        # Lint all Flutter packages
+melos run test           # Test all Flutter packages
+melos run format         # Format all Dart code
+melos run build:runner   # Generate code (Freezed, Riverpod)
 ```
 
-### Flutter Apps (from app directory)
+### Flutter Apps
 ```bash
-# Run app
-flutter run
-# or with FVM
-fvm flutter run
-
-# Code generation
-dart run build_runner build --delete-conflicting-outputs
-dart run build_runner watch -d
-
-# Build
-flutter build apk
-flutter build ios
-flutter build web
-
-# Clean
-flutter clean
-flutter pub get
+derry build              # Clean, get deps, generate code
+derry gen                # Generate code only
+derry watch              # Watch mode for code generation
+flutter run              # Run app
 ```
 
-### Backend (from apps/palakat_backend)
+### Backend
 ```bash
-# Install dependencies
-pnpm install
-
-# Development server (with hot reload)
-pnpm run start:dev
-
-# Production build
-pnpm run build
-pnpm run start:prod
-
-# Database operations
-pnpm run prisma:generate    # Generate Prisma Client
-pnpm run db:migrate          # Run migrations (dev)
-pnpm run db:deploy           # Deploy migrations (prod)
-pnpm run db:push             # Push schema without migration
-pnpm run db:seed             # Seed database
-
-# Testing
-pnpm run test                # Unit tests
-pnpm run test:e2e            # E2E tests
-pnpm run test:cov            # Coverage
-
-# Code quality
-pnpm run lint                # ESLint
-pnpm run format              # Prettier
-
-# Docker
-docker-compose up            # Start PostgreSQL
+pnpm install             # Install dependencies
+pnpm run start:dev       # Start dev server (watch mode)
+pnpm run build           # Build for production
+pnpm run test            # Run unit tests
+pnpm run test:e2e        # Run e2e tests
+pnpm run prisma:generate # Generate Prisma client
+pnpm run db:migrate      # Run migrations
+pnpm run db:push         # Push schema (dev)
+pnpm run db:seed         # Seed database
+pnpm run prisma:studio   # Open Prisma Studio
 ```
 
-## Environment Setup
-
-Each app requires a `.env` file (copy from `.env.example`):
-
-**Flutter Apps**: API endpoints, Firebase config, Google Maps API keys
-**Backend**: Database URL, JWT secrets, port configuration
-
-## Code Generation
-
-Flutter apps use extensive code generation:
-- Run after modifying `@riverpod`, `@freezed`, or `@JsonSerializable` annotations
-- Generated files: `*.g.dart`, `*.freezed.dart`
-- Always use `--delete-conflicting-outputs` flag
+### Helper Scripts
+```bash
+./scripts/backend.sh     # Start Docker + DB + backend
+./scripts/admin.sh       # Run admin app
+./scripts/android.sh     # Run mobile app on Android
+```
