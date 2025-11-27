@@ -5,8 +5,4 @@
     -->
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <application >
-        <meta-data android:name="com.google.android.geo.API_KEY"
-                   android:value="123"/>
-    </application>
 </manifest>

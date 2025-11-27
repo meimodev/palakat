@@ -187,6 +187,21 @@ enum GeneratedBy {
   system,
 }
 
+/// Form field types for activity creation forms.
+/// Used to configure which fields are required/optional based on activity type.
+enum FormFieldType {
+  bipra,
+  title,
+  location,
+  pinpointLocation,
+  date,
+  time,
+  reminder,
+  note,
+  description,
+  file,
+}
+
 extension ActivityTypeExtension on ActivityType {
   String get displayName {
     switch (this) {
@@ -196,6 +211,45 @@ extension ActivityTypeExtension on ActivityType {
         return 'Event';
       case ActivityType.announcement:
         return 'Announcement';
+    }
+  }
+
+  /// Returns the list of required form fields for this activity type.
+  /// SERVICE/EVENT: bipra, title, location, pinpointLocation, date, time, reminder
+  /// ANNOUNCEMENT: bipra, title, description, file
+  List<FormFieldType> get requiredFields {
+    switch (this) {
+      case ActivityType.service:
+      case ActivityType.event:
+        return [
+          FormFieldType.bipra,
+          FormFieldType.title,
+          FormFieldType.location,
+          FormFieldType.pinpointLocation,
+          FormFieldType.date,
+          FormFieldType.time,
+          FormFieldType.reminder,
+        ];
+      case ActivityType.announcement:
+        return [
+          FormFieldType.bipra,
+          FormFieldType.title,
+          FormFieldType.description,
+          FormFieldType.file,
+        ];
+    }
+  }
+
+  /// Returns the list of optional form fields for this activity type.
+  /// SERVICE/EVENT: note
+  /// ANNOUNCEMENT: none
+  List<FormFieldType> get optionalFields {
+    switch (this) {
+      case ActivityType.service:
+      case ActivityType.event:
+        return [FormFieldType.note];
+      case ActivityType.announcement:
+        return [];
     }
   }
 }

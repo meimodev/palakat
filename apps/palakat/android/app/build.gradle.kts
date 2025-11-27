@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,6 +8,23 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
 }
+
+// Load .env file from the Flutter app root directory
+fun loadEnvFile(): Properties {
+    val properties = Properties()
+    val envFile = file("../../.env")
+    if (envFile.exists()) {
+        envFile.readLines().forEach { line ->
+            if (line.isNotBlank() && !line.startsWith("#") && line.contains("=")) {
+                val (key, value) = line.split("=", limit = 2)
+                properties.setProperty(key.trim(), value.trim())
+            }
+        }
+    }
+    return properties
+}
+
+val envProperties = loadEnvFile()
 
 android {
     namespace = "com.meimodev.palakat.palakat"
@@ -27,6 +47,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Google Maps API Key from .env file
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = envProperties.getProperty("GOOGLE_API_KEY", "")
     }
 
     buildTypes {

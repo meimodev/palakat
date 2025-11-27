@@ -33,6 +33,20 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     initialLocation = widget.initialLocation;
+    // Initialize selectedLocation with initial position
+    selectedLocation = Location(
+      id: 0,
+      latitude: initialLocation?.latitude ?? -6.1448757,
+      longitude: initialLocation?.longitude ?? 106.8532384,
+      name: _formatCoordinates(
+        initialLocation?.latitude ?? -6.1448757,
+        initialLocation?.longitude ?? 106.8532384,
+      ),
+    );
+  }
+
+  String _formatCoordinates(double lat, double lng) {
+    return '${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}';
   }
 
   @override
@@ -72,7 +86,7 @@ class _MapScreenState extends State<MapScreen> {
                 id: 0,
                 latitude: target.latitude,
                 longitude: target.longitude,
-                name: '',
+                name: _formatCoordinates(target.latitude, target.longitude),
               );
             },
           ),

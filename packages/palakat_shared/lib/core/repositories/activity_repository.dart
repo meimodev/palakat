@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../config/endpoint.dart';
 import '../models/activity.dart';
-import '../models/result.dart';
 import '../models/response/response.dart';
+import '../models/result.dart';
 import '../services/http_service.dart';
 import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
 
 part 'activity_repository.g.dart';
 
@@ -19,10 +20,10 @@ class ActivityRepository {
   final Ref _ref;
 
   Future<Result<PaginationResponseWrapper<Activity>, Failure>> fetchActivities({
-    required PaginationRequestWrapper<GetFetchActivitiesRequest> paginationRequest,
+    required PaginationRequestWrapper<GetFetchActivitiesRequest>
+    paginationRequest,
   }) async {
     try {
-
       final http = _ref.read(httpServiceProvider);
 
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
@@ -47,7 +48,9 @@ class ActivityRepository {
     }
   }
 
-  Future<Result<Activity, Failure>> fetchActivity({required int activityId}) async {
+  Future<Result<Activity, Failure>> fetchActivity({
+    required int activityId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -84,7 +87,9 @@ class ActivityRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update activity response payload'));
+        return Result.failure(
+          Failure('Invalid update activity response payload'),
+        );
       }
 
       return Result.success(Activity.fromJson(json));
@@ -97,18 +102,22 @@ class ActivityRepository {
     }
   }
 
-  Future<Result<Activity, Failure>> createActivity({required Map<String, dynamic> data}) async {
+  Future<Result<Activity, Failure>> createActivity({
+    required CreateActivityRequest request,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
         Endpoints.activities,
-        data: data,
+        data: request.toJson(),
       );
 
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create activity response payload'));
+        return Result.failure(
+          Failure('Invalid create activity response payload'),
+        );
       }
       return Result.success(Activity.fromJson(json));
     } on DioException catch (e) {
@@ -120,7 +129,9 @@ class ActivityRepository {
     }
   }
 
-  Future<Result<void, Failure>> deleteActivity({required int activityId}) async {
+  Future<Result<void, Failure>> deleteActivity({
+    required int activityId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       await http.delete<void>(Endpoints.activity(activityId.toString()));
@@ -133,5 +144,4 @@ class ActivityRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
-
 }

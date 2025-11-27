@@ -203,7 +203,10 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
           widget.label!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: BaseTypography.bodyMedium.toSecondary,
+          style: BaseTypography.titleMedium.copyWith(
+            color: BaseColor.neutral[800],
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Gap.h6,
       ],

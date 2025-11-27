@@ -102,8 +102,11 @@ class InputVariantTextWidget extends StatelessWidget {
         ),
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
         fillColor: BaseColor.white,
-        errorText: errorText,
         contentPadding: EdgeInsets.symmetric(vertical: BaseSize.h12),
       ),
     );

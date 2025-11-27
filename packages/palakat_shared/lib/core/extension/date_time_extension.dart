@@ -1,6 +1,4 @@
-// import 'package:flutter/material.dart';
-// import 'package:palakat/core/utils/utils.dart';
-
+import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 
 extension XDateTime on DateTime {
@@ -11,10 +9,7 @@ extension XDateTime on DateTime {
   }
 
   bool isSameDay(DateTime dateTime) {
-    return toJiffy.isSame(
-      dateTime.toJiffy,
-      unit: Unit.day,
-    );
+    return toJiffy.isSame(dateTime.toJiffy, unit: Unit.day);
   }
 
   bool isOnThisWeek(DateTime dateTime) {
@@ -36,11 +31,11 @@ extension XDateTime on DateTime {
     return generateThisWeekDates.last;
   }
 
-  DateTime get toStartOfTheDay{
+  DateTime get toStartOfTheDay {
     return toJiffy.startOf(Unit.day).dateTime;
   }
 
-  DateTime get toEndOfTheDay{
+  DateTime get toEndOfTheDay {
     return toJiffy.endOf(Unit.day).dateTime;
   }
 
@@ -52,6 +47,12 @@ extension XDateTime on DateTime {
   // ignore: non_constant_identifier_names
   String get EEEEddMMMyyyy {
     return toStringFormatted('EEEE, dd MMMM yyyy');
+  }
+
+  /// Wednesday, 26 Nov 2025 (abbreviated month)
+  // ignore: non_constant_identifier_names
+  String get EEEEddMMMyyyyShort {
+    return toStringFormatted('EEEE, dd MMM yyyy');
   }
 
   // ignore: non_constant_identifier_names
@@ -68,15 +69,15 @@ extension XDateTime on DateTime {
     return [
       ...List.generate(
         1,
-        (index) => toJiffy.startOf(Unit.day).dateTime.subtract(
-              Duration(days: index + 1),
-            ),
+        (index) => toJiffy
+            .startOf(Unit.day)
+            .dateTime
+            .subtract(Duration(days: index + 1)),
       ).reversed,
       ...List.generate(
         6,
-        (index) => toJiffy.startOf(Unit.day).dateTime.add(
-              Duration(days: index),
-            ),
+        (index) =>
+            toJiffy.startOf(Unit.day).dateTime.add(Duration(days: index)),
       ),
     ];
   }
@@ -151,13 +152,7 @@ extension XDateTime on DateTime {
     int minutes = int.parse(parts[1]);
 
     // Create a new DateTime with the same date and the specified time
-    DateTime newDateTime = DateTime(
-      year,
-      month,
-      day,
-      hours,
-      minutes,
-    );
+    DateTime newDateTime = DateTime(year, month, day, hours, minutes);
 
     return newDateTime;
   }
@@ -198,3 +193,14 @@ extension XDateTime on DateTime {
 //     return "$startClock - $endClock $tzLabel";
 //   }
 // }
+
+/// Extension on TimeOfDay for formatting
+extension XTimeOfDay on TimeOfDay {
+  /// Formats TimeOfDay to "HH:mm" pattern (e.g., "14:30")
+  // ignore: non_constant_identifier_names
+  String get HHmm {
+    final hourStr = hour.toString().padLeft(2, '0');
+    final minuteStr = minute.toString().padLeft(2, '0');
+    return '$hourStr:$minuteStr';
+  }
+}
