@@ -1,23 +1,52 @@
 import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/revenue.dart';
-import '../models/result.dart';
+
+import '../config/endpoint.dart';
 import '../models/response/response.dart';
+import '../models/result.dart';
+import '../models/revenue.dart';
 import '../services/http_service.dart';
 import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
 
 part 'revenue_repository.g.dart';
 
+/// Riverpod provider for RevenueRepository
 @riverpod
 RevenueRepository revenueRepository(Ref ref) => RevenueRepository(ref);
 
-class RevenueRepository {
+/// Abstract interface for revenue data operations
+abstract class RevenueRepositoryBase {
+  /// Creates a new revenue record
+  Future<Result<Revenue, Failure>> createRevenue({
+    required CreateRevenueRequest request,
+  });
+
+  /// Fetches paginated list of revenues
+  Future<Result<PaginationResponseWrapper<Revenue>, Failure>> fetchRevenues({
+    required PaginationRequestWrapper paginationRequest,
+  });
+
+  /// Fetches a single revenue by ID
+  Future<Result<Revenue, Failure>> fetchRevenue({required int revenueId});
+
+  /// Updates an existing revenue record
+  Future<Result<Revenue, Failure>> updateRevenue({
+    required int revenueId,
+    required Map<String, dynamic> update,
+  });
+
+  /// Deletes a revenue record
+  Future<Result<void, Failure>> deleteRevenue({required int revenueId});
+}
+
+/// Implementation of RevenueRepository for API operations
+class RevenueRepository implements RevenueRepositoryBase {
   RevenueRepository(this._ref);
 
   final Ref _ref;
 
+  @override
   Future<Result<PaginationResponseWrapper<Revenue>, Failure>> fetchRevenues({
     required PaginationRequestWrapper paginationRequest,
   }) async {
@@ -46,7 +75,10 @@ class RevenueRepository {
     }
   }
 
-  Future<Result<Revenue, Failure>> fetchRevenue({required int revenueId}) async {
+  @override
+  Future<Result<Revenue, Failure>> fetchRevenue({
+    required int revenueId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -68,6 +100,7 @@ class RevenueRepository {
     }
   }
 
+  @override
   Future<Result<Revenue, Failure>> updateRevenue({
     required int revenueId,
     required Map<String, dynamic> update,
@@ -83,7 +116,9 @@ class RevenueRepository {
       final data = response.data;
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update revenue response payload'));
+        return Result.failure(
+          Failure('Invalid update revenue response payload'),
+        );
       }
 
       return Result.success(Revenue.fromJson(json));
@@ -96,18 +131,23 @@ class RevenueRepository {
     }
   }
 
-  Future<Result<Revenue, Failure>> createRevenue({required Map<String, dynamic> data}) async {
+  @override
+  Future<Result<Revenue, Failure>> createRevenue({
+    required CreateRevenueRequest request,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
         Endpoints.revenues,
-        data: data,
+        data: request.toJson(),
       );
 
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create revenue response payload'));
+        return Result.failure(
+          Failure('Invalid create revenue response payload'),
+        );
       }
       return Result.success(Revenue.fromJson(json));
     } on DioException catch (e) {
@@ -119,6 +159,7 @@ class RevenueRepository {
     }
   }
 
+  @override
   Future<Result<void, Failure>> deleteRevenue({required int revenueId}) async {
     try {
       final http = _ref.read(httpServiceProvider);
@@ -132,5 +173,4 @@ class RevenueRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
-
 }

@@ -5,12 +5,20 @@ import 'package:palakat_shared/core/models/membership.dart';
 
 /// Position summary card displaying user's current positions and role count.
 /// Uses the unified teal color system with neutral backgrounds.
+/// Tappable to navigate to membership details.
 ///
 /// Requirements: 2.1, 3.1, 3.2
 class PositionSummaryCard extends StatelessWidget {
-  const PositionSummaryCard({super.key, required this.membership});
+  const PositionSummaryCard({
+    super.key,
+    required this.membership,
+    required this.accountName,
+    this.onTap,
+  });
 
   final Membership membership;
+  final String accountName;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +30,46 @@ class PositionSummaryCard extends StatelessWidget {
       surfaceTintColor: BaseColor.primary[50],
       // 16px border radius (Requirement 3.3)
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        // 8px grid spacing - 16px = 2 * 8px (Requirement 3.4)
-        padding: EdgeInsets.all(BaseSize.w16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with icon and count badge
-            _PositionSummaryHeader(
-              positionCount: membership.membershipPositions.length,
-            ),
-            Gap.h16,
-            // Position chips with consistent styling
-            _PositionChipsList(positions: membership.membershipPositions),
-          ],
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          // 8px grid spacing - 16px = 2 * 8px (Requirement 3.4)
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header with icon and count badge
+              _PositionSummaryHeader(
+                membership: membership,
+                accountName: accountName,
+              ),
+              Gap.h16,
+              // Position chips with consistent styling
+              _PositionChipsList(positions: membership.membershipPositions),
+              // Tap hint
+              if (onTap != null) ...[
+                Gap.h12,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Tap to view membership details',
+                      style: BaseTypography.labelSmall.copyWith(
+                        color: BaseColor.textSecondary,
+                      ),
+                    ),
+                    Gap.w4,
+                    Icon(
+                      Icons.chevron_right,
+                      size: BaseSize.w14,
+                      color: BaseColor.textSecondary,
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -44,9 +78,13 @@ class PositionSummaryCard extends StatelessWidget {
 
 /// Header section with icon, title, and position count badge
 class _PositionSummaryHeader extends StatelessWidget {
-  const _PositionSummaryHeader({required this.positionCount});
+  const _PositionSummaryHeader({
+    required this.membership,
+    required this.accountName,
+  });
 
-  final int positionCount;
+  final Membership membership;
+  final String accountName;
 
   @override
   Widget build(BuildContext context) {
@@ -76,16 +114,26 @@ class _PositionSummaryHeader extends StatelessWidget {
         ),
         Gap.w12,
         Expanded(
-          child: Text(
-            "Your Positions",
-            style: BaseTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.bold,
-              color: BaseColor.textPrimary,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                accountName,
+                style: BaseTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: BaseColor.textPrimary,
+                ),
+              ),
+              Text(
+                membership.church?.name ?? 'Your Positions',
+                style: BaseTypography.bodyMedium.copyWith(
+                  color: BaseColor.secondaryText,
+                ),
+              ),
+            ],
           ),
         ),
-        // Position count badge (Requirement 2.1)
-        _PositionCountBadge(count: positionCount),
+        _PositionCountBadge(count: membership.membershipPositions.length),
       ],
     );
   }

@@ -43,7 +43,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(state),
+            ScreenTitleWidget.titleSecondary(
+              title: 'Create ${state.type.displayName}',
+            ),
             Gap.h16,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
@@ -61,6 +63,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                     Gap.h16,
                     _buildScheduleSection(state, controller, context),
                     Gap.h16,
+                    // Financial Record section for service/event types
+                    // Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
+                    _buildFinancialRecordSection(state, controller, context),
+                    Gap.h16,
                   ],
                   if (widget.type == ActivityType.announcement)
                     _buildAnnouncementSection(state, controller, context),
@@ -70,63 +76,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(ActivityPublishState state) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + BaseSize.h8,
-        left: BaseSize.w4,
-        right: BaseSize.w12,
-        bottom: BaseSize.h8,
-      ),
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: context.pop,
-            icon: Assets.icons.line.chevronBackOutline.svg(
-              width: BaseSize.w24,
-              height: BaseSize.h24,
-              colorFilter: const ColorFilter.mode(
-                BaseColor.textPrimary,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Create ${state.type.displayName}',
-                  style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: BaseColor.textPrimary,
-                  ),
-                ),
-                Gap.h4,
-                Text(
-                  'Fill in the details below',
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.neutral[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1327,6 +1276,130 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
+  }
+
+  /// Builds the Financial Record section for service/event types.
+  /// Shows "Add Financial Record" button when no finance attached,
+  /// or FinanceSummaryCard when finance is attached.
+  /// Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
+  Widget _buildFinancialRecordSection(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+    BuildContext context,
+  ) {
+    return _buildSectionCard(
+      title: 'Financial Record',
+      icon: Icons.account_balance_wallet_outlined,
+      subtitle: 'Optional: Attach revenue or expense',
+      children: [
+        if (state.attachedFinance == null)
+          _buildAddFinanceButton(controller, context)
+        else
+          FinanceSummaryCard(
+            financeData: state.attachedFinance!,
+            onRemove: () => controller.removeAttachedFinance(),
+            onEdit: () => _handleEditFinance(state, controller, context),
+          ),
+      ],
+    );
+  }
+
+  /// Builds the "Add Financial Record" button.
+  /// Requirements: 1.2
+  Widget _buildAddFinanceButton(
+    ActivityPublishController controller,
+    BuildContext context,
+  ) {
+    return GestureDetector(
+      onTap: () => _handleAddFinance(controller, context),
+      child: Container(
+        padding: EdgeInsets.all(BaseSize.w16),
+        decoration: BoxDecoration(
+          color: BaseColor.neutral[50],
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          border: Border.all(
+            color: BaseColor.neutral[300]!,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.primary[100],
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: Icon(
+                Icons.add,
+                size: BaseSize.w20,
+                color: BaseColor.primary[600],
+              ),
+            ),
+            Gap.w12,
+            Text(
+              'Add Financial Record',
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.primary[700],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Handles the "Add Financial Record" button tap.
+  /// Shows the Finance Type Picker dialog and navigates to Finance Create Screen.
+  /// Requirements: 1.2, 1.3
+  Future<void> _handleAddFinance(
+    ActivityPublishController controller,
+    BuildContext context,
+  ) async {
+    // Step 1: Show Finance Type Picker dialog
+    final financeType = await showFinanceTypePickerDialog(context: context);
+    if (financeType == null || !mounted) return;
+
+    // Step 2: Navigate to Finance Create Screen in embedded mode
+    final financeData = await Navigator.of(context).push<FinanceData>(
+      MaterialPageRoute(
+        builder: (context) =>
+            FinanceCreateScreen(financeType: financeType, isStandalone: false),
+      ),
+    );
+
+    // Step 3: Handle returned finance data
+    if (financeData != null && mounted) {
+      controller.onAttachedFinance(financeData);
+    }
+  }
+
+  /// Handles editing an attached finance record.
+  /// Requirements: 1.4
+  Future<void> _handleEditFinance(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+    BuildContext context,
+  ) async {
+    final currentFinance = state.attachedFinance;
+    if (currentFinance == null) return;
+
+    // Navigate to Finance Create Screen with current finance type
+    final financeData = await Navigator.of(context).push<FinanceData>(
+      MaterialPageRoute(
+        builder: (context) => FinanceCreateScreen(
+          financeType: currentFinance.type,
+          isStandalone: false,
+        ),
+      ),
+    );
+
+    // Update with new finance data if returned
+    if (financeData != null && mounted) {
+      controller.onAttachedFinance(financeData);
+    }
   }
 }
 

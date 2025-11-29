@@ -19,12 +19,15 @@ class DateRangePresetInput extends StatelessWidget {
     required this.onChanged,
   });
 
-    /// Field label
+  /// Field label
   final String label;
+
   /// Currently selected start date (nullable)
   final DateTime? start;
+
   /// Currently selected end date (nullable)
   final DateTime? end;
+
   /// Callback invoked when the user selects a preset or custom range.
   final void Function(DateTime? start, DateTime? end) onChanged;
 
@@ -34,10 +37,11 @@ class DateRangePresetInput extends StatelessWidget {
 
     return InputWidget<_DateRangePreset>.dropdown(
       label: label,
-      hint: _formatRange(start, end),
+      hint: 'Select date range',
       currentInputValue: currentPreset,
       options: _DateRangePreset.values,
       optionLabel: (_) => _formatRange(start, end),
+      customDisplayBuilder: (_) => _buildCustomDisplay(),
       onChanged: (p) async {
         await _applyPreset(context, p, start, end);
       },
@@ -52,18 +56,84 @@ class DateRangePresetInput extends StatelessWidget {
     );
   }
 
+  /// Builds custom display widget showing preset label on top and date range below
+  Widget _buildCustomDisplay() {
+    final preset = _detectPreset(start, end);
+    final dateRange = _formatRangeDateOnly(start, end);
+
+    // For "All dates", just show single line
+    if (preset == _DateRangePreset.all) {
+      return Text(
+        'All dates',
+        style: BaseTypography.titleMedium.copyWith(
+          color: BaseColor.black,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    }
+
+    // For custom range, show just the date range
+    if (preset == _DateRangePreset.custom) {
+      return Text(
+        dateRange,
+        style: BaseTypography.titleMedium.copyWith(
+          color: BaseColor.black,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    }
+
+    // For presets, show label on top and date range below
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _labelForPreset(preset),
+          style: BaseTypography.titleMedium.copyWith(
+            color: BaseColor.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          dateRange,
+          style: BaseTypography.bodySmall.copyWith(
+            color: BaseColor.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
   String _formatRange(DateTime? start, DateTime? end) {
+    if (start == null && end == null) return 'All dates';
+
+    // Check if it matches a preset and return label + date range
+    final preset = _detectPreset(start, end);
+    final dateRange = _formatRangeDateOnly(start, end);
+
+    if (preset != _DateRangePreset.custom && preset != _DateRangePreset.all) {
+      return '${_labelForPreset(preset)} ($dateRange)';
+    }
+
+    // For custom range, show date only
+    return dateRange;
+  }
+
+  /// Formats date range without time - used for subtitles in bottom sheet
+  String _formatRangeDateOnly(DateTime? start, DateTime? end) {
     if (start == null && end == null) return 'All dates';
     final s = start ?? end!;
     final e = end ?? start!;
-    final sStr = "${s.ddMmmmYyyy} ${s.HHmm}";
-    final eStr = "${e.ddMmmmYyyy} ${e.HHmm}";
+    final sStr = s.ddMmmmYyyy;
+    final eStr = e.ddMmmmYyyy;
 
     return sStr == eStr ? sStr : '$sStr - $eStr';
   }
 
   DateTime _startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
-  DateTime _endOfDay(DateTime d) => DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
+  DateTime _endOfDay(DateTime d) =>
+      DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
 
   _DateRangePreset _detectPreset(DateTime? start, DateTime? end) {
     if (start == null && end == null) return _DateRangePreset.all;
@@ -74,28 +144,34 @@ class DateRangePresetInput extends StatelessWidget {
     final todayS = _startOfDay(now);
     final todayE = _endOfDay(now);
 
-    bool sameDay(DateTime aS, DateTime aE, DateTime bS, DateTime bE) => aS == bS && aE == bE;
+    bool sameDay(DateTime aS, DateTime aE, DateTime bS, DateTime bE) =>
+        aS == bS && aE == bE;
 
     if (sameDay(s, e, todayS, todayE)) return _DateRangePreset.today;
 
-    if (s == _startOfDay(now.subtract(const Duration(days: 6))) && e == todayE) {
+    if (s == _startOfDay(now.subtract(const Duration(days: 6))) &&
+        e == todayE) {
       return _DateRangePreset.last7;
     }
-    if (s == _startOfDay(now.subtract(const Duration(days: 29))) && e == todayE) {
+    if (s == _startOfDay(now.subtract(const Duration(days: 29))) &&
+        e == todayE) {
       return _DateRangePreset.last30;
     }
 
     final thisMonthStart = DateTime(now.year, now.month, 1);
     final thisMonthEnd = _endOfDay(DateTime(now.year, now.month + 1, 0));
-    if (s == thisMonthStart && e == thisMonthEnd) return _DateRangePreset.thisMonth;
+    if (s == thisMonthStart && e == thisMonthEnd)
+      return _DateRangePreset.thisMonth;
 
     final lastMonthStart = DateTime(now.year, now.month - 1, 1);
     final lastMonthEnd = _endOfDay(DateTime(now.year, now.month, 0));
-    if (s == lastMonthStart && e == lastMonthEnd) return _DateRangePreset.lastMonth;
+    if (s == lastMonthStart && e == lastMonthEnd)
+      return _DateRangePreset.lastMonth;
 
     final thisYearStart = DateTime(now.year, 1, 1);
     final thisYearEnd = _endOfDay(DateTime(now.year, 12, 31));
-    if (s == thisYearStart && e == thisYearEnd) return _DateRangePreset.thisYear;
+    if (s == thisYearStart && e == thisYearEnd)
+      return _DateRangePreset.thisYear;
 
     return _DateRangePreset.custom;
   }
@@ -254,7 +330,7 @@ class DateRangePresetInput extends StatelessWidget {
                   title: Text(_labelForPreset(p)),
                   subtitle: showSubtitle
                       ? Text(
-                          _formatRange(range.start, range.end),
+                          _formatRangeDateOnly(range.start, range.end),
                           style: BaseTypography.bodySmall.toSecondary,
                         )
                       : null,
@@ -270,4 +346,13 @@ class DateRangePresetInput extends StatelessWidget {
   }
 }
 
-enum _DateRangePreset { all, today, last7, last30, thisMonth, lastMonth, thisYear, custom }
+enum _DateRangePreset {
+  all,
+  today,
+  last7,
+  last30,
+  thisMonth,
+  lastMonth,
+  thisYear,
+  custom,
+}

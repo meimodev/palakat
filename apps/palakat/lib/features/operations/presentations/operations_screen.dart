@@ -7,6 +7,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
+import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 /// Operations screen displaying user's positions and available operations.
 /// Uses category-based organization with progressive disclosure.
@@ -21,29 +22,31 @@ class OperationsScreen extends ConsumerWidget {
     final state = ref.watch(operationsControllerProvider);
 
     return ScaffoldWidget(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const ScreenTitleWidget.titleOnly(title: "Operations"),
-          Gap.h16,
-          LoadingWrapper(
-            loading: state.loadingScreen,
-            hasError:
-                state.errorMessage != null && state.loadingScreen == false,
-            errorMessage: state.errorMessage,
-            onRetry: () => controller.fetchData(),
-            shimmerPlaceholder: Column(
-              children: [
-                PalakatShimmerPlaceholders.membershipCard(),
-                Gap.h16,
-                PalakatShimmerPlaceholders.listItemCard(),
-                Gap.h16,
-                PalakatShimmerPlaceholders.listItemCard(),
-              ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const ScreenTitleWidget.titleOnly(title: "Operations"),
+            Gap.h16,
+            LoadingWrapper(
+              loading: state.loadingScreen,
+              hasError:
+                  state.errorMessage != null && state.loadingScreen == false,
+              errorMessage: state.errorMessage,
+              onRetry: () => controller.fetchData(),
+              shimmerPlaceholder: Column(
+                children: [
+                  PalakatShimmerPlaceholders.membershipCard(),
+                  Gap.h16,
+                  PalakatShimmerPlaceholders.listItemCard(),
+                  Gap.h16,
+                  PalakatShimmerPlaceholders.listItemCard(),
+                ],
+              ),
+              child: _buildContent(context, ref, state, controller),
             ),
-            child: _buildContent(context, ref, state, controller),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -63,10 +66,25 @@ class OperationsScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Position summary card (Requirement 2.1)
-        PositionSummaryCard(membership: state.membership!),
-        // 8px grid spacing - 16px = 2 * 8px (Requirement 3.4)
+        PositionSummaryCard(
+          membership: state.membership!,
+          accountName: state.accountName ?? 'Member',
+          onTap: () => _handleMembershipTap(context, state.membership!),
+        ),
         Gap.h16,
+        SupervisedActivitiesSection(
+          activities: state.supervisedActivities,
+          isLoading: state.loadingSupervisedActivities,
+          error: state.supervisedActivitiesError,
+          onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
+          onActivityTap: (activity) => _handleActivityTap(context, activity),
+          onRetry: () => controller.fetchSupervisedActivities(),
+        ),
+        // Add spacing only if section is visible
+        if (state.supervisedActivities.isNotEmpty ||
+            state.loadingSupervisedActivities ||
+            state.supervisedActivitiesError != null)
+          Gap.h16,
         // Category-based operation list (Requirement 2.2)
         _OperationCategoryList(
           categories: state.categories,
@@ -93,6 +111,29 @@ class OperationsScreen extends ConsumerWidget {
     } else {
       context.pushNamed(operation.routeName);
     }
+  }
+
+  /// Navigates to the activity detail screen
+  /// Requirement 1.4
+  void _handleActivityTap(BuildContext context, Activity activity) {
+    context.pushNamed(
+      AppRoute.activityDetail,
+      extra: RouteParam(params: {RouteParamKey.activity: activity.toJson()}),
+    );
+  }
+
+  /// Navigates to the supervised activities list screen
+  /// Requirement 2.2
+  void _handleSeeAllSupervisedActivities(BuildContext context) {
+    context.pushNamed(AppRoute.supervisedActivitiesList);
+  }
+
+  /// Navigates to the membership screen with membership data
+  void _handleMembershipTap(BuildContext context, Membership membership) {
+    context.pushNamed(
+      AppRoute.membership,
+      extra: RouteParam(params: {'membershipId': membership.id}),
+    );
   }
 }
 

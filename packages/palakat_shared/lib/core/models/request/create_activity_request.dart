@@ -38,6 +38,9 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
 
     /// The type of activity being created
     required ActivityType activityType,
+
+    /// Optional reminder preference for SERVICE/EVENT activities
+    Reminder? reminder,
   }) = _CreateActivityRequest;
 
   factory CreateActivityRequest.fromJson(Map<String, dynamic> json) =>

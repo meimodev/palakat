@@ -28,6 +28,7 @@ class InputWidget<T> extends StatefulWidget {
   }) : onPressedWithResult = null,
        options = null,
        optionLabel = null,
+       customDisplayBuilder = null,
        variant = InputWidgetVariant.text;
 
   const InputWidget.dropdown({
@@ -43,6 +44,7 @@ class InputWidget<T> extends StatefulWidget {
     this.validators,
     required this.optionLabel,
     this.leadIcon,
+    this.customDisplayBuilder,
   }) : controller = null,
        maxLines = 1,
        textInputType = null,
@@ -69,6 +71,7 @@ class InputWidget<T> extends StatefulWidget {
        borderColor = null,
        textInputType = null,
        inputFormatters = null,
+       customDisplayBuilder = null,
        assert(
          options != null && options.length > 0,
          "options cannot be null or empty",
@@ -94,6 +97,10 @@ class InputWidget<T> extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
 
   final String? Function(String)? validators;
+
+  /// Optional custom widget builder for displaying the selected value in dropdown.
+  /// When provided, this widget will be used instead of the default text display.
+  final Widget Function(T value)? customDisplayBuilder;
 
   @override
   State<InputWidget> createState() => _InputWidgetState<T>();
@@ -169,6 +176,7 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
                 endIcon: widget.endIcon,
                 borderColor: borderColor,
                 optionLabel: widget.optionLabel!,
+                customDisplayBuilder: widget.customDisplayBuilder,
               )
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text

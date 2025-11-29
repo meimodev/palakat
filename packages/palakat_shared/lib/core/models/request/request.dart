@@ -1,4 +1,6 @@
 export 'create_activity_request.dart';
+export 'create_expense_request.dart';
+export 'create_revenue_request.dart';
 export 'get_fetch_accounts_count_request.dart';
 export 'get_fetch_accounts_request.dart';
 export 'get_fetch_activity_request.dart';

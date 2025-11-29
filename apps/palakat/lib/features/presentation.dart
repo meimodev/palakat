@@ -1,3 +1,4 @@
+//Finance
 //Home
 export 'account/presentations/account/account_controller.dart';
 //Account - User
@@ -23,10 +24,15 @@ export 'dashboard/presentations/view_all/view_all_controller.dart';
 export 'dashboard/presentations/view_all/view_all_screen.dart';
 export 'dashboard/presentations/view_all/view_all_state.dart';
 export 'dashboard/presentations/widgets/widgets.dart';
+export 'finance/presentations/finance_create/finance_create_controller.dart';
+export 'finance/presentations/finance_create/finance_create_screen.dart';
+export 'finance/presentations/finance_create/finance_create_state.dart';
+export 'finance/presentations/finance_create/widgets/widgets.dart';
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';
 export 'home/presentation/home_state.dart';
 export 'operations/presentations/operations_screen.dart';
+export 'operations/presentations/supervised_activities_list/supervised_activities_list_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_controller.dart';
 export 'publishing/presentations/activity_publish/activity_publish_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_state.dart';

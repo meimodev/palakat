@@ -17,6 +17,7 @@ class InputVariantDropdownWidget<T> extends StatefulWidget {
     this.errorText,
     this.validators,
     this.autoValidateMode,
+    this.customDisplayBuilder,
   });
 
   final String hint;
@@ -30,6 +31,10 @@ class InputVariantDropdownWidget<T> extends StatefulWidget {
   final String? Function(String?)? validators;
   final AutovalidateMode? autoValidateMode;
   final String Function(T option) optionLabel;
+
+  /// Optional custom widget builder for displaying the selected value.
+  /// When provided, this widget will be used instead of the default text display.
+  final Widget Function(T value)? customDisplayBuilder;
 
   @override
   State<InputVariantDropdownWidget> createState() =>
@@ -79,12 +84,12 @@ class _InputVariantDropdownWidgetState<T>
         child: InkWell(
           onTap: () async {
             final result = await widget.onPressedWithResult();
-            if (result != null) {
+            if (result != null || widget.options.contains(null)) {
               setState(() {
                 currentValue = result;
                 errorText = null;
               });
-              widget.onChanged(result);
+              widget.onChanged(result as T);
             }
           },
           child: Padding(
@@ -92,21 +97,7 @@ class _InputVariantDropdownWidgetState<T>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    currentValue != null
-                        ? widget.optionLabel(currentValue as T)
-                        : widget.hint,
-                    style: BaseTypography.titleMedium.copyWith(
-                      color: currentValue != null
-                          ? BaseColor.black
-                          : BaseColor.neutral50,
-                      fontWeight: currentValue != null
-                          ? FontWeight.w500
-                          : FontWeight.w400,
-                    ),
-                  ),
-                ),
+                Expanded(child: _buildDisplayContent()),
                 Gap.w8,
                 const DividerWidget(height: double.infinity),
                 Gap.w8,
@@ -126,6 +117,33 @@ class _InputVariantDropdownWidgetState<T>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDisplayContent() {
+    // If no value selected, show hint
+    if (currentValue == null) {
+      return Text(
+        widget.hint,
+        style: BaseTypography.titleMedium.copyWith(
+          color: BaseColor.neutral50,
+          fontWeight: FontWeight.w400,
+        ),
+      );
+    }
+
+    // If custom display builder provided, use it
+    if (widget.customDisplayBuilder != null) {
+      return widget.customDisplayBuilder!(currentValue as T);
+    }
+
+    // Default: show text label
+    return Text(
+      widget.optionLabel(currentValue as T),
+      style: BaseTypography.titleMedium.copyWith(
+        color: BaseColor.black,
+        fontWeight: FontWeight.w500,
       ),
     );
   }

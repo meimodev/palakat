@@ -41,6 +41,8 @@ class AppRoute {
   static const String operations = 'operations';
   static const String activityPublish = "activity-publish";
   static const String publishingMap = "publish-map";
+  static const String supervisedActivitiesList = "supervised-activities-list";
+  static const String financeCreate = "finance-create";
 
   // approvals
   static const String approvals = 'approvals';
@@ -51,11 +53,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @riverpod
 GoRouter goRouter(Ref ref) {
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: '/home',
     debugLogDiagnostics: kDebugMode,
     routerNeglect: true,
+    observers: [if (kDebugMode) _GoRouterObserver()],
     routes: [
       GoRoute(
         path: '/home',
@@ -84,4 +88,36 @@ class RouteParamKey {
   static const String song = 'song';
   static const String mapOperationType = 'mapOperationType';
   static const String location = 'location';
+  static const String financeType = 'financeType';
+  static const String isStandalone = 'isStandalone';
+}
+
+class _GoRouterObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    debugPrint(
+      '🔀 GoRouter: PUSH ${route.settings.name ?? route.settings.toString()}',
+    );
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    debugPrint(
+      '🔀 GoRouter: POP ${route.settings.name ?? route.settings.toString()}',
+    );
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    debugPrint(
+      '🔀 GoRouter: REPLACE ${oldRoute?.settings.name} -> ${newRoute?.settings.name}',
+    );
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    debugPrint(
+      '🔀 GoRouter: REMOVE ${route.settings.name ?? route.settings.toString()}',
+    );
+  }
 }

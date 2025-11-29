@@ -20,10 +20,13 @@ export 'column_detail.dart';
 export 'document.dart';
 export 'expense.dart';
 export 'file_manager.dart';
+export 'finance_data.dart';
+export 'finance_type.dart';
 export 'location.dart';
 export 'member_position.dart';
 export 'member_position_detail.dart';
 export 'membership.dart';
+export 'payment_method.dart';
 export 'report.dart';
 // Request/Response models
 export 'request/request.dart';

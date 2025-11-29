@@ -221,7 +221,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                                           (s) => s.phoneNumber,
                                         ),
                                       );
-                                context.goNamed(
+                                context.pushNamed(
                                   AppRoute.account,
                                   extra: {'verifiedPhone': verifiedPhone},
                                 );
@@ -274,7 +274,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                                                           (s) => s.phoneNumber,
                                                         ),
                                                   );
-                                            context.goNamed(
+                                            context.pushNamed(
                                               AppRoute.account,
                                               extra: {
                                                 'verifiedPhone': verifiedPhone,

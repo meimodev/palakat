@@ -314,6 +314,19 @@ class MembershipController extends _$MembershipController {
         // Save membership to local storage
         await storageService.saveMembership(membership);
 
+        // Also update the account's membership in auth storage
+        final currentAuth = storageService.currentAuth;
+        if (currentAuth != null) {
+          final updatedAccount = currentAuth.account.copyWith(
+            membership: membership,
+          );
+          final updatedAuth = currentAuth.copyWith(account: updatedAccount);
+          await storageService.saveAuth(updatedAuth);
+          print(
+            '✅ MembershipController: Updated account membership in auth storage',
+          );
+        }
+
         state = state.copyWith(loading: false, membership: membership);
 
         return Result.success(membership);

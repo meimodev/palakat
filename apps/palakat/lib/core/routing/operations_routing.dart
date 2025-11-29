@@ -16,14 +16,9 @@ final operationsRouting = GoRoute(
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.activityType] as ActivityType?;
 
-        assert(
-          type != null,
-          'RouteParamKey.activityType cannot be null',
-        );
+        assert(type != null, 'RouteParamKey.activityType cannot be null');
 
-        return ActivityPublishScreen(
-          type: type!,
-        );
+        return ActivityPublishScreen(type: type!);
       },
     ),
     GoRoute(
@@ -32,17 +27,41 @@ final operationsRouting = GoRoute(
       builder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final ot = params?[RouteParamKey.mapOperationType] as MapOperationType?;
-        final locJson = params?[RouteParamKey.location] as Map<String, dynamic>?;
-        final initialLocation = locJson != null ? Location.fromJson(locJson) : null;
+        final locJson =
+            params?[RouteParamKey.location] as Map<String, dynamic>?;
+        final initialLocation = locJson != null
+            ? Location.fromJson(locJson)
+            : null;
 
-        assert(
-          ot != null,
-          'RouteParamKey.mapOperationType cannot be null',
-        );
+        assert(ot != null, 'RouteParamKey.mapOperationType cannot be null');
 
         return MapScreen(
           mapOperationType: ot!,
           initialLocation: initialLocation,
+        );
+      },
+    ),
+    // Supervised Activities List Screen (Requirement 2.2)
+    GoRoute(
+      path: 'supervised-activities',
+      name: AppRoute.supervisedActivitiesList,
+      builder: (context, state) => const SupervisedActivitiesListScreen(),
+    ),
+    // Finance Create Screen (Requirements 1.3, 4.1)
+    GoRoute(
+      path: 'finance-create',
+      name: AppRoute.financeCreate,
+      builder: (context, state) {
+        final params = (state.extra as RouteParam?)?.params;
+        final financeType = params?[RouteParamKey.financeType] as FinanceType?;
+        final isStandalone =
+            params?[RouteParamKey.isStandalone] as bool? ?? false;
+
+        assert(financeType != null, 'RouteParamKey.financeType cannot be null');
+
+        return FinanceCreateScreen(
+          financeType: financeType!,
+          isStandalone: isStandalone,
         );
       },
     ),

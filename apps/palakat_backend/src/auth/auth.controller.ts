@@ -38,8 +38,8 @@ export class AuthController {
     // Normalize phone number to Indonesian format (0XXXXXXXXXX)
     let normalizedPhone = phone.trim();
 
-    // Remove all spaces and dashes
-    normalizedPhone = normalizedPhone.replace(/[\s-]/g, '');
+    // Remove all spaces, dashes, and other non-digit characters except +
+    normalizedPhone = normalizedPhone.replace(/[\s\-()]/g, '');
 
     // Handle different formats:
     // +6281234567890 -> 081234567890

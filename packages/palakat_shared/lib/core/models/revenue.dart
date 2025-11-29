@@ -3,17 +3,16 @@ import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 
 part 'revenue.freezed.dart';
-
 part 'revenue.g.dart';
 
 @freezed
 abstract class Revenue with _$Revenue {
   const factory Revenue({
     int? id,
-    String? accountNumber,
+    required String accountNumber,
     required int amount,
     required int churchId,
-    required int activityId,
+    int? activityId,
     required PaymentMethod paymentMethod,
     DateTime? createdAt,
     DateTime? updatedAt,

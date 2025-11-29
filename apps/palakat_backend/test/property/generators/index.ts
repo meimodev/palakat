@@ -16,6 +16,13 @@ export const approvalStatusArb = fc.constantFrom(
 export const bookArb = fc.constantFrom('NKB', 'NNBT', 'KJ', 'DSL');
 export const paymentMethodArb = fc.constantFrom('CASH', 'CASHLESS');
 export const requestStatusArb = fc.constantFrom('TODO', 'DOING', 'DONE');
+export const reminderArb = fc.constantFrom(
+  'TEN_MINUTES',
+  'THIRTY_MINUTES',
+  'ONE_HOUR',
+  'TWO_HOURS',
+);
+export const optionalReminderArb = fc.option(reminderArb, { nil: null });
 
 export const phoneArb = fc
   .integer({ min: 100000000, max: 9999999999 })

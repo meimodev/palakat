@@ -3,6 +3,7 @@ import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/operation_models.dart';
@@ -13,6 +14,8 @@ part 'operations_controller.g.dart';
 @riverpod
 class OperationsController extends _$OperationsController {
   AuthRepository get _authRepository => ref.read(authRepositoryProvider);
+  ActivityRepository get _activityRepository =>
+      ref.read(activityRepositoryProvider);
 
   @override
   OperationsState build() {
@@ -24,6 +27,7 @@ class OperationsController extends _$OperationsController {
 
   void fetchData() async {
     await fetchMembership();
+    await fetchSupervisedActivities();
   }
 
   Future<void> fetchMembership() async {
@@ -36,6 +40,7 @@ class OperationsController extends _$OperationsController {
 
         state = state.copyWith(
           membership: membership,
+          accountName: account.name,
           categories: categories,
           categoryExpansionState: expansionState,
           loadingScreen: false,
@@ -45,6 +50,56 @@ class OperationsController extends _$OperationsController {
         state = state.copyWith(
           loadingScreen: false,
           errorMessage: failure.message,
+        );
+      },
+    );
+  }
+
+  /// Fetches the 3 most recent supervised activities for the current user.
+  /// Uses the membershipId to filter activities where the user is the supervisor.
+  /// _Requirements: 1.1, 4.1, 4.2_
+  Future<void> fetchSupervisedActivities() async {
+    final membership = state.membership;
+    if (membership?.id == null) {
+      state = state.copyWith(loadingSupervisedActivities: false);
+      return;
+    }
+
+    // Get churchId from localStorage (has full membership data with church)
+    final localStorage = ref.read(localStorageServiceProvider);
+    final storedMembership = localStorage.currentMembership;
+    final churchId = storedMembership?.church?.id ?? membership?.church?.id;
+
+    state = state.copyWith(
+      loadingSupervisedActivities: true,
+      supervisedActivitiesError: null,
+    );
+
+    final request = PaginationRequestWrapper(
+      page: 1,
+      pageSize: 3,
+      data: GetFetchActivitiesRequest(
+        membershipId: membership!.id,
+        churchId: churchId,
+      ),
+    );
+
+    final result = await _activityRepository.fetchActivities(
+      paginationRequest: request,
+    );
+
+    result.when(
+      onSuccess: (response) {
+        state = state.copyWith(
+          supervisedActivities: response.data,
+          loadingSupervisedActivities: false,
+          supervisedActivitiesError: null,
+        );
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          loadingSupervisedActivities: false,
+          supervisedActivitiesError: failure.message,
         );
       },
     );
@@ -89,23 +144,30 @@ class OperationsController extends _$OperationsController {
     ];
 
     // Financial category - available to users with positions
+    // Requirements: 4.1 - Standalone finance creation
     final financialOperations = <OperationItem>[
       OperationItem(
         id: 'add_income',
-        title: 'Add Income',
+        title: 'Add Revenue',
         description: 'Record church income and offerings',
-        icon: Icons.attach_money,
-        routeName:
-            AppRoute.operations, // Placeholder - update when route exists
+        icon: Icons.trending_up,
+        routeName: AppRoute.financeCreate,
+        routeParams: {
+          RouteParamKey.financeType: FinanceType.revenue,
+          RouteParamKey.isStandalone: true,
+        },
         isEnabled: hasPositions,
       ),
       OperationItem(
         id: 'add_expense',
         title: 'Add Expense',
         description: 'Record church expenses',
-        icon: Icons.money_off,
-        routeName:
-            AppRoute.operations, // Placeholder - update when route exists
+        icon: Icons.trending_down,
+        routeName: AppRoute.financeCreate,
+        routeParams: {
+          RouteParamKey.financeType: FinanceType.expense,
+          RouteParamKey.isStandalone: true,
+        },
         isEnabled: hasPositions,
       ),
     ];

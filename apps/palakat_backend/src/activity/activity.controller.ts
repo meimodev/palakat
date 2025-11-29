@@ -1,19 +1,20 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
   Query,
   UseGuards,
-  Param,
-  Delete,
-  Post,
-  Body,
-  Patch,
 } from '@nestjs/common';
-import { ActivitiesService } from './activity.service';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
-import { Prisma } from '@prisma/client';
+import { ActivitiesService } from './activity.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
+import { CreateActivityDto } from './dto/create-activity.dto';
+import { UpdateActivityDto } from './dto/update-activity.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('activity')
@@ -36,14 +37,14 @@ export class ActivitiesController {
   }
 
   @Post()
-  async create(@Body() createActivityDto: Prisma.ActivityCreateInput) {
+  async create(@Body() createActivityDto: CreateActivityDto) {
     return this.activitiesService.create(createActivityDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateActivityDto: Prisma.ActivityUpdateInput,
+    @Body() updateActivityDto: UpdateActivityDto,
   ) {
     return this.activitiesService.update(id, updateActivityDto);
   }

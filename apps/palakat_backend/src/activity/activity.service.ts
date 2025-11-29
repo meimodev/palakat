@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
+import { CreateActivityDto } from './dto/create-activity.dto';
+import { UpdateActivityDto } from './dto/update-activity.dto';
 
 @Injectable()
 export class ActivitiesService {
@@ -41,12 +43,12 @@ export class ActivitiesService {
     }
 
     if (startDate || endDate) {
-      where.createdAt = {};
+      where.date = {};
       if (startDate) {
-        where.createdAt.gte = startDate;
+        where.date.gte = startDate;
       }
       if (endDate) {
-        where.createdAt.lte = endDate;
+        where.date.lte = endDate;
       }
     }
 
@@ -67,7 +69,7 @@ export class ActivitiesService {
         where,
         take,
         skip,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { date: 'desc' },
 
         include: {
           supervisor: {
@@ -184,18 +186,35 @@ export class ActivitiesService {
   }
 
   async create(
-    createActivityDto: any,
+    createActivityDto: CreateActivityDto,
   ): Promise<{ message: string; data: any }> {
     const {
       locationName,
       locationLatitude,
       locationLongitude,
+      supervisorId,
+      reminder,
       ...activityData
     } = createActivityDto;
+
+    // Validate that the membership exists
+    const membership = await (this.prisma as any).membership.findUnique({
+      where: { id: supervisorId },
+    });
+
+    if (!membership) {
+      throw new NotFoundException(
+        `Membership with ID ${supervisorId} not found`,
+      );
+    }
 
     // Build the activity create data
     const createData: any = {
       ...activityData,
+      supervisor: {
+        connect: { id: supervisorId },
+      },
+      reminder: reminder ?? null,
     };
 
     // If location data is provided, create a nested location
@@ -217,8 +236,20 @@ export class ActivitiesService {
     const activity = await (this.prisma as any).activity.create({
       data: createData,
       include: {
-        supervisor: true,
+        supervisor: {
+          include: {
+            account: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                dob: true,
+              },
+            },
+          },
+        },
         location: true,
+        approvers: true,
       },
     });
     return {
@@ -229,11 +260,68 @@ export class ActivitiesService {
 
   async update(
     id: number,
-    updateActivityDto: any,
+    updateActivityDto: UpdateActivityDto,
   ): Promise<{ message: string; data: any }> {
+    const {
+      locationName,
+      locationLatitude,
+      locationLongitude,
+      supervisorId,
+      ...updateData
+    } = updateActivityDto;
+
+    // Build the update data
+    const data: any = { ...updateData };
+
+    // Handle supervisor update if provided
+    if (supervisorId !== undefined) {
+      data.supervisor = {
+        connect: { id: supervisorId },
+      };
+    }
+
+    // Handle location update if coordinates are provided
+    if (
+      locationLatitude !== undefined &&
+      locationLongitude !== undefined &&
+      locationLatitude !== null &&
+      locationLongitude !== null
+    ) {
+      data.location = {
+        upsert: {
+          create: {
+            name: locationName || '',
+            latitude: locationLatitude,
+            longitude: locationLongitude,
+          },
+          update: {
+            name: locationName || '',
+            latitude: locationLatitude,
+            longitude: locationLongitude,
+          },
+        },
+      };
+    }
+
     const activity = await (this.prisma as any).activity.update({
       where: { id },
-      data: updateActivityDto,
+      data,
+      include: {
+        supervisor: {
+          include: {
+            account: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                dob: true,
+              },
+            },
+          },
+        },
+        location: true,
+        approvers: true,
+      },
     });
     return {
       message: 'Activity updated successfully',

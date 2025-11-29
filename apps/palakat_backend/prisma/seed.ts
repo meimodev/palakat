@@ -8,6 +8,7 @@ import {
   MaritalStatus,
   PaymentMethod,
   PrismaClient,
+  Reminder,
 } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as process from 'node:process';
@@ -331,11 +332,22 @@ function generateChurchName(index: number): string {
   return `${prefix} ${location}${suffix}`;
 }
 
+const REMINDER_VALUES = [
+  Reminder.TEN_MINUTES,
+  Reminder.THIRTY_MINUTES,
+  Reminder.ONE_HOUR,
+  Reminder.TWO_HOURS,
+];
+
 function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
   const title = randomElement(ACTIVITY_TITLES[type]);
   const weekStart = getStartOfWeek();
   const weekEnd = getEndOfWeek();
   const activityDate = randomDate(weekStart, weekEnd);
+
+  // Only SERVICE and EVENT activities have reminders
+  const reminder =
+    type !== ActivityType.ANNOUNCEMENT ? randomElement(REMINDER_VALUES) : null;
 
   return {
     title: `${title} ${index}`,
@@ -346,6 +358,7 @@ function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
       ? `Deskripsi lengkap untuk ${title} ${index}`
       : null,
     note: randomBoolean(0.7) ? `Catatan untuk ${title} ${index}` : null,
+    reminder,
   };
 }
 

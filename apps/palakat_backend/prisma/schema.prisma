@@ -121,6 +121,7 @@ model Activity {
   date         DateTime?
   note         String?
   activityType ActivityType
+  reminder     Reminder?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   supervisor   Membership   @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
@@ -258,6 +259,13 @@ enum MaritalStatus {
 enum PaymentMethod {
   CASH
   CASHLESS
+}
+
+enum Reminder {
+  TEN_MINUTES
+  THIRTY_MINUTES
+  ONE_HOUR
+  TWO_HOURS
 }
 
 enum GeneratedBy {

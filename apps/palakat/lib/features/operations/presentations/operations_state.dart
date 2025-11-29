@@ -11,6 +11,9 @@ abstract class OperationsState with _$OperationsState {
     /// User's membership data containing positions
     Membership? membership,
 
+    /// User's account name for display
+    String? accountName,
+
     /// Whether the screen is currently loading
     @Default(true) bool loadingScreen,
 
@@ -23,5 +26,17 @@ abstract class OperationsState with _$OperationsState {
     /// Map tracking expansion state for each category by ID
     /// Key: category ID, Value: whether expanded
     @Default({}) Map<String, bool> categoryExpansionState,
+
+    /// List of recent supervised activities (max 3)
+    /// _Requirements: 1.1, 4.1, 4.2_
+    @Default([]) List<Activity> supervisedActivities,
+
+    /// Loading state for supervised activities section
+    /// _Requirements: 4.1_
+    @Default(false) bool loadingSupervisedActivities,
+
+    /// Error message for supervised activities fetch
+    /// _Requirements: 4.2_
+    String? supervisedActivitiesError,
   }) = _OperationsState;
 }

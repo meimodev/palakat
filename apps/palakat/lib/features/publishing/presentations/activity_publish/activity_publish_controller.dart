@@ -169,7 +169,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   /// Submits the activity creation form.
   /// Returns true on success, false on validation failure or API error.
-  /// Requirements: 6.1, 6.2, 6.3, 6.4
+  /// Requirements: 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4
   Future<bool> submit() async {
     // Step 1: Validate form first
     await validateForm();
@@ -235,18 +235,22 @@ class ActivityPublishController extends _$ActivityPublishController {
         date: activityDate,
         note: state.note,
         activityType: state.type,
+        reminder: state.selectedReminder,
       );
 
       // Step 5: Call ActivityRepository.createActivity
+      // Requirements: 5.1 - First create the activity via the backend API
       final activityRepository = ref.read(activityRepositoryProvider);
       final result = await activityRepository.createActivity(request: request);
 
       // Step 6 & 7: Handle success/failure
       bool success = false;
+      int? createdActivityId;
+
       result.when(
-        onSuccess: (_) {
-          // Handle success: set loading false, return true
-          state = state.copyWith(loading: false);
+        onSuccess: (activity) {
+          // Store the created activity ID for finance record creation
+          createdActivityId = activity.id;
           success = true;
         },
         onFailure: (failure) {
@@ -255,7 +259,31 @@ class ActivityPublishController extends _$ActivityPublishController {
           success = false;
         },
       );
-      return success;
+
+      // If activity creation failed, return false
+      if (!success) {
+        return false;
+      }
+
+      // Requirements: 5.2 - Create finance record with the new activity ID
+      if (state.attachedFinance != null && createdActivityId != null) {
+        final financeSuccess = await _createFinanceRecord(createdActivityId!);
+
+        // Requirements: 5.4 - If finance creation fails, show error but keep activity
+        if (!financeSuccess) {
+          state = state.copyWith(
+            loading: false,
+            errorMessage:
+                'Activity created but failed to create financial record.',
+          );
+          // Return true because activity was created successfully
+          return true;
+        }
+      }
+
+      // Requirements: 5.3 - Success message indicating both records were created
+      state = state.copyWith(loading: false);
+      return true;
     } catch (e) {
       // Handle unexpected errors
       state = state.copyWith(
@@ -414,5 +442,67 @@ class ActivityPublishController extends _$ActivityPublishController {
       reminder: reminder.name,
       errorReminder: null,
     );
+  }
+
+  /// Sets the attached finance data (revenue or expense).
+  /// Requirements: 1.4
+  void onAttachedFinance(FinanceData? data) {
+    state = state.copyWith(attachedFinance: data);
+  }
+
+  /// Removes the attached financial record and restores the "Add Financial Record" button.
+  /// Requirements: 1.5
+  void removeAttachedFinance() {
+    state = state.copyWith(attachedFinance: null);
+  }
+
+  /// Creates a finance record (revenue or expense) after activity creation.
+  /// Requirements: 5.2
+  Future<bool> _createFinanceRecord(int activityId) async {
+    final financeData = state.attachedFinance;
+    if (financeData == null) return true;
+
+    // Get church ID from current membership
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membership = localStorage.currentMembership;
+    final churchId = membership?.church?.id;
+
+    if (churchId == null) {
+      return false;
+    }
+
+    if (financeData.type == FinanceType.revenue) {
+      final revenueRepository = ref.read(revenueRepositoryProvider);
+      final request = CreateRevenueRequest(
+        accountNumber: financeData.accountNumber,
+        amount: financeData.amount,
+        churchId: churchId,
+        activityId: activityId,
+        paymentMethod: financeData.paymentMethod,
+      );
+      final result = await revenueRepository.createRevenue(request: request);
+      bool success = false;
+      result.when(
+        onSuccess: (_) => success = true,
+        onFailure: (_) => success = false,
+      );
+      return success;
+    } else {
+      final expenseRepository = ref.read(expenseRepositoryProvider);
+      final request = CreateExpenseRequest(
+        accountNumber: financeData.accountNumber,
+        amount: financeData.amount,
+        churchId: churchId,
+        activityId: activityId,
+        paymentMethod: financeData.paymentMethod,
+      );
+      final result = await expenseRepository.createExpense(request: request);
+      bool success = false;
+      result.when(
+        onSuccess: (_) => success = true,
+        onFailure: (_) => success = false,
+      );
+      return success;
+    }
   }
 }

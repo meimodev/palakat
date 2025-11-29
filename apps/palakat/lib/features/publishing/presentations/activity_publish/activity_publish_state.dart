@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/location.dart';
 
 part 'activity_publish_state.freezed.dart';
@@ -47,5 +48,8 @@ abstract class ActivityPublishState with _$ActivityPublishState {
     Bipra? authorBipra,
     String? currentDate,
     Reminder? selectedReminder,
+    // Attached finance data (revenue or expense)
+    // Requirements: 1.4, 5.1
+    FinanceData? attachedFinance,
   }) = _ActivityPublishState;
 }

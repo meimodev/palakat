@@ -38,15 +38,17 @@ enum Bipra {
   final String abv;
 }
 
+@JsonEnum(valueField: 'value')
 enum Reminder {
-  tenMinutes("10 Minutes Before"),
-  thirtyMinutes("30 Minutes Before"),
-  oneHour("1 Hour Before"),
-  twoHour("2 Hour Before");
+  tenMinutes("10 Minutes Before", "TEN_MINUTES"),
+  thirtyMinutes("30 Minutes Before", "THIRTY_MINUTES"),
+  oneHour("1 Hour Before", "ONE_HOUR"),
+  twoHour("2 Hour Before", "TWO_HOURS");
 
-  const Reminder(this.name);
+  const Reminder(this.name, this.value);
 
   final String name;
+  final String value;
 }
 
 enum MapOperationType { pinPoint, read }

@@ -5,7 +5,6 @@ import 'package:palakat_shared/core/models/location.dart';
 import 'package:palakat_shared/core/models/membership.dart';
 
 part 'activity.freezed.dart';
-
 part 'activity.g.dart';
 
 @freezed
@@ -21,10 +20,11 @@ abstract class Activity with _$Activity {
     String? note,
     String? fileUrl,
     @Default(ActivityType.service) ActivityType activityType,
+    Reminder? reminder,
     required DateTime createdAt,
     DateTime? updatedAt,
     required Membership supervisor,
-    required List<Approver> approvers,
+    @Default([]) List<Approver> approvers,
     Location? location,
   }) = _Activity;
 

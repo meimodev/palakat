@@ -6,6 +6,7 @@ part 'get_fetch_activity_request.g.dart';
 
 @freezed
 abstract class GetFetchActivitiesRequest with _$GetFetchActivitiesRequest {
+  @JsonSerializable(includeIfNull: false)
   const factory GetFetchActivitiesRequest({
     int? churchId,
     int? membershipId,
@@ -18,5 +19,4 @@ abstract class GetFetchActivitiesRequest with _$GetFetchActivitiesRequest {
 
   factory GetFetchActivitiesRequest.fromJson(Map<String, dynamic> json) =>
       _$GetFetchActivitiesRequestFromJson(json);
-
 }
