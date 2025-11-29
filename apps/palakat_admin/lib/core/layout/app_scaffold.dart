@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../widgets/sidebar.dart';
+import 'package:palakat_admin/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/widgets.dart';
 
 class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key, required this.child});
@@ -214,12 +215,12 @@ class _AnimatedContentState extends State<_AnimatedContent>
   }
 }
 
-class _AvatarMenu extends StatelessWidget {
+class _AvatarMenu extends ConsumerWidget {
   const _AvatarMenu({required this.onProfile});
   final VoidCallback onProfile;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<String>(
       icon: const CircleAvatar(
         radius: 16,
@@ -245,7 +246,34 @@ class _AvatarMenu extends StatelessWidget {
       ],
       onSelected: (value) {
         if (value == 'profile') onProfile();
+        if (value == 'logout') _showSignOutConfirmation(context, ref);
       },
+    );
+  }
+
+  void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await ref.read(authControllerProvider.notifier).signOut();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -256,21 +284,24 @@ class _AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final year = DateTime.now().year;
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 32),
-        const Divider(height: 16, color: Colors.black54,),
+        const Divider(height: 16, color: Colors.black54),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
-            '© ' '$year' ' Palakat. All rights reserved.',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: color),
+            '© '
+            '$year'
+            ' Palakat. All rights reserved.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color),
             textAlign: TextAlign.center,
           ),
         ),

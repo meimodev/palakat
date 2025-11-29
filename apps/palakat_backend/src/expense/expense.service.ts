@@ -1,10 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateExpenseDto } from './dto/create-expense.dto';
 import { ExpenseListQueryDto } from './dto/expense-list.dto';
+import { UpdateExpenseDto } from './dto/update-expense.dto';
 
 @Injectable()
 export class ExpenseService {
   constructor(private prisma: PrismaService) {}
+
+  /**
+   * Resolves the accountNumber string from a FinancialAccountNumber if provided.
+   * If financialAccountNumberId is provided, fetches the account number from the linked record.
+   * Otherwise, uses the provided accountNumber string.
+   */
+  private async resolveAccountNumber(
+    financialAccountNumberId?: number,
+    accountNumber?: string,
+  ): Promise<string> {
+    if (financialAccountNumberId) {
+      const financialAccount = await (
+        this.prisma as any
+      ).financialAccountNumber.findUnique({
+        where: { id: financialAccountNumberId },
+      });
+
+      if (!financialAccount) {
+        throw new BadRequestException(
+          `Financial account number with id ${financialAccountNumberId} not found`,
+        );
+      }
+
+      return financialAccount.accountNumber;
+    }
+
+    if (!accountNumber) {
+      throw new BadRequestException(
+        'Either accountNumber or financialAccountNumberId must be provided',
+      );
+    }
+
+    return accountNumber;
+  }
 
   async findAll(query: ExpenseListQueryDto) {
     const { churchId, search, paymentMethod, startDate, endDate, skip, take } =
@@ -121,13 +157,38 @@ export class ExpenseService {
     };
   }
 
-  async create(createExpenseDto: any): Promise<{ message: string; data: any }> {
+  async create(
+    createExpenseDto: CreateExpenseDto,
+  ): Promise<{ message: string; data: any }> {
+    const { financialAccountNumberId, accountNumber, ...rest } =
+      createExpenseDto;
+
+    // Resolve the account number from FinancialAccountNumber if provided
+    const resolvedAccountNumber = await this.resolveAccountNumber(
+      financialAccountNumberId,
+      accountNumber,
+    );
+
+    const data: any = {
+      ...rest,
+      accountNumber: resolvedAccountNumber,
+    };
+
+    // Link to FinancialAccountNumber if provided
+    if (financialAccountNumberId) {
+      data.financialAccountNumber = {
+        connect: { id: financialAccountNumberId },
+      };
+    }
+
     const expense = await (this.prisma as any).expense.create({
-      data: createExpenseDto,
+      data,
       include: {
         activity: true,
+        financialAccountNumber: true,
       },
     });
+
     return {
       message: 'Expense created successfully',
       data: expense,
@@ -136,12 +197,43 @@ export class ExpenseService {
 
   async update(
     id: number,
-    updateExpenseDto: any,
+    updateExpenseDto: UpdateExpenseDto,
   ): Promise<{ message: string; data: any }> {
+    const { financialAccountNumberId, accountNumber, ...rest } =
+      updateExpenseDto;
+
+    const data: any = { ...rest };
+
+    // If financialAccountNumberId is provided, resolve and update the account number
+    if (financialAccountNumberId !== undefined) {
+      if (financialAccountNumberId === null) {
+        // Disconnect the financial account number
+        data.financialAccountNumber = { disconnect: true };
+      } else {
+        // Resolve the account number from the linked FinancialAccountNumber
+        const resolvedAccountNumber = await this.resolveAccountNumber(
+          financialAccountNumberId,
+          undefined,
+        );
+        data.accountNumber = resolvedAccountNumber;
+        data.financialAccountNumber = {
+          connect: { id: financialAccountNumberId },
+        };
+      }
+    } else if (accountNumber !== undefined) {
+      // If only accountNumber is provided (no financialAccountNumberId), update it directly
+      data.accountNumber = accountNumber;
+    }
+
     const expense = await (this.prisma as any).expense.update({
       where: { id },
-      data: updateExpenseDto,
+      data,
+      include: {
+        activity: true,
+        financialAccountNumber: true,
+      },
     });
+
     return {
       message: 'Expense updated successfully',
       data: expense,

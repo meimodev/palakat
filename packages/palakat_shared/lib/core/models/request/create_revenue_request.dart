@@ -23,6 +23,11 @@ abstract class CreateRevenueRequest with _$CreateRevenueRequest {
 
     /// The payment method used (CASH or CASHLESS)
     required PaymentMethod paymentMethod,
+
+    /// Optional ID of the FinancialAccountNumber record
+    /// Used to link the revenue to a predefined account number
+    /// Requirements: 2.3
+    int? financialAccountNumberId,
   }) = _CreateRevenueRequest;
 
   factory CreateRevenueRequest.fromJson(Map<String, dynamic> json) =>

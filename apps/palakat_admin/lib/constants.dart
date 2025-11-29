@@ -1,4 +1,4 @@
 /// Constants, enums, and presets
 library;
 
-export 'core/constants/constants.dart';
+export 'package:palakat_shared/constants.dart';

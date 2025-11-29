@@ -8,24 +8,25 @@ datasource db {
 }
 
 model Church {
-  id                    Int                  @id @default(autoincrement())
-  name                  String
-  phoneNumber           String?
-  email                 String?
-  description           String?
-  documentAccountNumber String?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  locationId            Int                  @unique
-  location              Location             @relation(fields: [locationId], references: [id])
-  columns               Column[]
-  memberships           Membership[]
-  membershipPositions   MembershipPosition[]
-  revenues              Revenue[]
-  expenses              Expense[]
-  reports               Report[]
-  documents             Document[]
-  approvalRules         ApprovalRule[]
+  id                      Int                      @id @default(autoincrement())
+  name                    String
+  phoneNumber             String?
+  email                   String?
+  description             String?
+  documentAccountNumber   String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  locationId              Int                      @unique
+  location                Location                 @relation(fields: [locationId], references: [id])
+  columns                 Column[]
+  memberships             Membership[]
+  membershipPositions     MembershipPosition[]
+  revenues                Revenue[]
+  expenses                Expense[]
+  reports                 Report[]
+  documents               Document[]
+  approvalRules           ApprovalRule[]
+  financialAccountNumbers FinancialAccountNumber[]
 
   @@index([name])
 }
@@ -138,29 +139,37 @@ model Activity {
 }
 
 model Revenue {
-  id            Int           @id @default(autoincrement())
-  accountNumber String
-  amount        Int
-  churchId      Int
-  church        Church        @relation(fields: [churchId], references: [id])
-  activityId    Int?          @unique
-  activity      Activity?     @relation(fields: [activityId], references: [id])
-  paymentMethod PaymentMethod
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                       Int                     @id @default(autoincrement())
+  accountNumber            String
+  amount                   Int
+  churchId                 Int
+  church                   Church                  @relation(fields: [churchId], references: [id])
+  activityId               Int?                    @unique
+  activity                 Activity?               @relation(fields: [activityId], references: [id])
+  paymentMethod            PaymentMethod
+  financialAccountNumberId Int?
+  financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  @@index([financialAccountNumberId])
 }
 
 model Expense {
-  id            Int           @id @default(autoincrement())
-  accountNumber String
-  amount        Int
-  churchId      Int
-  church        Church        @relation(fields: [churchId], references: [id])
-  activityId    Int?          @unique
-  activity      Activity?     @relation(fields: [activityId], references: [id])
-  paymentMethod PaymentMethod
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                       Int                     @id @default(autoincrement())
+  accountNumber            String
+  amount                   Int
+  churchId                 Int
+  church                   Church                  @relation(fields: [churchId], references: [id])
+  activityId               Int?                    @unique
+  activity                 Activity?               @relation(fields: [activityId], references: [id])
+  paymentMethod            PaymentMethod
+  financialAccountNumberId Int?
+  financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  @@index([financialAccountNumberId])
 }
 
 model Location {
@@ -268,6 +277,11 @@ enum Reminder {
   TWO_HOURS
 }
 
+enum FinancialType {
+  REVENUE
+  EXPENSE
+}
+
 enum GeneratedBy {
   MANUAL
   SYSTEM
@@ -328,4 +342,22 @@ model ChurchRequest {
   @@index([requesterId])
   @@index([createdAt])
   @@index([status])
+}
+
+model FinancialAccountNumber {
+  id            Int           @id @default(autoincrement())
+  accountNumber String
+  description   String?
+  type          FinancialType
+  churchId      Int
+  church        Church        @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  revenues      Revenue[]
+  expenses      Expense[]
+
+  @@unique([churchId, accountNumber])
+  @@index([churchId])
+  @@index([accountNumber])
+  @@index([type])
 }

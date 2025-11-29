@@ -72,4 +72,9 @@ class Endpoints {
   // Song
   static const String songs = '/song';
   static String song(String songId) => '/song/$songId';
+
+  // Financial Account Number
+  static const String financialAccountNumbers = '/financial-account-number';
+  static String financialAccountNumber(String id) =>
+      '/financial-account-number/$id';
 }

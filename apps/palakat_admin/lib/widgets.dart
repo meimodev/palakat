@@ -1,4 +1,4 @@
 /// Reusable UI widgets
 library;
 
-export 'core/widgets/widgets.dart';
+export 'package:palakat_shared/widgets.dart';

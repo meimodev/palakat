@@ -13,6 +13,7 @@ import { DocumentModule } from './document/document.module';
 import { PrismaExceptionFilter } from './exception.filter';
 import { ExpenseModule } from './expense/expense.module';
 import { FileModule } from './file/file.module';
+import { FinancialAccountNumberModule } from './financial-account-number/financial-account-number.module';
 import { LocationModule } from './location/location.module';
 import { MembershipPositionModule } from './membership-position/membership-position.module';
 import { MembershipModule } from './membership/membership.module';
@@ -42,6 +43,7 @@ import { SongModule } from './song/song.module';
     DocumentModule,
     ApprovalRuleModule,
     ChurchRequestModule,
+    FinancialAccountNumberModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, PrismaExceptionFilter, HelperService],

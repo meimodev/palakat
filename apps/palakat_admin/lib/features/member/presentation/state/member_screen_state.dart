@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_admin/models.dart';
 
 part 'member_screen_state.freezed.dart';
-part 'member_screen_state.g.dart';
 
 @freezed
 abstract class MemberScreenState with _$MemberScreenState {
@@ -18,14 +17,4 @@ abstract class MemberScreenState with _$MemberScreenState {
   }) = _MemberScreenState;
 }
 
-@freezed
-abstract class MemberScreenStateCounts with _$MemberScreenStateCounts {
-  const factory MemberScreenStateCounts({
-    @Default(0) int total,
-    @Default(0) int claimed,
-    @Default(0) int baptized,
-    @Default(0) int sidi,
-  }) = _MemberScreenStateCounts;
-
-  factory MemberScreenStateCounts.fromJson(Map<String, dynamic> json) => _$MemberScreenStateCountsFromJson(json);
-}
+// MemberScreenStateCounts is now imported from palakat_shared via palakat_admin/models.dart

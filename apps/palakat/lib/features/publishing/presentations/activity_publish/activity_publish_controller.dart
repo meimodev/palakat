@@ -457,7 +457,7 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   /// Creates a finance record (revenue or expense) after activity creation.
-  /// Requirements: 5.2
+  /// Requirements: 5.2, 4.2
   Future<bool> _createFinanceRecord(int activityId) async {
     final financeData = state.attachedFinance;
     if (financeData == null) return true;
@@ -473,12 +473,15 @@ class ActivityPublishController extends _$ActivityPublishController {
 
     if (financeData.type == FinanceType.revenue) {
       final revenueRepository = ref.read(revenueRepositoryProvider);
+      // Include financialAccountNumberId to link to predefined account
+      // Requirements: 4.2
       final request = CreateRevenueRequest(
         accountNumber: financeData.accountNumber,
         amount: financeData.amount,
         churchId: churchId,
         activityId: activityId,
         paymentMethod: financeData.paymentMethod,
+        financialAccountNumberId: financeData.financialAccountNumberId,
       );
       final result = await revenueRepository.createRevenue(request: request);
       bool success = false;
@@ -489,12 +492,15 @@ class ActivityPublishController extends _$ActivityPublishController {
       return success;
     } else {
       final expenseRepository = ref.read(expenseRepositoryProvider);
+      // Include financialAccountNumberId to link to predefined account
+      // Requirements: 4.2
       final request = CreateExpenseRequest(
         accountNumber: financeData.accountNumber,
         amount: financeData.amount,
         churchId: churchId,
         activityId: activityId,
         paymentMethod: financeData.paymentMethod,
+        financialAccountNumberId: financeData.financialAccountNumberId,
       );
       final result = await expenseRepository.createExpense(request: request);
       bool success = false;

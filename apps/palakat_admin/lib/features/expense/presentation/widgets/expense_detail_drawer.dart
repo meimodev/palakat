@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
+import 'package:palakat_admin/extensions.dart';
+import 'package:palakat_admin/features/activity/activity.dart';
+import 'package:palakat_admin/features/expense/expense.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_admin/features/expense/expense.dart';
-import 'package:palakat_admin/features/activity/activity.dart';
 
 class ExpenseDetailDrawer extends ConsumerStatefulWidget {
   final int expenseId;
@@ -17,7 +17,8 @@ class ExpenseDetailDrawer extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExpenseDetailDrawer> createState() => _ExpenseDetailDrawerState();
+  ConsumerState<ExpenseDetailDrawer> createState() =>
+      _ExpenseDetailDrawerState();
 }
 
 class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
@@ -67,7 +68,6 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SideDrawer(
@@ -109,7 +109,9 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                       value: _expense!.paymentMethod.displayName,
                       valueWidget: Align(
                         alignment: Alignment.centerLeft,
-                        child: PaymentMethodChip(method: _expense!.paymentMethod),
+                        child: PaymentMethodChip(
+                          method: _expense!.paymentMethod,
+                        ),
                       ),
                     ),
                   ],
@@ -185,7 +187,8 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _expense!.activity!.supervisor.account?.name ?? '-',
+                              _expense!.activity!.supervisor.account?.name ??
+                                  '-',
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
@@ -212,7 +215,9 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           border: Border.all(
                                             color: Theme.of(
                                               context,
@@ -272,19 +277,19 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                         label: 'Approve On',
                         value:
                             "${_expense!.activity!.approvers.approvalDate.toDateTimeString()}"
-                                "\n"
-                                "${_expense!.activity!.approvers.approvalDate.toRelativeTime()}",
+                            "\n"
+                            "${_expense!.activity!.approvers.approvalDate.toRelativeTime()}",
                       ),
                     if (_expense!.updatedAt != null)
                       InfoRow(
                         label: 'Requested At',
-                        value: "${_expense!.createdAt!.toDateTimeString()}"
+                        value:
+                            "${_expense!.createdAt!.toDateTimeString()}"
                             "\n"
                             "${_expense!.createdAt!.toRelativeTime()}",
                       ),
                   ],
                 ),
-
               ],
             ),
       footer: _expense == null
@@ -301,4 +306,3 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
     );
   }
 }
-

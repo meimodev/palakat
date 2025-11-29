@@ -4,9 +4,8 @@ import 'package:palakat_shared/core/constants/enums.dart';
 part 'get_fetch_activity_request.freezed.dart';
 part 'get_fetch_activity_request.g.dart';
 
-@freezed
+@Freezed(toJson: true, fromJson: true)
 abstract class GetFetchActivitiesRequest with _$GetFetchActivitiesRequest {
-  @JsonSerializable(includeIfNull: false)
   const factory GetFetchActivitiesRequest({
     int? churchId,
     int? membershipId,

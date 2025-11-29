@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/core/extension/extension.dart';
+import 'package:palakat_admin/extensions.dart';
+import 'package:palakat_admin/features/activity/activity.dart';
+import 'package:palakat_admin/features/revenue/revenue.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_admin/features/revenue/revenue.dart';
-import 'package:palakat_admin/features/activity/activity.dart';
 
 class RevenueDetailDrawer extends ConsumerStatefulWidget {
   final int revenueId;
@@ -69,7 +69,6 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SideDrawer(
@@ -111,7 +110,9 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                       value: _revenue!.paymentMethod.displayName,
                       valueWidget: Align(
                         alignment: Alignment.centerLeft,
-                        child: PaymentMethodChip(method: _revenue!.paymentMethod),
+                        child: PaymentMethodChip(
+                          method: _revenue!.paymentMethod,
+                        ),
                       ),
                     ),
                   ],
@@ -273,13 +274,14 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                         label: 'Approve On',
                         value:
                             "${_revenue!.activity!.approvers.approvalDate.toDateTimeString()}"
-                                "\n"
-                                "${_revenue!.activity!.approvers.approvalDate.toRelativeTime()}",
+                            "\n"
+                            "${_revenue!.activity!.approvers.approvalDate.toRelativeTime()}",
                       ),
                     if (_revenue!.updatedAt != null)
                       InfoRow(
                         label: 'Requested At',
-                        value: "${_revenue!.createdAt!.toDateTimeString()}"
+                        value:
+                            "${_revenue!.createdAt!.toDateTimeString()}"
                             "\n"
                             "${_revenue!.createdAt!.toRelativeTime()}",
                       ),

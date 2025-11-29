@@ -1,0 +1,132 @@
+# Implementation Plan
+
+- [x] 1. Update barrel exports in palakat_admin to re-export from palakat_shared
+  - [x] 1.1 Update models.dart to export from palakat_shared
+    - Change `export 'core/models/models.dart';` to `export 'package:palakat_shared/models.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.2 Update repositories.dart to export from palakat_shared
+    - Change `export 'core/repositories/repositories.dart';` to `export 'package:palakat_shared/repositories.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.3 Update services.dart to export from palakat_shared
+    - Change `export 'core/services/services.dart';` to `export 'package:palakat_shared/services.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.4 Update extensions.dart to export from palakat_shared
+    - Change `export 'core/extension/extension.dart';` to `export 'package:palakat_shared/extensions.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.5 Update utils.dart to export from palakat_shared
+    - Change `export 'core/utils/utils.dart';` to `export 'package:palakat_shared/utils.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.6 Update validation.dart to export from palakat_shared
+    - Change `export 'core/validation/validation.dart';` to `export 'package:palakat_shared/validation.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.7 Update widgets.dart to export from palakat_shared
+    - Change `export 'core/widgets/widgets.dart';` to `export 'package:palakat_shared/widgets.dart';`
+    - _Requirements: 2.1, 2.3_
+  - [x] 1.8 Update constants.dart to export from palakat_shared
+    - Change to export from `package:palakat_shared/constants.dart`
+    - _Requirements: 2.1, 2.3_
+
+- [x] 2. Update imports in palakat_admin layout and theme files
+  - [x] 2.1 Update app_scaffold.dart imports
+    - Change local core imports to use palakat_shared or palakat_admin barrel exports
+    - Keep auth controller import as-is (feature-specific)
+    - _Requirements: 1.3, 2.1_
+  - [x] 2.2 Update sidebar.dart if kept in admin (or remove if using shared)
+    - The sidebar in admin uses auth controller - needs to stay in admin or be updated
+    - _Requirements: 1.3, 3.4_
+
+- [x] 3. Remove duplicate folders from palakat_admin/lib/core
+  - [x] 3.1 Delete palakat_admin/lib/core/config folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/config
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.2 Delete palakat_admin/lib/core/constants folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/constants
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.3 Delete palakat_admin/lib/core/extension folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/extension
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.4 Delete palakat_admin/lib/core/models folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/models
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.5 Delete palakat_admin/lib/core/repositories folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/repositories
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.6 Delete palakat_admin/lib/core/services folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/services
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.7 Delete palakat_admin/lib/core/utils folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/utils
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.8 Delete palakat_admin/lib/core/validation folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/validation
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.9 Delete palakat_admin/lib/core/widgets folder
+    - Remove entire folder as it duplicates palakat_shared/lib/core/widgets
+    - _Requirements: 1.1, 1.2_
+
+- [x] 4. Update feature imports in palakat_admin
+  - [x] 4.1 Update imports in features/account folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.2 Update imports in features/activity folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.3 Update imports in features/approval folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.4 Update imports in features/auth folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.5 Update imports in features/billing folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.6 Update imports in features/church folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.7 Update imports in features/dashboard folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.8 Update imports in features/document folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.9 Update imports in features/expense folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.10 Update imports in features/financial folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.11 Update imports in features/inventory folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.12 Update imports in features/member folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.13 Update imports in features/report folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.14 Update imports in features/revenue folder
+    - Change local core imports to use palakat_shared or barrel exports
+    - _Requirements: 1.3, 2.1_
+
+- [ ] 5. Checkpoint - Verify compilation
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Final verification and cleanup
+  - [x] 6.1 Run flutter analyze on palakat_shared
+    - Execute `flutter analyze` in packages/palakat_shared
+    - Fix any errors or warnings
+    - _Requirements: 5.3_
+  - [x] 6.2 Run flutter analyze on palakat_admin
+    - Execute `flutter analyze` in apps/palakat_admin
+    - Fix any errors or warnings
+    - _Requirements: 5.1_
+  - [x] 6.3 Run flutter analyze on palakat (mobile)
+    - Execute `flutter analyze` in apps/palakat
+    - Verify no changes affected mobile app
+    - _Requirements: 5.2, 4.1_
+  - [x] 6.4 Run code generation
+    - Execute `melos run build:runner` to regenerate .g.dart and .freezed.dart files
+    - _Requirements: 5.4_
+
+- [ ] 7. Final Checkpoint - Make sure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

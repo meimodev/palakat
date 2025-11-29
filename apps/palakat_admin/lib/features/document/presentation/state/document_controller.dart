@@ -1,7 +1,7 @@
-import 'package:palakat_admin/models.dart';
-import 'package:palakat_admin/core/repositories/document_repository.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_screen_state.dart';
+import 'package:palakat_admin/models.dart';
+import 'package:palakat_admin/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'document_controller.g.dart';
@@ -26,9 +26,7 @@ class DocumentController extends _$DocumentController {
 
     final result = await repository.fetchDocuments(
       paginationRequest: PaginationRequestWrapper(
-        data: GetFetchDocumentsRequest(
-          churchId: church.id!,
-        ),
+        data: GetFetchDocumentsRequest(churchId: church.id!),
         page: state.currentPage,
         pageSize: state.pageSize,
       ),

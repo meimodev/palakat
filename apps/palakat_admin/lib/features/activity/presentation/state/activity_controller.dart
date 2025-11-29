@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/models.dart';
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/repositories.dart';
-import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/activity/presentation/state/activity_screen_state.dart';
+import 'package:palakat_admin/features/auth/application/auth_controller.dart';
+import 'package:palakat_admin/models.dart';
+import 'package:palakat_admin/repositories.dart';
+import 'package:palakat_admin/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'activity_controller.g.dart';
@@ -32,7 +32,7 @@ class ActivityController extends _$ActivityController {
     state = state.copyWith(activities: const AsyncLoading());
     try {
       final repository = ref.read(activityRepositoryProvider);
-      
+
       // Calculate actual date range from preset
       DateTimeRange? actualDateRange;
       if (state.dateRangePreset == DateRangePreset.custom) {
@@ -40,7 +40,7 @@ class ActivityController extends _$ActivityController {
       } else if (state.dateRangePreset != DateRangePreset.allTime) {
         actualDateRange = state.dateRangePreset.getDateRange();
       }
-      
+
       final result = await repository.fetchActivities(
         paginationRequest: PaginationRequestWrapper(
           data: GetFetchActivitiesRequest(
@@ -54,14 +54,17 @@ class ActivityController extends _$ActivityController {
           pageSize: state.pageSize,
         ),
       );
-      
+
       result.when(
         onSuccess: (activities) {
           state = state.copyWith(activities: AsyncData(activities));
         },
         onFailure: (failure) {
           state = state.copyWith(
-            activities: AsyncError(Exception(failure.message), StackTrace.current),
+            activities: AsyncError(
+              Exception(failure.message),
+              StackTrace.current,
+            ),
           );
         },
       );
@@ -145,15 +148,38 @@ class ActivityController extends _$ActivityController {
   Future<void> saveActivity(Activity activity) async {
     final repository = ref.read(activityRepositoryProvider);
 
-    final payload = activity.toJson();
-    final result = activity.id != null
-        ? await repository.updateActivity(activityId: activity.id!, update: payload)
-        : await repository.createActivity(data: payload);
-
-    result.when(
-      onSuccess: (_) {},
-      onFailure: (failure) => throw Exception(failure.message),
-    );
+    if (activity.id != null) {
+      // Update existing activity
+      final payload = activity.toJson();
+      final result = await repository.updateActivity(
+        activityId: activity.id!,
+        update: payload,
+      );
+      result.when(
+        onSuccess: (_) {},
+        onFailure: (failure) => throw Exception(failure.message),
+      );
+    } else {
+      // Create new activity using CreateActivityRequest
+      final request = CreateActivityRequest(
+        supervisorId: activity.supervisorId ?? activity.supervisor.id!,
+        bipra: activity.bipra ?? Bipra.fathers,
+        title: activity.title,
+        description: activity.description,
+        locationName: activity.location?.name,
+        locationLatitude: activity.location?.latitude,
+        locationLongitude: activity.location?.longitude,
+        date: activity.date,
+        note: activity.note,
+        activityType: activity.activityType,
+        reminder: activity.reminder,
+      );
+      final result = await repository.createActivity(request: request);
+      result.when(
+        onSuccess: (_) {},
+        onFailure: (failure) => throw Exception(failure.message),
+      );
+    }
 
     await _fetchActivities();
   }
@@ -162,7 +188,7 @@ class ActivityController extends _$ActivityController {
   Future<void> deleteActivity(int activityId) async {
     final repository = ref.read(activityRepositoryProvider);
     final result = await repository.deleteActivity(activityId: activityId);
-    
+
     result.when(
       onSuccess: (_) {},
       onFailure: (failure) => throw Exception(failure.message),
@@ -172,4 +198,3 @@ class ActivityController extends _$ActivityController {
     await _fetchActivities();
   }
 }
-

@@ -7,6 +7,7 @@ part 'finance_data.g.dart';
 
 /// Data transfer object for passing finance data between screens.
 /// Used when attaching financial records to activities during publishing.
+/// Requirements: 3.4
 @freezed
 abstract class FinanceData with _$FinanceData {
   const factory FinanceData({
@@ -16,11 +17,17 @@ abstract class FinanceData with _$FinanceData {
     /// The amount in the smallest currency unit
     required int amount,
 
-    /// The account number associated with the record
+    /// The account number string associated with the record
+    /// Kept for backward compatibility
     required String accountNumber,
 
     /// The payment method used (CASH or CASHLESS)
     required PaymentMethod paymentMethod,
+
+    /// The ID of the selected FinancialAccountNumber record
+    /// Used to link the finance record to a predefined account number
+    /// Requirements: 3.4
+    int? financialAccountNumberId,
   }) = _FinanceData;
 
   factory FinanceData.fromJson(Map<String, dynamic> json) =>

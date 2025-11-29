@@ -1,10 +1,7 @@
+import 'package:palakat_admin/models.dart';
+import 'package:palakat_admin/repositories.dart';
+import 'package:palakat_admin/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_admin/core/models/auth_credentials.dart';
-import 'package:palakat_admin/core/models/auth_response.dart';
-import 'package:palakat_admin/core/models/app_error.dart';
-import 'package:palakat_admin/core/repositories/auth_repository.dart';
-import 'package:palakat_admin/core/services/local_storage_service_provider.dart';
-import 'package:palakat_admin/core/models/account.dart';
 
 part 'auth_controller.g.dart';
 
@@ -17,10 +14,15 @@ class AuthController extends _$AuthController {
     return AsyncValue.data(cached);
   }
 
-  Future<void> signIn({required String identifier, required String password}) async {
+  Future<void> signIn({
+    required String identifier,
+    required String password,
+  }) async {
     state = const AsyncValue.loading();
     final repo = ref.read(authRepositoryProvider);
-    final result = await repo.signIn(AuthCredentials(identifier: identifier, password: password));
+    final result = await repo.signIn(
+      AuthCredentials(identifier: identifier, password: password),
+    );
     result.when(
       onSuccess: (auth) {
         state = AsyncValue.data(auth);

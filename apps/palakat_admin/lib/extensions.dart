@@ -1,4 +1,4 @@
 /// Extension methods
 library;
 
-export 'core/extension/extension.dart';
+export 'package:palakat_shared/extensions.dart';

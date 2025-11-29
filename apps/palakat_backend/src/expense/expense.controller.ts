@@ -1,19 +1,20 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
   Query,
   UseGuards,
-  Param,
-  Delete,
-  Post,
-  Body,
-  Patch,
 } from '@nestjs/common';
-import { ExpenseService } from './expense.service';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
-import { Prisma } from '@prisma/client';
+import { CreateExpenseDto } from './dto/create-expense.dto';
 import { ExpenseListQueryDto } from './dto/expense-list.dto';
+import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { ExpenseService } from './expense.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
@@ -36,14 +37,14 @@ export class ExpenseController {
   }
 
   @Post()
-  async create(@Body() createExpenseDto: Prisma.ExpenseCreateInput) {
+  async create(@Body() createExpenseDto: CreateExpenseDto) {
     return this.expenseService.create(createExpenseDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateExpenseDto: Prisma.ExpenseUpdateInput,
+    @Body() updateExpenseDto: UpdateExpenseDto,
   ) {
     return this.expenseService.update(id, updateExpenseDto);
   }

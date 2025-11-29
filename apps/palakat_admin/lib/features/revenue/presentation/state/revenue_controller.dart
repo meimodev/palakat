@@ -150,13 +150,21 @@ class RevenueController extends _$RevenueController {
   Future<void> saveRevenue(Revenue revenue) async {
     final repository = ref.read(revenueRepositoryProvider);
 
-    final payload = revenue.toJson();
     Result<Revenue, Failure> result;
 
     if (revenue.id != null) {
+      final payload = revenue.toJson();
       result = await repository.updateRevenue(revenueId: revenue.id!, update: payload);
     } else {
-      result = await repository.createRevenue(data: payload);
+      // Create new revenue using CreateRevenueRequest
+      final request = CreateRevenueRequest(
+        accountNumber: revenue.accountNumber,
+        amount: revenue.amount,
+        churchId: revenue.churchId,
+        activityId: revenue.activityId,
+        paymentMethod: revenue.paymentMethod,
+      );
+      result = await repository.createRevenue(request: request);
     }
 
     result.when(

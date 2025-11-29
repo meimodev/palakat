@@ -155,6 +155,13 @@ class AppSidebar extends ConsumerWidget {
                       color: Colors.cyan,
                     ),
                     _NavItem(
+                      icon: Icons.account_balance_wallet_outlined,
+                      label: 'Financial',
+                      selected: route.startsWith('/financial'),
+                      onTap: () => context.go('/financial'),
+                      color: Colors.amber,
+                    ),
+                    _NavItem(
                       icon: Icons.receipt_long,
                       label: 'Billing',
                       selected: route.startsWith('/billing'),

@@ -1,19 +1,20 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
   Query,
   UseGuards,
-  Param,
-  Delete,
-  Post,
-  Body,
-  Patch,
 } from '@nestjs/common';
-import { RevenueService } from './revenue.service';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
-import { Prisma } from '@prisma/client';
+import { CreateRevenueDto } from './dto/create-revenue.dto';
 import { RevenueListQueryDto } from './dto/revenue-list.dto';
+import { UpdateRevenueDto } from './dto/update-revenue.dto';
+import { RevenueService } from './revenue.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('revenue')
@@ -36,14 +37,14 @@ export class RevenueController {
   }
 
   @Post()
-  async create(@Body() createRevenueDto: Prisma.RevenueCreateInput) {
+  async create(@Body() createRevenueDto: CreateRevenueDto) {
     return this.revenueService.create(createRevenueDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateRevenueDto: Prisma.RevenueUpdateInput,
+    @Body() updateRevenueDto: UpdateRevenueDto,
   ) {
     return this.revenueService.update(id, updateRevenueDto);
   }

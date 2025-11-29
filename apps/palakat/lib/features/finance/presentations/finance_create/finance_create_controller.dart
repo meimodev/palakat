@@ -3,6 +3,7 @@ import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
+import 'package:palakat_shared/core/models/financial_account_number.dart';
 import 'package:palakat_shared/core/models/request/create_expense_request.dart';
 import 'package:palakat_shared/core/models/request/create_revenue_request.dart';
 import 'package:palakat_shared/repositories.dart';
@@ -45,10 +46,10 @@ class FinanceCreateController extends _$FinanceCreateController {
     return null;
   }
 
-  /// Validates that the account number is not empty.
-  /// Requirements: 2.3, 3.3
-  String? validateAccountNumber(String? value) {
-    if (value == null || value.trim().isEmpty) {
+  /// Validates that a financial account number is selected.
+  /// Requirements: 3.1, 4.2, 4.3
+  String? validateAccountNumber(FinancialAccountNumber? value) {
+    if (value == null) {
       return 'Account number is required';
     }
     return null;
@@ -79,11 +80,12 @@ class FinanceCreateController extends _$FinanceCreateController {
     state = state.copyWith(amount: value, errorAmount: validateAmount(value));
   }
 
-  /// Handles account number input changes.
-  void onChangedAccountNumber(String value) {
+  /// Handles financial account number selection.
+  /// Requirements: 3.1, 4.2, 4.3
+  void onSelectedFinancialAccountNumber(FinancialAccountNumber account) {
     state = state.copyWith(
-      accountNumber: value,
-      errorAccountNumber: validateAccountNumber(value),
+      selectedFinancialAccountNumber: account,
+      errorAccountNumber: validateAccountNumber(account),
     );
   }
 
@@ -106,11 +108,14 @@ class FinanceCreateController extends _$FinanceCreateController {
   // ===== Form Validation =====
 
   /// Validates all form fields and updates state.
+  /// Requirements: 4.2, 4.3
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
 
     final amountError = validateAmount(state.amount);
-    final accountNumberError = validateAccountNumber(state.accountNumber);
+    final accountNumberError = validateAccountNumber(
+      state.selectedFinancialAccountNumber,
+    );
     final paymentMethodError = validatePaymentMethod(state.paymentMethod);
     final activityError = validateActivity(state.selectedActivity);
 
@@ -172,10 +177,13 @@ class FinanceCreateController extends _$FinanceCreateController {
 
       bool success = false;
 
+      // Get account number from selected financial account
+      final accountNumber = state.selectedFinancialAccountNumber!.accountNumber;
+
       // Create revenue or expense based on financeType
       if (state.financeType == FinanceType.revenue) {
         final request = CreateRevenueRequest(
-          accountNumber: state.accountNumber!.trim(),
+          accountNumber: accountNumber,
           amount: amount,
           churchId: churchId,
           activityId: activityId,
@@ -203,7 +211,7 @@ class FinanceCreateController extends _$FinanceCreateController {
         );
       } else {
         final request = CreateExpenseRequest(
-          accountNumber: state.accountNumber!.trim(),
+          accountNumber: accountNumber,
           amount: amount,
           churchId: churchId,
           activityId: activityId,
@@ -243,17 +251,19 @@ class FinanceCreateController extends _$FinanceCreateController {
 
   /// Returns the finance data for embedded mode (without API call).
   /// Returns null if form is invalid.
-  /// Requirements: 2.5, 3.5
+  /// Requirements: 3.1, 4.2, 4.3
   FinanceData? getFinanceData() {
     // Validate required fields
     if (state.amount == null ||
-        state.accountNumber == null ||
+        state.selectedFinancialAccountNumber == null ||
         state.paymentMethod == null) {
       return null;
     }
 
     final amountError = validateAmount(state.amount);
-    final accountNumberError = validateAccountNumber(state.accountNumber);
+    final accountNumberError = validateAccountNumber(
+      state.selectedFinancialAccountNumber,
+    );
     final paymentMethodError = validatePaymentMethod(state.paymentMethod);
 
     if (amountError != null ||
@@ -267,11 +277,14 @@ class FinanceCreateController extends _$FinanceCreateController {
       state.amount!.replaceAll('.', '').replaceAll(',', ''),
     );
 
+    // Include financialAccountNumberId for linking to predefined account
+    // Requirements: 3.4, 4.2
     return FinanceData(
       type: state.financeType,
       amount: amount,
-      accountNumber: state.accountNumber!.trim(),
+      accountNumber: state.selectedFinancialAccountNumber!.accountNumber,
       paymentMethod: state.paymentMethod!,
+      financialAccountNumberId: state.selectedFinancialAccountNumber!.id,
     );
   }
 }

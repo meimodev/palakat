@@ -44,8 +44,11 @@ class MemberController extends _$MemberController {
         ),
       );
       result.when(
-        onSuccess: (accounts) => state = state.copyWith(accounts: AsyncData(accounts)),
-        onFailure: (failure) => state = state.copyWith(accounts: AsyncError(failure.message, StackTrace.current)),
+        onSuccess: (accounts) =>
+            state = state.copyWith(accounts: AsyncData(accounts)),
+        onFailure: (failure) => state = state.copyWith(
+          accounts: AsyncError(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(accounts: AsyncError(e, st));
@@ -60,8 +63,18 @@ class MemberController extends _$MemberController {
         GetFetchAccountsRequest(churchId: church.id),
       );
       result.when(
-        onSuccess: (data) => state = state.copyWith(counts: AsyncData(data)),
-        onFailure: (failure) => state = state.copyWith(counts: AsyncError(failure.message, StackTrace.current)),
+        onSuccess: (data) {
+          final counts = MemberScreenStateCounts(
+            total: data['total'] ?? 0,
+            claimed: data['claimed'] ?? 0,
+            baptized: data['baptized'] ?? 0,
+            sidi: data['sidi'] ?? 0,
+          );
+          state = state.copyWith(counts: AsyncData(counts));
+        },
+        onFailure: (failure) => state = state.copyWith(
+          counts: AsyncError(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(counts: AsyncError(e, st));
@@ -71,15 +84,14 @@ class MemberController extends _$MemberController {
   void _fetchMemberPositions() async {
     state = state.copyWith(positions: const AsyncLoading());
     try {
-      final repository = ref.read(membershipRepositoryProvider);
-      final result = await repository.fetchMemberPositionsPagination(
-        paginationRequest: PaginationRequestWrapper(
-          data: GetFetchMemberPosition(churchId: church.id),
-        ),
-      );
+      final churchRepo = ref.read(churchRepositoryProvider);
+      final result = await churchRepo.fetchPositions(churchId: church.id!);
       result.when(
-        onSuccess: (positions) => state = state.copyWith(positions: AsyncData(positions.data)),
-        onFailure: (failure) => state = state.copyWith(positions: AsyncError(failure.message, StackTrace.current)),
+        onSuccess: (positions) =>
+            state = state.copyWith(positions: AsyncData(positions)),
+        onFailure: (failure) => state = state.copyWith(
+          positions: AsyncError(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(positions: AsyncError(e, st));
@@ -148,7 +160,10 @@ class MemberController extends _$MemberController {
 
     final payload = account.toJson();
     final result = account.id != null
-        ? await repository.updateAccount(accountId: account.id!, update: payload)
+        ? await repository.updateAccount(
+            accountId: account.id!,
+            update: payload,
+          )
         : await repository.createAccount(data: payload);
 
     result.when(

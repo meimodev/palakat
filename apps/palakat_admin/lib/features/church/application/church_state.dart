@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:palakat_admin/core/models/church.dart';
-import 'package:palakat_admin/core/models/column.dart' as cm;
-import 'package:palakat_admin/core/models/location.dart';
-import 'package:palakat_admin/core/models/member_position.dart';
+import 'package:palakat_admin/models.dart' hide Column;
+import 'package:palakat_shared/core/models/column.dart' as cm;
 
 part 'church_state.freezed.dart';
 

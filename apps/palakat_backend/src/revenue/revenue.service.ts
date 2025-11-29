@@ -1,10 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateRevenueDto } from './dto/create-revenue.dto';
 import { RevenueListQueryDto } from './dto/revenue-list.dto';
+import { UpdateRevenueDto } from './dto/update-revenue.dto';
 
 @Injectable()
 export class RevenueService {
   constructor(private prisma: PrismaService) {}
+
+  /**
+   * Resolves the accountNumber string from a FinancialAccountNumber if provided.
+   * If financialAccountNumberId is provided, fetches the account number from the linked record.
+   * Otherwise, uses the provided accountNumber string.
+   */
+  private async resolveAccountNumber(
+    financialAccountNumberId?: number,
+    accountNumber?: string,
+  ): Promise<string> {
+    if (financialAccountNumberId) {
+      const financialAccount = await (
+        this.prisma as any
+      ).financialAccountNumber.findUnique({
+        where: { id: financialAccountNumberId },
+      });
+
+      if (!financialAccount) {
+        throw new BadRequestException(
+          `Financial account number with id ${financialAccountNumberId} not found`,
+        );
+      }
+
+      return financialAccount.accountNumber;
+    }
+
+    if (!accountNumber) {
+      throw new BadRequestException(
+        'Either accountNumber or financialAccountNumberId must be provided',
+      );
+    }
+
+    return accountNumber;
+  }
 
   async findAll(query: RevenueListQueryDto) {
     const { churchId, search, paymentMethod, startDate, endDate, skip, take } =
@@ -121,13 +157,38 @@ export class RevenueService {
     };
   }
 
-  async create(createRevenueDto: any): Promise<{ message: string; data: any }> {
+  async create(
+    createRevenueDto: CreateRevenueDto,
+  ): Promise<{ message: string; data: any }> {
+    const { financialAccountNumberId, accountNumber, ...rest } =
+      createRevenueDto;
+
+    // Resolve the account number from FinancialAccountNumber if provided
+    const resolvedAccountNumber = await this.resolveAccountNumber(
+      financialAccountNumberId,
+      accountNumber,
+    );
+
+    const data: any = {
+      ...rest,
+      accountNumber: resolvedAccountNumber,
+    };
+
+    // Link to FinancialAccountNumber if provided
+    if (financialAccountNumberId) {
+      data.financialAccountNumber = {
+        connect: { id: financialAccountNumberId },
+      };
+    }
+
     const revenue = await (this.prisma as any).revenue.create({
-      data: createRevenueDto,
+      data,
       include: {
         activity: true,
+        financialAccountNumber: true,
       },
     });
+
     return {
       message: 'Revenue created successfully',
       data: revenue,
@@ -136,12 +197,43 @@ export class RevenueService {
 
   async update(
     id: number,
-    updateRevenueDto: any,
+    updateRevenueDto: UpdateRevenueDto,
   ): Promise<{ message: string; data: any }> {
+    const { financialAccountNumberId, accountNumber, ...rest } =
+      updateRevenueDto;
+
+    const data: any = { ...rest };
+
+    // If financialAccountNumberId is provided, resolve and update the account number
+    if (financialAccountNumberId !== undefined) {
+      if (financialAccountNumberId === null) {
+        // Disconnect the financial account number
+        data.financialAccountNumber = { disconnect: true };
+      } else {
+        // Resolve the account number from the linked FinancialAccountNumber
+        const resolvedAccountNumber = await this.resolveAccountNumber(
+          financialAccountNumberId,
+          undefined,
+        );
+        data.accountNumber = resolvedAccountNumber;
+        data.financialAccountNumber = {
+          connect: { id: financialAccountNumberId },
+        };
+      }
+    } else if (accountNumber !== undefined) {
+      // If only accountNumber is provided (no financialAccountNumberId), update it directly
+      data.accountNumber = accountNumber;
+    }
+
     const revenue = await (this.prisma as any).revenue.update({
       where: { id },
-      data: updateRevenueDto,
+      data,
+      include: {
+        activity: true,
+        financialAccountNumber: true,
+      },
     });
+
     return {
       message: 'Revenue updated successfully',
       data: revenue,

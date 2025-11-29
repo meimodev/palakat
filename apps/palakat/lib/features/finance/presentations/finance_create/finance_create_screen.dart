@@ -213,13 +213,15 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
           onChanged: controller.onChangedAmount,
         ),
         Gap.h16,
-        // Account number input
-        InputWidget<String>.text(
+        // Account number picker (replaces text input)
+        // Requirements: 3.1, 3.4
+        // Filters by financeType to show only revenue or expense accounts
+        AccountNumberPicker(
+          financeType: widget.financeType,
           label: 'Account Number',
-          hint: 'Enter account number',
-          currentInputValue: state.accountNumber,
+          selectedAccount: state.selectedFinancialAccountNumber,
           errorText: state.errorAccountNumber,
-          onChanged: controller.onChangedAccountNumber,
+          onSelected: controller.onSelectedFinancialAccountNumber,
         ),
         Gap.h16,
         // Payment method picker
@@ -251,10 +253,15 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     );
   }
 
+  /// Builds the submit button with clear labeling for embedded mode.
+  /// Requirements: 4.1, 4.4
   Widget _buildSubmitButton(
     FinanceCreateState state,
     FinanceCreateController controller,
   ) {
+    // Clear button text that indicates the action
+    // In embedded mode: "Add Revenue" or "Add Expense" to indicate attaching to activity
+    // In standalone mode: "Create Revenue" or "Create Expense"
     final buttonText = widget.isStandalone
         ? 'Create ${widget.financeType.displayName}'
         : 'Add ${widget.financeType.displayName}';
@@ -278,10 +285,30 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: ButtonWidget.primary(
-          text: buttonText,
-          isLoading: state.loading,
-          onTap: () => _handleSubmit(controller),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Helper text for embedded mode to clarify the action
+            // Requirements: 4.4
+            if (!widget.isStandalone) ...[
+              Text(
+                'This will attach the financial record to your activity',
+                style: BaseTypography.bodySmall.copyWith(
+                  color: BaseColor.neutral60,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Gap.h8,
+            ],
+            // Prominent button with clear labeling
+            // Requirements: 4.1
+            ButtonWidget.primary(
+              text: buttonText,
+              isLoading: state.loading,
+              onTap: () => _handleSubmit(controller),
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 /// Enum representing the type of financial record.
-enum FinanceType { revenue, expense }
+/// JSON values match backend FinancialType enum (REVENUE, EXPENSE).
+@JsonEnum(valueField: 'value')
+enum FinanceType {
+  revenue('REVENUE'),
+  expense('EXPENSE');
+
+  const FinanceType(this.value);
+  final String value;
+}
 
 /// Extension providing display properties for FinanceType.
 extension FinanceTypeExtension on FinanceType {

@@ -1,4 +1,4 @@
 /// Data repositories
 library;
 
-export 'core/repositories/repositories.dart';
+export 'package:palakat_shared/repositories.dart';

@@ -3,6 +3,7 @@ import {
   ApprovalStatus,
   Bipra,
   Book,
+  FinancialType,
   Gender,
   GeneratedBy,
   MaritalStatus,
@@ -18,8 +19,7 @@ const prisma = new PrismaClient();
 // ============================================================================
 // SEEDED RANDOM NUMBER GENERATOR
 // ============================================================================
-// Using mulberry32 algorithm for deterministic random numbers
-let seed = 12345; // Fixed seed for consistent results
+let seed = 12345;
 
 function seededRandom(): number {
   seed = (seed + 0x6d2b79f5) | 0;
@@ -32,15 +32,16 @@ function seededRandom(): number {
 // CONFIGURATION
 // ============================================================================
 const CONFIG = {
-  churches: 10, // Minimal for variety coverage (6 column types)
-  accountsPerChurch: 3,
+  mainAccountPhones: ['081111111111', '081212341234'],
+  activitiesPerMainAccount: 25,
+  extraActivitiesPerChurch: 25,
+  extraMembersPerChurch: 10,
   extraAccountsWithoutMembership: 5,
-  activitiesPerChurch: 5, // At least 2 for revenue, 2 for expense, 1 extra for variation
   songsPerBook: 3,
   maxApproversPerActivity: 2,
-  reportsPerChurch: 2, // 1 manual, 1 system
-  documentsPerChurch: 3, // 2 with files, 1 without file
-  approvalRulesPerChurch: 2, // 1 active, 1 inactive
+  reportsPerChurch: 2,
+  documentsPerChurch: 3,
+  approvalRulesPerChurch: 2,
   defaultPassword: 'password',
 };
 
@@ -50,7 +51,7 @@ const CONFIG = {
 
 function generateNumericPhoneNumber(): string {
   const length = seededRandom() < 0.5 ? 12 : 13;
-  let result = '08'; // Always start with 08
+  let result = '08';
   for (let i = 2; i < length; i++) {
     result += Math.floor(seededRandom() * 10).toString();
   }
@@ -79,26 +80,21 @@ function generateLongitude(): number {
   return parseFloat((106.5 + seededRandom() * 0.5).toFixed(4));
 }
 
-function getStartOfWeek(date: Date = new Date()): Date {
+function getStartOfMonth(date: Date = new Date()): Date {
   const result = new Date(date);
-  const day = result.getDay();
-  const diff = day === 0 ? -6 : 1 - day; // Adjust when day is Sunday (0)
-  result.setDate(result.getDate() + diff);
+  result.setDate(1);
   result.setHours(0, 0, 0, 0);
   return result;
 }
 
-function getEndOfWeek(date: Date = new Date()): Date {
+function getCurrentDay(date: Date = new Date()): Date {
   const result = new Date(date);
-  const day = result.getDay();
-  const diff = day === 0 ? 0 : 7 - day; // If Sunday, use same day; else calculate days until Sunday
-  result.setDate(result.getDate() + diff);
   result.setHours(23, 59, 59, 999);
   return result;
 }
 
 // ============================================================================
-// DATA GENERATORS
+// DATA CONSTANTS
 // ============================================================================
 
 const FIRST_NAMES = {
@@ -166,7 +162,6 @@ const CHURCH_PREFIXES = [
   'GKPI',
   'GKPA',
 ];
-
 const CHURCH_LOCATIONS = [
   'Pondok Indah',
   'Pluit',
@@ -179,7 +174,6 @@ const CHURCH_LOCATIONS = [
   'Bekasi',
   'Tangerang',
 ];
-
 const AREAS = [
   'Jakarta Selatan',
   'Jakarta Pusat',
@@ -197,9 +191,6 @@ const COLUMN_TYPES = [
   ['Kolom Dewasa', 'Kolom Pemuda', 'Kolom Anak-anak'],
   ['Kolom Keluarga', 'Kolom Single'],
   ['Kolom Profesional', 'Kolom Ibu-ibu', 'Kolom Bapak-bapak'],
-  ['Kolom Lansia', 'Kolom Dewasa Muda'],
-  ['Kolom Keluarga Muda', 'Kolom Remaja'],
-  ['Kolom Pria', 'Kolom Wanita', 'Kolom Campuran'],
 ];
 
 const POSITION_NAMES = [
@@ -257,7 +248,7 @@ const ACTIVITY_TITLES = {
   ],
 };
 
-const SONG_TITLES = {
+const SONG_TITLES: Record<Book, string[]> = {
   NKB: [
     'Tuhan Allah Hadir',
     'Batu Penjuru',
@@ -288,6 +279,193 @@ const SONG_TITLES = {
   ],
 };
 
+const REMINDER_VALUES: Reminder[] = [
+  Reminder.TEN_MINUTES,
+  Reminder.THIRTY_MINUTES,
+  Reminder.ONE_HOUR,
+  Reminder.TWO_HOURS,
+];
+const ACTIVITY_TYPES: ActivityType[] = [
+  ActivityType.SERVICE,
+  ActivityType.EVENT,
+  ActivityType.ANNOUNCEMENT,
+];
+const BIPRA_VALUES: Bipra[] = [
+  Bipra.PKB,
+  Bipra.WKI,
+  Bipra.PMD,
+  Bipra.RMJ,
+  Bipra.ASM,
+];
+const APPROVAL_STATUSES: ApprovalStatus[] = [
+  ApprovalStatus.UNCONFIRMED,
+  ApprovalStatus.APPROVED,
+  ApprovalStatus.REJECTED,
+];
+const PAYMENT_METHODS: PaymentMethod[] = [
+  PaymentMethod.CASH,
+  PaymentMethod.CASHLESS,
+];
+const GENERATED_BY_VALUES: GeneratedBy[] = [
+  GeneratedBy.MANUAL,
+  GeneratedBy.SYSTEM,
+];
+const BOOK_VALUES: Book[] = [Book.NKB, Book.NNBT, Book.KJ, Book.DSL];
+
+const INCOME_ACCOUNTS = [
+  {
+    code: '4100',
+    name: 'Persembahan Umum',
+    description: 'Persembahan ibadah minggu dan hari raya',
+  },
+  {
+    code: '4110',
+    name: 'Persembahan Syukur',
+    description: 'Persembahan syukur jemaat',
+  },
+  {
+    code: '4120',
+    name: 'Persembahan Perpuluhan',
+    description: 'Persembahan perpuluhan jemaat',
+  },
+  {
+    code: '4130',
+    name: 'Persembahan Khusus',
+    description: 'Persembahan untuk kegiatan khusus',
+  },
+  {
+    code: '4200',
+    name: 'Sumbangan Donatur',
+    description: 'Sumbangan dari donatur tetap dan tidak tetap',
+  },
+  {
+    code: '4210',
+    name: 'Sumbangan Pembangunan',
+    description: 'Sumbangan untuk pembangunan gedung gereja',
+  },
+  {
+    code: '4300',
+    name: 'Pendapatan Kegiatan',
+    description: 'Pendapatan dari kegiatan gereja',
+  },
+  {
+    code: '4310',
+    name: 'Pendapatan Retreat',
+    description: 'Pendapatan dari kegiatan retreat',
+  },
+  {
+    code: '4320',
+    name: 'Pendapatan Seminar',
+    description: 'Pendapatan dari kegiatan seminar',
+  },
+  {
+    code: '4400',
+    name: 'Pendapatan Lain-lain',
+    description: 'Pendapatan lain yang tidak terklasifikasi',
+  },
+];
+
+const EXPENSE_ACCOUNTS = [
+  {
+    code: '5100',
+    name: 'Biaya Operasional',
+    description: 'Biaya operasional harian gereja',
+  },
+  {
+    code: '5110',
+    name: 'Biaya Listrik',
+    description: 'Pembayaran listrik bulanan',
+  },
+  { code: '5120', name: 'Biaya Air', description: 'Pembayaran air bulanan' },
+  {
+    code: '5130',
+    name: 'Biaya Internet',
+    description: 'Pembayaran internet dan telepon',
+  },
+  {
+    code: '5200',
+    name: 'Biaya Pelayanan',
+    description: 'Biaya untuk kegiatan pelayanan',
+  },
+  {
+    code: '5210',
+    name: 'Biaya Ibadah',
+    description: 'Biaya perlengkapan ibadah',
+  },
+  {
+    code: '5220',
+    name: 'Biaya Musik',
+    description: 'Biaya peralatan dan perlengkapan musik',
+  },
+  {
+    code: '5300',
+    name: 'Biaya Kegiatan',
+    description: 'Biaya untuk kegiatan gereja',
+  },
+  {
+    code: '5310',
+    name: 'Biaya Retreat',
+    description: 'Biaya penyelenggaraan retreat',
+  },
+  {
+    code: '5320',
+    name: 'Biaya Seminar',
+    description: 'Biaya penyelenggaraan seminar',
+  },
+  {
+    code: '5400',
+    name: 'Biaya Diakonia',
+    description: 'Biaya bantuan sosial dan diakonia',
+  },
+  {
+    code: '5410',
+    name: 'Biaya Bantuan Jemaat',
+    description: 'Bantuan untuk jemaat yang membutuhkan',
+  },
+  {
+    code: '5500',
+    name: 'Biaya Pemeliharaan',
+    description: 'Biaya pemeliharaan gedung dan fasilitas',
+  },
+  {
+    code: '5510',
+    name: 'Biaya Perbaikan',
+    description: 'Biaya perbaikan gedung dan peralatan',
+  },
+  {
+    code: '5600',
+    name: 'Biaya Administrasi',
+    description: 'Biaya administrasi dan ATK',
+  },
+  {
+    code: '5700',
+    name: 'Biaya Lain-lain',
+    description: 'Biaya lain yang tidak terklasifikasi',
+  },
+];
+
+// ============================================================================
+// TYPES
+// ============================================================================
+interface MembershipWithChurch {
+  id: number;
+  churchId: number;
+  accountPhone?: string;
+}
+
+interface ChurchWithColumns {
+  id: number;
+  name: string;
+  columns: { id: number; name: string }[];
+}
+
+interface FinancialAccountWithType {
+  id: number;
+  churchId: number;
+  type: 'income' | 'expense';
+  name: string;
+}
+
 // ============================================================================
 // FACTORY FUNCTIONS
 // ============================================================================
@@ -300,7 +478,6 @@ function generateAccountData(index: number, gender?: Gender) {
     MaritalStatus.MARRIED,
     MaritalStatus.SINGLE,
   ]);
-
   const dobStart = new Date('1950-01-01');
   const dobEnd = new Date('2010-12-31');
 
@@ -322,30 +499,11 @@ function generateAccountData(index: number, gender?: Gender) {
   };
 }
 
-function generateChurchName(index: number): string {
-  const prefix = randomElement(CHURCH_PREFIXES);
-  const location = CHURCH_LOCATIONS[index % CHURCH_LOCATIONS.length];
-  const suffix =
-    index >= CHURCH_LOCATIONS.length
-      ? ` ${Math.floor(index / CHURCH_LOCATIONS.length) + 1}`
-      : '';
-  return `${prefix} ${location}${suffix}`;
-}
-
-const REMINDER_VALUES = [
-  Reminder.TEN_MINUTES,
-  Reminder.THIRTY_MINUTES,
-  Reminder.ONE_HOUR,
-  Reminder.TWO_HOURS,
-];
-
 function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
   const title = randomElement(ACTIVITY_TITLES[type]);
-  const weekStart = getStartOfWeek();
-  const weekEnd = getEndOfWeek();
-  const activityDate = randomDate(weekStart, weekEnd);
-
-  // Only SERVICE and EVENT activities have reminders
+  const monthStart = getStartOfMonth();
+  const today = getCurrentDay();
+  const activityDate = randomDate(monthStart, today);
   const reminder =
     type !== ActivityType.ANNOUNCEMENT ? randomElement(REMINDER_VALUES) : null;
 
@@ -362,16 +520,30 @@ function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
   };
 }
 
+// Generate all activity variations (3 types × 5 bipras = 15)
+function getAllActivityVariations(): { type: ActivityType; bipra: Bipra }[] {
+  const variations: { type: ActivityType; bipra: Bipra }[] = [];
+  for (const activityType of ACTIVITY_TYPES) {
+    for (const bipra of BIPRA_VALUES) {
+      variations.push({ type: activityType, bipra });
+    }
+  }
+  return variations;
+}
+
 // ============================================================================
 // MAIN SEEDING LOGIC
 // ============================================================================
 
 async function cleanDatabase() {
   console.log('🧹 Cleaning existing data...');
+  // Use type assertion to handle Prisma client types that may not be regenerated yet
+  const p = prisma as any;
   await prisma.$transaction([
     prisma.approver.deleteMany(),
     prisma.revenue.deleteMany(),
     prisma.expense.deleteMany(),
+    p.financialAccountNumber.deleteMany(),
     prisma.activity.deleteMany(),
     prisma.report.deleteMany(),
     prisma.document.deleteMany(),
@@ -390,52 +562,40 @@ async function cleanDatabase() {
   console.log('✅ Database cleaned');
 }
 
-async function seedAccounts(passwordHash: string) {
-  console.log('👤 Creating accounts...');
+async function seedMainAccounts(passwordHash: string) {
+  console.log('👤 Creating main accounts...');
 
-  const accountsData = [];
+  const mainAccounts = [];
+  for (let i = 0; i < CONFIG.mainAccountPhones.length; i++) {
+    const phone = CONFIG.mainAccountPhones[i];
+    const accountData = generateAccountData(i);
 
-  // Create diverse accounts with all possible combinations
-  for (let i = 0; i < CONFIG.churches * CONFIG.accountsPerChurch; i++) {
-    const accountData = {
-      ...generateAccountData(i),
-      passwordHash,
-    };
-
-    // Ensure the first account has the specific phone number
-    if (i === 0) {
-      accountData.phone = '081111111111';
-    }
-
-    accountsData.push(accountData);
-  }
-
-  // Create accounts without membership
-  for (let i = 0; i < CONFIG.extraAccountsWithoutMembership; i++) {
-    accountsData.push({
-      ...generateAccountData(CONFIG.churches * CONFIG.accountsPerChurch + i),
-      passwordHash,
+    const account = await prisma.account.create({
+      data: {
+        ...accountData,
+        phone,
+        name: `Main User ${i + 1}`,
+        email: `mainuser${i + 1}@example.com`,
+        passwordHash,
+        claimed: true,
+        isActive: true,
+      },
     });
+    mainAccounts.push(account);
   }
 
-  const accounts = await Promise.all(
-    accountsData.map((data) => prisma.account.create({ data: data as any })),
-  );
-
-  console.log(`✅ Created ${accounts.length} accounts`);
-  return accounts;
+  console.log(`✅ Created ${mainAccounts.length} main accounts`);
+  return mainAccounts;
 }
 
-async function seedChurches() {
-  console.log('🏛️ Creating churches...');
+async function seedMainChurches(): Promise<ChurchWithColumns[]> {
+  console.log('🏛️ Creating main churches for main accounts...');
 
-  const churches = [];
-  for (let i = 0; i < CONFIG.churches; i++) {
-    const name = generateChurchName(i);
-    const area = AREAS[i % AREAS.length];
+  const churches: ChurchWithColumns[] = [];
+  for (let i = 0; i < CONFIG.mainAccountPhones.length; i++) {
+    const name = `GMIM ${CHURCH_LOCATIONS[i]} Utama`;
     const columns = COLUMN_TYPES[i % COLUMN_TYPES.length];
 
-    // Create location first
     const location = await prisma.location.create({
       data: {
         name: `Lokasi ${name}`,
@@ -447,14 +607,10 @@ async function seedChurches() {
     const church = await prisma.church.create({
       data: {
         name,
-        phoneNumber: randomBoolean(0.7) ? generateNumericPhoneNumber() : null,
-        email: randomBoolean(0.7)
-          ? `${name.toLowerCase().replace(/\s+/g, '-')}@example.com`
-          : null,
-        description: randomBoolean(0.6)
-          ? `Gereja ${name} yang terletak di ${area}.`
-          : null,
-        documentAccountNumber: `CHR-${String(i + 1).padStart(4, '0')}`,
+        phoneNumber: generateNumericPhoneNumber(),
+        email: `${name.toLowerCase().replace(/\s+/g, '-')}@example.com`,
+        description: `Gereja utama ${name} untuk main account ${i + 1}.`,
+        documentAccountNumber: `MAIN-${String(i + 1).padStart(4, '0')}`,
         locationId: location.id,
         columns: {
           create: columns.map((col) => ({ name: col })),
@@ -466,56 +622,97 @@ async function seedChurches() {
     churches.push(church);
   }
 
-  console.log(`✅ Created ${churches.length} churches`);
+  console.log(`✅ Created ${churches.length} main churches`);
   return churches;
 }
 
-async function seedMemberships(accounts: any[], churches: any[]) {
-  console.log('🤝 Creating memberships...');
+async function seedMainMemberships(
+  mainAccounts: { id: number; phone: string }[],
+  mainChurches: ChurchWithColumns[],
+): Promise<MembershipWithChurch[]> {
+  console.log('🤝 Creating memberships for main accounts...');
 
-  const memberships = [];
-  const accountsWithMembership = accounts.slice(
-    0,
-    CONFIG.churches * CONFIG.accountsPerChurch,
-  );
-
-  for (let i = 0; i < accountsWithMembership.length; i++) {
-    const account = accountsWithMembership[i];
-    const churchIndex = Math.floor(i / CONFIG.accountsPerChurch);
-    const church = churches[churchIndex];
-    const column = randomElement(church.columns) as any;
+  const memberships: MembershipWithChurch[] = [];
+  for (let i = 0; i < mainAccounts.length; i++) {
+    const account = mainAccounts[i];
+    const church = mainChurches[i];
+    const column = church.columns[0];
 
     const membership = await prisma.membership.create({
       data: {
         accountId: account.id,
         churchId: church.id,
         columnId: column.id,
-        baptize: randomBoolean(0.8),
-        sidi: randomBoolean(0.6),
+        baptize: true,
+        sidi: true,
       },
     });
 
-    memberships.push(membership);
+    memberships.push({
+      id: membership.id,
+      churchId: church.id,
+      accountPhone: account.phone,
+    });
   }
 
-  console.log(`✅ Created ${memberships.length} memberships`);
+  console.log(`✅ Created ${memberships.length} main memberships`);
   return memberships;
 }
 
-async function seedMembershipPositions(memberships: any[]) {
+async function seedExtraMembersForChurches(
+  mainChurches: ChurchWithColumns[],
+  passwordHash: string,
+): Promise<MembershipWithChurch[]> {
+  console.log('👥 Creating extra members for main churches...');
+
+  const extraMemberships: MembershipWithChurch[] = [];
+  let accountIndex = 100;
+
+  for (const church of mainChurches) {
+    for (let i = 0; i < CONFIG.extraMembersPerChurch; i++) {
+      const accountData = generateAccountData(accountIndex);
+
+      const account = await prisma.account.create({
+        data: {
+          ...accountData,
+          passwordHash,
+        },
+      });
+
+      const columnIndex = i % church.columns.length;
+      const column = church.columns[columnIndex];
+
+      const membership = await prisma.membership.create({
+        data: {
+          accountId: account.id,
+          churchId: church.id,
+          columnId: column.id,
+          baptize: randomBoolean(0.8),
+          sidi: randomBoolean(0.6),
+        },
+      });
+
+      extraMemberships.push({ id: membership.id, churchId: church.id });
+      accountIndex++;
+    }
+  }
+
+  console.log(`✅ Created ${extraMemberships.length} extra memberships`);
+  return extraMemberships;
+}
+
+async function seedMembershipPositions(memberships: MembershipWithChurch[]) {
   console.log('📋 Creating membership positions...');
 
   const positions = [];
-
-  // Assign 1-3 positions to random memberships
   const membershipsWithPositions = memberships.slice(
     0,
-    Math.floor(memberships.length * 0.3),
+    Math.floor(memberships.length * 0.4),
   );
 
   for (const membership of membershipsWithPositions) {
     const numPositions = Math.floor(seededRandom() * 3) + 1;
-    const selectedPositions = [];
+    const selectedPositions: string[] = [];
 
     for (let i = 0; i < numPositions; i++) {
       const positionName = randomElement(POSITION_NAMES);
@@ -539,37 +736,31 @@ async function seedMembershipPositions(memberships: any[]) {
   return positions;
 }
 
-async function seedApprovalRules(churches: any[]) {
+async function seedApprovalRules(churches: ChurchWithColumns[]) {
   console.log('📜 Creating approval rules...');
 
   const approvalRules = [];
 
   for (const church of churches) {
-    // Get all membership positions for this church that don't have an approval rule yet
     const churchPositions = await prisma.membershipPosition.findMany({
-      where: {
-        churchId: church.id,
-        approvalRuleId: null,
-      },
+      where: { churchId: church.id, approvalRuleId: null },
     });
 
     if (churchPositions.length === 0) continue;
 
     for (let i = 0; i < CONFIG.approvalRulesPerChurch; i++) {
       const ruleName = randomElement(APPROVAL_RULE_NAMES);
-      const active = i === 0; // First rule is active, second is inactive
+      const active = i === 0;
 
-      // Calculate how many positions to assign to this rule
       const availablePositions = churchPositions.filter(
         (p) =>
-          !approvalRules.some((r) =>
-            r.positions?.some((rp: any) => rp.id === p.id),
+          !approvalRules.some((r: { positions?: { id: number }[] }) =>
+            r.positions?.some((rp) => rp.id === p.id),
           ),
       );
 
       if (availablePositions.length === 0) continue;
 
-      // Select 1-3 positions for this approval rule (or all available if less)
       const numPositions = Math.min(
         Math.floor(seededRandom() * 3) + 1,
         availablePositions.length,
@@ -583,22 +774,14 @@ async function seedApprovalRules(churches: any[]) {
           active,
           churchId: church.id,
         },
-        include: {
-          positions: true,
-        },
+        include: { positions: true },
       });
 
-      // Update the selected positions to reference this approval rule
       await prisma.membershipPosition.updateMany({
-        where: {
-          id: { in: selectedPositions.map((p) => p.id) },
-        },
-        data: {
-          approvalRuleId: approvalRule.id,
-        },
+        where: { id: { in: selectedPositions.map((p) => p.id) } },
+        data: { approvalRuleId: approvalRule.id },
       });
 
-      // Fetch the updated approval rule with positions
       const updatedRule = await prisma.approvalRule.findUnique({
         where: { id: approvalRule.id },
         include: { positions: true },
@@ -612,230 +795,377 @@ async function seedApprovalRules(churches: any[]) {
   return approvalRules;
 }
 
-async function seedActivities(memberships: any[], churches: any[]) {
-  console.log('📅 Creating activities...');
+async function createActivityWithConnectedModels(
+  supervisorId: number,
+  churchId: number,
+  activityType: ActivityType,
+  bipra: Bipra,
+  index: number,
+  otherMemberships: MembershipWithChurch[],
+  withRevenue: boolean,
+  withExpense: boolean,
+) {
+  const activityData = generateActivityData(activityType, bipra, index);
 
-  const activities = [];
-  const activityTypes = Object.values(ActivityType);
-  const bipraValues = Object.values(Bipra);
-
-  for (let i = 0; i < CONFIG.churches * CONFIG.activitiesPerChurch; i++) {
-    const churchIndex = Math.floor(i / CONFIG.activitiesPerChurch);
-    const church = churches[churchIndex];
-
-    // Get memberships for this church
-    const churchMemberships = memberships.filter(
-      (m) => m.churchId === church.id,
-    );
-
-    if (churchMemberships.length === 0) continue;
-
-    const supervisor = randomElement(churchMemberships) as any;
-    const activityType = activityTypes[i % activityTypes.length];
-    const bipra = bipraValues[i % bipraValues.length];
-
-    const activityData = generateActivityData(activityType, bipra, i);
-
-    // Create location first if needed
-    let locationId = null;
-    if (randomBoolean(0.7)) {
-      const location = await prisma.location.create({
-        data: {
-          name: `Lokasi ${activityData.title}`,
-          latitude: generateLatitude(),
-          longitude: generateLongitude(),
-        },
-      });
-      locationId = location.id;
-    }
-
-    const activity = await prisma.activity.create({
+  // Create location (70% chance)
+  let locationId: number | null = null;
+  if (randomBoolean(0.7)) {
+    const location = await prisma.location.create({
       data: {
-        ...activityData,
-        supervisorId: supervisor.id,
-        locationId,
+        name: `Lokasi ${activityData.title}`,
+        latitude: generateLatitude(),
+        longitude: generateLongitude(),
       },
     });
-
-    activities.push(activity);
+    locationId = location.id;
   }
 
-  console.log(`✅ Created ${activities.length} activities`);
+  const activity = await prisma.activity.create({
+    data: {
+      ...activityData,
+      supervisorId,
+      locationId,
+    },
+  });
+
+  // Add approvers with different statuses
+  const numApprovers = Math.min(
+    CONFIG.maxApproversPerActivity,
+    otherMemberships.length,
+  );
+
+  for (let i = 0; i < numApprovers; i++) {
+    const approver = otherMemberships[i];
+    await prisma.approver.create({
+      data: {
+        activityId: activity.id,
+        membershipId: approver.id,
+        status: APPROVAL_STATUSES[i % APPROVAL_STATUSES.length],
+      },
+    });
+  }
+
+  // Add revenue if specified (for SERVICE and EVENT types)
+  if (withRevenue && activityType !== ActivityType.ANNOUNCEMENT) {
+    await prisma.revenue.create({
+      data: {
+        accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
+        amount: Math.floor(seededRandom() * 3000000) + 500000,
+        churchId,
+        activityId: activity.id,
+        paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
+      },
+    });
+  }
+
+  // Add expense if specified (for EVENT types primarily)
+  if (withExpense && activityType === ActivityType.EVENT) {
+    await prisma.expense.create({
+      data: {
+        accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
+        amount: Math.floor(seededRandom() * 2000000) + 300000,
+        churchId,
+        activityId: activity.id,
+        paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
+      },
+    });
+  }
+
+  return activity;
+}
+
+async function seedMainAccountActivities(
+  mainMemberships: MembershipWithChurch[],
+  extraMemberships: MembershipWithChurch[],
+) {
+  console.log(
+    '📅 Creating activities for main accounts (25 each with all variations)...',
+  );
+
+  const activities = [];
+  const variations = getAllActivityVariations(); // 15 variations
+  let globalIndex = 0;
+
+  for (const mainMembership of mainMemberships) {
+    const churchMemberships = extraMemberships.filter(
+      (m) => m.churchId === mainMembership.churchId,
+    );
+
+    console.log(
+      `   Creating 25 activities for main account (phone: ${mainMembership.accountPhone})...`,
+    );
+
+    // First 15 activities: cover all variations (3 types × 5 bipras)
+    for (let i = 0; i < variations.length; i++) {
+      const variation = variations[i];
+      // Vary connected models: some with revenue, some with expense, some with both, some with neither
+      const withRevenue = i % 4 === 0 || i % 4 === 2;
+      const withExpense = i % 4 === 1 || i % 4 === 2;
+
+      const activity = await createActivityWithConnectedModels(
+        mainMembership.id,
+        mainMembership.churchId,
+        variation.type,
+        variation.bipra,
+        globalIndex,
+        churchMemberships,
+        withRevenue,
+        withExpense,
+      );
+
+      activities.push({
+        ...activity,
+        churchId: mainMembership.churchId,
+        isMainAccount: true,
+      });
+      globalIndex++;
+    }
+
+    // Next 10 activities: additional variations to reach 25 total
+    for (let i = 0; i < 10; i++) {
+      const variation = variations[i % variations.length];
+      const withRevenue = i % 3 === 0;
+      const withExpense = i % 3 === 1;
+
+      const activity = await createActivityWithConnectedModels(
+        mainMembership.id,
+        mainMembership.churchId,
+        variation.type,
+        variation.bipra,
+        globalIndex,
+        churchMemberships,
+        withRevenue,
+        withExpense,
+      );
+
+      activities.push({
+        ...activity,
+        churchId: mainMembership.churchId,
+        isMainAccount: true,
+      });
+      globalIndex++;
+    }
+  }
+
+  console.log(`✅ Created ${activities.length} activities for main accounts`);
   return activities;
 }
 
-async function seedApprovers(activities: any[], memberships: any[]) {
-  console.log('✔️ Creating approvers...');
-
-  const approverStatuses = Object.values(ApprovalStatus);
-  const approversData = [];
-
-  for (const activity of activities) {
-    // Get activity supervisor's church
-    const supervisor = memberships.find((m) => m.id === activity.supervisorId);
-    if (!supervisor) continue;
-
-    // Get other memberships from the same church
-    const churchMemberships = memberships.filter(
-      (m) => m.churchId === supervisor.churchId && m.id !== supervisor.id,
-    );
-
-    if (churchMemberships.length === 0) continue;
-
-    // Add 0-2 approvers per activity
-    const numApprovers = Math.floor(
-      seededRandom() * (CONFIG.maxApproversPerActivity + 1),
-    );
-
-    for (let i = 0; i < numApprovers && i < churchMemberships.length; i++) {
-      const approver = churchMemberships[i] as any;
-      const status = randomElement(approverStatuses);
-
-      approversData.push({
-        activityId: activity.id,
-        membershipId: approver.id,
-        status,
-      });
-    }
-  }
-
-  if (approversData.length > 0) {
-    await prisma.approver.createMany({
-      data: approversData,
-      skipDuplicates: true,
-    });
-  }
-
-  console.log(`✅ Created ${approversData.length} approvers`);
-  return approversData;
-}
-
-async function seedRevenues(activities: any[], churches: any[]) {
-  console.log('💰 Creating revenues...');
-
-  const revenues = [];
-  const paymentMethods = Object.values(PaymentMethod);
-
-  // Group activities by church
-  const activitiesByChurch = new Map<number, any[]>();
-  for (const activity of activities) {
-    const supervisor = await prisma.membership.findUnique({
-      where: { id: activity.supervisorId },
-    });
-    if (supervisor && supervisor.churchId) {
-      if (!activitiesByChurch.has(supervisor.churchId)) {
-        activitiesByChurch.set(supervisor.churchId, []);
-      }
-      activitiesByChurch.get(supervisor.churchId)!.push({
-        ...activity,
-        churchId: supervisor.churchId,
-      });
-    }
-  }
-
-  // Ensure each church has exactly 2 activities with revenue
-  for (const [churchId, churchActivities] of activitiesByChurch) {
-    // Take the first 2 activities for revenue
-    const revenueActivities = churchActivities.slice(0, 2);
-
-    for (let i = 0; i < revenueActivities.length; i++) {
-      const activity = revenueActivities[i];
-      // Create variation in amounts and payment methods
-      const amountMultiplier = i === 0 ? 1 : 3; // Second revenue is typically larger
-      const baseAmount = Math.floor(seededRandom() * 3000000) + 500000; // 500k - 3.5M
-
-      const revenue = await prisma.revenue.create({
-        data: {
-          accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
-          amount: baseAmount * amountMultiplier,
-          churchId: activity.churchId,
-          activityId: activity.id,
-          paymentMethod: paymentMethods[i % paymentMethods.length],
-        },
-      });
-
-      revenues.push(revenue);
-    }
-  }
-
-  console.log(`✅ Created ${revenues.length} revenues`);
-  return revenues;
-}
-
-async function seedExpenses(activities: any[], churches: any[]) {
-  console.log('💸 Creating expenses...');
-
-  const expenses = [];
-  const paymentMethods = Object.values(PaymentMethod);
-
-  // Get activities that already have revenue
-  const activitiesWithRevenue = await prisma.revenue.findMany({
-    select: { activityId: true },
-  });
-  const revenueActivityIds = new Set(
-    activitiesWithRevenue.map((r) => r.activityId),
+async function seedExtraChurchActivities(
+  mainChurches: ChurchWithColumns[],
+  extraMemberships: MembershipWithChurch[],
+) {
+  console.log(
+    '📅 Creating extra activities for churches (25 each, not connected to main accounts)...',
   );
 
-  // Group activities by church (excluding those with revenue)
-  const activitiesByChurch = new Map<number, any[]>();
-  for (const activity of activities) {
-    if (revenueActivityIds.has(activity.id)) continue;
+  const activities = [];
+  const variations = getAllActivityVariations();
+  let globalIndex = 1000;
 
-    const supervisor = await prisma.membership.findUnique({
-      where: { id: activity.supervisorId },
-    });
-    if (supervisor && supervisor.churchId) {
-      if (!activitiesByChurch.has(supervisor.churchId)) {
-        activitiesByChurch.set(supervisor.churchId, []);
-      }
-      activitiesByChurch.get(supervisor.churchId)!.push({
+  for (const church of mainChurches) {
+    // Get extra members (not the main account) to be supervisors
+    const churchExtraMembers = extraMemberships.filter(
+      (m) => m.churchId === church.id,
+    );
+
+    if (churchExtraMembers.length === 0) {
+      console.log(`   Skipping church ${church.name} - no extra members`);
+      continue;
+    }
+
+    console.log(`   Creating 25 extra activities for ${church.name}...`);
+
+    // First 15 activities: cover all variations
+    for (let i = 0; i < variations.length; i++) {
+      const variation = variations[i];
+      const supervisorIndex = i % churchExtraMembers.length;
+      const supervisor = churchExtraMembers[supervisorIndex];
+
+      // Other members for approvers (excluding supervisor)
+      const otherMembers = churchExtraMembers.filter(
+        (m) => m.id !== supervisor.id,
+      );
+
+      const withRevenue = i % 4 === 0 || i % 4 === 3;
+      const withExpense = i % 4 === 1 || i % 4 === 3;
+
+      const activity = await createActivityWithConnectedModels(
+        supervisor.id,
+        church.id,
+        variation.type,
+        variation.bipra,
+        globalIndex,
+        otherMembers,
+        withRevenue,
+        withExpense,
+      );
+
+      activities.push({
         ...activity,
-        churchId: supervisor.churchId,
+        churchId: church.id,
+        isMainAccount: false,
       });
+      globalIndex++;
+    }
+
+    // Next 10 activities: additional variations
+    for (let i = 0; i < 10; i++) {
+      const variation = variations[i % variations.length];
+      const supervisorIndex = (i + 5) % churchExtraMembers.length;
+      const supervisor = churchExtraMembers[supervisorIndex];
+
+      const otherMembers = churchExtraMembers.filter(
+        (m) => m.id !== supervisor.id,
+      );
+
+      const withRevenue = i % 2 === 0;
+      const withExpense = i % 2 === 1;
+
+      const activity = await createActivityWithConnectedModels(
+        supervisor.id,
+        church.id,
+        variation.type,
+        variation.bipra,
+        globalIndex,
+        otherMembers,
+        withRevenue,
+        withExpense,
+      );
+
+      activities.push({
+        ...activity,
+        churchId: church.id,
+        isMainAccount: false,
+      });
+      globalIndex++;
     }
   }
 
-  // Ensure each church has exactly 2 activities with expense
-  for (const [churchId, churchActivities] of activitiesByChurch) {
-    // Take the first 2 activities for expense
-    const expenseActivities = churchActivities.slice(0, 2);
+  console.log(`✅ Created ${activities.length} extra activities for churches`);
+  return activities;
+}
 
-    for (let i = 0; i < expenseActivities.length; i++) {
-      const activity = expenseActivities[i];
-      // Create variation in amounts and payment methods
-      const amountMultiplier = i === 0 ? 0.5 : 1.5; // Vary the expense amounts
-      const baseAmount = Math.floor(seededRandom() * 2000000) + 300000; // 300k - 2.3M
+async function seedFinancialAccountNumbers(
+  churches: ChurchWithColumns[],
+): Promise<FinancialAccountWithType[]> {
+  console.log('💳 Creating financial account numbers...');
 
-      const expense = await prisma.expense.create({
+  const financialAccounts: FinancialAccountWithType[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = prisma as any;
+
+  for (const church of churches) {
+    for (const incomeAccount of INCOME_ACCOUNTS) {
+      const account = await p.financialAccountNumber.create({
         data: {
-          accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
-          amount: Math.floor(baseAmount * amountMultiplier),
-          churchId: activity.churchId,
-          activityId: activity.id,
-          paymentMethod: paymentMethods[(i + 1) % paymentMethods.length], // Different from revenue
+          accountNumber: incomeAccount.code,
+          description: `${incomeAccount.name} - ${incomeAccount.description}`,
+          type: FinancialType.REVENUE,
+          churchId: church.id,
         },
       });
+      financialAccounts.push({
+        id: account.id,
+        churchId: church.id,
+        type: 'income',
+        name: incomeAccount.name,
+      });
+    }
 
-      expenses.push(expense);
+    for (const expenseAccount of EXPENSE_ACCOUNTS) {
+      const account = await p.financialAccountNumber.create({
+        data: {
+          accountNumber: expenseAccount.code,
+          description: `${expenseAccount.name} - ${expenseAccount.description}`,
+          type: FinancialType.EXPENSE,
+          churchId: church.id,
+        },
+      });
+      financialAccounts.push({
+        id: account.id,
+        churchId: church.id,
+        type: 'expense',
+        name: expenseAccount.name,
+      });
     }
   }
 
-  console.log(`✅ Created ${expenses.length} expenses`);
-  return expenses;
+  console.log(
+    `✅ Created ${financialAccounts.length} financial account numbers`,
+  );
+  return financialAccounts;
+}
+
+async function linkFinancialAccountsToTransactions(
+  financialAccounts: FinancialAccountWithType[],
+  churches: ChurchWithColumns[],
+) {
+  console.log('🔗 Linking financial accounts to revenues and expenses...');
+
+  let linkedRevenues = 0;
+  let linkedExpenses = 0;
+
+  for (const church of churches) {
+    const churchIncomeAccounts = financialAccounts.filter(
+      (fa) => fa.churchId === church.id && fa.type === 'income',
+    );
+    const churchExpenseAccounts = financialAccounts.filter(
+      (fa) => fa.churchId === church.id && fa.type === 'expense',
+    );
+
+    const revenues = await prisma.revenue.findMany({
+      where: { churchId: church.id },
+    });
+    const expenses = await prisma.expense.findMany({
+      where: { churchId: church.id },
+    });
+
+    // Link revenues to income accounts (distribute across accounts using modulo)
+    for (let i = 0; i < revenues.length; i++) {
+      if (churchIncomeAccounts.length === 0) break;
+      const accountIndex = i % churchIncomeAccounts.length;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await prisma.revenue.update({
+        where: { id: revenues[i].id },
+        data: {
+          financialAccountNumberId: churchIncomeAccounts[accountIndex].id,
+        } as any,
+      });
+      linkedRevenues++;
+    }
+
+    // Link expenses to expense accounts (distribute across accounts using modulo)
+    for (let i = 0; i < expenses.length; i++) {
+      if (churchExpenseAccounts.length === 0) break;
+      const accountIndex = i % churchExpenseAccounts.length;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await prisma.expense.update({
+        where: { id: expenses[i].id },
+        data: {
+          financialAccountNumberId: churchExpenseAccounts[accountIndex].id,
+        } as any,
+      });
+      linkedExpenses++;
+    }
+  }
+
+  console.log(
+    `✅ Linked ${linkedRevenues} revenues and ${linkedExpenses} expenses to financial accounts`,
+  );
 }
 
 async function seedSongs() {
   console.log('🎵 Creating songs...');
 
-  const books = Object.values(Book);
   const songs = [];
 
-  for (const book of books) {
+  for (const book of BOOK_VALUES) {
     const titles = SONG_TITLES[book];
 
     for (let i = 0; i < CONFIG.songsPerBook; i++) {
       const title = titles[i % titles.length];
-      const index = books.indexOf(book) * 100 + i + 1;
+      const index = BOOK_VALUES.indexOf(book) * 100 + i + 1;
 
       const song = await prisma.song.create({
         data: {
@@ -850,11 +1180,7 @@ async function seedSongs() {
                 name: 'Bait 1',
                 content: `Lirik bait 1 untuk ${title}`,
               },
-              {
-                index: 2,
-                name: 'Reff',
-                content: `Lirik reff untuk ${title}`,
-              },
+              { index: 2, name: 'Reff', content: `Lirik reff untuk ${title}` },
               {
                 index: 3,
                 name: 'Bait 2',
@@ -885,19 +1211,18 @@ async function seedFiles() {
     'https://assets.example.com/uploads/',
   ];
 
-  // Create files for reports (2 per church) and documents (2 per church)
-  const totalFiles = CONFIG.churches * (CONFIG.reportsPerChurch + 2);
+  const totalFiles =
+    CONFIG.mainAccountPhones.length * (CONFIG.reportsPerChurch + 2);
 
   for (let i = 0; i < totalFiles; i++) {
     const extension = randomElement(fileExtensions);
     const baseUrl = randomElement(baseUrls);
-    const fileName = `file-${Date.now()}-${i}.${extension}`;
-    const sizeInKB = parseFloat((seededRandom() * 5000 + 100).toFixed(2)); // 100KB to 5MB
+    const sizeInKB = parseFloat((seededRandom() * 5000 + 100).toFixed(2));
 
     const file = await prisma.fileManager.create({
       data: {
         sizeInKB,
-        url: `https://files.testfile.org/PDF/10MB-TESTFILE.ORG.pdf`,
+        url: `${baseUrl}file-${i}.${extension}`,
       },
     });
 
@@ -908,7 +1233,10 @@ async function seedFiles() {
   return files;
 }
 
-async function seedReports(churches: any[], files: any[]) {
+async function seedReports(
+  churches: ChurchWithColumns[],
+  files: { id: number }[],
+) {
   console.log('📊 Creating reports...');
 
   const reports = [];
@@ -919,15 +1247,14 @@ async function seedReports(churches: any[], files: any[]) {
     'Laporan Kolom',
     'Laporan Tahunan',
   ];
-  const generatedByValues = Object.values(GeneratedBy);
   let fileIndex = 0;
 
-  for (let i = 0; i < CONFIG.churches * CONFIG.reportsPerChurch; i++) {
+  for (let i = 0; i < churches.length * CONFIG.reportsPerChurch; i++) {
     const churchIndex = Math.floor(i / CONFIG.reportsPerChurch);
     const church = churches[churchIndex];
     const reportType = randomElement(reportTypes);
-    const generatedBy = generatedByValues[i % generatedByValues.length];
-    const year = 2024 - Math.floor(seededRandom() * 3); // 2022-2024
+    const generatedBy = GENERATED_BY_VALUES[i % GENERATED_BY_VALUES.length];
+    const year = 2024 - Math.floor(seededRandom() * 3);
     const month = Math.floor(seededRandom() * 12) + 1;
 
     const report = await prisma.report.create({
@@ -947,11 +1274,14 @@ async function seedReports(churches: any[], files: any[]) {
   return reports;
 }
 
-async function seedDocuments(churches: any[], files: any[]) {
+async function seedDocuments(
+  churches: ChurchWithColumns[],
+  files: { id: number }[],
+) {
   console.log('📄 Creating documents...');
 
   const documents = [];
-  let fileIndex = CONFIG.churches * CONFIG.reportsPerChurch; // Start after report files
+  let fileIndex = churches.length * CONFIG.reportsPerChurch;
 
   const documentTypes = [
     'Surat Keterangan Baptis',
@@ -962,12 +1292,11 @@ async function seedDocuments(churches: any[], files: any[]) {
     'Surat Pengantar',
   ];
 
-  for (let i = 0; i < CONFIG.churches * CONFIG.documentsPerChurch; i++) {
+  for (let i = 0; i < churches.length * CONFIG.documentsPerChurch; i++) {
     const churchIndex = Math.floor(i / CONFIG.documentsPerChurch);
     const church = churches[churchIndex];
     const docIndex = i % CONFIG.documentsPerChurch;
 
-    // Every 3rd document (docIndex === 2) will have no file
     const hasFile = docIndex !== 2;
     const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(i).padStart(4, '0')}`;
     const documentType = randomElement(documentTypes);
@@ -977,7 +1306,7 @@ async function seedDocuments(churches: any[], files: any[]) {
         name: `${documentType} - ${church.name}`,
         accountNumber,
         churchId: church.id,
-        fileId: hasFile ? files[fileIndex]?.id : null,
+        fileId: hasFile && files[fileIndex] ? files[fileIndex].id : null,
       },
     });
 
@@ -989,17 +1318,32 @@ async function seedDocuments(churches: any[], files: any[]) {
   return documents;
 }
 
-async function seedChurchRequests(accounts: any[]) {
+async function seedExtraAccountsWithoutMembership(passwordHash: string) {
+  console.log('👤 Creating extra accounts without membership...');
+
+  const accounts = [];
+  for (let i = 0; i < CONFIG.extraAccountsWithoutMembership; i++) {
+    const accountData = generateAccountData(500 + i);
+
+    const account = await prisma.account.create({
+      data: {
+        ...accountData,
+        passwordHash,
+      },
+    });
+    accounts.push(account);
+  }
+
+  console.log(`✅ Created ${accounts.length} accounts without membership`);
+  return accounts;
+}
+
+async function seedChurchRequests(
+  accountsWithoutMembership: { id: number; name: string; phone: string }[],
+) {
   console.log('⛪ Creating church requests...');
 
   const churchRequests = [];
-
-  // Get accounts without membership (they would request churches)
-  const accountsWithoutMembership = accounts.filter(
-    (account) => !account.membership,
-  );
-
-  // Create 2-3 church requests from accounts without membership
   const numRequests = Math.min(3, accountsWithoutMembership.length);
 
   for (let i = 0; i < numRequests; i++) {
@@ -1025,124 +1369,113 @@ async function seedChurchRequests(accounts: any[]) {
 }
 
 async function printSummary(
-  accounts: any[],
-  churches: any[],
-  memberships: any[],
-  activities: any[],
-  songs: any[],
+  mainAccounts: { id: number; phone: string }[],
+  mainChurches: ChurchWithColumns[],
 ) {
   console.log('\n📊 Seed Summary:');
   console.log('================');
-  console.log(`🏛️  Churches: ${churches.length}`);
-  console.log(`👤 Accounts: ${accounts.length}`);
-  console.log(`🤝 Memberships: ${memberships.length}`);
+  console.log(`🏛️  Churches: ${await prisma.church.count()}`);
+  console.log(`👤 Accounts: ${await prisma.account.count()}`);
+  console.log(`🤝 Memberships: ${await prisma.membership.count()}`);
   console.log(
     `📋 Membership Positions: ${await prisma.membershipPosition.count()}`,
   );
   console.log(`📜 Approval Rules: ${await prisma.approvalRule.count()}`);
-  console.log(`📅 Activities: ${activities.length}`);
+  console.log(`📅 Activities: ${await prisma.activity.count()}`);
+  console.log(`✔️  Approvers: ${await prisma.approver.count()}`);
   console.log(`💰 Revenues: ${await prisma.revenue.count()}`);
   console.log(`💸 Expenses: ${await prisma.expense.count()}`);
-  console.log(`🎵 Songs: ${songs.length}`);
+  console.log(`🎵 Songs: ${await prisma.song.count()}`);
   console.log(`📁 Files: ${await prisma.fileManager.count()}`);
   console.log(`📊 Reports: ${await prisma.report.count()}`);
   console.log(`📄 Documents: ${await prisma.document.count()}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = prisma as any;
+  console.log(
+    `💳 Financial Account Numbers: ${await p.financialAccountNumber.count()}`,
+  );
   console.log(`⛪ Church Requests: ${await prisma.churchRequest.count()}`);
 
-  // Enum coverage
-  console.log('\n📋 Enum Coverage:');
+  console.log('\n👤 Main Accounts:');
   console.log('================');
+  for (const account of mainAccounts) {
+    const membership = await prisma.membership.findUnique({
+      where: { accountId: account.id },
+      include: { church: true },
+    });
+    const activityCount = membership
+      ? await prisma.activity.count({
+          where: { supervisorId: membership.id },
+        })
+      : 0;
+    console.log(`   Phone: ${account.phone}`);
+    console.log(`   Church: ${membership?.church?.name}`);
+    console.log(`   Activities supervised: ${activityCount}`);
+    console.log('');
+  }
 
-  const genderCounts = await prisma.account.groupBy({
-    by: ['gender'],
-    _count: true,
-  });
-  console.log('Gender:', genderCounts);
+  console.log('🏛️  Main Churches Activity Summary:');
+  console.log('================');
+  for (const church of mainChurches) {
+    const totalActivities = await prisma.activity.count({
+      where: { supervisor: { churchId: church.id } },
+    });
 
-  const maritalStatusCounts = await prisma.account.groupBy({
-    by: ['maritalStatus'],
-    _count: true,
-  });
-  console.log('Marital Status:', maritalStatusCounts);
+    const mainMembership = await prisma.membership.findFirst({
+      where: {
+        churchId: church.id,
+        account: { phone: { in: CONFIG.mainAccountPhones } },
+      },
+    });
 
-  const bipraCounts = await prisma.activity.groupBy({
-    by: ['bipra'],
-    _count: true,
-  });
-  console.log('Bipra:', bipraCounts);
+    const mainAccountActivities = mainMembership
+      ? await prisma.activity.count({
+          where: { supervisorId: mainMembership.id },
+        })
+      : 0;
 
+    const extraActivities = totalActivities - mainAccountActivities;
+
+    console.log(`   ${church.name}:`);
+    console.log(`     Total activities: ${totalActivities}`);
+    console.log(`     Main account activities: ${mainAccountActivities}`);
+    console.log(`     Extra activities: ${extraActivities}`);
+  }
+
+  console.log('\n📋 Activity Type Coverage:');
   const activityTypeCounts = await prisma.activity.groupBy({
     by: ['activityType'],
     _count: true,
   });
-  console.log('Activity Type:', activityTypeCounts);
+  console.log('   ', activityTypeCounts);
 
-  const bookCounts = await prisma.song.groupBy({
-    by: ['book'],
+  console.log('\n📋 Bipra Coverage:');
+  const bipraCounts = await prisma.activity.groupBy({
+    by: ['bipra'],
     _count: true,
   });
-  console.log('Book:', bookCounts);
+  console.log('   ', bipraCounts);
 
+  console.log('\n📋 Approval Status Coverage:');
   const approverStatusCounts = await prisma.approver.groupBy({
     by: ['status'],
     _count: true,
   });
-  console.log('Approval Status:', approverStatusCounts);
+  console.log('   ', approverStatusCounts);
 
-  const revenuePaymentMethodCounts = await prisma.revenue.groupBy({
+  console.log('\n📋 Payment Method Coverage (Revenue):');
+  const revenuePaymentCounts = await prisma.revenue.groupBy({
     by: ['paymentMethod'],
     _count: true,
   });
-  console.log('Revenue Payment Method:', revenuePaymentMethodCounts);
+  console.log('   ', revenuePaymentCounts);
 
-  const expensePaymentMethodCounts = await prisma.expense.groupBy({
+  console.log('\n📋 Payment Method Coverage (Expense):');
+  const expensePaymentCounts = await prisma.expense.groupBy({
     by: ['paymentMethod'],
     _count: true,
   });
-  console.log('Expense Payment Method:', expensePaymentMethodCounts);
-
-  const generatedByCounts = await prisma.report.groupBy({
-    by: ['generatedBy'],
-    _count: true,
-  });
-  console.log('Report Generated By:', generatedByCounts);
-
-  // Documents with and without files
-  const documentsWithFiles = await prisma.document.count({
-    where: { fileId: { not: null } },
-  });
-  const documentsWithoutFiles = await prisma.document.count({
-    where: { fileId: null },
-  });
-  console.log(
-    `\n📄 Documents: ${documentsWithFiles} with files, ${documentsWithoutFiles} without files`,
-  );
-
-  // Accounts without membership
-  const accountsWithoutMembership = await prisma.account.findMany({
-    where: { membership: { is: null } },
-  });
-  console.log(
-    `\n👤 Accounts without membership: ${accountsWithoutMembership.length}`,
-  );
-
-  // Top churches by member count
-  const topChurches = await prisma.church.findMany({
-    include: {
-      _count: {
-        select: { memberships: true, columns: true },
-      },
-    },
-    orderBy: { memberships: { _count: 'desc' } },
-    take: 5,
-  });
-
-  console.log('\n🏆 Top 5 Churches by Member Count:');
-  topChurches.forEach((church, index) => {
-    console.log(
-      `   ${index + 1}. ${church.name}: ${church._count.memberships} members, ${church._count.columns} columns`,
-    );
-  });
+  console.log('   ', expensePaymentCounts);
 }
 
 async function main() {
@@ -1165,33 +1498,56 @@ async function main() {
   console.log('🌱 Starting comprehensive seed...\n');
 
   try {
-    // Reset seed for consistent results
     seed = 12345;
 
-    // Clean database
     await cleanDatabase();
 
-    // Generate password hash once
     const passwordHash = await bcrypt.hash(CONFIG.defaultPassword, 12);
 
-    // Seed all entities
-    const accounts = await seedAccounts(passwordHash);
-    const churches = await seedChurches();
-    const memberships = await seedMemberships(accounts, churches);
-    await seedMembershipPositions(memberships);
-    await seedApprovalRules(churches);
-    const activities = await seedActivities(memberships, churches);
-    await seedApprovers(activities, memberships);
-    await seedRevenues(activities, churches);
-    await seedExpenses(activities, churches);
-    const songs = await seedSongs();
+    // Create main accounts and their churches
+    const mainAccounts = await seedMainAccounts(passwordHash);
+    const mainChurches = await seedMainChurches();
+    const mainMemberships = await seedMainMemberships(
+      mainAccounts,
+      mainChurches,
+    );
+
+    // Create extra members for each main church
+    const extraMemberships = await seedExtraMembersForChurches(
+      mainChurches,
+      passwordHash,
+    );
+
+    // Create membership positions and approval rules
+    const allMemberships = [...mainMemberships, ...extraMemberships];
+    await seedMembershipPositions(allMemberships);
+    await seedApprovalRules(mainChurches);
+
+    // Create activities for main accounts (25 each)
+    await seedMainAccountActivities(mainMemberships, extraMemberships);
+
+    // Create extra activities for each church (25 each, not connected to main accounts)
+    await seedExtraChurchActivities(mainChurches, extraMemberships);
+
+    // Create financial account numbers and link them
+    const financialAccounts = await seedFinancialAccountNumbers(mainChurches);
+    await linkFinancialAccountsToTransactions(financialAccounts, mainChurches);
+
+    // Create songs
+    await seedSongs();
+
+    // Create files, reports, and documents
     const files = await seedFiles();
-    await seedReports(churches, files);
-    await seedDocuments(churches, files);
-    await seedChurchRequests(accounts);
+    await seedReports(mainChurches, files);
+    await seedDocuments(mainChurches, files);
+
+    // Create extra accounts without membership and church requests
+    const accountsWithoutMembership =
+      await seedExtraAccountsWithoutMembership(passwordHash);
+    await seedChurchRequests(accountsWithoutMembership);
 
     // Print summary
-    await printSummary(accounts, churches, memberships, activities, songs);
+    await printSummary(mainAccounts, mainChurches);
 
     console.log('\n🎉 Seeding completed successfully!');
   } catch (error) {

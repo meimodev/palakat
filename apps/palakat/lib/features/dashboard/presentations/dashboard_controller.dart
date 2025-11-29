@@ -211,4 +211,20 @@ class DashboardController extends _$DashboardController {
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }
+
+  /// Signs out the user and clears all locally saved data
+  Future<void> signOut() async {
+    final result = await _authRepo.signOut();
+    result.when(
+      onSuccess: (_) {
+        // Reset dashboard state after signout
+        state = const DashboardState();
+      },
+      onFailure: (_) {
+        // Still reset state even on network error
+        // (Repository already cleared local storage)
+        state = const DashboardState();
+      },
+    );
+  }
 }

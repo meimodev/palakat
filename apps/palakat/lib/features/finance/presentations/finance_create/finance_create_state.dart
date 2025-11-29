@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
+import 'package:palakat_shared/core/models/financial_account_number.dart';
 
 part 'finance_create_state.freezed.dart';
 
@@ -21,8 +22,9 @@ abstract class FinanceCreateState with _$FinanceCreateState {
     /// The amount as a string for input handling
     String? amount,
 
-    /// The account number
-    String? accountNumber,
+    /// The selected financial account number (replaces accountNumber string)
+    /// Requirements: 3.1
+    FinancialAccountNumber? selectedFinancialAccountNumber,
 
     /// The selected payment method (CASH or CASHLESS)
     PaymentMethod? paymentMethod,
@@ -34,7 +36,8 @@ abstract class FinanceCreateState with _$FinanceCreateState {
     /// Error message for amount field
     String? errorAmount,
 
-    /// Error message for account number field
+    /// Error message for account number picker field
+    /// Requirements: 3.1
     String? errorAccountNumber,
 
     /// Error message for payment method field

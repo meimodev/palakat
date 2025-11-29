@@ -1,4 +1,4 @@
 /// Core services
 library;
 
-export 'core/services/services.dart';
+export 'package:palakat_shared/services.dart';

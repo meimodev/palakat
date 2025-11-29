@@ -1,4 +1,4 @@
 /// Utility functions and helpers
 library;
 
-export 'core/utils/utils.dart';
+export 'package:palakat_shared/utils.dart';

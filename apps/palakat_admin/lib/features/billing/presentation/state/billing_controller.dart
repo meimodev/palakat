@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:palakat_admin/constants.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/repositories.dart';
-import 'package:palakat_admin/core/constants/enums.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'billing_screen_state.dart';
 
 part 'billing_controller.g.dart';
@@ -25,12 +26,15 @@ class BillingController extends _$BillingController {
   Future<void> fetchBillingItems() async {
     try {
       state = state.copyWith(billingItems: const AsyncValue.loading());
-      
+
       final result = await billingRepo.getBillingItemsAsync();
-      
+
       result.when(
-        onSuccess: (data) => state = state.copyWith(billingItems: AsyncValue.data(data)),
-        onFailure: (failure) => state = state.copyWith(billingItems: AsyncValue.error(failure.message, StackTrace.current)),
+        onSuccess: (data) =>
+            state = state.copyWith(billingItems: AsyncValue.data(data)),
+        onFailure: (failure) => state = state.copyWith(
+          billingItems: AsyncValue.error(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(billingItems: AsyncValue.error(e, st));
@@ -40,12 +44,15 @@ class BillingController extends _$BillingController {
   Future<void> fetchPaymentHistory() async {
     try {
       state = state.copyWith(paymentHistory: const AsyncValue.loading());
-      
+
       final result = await billingRepo.getPaymentHistoryAsync();
-      
+
       result.when(
-        onSuccess: (data) => state = state.copyWith(paymentHistory: AsyncValue.data(data)),
-        onFailure: (failure) => state = state.copyWith(paymentHistory: AsyncValue.error(failure.message, StackTrace.current)),
+        onSuccess: (data) =>
+            state = state.copyWith(paymentHistory: AsyncValue.data(data)),
+        onFailure: (failure) => state = state.copyWith(
+          paymentHistory: AsyncValue.error(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(paymentHistory: AsyncValue.error(e, st));

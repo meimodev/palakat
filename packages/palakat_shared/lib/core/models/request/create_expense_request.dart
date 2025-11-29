@@ -23,6 +23,11 @@ abstract class CreateExpenseRequest with _$CreateExpenseRequest {
 
     /// The payment method used (CASH or CASHLESS)
     required PaymentMethod paymentMethod,
+
+    /// Optional ID of the FinancialAccountNumber record
+    /// Used to link the expense to a predefined account number
+    /// Requirements: 2.4
+    int? financialAccountNumberId,
   }) = _CreateExpenseRequest;
 
   factory CreateExpenseRequest.fromJson(Map<String, dynamic> json) =>

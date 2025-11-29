@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/models.dart';
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/expense/presentation/state/expense_screen_state.dart';
+import 'package:palakat_admin/models.dart';
+import 'package:palakat_admin/repositories.dart';
+import 'package:palakat_admin/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_controller.g.dart';
@@ -150,13 +150,24 @@ class ExpenseController extends _$ExpenseController {
   Future<void> saveExpense(Expense expense) async {
     final repository = ref.read(expenseRepositoryProvider);
 
-    final payload = expense.toJson();
     Result<Expense, Failure> result;
 
     if (expense.id != null) {
-      result = await repository.updateExpense(expenseId: expense.id!, update: payload);
+      final payload = expense.toJson();
+      result = await repository.updateExpense(
+        expenseId: expense.id!,
+        update: payload,
+      );
     } else {
-      result = await repository.createExpense(data: payload);
+      // Create new expense using CreateExpenseRequest
+      final request = CreateExpenseRequest(
+        accountNumber: expense.accountNumber,
+        amount: expense.amount,
+        churchId: expense.churchId,
+        activityId: expense.activityId,
+        paymentMethod: expense.paymentMethod,
+      );
+      result = await repository.createExpense(request: request);
     }
 
     result.when(
@@ -208,7 +219,8 @@ class GetFetchExpensesRequest {
       if (search != null) 'search': search,
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
-      if (paymentMethod != null) 'paymentMethod': paymentMethod!.name.toUpperCase(),
+      if (paymentMethod != null)
+        'paymentMethod': paymentMethod!.name.toUpperCase(),
     };
   }
 }

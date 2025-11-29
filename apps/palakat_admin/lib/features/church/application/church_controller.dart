@@ -277,9 +277,14 @@ class ChurchController extends _$ChurchController {
   void fetchColumns(int churchId) async {
     try {
       state = state.copyWith(columns: const AsyncLoading());
-      final result = await churchRepo.fetchColumns(churchId: churchId);
+      final paginationRequest = PaginationRequestWrapper<GetFetchColumnsRequest>(
+        page: 1,
+        pageSize: 100,
+        data: GetFetchColumnsRequest(churchId: churchId),
+      );
+      final result = await churchRepo.fetchColumns(paginationRequest: paginationRequest);
       result.when(
-        onSuccess: (columns) => state = state.copyWith(columns: AsyncData(columns)),
+        onSuccess: (paginatedColumns) => state = state.copyWith(columns: AsyncData(paginatedColumns.data)),
         onFailure: (failure) => throw Exception(failure.message),
       );
     } catch (e, st) {

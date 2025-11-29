@@ -1,4 +1,4 @@
 /// Core data models
 library;
 
-export 'core/models/models.dart';
+export 'package:palakat_shared/models.dart';

@@ -1,4 +1,4 @@
 /// Form validation utilities
 library;
 
-export 'core/validation/validation.dart';
+export 'package:palakat_shared/validation.dart';
