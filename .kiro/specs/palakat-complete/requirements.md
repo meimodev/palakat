@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Palakat is a comprehensive church activity management and event notification system designed for Indonesian church communities. The system is a monorepo containing three interconnected applications: a Flutter mobile app for church members, a Flutter web/desktop admin panel for church administrators, and a NestJS REST API backend with PostgreSQL database.
+Palakat is a comprehensive church activity management and event notification system designed for Indonesian church communities (GMIM - Gereja Masehi Injili di Minahasa). The system is a monorepo containing three interconnected applications: a Flutter mobile app for church members, a Flutter web/desktop admin panel for church administrators, and a NestJS REST API backend with PostgreSQL database.
 
 The platform enables churches to:
 - Manage members and organizational structure
 - Track activities with multi-level approval workflows
-- Handle financial operations (revenues and expenses)
+- Handle financial operations (revenues and expenses) with centralized account number management
 - Maintain a digital song book (hymnal)
 - Generate reports and manage documents
 - Support multi-tenant architecture for multiple churches
@@ -36,8 +36,20 @@ This specification serves as the comprehensive system documentation, consolidati
 - **Column**: A church sub-group or division for organizing members
 - **Membership_Position**: A role or title held by a member within the church
 - **Song_Book**: Digital hymnal containing songs from multiple books (NKB, NNBT, KJ, DSL)
-- **Song_Category**: A grouping of songs by hymnal type
 - **Church_Request**: A request submitted by a member to register a new church in the system
+
+### Financial Concepts
+- **Revenue**: A financial record representing income associated with a church activity
+- **Expense**: A financial record representing expenditure associated with a church activity
+- **Financial_Account_Number**: A predefined account number record belonging to a church, containing an account number string and description
+- **Payment_Method**: The method of payment, either CASH or CASHLESS
+- **Finance_Create_Screen**: The screen in the mobile app where users input financial details
+
+### Activity Concepts
+- **Reminder**: A time-based notification preference indicating when users should be reminded before an activity (TEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, TWO_HOURS)
+- **Supervised_Activity**: An Activity record where the current user's membership ID matches the supervisorId field
+- **SERVICE/EVENT Activity**: Activity types that require date, time, location, and reminder fields
+- **ANNOUNCEMENT Activity**: Activity type that does not require reminder field
 
 ### Technical Terms
 - **JWT**: JSON Web Token used for authentication
@@ -52,7 +64,6 @@ This specification serves as the comprehensive system documentation, consolidati
 - **Bottom_Navigation_Bar**: The persistent navigation component at the bottom of the screen
 - **Category_Card**: A collapsible card component that groups related items
 - **Primary_Color**: The main brand color (teal) from which all other colors are derived
-- **Surface_Color**: Background colors for cards, sheets, and containers
 
 ## Requirements
 
@@ -160,7 +171,53 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 6: Approval Workflow Configuration
+### Requirement 6: Activity Reminder
+
+**User Story:** As a supervisor, I want to set a reminder time when creating a SERVICE or EVENT activity, so that members can be notified before the activity starts.
+
+#### Acceptance Criteria
+
+1. WHEN a supervisor creates a SERVICE or EVENT activity with a reminder selection THEN the Backend_API SHALL persist the reminder value to the database
+2. WHEN a supervisor creates an ANNOUNCEMENT activity THEN the Backend_API SHALL accept the request without requiring a reminder field
+3. WHEN the reminder field is provided THEN the Backend_API SHALL validate that the value is one of the allowed enum values (TEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, TWO_HOURS)
+4. IF an invalid reminder value is provided THEN the Backend_API SHALL return a validation error with a descriptive message
+5. WHEN retrieving a single activity THEN the Backend_API SHALL include the reminder field in the response
+6. WHEN retrieving a list of activities THEN the Backend_API SHALL include the reminder field for each activity in the response
+7. WHEN an activity has no reminder set THEN the Backend_API SHALL return null for the reminder field
+8. WHEN a supervisor updates an activity with a new reminder value THEN the Backend_API SHALL persist the updated reminder value
+9. WHEN a supervisor updates an activity to remove the reminder THEN the Backend_API SHALL set the reminder field to null
+10. WHEN the CreateActivityRequest is serialized THEN the System SHALL include the reminder field with the correct enum value format
+11. WHEN serializing and then deserializing a CreateActivityRequest THEN the System SHALL produce an equivalent object (round-trip consistency)
+12. WHEN submitting the activity creation form with a selected reminder THEN the Mobile_App SHALL include the reminder value in the API request
+
+---
+
+### Requirement 7: Supervised Activities
+
+**User Story:** As a church supervisor, I want to see my most recent supervised activities on the Operations screen, so that I can quickly monitor activities under my responsibility.
+
+#### Acceptance Criteria
+
+1. WHEN the Operations screen loads AND the user has supervised activities THEN the System SHALL display a "Supervised Activities" section showing the 3 most recent activities
+2. WHEN the user has no supervised activities THEN the System SHALL hide the "Supervised Activities" section entirely
+3. WHEN displaying supervised activities THEN the System SHALL show the activity title, date, and activity type for each item
+4. WHEN the user taps on a supervised activity item THEN the System SHALL navigate to the activity detail screen
+5. WHEN the "Supervised Activities" section is visible THEN the System SHALL display a "See All" button
+6. WHEN the user taps the "See All" button THEN the System SHALL navigate to the Supervised Activities List screen
+7. WHEN the Supervised Activities List screen loads THEN the System SHALL display all activities supervised by the current user with pagination support
+8. WHEN displaying the activity list THEN the System SHALL show activity title, date, activity type, and approval status for each item
+9. WHEN the Supervised Activities List screen is displayed THEN the System SHALL provide filter options for activity type
+10. WHEN the Supervised Activities List screen is displayed THEN the System SHALL provide filter options for date range (start date and end date)
+11. WHEN the user applies filters THEN the System SHALL update the activity list to show only matching activities
+12. WHEN the user clears filters THEN the System SHALL display all supervised activities
+13. WHEN filters are active THEN the System SHALL indicate the active filter state visually
+14. WHEN fetching supervised activities THEN the System SHALL display a loading indicator
+15. WHEN the fetch operation fails THEN the System SHALL display an error message with a retry option
+16. WHEN the supervised activities list is empty after filtering THEN the System SHALL display an appropriate empty state message
+
+---
+
+### Requirement 8: Approval Workflow Configuration
 
 **User Story:** As a church administrator, I want to configure approval rules that automatically assign approvers based on activity characteristics, so that the approval workflow is consistent and efficient.
 
@@ -175,7 +232,54 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 7: Financial Operations
+### Requirement 9: Financial Account Number Management
+
+**User Story:** As a church administrator, I want to manage a list of predefined financial account numbers, so that users can select from consistent account numbers when recording revenues and expenses.
+
+#### Acceptance Criteria
+
+1. WHEN an administrator navigates to the Financial menu in the Administration section THEN the Admin_Panel SHALL display a list of all financial account numbers for the church
+2. WHEN an administrator clicks the "Add Account Number" button THEN the Admin_Panel SHALL display a form with fields for account number and description
+3. WHEN an administrator submits a valid account number form THEN the System SHALL create a new Financial_Account_Number record associated with the church
+4. WHEN an administrator edits an existing account number THEN the Admin_Panel SHALL display the edit form pre-populated with current values
+5. WHEN an administrator deletes an account number THEN the System SHALL remove the Financial_Account_Number record from the database
+6. WHEN displaying the account number list THEN the Admin_Panel SHALL show account number, description, and creation date for each entry
+7. WHEN the database schema is updated THEN the Backend_API SHALL include a FinancialAccountNumber model with id, accountNumber, description, churchId, createdAt, and updatedAt fields
+8. WHEN a FinancialAccountNumber is created THEN the Backend_API SHALL establish a many-to-one relationship with Church
+9. WHEN a CRUD operation is performed on FinancialAccountNumber THEN the Backend_API SHALL validate that the account number is unique within the same church
+10. WHEN listing financial account numbers THEN the Backend_API SHALL support filtering by churchId and searching by account number or description
+
+---
+
+### Requirement 10: Activity Finance (Revenue/Expense)
+
+**User Story:** As a church supervisor, I want to add revenue or expense records while publishing an activity, so that I can track financial information associated with the activity.
+
+#### Acceptance Criteria
+
+1. WHEN the Activity Publish Screen is displayed for service or event types THEN the System SHALL display a "Financial Record" section with an option to add revenue or expense
+2. WHEN the user taps the "Add Financial Record" button THEN the System SHALL display a Finance Type Picker dialog with "Revenue" and "Expense" options
+3. WHEN the user selects a finance type THEN the System SHALL navigate to the Finance Create Screen with the selected type pre-configured
+4. WHEN the Finance Create Screen returns with valid data THEN the System SHALL display the attached financial record summary in the Activity Publish Screen
+5. WHEN the user removes an attached financial record THEN the System SHALL clear the financial data and restore the "Add Financial Record" button
+6. WHEN the Revenue Create Screen is displayed THEN the System SHALL show input fields for amount, account number picker, and payment method
+7. WHEN the user enters an amount THEN the System SHALL validate that the amount is a positive integer
+8. WHEN the user selects an account number THEN the System SHALL display the account number prominently with the description below it
+9. WHEN the user selects a payment method THEN the System SHALL accept either CASH or CASHLESS values
+10. WHEN all required fields are valid AND the user taps submit THEN the System SHALL return the finance data to the calling screen
+11. WHEN a user opens the Finance_Create_Screen THEN the Mobile_App SHALL display an Account_Number_Picker instead of a text input field
+12. WHEN a user taps the Account_Number_Picker THEN the Mobile_App SHALL display a searchable list of available account numbers
+13. WHEN a user types in the search field THEN the Account_Number_Picker SHALL filter results by matching account number or description
+14. WHEN no matching account numbers are found THEN the Account_Number_Picker SHALL display a "No results found" message
+15. WHEN an activity with attached financial data is submitted THEN the System SHALL first create the activity via the backend API
+16. WHEN the activity creation succeeds THEN the System SHALL create the financial record with the new activity ID
+17. WHEN the financial record creation succeeds THEN the System SHALL display a success message indicating both records were created
+18. IF the financial record creation fails after activity creation THEN the System SHALL display an error message but keep the activity created
+19. WHEN displaying currency amounts THEN the System SHALL format them with Indonesian Rupiah formatting (Rp prefix, thousand separators)
+
+---
+
+### Requirement 11: Financial Operations
 
 **User Story:** As a church administrator, I want to track revenues and expenses associated with church activities, so that I can maintain accurate financial records.
 
@@ -191,7 +295,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 8: Digital Song Book
+### Requirement 12: Digital Song Book
 
 **User Story:** As a church member, I want to access a digital hymnal with searchable songs, so that I can easily find and view song lyrics during services.
 
@@ -204,53 +308,18 @@ This specification serves as the comprehensive system documentation, consolidati
 5. THE Admin_Panel SHALL allow administrators to create and edit songs with multiple parts
 6. THE Backend_API SHALL ensure song index numbers are unique within the system
 7. THE Mobile_App SHALL display song parts in sequential order by part index
+8. WHEN the Song_Book_Screen loads THEN the Mobile_App SHALL display song categories as collapsible Category_Card components
+9. WHEN displaying song categories THEN the Mobile_App SHALL group songs into logical categories (NNBT, KJ, NKB, DSL)
+10. WHEN a user taps a category header THEN the Mobile_App SHALL expand that category to show a search-filtered list of songs from that hymnal
+11. WHEN a user enters a search query in the search field, THE SongBook_Controller SHALL call the Song_Repository to fetch matching songs from the Backend_API
+12. WHEN the Backend_API returns search results, THE SongBook_Controller SHALL update the state with the fetched songs
+13. WHEN the song data is incomplete, THE SongDetail_Controller SHALL fetch the complete song from the Backend_API using the song ID
+14. WHILE the SongBook_Controller is fetching songs, THE Song_Book_Screen SHALL display a loading shimmer placeholder
+15. WHEN the fetch operation fails, THE Song_Book_Screen SHALL display an error message with a retry option
 
 ---
 
-### Requirement 9: Song Book Screen Design
-
-**User Story:** As a church member, I want to see song categories organized clearly with collapsible sections, so that I can quickly find hymns from my preferred hymnal without visual clutter.
-
-#### Acceptance Criteria
-
-1. WHEN the Song_Book_Screen loads THEN the Mobile_App SHALL display song categories as collapsible Category_Card components
-2. WHEN displaying song categories THEN the Mobile_App SHALL group songs into logical categories (NNBT, KJ, NKB, DSL)
-3. WHEN a user taps a category header THEN the Mobile_App SHALL expand that category to show a search-filtered list of songs from that hymnal
-4. THE Song_Book_Screen SHALL use the same Category_Card visual pattern as the Operations_Screen (teal header, neutral background)
-5. WHEN no songs match the search query THEN the Mobile_App SHALL display an empty state with clear messaging
-6. THE Song_Book_Screen SHALL use the Primary_Color (teal) for category headers and interactive elements only
-7. THE Song_Book_Screen SHALL use neutral Surface_Color values for card backgrounds
-8. WHEN displaying song cards THEN the Mobile_App SHALL use subtle shadows and rounded corners (16px radius) for depth
-9. THE Song_Book_Screen SHALL maintain consistent spacing using an 8px grid system
-10. THE Song_Book_Screen SHALL display a search input field at the top of the screen
-11. WHEN a user types in the search field THEN the Mobile_App SHALL filter songs across all categories with 500ms debounce
-12. WHEN the search field is cleared THEN the Mobile_App SHALL return to the category view
-13. WHEN a user taps a song card THEN the Mobile_App SHALL display a ripple effect using Primary_Color at 10% opacity
-14. WHEN a user expands a song category THEN the Mobile_App SHALL persist that expansion state during the session
-15. THE Song_Book_Screen SHALL allow multiple categories to be expanded simultaneously
-
----
-
-### Requirement 10: Song Book Backend Integration
-
-**User Story:** As a church member, I want the songbook to fetch real song data from the backend, so that I can access the complete hymnal database.
-
-#### Acceptance Criteria
-
-1. WHEN a user enters a search query in the search field, THE SongBook_Controller SHALL call the Song_Repository to fetch matching songs from the Backend_API
-2. WHEN the Backend_API returns search results, THE SongBook_Controller SHALL update the state with the fetched songs
-3. WHEN the search query is empty, THE SongBook_Controller SHALL clear the filtered songs list and show the default category view
-4. WHEN the Backend_API returns an error during search, THE SongBook_Controller SHALL update the state with an appropriate error message
-5. WHEN a user selects a song category, THE SongBook_Controller SHALL call the Song_Repository with the category as a search filter
-6. WHEN the song data is incomplete, THE SongDetail_Controller SHALL fetch the complete song from the Backend_API using the song ID
-7. WHILE the SongBook_Controller is fetching songs, THE Song_Book_Screen SHALL display a loading shimmer placeholder
-8. WHEN the fetch operation fails, THE Song_Book_Screen SHALL display an error message with a retry option
-9. THE SongBook_Controller SHALL use the Song_Repository from `palakat_shared` for all API calls
-10. THE Song model mapping SHALL correctly transform Backend_API response format to the Flutter Song model
-
----
-
-### Requirement 11: Church and Location Management
+### Requirement 13: Church and Location Management
 
 **User Story:** As a church administrator, I want to manage church information and locations, so that members can access accurate church details and activity locations.
 
@@ -266,7 +335,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 12: Church Registration Request
+### Requirement 14: Church Registration Request
 
 **User Story:** As a church member, I want to request registration of a new church when my church is not in the system, so that I can eventually join my church's membership in the application.
 
@@ -285,7 +354,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 13: Document and Report Management
+### Requirement 15: Document and Report Management
 
 **User Story:** As a church administrator, I want to upload and manage documents and generate reports, so that I can maintain organized records and analyze church operations.
 
@@ -301,7 +370,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 14: Multi-Church Data Isolation
+### Requirement 16: Multi-Church Data Isolation
 
 **User Story:** As a system administrator, I want to support multiple churches within a single system instance, so that different church organizations can use the platform independently.
 
@@ -316,7 +385,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 15: Unified Monochromatic Color System
+### Requirement 17: Unified Monochromatic Color System
 
 **User Story:** As a user, I want a visually cohesive app experience, so that the interface feels calm and professional without overwhelming color variations.
 
@@ -332,7 +401,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 16: Operations Screen Design
+### Requirement 18: Operations Screen Design
 
 **User Story:** As a church member with operational responsibilities, I want to see my available operations organized clearly, so that I can quickly find and perform the task I need without feeling overwhelmed.
 
@@ -357,7 +426,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 17: Bottom Navigation Bar Design
+### Requirement 19: Bottom Navigation Bar Design
 
 **User Story:** As a user, I want the bottom navigation bar to have a cleaner, more cohesive design, so that navigation feels seamless and consistent with the app's visual language.
 
@@ -375,7 +444,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 18: Data Pagination and Performance
+### Requirement 20: Data Pagination and Performance
 
 **User Story:** As a user of the system, I want to load large datasets efficiently, so that the application remains responsive when viewing lists of activities, members, or financial records.
 
@@ -390,7 +459,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 19: Input Validation and Error Handling
+### Requirement 21: Input Validation and Error Handling
 
 **User Story:** As a user of the system, I want to receive clear error messages when I provide invalid input, so that I can correct mistakes and successfully complete operations.
 
@@ -406,7 +475,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 20: Audit Trail and Timestamps
+### Requirement 22: Audit Trail and Timestamps
 
 **User Story:** As a church administrator, I want to track when records are created and modified, so that I can maintain accountability and audit church operations.
 
@@ -420,7 +489,7 @@ This specification serves as the comprehensive system documentation, consolidati
 
 ---
 
-### Requirement 21: Responsive Layout
+### Requirement 23: Responsive Layout
 
 **User Story:** As a user on different device sizes, I want the app screens to adapt appropriately, so that I have a good experience regardless of my device.
 
@@ -435,3 +504,19 @@ This specification serves as the comprehensive system documentation, consolidati
 7. WHERE screen width is 768 pixels or greater, THE Admin_Panel SHALL display a side drawer navigation
 8. THE Admin_Panel SHALL use flutter_screenutil for consistent sizing across devices
 9. THE Admin_Panel SHALL display data tables with horizontal scrolling on narrow screens
+
+---
+
+### Requirement 24: Code Consolidation
+
+**User Story:** As a developer, I want to remove duplicate code from palakat_admin's core folder, so that I maintain only one version of shared functionality in palakat_shared.
+
+#### Acceptance Criteria
+
+1. WHEN the consolidation is complete THEN the palakat_admin core folder SHALL contain only app-specific code (theme, navigation/routing, layout)
+2. WHEN shared code exists in both palakat_admin and palakat_shared THEN the system SHALL use the palakat_shared version and remove the palakat_admin duplicate
+3. WHEN palakat_admin imports core functionality THEN the system SHALL import from palakat_shared package instead of local core folder
+4. IF code differences exist between palakat_admin and palakat_shared versions THEN the system SHALL merge functionality to support both use cases
+5. WHEN palakat_admin needs models, repositories, services, extensions, utils, validation, or widgets THEN the system SHALL import them from palakat_shared
+6. WHEN barrel exports are updated THEN the system SHALL re-export palakat_shared components for backward compatibility
+7. WHEN the consolidation is complete THEN the palakat mobile app core folder SHALL remain unchanged

@@ -108,7 +108,6 @@ Module Structure
     └── Utilities (Helpers, Validators)
 ```
 
-
 ## Components and Interfaces
 
 ### 1. Authentication System
@@ -170,42 +169,130 @@ sequenceDiagram
 - `APPROVED` - Approver has approved the activity
 - `REJECTED` - Approver has rejected the activity
 
-### 3. Member Management System
+### 3. Financial Account Number System
 
 **Components**:
-- `MembershipController` - Member CRUD operations
-- `MembershipService` - Member business logic
-- `AccountController` - Account management
-- `AccountService` - Account operations
+- `FinancialAccountNumberController` - CRUD endpoints for account numbers
+- `FinancialAccountNumberService` - Business logic for account number management
+- `AccountNumberPicker` (Mobile) - Searchable dropdown widget
 
-**Relationships**:
-- One Account to One Membership (1:1)
-- One Membership to Many MembershipPositions (1:N)
-- One Membership to One Column (N:1)
-- One Membership to One Church (N:1)
-
-### 4. Financial Management System
-
-**Components**:
-- `RevenueController` - Revenue CRUD operations
-- `ExpenseController` - Expense CRUD operations
-- `RevenueService` / `ExpenseService` - Business logic
-
-**Financial Record Structure**:
-```typescript
-interface FinancialRecord {
-  id: number;
-  accountNumber: string;
-  amount: number;
-  paymentMethod: 'CASH' | 'CASHLESS';
-  churchId: number;
-  activityId?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+**Architecture**:
+```mermaid
+graph TB
+    subgraph "Mobile App"
+        FCS[Finance Create Screen]
+        ANP[Account Number Picker]
+        FCS --> ANP
+    end
+    
+    subgraph "Admin Panel"
+        FAL[Financial Account List]
+        FAF[Financial Account Form]
+        FAL --> FAF
+    end
+    
+    subgraph "Backend API"
+        FAC[FinancialAccountNumber Controller]
+        FAS[FinancialAccountNumber Service]
+        FAC --> FAS
+    end
+    
+    subgraph "Database"
+        FAN[FinancialAccountNumber]
+        CH[Church]
+        REV[Revenue]
+        EXP[Expense]
+        FAN -->|many-to-one| CH
+        REV -->|optional one-to-one| FAN
+        EXP -->|optional one-to-one| FAN
+    end
+    
+    ANP -->|GET /financial-account-number| FAC
+    FAL -->|CRUD /financial-account-number| FAC
 ```
 
-### 5. Digital Song Book System
+### 4. Activity Finance System
+
+**Components**:
+- `FinanceCreateScreen` - Form for creating revenue/expense records
+- `FinanceCreateController` - Form state and validation logic
+- `FinanceTypePicker` - Dialog for selecting revenue or expense
+- `FinanceSummaryCard` - Displays attached finance summary
+- `RevenueRepository` / `ExpenseRepository` - API integration
+
+**Architecture**:
+```mermaid
+graph TB
+    subgraph "Activity Publish Flow"
+        APS[ActivityPublishScreen]
+        APSt[ActivityPublishState]
+        APC[ActivityPublishController]
+    end
+    
+    subgraph "Finance Feature"
+        FTP[FinanceTypePicker Dialog]
+        FCS[FinanceCreateScreen]
+        FCSt[FinanceCreateState]
+        FCC[FinanceCreateController]
+        AP[ActivityPicker Widget]
+    end
+    
+    subgraph "Shared Package"
+        RM[Revenue Model]
+        EM[Expense Model]
+        RR[RevenueRepository]
+        ER[ExpenseRepository]
+    end
+    
+    APS --> FTP
+    FTP --> FCS
+    FCS --> FCC
+    FCC --> FCSt
+    FCS --> AP
+    
+    FCC --> RR
+    FCC --> ER
+```
+
+### 5. Supervised Activities System
+
+**Components**:
+- `SupervisedActivitiesSection` - Widget for Operations screen
+- `SupervisedActivitiesListScreen` - Full list with filters
+- `SupervisedActivitiesListController` - State management with filtering
+
+**Architecture**:
+```mermaid
+graph TB
+    subgraph "Operations Feature"
+        OS[OperationsScreen]
+        OC[OperationsController]
+        OSt[OperationsState]
+    end
+    
+    subgraph "Supervised Activities Feature"
+        SAW[SupervisedActivitiesSection Widget]
+        SAL[SupervisedActivitiesListScreen]
+        SALC[SupervisedActivitiesListController]
+        SALSt[SupervisedActivitiesListState]
+    end
+    
+    subgraph "Shared"
+        AR[ActivityRepository]
+        AM[Activity Model]
+    end
+    
+    OS --> SAW
+    OS --> OC
+    OC --> OSt
+    OC --> AR
+    
+    SAL --> SALC
+    SALC --> SALSt
+    SALC --> AR
+```
+
+### 6. Digital Song Book System
 
 **Components**:
 - `SongController` - Song CRUD operations
@@ -233,51 +320,7 @@ interface SongPart {
 }
 ```
 
-### 6. Church Request System
-
-**Components**:
-- `ChurchRequestController` - Church request CRUD operations
-- `ChurchRequestService` - Request management business logic
-
-**Data Model**:
-```typescript
-interface ChurchRequest {
-  id: number;
-  churchName: string;
-  churchAddress: string;
-  contactPerson: string;
-  contactPhone: string;
-  status: 'TODO' | 'DOING' | 'DONE';
-  requesterId: number;
-  requester: Account;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-### 7. Create Activity Screen (Mobile)
-
-**Components**:
-- `CreateActivityScreen` - Main UI screen
-- `CreateActivityController` - Form state and submission logic
-- `CreateActivityState` - Immutable form state
-
-**Form Fields by Activity Type**:
-
-| Field | SERVICE | EVENT | ANNOUNCEMENT |
-|-------|---------|-------|--------------|
-| Bipra | Yes | Yes | Yes |
-| Title | Yes | Yes | Yes |
-| Location | Yes | Yes | No |
-| Pinpoint Location | Yes | Yes | No |
-| Date | Yes | Yes | No |
-| Time | Yes | Yes | No |
-| Reminder | Yes | Yes | No |
-| Note | Yes | Yes | No |
-| Description | No | No | Yes |
-| File Upload | No | No | Yes |
-
-### 8. UI Design System
+### 7. UI Design System
 
 **Color System**:
 - Primary Color: Teal (0xFF009688)
@@ -291,7 +334,6 @@ interface ChurchRequest {
 - Shadows: Subtle elevation with 16px border radius
 - Spacing: 8px grid system
 - Touch targets: Minimum 48x48 pixels
-
 
 ## Data Models
 
@@ -330,12 +372,28 @@ class Activity with _$Activity {
     DateTime? date,
     String? note,
     required ActivityType activityType,
+    Reminder? reminder,
     required DateTime createdAt,
     required DateTime updatedAt,
     Membership? supervisor,
     List<Approver>? approvers,
     Location? location,
   }) = _Activity;
+}
+```
+
+#### FinancialAccountNumber
+```dart
+@freezed
+class FinancialAccountNumber with _$FinancialAccountNumber {
+  const factory FinancialAccountNumber({
+    required int id,
+    required String accountNumber,
+    String? description,
+    required int churchId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _FinancialAccountNumber;
 }
 ```
 
@@ -351,6 +409,8 @@ enum Book { NKB, NNBT, KJ, DSL }
 enum PaymentMethod { CASH, CASHLESS }
 enum RequestStatus { TODO, DOING, DONE }
 enum GeneratedBy { MANUAL, SYSTEM }
+enum Reminder { TEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, TWO_HOURS }
+enum FinanceType { revenue, expense }
 ```
 
 ### Database Schema Key Relationships
@@ -361,9 +421,11 @@ enum GeneratedBy { MANUAL, SYSTEM }
 - Church and Location
 - Activity and Revenue
 - Activity and Expense
+- Revenue and FinancialAccountNumber (optional)
+- Expense and FinancialAccountNumber (optional)
 
 **One-to-Many**:
-- Church to Columns, Memberships, Revenues, Expenses, Documents, Reports, ApprovalRules
+- Church to Columns, Memberships, Revenues, Expenses, Documents, Reports, ApprovalRules, FinancialAccountNumbers
 - Membership to MembershipPositions, Activities (as supervisor), Approvers
 - Activity to Approvers
 - Song to SongParts
@@ -374,119 +436,157 @@ enum GeneratedBy { MANUAL, SYSTEM }
 - Account: phone (unique), email (unique)
 - Song: index (unique)
 - ChurchRequest: requesterId (unique), createdAt, status
+- FinancialAccountNumber: churchId, accountNumber, [churchId, accountNumber] (unique)
 
 ## Correctness Properties
 
 *A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
-### Property 1: Authentication Token Lifecycle
+### Authentication Properties
+
+**Property 1: Authentication Token Lifecycle**
 *For any* valid user credentials, authenticating should return a JWT access token and refresh token with valid structure. *For any* invalid credentials, authentication should be rejected with an appropriate error response.
 **Validates: Requirements 1.1, 1.2**
 
-### Property 2: Account Lockout Enforcement
+**Property 2: Account Lockout Enforcement**
 *For any* account with 5 or more consecutive failed login attempts, subsequent authentication attempts (even with valid credentials) should be rejected until the 30-minute lockout period expires.
 **Validates: Requirements 1.3**
 
-### Property 3: Refresh Token Rotation
+**Property 3: Refresh Token Rotation**
 *For any* valid refresh token, using it to obtain a new access token should invalidate the old refresh token and return a new one (one-time use). After sign-out, the refresh token should be invalidated.
 **Validates: Requirements 1.4, 1.5**
 
-### Property 4: Account Uniqueness Constraints
+### Account and Member Properties
+
+**Property 4: Account Uniqueness Constraints**
 *For any* account creation or update, the system should reject duplicate phone numbers across all accounts, and reject duplicate email addresses where email is provided.
 **Validates: Requirements 3.6, 3.7**
 
-### Property 5: Member Data Persistence
+**Property 5: Member Data Persistence**
 *For any* member creation with name, phone, email, gender, marital status, and date of birth, all fields should be correctly stored and retrievable with correct enum values.
 **Validates: Requirements 3.1, 3.8**
 
-### Property 6: Member Update Timestamps
+**Property 6: Member Update Timestamps**
 *For any* member information update, the updatedAt timestamp should be greater than the previous value.
-**Validates: Requirements 3.4, 20.2**
+**Validates: Requirements 3.4, 22.2**
 
-### Property 7: Activity Creation with Required Fields
+### Activity Properties
+
+**Property 7: Activity Creation with Required Fields**
 *For any* activity creation with title, description, date, location, activity type, and BIPRA, all fields should be correctly stored and the activity should be retrievable.
 **Validates: Requirements 4.1**
 
-### Property 8: Automatic Approver Assignment
+**Property 8: Automatic Approver Assignment**
 *For any* activity creation, the system should automatically assign approvers based on active approval rules matching the activity type and BIPRA, by finding members with the associated membership positions.
-**Validates: Requirements 4.2, 6.4**
+**Validates: Requirements 4.2, 8.4**
 
-### Property 9: Activity Enum Validation
+**Property 9: Activity Enum Validation**
 *For any* activity, the activityType must be one of SERVICE, EVENT, or ANNOUNCEMENT, and bipra must be one of PKB, WKI, PMD, RMJ, or ASM.
 **Validates: Requirements 4.8, 4.9**
 
-### Property 10: Activity Cascade Delete
+**Property 10: Activity Cascade Delete**
 *For any* activity deletion, all associated approver records should also be deleted.
 **Validates: Requirements 4.7**
 
-### Property 11: Approval Status Update
+**Property 11: Approval Status Update**
 *For any* approver reviewing an activity, updating the status to APPROVED or REJECTED should persist correctly and be retrievable.
 **Validates: Requirements 4.4**
 
-### Property 12: Approval Rule Active State
-*For any* approval rule, toggling the active state should persist correctly, and only active rules should be applied during activity creation.
-**Validates: Requirements 6.3**
+### Activity Reminder Properties
 
-### Property 13: Financial Record Creation
-*For any* revenue or expense creation with account number, amount, and payment method (CASH or CASHLESS), all fields should be correctly stored and the record should be associated with the correct church.
-**Validates: Requirements 7.1, 7.2, 7.3, 7.6**
+**Property 12: Reminder Persistence on Create**
+*For any* valid SERVICE or EVENT activity with a valid reminder value, creating the activity and then retrieving it SHALL return the same reminder value that was provided.
+**Validates: Requirements 6.1, 6.5**
 
-### Property 14: Financial Record Activity Association
-*For any* financial record associated with an activity, the relationship should be one-to-one (only one revenue and one expense per activity).
-**Validates: Requirements 7.5**
+**Property 13: Reminder Validation**
+*For any* reminder value, the backend SHALL accept it if and only if it is one of the valid enum values (TEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, TWO_HOURS) or null.
+**Validates: Requirements 6.3, 6.4**
 
-### Property 15: Financial Aggregation
-*For any* date range query, the total revenue and expense amounts should equal the sum of individual records within that range.
-**Validates: Requirements 7.7**
+**Property 14: CreateActivityRequest Round-Trip Serialization**
+*For any* valid CreateActivityRequest with a reminder value, serializing to JSON and then deserializing SHALL produce an equivalent object.
+**Validates: Requirements 6.10, 6.11**
 
-### Property 16: Song Index Uniqueness
+### Financial Account Number Properties
+
+**Property 15: Create-Read Round Trip**
+*For any* valid account number and description, creating a FinancialAccountNumber and then retrieving it by ID should return a record with matching accountNumber and description values.
+**Validates: Requirements 9.3, 9.7**
+
+**Property 16: Delete Removes Record**
+*For any* existing FinancialAccountNumber, deleting it should result in subsequent retrieval attempts returning not found.
+**Validates: Requirements 9.5**
+
+**Property 17: Uniqueness Within Church**
+*For any* church, attempting to create two FinancialAccountNumbers with the same accountNumber string should fail on the second attempt with a uniqueness violation error.
+**Validates: Requirements 9.9**
+
+**Property 18: Search Filter Correctness**
+*For any* search query string, all returned FinancialAccountNumbers should have either accountNumber or description containing the search string (case-insensitive).
+**Validates: Requirements 9.10**
+
+### Activity Finance Properties
+
+**Property 19: Financial Section Visibility by Activity Type**
+*For any* Activity Publish Screen with activity type service or event, the financial record section SHALL be visible; for announcement type, the section SHALL be hidden.
+**Validates: Requirements 10.1**
+
+**Property 20: Amount Validation Correctness**
+*For any* string input for amount, the validation SHALL pass only if the string represents a positive integer (greater than 0), and SHALL fail for empty strings, non-numeric strings, zero, and negative numbers.
+**Validates: Requirements 10.7**
+
+**Property 21: Currency Formatting Correctness**
+*For any* positive integer amount, the formatted display SHALL start with "Rp " prefix and use period (.) as thousand separator (e.g., 1500000 → "Rp 1.500.000").
+**Validates: Requirements 10.19**
+
+**Property 22: Combined Creation Order and ID Passing**
+*For any* activity submission with attached finance data, the system SHALL first create the activity, then create the finance record using the returned activity ID.
+**Validates: Requirements 10.15, 10.16**
+
+### Supervised Activities Properties
+
+**Property 23: Recent Activities Limit**
+*For any* list of supervised activities returned from the API, the Operations screen SHALL display at most 3 activities, specifically the most recent ones by date.
+**Validates: Requirements 7.1**
+
+**Property 24: Filter Application Correctness**
+*For any* filter criteria (activity type and/or date range) applied to the activities list, all displayed activities SHALL match the specified filter criteria.
+**Validates: Requirements 7.11**
+
+**Property 25: Active Filter Indicator Consistency**
+*For any* state where filterActivityType is non-null OR filterStartDate is non-null OR filterEndDate is non-null, the hasActiveFilters flag SHALL be true.
+**Validates: Requirements 7.13**
+
+### Song Book Properties
+
+**Property 26: Song Index Uniqueness**
 *For any* song creation, the index number must be unique across all songs in the system.
-**Validates: Requirements 8.6**
+**Validates: Requirements 12.6**
 
-### Property 17: Song Parts Ordering
+**Property 27: Song Parts Ordering**
 *For any* song with multiple parts, retrieving the song should return parts in sequential order by part index.
-**Validates: Requirements 8.7**
+**Validates: Requirements 12.7**
 
-### Property 18: Song Search
+**Property 28: Song Search**
 *For any* search query by title or index number, all returned songs should match the search criteria.
-**Validates: Requirements 8.3**
-
-### Property 19: Song Data Transformation
-*For any* song fetched from the Backend API, the Song model mapping should correctly transform the response format to the Flutter Song model without data loss.
-**Validates: Requirements 10.10**
-
-### Property 20: Column Name Uniqueness
-*For any* column creation within a church, the column name must be unique within that church (but can be duplicated across different churches).
-**Validates: Requirements 11.4**
-
-### Property 21: Church Location Association
-*For any* church, exactly one location (with name, latitude, longitude) must be associated.
-**Validates: Requirements 11.2**
-
-### Property 22: Church Request Uniqueness
-*For any* user account, only one church registration request can exist at a time.
 **Validates: Requirements 12.3**
 
-### Property 23: Church Request Status Enum
-*For any* church request, the status must be one of TODO, DOING, or DONE.
-**Validates: Requirements 12.4**
+### Multi-Church and System Properties
 
-### Property 24: Multi-Church Data Isolation
+**Property 29: Multi-Church Data Isolation**
 *For any* authenticated user, all queries should return only data belonging to the user's church, and data from other churches should never be accessible.
-**Validates: Requirements 14.1, 14.2, 14.4, 14.5, 14.6**
+**Validates: Requirements 16.1, 16.2, 16.4, 16.5, 16.6**
 
-### Property 25: Pagination Correctness
+**Property 30: Pagination Correctness**
 *For any* paginated list endpoint, the returned page should contain at most the requested page size (max 100), and pagination metadata (total count, current page, total pages) should be mathematically consistent.
-**Validates: Requirements 18.1, 18.2, 18.5**
+**Validates: Requirements 20.1, 20.2, 20.5**
 
-### Property 26: Validation Error Response
+**Property 31: Validation Error Response**
 *For any* request with invalid data, the Backend API should return a 400 Bad Request response with detailed error messages.
-**Validates: Requirements 19.2**
+**Validates: Requirements 21.2**
 
-### Property 27: Timestamp Management
-*For any* record creation, createdAt should be automatically set to the current UTC time. *For any* record update, updatedAt should be automatically updated to the current UTC time. All timestamps should be stored in UTC format.
-**Validates: Requirements 20.1, 20.2, 20.4**
-
+**Property 32: Timestamp Management**
+*For any* record creation, createdAt should be automatically set to the current UTC time. *For any* record update, updatedAt should be automatically updated to the current UTC time.
+**Validates: Requirements 22.1, 22.2, 22.4**
 
 ## Error Handling
 
@@ -540,7 +640,7 @@ The system uses both unit testing and property-based testing:
 
 ### Backend Testing
 
-**Framework**: Jest for unit tests, Supertest for E2E tests
+**Framework**: Jest for unit tests, Supertest for E2E tests, fast-check for property-based tests
 
 **Unit Tests**:
 - Service layer business logic
@@ -551,7 +651,7 @@ The system uses both unit testing and property-based testing:
 **Property-Based Tests**:
 - Use `fast-check` library for property-based testing
 - Minimum 100 iterations per property test
-- Each property test tagged with format: `**Feature: palakat-system-overview, Property {number}: {property_text}**`
+- Each property test tagged with format: `**Feature: palakat-complete, Property {number}: {property_text}**`
 
 **Test Coverage Goals**:
 - Service layer: 80%+ coverage
@@ -560,7 +660,7 @@ The system uses both unit testing and property-based testing:
 
 ### Frontend Testing
 
-**Framework**: Flutter test framework with Mockito
+**Framework**: Flutter test framework with Mockito, glados/kiri_check for property-based testing
 
 **Unit Tests**:
 - Utility functions
@@ -574,9 +674,9 @@ The system uses both unit testing and property-based testing:
 - State management logic
 
 **Property-Based Tests**:
-- Use glados or quickcheck Dart package
 - Focus on data model serialization/deserialization
 - Form validation logic
+- Currency formatting
 
 ### Property-Based Test Requirements
 
@@ -585,24 +685,6 @@ Each correctness property from this design document must be implemented as a pro
 2. Minimum 100 test iterations
 3. Smart generators that constrain to valid input space
 4. Clear assertion of the property being tested
-
-Example format:
-```typescript
-// **Feature: palakat-system-overview, Property 4: Account Uniqueness Constraints**
-// **Validates: Requirements 3.6, 3.7**
-describe('Account uniqueness', () => {
-  it('should reject duplicate phone numbers', () => {
-    fc.assert(
-      fc.property(fc.string(), fc.string(), (phone, name) => {
-        // Create first account
-        // Attempt to create second account with same phone
-        // Assert rejection
-      }),
-      { numRuns: 100 }
-    );
-  });
-});
-```
 
 ## Performance Considerations
 
@@ -660,3 +742,35 @@ describe('Account uniqueness', () => {
 - SQL injection prevention via Prisma parameterized queries
 - CORS configuration for allowed origins
 - HTTPS enforcement in production
+
+## Code Consolidation Architecture
+
+### Shared Package Structure
+
+```
+palakat_shared/
+├── lib/core/
+│   ├── config/      (app config, endpoints)
+│   ├── constants/   (app constants, enums)
+│   ├── extension/   (dart extensions)
+│   ├── models/      (freezed data models)
+│   ├── repositories/(data access layer)
+│   ├── services/    (http, local storage)
+│   ├── utils/       (date utils, debouncer, etc)
+│   ├── validation/  (form validation)
+│   └── widgets/     (reusable UI components)
+└── Barrel exports (models.dart, services.dart, etc.)
+```
+
+### App-Specific Code
+
+**palakat_admin keeps**:
+- `lib/core/theme/` - Admin uses indigo color scheme
+- `lib/core/layout/` - AppScaffold with admin-specific auth
+- `lib/core/navigation/` - Web-specific page transitions
+
+**palakat (mobile) keeps**:
+- `lib/core/assets/` - Mobile-specific assets
+- `lib/core/constants/` - Mobile-specific constants
+- `lib/core/routing/` - Mobile navigation
+- `lib/core/widgets/` - Mobile-specific widgets
