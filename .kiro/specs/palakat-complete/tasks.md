@@ -269,40 +269,40 @@ The following major features have been fully implemented:
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 20. Mobile App - Create Activity Screen Completion
-  - [ ] 20.1 Implement create activity screen navigation
+  - [x] 20.1 Implement create activity screen navigation
     - Add navigation from operations screen publishing cards
     - Pass activity type as route parameter
     - Display activity type in screen title
     - _Requirements: 5.1, 5.2, 5.3_
-  - [ ] 20.2 Implement activity form by type
+  - [x] 20.2 Implement activity form by type
     - Create form fields for SERVICE/EVENT type
     - Create form fields for ANNOUNCEMENT type
     - Implement conditional field display based on type
     - _Requirements: 5.4, 5.5, 5.6_
-  - [ ] 20.3 Implement form validation
+  - [x] 20.3 Implement form validation
     - Add validation for required fields
     - Display error messages for empty fields
     - Enable/disable submit button based on validation
     - _Requirements: 5.7, 5.8, 5.9_
-  - [ ] 20.4 Implement location picker integration
+  - [x] 20.4 Implement location picker integration
     - Navigate to map screen on pinpoint field tap
     - Receive and display selected location
     - _Requirements: 5.10, 5.11_
-  - [ ] 20.5 Implement date and time pickers
+  - [x] 20.5 Implement date and time pickers
     - Add date picker dialog
     - Add time picker dialog
     - Format and display selected values
     - _Requirements: 5.12, 5.13, 5.14, 5.15_
-  - [ ] 20.6 Implement form submission
+  - [x] 20.6 Implement form submission
     - Send create activity request to backend
     - Display loading indicator during submission
     - Handle success and error responses
     - _Requirements: 5.16, 5.17, 5.18, 5.19_
-  - [ ] 20.7 Display author information
+  - [x] 20.7 Display author information
     - Show signed-in member name as publisher
     - Display church name and current date
     - _Requirements: 5.20_
-  - [ ] 20.8 Implement file upload for announcements
+  - [x] 20.8 Implement file upload for announcements
     - Add file picker for announcement type
     - Display selected file name
     - _Requirements: 5.21_
