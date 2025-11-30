@@ -156,9 +156,7 @@ class _SupervisedActivitiesListScreenState
           onTap: () {
             context.pushNamed(
               AppRoute.activityDetail,
-              extra: RouteParam(
-                params: {RouteParamKey.activity: activity.toJson()},
-              ),
+              pathParameters: {'activityId': activity.id.toString()},
             );
           },
         );

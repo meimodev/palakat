@@ -118,7 +118,7 @@ class OperationsScreen extends ConsumerWidget {
   void _handleActivityTap(BuildContext context, Activity activity) {
     context.pushNamed(
       AppRoute.activityDetail,
-      extra: RouteParam(params: {RouteParamKey.activity: activity.toJson()}),
+      pathParameters: {'activityId': activity.id.toString()},
     );
   }
 

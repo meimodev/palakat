@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/extensions.dart';
 
 /// Widget displaying a single activity item in the supervised activities list.
@@ -69,11 +70,15 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                 ],
               ),
               Gap.h12,
-              // Bottom row: Activity type badge and Approval status
+              // Bottom row: Activity type badge, Finance badge, and Approval status
               Row(
                 children: [
                   _ActivityTypeBadge(activityType: activity.activityType),
                   Gap.w8,
+                  if (activity.financeType != null) ...[
+                    _FinanceBadge(financeType: activity.financeType!),
+                    Gap.w8,
+                  ],
                   _ApprovalStatusBadge(activity: activity),
                 ],
               ),
@@ -179,6 +184,45 @@ class _ActivityTypeBadge extends StatelessWidget {
       case ActivityType.announcement:
         return BaseColor.yellow[700]!;
     }
+  }
+}
+
+/// Finance type badge (revenue/expense)
+class _FinanceBadge extends StatelessWidget {
+  const _FinanceBadge({required this.financeType});
+
+  final FinanceType financeType;
+
+  @override
+  Widget build(BuildContext context) {
+    final isRevenue = financeType == FinanceType.revenue;
+    final color = isRevenue ? BaseColor.green[700]! : BaseColor.red[700]!;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w8,
+        vertical: BaseSize.h4,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(financeType.icon, size: BaseSize.w12, color: color),
+          Gap.w4,
+          Text(
+            financeType.displayName,
+            style: BaseTypography.labelMedium.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

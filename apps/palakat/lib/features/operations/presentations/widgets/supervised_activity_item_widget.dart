@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/extensions.dart';
 
 /// Widget displaying a single supervised activity item.
@@ -101,7 +102,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                       ],
                     ),
                     Gap.h4,
-                    // Date and approval status
+                    // Date, approval status, and financial type
                     Row(
                       children: [
                         Text(
@@ -127,6 +128,19 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        if (activity.financeType != null) ...[
+                          Gap.w8,
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: BaseColor.neutral[300],
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Gap.w8,
+                          _FinanceTypeBadge(financeType: activity.financeType!),
+                        ],
                       ],
                     ),
                   ],
@@ -191,5 +205,40 @@ class _ActivityTypeBadge extends StatelessWidget {
       case ActivityType.announcement:
         return BaseColor.yellow[700]!;
     }
+  }
+}
+
+/// Compact badge displaying the financial type
+class _FinanceTypeBadge extends StatelessWidget {
+  const _FinanceTypeBadge({required this.financeType});
+
+  final FinanceType financeType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w6,
+        vertical: BaseSize.h4,
+      ),
+      decoration: BoxDecoration(
+        color: financeType.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(financeType.icon, size: 10, color: financeType.color),
+          Gap.w4,
+          Text(
+            financeType.displayName,
+            style: BaseTypography.labelSmall.copyWith(
+              color: financeType.color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

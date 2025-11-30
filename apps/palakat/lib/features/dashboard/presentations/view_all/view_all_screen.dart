@@ -30,28 +30,23 @@ class ViewAllScreen extends ConsumerWidget {
           Column(
             children: [
               ...DateTime.now().generateThisWeekDates.map(
-                    (date) => Padding(
-                      padding: EdgeInsets.only(bottom: BaseSize.h16),
-                      child: CardActivitySectionWidget(
-                        title: date.EEEEddMMM,
-                        today: date.isSameDay(DateTime.now()),
-                        activities: state.activities
-                            .where((activity) =>
-                                activity.date.isSameDay(date))
-                            .toList(),
-                        onPressedCard: (Activity activity) {
-                          context.pushNamed(
-                            AppRoute.activityDetail,
-                            extra: RouteParam(
-                              params: {
-                                RouteParamKey.activity: activity.toJson(),
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                (date) => Padding(
+                  padding: EdgeInsets.only(bottom: BaseSize.h16),
+                  child: CardActivitySectionWidget(
+                    title: date.EEEEddMMM,
+                    today: date.isSameDay(DateTime.now()),
+                    activities: state.activities
+                        .where((activity) => activity.date.isSameDay(date))
+                        .toList(),
+                    onPressedCard: (Activity activity) {
+                      context.pushNamed(
+                        AppRoute.activityDetail,
+                        pathParameters: {'activityId': activity.id.toString()},
+                      );
+                    },
                   ),
+                ),
+              ),
             ],
           ),
         ],

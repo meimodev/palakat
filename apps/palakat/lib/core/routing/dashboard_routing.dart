@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
 
@@ -14,23 +13,20 @@ final dashboardRouting = GoRoute(
       builder: (context, state) => const ViewAllScreen(),
     ),
     GoRoute(
-      path: 'activity-detail',
+      path: 'activity-detail/:activityId',
       name: AppRoute.activityDetail,
       builder: (context, state) {
-        final params = (state.extra as RouteParam?)?.params;
-        final activityMap =
-            params?[RouteParamKey.activity] as Map<String, dynamic>?;
+        final activityIdStr = state.pathParameters['activityId'];
 
         assert(
-          activityMap != null,
-          'RouteParamKey.activity cannot be null',
+          activityIdStr != null,
+          'activityId path parameter cannot be null',
         );
 
-        return ActivityDetailScreen(
-          activity: Activity.fromJson(activityMap!),
-        );
+        final activityId = int.parse(activityIdStr!);
+
+        return ActivityDetailScreen(activityId: activityId);
       },
     ),
-
   ],
 );

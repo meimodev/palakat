@@ -35,6 +35,7 @@ class FinancialAccountListController extends _$FinancialAccountListController {
         data: GetFinancialAccountsRequest(
           churchId: church.id!,
           search: state.searchQuery.isEmpty ? null : state.searchQuery,
+          type: state.typeFilter?.value,
         ),
         page: state.currentPage,
         pageSize: state.pageSize,
@@ -81,6 +82,11 @@ class FinancialAccountListController extends _$FinancialAccountListController {
       state = state.copyWith(currentPage: state.currentPage - 1);
       _fetchAccounts();
     }
+  }
+
+  void onChangedTypeFilter(FinanceType? type) {
+    state = state.copyWith(typeFilter: type, currentPage: 1);
+    _fetchAccounts();
   }
 
   Future<void> refresh() async {

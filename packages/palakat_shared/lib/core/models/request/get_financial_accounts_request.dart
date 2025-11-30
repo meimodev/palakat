@@ -9,6 +9,7 @@ abstract class GetFinancialAccountsRequest with _$GetFinancialAccountsRequest {
   const factory GetFinancialAccountsRequest({
     required int churchId,
     String? search,
+    String? type,
   }) = _GetFinancialAccountsRequest;
 
   factory GetFinancialAccountsRequest.fromJson(Map<String, dynamic> json) =>

@@ -94,8 +94,10 @@
   // Git settings
   "git.ignoreLimitWarning": true,
   "cSpell.words": [
+    "autoincrement",
     "BIPRA",
     "riverpod",
-    "screenutil"
+    "screenutil",
+    "sidi"
   ]
 }

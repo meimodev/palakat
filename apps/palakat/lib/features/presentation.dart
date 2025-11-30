@@ -15,7 +15,9 @@ export 'authentication/presentations/authentication_state.dart';
 export 'authentication/presentations/otp_verification_screen.dart';
 export 'authentication/presentations/phone_input_screen.dart';
 export 'authentication/presentations/widgets/widgets.dart';
+export 'dashboard/presentations/activity_detail/activity_detail_controller.dart';
 export 'dashboard/presentations/activity_detail/activity_detail_screen.dart';
+export 'dashboard/presentations/activity_detail/activity_detail_state.dart';
 //Dashboard
 export 'dashboard/presentations/dashboard_controller.dart';
 export 'dashboard/presentations/dashboard_screen.dart';

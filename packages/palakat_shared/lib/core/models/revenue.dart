@@ -16,7 +16,7 @@ abstract class Revenue with _$Revenue {
     required PaymentMethod paymentMethod,
     DateTime? createdAt,
     DateTime? updatedAt,
-    Activity? activity,
+    @JsonKey(includeToJson: false, includeFromJson: false) Activity? activity,
   }) = _Revenue;
 
   factory Revenue.fromJson(Map<String, dynamic> json) =>

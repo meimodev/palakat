@@ -12,5 +12,6 @@ abstract class FinancialAccountListState with _$FinancialAccountListState {
     @Default('') String searchQuery,
     @Default(10) int pageSize,
     @Default(1) int currentPage,
+    FinanceType? typeFilter,
   }) = _FinancialAccountListState;
 }

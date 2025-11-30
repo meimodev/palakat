@@ -135,6 +135,20 @@ class _FinancialAccountListScreenState
                     filtersConfig: AppTableFiltersConfig(
                       searchHint: 'Search by account number or description...',
                       onSearchChanged: controller.onChangedSearch,
+                      dropdownLabel: 'Type',
+                      dropdownOptions: {
+                        for (var type in FinanceType.values)
+                          type.value: type.displayName,
+                      },
+                      dropdownValue: state.typeFilter?.value,
+                      onDropdownChanged: (value) {
+                        final type = value != null
+                            ? FinanceType.values.firstWhere(
+                                (t) => t.value == value,
+                              )
+                            : null;
+                        controller.onChangedTypeFilter(type);
+                      },
                     ),
                     columns: _buildTableColumns(),
                   ),

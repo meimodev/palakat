@@ -47,11 +47,7 @@ class AnnouncementWidget extends StatelessWidget {
                 onPressedCard: () {
                   context.pushNamed(
                     AppRoute.activityDetail,
-                    extra: RouteParam(
-                      params: {
-                        RouteParamKey.activity: announcement.toJson(),
-                      },
-                    ),
+                    pathParameters: {'activityId': announcement.id.toString()},
                   );
                 },
                 onPressedDownload: () {

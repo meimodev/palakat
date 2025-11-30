@@ -13,11 +13,12 @@ abstract class Approver with _$Approver {
     int? membershipId,
     Membership? membership,
     int? activityId,
-    Activity? activity,
+    @JsonKey(includeToJson: false, includeFromJson: false) Activity? activity,
     @Default(ApprovalStatus.unconfirmed) ApprovalStatus status,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _Approver;
 
-  factory Approver.fromJson(Map<String, dynamic> json) => _$ApproverFromJson(json);
+  factory Approver.fromJson(Map<String, dynamic> json) =>
+      _$ApproverFromJson(json);
 }

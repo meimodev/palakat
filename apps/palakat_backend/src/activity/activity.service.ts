@@ -103,9 +103,29 @@ export class ActivitiesService {
               },
             },
           },
+          revenue: {
+            select: {
+              id: true,
+            },
+          },
+          expense: {
+            select: {
+              id: true,
+            },
+          },
         },
       }),
     ]);
+
+    // Transform activities to include hasRevenue/hasExpense flags
+    const transformedActivities = activities.map((activity: any) => {
+      const { revenue, expense, ...rest } = activity;
+      return {
+        ...rest,
+        hasRevenue: revenue !== null,
+        hasExpense: expense !== null,
+      };
+    });
 
     // Track which fields matched the search
     let searchInfo = '';
@@ -128,7 +148,7 @@ export class ActivitiesService {
 
     return {
       message: `Activities retrieved successfully${searchInfo}`,
-      data: activities,
+      data: transformedActivities,
       total,
     };
   }
@@ -168,11 +188,50 @@ export class ActivitiesService {
             },
           },
         },
+        revenue: {
+          select: {
+            id: true,
+            amount: true,
+            accountNumber: true,
+            paymentMethod: true,
+            financialAccountNumber: {
+              select: {
+                accountNumber: true,
+                description: true,
+              },
+            },
+          },
+        },
+        expense: {
+          select: {
+            id: true,
+            amount: true,
+            accountNumber: true,
+            paymentMethod: true,
+            financialAccountNumber: {
+              select: {
+                accountNumber: true,
+                description: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    // Transform to include hasRevenue/hasExpense flags and financial data
+    const { revenue, expense, ...rest } = activity;
+    const transformedActivity = {
+      ...rest,
+      hasRevenue: revenue !== null,
+      hasExpense: expense !== null,
+      revenue: revenue,
+      expense: expense,
+    };
+
     return {
       message: 'Activity retrieved successfully',
-      data: activity,
+      data: transformedActivity,
     };
   }
 

@@ -17,7 +17,7 @@ abstract class Expense with _$Expense {
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
-    Activity? activity,
+    @JsonKey(includeToJson: false, includeFromJson: false) Activity? activity,
   }) = _Expense;
 
   factory Expense.fromJson(Map<String, dynamic> json) =>
