@@ -2,7 +2,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -1076,27 +1075,233 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           maxLines: 4,
         ),
         Gap.h12,
-        InputWidget<String>.dropdown(
-          label: 'Attachment (Optional)',
-          hint: 'Upload image, PDF, or document',
-          currentInputValue: state.file,
-          endIcon: Assets.icons.line.download,
-          errorText: state.errorFile,
-          onChanged: controller.onChangedFile,
-          optionLabel: (value) => value,
-          onPressedWithResult: () async {
-            final result = await FilePicker.platform.pickFiles(
-              type: FileType.custom,
-              allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
-            );
-            if (result != null && result.files.isNotEmpty) {
-              return result.files.first.name;
-            }
-            return null;
-          },
-        ),
+        _buildFileUploadField(state, controller),
       ],
     );
+  }
+
+  /// Builds the file upload field for announcements.
+  /// Requirements: 5.21 - Opens file picker dialog when tapped
+  Widget _buildFileUploadField(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+  ) {
+    final hasFile = state.file != null && state.file!.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Attachment (Optional)',
+          style: BaseTypography.titleMedium.copyWith(
+            color: BaseColor.neutral[800],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Gap.h6,
+        if (hasFile)
+          _buildSelectedFileCard(state, controller)
+        else
+          _buildFilePickerButton(controller),
+      ],
+    );
+  }
+
+  /// Builds the file picker button when no file is selected.
+  Widget _buildFilePickerButton(ActivityPublishController controller) {
+    return GestureDetector(
+      onTap: () => _handleFilePick(controller),
+      child: Container(
+        padding: EdgeInsets.all(BaseSize.w16),
+        decoration: BoxDecoration(
+          color: BaseColor.neutral[50],
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          border: Border.all(
+            color: BaseColor.neutral[300]!,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.primary[100],
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: Icon(
+                Icons.upload_file,
+                size: BaseSize.w20,
+                color: BaseColor.primary[600],
+              ),
+            ),
+            Gap.w12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Upload File',
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.primary[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    'JPG, PNG, PDF, DOC, DOCX',
+                    style: BaseTypography.bodySmall.copyWith(
+                      color: BaseColor.neutral[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.add_circle_outline,
+              size: BaseSize.w20,
+              color: BaseColor.primary[600],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the selected file card showing file name with remove option.
+  Widget _buildSelectedFileCard(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+  ) {
+    final fileName = state.file ?? '';
+    final fileExtension = fileName.split('.').last.toLowerCase();
+    final fileIcon = _getFileIcon(fileExtension);
+    final fileColor = _getFileColor(fileExtension);
+
+    return Container(
+      padding: EdgeInsets.all(BaseSize.w12),
+      decoration: BoxDecoration(
+        color: fileColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        border: Border.all(color: fileColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(BaseSize.w10),
+            decoration: BoxDecoration(
+              color: fileColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            ),
+            child: Icon(fileIcon, size: BaseSize.w24, color: fileColor),
+          ),
+          Gap.w12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  fileName,
+                  style: BaseTypography.bodyMedium.copyWith(
+                    color: BaseColor.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Gap.h4,
+                Text(
+                  fileExtension.toUpperCase(),
+                  style: BaseTypography.bodySmall.copyWith(color: fileColor),
+                ),
+              ],
+            ),
+          ),
+          Gap.w8,
+          // Change file button
+          GestureDetector(
+            onTap: () => _handleFilePick(controller),
+            child: Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.neutral[100],
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: Icon(
+                Icons.edit_outlined,
+                size: BaseSize.w18,
+                color: BaseColor.neutral[600],
+              ),
+            ),
+          ),
+          Gap.w8,
+          // Remove file button
+          GestureDetector(
+            onTap: () => controller.clearSelectedFile(),
+            child: Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: Icon(
+                Icons.close,
+                size: BaseSize.w18,
+                color: BaseColor.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Handles file picking using FilePicker.
+  /// Requirements: 5.21
+  Future<void> _handleFilePick(ActivityPublishController controller) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+      controller.onSelectedFile(fileName: file.name, filePath: file.path);
+    }
+  }
+
+  /// Returns the appropriate icon for a file extension.
+  IconData _getFileIcon(String extension) {
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return Icons.image;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  /// Returns the appropriate color for a file extension.
+  Color _getFileColor(String extension) {
+    switch (extension) {
+      case 'pdf':
+        return BaseColor.error;
+      case 'doc':
+      case 'docx':
+        return BaseColor.blue[600]!;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return BaseColor.primary[600]!;
+      default:
+        return BaseColor.neutral[600]!;
+    }
   }
 
   Widget _buildPublisherSection(ActivityPublishState state) {
@@ -1231,6 +1436,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishState state,
     ActivityPublishController controller,
   ) {
+    // Requirements: 5.7, 5.8, 5.9 - Enable/disable submit button based on validation
+    final isEnabled = state.isFormValid && !state.loading;
+
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
@@ -1253,12 +1461,15 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         child: ButtonWidget.primary(
           text: 'Create ${widget.type.displayName}',
           isLoading: state.loading,
-          onTap: () => _handleSubmit(controller),
+          isEnabled: isEnabled,
+          onTap: isEnabled ? () => _handleSubmit(controller) : null,
         ),
       ),
     );
   }
 
+  /// Handles form submission.
+  /// Requirements: 5.7, 5.8, 5.9 - Display error messages for empty fields
   Future<void> _handleSubmit(ActivityPublishController controller) async {
     final success = await controller.submit();
     if (!mounted) return;
@@ -1268,6 +1479,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       _showSnackBar('Activity created successfully!');
     } else {
       final state = ref.read(activityPublishControllerProvider(widget.type));
+      // Show specific error message or generic validation message
       _showSnackBar(state.errorMessage ?? 'Please fill all required fields');
     }
   }
@@ -1363,9 +1575,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     if (financeType == null || !mounted) return;
 
     // Step 2: Navigate to Finance Create Screen in embedded mode
-    final financeData = await Navigator.of(context).push<FinanceData>(
+    if (!mounted) return;
+    final financeData = await Navigator.of(this.context).push<FinanceData>(
       MaterialPageRoute(
-        builder: (context) =>
+        builder: (ctx) =>
             FinanceCreateScreen(financeType: financeType, isStandalone: false),
       ),
     );

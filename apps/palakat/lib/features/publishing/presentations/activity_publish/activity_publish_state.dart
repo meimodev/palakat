@@ -25,6 +25,8 @@ abstract class ActivityPublishState with _$ActivityPublishState {
     String? note,
     String? description,
     String? file,
+    // File path for upload (stores the actual file path)
+    String? filePath,
     // Error messages for form fields
     String? errorBipra,
     String? errorTitle,

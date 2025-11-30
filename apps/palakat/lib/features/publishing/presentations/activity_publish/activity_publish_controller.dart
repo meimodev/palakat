@@ -57,19 +57,15 @@ class ActivityPublishController extends _$ActivityPublishController {
     if (state.type == ActivityType.announcement) {
       final titleError = validateTitle(state.title);
       final descriptionError = validateDescription(state.description);
-      final fileError = validateFile(state.file);
       final bipraError = validateBipra(state.bipra);
 
+      // File is optional for announcements, so we don't validate it
       final isValid =
-          titleError == null &&
-          descriptionError == null &&
-          fileError == null &&
-          bipraError == null;
+          titleError == null && descriptionError == null && bipraError == null;
 
       state = state.copyWith(
         errorTitle: titleError,
         errorDescription: descriptionError,
-        errorFile: fileError,
         errorBipra: bipraError,
         isFormValid: isValid,
       );
@@ -298,6 +294,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onChangedBipra(String value) {
     state = state.copyWith(bipra: value, errorBipra: validateBipra(value));
+    _updateFormValidity();
   }
 
   void onSelectedBipra(Bipra? bipra) {
@@ -307,6 +304,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       bipra: bipra.name,
       errorBipra: null,
     );
+    _updateFormValidity();
   }
 
   void onChangedLocation(String value) {
@@ -314,6 +312,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       location: value,
       errorLocation: validateLocation(value),
     );
+    _updateFormValidity();
   }
 
   void onChangedPinpointLocation(String value) {
@@ -321,6 +320,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       pinpointLocation: value,
       errorPinpointLocation: validatePinpointLocation(value),
     );
+    _updateFormValidity();
   }
 
   void onSelectedMapLocation(Location? location) {
@@ -333,10 +333,12 @@ class ActivityPublishController extends _$ActivityPublishController {
       pinpointLocation: displayName,
       errorPinpointLocation: null,
     );
+    _updateFormValidity();
   }
 
   void onChangedDate(String value) {
     state = state.copyWith(date: value, errorDate: validateDate(value));
+    _updateFormValidity();
   }
 
   void onSelectedDate(DateTime? date) {
@@ -346,10 +348,12 @@ class ActivityPublishController extends _$ActivityPublishController {
       date: date.EEEEddMMMyyyyShort,
       errorDate: null,
     );
+    _updateFormValidity();
   }
 
   void onChangedTime(String value) {
     state = state.copyWith(time: value, errorTime: validateTime(value));
+    _updateFormValidity();
   }
 
   void onSelectedTime(TimeOfDay? time) {
@@ -361,6 +365,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       time: formattedTime,
       errorTime: null,
     );
+    _updateFormValidity();
   }
 
   void onChangedDescription(String value) {
@@ -368,10 +373,25 @@ class ActivityPublishController extends _$ActivityPublishController {
       description: value,
       errorDescription: validateDescription(value),
     );
+    _updateFormValidity();
   }
 
   void onChangedFile(String value) {
-    state = state.copyWith(file: value, errorFile: validateFile(value));
+    state = state.copyWith(file: value, errorFile: null);
+    _updateFormValidity();
+  }
+
+  /// Sets the selected file with both name and path.
+  /// Requirements: 5.21
+  void onSelectedFile({required String fileName, String? filePath}) {
+    state = state.copyWith(file: fileName, filePath: filePath, errorFile: null);
+    _updateFormValidity();
+  }
+
+  /// Clears the selected file.
+  void clearSelectedFile() {
+    state = state.copyWith(file: null, filePath: null, errorFile: null);
+    _updateFormValidity();
   }
 
   void onChangedReminder(String value) {
@@ -379,14 +399,53 @@ class ActivityPublishController extends _$ActivityPublishController {
       reminder: value,
       errorReminder: validateReminder(value),
     );
+    _updateFormValidity();
   }
 
   void onChangedNote(String value) {
     state = state.copyWith(note: value, errorNote: validateNote(value));
+    _updateFormValidity();
   }
 
   void onChangedTitle(String value) {
     state = state.copyWith(title: value, errorTitle: validateTitle(value));
+    _updateFormValidity();
+  }
+
+  /// Updates the form validity state based on current field values.
+  /// This enables/disables the submit button in real-time.
+  /// Requirements: 5.7, 5.8, 5.9
+  void _updateFormValidity() {
+    bool isValid = false;
+
+    if (state.type == ActivityType.service ||
+        state.type == ActivityType.event) {
+      isValid = _isServiceEventFormValid();
+    } else if (state.type == ActivityType.announcement) {
+      isValid = _isAnnouncementFormValid();
+    }
+
+    state = state.copyWith(isFormValid: isValid);
+  }
+
+  /// Checks if the SERVICE/EVENT form has all required fields filled.
+  /// Requirements: 5.5
+  bool _isServiceEventFormValid() {
+    return validateTitle(state.title) == null &&
+        validateBipra(state.bipra) == null &&
+        validateLocation(state.location) == null &&
+        validatePinpointLocation(state.pinpointLocation) == null &&
+        validateDate(state.date) == null &&
+        validateTime(state.time) == null &&
+        validateReminder(state.reminder) == null;
+  }
+
+  /// Checks if the ANNOUNCEMENT form has all required fields filled.
+  /// Requirements: 5.6
+  bool _isAnnouncementFormValid() {
+    return validateTitle(state.title) == null &&
+        validateBipra(state.bipra) == null &&
+        validateDescription(state.description) == null;
   }
 
   /// Fetches author info from the signed-in account and updates state
@@ -442,6 +501,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       reminder: reminder.name,
       errorReminder: null,
     );
+    _updateFormValidity();
   }
 
   /// Sets the attached finance data (revenue or expense).
