@@ -12,7 +12,7 @@ abstract class FinancialAccountNumber with _$FinancialAccountNumber {
     required String accountNumber,
     String? description,
     required FinanceType type,
-    required int churchId,
+    int? churchId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _FinancialAccountNumber;

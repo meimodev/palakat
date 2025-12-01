@@ -3,11 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/column.dart' as model;
+import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
+import 'package:palakat_shared/core/widgets/card/card_column.dart';
 
+/// Shows a dialog for selecting a column.
+///
+/// This is an app-specific implementation that uses the membership controller
+/// to fetch columns. It wraps the shared dialog custom widget.
 Future<model.Column?> showDialogColumnPickerWidget({
   required BuildContext context,
   required int? churchId,
@@ -17,6 +24,11 @@ Future<model.Column?> showDialogColumnPickerWidget({
     context: context,
     title: "Select Column",
     scrollControlled: false,
+    closeIcon: Assets.icons.line.times.svg(
+      width: BaseSize.w24,
+      height: BaseSize.w24,
+      colorFilter: BaseColor.primaryText.filterSrcIn,
+    ),
     content: Expanded(child: _DialogColumnPickerWidget(churchId: churchId)),
   );
 }

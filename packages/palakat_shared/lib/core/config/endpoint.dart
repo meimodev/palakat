@@ -75,6 +75,8 @@ class Endpoints {
 
   // Financial Account Number
   static const String financialAccountNumbers = '/financial-account-number';
+  static const String availableFinancialAccountNumbers =
+      '/financial-account-number/available';
   static String financialAccountNumber(String id) =>
       '/financial-account-number/$id';
 }

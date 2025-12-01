@@ -1,0 +1,156 @@
+# Implementation Plan
+
+- [x] 1. Update Prisma Schema and Generate Client
+  - [x] 1.1 Add new fields to ApprovalRule model
+    - Add optional `activityType` field (ActivityType enum)
+    - Add optional `financialType` field (FinancialType enum)
+    - Add optional `financialAccountNumberId` field with relation to FinancialAccountNumber
+    - Add indexes for new fields
+    - _Requirements: 1.1, 2.1, 3.1_
+  - [x] 1.2 Update FinancialAccountNumber model to support ApprovalRule relation
+    - Add `approvalRules` relation field
+    - _Requirements: 3.1_
+  - [x] 1.3 Run Prisma migration and generate client
+    - Execute `pnpm run db:migrate` to create migration
+    - Execute `pnpm run prisma:generate` to regenerate client
+    - _Requirements: 1.1, 2.1, 3.1_
+
+- [-] 2. Implement Approver Resolution Service
+  - [x] 2.1 Create approver-resolver.service.ts
+    - Create new service file in `apps/palakat_backend/src/activity/`
+    - Define `ApproverResolutionInput` and `ApproverResolutionResult` interfaces
+    - Implement `resolveApprovers` method with the resolution algorithm
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+  - [x] 2.2 Write property test for activity type rule matching
+    - **Property 1: Activity Type Rule Matching**
+    - **Validates: Requirements 1.2, 1.3, 1.4**
+  - [x] 2.3 Write property test for financial type filtering
+    - **Property 2: Financial Type Filtering**
+    - **Validates: Requirements 2.2, 2.3, 2.4**
+  - [ ] 2.4 Write property test for financial account number matching
+    - **Property 3: Financial Account Number Matching**
+    - **Validates: Requirements 3.2, 3.3, 3.4**
+  - [ ] 2.5 Write property test for approver deduplication
+    - **Property 4: Approver Deduplication**
+    - **Validates: Requirements 4.5**
+  - [ ] 2.6 Write property test for supervisor self-approval inclusion
+    - **Property 5: Supervisor Self-Approval Inclusion**
+    - **Validates: Requirements 4.8**
+
+- [x] 3. Update Activity Service to Use Approver Resolution
+  - [x] 3.1 Inject ApproverResolverService into ActivitiesService
+    - Update activity.module.ts to provide ApproverResolverService
+    - Inject service in ActivitiesService constructor
+    - _Requirements: 4.1_
+  - [x] 3.2 Update create method to resolve and create approvers
+    - Get church ID from supervisor's membership
+    - Call approver resolver with activity details
+    - Create Approver records in transaction with activity creation
+    - _Requirements: 4.7, 4.8, 4.9_
+  - [ ]* 3.3 Write property test for approver-rule consistency
+    - **Property 6: Approver-Rule Consistency**
+    - **Validates: Requirements 4.2, 4.4, 4.6, 4.7**
+
+- [x] 4. Checkpoint - Ensure all backend tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Update Approval Rule DTOs and Controller
+  - [x] 5.1 Update CreateApprovalRuleDto
+    - Add optional `activityType` field with @IsEnum validation
+    - Add optional `financialType` field with @IsEnum validation
+    - Add optional `financialAccountNumberId` field with @IsInt validation
+    - _Requirements: 1.1, 2.1, 3.1_
+  - [x] 5.2 Update UpdateApprovalRuleDto
+    - Add same optional fields as CreateApprovalRuleDto
+    - _Requirements: 1.1, 2.1, 3.1_
+  - [x] 5.3 Update ApprovalRuleService to handle new fields
+    - Update create method to include new fields
+    - Update update method to handle new fields
+    - Update findOne and getApprovalRules to include financialAccountNumber relation
+    - _Requirements: 1.1, 2.1, 3.1_
+
+- [x] 6. Update Flutter Shared Models
+  - [x] 6.1 Update ApprovalRule model
+    - Add `activityType` field (ActivityType?)
+    - Add `financialType` field (FinanceType?)
+    - Add `financialAccountNumberId` field (int?)
+    - Add `financialAccountNumber` field (FinancialAccountNumber?)
+    - Run `melos run build:runner` to regenerate freezed files
+    - _Requirements: 1.1, 2.1, 3.1_
+
+- [x] 7. Update Admin Panel - Approval Rule Form
+  - [x] 7.1 Add activity type dropdown to ApprovalEditDrawer
+    - Add state variable for selected activity type
+    - Create dropdown with SERVICE, EVENT, ANNOUNCEMENT options
+    - Bind to form state and include in save payload
+    - _Requirements: 6.1_
+  - [x] 7.2 Add financial type dropdown to ApprovalEditDrawer
+    - Add state variable for selected financial type
+    - Create dropdown with REVENUE, EXPENSE options
+    - Bind to form state and include in save payload
+    - _Requirements: 6.2_
+  - [x] 7.3 Add financial account number dropdown to ApprovalEditDrawer
+    - Add state variable for selected financial account number
+    - Fetch financial account numbers filtered by type and church
+    - Show dropdown only when financial type is selected
+    - Bind to form state and include in save payload
+    - _Requirements: 6.3, 6.4_
+  - [x] 7.4 Update approval rules list to display new fields
+    - Show activity type chip/badge for rules with activityType
+    - Show financial type chip/badge for rules with financialType
+    - Show financial account number for rules with financialAccountNumberId
+    - _Requirements: 6.5_
+
+- [x] 8. Update Admin Panel - Approval Controller and Repository
+  - [x] 8.1 Add method to fetch financial account numbers
+    - Create fetchFinancialAccountNumbers method in approval repository
+    - Filter by churchId and optionally by type
+    - _Requirements: 6.3_
+  - [x] 8.2 Update ApprovalController to fetch financial accounts
+    - Add method to fetch financial accounts for dropdown
+    - Add state for financial accounts list
+    - _Requirements: 6.3_
+
+- [ ] 9. Checkpoint - Ensure admin panel changes work
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 10. Update Mobile App (Palakat) - Activity Detail Self-Approval
+  - [x] 10.1 Add self-approval detection logic
+    - Check if current user's membership ID is in approvers list
+    - Create helper method `isSupervisorAlsoApprover`
+    - Create helper method `getSupervisorApproverRecord`
+    - _Requirements: 8.1_
+  - [x] 10.2 Add approval action buttons for self-approval
+    - Display approve/reject buttons when supervisor is also approver
+    - Style buttons appropriately for self-approval context
+    - _Requirements: 8.2_
+  - [x] 10.3 Implement approval status update for self-approval
+    - Call API to update approver status on approve action
+    - Call API to update approver status on reject action
+    - Handle loading and error states
+    - _Requirements: 8.3, 8.4_
+  - [x] 10.4 Add visual indicator for self-approval scenario
+    - Display badge or text indicating "You are also an approver"
+    - Highlight the supervisor's approver record in the list
+    - _Requirements: 8.5_
+  - [ ]* 10.5 Write property test for self-approval capability
+    - **Property 8: Self-Approval Capability**
+    - **Validates: Requirements 8.2, 8.3, 8.4**
+
+- [x] 11. Update Database Seeder
+  - [x] 11.1 Update seedApprovalRules function
+    - Assign activityType to subset of approval rules
+    - Assign financialType to subset of approval rules
+    - Link financialAccountNumber to some rules with financialType
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 11.2 Update createActivityWithConnectedModels function
+    - Remove random approver assignment
+    - Call approver resolution logic to determine approvers
+    - Create approvers based on matched rules
+    - _Requirements: 5.4_
+  - [ ]* 11.3 Write property test for seeded data consistency
+    - **Property 7: Seeded Data Consistency**
+    - **Validates: Requirements 5.4, 5.5**
+
+- [ ] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

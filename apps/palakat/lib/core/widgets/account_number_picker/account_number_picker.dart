@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:palakat/core/assets/assets.dart';
-import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/widgets/divider/divider_widget.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
+import 'package:palakat_shared/core/widgets/financial_account_picker.dart';
 
 import 'account_number_picker_dialog.dart';
 
 /// A picker widget for selecting financial account numbers.
-/// Displays the selected account number prominently with description below.
-/// Filters accounts by [financeType] (revenue or expense).
+///
+/// This is a palakat-specific wrapper around [FinancialAccountPicker] that
+/// shows the [AccountNumberPickerDialog] when tapped. The dialog uses Riverpod
+/// providers for data fetching and pagination.
+///
+/// For a simpler picker without dialog (e.g., with pre-loaded accounts),
+/// use [FinancialAccountPicker] directly from palakat_shared.
 class AccountNumberPicker extends StatelessWidget {
   const AccountNumberPicker({
     super.key,
@@ -37,110 +40,16 @@ class AccountNumberPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasError = errorText != null && errorText!.isNotEmpty;
-    final borderColor = hasError ? BaseColor.error : BaseColor.neutral30;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (label != null && label!.isNotEmpty) ...[
-          Text(
-            label!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: BaseTypography.titleMedium.copyWith(
-              color: BaseColor.neutral[800],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Gap.h6,
-        ],
-        IntrinsicHeight(
-          child: Material(
-            clipBehavior: Clip.hardEdge,
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-              side: BorderSide(color: borderColor, width: 1.5),
-            ),
-            color: BaseColor.white,
-            shadowColor: Colors.black.withValues(alpha: 0.04),
-            elevation: 1,
-            child: InkWell(
-              onTap: () => _showPickerDialog(context),
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: _buildDisplayContent()),
-                    Gap.w8,
-                    const DividerWidget(height: double.infinity),
-                    Gap.w8,
-                    Assets.icons.line.chevronDownOutline.svg(
-                      width: BaseSize.w12,
-                      height: BaseSize.w12,
-                      colorFilter: ColorFilter.mode(
-                        BaseColor.neutral60,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (hasError) ...[
-          Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
-            child: Text(
-              errorText!,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: BaseTypography.bodySmall.toError,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildDisplayContent() {
-    if (selectedAccount == null) {
-      return Text(
-        'Select account number',
-        style: BaseTypography.titleMedium.copyWith(
-          color: BaseColor.neutral50,
-          fontWeight: FontWeight.w400,
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          selectedAccount!.accountNumber,
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.black,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        if (selectedAccount!.description != null &&
-            selectedAccount!.description!.isNotEmpty) ...[
-          Gap.h4,
-          Text(
-            selectedAccount!.description!,
-            style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.neutral60,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ],
+    return FinancialAccountPicker(
+      financeType: financeType,
+      selectedAccount: selectedAccount,
+      onSelected: onSelected,
+      errorText: errorText,
+      label: label,
+      // Pass empty list to enable the picker (not loading, not null)
+      // The actual accounts are fetched in the dialog
+      accounts: const [],
+      onTap: () => _showPickerDialog(context),
     );
   }
 

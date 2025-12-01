@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+// Export theme constants
+export 'color_constants.dart';
+export 'size_constants.dart';
+export 'typography_constants.dart';
+export 'text_style_extension.dart';
+
 /// Primary teal color for the Palakat app
 /// This is the seed color for the entire color scheme
 const Color _primaryTeal = Color(0xFF009688);

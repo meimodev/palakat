@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/finance_type.dart';
 import '../state/approval_controller.dart';
 import '../state/approval_screen_state.dart';
 import '../widgets/approval_edit_drawer.dart';
@@ -145,6 +147,87 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
+            ],
+          );
+        },
+      ),
+      AppTableColumn<ApprovalRule>(
+        title: 'Filters',
+        flex: 2,
+        cellBuilder: (ctx, rule) {
+          final theme = Theme.of(ctx);
+          final hasFilters =
+              rule.activityType != null ||
+              rule.financialType != null ||
+              rule.financialAccountNumberId != null;
+
+          if (!hasFilters) {
+            return Text(
+              'No filters',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            );
+          }
+
+          return Wrap(
+            direction: Axis.vertical,
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              if (rule.activityType != null)
+                Chip(
+                  avatar: Icon(
+                    Icons.event,
+                    size: 14,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(
+                    rule.activityType!.displayName,
+                    style: theme.textTheme.labelSmall,
+                  ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: theme.colorScheme.primaryContainer
+                      .withValues(alpha: 0.5),
+                  side: BorderSide.none,
+                ),
+              if (rule.financialType != null)
+                Chip(
+                  avatar: Icon(
+                    rule.financialType!.icon,
+                    size: 14,
+                    color: rule.financialType!.color,
+                  ),
+                  label: Text(
+                    rule.financialType!.displayName,
+                    style: theme.textTheme.labelSmall,
+                  ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: rule.financialType!.color.withValues(
+                    alpha: 0.1,
+                  ),
+                  side: BorderSide.none,
+                ),
+              if (rule.financialAccountNumber != null)
+                Chip(
+                  avatar: Icon(
+                    Icons.account_balance,
+                    size: 14,
+                    color: theme.colorScheme.secondary,
+                  ),
+                  label: Text(
+                    rule.financialAccountNumber!.accountNumber,
+                    style: theme.textTheme.labelSmall,
+                  ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: theme.colorScheme.secondaryContainer
+                      .withValues(alpha: 0.5),
+                  side: BorderSide.none,
+                ),
             ],
           );
         },

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/widgets/mobile/appbar_widget.dart'
+    as shared;
 
+/// App-specific AppBar widget that wraps the shared AppBarWidget
+/// and provides convenience methods for using SvgGenImage icons.
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppBarWidget({
     super.key,
@@ -36,86 +38,25 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   static double get _iconSize => BaseSize.w24;
 
+  Widget? _buildSvgIcon(SvgGenImage? icon, Color? color) {
+    if (icon == null) return null;
+    return icon.svg(
+      width: _iconSize,
+      height: _iconSize,
+      colorFilter: (color ?? Colors.black).filterSrcIn,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget buildIcon({
-      required SvgGenImage icon,
-      required Color iconColor,
-      required VoidCallback? onPressedIcon,
-    }) =>
-        IconButton(
-          padding: EdgeInsets.zero,
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          constraints: BoxConstraints(
-            minHeight: _iconSize,
-            minWidth: _iconSize,
-          ),
-          icon: icon.svg(
-            width: _iconSize,
-            height: _iconSize,
-            colorFilter: iconColor.filterSrcIn,
-          ),
-          iconSize: _iconSize.r,
-          splashRadius: _iconSize.r,
-          onPressed: onPressedIcon,
-        );
-
-    return AppBar(
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        systemNavigationBarColor: BaseColor.transparent,
-        statusBarBrightness: Brightness.light,
-        statusBarColor: BaseColor.transparent,
-        statusBarIconBrightness: Brightness.dark,
-      ),
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      centerTitle: false,
-      bottom: PreferredSize(
-        preferredSize: preferredSize,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: horizontalScreenPadding,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  leadIcon != null
-                      ? buildIcon(
-                          icon: leadIcon!,
-                          iconColor: leadIconColor ?? Colors.black,
-                          onPressedIcon: onPressedLeadIcon ?? () {},
-                        )
-                      : const SizedBox(),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Title
-                      Text(
-                        title,
-                        style: BaseTypography.headlineLarge,
-                      ),
-
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          style: BaseTypography.titleMedium,
-                        ),
-                    ],
-                  ),
-                  trailIcon != null
-                      ? buildIcon(
-                          icon: trailIcon!,
-                          iconColor: trailIconColor ?? Colors.black,
-                          onPressedIcon: onPressedTrailIcon ?? () {},
-                        )
-                      : const SizedBox(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    return shared.AppBarWidget(
+      title: title,
+      subtitle: subtitle,
+      height: height,
+      leadIcon: _buildSvgIcon(leadIcon, leadIconColor),
+      onPressedLeadIcon: onPressedLeadIcon,
+      trailIcon: _buildSvgIcon(trailIcon, trailIconColor),
+      onPressedTrailIcon: onPressedTrailIcon,
     );
   }
 }

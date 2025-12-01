@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 import {
   CreateFinancialAccountNumberDto,
   FindAllFinancialAccountNumberDto,
+  FindAvailableFinancialAccountNumberDto,
   UpdateFinancialAccountNumberDto,
 } from './dto';
 import { FinancialAccountNumberService } from './financial-account-number.service';
@@ -31,6 +32,25 @@ export class FinancialAccountNumberController {
     @Query('churchId', ParseIntPipe) churchId: number,
   ) {
     return this.financialAccountNumberService.findAll(query, churchId);
+  }
+
+  /**
+   * Get available financial accounts that are not linked to any approval rule.
+   * Useful for populating dropdowns when creating/editing approval rules.
+   *
+   * @param churchId - The church ID to filter accounts
+   * @param query - Query parameters including optional financeType and currentRuleId
+   * @returns List of available financial accounts
+   */
+  @Get('available')
+  async getAvailableAccounts(
+    @Query('churchId', ParseIntPipe) churchId: number,
+    @Query() query: FindAvailableFinancialAccountNumberDto,
+  ) {
+    return this.financialAccountNumberService.getAvailableAccounts(
+      churchId,
+      query,
+    );
   }
 
   @Get(':id')

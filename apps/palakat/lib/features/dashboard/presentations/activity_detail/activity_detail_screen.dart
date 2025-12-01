@@ -5,6 +5,7 @@ import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_controller.dart';
+import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_state.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/widgets.dart';
@@ -98,11 +99,22 @@ class ActivityDetailScreen extends ConsumerWidget {
       );
     }
 
-    return _buildContent(context, activity);
+    return _buildContent(context, ref, state, activity);
   }
 
-  Widget _buildContent(BuildContext context, Activity activity) {
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    ActivityDetailState state,
+    Activity activity,
+  ) {
+    // Check if supervisor can self-approve (Requirements: 8.1, 8.2)
+    final showSelfApprovalButtons = state.isSupervisorApprovalPending;
+
     return ScaffoldWidget(
+      persistBottomWidget: showSelfApprovalButtons
+          ? _buildSelfApprovalButtons(context, ref, state)
+          : null,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -139,7 +151,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   ],
                   if (activity.approvers.isNotEmpty) ...[
                     Gap.h16,
-                    _buildApproversSection(activity),
+                    _buildApproversSection(activity, state),
                   ],
                   Gap.h16,
                   _buildSupervisorSection(activity),
@@ -149,6 +161,252 @@ class ActivityDetailScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Builds the self-approval action buttons (approve/reject).
+  /// Requirements: 8.2
+  Widget _buildSelfApprovalButtons(
+    BuildContext context,
+    WidgetRef ref,
+    ActivityDetailState state,
+  ) {
+    final isLoading = state.isApprovalLoading;
+    final controller = ref.read(
+      activityDetailControllerProvider(activityId).notifier,
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: BaseColor.white,
+        border: Border(
+          top: BorderSide(
+            color: BaseColor.teal.shade600.withValues(alpha: 0.12),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: BaseSize.h12,
+        horizontal: BaseSize.w12,
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Self-approval indicator badge
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: BaseSize.w12,
+                vertical: BaseSize.h6,
+              ),
+              margin: EdgeInsets.only(bottom: BaseSize.h8),
+              decoration: BoxDecoration(
+                color: BaseColor.blue[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: BaseColor.blue[200]!),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.person_pin_outlined,
+                    size: BaseSize.w16,
+                    color: BaseColor.blue[700],
+                  ),
+                  Gap.w6,
+                  Text(
+                    'Anda juga sebagai approver',
+                    style: BaseTypography.labelMedium.copyWith(
+                      color: BaseColor.blue[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildRejectButton(context, controller, isLoading),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: _buildApproveButton(context, controller, isLoading),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the reject button for self-approval.
+  Widget _buildRejectButton(
+    BuildContext context,
+    ActivityDetailController controller,
+    bool isLoading,
+  ) {
+    return OutlinedButton.icon(
+      onPressed: isLoading
+          ? null
+          : () async {
+              final confirmed = await _showConfirmationDialog(
+                context,
+                title: 'Tolak Aktivitas?',
+                message: 'Apakah Anda yakin ingin menolak aktivitas ini?',
+                confirmText: 'Tolak',
+                isDestructive: true,
+              );
+              if (confirmed == true) {
+                final success = await controller.rejectSelfApproval();
+                if (context.mounted && success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Aktivitas berhasil ditolak'),
+                      backgroundColor: BaseColor.red[600],
+                    ),
+                  );
+                }
+              }
+            },
+      icon: isLoading
+          ? SizedBox(
+              width: BaseSize.w16,
+              height: BaseSize.w16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: BaseColor.red[500],
+              ),
+            )
+          : Icon(Icons.close, size: BaseSize.w18, color: BaseColor.red[500]),
+      label: Text(
+        'Tolak',
+        style: BaseTypography.titleMedium.copyWith(
+          color: isLoading ? BaseColor.neutral[400] : BaseColor.red[500],
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: BaseColor.red[500],
+        side: BorderSide(
+          color: isLoading ? BaseColor.neutral[300]! : BaseColor.red[500]!,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w16,
+          vertical: BaseSize.h12,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  /// Builds the approve button for self-approval.
+  Widget _buildApproveButton(
+    BuildContext context,
+    ActivityDetailController controller,
+    bool isLoading,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: isLoading
+          ? null
+          : () async {
+              final confirmed = await _showConfirmationDialog(
+                context,
+                title: 'Setujui Aktivitas?',
+                message: 'Apakah Anda yakin ingin menyetujui aktivitas ini?',
+                confirmText: 'Setujui',
+                isDestructive: false,
+              );
+              if (confirmed == true) {
+                final success = await controller.approveSelfApproval();
+                if (context.mounted && success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Aktivitas berhasil disetujui'),
+                      backgroundColor: BaseColor.green[600],
+                    ),
+                  );
+                }
+              }
+            },
+      icon: isLoading
+          ? SizedBox(
+              width: BaseSize.w16,
+              height: BaseSize.w16,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Icon(Icons.check, size: BaseSize.w18, color: Colors.white),
+      label: Text(
+        'Setujui',
+        style: BaseTypography.titleMedium.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isLoading
+            ? BaseColor.neutral[300]
+            : BaseColor.green[600],
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w16,
+          vertical: BaseSize.h12,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 0,
+      ),
+    );
+  }
+
+  /// Shows a confirmation dialog for approval actions.
+  Future<bool?> _showConfirmationDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required String confirmText,
+    required bool isDestructive,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: BaseColor.neutral[600]),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              confirmText,
+              style: TextStyle(
+                color: isDestructive
+                    ? BaseColor.red[600]
+                    : BaseColor.green[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -896,7 +1154,11 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildApproversSection(Activity activity) {
+  /// Builds the approvers section with visual indicator for self-approval.
+  /// Requirements: 8.5
+  Widget _buildApproversSection(Activity activity, ActivityDetailState state) {
+    final supervisorApproverRecord = state.supervisorApproverRecord;
+
     return _buildSectionCard(
       title: 'Status Persetujuan',
       icon: Icons.how_to_reg_outlined,
@@ -907,24 +1169,44 @@ class ActivityDetailScreen extends ConsumerWidget {
           .map(
             (approver) => Padding(
               padding: EdgeInsets.only(bottom: BaseSize.h8),
-              child: _buildApproverItem(approver),
+              child: _buildApproverItem(
+                approver,
+                isSupervisorApprover:
+                    supervisorApproverRecord?.id == approver.id,
+              ),
             ),
           )
           .toList(),
     );
   }
 
-  Widget _buildApproverItem(Approver approver) {
+  /// Builds an individual approver item with optional highlight for supervisor.
+  /// Requirements: 8.5
+  Widget _buildApproverItem(
+    Approver approver, {
+    bool isSupervisorApprover = false,
+  }) {
     final statusColor = _getApprovalStatusColor(approver.status);
     final statusIcon = _getApprovalStatusIcon(approver.status);
     final positions = approver.membership?.membershipPositions ?? [];
 
+    // Use blue highlight for supervisor's approver record (Requirements: 8.5)
+    final bgColor = isSupervisorApprover
+        ? BaseColor.blue[50]!
+        : statusColor.withValues(alpha: 0.05);
+    final borderColor = isSupervisorApprover
+        ? BaseColor.blue[300]!
+        : statusColor.withValues(alpha: 0.2);
+
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
       decoration: BoxDecoration(
-        color: statusColor.withValues(alpha: 0.05),
+        color: bgColor,
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: borderColor,
+          width: isSupervisorApprover ? 1.5 : 1,
+        ),
       ),
       child: Row(
         children: [
@@ -932,12 +1214,50 @@ class ActivityDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  approver.membership?.account?.name ?? 'Tidak diketahui',
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.black,
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        approver.membership?.account?.name ?? 'Tidak diketahui',
+                        style: BaseTypography.bodyMedium.copyWith(
+                          color: BaseColor.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    // Visual indicator for supervisor's approver record (Requirements: 8.5)
+                    if (isSupervisorApprover) ...[
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: BaseSize.w8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: BaseColor.blue[100],
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: BaseColor.blue[300]!),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.person_pin_outlined,
+                              size: BaseSize.w12,
+                              color: BaseColor.blue[700],
+                            ),
+                            Gap.w4,
+                            Text(
+                              'Anda',
+                              style: BaseTypography.labelSmall.copyWith(
+                                color: BaseColor.blue[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 if (positions.isNotEmpty) ...[
                   Gap.h4,
@@ -952,13 +1272,17 @@ class ActivityDetailScreen extends ConsumerWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: BaseColor.neutral[100],
+                              color: isSupervisorApprover
+                                  ? BaseColor.blue[100]
+                                  : BaseColor.neutral[100],
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               p.name,
                               style: BaseTypography.labelSmall.copyWith(
-                                color: BaseColor.neutral[700],
+                                color: isSupervisorApprover
+                                    ? BaseColor.blue[700]
+                                    : BaseColor.neutral[700],
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

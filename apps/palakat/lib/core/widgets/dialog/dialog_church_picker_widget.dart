@@ -3,11 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
+import 'package:palakat_shared/core/widgets/card/card_church.dart';
 
+/// Shows a dialog for selecting a church.
+///
+/// This is an app-specific implementation that uses the membership controller
+/// to fetch churches. It wraps the shared dialog custom widget.
 Future<Church?> showDialogChurchPickerWidget({
   required BuildContext context,
   VoidCallback? onPopBottomSheet,
@@ -16,6 +23,11 @@ Future<Church?> showDialogChurchPickerWidget({
     context: context,
     title: "Select Church",
     scrollControlled: false,
+    closeIcon: Assets.icons.line.times.svg(
+      width: BaseSize.w24,
+      height: BaseSize.w24,
+      colorFilter: BaseColor.primaryText.filterSrcIn,
+    ),
     content: const Expanded(child: _DialogChurchPickerWidget()),
   );
 }

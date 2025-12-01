@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
+import { ApproverResolverService } from './approver-resolver.service';
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private approverResolver: ApproverResolverService,
+  ) {}
 
   async findAll(query: ActivityListQueryDto) {
     const {
@@ -256,14 +260,24 @@ export class ActivitiesService {
       ...activityData
     } = createActivityDto;
 
-    // Validate that the membership exists
+    // Validate that the membership exists and get church ID
     const membership = await (this.prisma as any).membership.findUnique({
       where: { id: supervisorId },
+      select: {
+        id: true,
+        churchId: true,
+      },
     });
 
     if (!membership) {
       throw new NotFoundException(
         `Membership with ID ${supervisorId} not found`,
+      );
+    }
+
+    if (!membership.churchId) {
+      throw new NotFoundException(
+        `Membership with ID ${supervisorId} is not associated with a church`,
       );
     }
 
@@ -292,25 +306,90 @@ export class ActivitiesService {
       };
     }
 
-    const activity = await (this.prisma as any).activity.create({
-      data: createData,
-      include: {
-        supervisor: {
+    // Resolve approvers based on approval rules
+    // Note: Financial data is not available at activity creation time,
+    // so we only resolve based on activity type for now
+    const approverResolution = await this.approverResolver.resolveApprovers({
+      churchId: membership.churchId,
+      activityType: activityData.activityType,
+      supervisorId: supervisorId,
+      // financialAccountNumberId and financialType will be added when
+      // revenue/expense is linked to the activity
+    });
+
+    // Use a transaction to create activity and approvers together
+    const activity = await (this.prisma as any).$transaction(
+      async (tx: any) => {
+        // Create the activity
+        const newActivity = await tx.activity.create({
+          data: createData,
           include: {
-            account: {
-              select: {
-                id: true,
-                name: true,
-                phone: true,
-                dob: true,
+            supervisor: {
+              include: {
+                account: {
+                  select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    dob: true,
+                  },
+                },
+              },
+            },
+            location: true,
+          },
+        });
+
+        // Create approver records if any were resolved
+        if (approverResolution.membershipIds.length > 0) {
+          await tx.approver.createMany({
+            data: approverResolution.membershipIds.map(
+              (membershipId: number) => ({
+                activityId: newActivity.id,
+                membershipId: membershipId,
+              }),
+            ),
+          });
+        }
+
+        // Fetch the activity with approvers included
+        return tx.activity.findUnique({
+          where: { id: newActivity.id },
+          include: {
+            supervisor: {
+              include: {
+                account: {
+                  select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    dob: true,
+                  },
+                },
+              },
+            },
+            location: true,
+            approvers: {
+              include: {
+                membership: {
+                  include: {
+                    account: {
+                      select: {
+                        id: true,
+                        name: true,
+                        phone: true,
+                        dob: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
-        },
-        location: true,
-        approvers: true,
+        });
       },
-    });
+    );
+
     return {
       message: 'Activity created successfully',
       data: activity,

@@ -313,132 +313,157 @@ const GENERATED_BY_VALUES: GeneratedBy[] = [
 const BOOK_VALUES: Book[] = [Book.NKB, Book.NNBT, Book.KJ, Book.DSL];
 
 const INCOME_ACCOUNTS = [
+  // 2-level hierarchy (1 dot)
   {
-    code: '4100',
+    code: '1.1',
+    name: 'Persembahan',
+    description: 'Kategori persembahan jemaat',
+  },
+  {
+    code: '1.2',
+    name: 'Sumbangan',
+    description: 'Kategori sumbangan dan donasi',
+  },
+  // 3-level hierarchy (2 dots)
+  {
+    code: '1.1.01',
     name: 'Persembahan Umum',
     description: 'Persembahan ibadah minggu dan hari raya',
   },
   {
-    code: '4110',
+    code: '1.1.02',
     name: 'Persembahan Syukur',
     description: 'Persembahan syukur jemaat',
   },
   {
-    code: '4120',
+    code: '1.1.03',
     name: 'Persembahan Perpuluhan',
     description: 'Persembahan perpuluhan jemaat',
   },
   {
-    code: '4130',
-    name: 'Persembahan Khusus',
-    description: 'Persembahan untuk kegiatan khusus',
-  },
-  {
-    code: '4200',
+    code: '1.2.01',
     name: 'Sumbangan Donatur',
     description: 'Sumbangan dari donatur tetap dan tidak tetap',
   },
   {
-    code: '4210',
+    code: '1.2.02',
     name: 'Sumbangan Pembangunan',
     description: 'Sumbangan untuk pembangunan gedung gereja',
   },
+  // 4-level hierarchy (3 dots)
   {
-    code: '4300',
-    name: 'Pendapatan Kegiatan',
-    description: 'Pendapatan dari kegiatan gereja',
+    code: '1.1.01.01',
+    name: 'Persembahan Minggu Pagi',
+    description: 'Persembahan ibadah minggu pagi',
   },
   {
-    code: '4310',
-    name: 'Pendapatan Retreat',
-    description: 'Pendapatan dari kegiatan retreat',
+    code: '1.1.01.02',
+    name: 'Persembahan Minggu Sore',
+    description: 'Persembahan ibadah minggu sore',
   },
   {
-    code: '4320',
-    name: 'Pendapatan Seminar',
-    description: 'Pendapatan dari kegiatan seminar',
+    code: '1.1.02.01',
+    name: 'Persembahan Syukur Kelahiran',
+    description: 'Persembahan syukur kelahiran anak',
   },
   {
-    code: '4400',
+    code: '1.3.22.44',
+    name: 'Pendapatan Kegiatan Khusus',
+    description: 'Pendapatan dari kegiatan khusus gereja',
+  },
+  {
+    code: '1.4.01',
     name: 'Pendapatan Lain-lain',
     description: 'Pendapatan lain yang tidak terklasifikasi',
   },
 ];
 
 const EXPENSE_ACCOUNTS = [
+  // 2-level hierarchy (1 dot)
   {
-    code: '5100',
+    code: '2.1',
     name: 'Biaya Operasional',
-    description: 'Biaya operasional harian gereja',
+    description: 'Kategori biaya operasional gereja',
   },
   {
-    code: '5110',
+    code: '2.2',
+    name: 'Biaya Pelayanan',
+    description: 'Kategori biaya pelayanan gereja',
+  },
+  {
+    code: '2.3',
+    name: 'Biaya Kegiatan',
+    description: 'Kategori biaya kegiatan gereja',
+  },
+  // 3-level hierarchy (2 dots)
+  {
+    code: '2.1.01',
     name: 'Biaya Listrik',
     description: 'Pembayaran listrik bulanan',
   },
-  { code: '5120', name: 'Biaya Air', description: 'Pembayaran air bulanan' },
   {
-    code: '5130',
+    code: '2.1.02',
+    name: 'Biaya Air',
+    description: 'Pembayaran air bulanan',
+  },
+  {
+    code: '2.1.03',
     name: 'Biaya Internet',
     description: 'Pembayaran internet dan telepon',
   },
   {
-    code: '5200',
-    name: 'Biaya Pelayanan',
-    description: 'Biaya untuk kegiatan pelayanan',
-  },
-  {
-    code: '5210',
+    code: '2.2.01',
     name: 'Biaya Ibadah',
     description: 'Biaya perlengkapan ibadah',
   },
   {
-    code: '5220',
+    code: '2.2.02',
     name: 'Biaya Musik',
     description: 'Biaya peralatan dan perlengkapan musik',
   },
   {
-    code: '5300',
-    name: 'Biaya Kegiatan',
-    description: 'Biaya untuk kegiatan gereja',
-  },
-  {
-    code: '5310',
+    code: '2.3.01',
     name: 'Biaya Retreat',
     description: 'Biaya penyelenggaraan retreat',
   },
   {
-    code: '5320',
+    code: '2.3.02',
     name: 'Biaya Seminar',
     description: 'Biaya penyelenggaraan seminar',
   },
+  // 4-level hierarchy (3 dots)
   {
-    code: '5400',
-    name: 'Biaya Diakonia',
-    description: 'Biaya bantuan sosial dan diakonia',
+    code: '2.1.01.01',
+    name: 'Biaya Listrik Gedung Utama',
+    description: 'Pembayaran listrik gedung utama',
   },
   {
-    code: '5410',
-    name: 'Biaya Bantuan Jemaat',
-    description: 'Bantuan untuk jemaat yang membutuhkan',
+    code: '2.1.01.02',
+    name: 'Biaya Listrik Gedung Pendukung',
+    description: 'Pembayaran listrik gedung pendukung',
   },
   {
-    code: '5500',
+    code: '2.2.01.01',
+    name: 'Biaya Perlengkapan Ibadah Minggu',
+    description: 'Biaya perlengkapan ibadah minggu',
+  },
+  {
+    code: '2.4.22.44',
+    name: 'Biaya Diakonia Khusus',
+    description: 'Biaya bantuan sosial dan diakonia khusus',
+  },
+  {
+    code: '2.5.01',
     name: 'Biaya Pemeliharaan',
     description: 'Biaya pemeliharaan gedung dan fasilitas',
   },
   {
-    code: '5510',
-    name: 'Biaya Perbaikan',
-    description: 'Biaya perbaikan gedung dan peralatan',
-  },
-  {
-    code: '5600',
+    code: '2.6.01',
     name: 'Biaya Administrasi',
     description: 'Biaya administrasi dan ATK',
   },
   {
-    code: '5700',
+    code: '2.9.99',
     name: 'Biaya Lain-lain',
     description: 'Biaya lain yang tidak terklasifikasi',
   },
@@ -736,10 +761,19 @@ async function seedMembershipPositions(memberships: MembershipWithChurch[]) {
   return positions;
 }
 
-async function seedApprovalRules(churches: ChurchWithColumns[]) {
+async function seedApprovalRules(
+  churches: ChurchWithColumns[],
+  financialAccounts: FinancialAccountWithType[],
+) {
   console.log('📜 Creating approval rules...');
 
   const approvalRules = [];
+  // Increase rules per church to demonstrate different rule types
+  const rulesPerChurch = 6;
+
+  // Track which financial accounts have been assigned to ensure uniqueness
+  // This is required because financialAccountNumberId has a unique constraint
+  const assignedFinancialAccountIds = new Set<number>();
 
   for (const church of churches) {
     const churchPositions = await prisma.membershipPosition.findMany({
@@ -748,9 +782,10 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
 
     if (churchPositions.length === 0) continue;
 
-    for (let i = 0; i < CONFIG.approvalRulesPerChurch; i++) {
-      const ruleName = randomElement(APPROVAL_RULE_NAMES);
-      const active = i === 0;
+    for (let i = 0; i < rulesPerChurch; i++) {
+      const ruleName = APPROVAL_RULE_NAMES[i % APPROVAL_RULE_NAMES.length];
+      // First 3 rules are active, rest are inactive
+      const active = i < 3;
 
       const availablePositions = churchPositions.filter(
         (p) =>
@@ -767,13 +802,67 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
       );
       const selectedPositions = availablePositions.slice(0, numPositions);
 
+      // Determine rule type based on index:
+      // 0: Generic rule (no activityType, no financialType)
+      // 1: SERVICE activity type rule
+      // 2: EVENT activity type rule
+      // 3: REVENUE financial type rule (general)
+      // 4: EXPENSE financial type rule with specific account
+      // 5: ANNOUNCEMENT activity type rule
+      let activityType: ActivityType | null = null;
+      let financialType: FinancialType | null = null;
+      let financialAccountNumberId: number | null = null;
+
+      switch (i) {
+        case 0:
+          // Generic rule - no filters
+          break;
+        case 1:
+          // SERVICE activity type
+          activityType = ActivityType.SERVICE;
+          break;
+        case 2:
+          // EVENT activity type
+          activityType = ActivityType.EVENT;
+          break;
+        case 3:
+          // REVENUE financial type (general - applies to all revenue)
+          financialType = FinancialType.REVENUE;
+          break;
+        case 4:
+          // EXPENSE financial type with specific account
+          // Only assign if there's an available (unassigned) expense account
+          financialType = FinancialType.EXPENSE;
+          // Re-filter to get currently available accounts (not yet assigned)
+          const availableExpenseAccounts = financialAccounts.filter(
+            (fa) =>
+              fa.churchId === church.id &&
+              fa.type === 'expense' &&
+              !assignedFinancialAccountIds.has(fa.id),
+          );
+          if (availableExpenseAccounts.length > 0) {
+            financialAccountNumberId = availableExpenseAccounts[0].id;
+            // Mark this account as assigned to prevent duplicate assignments
+            assignedFinancialAccountIds.add(financialAccountNumberId);
+          }
+          break;
+        case 5:
+          // ANNOUNCEMENT activity type
+          activityType = ActivityType.ANNOUNCEMENT;
+          break;
+      }
+
+      // Use type assertion to handle Prisma client types that may not be regenerated yet
       const approvalRule = await prisma.approvalRule.create({
         data: {
           name: `${ruleName} ${i + 1}`,
           description: `Deskripsi untuk ${ruleName} ${i + 1} di ${church.name}`,
           active,
           churchId: church.id,
-        },
+          activityType,
+          financialType,
+          financialAccountNumberId,
+        } as any,
         include: { positions: true },
       });
 
@@ -784,7 +873,7 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
 
       const updatedRule = await prisma.approvalRule.findUnique({
         where: { id: approvalRule.id },
-        include: { positions: true },
+        include: { positions: true, financialAccountNumber: true } as any,
       });
 
       approvalRules.push(updatedRule);
@@ -792,7 +881,143 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
   }
 
   console.log(`✅ Created ${approvalRules.length} approval rules`);
+  console.log(
+    `   (${assignedFinancialAccountIds.size} unique financial accounts assigned)`,
+  );
   return approvalRules;
+}
+
+/**
+ * Resolves approvers for an activity based on approval rules.
+ * This is a seeder-specific implementation of the approver resolution algorithm.
+ *
+ * Algorithm:
+ * 1. Query approval rules matching activityType and churchId where active = true
+ * 2. If no type-specific rules found, query rules where activityType IS NULL
+ * 3. If financial data exists, additionally query rules matching financialAccountNumberId or financialType
+ * 4. Collect all MembershipPosition IDs from matched rules
+ * 5. Deduplicate position IDs
+ * 6. Find all Membership records that have these positions in the same church
+ * 7. Include all memberships (including supervisor if they hold a matching position - self-approval scenario)
+ * 8. Return unique membership IDs for approver creation
+ */
+async function resolveApproversForSeeder(
+  churchId: number,
+  activityType: ActivityType,
+  financialAccountNumberId?: number,
+  financialType?: FinancialType,
+): Promise<number[]> {
+  const positionIds = new Set<number>();
+
+  // Step 1: Find approval rules matching the activity type
+  // Use type assertion to handle Prisma client types that may not be regenerated yet
+  let activityTypeRules = await prisma.approvalRule.findMany({
+    where: {
+      churchId,
+      activityType,
+      active: true,
+    } as any,
+    include: {
+      positions: {
+        select: { id: true },
+      },
+    },
+  });
+
+  // Step 2: If no type-specific rules found, fall back to generic rules (activityType IS NULL)
+  if (activityTypeRules.length === 0) {
+    activityTypeRules = await prisma.approvalRule.findMany({
+      where: {
+        churchId,
+        activityType: null,
+        financialType: null, // Generic rules should not have financial type either
+        active: true,
+      } as any,
+      include: {
+        positions: {
+          select: { id: true },
+        },
+      },
+    });
+  }
+
+  // Collect positions from activity type rules
+  for (const rule of activityTypeRules) {
+    for (const position of (rule as any).positions) {
+      positionIds.add(position.id);
+    }
+  }
+
+  // Step 3: If financial data exists, find additional financial rules
+  if (financialType) {
+    // First, try to find rules that match the specific financial account number
+    if (financialAccountNumberId) {
+      const accountSpecificRules = await prisma.approvalRule.findMany({
+        where: {
+          churchId,
+          financialAccountNumberId,
+          active: true,
+        } as any,
+        include: {
+          positions: {
+            select: { id: true },
+          },
+        },
+      });
+
+      for (const rule of accountSpecificRules) {
+        for (const position of (rule as any).positions) {
+          positionIds.add(position.id);
+        }
+      }
+    }
+
+    // Also find rules that match the financial type but don't have a specific account number
+    const financialTypeRules = await prisma.approvalRule.findMany({
+      where: {
+        churchId,
+        financialType,
+        financialAccountNumberId: null, // Only rules without specific account
+        active: true,
+      } as any,
+      include: {
+        positions: {
+          select: { id: true },
+        },
+      },
+    });
+
+    for (const rule of financialTypeRules) {
+      for (const position of (rule as any).positions) {
+        positionIds.add(position.id);
+      }
+    }
+  }
+
+  // If no positions found, return empty result
+  if (positionIds.size === 0) {
+    return [];
+  }
+
+  // Step 6: Find all memberships that hold these positions in the same church
+  const positionIdArray = Array.from(positionIds);
+
+  const membershipsWithPositions = await prisma.membership.findMany({
+    where: {
+      churchId,
+      membershipPositions: {
+        some: {
+          id: {
+            in: positionIdArray,
+          },
+        },
+      },
+    },
+    select: { id: true },
+  });
+
+  // Return unique membership IDs (including supervisor if they match - self-approval)
+  return membershipsWithPositions.map((m) => m.id);
 }
 
 async function createActivityWithConnectedModels(
@@ -801,7 +1026,7 @@ async function createActivityWithConnectedModels(
   activityType: ActivityType,
   bipra: Bipra,
   index: number,
-  otherMemberships: MembershipWithChurch[],
+  financialAccounts: FinancialAccountWithType[],
   withRevenue: boolean,
   withExpense: boolean,
 ) {
@@ -828,25 +1053,27 @@ async function createActivityWithConnectedModels(
     },
   });
 
-  // Add approvers with different statuses
-  const numApprovers = Math.min(
-    CONFIG.maxApproversPerActivity,
-    otherMemberships.length,
-  );
+  // Determine financial data for approver resolution
+  let revenueFinancialAccountId: number | undefined;
+  let expenseFinancialAccountId: number | undefined;
 
-  for (let i = 0; i < numApprovers; i++) {
-    const approver = otherMemberships[i];
-    await prisma.approver.create({
-      data: {
-        activityId: activity.id,
-        membershipId: approver.id,
-        status: APPROVAL_STATUSES[i % APPROVAL_STATUSES.length],
-      },
-    });
-  }
+  // Get church-specific financial accounts
+  const churchIncomeAccounts = financialAccounts.filter(
+    (fa) => fa.churchId === churchId && fa.type === 'income',
+  );
+  const churchExpenseAccounts = financialAccounts.filter(
+    (fa) => fa.churchId === churchId && fa.type === 'expense',
+  );
 
   // Add revenue if specified (for SERVICE and EVENT types)
   if (withRevenue && activityType !== ActivityType.ANNOUNCEMENT) {
+    // Select a financial account for this revenue
+    const selectedAccount =
+      churchIncomeAccounts.length > 0
+        ? churchIncomeAccounts[index % churchIncomeAccounts.length]
+        : null;
+    revenueFinancialAccountId = selectedAccount?.id;
+
     await prisma.revenue.create({
       data: {
         accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
@@ -854,12 +1081,20 @@ async function createActivityWithConnectedModels(
         churchId,
         activityId: activity.id,
         paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
+        financialAccountNumberId: revenueFinancialAccountId,
       },
     });
   }
 
   // Add expense if specified (for EVENT types primarily)
   if (withExpense && activityType === ActivityType.EVENT) {
+    // Select a financial account for this expense
+    const selectedAccount =
+      churchExpenseAccounts.length > 0
+        ? churchExpenseAccounts[index % churchExpenseAccounts.length]
+        : null;
+    expenseFinancialAccountId = selectedAccount?.id;
+
     await prisma.expense.create({
       data: {
         accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
@@ -867,6 +1102,40 @@ async function createActivityWithConnectedModels(
         churchId,
         activityId: activity.id,
         paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
+        financialAccountNumberId: expenseFinancialAccountId,
+      },
+    });
+  }
+
+  // Resolve approvers using the automatic approver linking logic
+  // Determine financial type and account for resolution
+  let financialType: FinancialType | undefined;
+  let financialAccountNumberId: number | undefined;
+
+  if (withRevenue && revenueFinancialAccountId) {
+    financialType = FinancialType.REVENUE;
+    financialAccountNumberId = revenueFinancialAccountId;
+  } else if (withExpense && expenseFinancialAccountId) {
+    financialType = FinancialType.EXPENSE;
+    financialAccountNumberId = expenseFinancialAccountId;
+  }
+
+  // Get approvers based on approval rules
+  const approverMembershipIds = await resolveApproversForSeeder(
+    churchId,
+    activityType,
+    financialAccountNumberId,
+    financialType,
+  );
+
+  // Create approver records with varying statuses
+  for (let i = 0; i < approverMembershipIds.length; i++) {
+    const membershipId = approverMembershipIds[i];
+    await prisma.approver.create({
+      data: {
+        activityId: activity.id,
+        membershipId,
+        status: APPROVAL_STATUSES[i % APPROVAL_STATUSES.length],
       },
     });
   }
@@ -876,7 +1145,7 @@ async function createActivityWithConnectedModels(
 
 async function seedMainAccountActivities(
   mainMemberships: MembershipWithChurch[],
-  extraMemberships: MembershipWithChurch[],
+  financialAccounts: FinancialAccountWithType[],
 ) {
   console.log(
     '📅 Creating activities for main accounts (25 each with all variations)...',
@@ -887,10 +1156,6 @@ async function seedMainAccountActivities(
   let globalIndex = 0;
 
   for (const mainMembership of mainMemberships) {
-    const churchMemberships = extraMemberships.filter(
-      (m) => m.churchId === mainMembership.churchId,
-    );
-
     console.log(
       `   Creating 25 activities for main account (phone: ${mainMembership.accountPhone})...`,
     );
@@ -908,7 +1173,7 @@ async function seedMainAccountActivities(
         variation.type,
         variation.bipra,
         globalIndex,
-        churchMemberships,
+        financialAccounts,
         withRevenue,
         withExpense,
       );
@@ -933,7 +1198,7 @@ async function seedMainAccountActivities(
         variation.type,
         variation.bipra,
         globalIndex,
-        churchMemberships,
+        financialAccounts,
         withRevenue,
         withExpense,
       );
@@ -954,6 +1219,7 @@ async function seedMainAccountActivities(
 async function seedExtraChurchActivities(
   mainChurches: ChurchWithColumns[],
   extraMemberships: MembershipWithChurch[],
+  financialAccounts: FinancialAccountWithType[],
 ) {
   console.log(
     '📅 Creating extra activities for churches (25 each, not connected to main accounts)...',
@@ -982,11 +1248,6 @@ async function seedExtraChurchActivities(
       const supervisorIndex = i % churchExtraMembers.length;
       const supervisor = churchExtraMembers[supervisorIndex];
 
-      // Other members for approvers (excluding supervisor)
-      const otherMembers = churchExtraMembers.filter(
-        (m) => m.id !== supervisor.id,
-      );
-
       const withRevenue = i % 4 === 0 || i % 4 === 3;
       const withExpense = i % 4 === 1 || i % 4 === 3;
 
@@ -996,7 +1257,7 @@ async function seedExtraChurchActivities(
         variation.type,
         variation.bipra,
         globalIndex,
-        otherMembers,
+        financialAccounts,
         withRevenue,
         withExpense,
       );
@@ -1015,10 +1276,6 @@ async function seedExtraChurchActivities(
       const supervisorIndex = (i + 5) % churchExtraMembers.length;
       const supervisor = churchExtraMembers[supervisorIndex];
 
-      const otherMembers = churchExtraMembers.filter(
-        (m) => m.id !== supervisor.id,
-      );
-
       const withRevenue = i % 2 === 0;
       const withExpense = i % 2 === 1;
 
@@ -1028,7 +1285,7 @@ async function seedExtraChurchActivities(
         variation.type,
         variation.bipra,
         globalIndex,
-        otherMembers,
+        financialAccounts,
         withRevenue,
         withExpense,
       );
@@ -1095,64 +1352,6 @@ async function seedFinancialAccountNumbers(
     `✅ Created ${financialAccounts.length} financial account numbers`,
   );
   return financialAccounts;
-}
-
-async function linkFinancialAccountsToTransactions(
-  financialAccounts: FinancialAccountWithType[],
-  churches: ChurchWithColumns[],
-) {
-  console.log('🔗 Linking financial accounts to revenues and expenses...');
-
-  let linkedRevenues = 0;
-  let linkedExpenses = 0;
-
-  for (const church of churches) {
-    const churchIncomeAccounts = financialAccounts.filter(
-      (fa) => fa.churchId === church.id && fa.type === 'income',
-    );
-    const churchExpenseAccounts = financialAccounts.filter(
-      (fa) => fa.churchId === church.id && fa.type === 'expense',
-    );
-
-    const revenues = await prisma.revenue.findMany({
-      where: { churchId: church.id },
-    });
-    const expenses = await prisma.expense.findMany({
-      where: { churchId: church.id },
-    });
-
-    // Link revenues to income accounts (distribute across accounts using modulo)
-    for (let i = 0; i < revenues.length; i++) {
-      if (churchIncomeAccounts.length === 0) break;
-      const accountIndex = i % churchIncomeAccounts.length;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await prisma.revenue.update({
-        where: { id: revenues[i].id },
-        data: {
-          financialAccountNumberId: churchIncomeAccounts[accountIndex].id,
-        } as any,
-      });
-      linkedRevenues++;
-    }
-
-    // Link expenses to expense accounts (distribute across accounts using modulo)
-    for (let i = 0; i < expenses.length; i++) {
-      if (churchExpenseAccounts.length === 0) break;
-      const accountIndex = i % churchExpenseAccounts.length;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await prisma.expense.update({
-        where: { id: expenses[i].id },
-        data: {
-          financialAccountNumberId: churchExpenseAccounts[accountIndex].id,
-        } as any,
-      });
-      linkedExpenses++;
-    }
-  }
-
-  console.log(
-    `✅ Linked ${linkedRevenues} revenues and ${linkedExpenses} expenses to financial accounts`,
-  );
 }
 
 async function seedSongs() {
@@ -1518,20 +1717,25 @@ async function main() {
       passwordHash,
     );
 
-    // Create membership positions and approval rules
+    // Create membership positions
     const allMemberships = [...mainMemberships, ...extraMemberships];
     await seedMembershipPositions(allMemberships);
-    await seedApprovalRules(mainChurches);
 
-    // Create activities for main accounts (25 each)
-    await seedMainAccountActivities(mainMemberships, extraMemberships);
+    // Create financial account numbers first (needed for approval rules)
+    const financialAccounts = await seedFinancialAccountNumbers(mainChurches);
+
+    // Create approval rules with activity type and financial type filters
+    await seedApprovalRules(mainChurches, financialAccounts);
+
+    // Create activities for main accounts (25 each) - uses automatic approver linking
+    await seedMainAccountActivities(mainMemberships, financialAccounts);
 
     // Create extra activities for each church (25 each, not connected to main accounts)
-    await seedExtraChurchActivities(mainChurches, extraMemberships);
-
-    // Create financial account numbers and link them
-    const financialAccounts = await seedFinancialAccountNumbers(mainChurches);
-    await linkFinancialAccountsToTransactions(financialAccounts, mainChurches);
+    await seedExtraChurchActivities(
+      mainChurches,
+      extraMemberships,
+      financialAccounts,
+    );
 
     // Create songs
     await seedSongs();

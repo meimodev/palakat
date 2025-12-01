@@ -61,9 +61,11 @@ class _LoadingShimmerState extends State<LoadingShimmer>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.baseColor ??
+    final baseColor =
+        widget.baseColor ??
         theme.colorScheme.primaryContainer.withValues(alpha: 0.35);
-    final highlightColor = widget.highlightColor ??
+    final highlightColor =
+        widget.highlightColor ??
         theme.colorScheme.secondaryContainer.withValues(alpha: 0.85);
 
     if (!widget.isLoading) {
@@ -234,6 +236,81 @@ class ShimmerPlaceholders {
           ),
         ),
       ],
+    );
+  }
+
+  /// Simple card placeholder for generic use cases
+  static Widget simpleCard({
+    double? width,
+    double height = 120,
+    EdgeInsets padding = const EdgeInsets.all(16),
+    Color? backgroundColor,
+    Color? placeholderColor,
+  }) {
+    final bgColor = backgroundColor ?? Colors.white;
+    final phColor = placeholderColor ?? Colors.grey.withValues(alpha: 0.2);
+
+    return Container(
+      width: width,
+      height: height,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: phColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 14,
+            width: 200,
+            decoration: BoxDecoration(
+              color: phColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 14,
+            width: 150,
+            decoration: BoxDecoration(
+              color: phColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Container(
+                height: 12,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: phColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                height: 12,
+                width: 60,
+                decoration: BoxDecoration(
+                  color: phColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

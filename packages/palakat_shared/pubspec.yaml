@@ -44,6 +44,9 @@ dependencies:
   # UI utilities
   shimmer: ^3.0.0
   url_launcher: ^6.3.0
+  flutter_screenutil: ^5.9.3
+  auto_size_text: ^3.0.0
+  flutter_svg: ^2.1.0
 
   # Date/time utilities
   jiffy: ^6.4.3

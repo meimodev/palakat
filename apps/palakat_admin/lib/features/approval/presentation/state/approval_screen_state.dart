@@ -11,6 +11,8 @@ abstract class ApprovalScreenState with _$ApprovalScreenState {
     AsyncValue<PaginationResponseWrapper<ApprovalRule>> rules,
     @Default(AsyncValue.loading())
     AsyncValue<PaginationResponseWrapper<MemberPosition>> positions,
+    @Default(AsyncValue.data([]))
+    AsyncValue<List<FinancialAccountNumber>> financialAccounts,
     @Default('') String searchQuery,
     @Default(null) int? selectedPositionId,
     @Default(null) bool? activeOnly,

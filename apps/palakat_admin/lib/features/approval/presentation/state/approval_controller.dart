@@ -31,7 +31,7 @@ class ApprovalController extends _$ApprovalController {
     state = state.copyWith(rules: const AsyncValue.loading());
     try {
       final repository = ref.read(approvalRepositoryProvider);
-      
+
       final result = await repository.fetchApprovalRules(
         paginationRequest: PaginationRequestWrapper(
           data: GetFetchApprovalRulesRequest(
@@ -45,8 +45,11 @@ class ApprovalController extends _$ApprovalController {
         ),
       );
       result.when(
-        onSuccess: (rules) => state = state.copyWith(rules: AsyncValue.data(rules)),
-        onFailure: (failure) => state = state.copyWith(rules: AsyncValue.error(failure.message, StackTrace.current)),
+        onSuccess: (rules) =>
+            state = state.copyWith(rules: AsyncValue.data(rules)),
+        onFailure: (failure) => state = state.copyWith(
+          rules: AsyncValue.error(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(rules: AsyncValue.error(e, st));
@@ -57,20 +60,21 @@ class ApprovalController extends _$ApprovalController {
     state = state.copyWith(positions: const AsyncValue.loading());
     try {
       final repository = ref.read(approvalRepositoryProvider);
-      
+
       // Fetch all positions for the church (no pagination needed for positions dropdown)
       final result = await repository.fetchMembershipPositions(
         paginationRequest: PaginationRequestWrapper(
-          data: GetFetchPositionsRequest(
-            churchId: church.id!,
-          ),
+          data: GetFetchPositionsRequest(churchId: church.id!),
           page: 1,
           pageSize: 100, // Get all positions
         ),
       );
       result.when(
-        onSuccess: (positions) => state = state.copyWith(positions: AsyncValue.data(positions)),
-        onFailure: (failure) => state = state.copyWith(positions: AsyncValue.error(failure.message, StackTrace.current)),
+        onSuccess: (positions) =>
+            state = state.copyWith(positions: AsyncValue.data(positions)),
+        onFailure: (failure) => state = state.copyWith(
+          positions: AsyncValue.error(failure.message, StackTrace.current),
+        ),
       );
     } catch (e, st) {
       state = state.copyWith(positions: AsyncValue.error(e, st));
@@ -131,11 +135,11 @@ class ApprovalController extends _$ApprovalController {
     try {
       final repository = ref.read(approvalRepositoryProvider);
       final data = rule.toJson();
-      
+
       final result = rule.id == null || rule.id == 0
           ? await repository.createApprovalRule(data..remove('id'))
           : await repository.updateApprovalRule(ruleId: rule.id!, data: data);
-      
+
       result.when(
         onSuccess: (_) => _fetchRules(),
         onFailure: (failure) => throw Exception(failure.message),
@@ -149,7 +153,7 @@ class ApprovalController extends _$ApprovalController {
     try {
       final repository = ref.read(approvalRepositoryProvider);
       final result = await repository.deleteApprovalRule(ruleId);
-      
+
       result.when(
         onSuccess: (_) => _fetchRules(),
         onFailure: (failure) => throw Exception(failure.message),
@@ -178,17 +182,15 @@ class ApprovalController extends _$ApprovalController {
   Future<List<MemberPosition>> fetchPositionsByChurch(int churchId) async {
     try {
       final repository = ref.read(approvalRepositoryProvider);
-      
+
       final result = await repository.fetchMembershipPositions(
         paginationRequest: PaginationRequestWrapper(
-          data: GetFetchPositionsRequest(
-            churchId: churchId,
-          ),
+          data: GetFetchPositionsRequest(churchId: churchId),
           page: 1,
           pageSize: 100, // Get all positions
         ),
       );
-      
+
       final value = result.when<List<MemberPosition>>(
         onSuccess: (positions) => positions.data,
         onFailure: (failure) => throw Exception(failure.message),
@@ -197,6 +199,54 @@ class ApprovalController extends _$ApprovalController {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// Fetch available financial account numbers for a specific church and optional type
+  ///
+  /// Used for populating the financial account dropdown in approval rule forms.
+  /// [type] should be 'REVENUE' or 'EXPENSE' to filter by financial type.
+  /// [currentRuleId] should be provided when editing an existing rule to include
+  /// the currently assigned account in the available options.
+  Future<List<FinancialAccountNumber>> fetchFinancialAccountNumbers({
+    required int churchId,
+    String? type,
+    int? currentRuleId,
+  }) async {
+    state = state.copyWith(financialAccounts: const AsyncValue.loading());
+    try {
+      final repository = ref.read(approvalRepositoryProvider);
+
+      final result = await repository.getAvailableAccounts(
+        churchId: churchId,
+        type: type,
+        currentRuleId: currentRuleId,
+      );
+
+      final value = result.when<List<FinancialAccountNumber>>(
+        onSuccess: (accounts) {
+          state = state.copyWith(financialAccounts: AsyncValue.data(accounts));
+          return accounts;
+        },
+        onFailure: (failure) {
+          state = state.copyWith(
+            financialAccounts: AsyncValue.error(
+              failure.message,
+              StackTrace.current,
+            ),
+          );
+          throw Exception(failure.message);
+        },
+      );
+      return value!;
+    } catch (e, st) {
+      state = state.copyWith(financialAccounts: AsyncValue.error(e, st));
+      rethrow;
+    }
+  }
+
+  /// Clear financial accounts state (e.g., when financial type is deselected)
+  void clearFinancialAccounts() {
+    state = state.copyWith(financialAccounts: const AsyncValue.data([]));
   }
 
   void refresh() {

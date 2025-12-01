@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/widgets/mobile/bottom_navbar_item.dart'
+    as shared;
 
+/// App-specific BottomNavBarItem that wraps the shared version
+/// and provides convenience for using SvgGenImage icons.
 class BottomNavBarItem extends StatelessWidget {
   const BottomNavBarItem({
     super.key,
@@ -17,37 +21,13 @@ class BottomNavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: const BorderRadius.all(
-        Radius.circular(18),
-      ),
-      onTap: onPressed,
-      child: Container(
-        height: BaseSize.customWidth(45),
-        width: BaseSize.customWidth(45),
-        padding: EdgeInsets.symmetric(
-          horizontal: activated ? BaseSize.customWidth(14) : BaseSize.w12,
-          vertical: activated ? BaseSize.customWidth(14) : BaseSize.w12,
-        ),
-        decoration: BoxDecoration(
-          boxShadow: activated
-              ? const []
-              : [
-                  BoxShadow(
-                    color: BaseColor.black.withValues(alpha: .125),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(10, 10),
-                  ),
-                ],
-          color: activated ? BaseColor.primaryText : BaseColor.cardBackground1,
-          shape: BoxShape.circle,
-        ),
-        child: icon.svg(
-          colorFilter:
-              (activated ? BaseColor.cardBackground1 : BaseColor.primaryText)
-                  .filterSrcIn,
-        ),
+    return shared.BottomNavBarItem(
+      onPressed: onPressed,
+      activated: activated,
+      icon: icon.svg(
+        colorFilter:
+            (activated ? BaseColor.cardBackground1 : BaseColor.primaryText)
+                .filterSrcIn,
       ),
     );
   }

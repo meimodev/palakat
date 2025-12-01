@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 import '../state/approval_controller.dart';
 
 class ApprovalEditDrawer extends ConsumerStatefulWidget {
@@ -32,6 +33,13 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
   List<MemberPosition> _allPositions = [];
   ApprovalRule? _fetchedRule; // Latest rule copy (fetched)
 
+  // New fields for activity type and financial filtering
+  ActivityType? _selectedActivityType;
+  FinanceType? _selectedFinancialType;
+  FinancialAccountNumber? _selectedFinancialAccount;
+  List<FinancialAccountNumber> _financialAccounts = [];
+  bool _loadingFinancialAccounts = false;
+
   bool _loading = false;
   bool _deleting = false;
   bool _saving = false;
@@ -40,6 +48,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
   // Inline validation errors
   String? _nameError;
   String? _positionsError;
+  String? _financialAccountError;
 
   bool get _isNew => widget.ruleId == null;
 
@@ -82,8 +91,24 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
           _active = rule.active;
           _selectedPositions.clear();
           _selectedPositions.addAll(rule.positions);
+          _selectedActivityType = rule.activityType;
+          _selectedFinancialType = rule.financialType;
         }
       });
+
+      // Fetch financial accounts if financial type is set (outside setState)
+      if (rule?.financialType != null) {
+        await _fetchFinancialAccounts(rule!.financialType!);
+        // Resolve the account ID to the full object
+        final accountId = rule.financialAccountNumberId;
+        if (accountId != null && _financialAccounts.isNotEmpty) {
+          setState(() {
+            _selectedFinancialAccount = _financialAccounts
+                .where((a) => a.id == accountId)
+                .firstOrNull;
+          });
+        }
+      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load data';
@@ -105,6 +130,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     setState(() {
       _nameError = null;
       _positionsError = null;
+      _financialAccountError = null;
     });
 
     // Validate fields
@@ -124,6 +150,15 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
       hasError = true;
     }
 
+    // Validate financial account is required when financial type is selected
+    if (_selectedFinancialType != null && _selectedFinancialAccount == null) {
+      setState(() {
+        _financialAccountError =
+            'Financial account number is required when financial type is selected';
+      });
+      hasError = true;
+    }
+
     if (hasError) return;
 
     setState(() {
@@ -132,25 +167,33 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     });
 
     try {
+      final nameTrimmed = _nameController.text.trim();
+      final descTrimmed = _descriptionController.text.trim();
+      final formattedName =
+          '${nameTrimmed.substring(0, 1).toUpperCase()}${nameTrimmed.substring(1)}';
+      final formattedDesc = descTrimmed.isEmpty
+          ? null
+          : '${descTrimmed.substring(0, 1).toUpperCase()}${descTrimmed.substring(1)}';
+
       final updated =
           _fetchedRule?.copyWith(
-            name:
-                '${_nameController.text.trim().substring(0, 1).toUpperCase()}${_nameController.text.trim().substring(1)}',
-            description: _descriptionController.text.trim().isEmpty
-                ? null
-                : '${_descriptionController.text.trim().substring(0, 1).toUpperCase()}${_descriptionController.text.trim().substring(1)}',
+            name: formattedName,
+            description: formattedDesc,
             active: _active,
             positions: _selectedPositions,
+            activityType: _selectedActivityType,
+            financialType: _selectedFinancialType,
+            financialAccountNumberId: _selectedFinancialAccount?.id,
           ) ??
           ApprovalRule(
-            name:
-                '${_nameController.text.trim().substring(0, 1).toUpperCase()}${_nameController.text.trim().substring(1)}',
-            description: _descriptionController.text.trim().isEmpty
-                ? null
-                : '${_descriptionController.text.trim().substring(0, 1).toUpperCase()}${_descriptionController.text.trim().substring(1)}',
+            name: formattedName,
+            description: formattedDesc,
             churchId: widget.churchId,
             positions: _selectedPositions,
             active: _active,
+            activityType: _selectedActivityType,
+            financialType: _selectedFinancialType,
+            financialAccountNumberId: _selectedFinancialAccount?.id,
           );
 
       await widget.onSave(updated);
@@ -215,6 +258,60 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
   void _onRetry() {
     _fetchData();
+  }
+
+  Future<void> _fetchFinancialAccounts(FinanceType type) async {
+    setState(() {
+      _loadingFinancialAccounts = true;
+    });
+
+    try {
+      final accounts = await ref
+          .read(approvalControllerProvider.notifier)
+          .fetchFinancialAccountNumbers(
+            churchId: widget.churchId,
+            type: type.value,
+            currentRuleId: widget.ruleId,
+          );
+
+      if (mounted) {
+        setState(() {
+          _financialAccounts = accounts;
+          _loadingFinancialAccounts = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _financialAccounts = [];
+          _loadingFinancialAccounts = false;
+        });
+      }
+    }
+  }
+
+  void _onActivityTypeChanged(ActivityType? value) {
+    setState(() {
+      _selectedActivityType = value;
+    });
+  }
+
+  void _onFinancialTypeChanged(FinanceType? value) {
+    setState(() {
+      _selectedFinancialType = value;
+      _selectedFinancialAccount = null;
+      _financialAccounts = [];
+    });
+
+    if (value != null) {
+      _fetchFinancialAccounts(value);
+    }
+  }
+
+  void _onFinancialAccountSelected(FinancialAccountNumber account) {
+    setState(() {
+      _selectedFinancialAccount = account;
+    });
   }
 
   @override
@@ -343,6 +440,122 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   ),
                 ),
                 contentPadding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Activity Type Section
+          InfoSection(
+            title: 'Activity Type Filter',
+            titleSpacing: 16,
+            children: [
+              LabeledField(
+                label: 'Activity Type (Optional)',
+                child: DropdownButtonFormField<ActivityType?>(
+                  value: _selectedActivityType,
+                  decoration: InputDecoration(
+                    hintText: 'All activity types',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                  ),
+                  items: [
+                    const DropdownMenuItem<ActivityType?>(
+                      value: null,
+                      child: Text('All activity types'),
+                    ),
+                    ...ActivityType.values.map((type) {
+                      return DropdownMenuItem<ActivityType?>(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }),
+                  ],
+                  onChanged: _onActivityTypeChanged,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'When set, this rule only applies to activities of the selected type.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Financial Type Section
+          InfoSection(
+            title: 'Financial Filter',
+            titleSpacing: 16,
+            children: [
+              LabeledField(
+                label: 'Financial Type (Optional)',
+                child: DropdownButtonFormField<FinanceType?>(
+                  value: _selectedFinancialType,
+                  decoration: InputDecoration(
+                    hintText: 'No financial filter',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                  ),
+                  items: [
+                    const DropdownMenuItem<FinanceType?>(
+                      value: null,
+                      child: Text('No financial filter'),
+                    ),
+                    ...FinanceType.values.map((type) {
+                      return DropdownMenuItem<FinanceType?>(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }),
+                  ],
+                  onChanged: _onFinancialTypeChanged,
+                ),
+              ),
+              if (_selectedFinancialType != null) ...[
+                const SizedBox(height: 16),
+                FinancialAccountPicker(
+                  financeType: _selectedFinancialType!,
+                  selectedAccount: _selectedFinancialAccount,
+                  accounts: _financialAccounts,
+                  isLoading: _loadingFinancialAccounts,
+                  label: 'Financial Account Number *',
+                  onSelected: (account) {
+                    _onFinancialAccountSelected(account);
+                    // Clear error when user selects an account
+                    if (_financialAccountError != null) {
+                      setState(() {
+                        _financialAccountError = null;
+                      });
+                    }
+                  },
+                ),
+                if (_financialAccountError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _financialAccountError!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                ],
+              ],
+              const SizedBox(height: 8),
+              Text(
+                'When set, this rule only applies to activities with matching financial data.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
