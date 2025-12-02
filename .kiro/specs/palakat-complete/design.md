@@ -774,3 +774,288 @@ palakat_shared/
 - `lib/core/constants/` - Mobile-specific constants
 - `lib/core/routing/` - Mobile navigation
 - `lib/core/widgets/` - Mobile-specific widgets
+
+
+---
+
+## Additional Components (Consolidated from Feature Specs)
+
+### Widget Consolidation Architecture
+
+```mermaid
+graph TB
+    subgraph "Before Migration"
+        PA[palakat/lib/core/widgets] --> PAW[Mobile Widgets]
+        PAA[palakat_admin/lib/core/widgets] --> PAAW[Admin Widgets]
+    end
+    
+    subgraph "After Migration"
+        PS[palakat_shared/lib/core/widgets] --> PSW[Unified Widgets]
+        PA2[palakat] --> |imports| PS
+        PAA2[palakat_admin] --> |imports| PS
+    end
+```
+
+### Widget Categories Migrated
+
+| Category | Source (palakat) | Existing in Shared | Action |
+|----------|------------------|-------------------|--------|
+| Button | `button/button_widget.dart` | No | Migrated |
+| Card | `card/*.dart` | `surface_card.dart` | Merged |
+| Dialog | `dialog/*.dart` | No | Migrated |
+| Input | `input/*.dart` | `input/input.dart` | Merged |
+| Loading | `loading/*.dart` | `loading_widget.dart`, `loading_shimmer.dart` | Merged |
+| Error | `error/*.dart` | `error_widget.dart` | Merged |
+| AppBar | `appbar/appbar_widget.dart` | No | Migrated (mobile-specific) |
+| Bottom Navbar | `bottom_navbar/*.dart` | No | Migrated (mobile-specific) |
+| Scaffold | `scaffold/scaffold_widget.dart` | No | Migrated (mobile-specific) |
+| Chips | `chips/chips_widget.dart` | Various chip widgets | Merged |
+| Output | `output/output_widget.dart` | No | Migrated |
+| Screen Title | `screen_title/*.dart` | No | Migrated |
+| Segment Title | `segment_title/*.dart` | No | Migrated |
+| Info Box | `info_box_widget.dart`, `info_box_with_action_widget.dart` | `info_section.dart` | Merged |
+| Image Network | `image_network/*.dart` | No | Migrated |
+| Account Number Picker | `account_number_picker/*.dart` | `financial_account_picker.dart` | Merged |
+
+### Financial Account Unique Constraint Architecture
+
+```mermaid
+erDiagram
+    ApprovalRule ||--o| FinancialAccountNumber : "links to (unique)"
+    ApprovalRule {
+        int id PK
+        string name
+        int financialAccountNumberId FK "UNIQUE"
+    }
+    FinancialAccountNumber {
+        int id PK
+        string accountNumber
+        string type
+    }
+```
+
+### Activity Approver Linking Architecture
+
+```mermaid
+flowchart TD
+    subgraph "Activity Creation Flow"
+        A[Create Activity Request] --> B{Has Activity Type?}
+        B -->|Yes| C[Find Approval Rules by Activity Type]
+        B -->|No| D[Find Generic Approval Rules]
+        C --> E{Has Financial Data?}
+        D --> E
+        E -->|Yes| F[Find Approval Rules by Financial Account Number]
+        E -->|No| G[Collect Membership Positions]
+        F --> H[Merge Financial Rule Positions]
+        H --> G
+        G --> I[Deduplicate Positions]
+        I --> J[Find Memberships with Positions]
+        J --> K[Include Supervisor if Matching Position]
+        K --> L[Create Approver Records]
+        L --> M[Return Activity with Approvers]
+    end
+```
+
+### ApprovalRule Extended Schema
+
+```prisma
+model ApprovalRule {
+  id                       Int                     @id @default(autoincrement())
+  name                     String
+  description              String?
+  active                   Boolean                 @default(true)
+  activityType             ActivityType?           // Optional activity type filter
+  financialType            FinancialType?          // Optional financial type filter
+  financialAccountNumberId Int?                    @unique // Unique constraint
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+  churchId                 Int
+  church                   Church                  @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id], onDelete: SetNull)
+  positions                MembershipPosition[]
+
+  @@index([churchId])
+  @@index([active])
+  @@index([activityType])
+  @@index([financialType])
+}
+```
+
+### Backend Service Interfaces
+
+#### ApprovalRuleService Updates
+
+```typescript
+// Validation method for uniqueness
+async validateFinancialAccountUniqueness(
+  financialAccountNumberId: number,
+  excludeRuleId?: number
+): Promise<void>
+
+// Validation method for financial type requiring account
+async validateFinancialTypeRequiresAccount(
+  financialType: FinanceType | null,
+  financialAccountNumberId: number | null
+): Promise<void>
+```
+
+#### FinancialAccountNumberService Updates
+
+```typescript
+// Get available accounts (not linked to any rule)
+async getAvailableAccounts(
+  churchId: number,
+  financeType?: FinanceType,
+  currentRuleId?: number
+): Promise<FinancialAccountNumber[]>
+
+// Updated findAll to include linked approval rule information
+async findAll(
+  churchId: number,
+  options?: {
+    type?: FinanceType,
+    search?: string,
+    includeApprovalRule?: boolean
+  }
+): Promise<FinancialAccountNumber[]>
+```
+
+#### ApproverResolverService
+
+```typescript
+interface ApproverResolutionInput {
+  churchId: number;
+  activityType: ActivityType;
+  supervisorId: number;
+  financialAccountNumberId?: number;
+  financialType?: FinancialType;
+}
+
+interface ApproverResolutionResult {
+  membershipIds: number[];
+  matchedRuleIds: number[];
+}
+```
+
+### Theme-Based Styling Changes
+
+All migrated widgets use `Theme.of(context)` instead of hardcoded constants:
+
+| Original (palakat) | Shared (theme-based) |
+|-------------------|---------------------|
+| `BaseColor.neutral30` | `theme.colorScheme.outline` |
+| `BaseColor.neutral50` | `theme.colorScheme.onSurfaceVariant` |
+| `BaseColor.neutral60` | `theme.colorScheme.onSurfaceVariant` |
+| `BaseColor.black` | `theme.colorScheme.onSurface` |
+| `BaseColor.white` | `theme.colorScheme.surface` |
+| `BaseColor.error` | `theme.colorScheme.error` |
+| `BaseColor.primary` | `theme.colorScheme.primary` |
+| `BaseTypography.titleMedium` | `theme.textTheme.titleMedium` |
+| `BaseTypography.bodySmall` | `theme.textTheme.bodySmall` |
+| `BaseSize.w12` | `12.0` (or theme extension) |
+| `Gap.h6` | `SizedBox(height: 6)` |
+
+### Additional Error Handling
+
+| Error Code | Message | Condition |
+|------------|---------|-----------|
+| `FINANCIAL_ACCOUNT_ALREADY_LINKED` | "Financial account {accountNumber} is already linked to approval rule {ruleName}" | Attempting to link an account already assigned to another rule |
+| `FINANCIAL_ACCOUNT_REQUIRED` | "Financial account number is required when financial type is set" | Creating/updating rule with financial type but no account |
+
+---
+
+## Additional Correctness Properties (Consolidated)
+
+### Widget Consolidation Properties
+
+**Property 33: Financial Account Uniqueness Constraint**
+*For any* church with multiple approval rules and financial accounts, if a financial account is linked to one approval rule, attempting to link the same account to a different approval rule SHALL result in a rejection error.
+**Validates: Requirements 27.1, 27.2, 27.3, 27.4**
+
+**Property 34: Seed Data Financial Account Uniqueness**
+*For any* seeded database state, the count of approval rules with non-null `financialAccountNumberId` SHALL equal the count of distinct `financialAccountNumberId` values across all approval rules.
+**Validates: Requirements 28.1, 28.2, 28.3**
+
+**Property 35: Available Accounts Filtering**
+*For any* set of financial accounts where some are linked to approval rules, the available accounts list for a new approval rule SHALL contain only accounts that are not linked to any existing rule.
+**Validates: Requirements 29.1**
+
+**Property 36: Financial Type Requires Account Number**
+*For any* approval rule creation or update request that includes a financial type, if no financial account number is provided, the request SHALL be rejected with a validation error.
+**Validates: Requirements 30.1, 30.2**
+
+**Property 37: Financial Account Search by Description**
+*For any* list of financial accounts and any search query, filtering by description SHALL return all accounts where the description contains the query string (case-insensitive).
+**Validates: Requirements 31.2**
+
+**Property 38: Financial Account Search Fallback to Account Number**
+*For any* list of financial accounts and any search query where no accounts match by description, filtering SHALL fallback to return accounts where the account number contains the query string.
+**Validates: Requirements 31.3**
+
+**Property 39: Position Search by Name**
+*For any* list of membership positions and any search query, filtering by name SHALL return all positions where the position name contains the query string (case-insensitive).
+**Validates: Requirements 32.2**
+
+**Property 40: Linked Approval Rule Display**
+*For any* financial account that is linked to an approval rule, the financial accounts table SHALL display the approval rule name in the linked rule column.
+**Validates: Requirements 9.13**
+
+### Activity Approver Linking Properties
+
+**Property 41: Activity Type Rule Matching**
+*For any* activity with a specific activityType, the system should return only approval rules that either match that activityType or have no activityType filter (generic rules), and all returned rules must belong to the same church as the activity.
+**Validates: Requirements 33.2, 33.3, 33.4**
+
+**Property 42: Financial Type Filtering**
+*For any* activity, if it has revenue data, only REVENUE-type financial rules should be considered; if it has expense data, only EXPENSE-type financial rules should be considered; if it has no financial data, no financial-type rules should be applied.
+**Validates: Requirements 34.2, 34.3, 34.4**
+
+**Property 43: Financial Account Number Matching**
+*For any* activity with financial data, approval rules with a financialAccountNumberId should only match if the activity's financial account number matches, while rules with only financialType (no specific account) should match any activity with that financial type.
+**Validates: Requirements 35.2, 35.3, 35.4**
+
+**Property 44: Approver Deduplication**
+*For any* set of approval rules matched for an activity, the resulting list of approver memberships should contain no duplicates, even if the same membership position appears in multiple rules.
+**Validates: Requirements 36.5**
+
+**Property 45: Supervisor Self-Approval Inclusion**
+*For any* activity where the supervisor holds a membership position that matches an approval rule, the supervisor's membership should appear in the list of approvers, enabling self-approval.
+**Validates: Requirements 36.8**
+
+**Property 46: Approver-Rule Consistency**
+*For any* activity created with automatic approver linking, every assigned approver should hold at least one membership position that is linked to one of the matched approval rules.
+**Validates: Requirements 36.2, 36.4, 36.6, 36.7**
+
+**Property 47: Self-Approval Capability**
+*For any* activity where the supervisor is also an approver, the mobile app should allow the supervisor to approve or reject their own approver record, and the status update should be persisted correctly.
+**Validates: Requirements 38.2, 38.3, 38.4**
+
+### InputWidget Migration Properties
+
+**Property 48: Theme-based styling adaptation**
+*For any* valid ThemeData configuration, the InputWidget SHALL render using colors and text styles from the provided theme context, not hardcoded values.
+**Validates: Requirements 39.1**
+
+**Property 49: Custom display builder invocation**
+*For any* InputWidget.dropdown with a customDisplayBuilder and a non-null selected value, the widget tree SHALL contain the widget returned by customDisplayBuilder(value).
+**Validates: Requirements 39.3**
+
+**Property 50: InputWidget backward compatibility**
+*For any* InputWidget configuration with valid parameters (text, dropdown, or binaryOption), the widget SHALL render correctly and trigger callbacks as expected.
+**Validates: Requirements 40.1, 40.2, 40.3**
+
+**Property 51: Account number format validation**
+*For any* financial account number generated by the seeder, the accountNumber field SHALL match the pattern `^[12]\.\d+(\.\d+)*$` (starting with 1 or 2, followed by dot-separated numeric segments).
+**Validates: Requirements 41.1**
+
+**Property 52: Income account prefix**
+*For any* financial account number with type REVENUE, the accountNumber SHALL start with "1".
+**Validates: Requirements 41.2**
+
+**Property 53: Expense account prefix**
+*For any* financial account number with type EXPENSE, the accountNumber SHALL start with "2".
+**Validates: Requirements 41.3**
+
+**Property 54: Approval Rule Name from Financial Account**
+*For any* approval rule with a linked financial account number, the approval rule name SHALL equal the financial account's description. This applies to both create and update operations.
+**Validates: Requirements 42.1, 42.2, 42.3, 42.4, 42.5**

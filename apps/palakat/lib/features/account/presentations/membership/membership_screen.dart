@@ -112,7 +112,10 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                     hint: "Church",
                     currentInputValue: state.church,
                     errorText: state.errorChurch,
-                    endIcon: Assets.icons.line.chevronDownOutline,
+                    endIcon: Assets.icons.line.chevronDownOutline.svg(
+                      width: 20,
+                      height: 20,
+                    ),
                     onChanged: controller.onChangedChurch,
                     optionLabel: (model.Church option) => option.name,
                     onPressedWithResult: () async =>
@@ -126,7 +129,10 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                         : "Column",
                     currentInputValue: state.column,
                     errorText: state.errorColumn,
-                    endIcon: Assets.icons.line.chevronDownOutline,
+                    endIcon: Assets.icons.line.chevronDownOutline.svg(
+                      width: 20,
+                      height: 20,
+                    ),
                     onChanged: controller.onChangedColumn,
                     optionLabel: (model.Column? option) => option?.name ?? '',
                     onPressedWithResult: state.church == null

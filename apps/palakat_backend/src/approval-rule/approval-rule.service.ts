@@ -183,8 +183,22 @@ export class ApprovalRuleService {
       await this.validateFinancialAccountUniqueness(financialAccountNumberId);
     }
 
+    // When a financial account is linked, use its description as the rule name
+    let ruleName = rest.name;
+    if (financialAccountNumberId) {
+      const financialAccount =
+        await this.prismaService.financialAccountNumber.findUnique({
+          where: { id: financialAccountNumberId },
+          select: { description: true },
+        });
+      if (financialAccount?.description) {
+        ruleName = financialAccount.description;
+      }
+    }
+
     const data: Prisma.ApprovalRuleCreateInput = {
       ...rest,
+      name: ruleName,
       financialType,
       church: { connect: { id: churchId } },
       ...(positionIds && positionIds.length > 0
@@ -274,8 +288,22 @@ export class ApprovalRuleService {
       );
     }
 
+    // When a financial account is linked, use its description as the rule name
+    let ruleName = rest.name;
+    if (effectiveAccountId) {
+      const financialAccount =
+        await this.prismaService.financialAccountNumber.findUnique({
+          where: { id: effectiveAccountId },
+          select: { description: true },
+        });
+      if (financialAccount?.description) {
+        ruleName = financialAccount.description;
+      }
+    }
+
     const data: Prisma.ApprovalRuleUpdateInput = {
       ...rest,
+      ...(ruleName !== undefined ? { name: ruleName } : {}),
       ...(financialType !== undefined ? { financialType } : {}),
       ...(churchId !== undefined
         ? { church: { connect: { id: churchId } } }

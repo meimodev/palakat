@@ -199,7 +199,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       hint: "Date Of Birth",
                       currentInputValue: state.dob,
                       errorText: state.errorDob,
-                      endIcon: Assets.icons.line.calendarOutline,
+                      endIcon: Assets.icons.line.calendarOutline.svg(
+                        width: 20,
+                        height: 20,
+                      ),
                       optionLabel: (DateTime option) => option.ddMmmmYyyy,
                       onChanged: controller.onChangedDOB,
                       onPressedWithResult: () async =>

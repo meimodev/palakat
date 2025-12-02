@@ -17,7 +17,7 @@ export class FinancialAccountNumberService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: FindAllFinancialAccountNumberDto, churchId: number) {
-    const { search, skip, take, type } = query;
+    const { search, skip, take, type, includeApprovalRule } = query;
 
     const where: any = {
       churchId,
@@ -34,15 +34,48 @@ export class FinancialAccountNumberService {
       ];
     }
 
-    const [total, data] = await (this.prisma as any).$transaction([
+    // Build include clause for approval rule if requested
+    const include = includeApprovalRule
+      ? {
+          approvalRules: {
+            select: {
+              id: true,
+              name: true,
+            },
+            take: 1, // Due to unique constraint, there should only be one
+          },
+        }
+      : undefined;
+
+    const [total, rawData] = await (this.prisma as any).$transaction([
       (this.prisma as any).financialAccountNumber.count({ where }),
       (this.prisma as any).financialAccountNumber.findMany({
         where,
         take,
         skip,
         orderBy: { createdAt: 'desc' },
+        ...(include && { include }),
       }),
     ]);
+
+    // Transform data to flatten the approval rule if included
+    const data = includeApprovalRule
+      ? rawData.map(
+          (account: {
+            approvalRules?: Array<{ id: number; name: string }>;
+            [key: string]: unknown;
+          }) => {
+            const { approvalRules, ...rest } = account;
+            return {
+              ...rest,
+              approvalRule:
+                approvalRules && approvalRules.length > 0
+                  ? approvalRules[0]
+                  : null,
+            };
+          },
+        )
+      : rawData;
 
     return {
       message: 'Financial account numbers retrieved successfully',

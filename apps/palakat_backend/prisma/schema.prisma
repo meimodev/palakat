@@ -73,6 +73,8 @@ model MembershipPosition {
   church         Church?       @relation(fields: [churchId], references: [id], onDelete: SetNull)
   approvalRuleId Int?
   approvalRule   ApprovalRule? @relation(fields: [approvalRuleId], references: [id], onDelete: SetNull)
+
+  @@unique([churchId, name])
 }
 
 model Account {

@@ -12,7 +12,11 @@ The platform enables churches to:
 - Generate reports and manage documents
 - Support multi-tenant architecture for multiple churches
 
-This specification serves as the comprehensive system documentation, consolidating all feature requirements into a single authoritative source.
+This specification serves as the comprehensive system documentation, consolidating all feature requirements into a single authoritative source. It includes:
+- Widget consolidation from mobile and admin apps into the shared package
+- Financial account unique constraint enforcement
+- Activity approver automatic linking based on approval rules
+- Searchable pickers for financial accounts and positions
 
 ## Glossary
 
@@ -32,11 +36,13 @@ This specification serves as the comprehensive system documentation, consolidati
 ### Domain Concepts
 - **Activity**: A church event, service, or announcement requiring approval workflow
 - **Approval_Workflow**: A multi-step process where designated approvers review and approve activities
+- **Approval_Rule**: A configuration that defines which membership positions are responsible for approving certain types of activities
 - **BIPRA**: Church organizational units (PKB, WKI, PMD, RMJ, ASM)
 - **Column**: A church sub-group or division for organizing members
 - **Membership_Position**: A role or title held by a member within the church
 - **Song_Book**: Digital hymnal containing songs from multiple books (NKB, NNBT, KJ, DSL)
 - **Church_Request**: A request submitted by a member to register a new church in the system
+- **Widget**: A reusable UI component in Flutter
 
 ### Financial Concepts
 - **Revenue**: A financial record representing income associated with a church activity
@@ -44,12 +50,14 @@ This specification serves as the comprehensive system documentation, consolidati
 - **Financial_Account_Number**: A predefined account number record belonging to a church, containing an account number string and description
 - **Payment_Method**: The method of payment, either CASH or CASHLESS
 - **Finance_Create_Screen**: The screen in the mobile app where users input financial details
+- **FinancialType**: Classification of financial data (REVENUE, EXPENSE)
 
 ### Activity Concepts
 - **Reminder**: A time-based notification preference indicating when users should be reminded before an activity (TEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, TWO_HOURS)
 - **Supervised_Activity**: An Activity record where the current user's membership ID matches the supervisorId field
 - **SERVICE/EVENT Activity**: Activity types that require date, time, location, and reminder fields
 - **ANNOUNCEMENT Activity**: Activity type that does not require reminder field
+- **ActivityType**: Classification of activity (SERVICE, EVENT, ANNOUNCEMENT)
 
 ### Technical Terms
 - **JWT**: JSON Web Token used for authentication
@@ -57,6 +65,8 @@ This specification serves as the comprehensive system documentation, consolidati
 - **Hive**: Local key-value storage used by Flutter apps for caching
 - **Prisma**: ORM used by Backend_API for database operations
 - **Riverpod**: State management library used by Flutter apps
+- **InputWidget**: A Flutter widget that provides text, dropdown, and binary option input variants with custom display builder support
+- **Custom Display Builder**: A callback function that allows rendering a custom widget instead of the default text display for selected values
 
 ### UI Components
 - **Operations_Screen**: The screen where designated church members perform operational tasks
@@ -64,6 +74,8 @@ This specification serves as the comprehensive system documentation, consolidati
 - **Bottom_Navigation_Bar**: The persistent navigation component at the bottom of the screen
 - **Category_Card**: A collapsible card component that groups related items
 - **Primary_Color**: The main brand color (teal) from which all other colors are derived
+- **FinancialAccountPicker**: A searchable picker widget for selecting financial account numbers
+- **PositionSelector**: A searchable selector widget for selecting membership positions
 
 ## Requirements
 
@@ -243,11 +255,14 @@ This specification serves as the comprehensive system documentation, consolidati
 3. WHEN an administrator submits a valid account number form THEN the System SHALL create a new Financial_Account_Number record associated with the church
 4. WHEN an administrator edits an existing account number THEN the Admin_Panel SHALL display the edit form pre-populated with current values
 5. WHEN an administrator deletes an account number THEN the System SHALL remove the Financial_Account_Number record from the database
-6. WHEN displaying the account number list THEN the Admin_Panel SHALL show account number, description, and creation date for each entry
+6. WHEN displaying the account number list THEN the Admin_Panel SHALL show account number, description, and linked approval rule name for each entry
 7. WHEN the database schema is updated THEN the Backend_API SHALL include a FinancialAccountNumber model with id, accountNumber, description, churchId, createdAt, and updatedAt fields
 8. WHEN a FinancialAccountNumber is created THEN the Backend_API SHALL establish a many-to-one relationship with Church
 9. WHEN a CRUD operation is performed on FinancialAccountNumber THEN the Backend_API SHALL validate that the account number is unique within the same church
 10. WHEN listing financial account numbers THEN the Backend_API SHALL support filtering by churchId and searching by account number or description
+11. WHEN displaying the financial account numbers table THEN the Admin_Panel SHALL NOT display the created date column
+12. WHEN a financial account is not linked to any approval rule THEN the Admin_Panel SHALL display a clear indicator (e.g., "-" or "Not assigned")
+13. WHEN a financial account is linked to an approval rule THEN the Admin_Panel SHALL display the approval rule name in the linked rule column
 
 ---
 
@@ -520,3 +535,245 @@ This specification serves as the comprehensive system documentation, consolidati
 5. WHEN palakat_admin needs models, repositories, services, extensions, utils, validation, or widgets THEN the system SHALL import them from palakat_shared
 6. WHEN barrel exports are updated THEN the system SHALL re-export palakat_shared components for backward compatibility
 7. WHEN the consolidation is complete THEN the palakat mobile app core folder SHALL remain unchanged
+
+---
+
+### Requirement 25: Widget Migration to Shared Package
+
+**User Story:** As a developer, I want all custom widgets consolidated in the shared package, so that I can maintain consistency across both apps and have centralized control over UI components.
+
+#### Acceptance Criteria
+
+1. WHEN a widget exists in both palakat and palakat_admin apps, THE Shared Package SHALL contain a single unified implementation of that widget
+2. WHEN a widget is mobile-specific (e.g., bottom navbar, mobile scaffold), THE Shared Package SHALL organize it in a platform-specific subdirectory
+3. WHEN a widget is migrated to the shared package, THE palakat app SHALL import the widget from palakat_shared instead of local definitions
+4. WHEN a widget is migrated to the shared package, THE palakat_admin app SHALL import the widget from palakat_shared instead of local definitions
+5. WHEN all widgets are migrated, THE palakat app core/widgets directory SHALL contain only re-exports or platform-specific wrappers
+
+---
+
+### Requirement 26: Widget Organization Structure
+
+**User Story:** As a developer, I want widgets organized by category in the shared package, so that I can easily find and maintain related components.
+
+#### Acceptance Criteria
+
+1. WHEN widgets are organized, THE Shared Package SHALL group widgets by functional category (input, button, card, dialog, loading, error, layout)
+2. WHEN a new widget category is added, THE Shared Package SHALL provide a barrel export file for that category
+3. WHEN the widgets barrel file is updated, THE Shared Package SHALL export all widget categories through a single widgets.dart file
+
+---
+
+### Requirement 27: Financial Account Number Unique Constraint
+
+**User Story:** As a church administrator, I want each financial account number to be linked to only one approval rule, so that financial approval workflows remain clear and unambiguous.
+
+#### Acceptance Criteria
+
+1. WHEN a financial account number is already linked to an approval rule, THE Backend SHALL reject attempts to link the same account to another rule
+2. WHEN creating an approval rule with a financial account number, THE Backend SHALL validate that the account is not already linked to another rule
+3. WHEN updating an approval rule to use a financial account number, THE Backend SHALL validate that the account is not already linked to a different rule
+4. WHEN the database schema is updated, THE FinancialAccountNumber model SHALL have a unique constraint on the approval rule relationship
+5. IF a duplicate financial account link is attempted, THEN THE Backend SHALL return a clear error message indicating the account is already assigned
+
+---
+
+### Requirement 28: Seed Data Compliance
+
+**User Story:** As a developer, I want the seed data to comply with the unique financial account constraint, so that the development database reflects production constraints.
+
+#### Acceptance Criteria
+
+1. WHEN seeding approval rules, THE Seed Script SHALL assign each financial account number to at most one approval rule
+2. WHEN seeding financial data, THE Seed Script SHALL verify no duplicate financial account assignments exist
+3. WHEN the seed script completes, THE Database SHALL contain approval rules with unique financial account number assignments
+
+---
+
+### Requirement 29: Frontend Validation for Financial Account Selection
+
+**User Story:** As an admin user, I want the financial account picker to show only available accounts, so that I cannot accidentally select an account already assigned to another rule.
+
+#### Acceptance Criteria
+
+1. WHEN displaying financial accounts in the approval rule form, THE Financial Account Picker SHALL filter out accounts already linked to other approval rules
+2. WHEN editing an existing approval rule, THE Financial Account Picker SHALL include the currently assigned account in the available options
+3. WHEN no available financial accounts exist, THE Financial Account Picker SHALL display an appropriate message indicating all accounts are assigned
+
+---
+
+### Requirement 30: Financial Type Requires Financial Account Number
+
+**User Story:** As a church administrator, I want the system to require a financial account number when a financial type is selected for an approval rule, so that financial workflows are always properly linked to specific accounts.
+
+#### Acceptance Criteria
+
+1. WHEN creating an approval rule with a financial type selected, THE Backend SHALL reject the request if no financial account number is provided
+2. WHEN updating an approval rule to add a financial type, THE Backend SHALL reject the request if no financial account number is provided
+3. WHEN a financial type is selected in the approval rule form, THE Admin Panel SHALL display the financial account number field as required
+4. IF a user attempts to save an approval rule with a financial type but no financial account number, THEN THE Admin Panel SHALL display a validation error message
+
+---
+
+### Requirement 31: Searchable Financial Account Picker
+
+**User Story:** As an admin user, I want to search financial accounts by description or name, so that I can quickly find the correct account when there are many options.
+
+#### Acceptance Criteria
+
+1. WHEN the financial account picker is displayed, THE Picker SHALL provide a search input field
+2. WHEN a user types in the search field, THE Picker SHALL filter accounts by matching the description field
+3. WHEN no accounts match the description search, THE Picker SHALL fallback to matching by account number
+4. WHEN search results are displayed, THE Picker SHALL show matching accounts in a scrollable list
+
+---
+
+### Requirement 32: Searchable Membership Positions Picker
+
+**User Story:** As an admin user, I want to search membership positions by name, so that I can quickly find the correct position when there are many options.
+
+#### Acceptance Criteria
+
+1. WHEN the position selector dropdown is displayed, THE Selector SHALL provide a search input field
+2. WHEN a user types in the search field, THE Selector SHALL filter positions by matching the position name
+3. WHEN search results are displayed, THE Selector SHALL show matching positions in a scrollable list
+
+---
+
+### Requirement 33: Activity Approver Automatic Linking
+
+**User Story:** As a church administrator, I want approval rules to be linked to specific activity types, so that the correct approvers are automatically assigned based on the type of activity being created.
+
+#### Acceptance Criteria
+
+1. WHEN an approval rule is created or updated THEN the ApprovalRule model SHALL support an optional activityType field that links to ActivityType enum values
+2. WHEN an activity is created with a specific activityType THEN the system SHALL query approval rules that match the activity's activityType within the same church
+3. WHEN no approval rules match the activityType THEN the system SHALL fall back to approval rules without an activityType filter within the same church
+4. WHEN multiple approval rules match the activityType THEN the system SHALL use all matching active approval rules to determine approvers
+
+---
+
+### Requirement 34: Financial Type Filtering for Approval Rules
+
+**User Story:** As a church administrator, I want approval rules to support financial type filtering, so that activities with financial data are routed to the appropriate financial approvers.
+
+#### Acceptance Criteria
+
+1. WHEN an approval rule is created or updated THEN the ApprovalRule model SHALL support an optional financialType field that links to FinancialType enum values (REVENUE, EXPENSE)
+2. WHEN an activity with revenue data is created THEN the system SHALL identify approval rules that have financialType set to REVENUE
+3. WHEN an activity with expense data is created THEN the system SHALL identify approval rules that have financialType set to EXPENSE
+4. WHEN an activity has no financial data THEN the system SHALL exclude approval rules that have a financialType filter from consideration
+
+---
+
+### Requirement 35: Financial Account Number Filtering for Approval Rules
+
+**User Story:** As a church administrator, I want approval rules to support financial account number filtering, so that activities with specific account numbers are routed to specialized approvers.
+
+#### Acceptance Criteria
+
+1. WHEN an approval rule is created or updated THEN the ApprovalRule model SHALL support an optional relation to FinancialAccountNumber
+2. WHEN an activity with financial data is created THEN the system SHALL match the activity's financial account number with approval rules that have the same financialAccountNumber
+3. WHEN an approval rule has both financialType and financialAccountNumber THEN the system SHALL require both conditions to match for the rule to apply
+4. WHEN an approval rule has financialType but no financialAccountNumber THEN the system SHALL apply the rule to all activities with matching financialType regardless of account number
+
+---
+
+### Requirement 36: Automatic Approver Assignment on Activity Creation
+
+**User Story:** As a church administrator, I want approvers to be automatically linked when creating an activity, so that I do not need to manually assign approvers for each activity.
+
+#### Acceptance Criteria
+
+1. WHEN an activity is created THEN the system SHALL first identify approval rules that match the activity's activityType within the same church
+2. WHEN activity type matching approval rules are found THEN the system SHALL retrieve all membership positions linked to those approval rules as base approvers
+3. WHEN the activity includes financial data (revenue or expense) THEN the system SHALL additionally identify approval rules that match the financial account number
+4. WHEN financial account number matching approval rules are found THEN the system SHALL add the membership positions from those rules to the approvers list
+5. WHEN membership positions are collected from both activity type and financial rules THEN the system SHALL deduplicate the membership positions to prevent duplicate approvers
+6. WHEN membership positions are deduplicated THEN the system SHALL find all memberships that hold those positions within the same church
+7. WHEN memberships are found THEN the system SHALL create Approver records linking those memberships to the newly created activity
+8. WHEN the activity supervisor holds a matching membership position THEN the system SHALL include the supervisor as an approver (self-approval scenario)
+9. WHEN no matching approval rules are found THEN the system SHALL create the activity without any approvers
+
+---
+
+### Requirement 37: Admin Panel Approval Rule Configuration
+
+**User Story:** As an admin panel user, I want to configure approval rules with activity type and financial filters, so that I can set up automated approval workflows for my church.
+
+#### Acceptance Criteria
+
+1. WHEN viewing the approval rule form in the admin panel THEN the form SHALL display an optional activity type dropdown with SERVICE, EVENT, and ANNOUNCEMENT options
+2. WHEN viewing the approval rule form in the admin panel THEN the form SHALL display an optional financial type dropdown with REVENUE and EXPENSE options
+3. WHEN a financial type is selected THEN the form SHALL display an optional financial account number dropdown filtered by the selected financial type and church
+4. WHEN saving an approval rule THEN the admin panel SHALL send the activityType, financialType, and financialAccountNumberId to the backend API
+5. WHEN viewing the approval rules list THEN the admin panel SHALL display the configured activity type, financial type, and financial account number for each rule
+
+---
+
+### Requirement 38: Supervisor Self-Approval
+
+**User Story:** As a mobile app user (supervisor), I want to be able to approve my own activity when I am also assigned as an approver, so that I can complete the approval workflow without requiring another person.
+
+#### Acceptance Criteria
+
+1. WHEN viewing an activity detail in the mobile app THEN the app SHALL check if the current user is both the supervisor and an approver
+2. WHEN the current user is both supervisor and approver THEN the app SHALL display approval action buttons (approve/reject) for the user's own approver record
+3. WHEN the supervisor approves their own approver record THEN the system SHALL update the approver status to APPROVED
+4. WHEN the supervisor rejects their own approver record THEN the system SHALL update the approver status to REJECTED
+5. WHEN displaying the activity detail THEN the app SHALL visually indicate when the supervisor is also an approver
+
+---
+
+### Requirement 39: InputWidget Migration
+
+**User Story:** As a developer, I want to move the existing InputWidget from palakat to palakat_shared, so that both apps can use the same flexible input component with custom display support.
+
+#### Acceptance Criteria
+
+1. WHEN the InputWidget is moved to palakat_shared THEN the system SHALL refactor styling to use theme-based colors from `Theme.of(context)` instead of hardcoded BaseColor constants
+2. WHEN the InputWidget is moved to palakat_shared THEN the system SHALL maintain the existing API including text, dropdown, and binaryOption constructors
+3. WHEN the InputWidget dropdown variant is used with customDisplayBuilder THEN the system SHALL render the custom widget for the selected value display
+4. WHEN the palakat app imports the shared InputWidget THEN the system SHALL maintain visual consistency with the current design through theme configuration
+
+---
+
+### Requirement 40: InputWidget Backward Compatibility
+
+**User Story:** As a developer, I want backward compatibility when migrating to the shared InputWidget, so that existing code in both apps continues to work without breaking changes.
+
+#### Acceptance Criteria
+
+1. WHEN existing palakat code uses InputWidget.text THEN the system SHALL continue to function with identical behavior after migration
+2. WHEN existing palakat code uses InputWidget.dropdown THEN the system SHALL continue to function with identical behavior after migration
+3. WHEN existing palakat code uses InputWidget.binaryOption THEN the system SHALL continue to function with identical behavior after migration
+
+---
+
+### Requirement 41: Hierarchical Account Number Format
+
+**User Story:** As a developer, I want the database seeder to use realistic hierarchical account numbers, so that test data accurately represents real-world financial account structures.
+
+#### Acceptance Criteria
+
+1. WHEN the seeder creates financial account numbers THEN the system SHALL use hierarchical format with dot separators (e.g., "1.2.22.44" for income, "2.1.01.01" for expense)
+2. WHEN generating income accounts THEN the system SHALL use account numbers starting with "1" following the specified accounting conventions
+3. WHEN generating expense accounts THEN the system SHALL use account numbers starting with "2" following the specified accounting conventions
+4. WHEN the seeder runs THEN the system SHALL create accounts with varying hierarchy depths (2-4 levels) to test display flexibility
+
+
+---
+
+### Requirement 42: Approval Rule Name from Financial Account
+
+**User Story:** As a church administrator, I want approval rules with financial accounts to automatically use the financial account description as the rule name, so that the rule purpose is immediately clear from its name.
+
+#### Acceptance Criteria
+
+1. WHEN an approval rule is created with a financial type and financial account number THEN the Backend_API SHALL automatically set the approval rule name to the financial account description
+2. WHEN an approval rule is updated to link a financial account number THEN the Backend_API SHALL automatically update the approval rule name to the financial account description
+3. WHEN an approval rule has a linked financial account THEN the Backend_API SHALL override any manually provided name with the financial account description
+4. WHEN displaying approval rules in the admin panel THEN the system SHALL show the financial account description as the rule name for rules with linked financial accounts
+5. WHEN the seeder creates approval rules with financial accounts THEN the seeder SHALL use the financial account name as the approval rule name
+6. WHEN a financial account is not linked to an approval rule THEN the system SHALL use the manually provided rule name
+

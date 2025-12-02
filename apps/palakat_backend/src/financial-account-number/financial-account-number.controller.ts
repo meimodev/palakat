@@ -31,6 +31,11 @@ export class FinancialAccountNumberController {
     @Query() query: FindAllFinancialAccountNumberDto,
     @Query('churchId', ParseIntPipe) churchId: number,
   ) {
+    // Enable includeApprovalRule by default for the list endpoint
+    // This allows the frontend to display linked approval rule information
+    if (query.includeApprovalRule === undefined) {
+      query.includeApprovalRule = true;
+    }
     return this.financialAccountNumberService.findAll(query, churchId);
   }
 

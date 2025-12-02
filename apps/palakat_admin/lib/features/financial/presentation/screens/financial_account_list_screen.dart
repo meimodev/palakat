@@ -229,14 +229,24 @@ class _FinancialAccountListScreenState
         },
       ),
       AppTableColumn<FinancialAccountNumber>(
-        title: 'Created Date',
+        title: 'Linked Approval Rule',
         flex: 2,
         cellBuilder: (ctx, account) {
-          if (account.createdAt == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+          final approvalRule = account.approvalRule;
+          if (approvalRule == null) {
+            return Text(
+              '-',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            );
           }
-          final date = account.createdAt!.toCustomFormat("dd MMM yyyy");
-          return Text(date, style: theme.textTheme.bodyMedium);
+          return Text(
+            approvalRule.name,
+            style: theme.textTheme.bodyMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
         },
       ),
     ];

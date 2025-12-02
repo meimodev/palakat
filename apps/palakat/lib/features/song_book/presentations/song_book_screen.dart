@@ -157,7 +157,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
           InputWidget.text(
             controller: _searchController,
             hint: "Search song title or number",
-            endIcon: Assets.icons.line.search,
+            endIcon: Assets.icons.line.search.svg(width: 20, height: 20),
             borderColor: BaseColor.primary,
             onChanged: (String? query) {
               // Cancel previous timer to implement debouncing (Requirement 3.2)
