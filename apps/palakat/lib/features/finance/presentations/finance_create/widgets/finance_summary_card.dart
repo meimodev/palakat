@@ -19,16 +19,23 @@ class FinanceSummaryCard extends StatelessWidget {
   final VoidCallback onRemove;
   final VoidCallback onEdit;
 
+  bool get _isExpense => financeData.type == FinanceType.expense;
+
+  Color get _accentColor => financeData.type.color;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: BaseColor.white,
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.neutral[300]!),
+        border: Border.all(
+          color: _accentColor.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.05),
+            color: _accentColor.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -39,8 +46,8 @@ class FinanceSummaryCard extends StatelessWidget {
         children: [
           // Header with finance type badge and actions
           _buildHeader(),
-          // Divider
-          Divider(height: 1, color: BaseColor.neutral[200]),
+          // Divider with accent color
+          Divider(height: 1, color: _accentColor.withValues(alpha: 0.2)),
           // Content with amount, account number, payment method
           _buildContent(),
         ],
@@ -49,8 +56,15 @@ class FinanceSummaryCard extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return Padding(
+    return Container(
       padding: EdgeInsets.all(BaseSize.w12),
+      decoration: BoxDecoration(
+        color: _accentColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(BaseSize.radiusMd - 1),
+          topRight: Radius.circular(BaseSize.radiusMd - 1),
+        ),
+      ),
       child: Row(
         children: [
           // Finance type badge
@@ -75,27 +89,34 @@ class FinanceSummaryCard extends StatelessWidget {
   }
 
   Widget _buildContent() {
+    // Format amount with negative sign for expense
+    final formattedAmount = _isExpense
+        ? '- ${formatRupiah(financeData.amount)}'
+        : formatRupiah(financeData.amount);
+
     return Padding(
       padding: EdgeInsets.all(BaseSize.w12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Amount (formatted as Rupiah)
+          // Amount (formatted as Rupiah, negative for expense)
           _InfoRow(
-            icon: Icons.attach_money,
+            icon: _isExpense ? Icons.trending_down : Icons.trending_up,
+            iconColor: _accentColor,
             label: 'Amount',
-            value: formatRupiah(financeData.amount),
+            value: formattedAmount,
             valueStyle: BaseTypography.titleMedium.copyWith(
-              color: financeData.type.color,
+              color: _accentColor,
               fontWeight: FontWeight.w700,
             ),
           ),
           Gap.h12,
-          // Account number
+          // Account number with description
           _InfoRow(
             icon: Icons.account_balance_outlined,
             label: 'Account Number',
             value: financeData.accountNumber,
+            subtitle: financeData.accountDescription,
           ),
           Gap.h12,
           // Payment method
@@ -187,19 +208,23 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-/// Row displaying an icon, label, and value.
+/// Row displaying an icon, label, value, and optional subtitle.
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
+    this.subtitle,
     this.valueStyle,
+    this.iconColor,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final String? subtitle;
   final TextStyle? valueStyle;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -211,13 +236,17 @@ class _InfoRow extends StatelessWidget {
           width: BaseSize.w32,
           height: BaseSize.w32,
           decoration: BoxDecoration(
-            color: BaseColor.neutral[100],
+            color: iconColor?.withValues(alpha: 0.1) ?? BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(icon, size: BaseSize.w16, color: BaseColor.neutral[600]),
+          child: Icon(
+            icon,
+            size: BaseSize.w16,
+            color: iconColor ?? BaseColor.neutral[600],
+          ),
         ),
         Gap.w12,
-        // Label and value
+        // Label, value, and optional subtitle
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,6 +267,17 @@ class _InfoRow extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
               ),
+              if (subtitle != null && subtitle!.isNotEmpty) ...[
+                Gap.h4,
+                Text(
+                  subtitle!,
+                  style: BaseTypography.bodySmall.copyWith(
+                    color: BaseColor.neutral[600],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
         ),

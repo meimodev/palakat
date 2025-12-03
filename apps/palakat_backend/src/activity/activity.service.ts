@@ -257,6 +257,7 @@ export class ActivitiesService {
       locationLongitude,
       supervisorId,
       reminder,
+      finance,
       ...activityData
     } = createActivityDto;
 
@@ -317,7 +318,7 @@ export class ActivitiesService {
       // revenue/expense is linked to the activity
     });
 
-    // Use a transaction to create activity and approvers together
+    // Use a transaction to create activity, link finance records, and create approvers
     const activity = await (this.prisma as any).$transaction(
       async (tx: any) => {
         // Create the activity
@@ -340,6 +341,24 @@ export class ActivitiesService {
           },
         });
 
+        // Create finance record (revenue or expense) alongside activity if provided
+        if (finance) {
+          const financeData = {
+            accountNumber: finance.accountNumber,
+            amount: finance.amount,
+            paymentMethod: finance.paymentMethod,
+            churchId: membership.churchId,
+            activityId: newActivity.id,
+            financialAccountNumberId: finance.financialAccountNumberId ?? null,
+          };
+
+          if (finance.type === 'REVENUE') {
+            await tx.revenue.create({ data: financeData });
+          } else {
+            await tx.expense.create({ data: financeData });
+          }
+        }
+
         // Create approver records if any were resolved
         if (approverResolution.membershipIds.length > 0) {
           await tx.approver.createMany({
@@ -352,7 +371,7 @@ export class ActivitiesService {
           });
         }
 
-        // Fetch the activity with approvers included
+        // Fetch the activity with approvers and linked finance records included
         return tx.activity.findUnique({
           where: { id: newActivity.id },
           include: {
@@ -383,6 +402,22 @@ export class ActivitiesService {
                     },
                   },
                 },
+              },
+            },
+            revenue: {
+              select: {
+                id: true,
+                amount: true,
+                accountNumber: true,
+                paymentMethod: true,
+              },
+            },
+            expense: {
+              select: {
+                id: true,
+                amount: true,
+                accountNumber: true,
+                paymentMethod: true,
               },
             },
           },

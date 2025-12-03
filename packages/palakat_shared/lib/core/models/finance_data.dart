@@ -21,6 +21,9 @@ abstract class FinanceData with _$FinanceData {
     /// Kept for backward compatibility
     required String accountNumber,
 
+    /// The description of the account number
+    String? accountDescription,
+
     /// The payment method used (CASH or CASHLESS)
     required PaymentMethod paymentMethod,
 

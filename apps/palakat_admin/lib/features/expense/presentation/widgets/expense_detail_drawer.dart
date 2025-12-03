@@ -119,44 +119,59 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
 
                 const SizedBox(height: 24),
 
-                // Activity Information
-                InfoSection(
-                  title: 'Activity Information',
-                  action: IconButton(
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    onPressed: _showActivityDetail,
-                    tooltip: 'View Activity Details',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      foregroundColor: Theme.of(context).colorScheme.primary,
-                      padding: const EdgeInsets.all(8),
-                      minimumSize: const Size(32, 32),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  children: [
-                    InfoRow(
-                      label: 'Activity ID',
-                      value: "# ${_expense!.activity!.id}",
-                    ),
-                    InfoRow(label: 'Title', value: _expense!.activity!.title),
-                    if (_expense!.activity!.description != null)
-                      InfoRow(
-                        label: 'Description',
-                        value: _expense!.activity!.description!,
+                // Activity Information (only show if activity exists)
+                if (_expense!.activity != null) ...[
+                  InfoSection(
+                    title: 'Activity Information',
+                    action: IconButton(
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      onPressed: _showActivityDetail,
+                      tooltip: 'View Activity Details',
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        padding: const EdgeInsets.all(8),
+                        minimumSize: const Size(32, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                    InfoRow(
-                      label: 'Activity Date & Time',
-                      value: _expense!.activity!.date.toDateTimeString(),
                     ),
-                    if (_expense!.activity!.note != null)
-                      InfoRow(label: 'Note', value: _expense!.activity!.note!),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
+                    children: [
+                      InfoRow(
+                        label: 'Activity ID',
+                        value: "# ${_expense!.activity!.id ?? '-'}",
+                      ),
+                      InfoRow(label: 'Title', value: _expense!.activity!.title),
+                      if (_expense!.activity!.description != null)
+                        InfoRow(
+                          label: 'Description',
+                          value: _expense!.activity!.description!,
+                        ),
+                      InfoRow(
+                        label: 'Activity Date & Time',
+                        value: _expense!.activity!.date.toDateTimeString(),
+                      ),
+                      if (_expense!.activity!.note != null)
+                        InfoRow(
+                          label: 'Note',
+                          value: _expense!.activity!.note!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ] else ...[
+                  InfoSection(
+                    title: 'Activity Information',
+                    children: [
+                      InfoRow(
+                        label: 'Activity',
+                        value: 'Not linked to any activity',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
                 // Supervisor
                 if (_expense!.activity?.supervisor != null) ...[
@@ -250,46 +265,71 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                   const SizedBox(height: 24),
                 ],
 
-                // Approval
-                InfoSection(
-                  title: 'Approval',
-                  trailing: Builder(
-                    builder: (context) {
-                      final status =
-                          _expense!.activity!.approvers.approvalStatus;
-                      final (bg, fg, label, icon) = status.displayProperties;
-                      return StatusChip(
-                        label: label,
-                        background: bg,
-                        foreground: fg,
-                        icon: icon,
-                        fontSize: 12,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                // Approval (only show if activity exists)
+                if (_expense!.activity != null)
+                  InfoSection(
+                    title: 'Approval',
+                    trailing: Builder(
+                      builder: (context) {
+                        final status =
+                            _expense!.activity!.approvers.approvalStatus;
+                        final (bg, fg, label, icon) = status.displayProperties;
+                        return StatusChip(
+                          label: label,
+                          background: bg,
+                          foreground: fg,
+                          icon: icon,
+                          fontSize: 12,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                        );
+                      },
+                    ),
+                    children: [
+                      if (_expense!.createdAt != null)
+                        InfoRow(
+                          label: 'Approve On',
+                          value:
+                              "${_expense!.activity!.approvers.approvalDate.toDateTimeString()}"
+                              "\n"
+                              "${_expense!.activity!.approvers.approvalDate.toRelativeTime()}",
                         ),
-                      );
-                    },
+                      if (_expense!.updatedAt != null)
+                        InfoRow(
+                          label: 'Requested At',
+                          value:
+                              "${_expense!.createdAt!.toDateTimeString()}"
+                              "\n"
+                              "${_expense!.createdAt!.toRelativeTime()}",
+                        ),
+                    ],
                   ),
-                  children: [
-                    if (_expense!.createdAt != null)
-                      InfoRow(
-                        label: 'Approve On',
-                        value:
-                            "${_expense!.activity!.approvers.approvalDate.toDateTimeString()}"
-                            "\n"
-                            "${_expense!.activity!.approvers.approvalDate.toRelativeTime()}",
-                      ),
-                    if (_expense!.updatedAt != null)
-                      InfoRow(
-                        label: 'Requested At',
-                        value:
-                            "${_expense!.createdAt!.toDateTimeString()}"
-                            "\n"
-                            "${_expense!.createdAt!.toRelativeTime()}",
-                      ),
-                  ],
-                ),
+
+                // Timestamps (show when no activity)
+                if (_expense!.activity == null)
+                  InfoSection(
+                    title: 'Timestamps',
+                    children: [
+                      if (_expense!.createdAt != null)
+                        InfoRow(
+                          label: 'Created At',
+                          value:
+                              "${_expense!.createdAt!.toDateTimeString()}"
+                              "\n"
+                              "${_expense!.createdAt!.toRelativeTime()}",
+                        ),
+                      if (_expense!.updatedAt != null)
+                        InfoRow(
+                          label: 'Updated At',
+                          value:
+                              "${_expense!.updatedAt!.toDateTimeString()}"
+                              "\n"
+                              "${_expense!.updatedAt!.toRelativeTime()}",
+                        ),
+                    ],
+                  ),
               ],
             ),
       footer: _expense == null

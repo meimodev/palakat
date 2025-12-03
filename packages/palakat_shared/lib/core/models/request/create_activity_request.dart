@@ -4,6 +4,30 @@ import 'package:palakat_shared/core/constants/enums.dart';
 part 'create_activity_request.freezed.dart';
 part 'create_activity_request.g.dart';
 
+/// Finance data to create alongside activity
+@freezed
+abstract class CreateActivityFinance with _$CreateActivityFinance {
+  const factory CreateActivityFinance({
+    /// Type of finance record: 'REVENUE' or 'EXPENSE'
+    required String type,
+
+    /// The account number string
+    required String accountNumber,
+
+    /// The amount in the smallest currency unit
+    required int amount,
+
+    /// The payment method
+    required PaymentMethod paymentMethod,
+
+    /// Optional ID of the financial account number record
+    int? financialAccountNumberId,
+  }) = _CreateActivityFinance;
+
+  factory CreateActivityFinance.fromJson(Map<String, dynamic> json) =>
+      _$CreateActivityFinanceFromJson(json);
+}
+
 /// Request model for creating a new activity.
 /// Used by ActivityRepository.createActivity method.
 @freezed
@@ -41,6 +65,9 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
 
     /// Optional reminder preference for SERVICE/EVENT activities
     Reminder? reminder,
+
+    /// Optional finance record to create alongside the activity
+    CreateActivityFinance? finance,
   }) = _CreateActivityRequest;
 
   factory CreateActivityRequest.fromJson(Map<String, dynamic> json) =>

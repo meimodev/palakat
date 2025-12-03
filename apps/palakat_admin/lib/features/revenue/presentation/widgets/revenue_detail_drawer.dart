@@ -120,173 +120,217 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
 
                 const SizedBox(height: 24),
 
-                // Activity Information
-                InfoSection(
-                  title: 'Activity Information',
-                  action: IconButton(
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    onPressed: _showActivityDetail,
-                    tooltip: 'View Activity Details',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      foregroundColor: Theme.of(context).colorScheme.primary,
-                      padding: const EdgeInsets.all(8),
-                      minimumSize: const Size(32, 32),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  children: [
-                    InfoRow(
-                      label: 'Activity ID',
-                      value: "# ${_revenue!.activity!.id}",
-                    ),
-                    InfoRow(label: 'Title', value: _revenue!.activity!.title),
-                    if (_revenue!.activity!.description != null)
-                      InfoRow(
-                        label: 'Description',
-                        value: _revenue!.activity!.description!,
-                      ),
-                    InfoRow(
-                      label: 'Activity Date & Time',
-                      value: _revenue!.activity!.date.toDateTimeString(),
-                    ),
-                    if (_revenue!.activity!.note != null)
-                      InfoRow(label: 'Note', value: _revenue!.activity!.note!),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Supervisor
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        'Supervisor',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
+                // Activity Information (only show if activity exists)
+                if (_revenue!.activity != null) ...[
+                  InfoSection(
+                    title: 'Activity Information',
+                    action: IconButton(
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      onPressed: _showActivityDetail,
+                      tooltip: 'View Activity Details',
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(
                           context,
-                        ).colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ).colorScheme.surfaceContainerHighest,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        padding: const EdgeInsets.all(8),
+                        minimumSize: const Size(32, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                    children: [
+                      InfoRow(
+                        label: 'Activity ID',
+                        value: "# ${_revenue!.activity!.id}",
+                      ),
+                      InfoRow(label: 'Title', value: _revenue!.activity!.title),
+                      if (_revenue!.activity!.description != null)
+                        InfoRow(
+                          label: 'Description',
+                          value: _revenue!.activity!.description!,
+                        ),
+                      InfoRow(
+                        label: 'Activity Date & Time',
+                        value: _revenue!.activity!.date.toDateTimeString(),
+                      ),
+                      if (_revenue!.activity!.note != null)
+                        InfoRow(
+                          label: 'Note',
+                          value: _revenue!.activity!.note!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ] else ...[
+                  InfoSection(
+                    title: 'Activity Information',
+                    children: [
+                      InfoRow(
+                        label: 'Activity',
+                        value: 'Not linked to any activity',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Supervisor (only show if activity exists)
+                if (_revenue!.activity?.supervisor != null) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          'Supervisor',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _revenue!.activity!.supervisor.account?.name ?? '-',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
                           ),
-                          if (_revenue!
-                              .activity!
-                              .supervisor
-                              .membershipPositions
-                              .isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: _revenue!
-                                  .activity!
-                                  .supervisor
-                                  .membershipPositions
-                                  .map((position) {
-                                    return Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _revenue!.activity!.supervisor.account?.name ??
+                                  '-',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            if (_revenue!
+                                .activity!
+                                .supervisor
+                                .membershipPositions
+                                .isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: _revenue!
+                                    .activity!
+                                    .supervisor
+                                    .membershipPositions
+                                    .map((position) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
                                           color: Theme.of(
                                             context,
-                                          ).colorScheme.outlineVariant,
-                                          width: 1,
+                                          ).colorScheme.surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.outlineVariant,
+                                            width: 1,
+                                          ),
                                         ),
-                                      ),
-                                      child: Text(
-                                        position.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                            ),
-                                      ),
-                                    );
-                                  })
-                                  .toList(),
-                            ),
+                                        child: Text(
+                                          position.name,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                        ),
+                                      );
+                                    })
+                                    .toList(),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Approval
-                InfoSection(
-                  title: 'Approval',
-                  trailing: Builder(
-                    builder: (context) {
-                      final status =
-                          _revenue!.activity!.approvers.approvalStatus;
-                      final (bg, fg, label, icon) = status.displayProperties;
-                      return StatusChip(
-                        label: label,
-                        background: bg,
-                        foreground: fg,
-                        icon: icon,
-                        fontSize: 12,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                  children: [
-                    if (_revenue!.createdAt != null)
-                      InfoRow(
-                        label: 'Approve On',
-                        value:
-                            "${_revenue!.activity!.approvers.approvalDate.toDateTimeString()}"
-                            "\n"
-                            "${_revenue!.activity!.approvers.approvalDate.toRelativeTime()}",
-                      ),
-                    if (_revenue!.updatedAt != null)
-                      InfoRow(
-                        label: 'Requested At',
-                        value:
-                            "${_revenue!.createdAt!.toDateTimeString()}"
-                            "\n"
-                            "${_revenue!.createdAt!.toRelativeTime()}",
-                      ),
-                  ],
-                ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Approval (only show if activity exists)
+                if (_revenue!.activity != null)
+                  InfoSection(
+                    title: 'Approval',
+                    trailing: Builder(
+                      builder: (context) {
+                        final status =
+                            _revenue!.activity!.approvers.approvalStatus;
+                        final (bg, fg, label, icon) = status.displayProperties;
+                        return StatusChip(
+                          label: label,
+                          background: bg,
+                          foreground: fg,
+                          icon: icon,
+                          fontSize: 12,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                        );
+                      },
+                    ),
+                    children: [
+                      if (_revenue!.createdAt != null)
+                        InfoRow(
+                          label: 'Approve On',
+                          value:
+                              "${_revenue!.activity!.approvers.approvalDate.toDateTimeString()}"
+                              "\n"
+                              "${_revenue!.activity!.approvers.approvalDate.toRelativeTime()}",
+                        ),
+                      if (_revenue!.updatedAt != null)
+                        InfoRow(
+                          label: 'Requested At',
+                          value:
+                              "${_revenue!.createdAt!.toDateTimeString()}"
+                              "\n"
+                              "${_revenue!.createdAt!.toRelativeTime()}",
+                        ),
+                    ],
+                  ),
+
+                // Timestamps (show when no activity)
+                if (_revenue!.activity == null)
+                  InfoSection(
+                    title: 'Timestamps',
+                    children: [
+                      if (_revenue!.createdAt != null)
+                        InfoRow(
+                          label: 'Created At',
+                          value:
+                              "${_revenue!.createdAt!.toDateTimeString()}"
+                              "\n"
+                              "${_revenue!.createdAt!.toRelativeTime()}",
+                        ),
+                      if (_revenue!.updatedAt != null)
+                        InfoRow(
+                          label: 'Updated At',
+                          value:
+                              "${_revenue!.updatedAt!.toDateTimeString()}"
+                              "\n"
+                              "${_revenue!.updatedAt!.toRelativeTime()}",
+                        ),
+                    ],
+                  ),
               ],
             ),
       footer: Center(

@@ -217,7 +217,16 @@ check_docker() {
         if [ $WAIT_COUNT -ge 5 ]; then
             kill $DOCKER_PID 2>/dev/null || true
             print_error "Docker is not responding (timed out)"
-            print_info "Please start Docker Desktop and try again"
+            echo ""
+            print_error "╔════════════════════════════════════════════════════════════╗"
+            print_error "║  Docker Desktop is not running!                            ║"
+            print_error "╠════════════════════════════════════════════════════════════╣"
+            print_error "║  Please start Docker Desktop first:                        ║"
+            print_error "║  • Open Docker Desktop from Applications                   ║"
+            print_error "║  • Wait for it to fully start (whale icon stops animating) ║"
+            print_error "║  • Then run this script again                              ║"
+            print_error "╚════════════════════════════════════════════════════════════╝"
+            echo ""
             print_info "Or run with --skip-docker if database is already available"
             exit 1
         fi
@@ -229,7 +238,16 @@ check_docker() {
     wait $DOCKER_PID
     if [ $? -ne 0 ]; then
         print_error "Docker is not running"
-        print_info "Please start Docker Desktop and try again"
+        echo ""
+        print_error "╔════════════════════════════════════════════════════════════╗"
+        print_error "║  Docker Desktop is not running!                            ║"
+        print_error "╠════════════════════════════════════════════════════════════╣"
+        print_error "║  Please start Docker Desktop first:                        ║"
+        print_error "║  • Open Docker Desktop from Applications                   ║"
+        print_error "║  • Wait for it to fully start (whale icon stops animating) ║"
+        print_error "║  • Then run this script again                              ║"
+        print_error "╚════════════════════════════════════════════════════════════╝"
+        echo ""
         print_info "Or run with --skip-docker if database is already available"
         exit 1
     fi

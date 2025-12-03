@@ -46,8 +46,8 @@ class AccountNumberPicker extends StatelessWidget {
       onSelected: onSelected,
       errorText: errorText,
       label: label,
-      // Pass empty list to enable the picker (not loading, not null)
-      // The actual accounts are fetched in the dialog
+      // When onTap is provided, the picker is enabled regardless of accounts list.
+      // Accounts are fetched in the dialog, not passed here.
       accounts: const [],
       onTap: () => _showPickerDialog(context),
     );

@@ -162,8 +162,8 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
 
   bool get _isEnabled =>
       !widget.isLoading &&
-      widget.accounts != null &&
-      widget.accounts!.isNotEmpty;
+      (widget.onTap != null ||
+          (widget.accounts != null && widget.accounts!.isNotEmpty));
 
   Widget _buildDisplayContent(BuildContext context) {
     final theme = Theme.of(context);
@@ -192,7 +192,10 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
     }
 
     // Show empty state message when accounts list is empty
-    if (widget.accounts != null && widget.accounts!.isEmpty) {
+    // Skip this message if onTap is provided (accounts will be fetched in dialog)
+    if (widget.onTap == null &&
+        widget.accounts != null &&
+        widget.accounts!.isEmpty) {
       return Text(
         'All accounts are assigned to other rules',
         style: theme.textTheme.titleMedium?.copyWith(

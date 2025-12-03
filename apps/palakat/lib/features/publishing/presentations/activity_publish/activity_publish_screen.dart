@@ -1509,7 +1509,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         else
           FinanceSummaryCard(
             financeData: state.attachedFinance!,
-            onRemove: () => controller.removeAttachedFinance(),
+            onRemove: () => _handleRemoveFinance(controller, context),
             onEdit: () => _handleEditFinance(state, controller, context),
           ),
       ],
@@ -1590,7 +1590,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   }
 
   /// Handles editing an attached finance record.
-  /// Requirements: 1.4
+  /// Requirements: 1.1, 1.2, 1.3
   Future<void> _handleEditFinance(
     ActivityPublishState state,
     ActivityPublishController controller,
@@ -1599,12 +1599,14 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final currentFinance = state.attachedFinance;
     if (currentFinance == null) return;
 
-    // Navigate to Finance Create Screen with current finance type
+    // Navigate to Finance Create Screen with current finance data for pre-population
+    // Requirements: 1.1, 1.2, 1.3 - Pass existing finance data as initialData
     final financeData = await Navigator.of(context).push<FinanceData>(
       MaterialPageRoute(
         builder: (context) => FinanceCreateScreen(
           financeType: currentFinance.type,
           isStandalone: false,
+          initialData: currentFinance,
         ),
       ),
     );
@@ -1612,6 +1614,39 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     // Update with new finance data if returned
     if (financeData != null && mounted) {
       controller.onAttachedFinance(financeData);
+    }
+  }
+
+  /// Shows confirmation dialog before removing attached financial record.
+  /// Requirements: 3.1, 3.2, 3.3, 3.4
+  Future<void> _handleRemoveFinance(
+    ActivityPublishController controller,
+    BuildContext context,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Financial Record?'),
+        content: const Text(
+          'Are you sure you want to remove this financial record? '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: BaseColor.error),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      controller.removeAttachedFinance();
     }
   }
 }

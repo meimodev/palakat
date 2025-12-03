@@ -1,0 +1,1272 @@
+{
+  "info": {
+    "_postman_id": "palakat-api-collection",
+    "name": "Palakat API",
+    "description": "Palakat Church Management Platform API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "churchId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get Client Signing Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/signing"
+          }
+        },
+        {
+          "name": "Validate Phone",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/validate?phone=081234567890",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "validate"],
+              "query": [{ "key": "phone", "value": "081234567890" }]
+            }
+          }
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "}",
+                  "if (jsonData.refreshToken) {",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"identifier\": \"081234567890\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/sign-in"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "}",
+                  "if (jsonData.refreshToken) {",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/refresh"
+          }
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/auth/sign-out"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Get Account Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/account/count?churchId={{churchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["account", "count"],
+              "query": [{ "key": "churchId", "value": "{{churchId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get All Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/account?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["account"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Account by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/account/1"
+          }
+        },
+        {
+          "name": "Get Account by Phone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/account/081234567890"
+          }
+        },
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"phone\": \"081234567890\",\n    \"email\": \"john@example.com\",\n    \"gender\": \"MALE\",\n    \"maritalStatus\": \"SINGLE\",\n    \"dob\": \"1990-01-15\"\n}"
+            },
+            "url": "{{baseUrl}}/account"
+          }
+        },
+        {
+          "name": "Update Account",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe Updated\",\n    \"email\": \"john.updated@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/account/1"
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/account/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Church",
+      "item": [
+        {
+          "name": "Get All Churches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/church?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["church"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Church by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/church/{{churchId}}"
+          }
+        },
+        {
+          "name": "Create Church",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"HKBP Sample Church\",\n    \"phoneNumber\": \"021-1234567\",\n    \"email\": \"church@example.com\",\n    \"description\": \"Sample church description\",\n    \"location\": {\n        \"create\": {\n            \"name\": \"Church Location\",\n            \"latitude\": -6.2088,\n            \"longitude\": 106.8456\n        }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/church"
+          }
+        },
+        {
+          "name": "Update Church",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"HKBP Updated Church\",\n    \"description\": \"Updated description\"\n}"
+            },
+            "url": "{{baseUrl}}/church/{{churchId}}"
+          }
+        },
+        {
+          "name": "Delete Church",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/church/{{churchId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Church Request",
+      "item": [
+        {
+          "name": "Get All Church Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/church-request?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["church-request"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Church Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/church-request/my-request"
+          }
+        },
+        {
+          "name": "Get Church Request by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/church-request/1"
+          }
+        },
+        {
+          "name": "Create Church Request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"churchName\": \"New Church Request\",\n    \"churchAddress\": \"Jl. Sample Address No. 123\",\n    \"contactPerson\": \"John Doe\",\n    \"contactPhone\": \"081234567890\"\n}"
+            },
+            "url": "{{baseUrl}}/church-request"
+          }
+        },
+        {
+          "name": "Update Church Request",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"churchName\": \"Updated Church Name\",\n    \"status\": \"DOING\"\n}"
+            },
+            "url": "{{baseUrl}}/church-request/1"
+          }
+        },
+        {
+          "name": "Delete Church Request",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/church-request/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Column",
+      "item": [
+        {
+          "name": "Get All Columns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/column?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["column"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Column by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/column/1"
+          }
+        },
+        {
+          "name": "Create Column",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Column A\",\n    \"church\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/column"
+          }
+        },
+        {
+          "name": "Update Column",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Column A Updated\"\n}"
+            },
+            "url": "{{baseUrl}}/column/1"
+          }
+        },
+        {
+          "name": "Delete Column",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/column/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Membership",
+      "item": [
+        {
+          "name": "Get All Memberships",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/membership?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["membership"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Membership by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/membership/1"
+          }
+        },
+        {
+          "name": "Create Membership",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"baptize\": true,\n    \"sidi\": false,\n    \"account\": {\n        \"connect\": { \"id\": 1 }\n    },\n    \"church\": {\n        \"connect\": { \"id\": 1 }\n    },\n    \"column\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/membership"
+          }
+        },
+        {
+          "name": "Update Membership",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"baptize\": true,\n    \"sidi\": true\n}"
+            },
+            "url": "{{baseUrl}}/membership/1"
+          }
+        },
+        {
+          "name": "Delete Membership",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/membership/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Membership Position",
+      "item": [
+        {
+          "name": "Get All Membership Positions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/membership-position?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["membership-position"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Membership Position by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/membership-position/1"
+          }
+        },
+        {
+          "name": "Create Membership Position",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Pendeta\",\n    \"church\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/membership-position"
+          }
+        },
+        {
+          "name": "Update Membership Position",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Pendeta Senior\"\n}"
+            },
+            "url": "{{baseUrl}}/membership-position/1"
+          }
+        },
+        {
+          "name": "Delete Membership Position",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/membership-position/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity",
+      "item": [
+        {
+          "name": "Get All Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/activity?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["activity"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Activity by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activity/1"
+          }
+        },
+        {
+          "name": "Create Activity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"supervisorId\": 1,\n    \"bipra\": \"PKB\",\n    \"title\": \"Sunday Service\",\n    \"description\": \"Weekly Sunday worship service\",\n    \"locationName\": \"Main Hall\",\n    \"locationLatitude\": -6.2088,\n    \"locationLongitude\": 106.8456,\n    \"date\": \"2025-12-07T09:00:00.000Z\",\n    \"activityType\": \"SERVICE\",\n    \"reminder\": \"ONE_HOUR\"\n}"
+            },
+            "url": "{{baseUrl}}/activity"
+          }
+        },
+        {
+          "name": "Create Activity with Finance",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"supervisorId\": 1,\n    \"bipra\": \"PKB\",\n    \"title\": \"Special Event\",\n    \"description\": \"Church special event\",\n    \"activityType\": \"EVENT\",\n    \"finance\": {\n        \"type\": \"REVENUE\",\n        \"accountNumber\": \"1001\",\n        \"amount\": 500000,\n        \"paymentMethod\": \"CASH\",\n        \"financialAccountNumberId\": 1\n    }\n}"
+            },
+            "url": "{{baseUrl}}/activity"
+          }
+        },
+        {
+          "name": "Update Activity",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated Sunday Service\",\n    \"description\": \"Updated description\"\n}"
+            },
+            "url": "{{baseUrl}}/activity/1"
+          }
+        },
+        {
+          "name": "Delete Activity",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/activity/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approval Rule",
+      "item": [
+        {
+          "name": "Get All Approval Rules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/approval-rule?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["approval-rule"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Approval Rule by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/approval-rule/1"
+          }
+        },
+        {
+          "name": "Create Approval Rule",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Revenue Approval Rule\",\n    \"description\": \"Approval rule for revenue transactions\",\n    \"active\": true,\n    \"churchId\": 1,\n    \"activityType\": \"SERVICE\",\n    \"financialType\": \"REVENUE\",\n    \"financialAccountNumberId\": 1,\n    \"positionIds\": [1, 2]\n}"
+            },
+            "url": "{{baseUrl}}/approval-rule"
+          }
+        },
+        {
+          "name": "Update Approval Rule",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Approval Rule\",\n    \"active\": false\n}"
+            },
+            "url": "{{baseUrl}}/approval-rule/1"
+          }
+        },
+        {
+          "name": "Delete Approval Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/approval-rule/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Financial Account Number",
+      "item": [
+        {
+          "name": "Get All Financial Account Numbers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/financial-account-number?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["financial-account-number"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Available Financial Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/financial-account-number/available?churchId={{churchId}}&type=REVENUE",
+              "host": ["{{baseUrl}}"],
+              "path": ["financial-account-number", "available"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "type", "value": "REVENUE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Financial Account Number by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/financial-account-number/1"
+          }
+        },
+        {
+          "name": "Create Financial Account Number",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountNumber\": \"1001\",\n    \"description\": \"Persembahan Mingguan\",\n    \"type\": \"REVENUE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/financial-account-number?churchId={{churchId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["financial-account-number"],
+              "query": [{ "key": "churchId", "value": "{{churchId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Update Financial Account Number",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"Updated Description\"\n}"
+            },
+            "url": "{{baseUrl}}/financial-account-number/1"
+          }
+        },
+        {
+          "name": "Delete Financial Account Number",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/financial-account-number/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Revenue",
+      "item": [
+        {
+          "name": "Get All Revenues",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/revenue?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["revenue"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Revenue by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/revenue/1"
+          }
+        },
+        {
+          "name": "Create Revenue",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountNumber\": \"1001\",\n    \"amount\": 500000,\n    \"churchId\": 1,\n    \"paymentMethod\": \"CASH\",\n    \"financialAccountNumberId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/revenue"
+          }
+        },
+        {
+          "name": "Create Revenue with Activity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountNumber\": \"1001\",\n    \"amount\": 750000,\n    \"churchId\": 1,\n    \"activityId\": 1,\n    \"paymentMethod\": \"CASHLESS\",\n    \"financialAccountNumberId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/revenue"
+          }
+        },
+        {
+          "name": "Update Revenue",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 600000,\n    \"paymentMethod\": \"CASHLESS\"\n}"
+            },
+            "url": "{{baseUrl}}/revenue/1"
+          }
+        },
+        {
+          "name": "Delete Revenue",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/revenue/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expense",
+      "item": [
+        {
+          "name": "Get All Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/expense?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["expense"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Expense by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/expense/1"
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountNumber\": \"2001\",\n    \"amount\": 250000,\n    \"churchId\": 1,\n    \"paymentMethod\": \"CASH\",\n    \"financialAccountNumberId\": 2\n}"
+            },
+            "url": "{{baseUrl}}/expense"
+          }
+        },
+        {
+          "name": "Create Expense with Activity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountNumber\": \"2001\",\n    \"amount\": 350000,\n    \"churchId\": 1,\n    \"activityId\": 1,\n    \"paymentMethod\": \"CASHLESS\",\n    \"financialAccountNumberId\": 2\n}"
+            },
+            "url": "{{baseUrl}}/expense"
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 300000,\n    \"paymentMethod\": \"CASHLESS\"\n}"
+            },
+            "url": "{{baseUrl}}/expense/1"
+          }
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/expense/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Song",
+      "item": [
+        {
+          "name": "Get All Songs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/song?page=1&limit=10&book=NKB",
+              "host": ["{{baseUrl}}"],
+              "path": ["song"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "book", "value": "NKB" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Song by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/song/1"
+          }
+        },
+        {
+          "name": "Create Song",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Sample Hymn\",\n    \"index\": 1,\n    \"book\": \"NKB\",\n    \"link\": \"https://example.com/song/1\"\n}"
+            },
+            "url": "{{baseUrl}}/song"
+          }
+        },
+        {
+          "name": "Update Song",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated Hymn Title\"\n}"
+            },
+            "url": "{{baseUrl}}/song/1"
+          }
+        },
+        {
+          "name": "Delete Song",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/song/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Song Part",
+      "item": [
+        {
+          "name": "Get All Song Parts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/song-part?songId=1&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["song-part"],
+              "query": [
+                { "key": "songId", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Song Part by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/song-part/1"
+          }
+        },
+        {
+          "name": "Create Song Part",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"index\": 1,\n    \"name\": \"Verse 1\",\n    \"content\": \"First verse lyrics here...\",\n    \"song\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/song-part"
+          }
+        },
+        {
+          "name": "Update Song Part",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"Updated verse lyrics...\"\n}"
+            },
+            "url": "{{baseUrl}}/song-part/1"
+          }
+        },
+        {
+          "name": "Delete Song Part",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/song-part/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Location",
+      "item": [
+        {
+          "name": "Get All Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/location?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["location"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Location by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/location/1"
+          }
+        },
+        {
+          "name": "Create Location",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Church Main Hall\",\n    \"latitude\": -6.2088,\n    \"longitude\": 106.8456\n}"
+            },
+            "url": "{{baseUrl}}/location"
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Location Name\"\n}"
+            },
+            "url": "{{baseUrl}}/location/1"
+          }
+        },
+        {
+          "name": "Delete Location",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/location/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document",
+      "item": [
+        {
+          "name": "Get All Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/document?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["document"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Document by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/document/1"
+          }
+        },
+        {
+          "name": "Create Document",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Church Document\",\n    \"accountNumber\": \"DOC-001\",\n    \"church\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/document"
+          }
+        },
+        {
+          "name": "Update Document",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Document Name\"\n}"
+            },
+            "url": "{{baseUrl}}/document/1"
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/document/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report",
+      "item": [
+        {
+          "name": "Get All Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/report?churchId={{churchId}}&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["report"],
+              "query": [
+                { "key": "churchId", "value": "{{churchId}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Report by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/report/1"
+          }
+        },
+        {
+          "name": "Create Report",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Monthly Financial Report\",\n    \"generatedBy\": \"MANUAL\",\n    \"church\": {\n        \"connect\": { \"id\": 1 }\n    },\n    \"file\": {\n        \"create\": {\n            \"sizeInKB\": 256.5,\n            \"url\": \"https://storage.example.com/reports/report-001.pdf\"\n        }\n    }\n}"
+            },
+            "url": "{{baseUrl}}/report"
+          }
+        },
+        {
+          "name": "Update Report",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Report Name\"\n}"
+            },
+            "url": "{{baseUrl}}/report/1"
+          }
+        },
+        {
+          "name": "Delete Report",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/report/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Manager",
+      "item": [
+        {
+          "name": "Get All Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/file-manager?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["file-manager"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get File by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/file-manager/1"
+          }
+        },
+        {
+          "name": "Create File",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sizeInKB\": 128.5,\n    \"url\": \"https://storage.example.com/files/file-001.pdf\"\n}"
+            },
+            "url": "{{baseUrl}}/file-manager"
+          }
+        },
+        {
+          "name": "Update File",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"url\": \"https://storage.example.com/files/file-001-updated.pdf\"\n}"
+            },
+            "url": "{{baseUrl}}/file-manager/1"
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/file-manager/1"
+          }
+        }
+      ]
+    }
+  ]
+}

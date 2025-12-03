@@ -6,20 +6,26 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_controller.dart';
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_state.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/widgets.dart';
+import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 
 /// Screen for creating revenue or expense records.
 /// Supports both standalone mode (with activity picker) and embedded mode.
-/// Requirements: 2.1, 3.1, 4.1, 6.1, 6.2, 6.3
+/// Requirements: 1.1, 1.2, 1.3, 2.1, 3.1, 4.1, 6.1, 6.2, 6.3
 class FinanceCreateScreen extends ConsumerStatefulWidget {
   const FinanceCreateScreen({
     required this.financeType,
     required this.isStandalone,
+    this.initialData,
     super.key,
   });
 
   final FinanceType financeType;
   final bool isStandalone;
+
+  /// Optional initial data for pre-populating the form when editing.
+  /// Requirements: 1.1, 1.2, 1.3
+  final FinanceData? initialData;
 
   @override
   ConsumerState<FinanceCreateScreen> createState() =>
@@ -32,6 +38,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     final provider = financeCreateControllerProvider(
       widget.financeType,
       widget.isStandalone,
+      widget.initialData,
     );
     final controller = ref.read(provider.notifier);
     final state = ref.watch(provider);
@@ -330,6 +337,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
           financeCreateControllerProvider(
             widget.financeType,
             widget.isStandalone,
+            widget.initialData,
           ),
         );
         _showSnackBar(state.errorMessage ?? 'Please fill all required fields');

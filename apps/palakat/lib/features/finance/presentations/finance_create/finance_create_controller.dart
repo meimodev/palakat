@@ -14,14 +14,65 @@ part 'finance_create_controller.g.dart';
 
 /// Controller for the Finance Create Screen.
 /// Handles both revenue and expense creation in standalone and embedded modes.
-/// Requirements: 2.2, 2.3, 2.5, 3.2, 3.3, 3.5, 4.4, 6.2
+/// Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.5, 3.2, 3.3, 3.5, 4.4, 6.2
 @riverpod
 class FinanceCreateController extends _$FinanceCreateController {
   @override
-  FinanceCreateState build(FinanceType financeType, bool isStandalone) {
+  FinanceCreateState build(
+    FinanceType financeType,
+    bool isStandalone,
+    FinanceData? initialData,
+  ) {
+    if (initialData != null) {
+      return _createInitializedState(financeType, isStandalone, initialData);
+    }
     return FinanceCreateState(
       financeType: financeType,
       isStandalone: isStandalone,
+    );
+  }
+
+  /// Creates state initialized from existing FinanceData.
+  /// Requirements: 1.1, 1.2, 1.3, 1.4, 2.1
+  FinanceCreateState _createInitializedState(
+    FinanceType financeType,
+    bool isStandalone,
+    FinanceData data,
+  ) {
+    // Format amount for display
+    final formattedAmount = _formatAmountForDisplay(data.amount);
+
+    // Create FinancialAccountNumber from data if available
+    FinancialAccountNumber? accountNumber;
+    if (data.financialAccountNumberId != null) {
+      accountNumber = FinancialAccountNumber(
+        id: data.financialAccountNumberId!,
+        accountNumber: data.accountNumber,
+        description: data.accountDescription,
+        type: data.type,
+      );
+    }
+
+    // Validate and compute form validity
+    // Requirements: 1.4, 2.1
+    final isValid = data.amount > 0 && data.accountNumber.isNotEmpty;
+
+    return FinanceCreateState(
+      financeType: financeType,
+      isStandalone: isStandalone,
+      amount: formattedAmount,
+      selectedFinancialAccountNumber: accountNumber,
+      paymentMethod: data.paymentMethod,
+      isFormValid: isValid,
+    );
+  }
+
+  /// Formats an integer amount for display with thousand separators.
+  /// Example: 1000000 -> "1.000.000"
+  String _formatAmountForDisplay(int amount) {
+    return amount.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
     );
   }
 
@@ -283,6 +334,7 @@ class FinanceCreateController extends _$FinanceCreateController {
       type: state.financeType,
       amount: amount,
       accountNumber: state.selectedFinancialAccountNumber!.accountNumber,
+      accountDescription: state.selectedFinancialAccountNumber!.description,
       paymentMethod: state.paymentMethod!,
       financialAccountNumberId: state.selectedFinancialAccountNumber!.id,
     );
