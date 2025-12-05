@@ -1,7 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { ActivityType } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsIn,
   IsInt,
@@ -62,6 +63,24 @@ export class ActivityListQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsIn(['id', 'date'])
   declare sortBy?: ActivitySortField;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  hasExpense?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  hasRevenue?: boolean;
 
   @ValidateIf((o) => {
     if (o.startDate && o.endDate && o.startDate > o.endDate) {

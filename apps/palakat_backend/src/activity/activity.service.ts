@@ -25,6 +25,8 @@ export class ActivitiesService {
       take,
       sortBy = 'date',
       sortOrder = 'desc',
+      hasExpense,
+      hasRevenue,
     } = query;
 
     const where: any = {};
@@ -79,6 +81,20 @@ export class ActivitiesService {
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
       ];
+    }
+
+    // hasExpense filter: filter activities by expense record presence
+    if (hasExpense === true) {
+      where.expense = { isNot: null };
+    } else if (hasExpense === false) {
+      where.expense = { is: null };
+    }
+
+    // hasRevenue filter: filter activities by revenue record presence
+    if (hasRevenue === true) {
+      where.revenue = { isNot: null };
+    } else if (hasRevenue === false) {
+      where.revenue = { is: null };
     }
 
     const [total, activities] = await (this.prisma as any).$transaction([

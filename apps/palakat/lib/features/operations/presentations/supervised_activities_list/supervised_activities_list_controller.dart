@@ -139,19 +139,36 @@ class SupervisedActivitiesListController
     fetchActivities(refresh: true);
   }
 
+  /// Sets the financial filter and refreshes the list.
+  /// [hasExpense] filters by expense status (true = has expense, false = no expense, null = no filter)
+  /// [hasRevenue] filters by revenue status (true = has revenue, false = no revenue, null = no filter)
+  ///
+  /// Requirements: 1.1, 1.2, 1.3, 1.4, 1.8
+  void setFinancialFilter({bool? hasExpense, bool? hasRevenue}) {
+    state = state.copyWith(
+      filterHasExpense: hasExpense,
+      filterHasRevenue: hasRevenue,
+    );
+    fetchActivities(refresh: true);
+  }
+
   /// Clears all filters and refreshes the list.
   ///
-  /// Requirements: 3.4
+  /// Requirements: 3.4, 1.5
   void clearFilters() {
     state = state.copyWith(
       filterActivityType: null,
       filterStartDate: null,
       filterEndDate: null,
+      filterHasExpense: null,
+      filterHasRevenue: null,
     );
     fetchActivities(refresh: true);
   }
 
   /// Builds the pagination request with current filters.
+  ///
+  /// Requirements: 1.1, 1.2, 1.3, 1.4, 1.8
   PaginationRequestWrapper<GetFetchActivitiesRequest> _buildRequest({
     required int page,
   }) {
@@ -165,6 +182,8 @@ class SupervisedActivitiesListController
         activityType: state.filterActivityType,
         startDate: state.filterStartDate,
         endDate: state.filterEndDate,
+        hasExpense: state.filterHasExpense,
+        hasRevenue: state.filterHasRevenue,
       ),
     );
   }

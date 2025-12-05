@@ -14,6 +14,8 @@ abstract class GetFetchActivitiesRequest with _$GetFetchActivitiesRequest {
     DateTime? endDate,
     ActivityType? activityType,
     String? search,
+    bool? hasExpense,
+    bool? hasRevenue,
   }) = _GetFetchActivitiesRequest;
 
   factory GetFetchActivitiesRequest.fromJson(Map<String, dynamic> json) =>

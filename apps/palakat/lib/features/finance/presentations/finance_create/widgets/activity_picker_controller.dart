@@ -127,6 +127,7 @@ class ActivityPickerController extends _$ActivityPickerController {
 
   /// Builds the pagination request with current search query.
   /// Sorted by date in descending order (newest first).
+  /// Filters to show only activities without financial records (available for attaching finances).
   PaginationRequestWrapper<GetFetchActivitiesRequest> _buildRequest({
     required int page,
   }) {
@@ -138,6 +139,10 @@ class ActivityPickerController extends _$ActivityPickerController {
       data: GetFetchActivitiesRequest(
         membershipId: state.membershipId,
         search: state.searchQuery.isNotEmpty ? state.searchQuery : null,
+        // Filter to show only activities without financial records
+        // so users can attach new finances to them
+        hasExpense: false,
+        hasRevenue: false,
       ),
     );
   }

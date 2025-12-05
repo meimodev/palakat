@@ -49,16 +49,27 @@ abstract class SupervisedActivitiesListState
     /// Requirements: 3.2
     DateTime? filterEndDate,
 
+    /// Filter by expense status (true = has expense, false = no expense)
+    /// Requirements: 1.1, 1.2
+    bool? filterHasExpense,
+
+    /// Filter by revenue status (true = has revenue, false = no revenue)
+    /// Requirements: 1.3, 1.4
+    bool? filterHasRevenue,
+
     /// The user's membership ID for filtering supervised activities
     int? membershipId,
   }) = _SupervisedActivitiesListState;
 
   /// Indicates if any filter is currently active.
-  /// Returns true when filterActivityType, filterStartDate, or filterEndDate is set.
+  /// Returns true when filterActivityType, filterStartDate, filterEndDate,
+  /// filterHasExpense, or filterHasRevenue is set.
   ///
-  /// Requirements: 3.5
+  /// Requirements: 3.5, 1.1, 1.2, 1.3, 1.4
   bool get hasActiveFilters =>
       filterActivityType != null ||
       filterStartDate != null ||
-      filterEndDate != null;
+      filterEndDate != null ||
+      filterHasExpense != null ||
+      filterHasRevenue != null;
 }
