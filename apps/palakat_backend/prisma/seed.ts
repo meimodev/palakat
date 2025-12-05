@@ -82,14 +82,14 @@ function generateLongitude(): number {
 
 function getStartOfMonth(date: Date = new Date()): Date {
   const result = new Date(date);
-  result.setDate(1);
-  result.setHours(0, 0, 0, 0);
+  result.setUTCDate(1);
+  result.setUTCHours(0, 0, 0, 0);
   return result;
 }
 
 function getCurrentDay(date: Date = new Date()): Date {
   const result = new Date(date);
-  result.setHours(23, 59, 59, 999);
+  result.setUTCHours(23, 59, 59, 999);
   return result;
 }
 

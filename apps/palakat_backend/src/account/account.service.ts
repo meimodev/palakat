@@ -8,7 +8,15 @@ export class AccountService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(params: AccountListQueryDto) {
-    const { churchId, skip, take, search, position } = params;
+    const {
+      churchId,
+      skip,
+      take,
+      search,
+      position,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = params;
 
     const where: Prisma.AccountWhereInput = {};
     const membershipWhere: any = {};
@@ -91,7 +99,7 @@ export class AccountService {
         where: activeWhere,
         take,
         skip,
-        orderBy: { name: 'asc' },
+        orderBy: { [sortBy]: sortOrder },
         select: baseSelect,
       }),
     ]);
@@ -116,7 +124,7 @@ export class AccountService {
           where: activeWhere,
           take,
           skip,
-          orderBy: { name: 'asc' },
+          orderBy: { [sortBy]: sortOrder },
           select: baseSelect,
         }),
       ]);
@@ -144,7 +152,7 @@ export class AccountService {
           where: activeWhere,
           take,
           skip,
-          orderBy: { name: 'asc' },
+          orderBy: { [sortBy]: sortOrder },
           select: baseSelect,
         }),
       ]);

@@ -78,6 +78,8 @@ class OperationsController extends _$OperationsController {
     final request = PaginationRequestWrapper(
       page: 1,
       pageSize: 3,
+      sortBy: 'id',
+      sortOrder: 'desc',
       data: GetFetchActivitiesRequest(
         membershipId: membership!.id,
         churchId: churchId,

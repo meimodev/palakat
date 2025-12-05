@@ -50,7 +50,14 @@ export class MembershipService {
     data: any[];
     total: number;
   }> {
-    const { churchId, columnId, skip, take } = query ?? ({} as any);
+    const {
+      churchId,
+      columnId,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query ?? ({} as any);
     const where: any = {};
 
     if (churchId) {
@@ -66,7 +73,7 @@ export class MembershipService {
         where,
         take,
         skip,
-        orderBy: { id: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           account: true,
           church: true,

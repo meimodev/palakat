@@ -8,7 +8,13 @@ export class FileService {
   constructor(private prisma: PrismaService) {}
 
   async getFiles(query: FileListQueryDto) {
-    const { search, skip, take } = query;
+    const {
+      search,
+      skip,
+      take,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: Prisma.FileManagerWhereInput = {};
     if (search && search.length >= 3) {
@@ -22,7 +28,7 @@ export class FileService {
         where,
         take,
         skip,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           report: true,
           document: true,

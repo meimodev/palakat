@@ -6,13 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_controller.dart';
 import 'package:palakat_shared/core/models/activity.dart';
-import 'package:palakat_shared/core/models/request/get_fetch_activity_request.dart';
-import 'package:palakat_shared/core/models/request/pagination_request_wrapper.dart';
-import 'package:palakat_shared/core/repositories/activity_repository.dart';
-import 'package:palakat_shared/services.dart';
 
 /// Shows a dialog for selecting an activity from the user's supervised activities.
+/// Activities are paginated with infinite scrolling and sorted by date descending.
 /// Requirements: 4.2
 Future<Activity?> showActivityPickerDialog({required BuildContext context}) {
   return showDialogCustomWidget<Activity?>(
@@ -34,83 +32,29 @@ class _ActivityPickerDialogContent extends ConsumerStatefulWidget {
 class _ActivityPickerDialogContentState
     extends ConsumerState<_ActivityPickerDialogContent> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
-  List<Activity> _activities = [];
-  bool _isLoading = false;
-  String _searchQuery = '';
-  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _fetchActivities();
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
-  Future<void> _fetchActivities() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      // Get current membership to filter by supervisor
-      final localStorage = ref.read(localStorageServiceProvider);
-      final membership = localStorage.currentMembership;
-
-      if (membership == null) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Session expired. Please sign in again.';
-        });
-        return;
-      }
-
-      final activityRepository = ref.read(activityRepositoryProvider);
-
-      // Create request with membershipId to get supervised activities
-      final request = PaginationRequestWrapper(
-        page: 1,
-        pageSize: 100,
-        data: GetFetchActivitiesRequest(
-          membershipId: membership.id,
-          search: _searchQuery.isNotEmpty ? _searchQuery : null,
-        ),
-      );
-
-      final result = await activityRepository.fetchActivities(
-        paginationRequest: request,
-      );
-
-      if (!mounted) return;
-
-      result.when(
-        onSuccess: (response) {
-          setState(() {
-            _activities = response.data;
-            _isLoading = false;
-          });
-        },
-        onFailure: (failure) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = failure.message;
-          });
-        },
-      );
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to load activities';
-        });
-      }
+  /// Handles scroll events for infinite scrolling.
+  /// Triggers loading more activities when near the bottom.
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(activityPickerControllerProvider.notifier).loadMoreActivities();
     }
   }
 
@@ -120,13 +64,15 @@ class _ActivityPickerDialogContentState
     _debounce = Timer(const Duration(milliseconds: 500), () {
       // Hide keyboard after debounce
       FocusScope.of(context).unfocus();
-      setState(() => _searchQuery = query);
-      _fetchActivities();
+      ref.read(activityPickerControllerProvider.notifier).setSearchQuery(query);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(activityPickerControllerProvider);
+    final controller = ref.read(activityPickerControllerProvider.notifier);
+
     return Column(
       children: [
         // Search field
@@ -162,17 +108,17 @@ class _ActivityPickerDialogContentState
         ),
         Gap.h8,
         // Activity list
-        Expanded(child: _buildContent()),
+        Expanded(child: _buildContent(state, controller)),
       ],
     );
   }
 
-  Widget _buildContent() {
-    if (_isLoading) {
+  Widget _buildContent(state, controller) {
+    if (state.isLoading && state.activities.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_errorMessage != null) {
+    if (state.errorMessage != null && state.activities.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -184,18 +130,21 @@ class _ActivityPickerDialogContentState
             ),
             Gap.h12,
             Text(
-              _errorMessage!,
+              state.errorMessage!,
               style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
               textAlign: TextAlign.center,
             ),
             Gap.h16,
-            TextButton(onPressed: _fetchActivities, child: const Text('Retry')),
+            TextButton(
+              onPressed: () => controller.fetchActivities(refresh: true),
+              child: const Text('Retry'),
+            ),
           ],
         ),
       );
     }
 
-    if (_activities.isEmpty) {
+    if (state.activities.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -207,8 +156,8 @@ class _ActivityPickerDialogContentState
             ),
             Gap.h12,
             Text(
-              _searchQuery.isNotEmpty
-                  ? 'No activities found for "$_searchQuery"'
+              state.searchQuery.isNotEmpty
+                  ? 'No activities found for "${state.searchQuery}"'
                   : 'No activities found',
               style: BaseTypography.bodyMedium.toSecondary,
               textAlign: TextAlign.center,
@@ -219,17 +168,37 @@ class _ActivityPickerDialogContentState
     }
 
     return ListView.separated(
-      shrinkWrap: true,
+      controller: _scrollController,
       physics: const BouncingScrollPhysics(),
-      itemCount: _activities.length,
+      itemCount: state.activities.length + (state.hasMorePages ? 1 : 0),
       separatorBuilder: (context, index) => Gap.h8,
       itemBuilder: (context, index) {
-        final activity = _activities[index];
+        // Show loading indicator at the bottom when loading more
+        if (index == state.activities.length) {
+          return _buildLoadingMoreIndicator(state.isLoadingMore);
+        }
+
+        final activity = state.activities[index];
         return _ActivityCard(
           activity: activity,
           onPressed: () => context.pop<Activity>(activity),
         );
       },
+    );
+  }
+
+  Widget _buildLoadingMoreIndicator(bool isLoadingMore) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
+      child: Center(
+        child: isLoadingMore
+            ? SizedBox(
+                width: BaseSize.w24,
+                height: BaseSize.w24,
+                child: const CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const SizedBox.shrink(),
+      ),
     );
   }
 }

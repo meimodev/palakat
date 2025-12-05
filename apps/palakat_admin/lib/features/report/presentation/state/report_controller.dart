@@ -32,7 +32,7 @@ class ReportController extends _$ReportController {
     state = state.copyWith(reports: const AsyncLoading());
     try {
       final repository = ref.read(reportRepositoryProvider);
-      
+
       // Calculate actual date range from preset
       DateTimeRange? actualDateRange;
       if (state.dateRangePreset == DateRangePreset.custom) {
@@ -40,7 +40,7 @@ class ReportController extends _$ReportController {
       } else if (state.dateRangePreset != DateRangePreset.allTime) {
         actualDateRange = state.dateRangePreset.getDateRange();
       }
-      
+
       final result = await repository.fetchReports(
         paginationRequest: PaginationRequestWrapper(
           data: GetFetchReportsRequest(
@@ -52,9 +52,11 @@ class ReportController extends _$ReportController {
           ),
           page: state.currentPage,
           pageSize: state.pageSize,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
         ),
       );
-      
+
       result.when(
         onSuccess: (reports) {
           state = state.copyWith(reports: AsyncData(reports));
@@ -145,12 +147,12 @@ class ReportController extends _$ReportController {
   Future<void> generateReport(Map<String, dynamic> data) async {
     final repository = ref.read(reportRepositoryProvider);
     final result = await repository.generateReport(data: data);
-    
+
     result.when(
       onSuccess: (_) {},
       onFailure: (failure) => throw Exception(failure.message),
     );
-    
+
     await _fetchReports();
   }
 
@@ -158,7 +160,7 @@ class ReportController extends _$ReportController {
   Future<void> deleteReport(int reportId) async {
     final repository = ref.read(reportRepositoryProvider);
     final result = await repository.deleteReport(reportId: reportId);
-    
+
     result.when(
       onSuccess: (_) {},
       onFailure: (failure) => throw Exception(failure.message),

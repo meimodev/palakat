@@ -42,7 +42,14 @@ export class ChurchRequestService {
   }
 
   async findAll(query: ChurchRequestListQueryDto) {
-    const { skip, take, search, requesterId } = query;
+    const {
+      skip,
+      take,
+      search,
+      requesterId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     // Build where clause
     const where: any = {};
@@ -66,7 +73,7 @@ export class ChurchRequestService {
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           requester: {
             select: {

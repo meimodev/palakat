@@ -52,6 +52,8 @@ class ActivityController extends _$ActivityController {
           ),
           page: state.currentPage,
           pageSize: state.pageSize,
+          sortBy: 'id',
+          sortOrder: 'desc',
         ),
       );
 

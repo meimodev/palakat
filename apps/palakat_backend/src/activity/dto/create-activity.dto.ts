@@ -8,6 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { TransformToUtcDate } from '../../../common/transformers/utc-date.transformer';
 
 // Nested DTO for creating finance record alongside activity
 export class CreateFinanceDto {
@@ -55,7 +56,7 @@ export class CreateActivityDto {
   locationLongitude?: number;
 
   @IsOptional()
-  @Type(() => Date)
+  @TransformToUtcDate()
   date?: Date;
 
   @IsOptional()

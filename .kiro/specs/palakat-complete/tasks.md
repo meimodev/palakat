@@ -29,6 +29,9 @@ This spec consolidates all previous specs:
 - Activity Approver Linking: Automatic approver assignment based on approval rules
 - Searchable Pickers: Financial account and position pickers with search
 - Self-Approval: Supervisor can approve their own activities
+- **Approver Module**: Full CRUD operations for approver records (Requirements 43.1-43.15)
+- **Finance Edit Pre-populate**: Pre-population of finance form when editing attached records (Requirements 44.1-44.7)
+- **Finance Delete Confirmation**: Confirmation dialog before removing attached finance (Requirements 45.1-45.4)
 
 **Remaining**:
 - Song repository backend integration in mobile app
@@ -42,6 +45,26 @@ This spec consolidates all previous specs:
 ## Completed Tasks Summary
 
 The following major features have been fully implemented:
+
+### Approver Module Feature (Complete)
+- Approver module directory structure and base files
+- ApproverModule registered in AppModule
+- CreateApproverDto, UpdateApproverDto, ApproverListQueryDto with validation
+- ApproverService CRUD operations (create, findAll, findOne, update, remove)
+- ApproverController endpoints (POST, GET, GET/:id, PATCH/:id, DELETE/:id)
+- Property tests for CRUD operations (Properties 55-60)
+- Unit tests for ApproverService
+
+### Finance Edit Pre-populate Feature (Complete)
+- FinanceCreateScreen accepts optional initialData parameter
+- FinanceCreateController handles initial data with _createInitializedState method
+- Amount formatting helper for display
+- ActivityPublishScreen passes existing finance data when editing
+- Property tests for initialization logic (Properties 61-65)
+- Delete confirmation dialog with _handleRemoveFinance method
+- FinanceSummaryCard onRemove callback uses confirmation handler
+- Property tests for delete confirmation behavior (Properties 66-67)
+- Code generation with build_runner completed
 
 ### Activity Finance Feature (Complete)
 - Finance models (Revenue, Expense, FinanceType, FinanceData) and repositories
@@ -335,91 +358,149 @@ The following major features have been fully implemented:
 - [ ] 20. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 21. Mobile App - Song Book Backend Integration
-  - [ ] 21.1 Wire SongBook controller to Song Repository
+- [x] 21. Approver Module Implementation (Consolidated from approver-module spec)
+  - [x] 21.1 Set up Approver module structure
+    - Created approver module directory and base files
+    - Registered ApproverModule in AppModule
+    - _Requirements: 43.12, 43.14_
+  - [x] 21.2 Implement DTOs with validation
+    - Created CreateApproverDto, UpdateApproverDto, ApproverListQueryDto
+    - Used class-validator decorators
+    - _Requirements: 43.1, 43.10, 43.13_
+  - [x] 21.3 Implement ApproverService CRUD operations
+    - Implemented create, findAll, findOne, update, remove methods
+    - _Requirements: 43.1-43.11, 43.15_
+  - [x] 21.4 Write property tests for Approver CRUD
+    - **Property 55: Create initializes with UNCONFIRMED status**
+    - **Property 56: Duplicate creation is rejected**
+    - **Property 57: Filter consistency**
+    - **Property 58: Status update persistence**
+    - **Property 59: Delete removes record**
+    - **Property 60: Response format consistency**
+    - **Validates: Requirements 43.1, 43.2, 43.6-43.8, 43.10, 43.11, 43.15**
+  - [x] 21.5 Implement ApproverController endpoints
+    - Implemented POST, GET, GET/:id, PATCH/:id, DELETE/:id
+    - _Requirements: 43.1-43.11, 43.14_
+  - [x] 21.6 Write unit tests for ApproverService
+    - _Requirements: 43.1-43.11_
+
+- [x] 22. Finance Edit Pre-populate Implementation (Consolidated from finance-edit-prepopulate spec)
+  - [x] 22.1 Update FinanceCreateScreen to accept initial data
+    - Added optional initialData parameter
+    - Updated provider call to pass initialData to controller
+    - _Requirements: 44.1, 44.2, 44.3_
+  - [x] 22.2 Update FinanceCreateController to handle initial data
+    - Modified build method signature to accept FinanceData? initialData
+    - Added _createInitializedState method
+    - Added _formatAmountForDisplay helper method
+    - _Requirements: 44.1-44.7_
+  - [x] 22.3 Write property tests for initialization logic
+    - **Property 61: Amount field initialization preserves value**
+    - **Property 62: Account number initialization preserves selection**
+    - **Property 63: Payment method initialization preserves selection**
+    - **Property 64: Form validity reflects complete initial data**
+    - **Property 65: Validation updates after field modification**
+    - **Validates: Requirements 44.1-44.7**
+  - [x] 22.4 Update ActivityPublishScreen to pass initial data when editing
+    - Modified _handleEditFinance to pass existing finance data
+    - _Requirements: 44.1, 44.2, 44.3_
+  - [x] 22.5 Add delete confirmation dialog
+    - Created _handleRemoveFinance method with confirmation dialog
+    - Updated FinanceSummaryCard onRemove callback
+    - _Requirements: 45.1-45.4_
+  - [x] 22.6 Write property tests for delete confirmation behavior
+    - **Property 66: Confirmed deletion removes attached finance**
+    - **Property 67: Cancelled deletion preserves attached finance**
+    - **Validates: Requirements 45.3, 45.4**
+  - [x] 22.7 Run code generation and verify
+    - Executed melos run build:runner
+    - _Requirements: 44.2_
+
+- [ ] 23. Mobile App - Song Book Backend Integration
+  - [ ] 23.1 Wire SongBook controller to Song Repository
     - Update SongBookController to call SongRepository for search
     - Implement category filtering via repository
     - Add loading and error state handling
     - _Requirements: 12.11, 12.12_
-  - [ ] 21.2 Implement song detail fetching
+  - [ ] 23.2 Implement song detail fetching
     - Update SongDetailController to fetch complete song data
     - Handle incomplete song data by fetching from API
     - Display song parts in correct order
     - _Requirements: 12.13, 12.2, 12.7_
-  - [ ] 21.3 Add loading shimmer and error states
+  - [ ] 23.3 Add loading shimmer and error states
     - Implement shimmer placeholder during fetch
     - Add error message with retry option
     - Handle empty state for no results
     - _Requirements: 12.14, 12.15_
 
-- [ ] 22. Admin Panel - Song Management Feature
-  - [ ] 22.1 Implement song list UI
+- [ ] 24. Admin Panel - Song Management Feature
+  - [ ] 24.1 Implement song list UI
     - Create song list screen with data table
     - Add book filtering (NKB, NNBT, KJ, DSL)
     - Implement search by title or index
     - Display song index, title, and book
     - Add pagination controls
     - _Requirements: 12.1, 12.3, 12.5_
-  - [ ] 22.2 Implement song form UI
+  - [ ] 24.2 Implement song form UI
     - Create song creation form with basic info (title, index, book, link)
     - Add dynamic song part fields (add/remove parts)
     - Implement part ordering with index
     - Create song edit form with existing parts
     - Add form validation for required fields
     - _Requirements: 12.5, 12.6, 21.6, 21.7_
-  - [ ] 22.3 Implement song state management
+  - [ ] 24.3 Implement song state management
     - Create SongController with Riverpod
     - Implement SongState with CRUD operations
     - Add song part management logic
     - Implement search and filtering logic
     - _Requirements: 12.1, 12.2, 12.3, 12.5, 12.6, 12.7_
 
-- [ ] 23. Checkpoint - Ensure all tests pass
+- [ ] 25. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 24. Admin Panel - Church Management Enhancement
-  - [ ] 24.1 Implement church list UI
+- [ ] 26. Admin Panel - Church Management Enhancement
+  - [ ] 26.1 Implement church list UI
     - Create church list screen with data table
     - Display church name, contact info, and location
     - Add edit and view actions
     - Implement pagination if needed
     - _Requirements: 13.1_
-  - [ ] 24.2 Implement church form UI
+  - [ ] 26.2 Implement church form UI
     - Create church creation form with all fields
     - Implement church edit form
     - Add location input with latitude/longitude
     - Add form validation
     - _Requirements: 13.1, 13.2, 21.6, 21.7_
-  - [ ] 24.3 Implement column management UI
+  - [ ] 26.3 Implement column management UI
     - Create column list within church detail view
     - Add column creation dialog/form
     - Implement column editing
     - Add column deletion with confirmation
     - _Requirements: 13.3, 13.4_
-  - [ ] 24.4 Implement church state management
+  - [ ] 26.4 Implement church state management
     - Create ChurchController with Riverpod
     - Implement ChurchState with CRUD operations
     - Add column management logic within church context
     - Implement location association and updates
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.7_
 
-- [ ] 25. Checkpoint - Ensure all tests pass
+- [ ] 27. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 26. Performance Optimization
-  - [ ] 26.1 Optimize database queries
+- [ ] 28. Performance Optimization
+  - [ ] 28.1 Optimize database queries
     - Review and optimize Prisma queries with select/include
     - Verify indexes on frequently queried fields
     - Add composite indexes where needed
     - Test query performance with large datasets
     - _Requirements: 20.6_
-  - [ ] 26.2 Optimize mobile app performance
+  - [ ] 28.2 Optimize mobile app performance
     - Implement lazy loading for activity lists
     - Optimize image loading with caching
     - Review and optimize widget rebuilds
     - _Requirements: 20.4_
 
-- [ ] 27. Final Checkpoint - Ensure all tests pass
+- [ ] 29. Final Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
@@ -439,3 +520,11 @@ The following major features have been fully implemented:
 - Activity approver linking automatically assigns approvers based on approval rules
 - Searchable pickers implemented for financial accounts and positions
 - Self-approval functionality allows supervisors to approve their own activities
+
+## Consolidated Specs
+
+This spec consolidates the following previously separate specs:
+- **approver-module**: Full CRUD operations for approver records (Requirements 43, Properties 55-60) - COMPLETE
+- **finance-edit-prepopulate**: Pre-population of finance form when editing (Requirements 44-45, Properties 61-67) - COMPLETE
+
+All requirements, design elements, and tasks from these specs have been merged into this comprehensive document.

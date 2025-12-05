@@ -51,6 +51,8 @@ class ExpenseController extends _$ExpenseController {
         ),
         page: state.currentPage,
         pageSize: state.pageSize,
+        sortBy: 'id',
+        sortOrder: 'desc',
       ),
     );
 

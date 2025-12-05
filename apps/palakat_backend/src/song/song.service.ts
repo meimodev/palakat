@@ -17,7 +17,13 @@ export class SongService {
   }
 
   async findAll(query: SongListQueryDto) {
-    const { search, skip, take } = query ?? ({} as any);
+    const {
+      search,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query ?? ({} as any);
 
     const where: Prisma.SongWhereInput = {};
 
@@ -48,7 +54,7 @@ export class SongService {
         where,
         take,
         skip,
-        orderBy: { id: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           parts: true,
         },

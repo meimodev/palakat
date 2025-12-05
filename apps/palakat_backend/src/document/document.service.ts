@@ -8,7 +8,14 @@ export class DocumentService {
   constructor(private prisma: PrismaService) {}
 
   async getDocuments(query: DocumentListQueryDto) {
-    const { search, churchId, skip, take } = query;
+    const {
+      search,
+      churchId,
+      skip,
+      take,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: Prisma.DocumentWhereInput = {};
 
@@ -29,7 +36,7 @@ export class DocumentService {
         where,
         take,
         skip,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           church: true,
           file: true,

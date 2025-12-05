@@ -1,14 +1,11 @@
 import { Type } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  Min,
-  IsDateString,
-} from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';
 import { PaymentMethod } from '@prisma/client';
+import {
+  TransformToStartOfDayUtc,
+  TransformToEndOfDayUtc,
+} from '../../../common/transformers/utc-date.transformer';
 
 export class RevenueListQueryDto extends PaginationQueryDto {
   @IsOptional()
@@ -26,10 +23,10 @@ export class RevenueListQueryDto extends PaginationQueryDto {
   paymentMethod?: PaymentMethod;
 
   @IsOptional()
-  @IsDateString()
-  startDate?: string;
+  @TransformToStartOfDayUtc()
+  startDate?: Date;
 
   @IsOptional()
-  @IsDateString()
-  endDate?: string;
+  @TransformToEndOfDayUtc()
+  endDate?: Date;
 }

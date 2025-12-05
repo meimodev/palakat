@@ -60,7 +60,16 @@ export class ApprovalRuleService {
   }
 
   async getApprovalRules(query: ApprovalRuleListQueryDto) {
-    const { churchId, active, search, positionId, skip, take } = query;
+    const {
+      churchId,
+      active,
+      search,
+      positionId,
+      skip,
+      take,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: Prisma.ApprovalRuleWhereInput = {};
     if (churchId) where.churchId = churchId;
@@ -85,7 +94,7 @@ export class ApprovalRuleService {
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           church: {
             select: {

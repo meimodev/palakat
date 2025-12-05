@@ -23,6 +23,8 @@ export class ActivitiesService {
       search,
       skip,
       take,
+      sortBy = 'date',
+      sortOrder = 'desc',
     } = query;
 
     const where: any = {};
@@ -49,9 +51,21 @@ export class ActivitiesService {
     if (startDate || endDate) {
       where.date = {};
       if (startDate) {
+        console.log(
+          '[ActivityService] startDate filter:',
+          startDate,
+          '| ISO:',
+          startDate.toISOString(),
+        );
         where.date.gte = startDate;
       }
       if (endDate) {
+        console.log(
+          '[ActivityService] endDate filter:',
+          endDate,
+          '| ISO:',
+          endDate.toISOString(),
+        );
         where.date.lte = endDate;
       }
     }
@@ -73,7 +87,7 @@ export class ActivitiesService {
         where,
         take,
         skip,
-        orderBy: { date: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
 
         include: {
           supervisor: {
@@ -120,6 +134,17 @@ export class ActivitiesService {
         },
       }),
     ]);
+
+    // Log returned activities' dates for debugging
+    console.log(
+      '[ActivityService] Returned activities count:',
+      activities.length,
+    );
+    activities.forEach((activity: any) => {
+      console.log(
+        `[ActivityService] Activity ID: ${activity.id}, date: ${activity.date}, ISO: ${activity.date?.toISOString?.() ?? 'null'}`,
+      );
+    });
 
     // Transform activities to include hasRevenue/hasExpense flags
     const transformedActivities = activities.map((activity: any) => {

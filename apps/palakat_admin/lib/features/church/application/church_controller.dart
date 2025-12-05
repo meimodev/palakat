@@ -102,7 +102,8 @@ class ChurchController extends _$ChurchController {
       state = state.copyWith(church: AsyncLoading());
       final result = await churchRepo.fetchChurchProfile(previous.id!);
       result.when(
-        onSuccess: (church) => state = state.copyWith(church: AsyncData(church)),
+        onSuccess: (church) =>
+            state = state.copyWith(church: AsyncData(church)),
         onFailure: (failure) => throw Exception(failure.message),
       );
     } catch (e, st) {
@@ -141,7 +142,8 @@ class ChurchController extends _$ChurchController {
       state = state.copyWith(location: AsyncLoading());
       final result = await churchRepo.fetchLocation(locationId);
       result.when(
-        onSuccess: (location) => state = state.copyWith(location: AsyncData(location)),
+        onSuccess: (location) =>
+            state = state.copyWith(location: AsyncData(location)),
         onFailure: (failure) => throw Exception(failure.message),
       );
     } catch (e, st) {
@@ -237,7 +239,9 @@ class ChurchController extends _$ChurchController {
       result.when(
         onSuccess: (_) {
           final current = previousColumns.value ?? const <cm.Column>[];
-          final updatedColumns = current.where((c) => c.id != columnId).toList();
+          final updatedColumns = current
+              .where((c) => c.id != columnId)
+              .toList();
           state = state.copyWith(columns: AsyncData(updatedColumns));
         },
         onFailure: (failure) => throw Exception(failure.message),
@@ -273,18 +277,23 @@ class ChurchController extends _$ChurchController {
     }
   }
 
-
   void fetchColumns(int churchId) async {
     try {
       state = state.copyWith(columns: const AsyncLoading());
-      final paginationRequest = PaginationRequestWrapper<GetFetchColumnsRequest>(
-        page: 1,
-        pageSize: 100,
-        data: GetFetchColumnsRequest(churchId: churchId),
+      final paginationRequest =
+          PaginationRequestWrapper<GetFetchColumnsRequest>(
+            page: 1,
+            pageSize: 100,
+            sortBy: 'name',
+            sortOrder: 'asc',
+            data: GetFetchColumnsRequest(churchId: churchId),
+          );
+      final result = await churchRepo.fetchColumns(
+        paginationRequest: paginationRequest,
       );
-      final result = await churchRepo.fetchColumns(paginationRequest: paginationRequest);
       result.when(
-        onSuccess: (paginatedColumns) => state = state.copyWith(columns: AsyncData(paginatedColumns.data)),
+        onSuccess: (paginatedColumns) =>
+            state = state.copyWith(columns: AsyncData(paginatedColumns.data)),
         onFailure: (failure) => throw Exception(failure.message),
       );
     } catch (e, st) {
@@ -297,7 +306,8 @@ class ChurchController extends _$ChurchController {
       state = state.copyWith(positions: const AsyncLoading());
       final result = await churchRepo.fetchPositions(churchId: churchId);
       result.when(
-        onSuccess: (positions) => state = state.copyWith(positions: AsyncData(positions)),
+        onSuccess: (positions) =>
+            state = state.copyWith(positions: AsyncData(positions)),
         onFailure: (failure) => throw Exception(failure.message),
       );
     } catch (e, st) {

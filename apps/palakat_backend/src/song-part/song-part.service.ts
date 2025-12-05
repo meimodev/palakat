@@ -19,7 +19,13 @@ export class SongPartService {
   }
 
   async findAll(query: SongPartListQueryDto) {
-    const { songId, skip, take } = query ?? ({} as any);
+    const {
+      songId,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query ?? ({} as any);
 
     const where: Prisma.SongPartWhereInput = {};
     if (songId) {
@@ -32,7 +38,7 @@ export class SongPartService {
         where,
         take,
         skip,
-        orderBy: { id: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
       }),
     ]);
     return {

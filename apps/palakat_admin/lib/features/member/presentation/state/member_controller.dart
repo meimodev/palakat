@@ -41,6 +41,8 @@ class MemberController extends _$MemberController {
           ),
           page: state.currentPage,
           pageSize: state.pageSize,
+          sortBy: 'name',
+          sortOrder: 'asc',
         ),
       );
       result.when(

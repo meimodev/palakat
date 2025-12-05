@@ -1059,3 +1059,59 @@ All migrated widgets use `Theme.of(context)` instead of hardcoded constants:
 **Property 54: Approval Rule Name from Financial Account**
 *For any* approval rule with a linked financial account number, the approval rule name SHALL equal the financial account's description. This applies to both create and update operations.
 **Validates: Requirements 42.1, 42.2, 42.3, 42.4, 42.5**
+
+### Approver Module Properties
+
+**Property 55: Create initializes with UNCONFIRMED status**
+*For any* valid membershipId and activityId combination, creating an approver SHALL result in a record with status equal to UNCONFIRMED.
+**Validates: Requirements 43.1**
+
+**Property 56: Duplicate creation is rejected**
+*For any* existing approver record, attempting to create another approver with the same membershipId and activityId SHALL result in a rejection error.
+**Validates: Requirements 43.2**
+
+**Property 57: Filter consistency**
+*For any* list query with filters (membershipId, activityId, or status), all returned approver records SHALL match the specified filter criteria.
+**Validates: Requirements 43.6, 43.7, 43.8**
+
+**Property 58: Status update persistence**
+*For any* existing approver and any valid ApprovalStatus value, updating the approver's status SHALL result in the record having that exact status when retrieved.
+**Validates: Requirements 43.10**
+
+**Property 59: Delete removes record**
+*For any* existing approver, deleting it SHALL result in the record no longer being retrievable by its ID.
+**Validates: Requirements 43.11**
+
+**Property 60: Response format consistency**
+*For any* successful API response from the Approver Module, the response SHALL contain both `message` (string) and `data` fields.
+**Validates: Requirements 43.15**
+
+### Finance Edit Pre-populate Properties
+
+**Property 61: Amount field initialization preserves value**
+*For any* valid FinanceData with a positive amount, when the controller is initialized with that data, the state's amount field SHALL contain a string representation of the original amount value.
+**Validates: Requirements 44.1**
+
+**Property 62: Account number initialization preserves selection**
+*For any* valid FinanceData with a financialAccountNumberId, when the controller is initialized with that data, the state's selectedFinancialAccountNumber SHALL have matching id and accountNumber values.
+**Validates: Requirements 44.2**
+
+**Property 63: Payment method initialization preserves selection**
+*For any* valid FinanceData with a payment method, when the controller is initialized with that data, the state's paymentMethod SHALL equal the original payment method.
+**Validates: Requirements 44.3**
+
+**Property 64: Form validity reflects complete initial data**
+*For any* FinanceData with all required fields populated (amount > 0, non-empty accountNumber, valid paymentMethod), when the controller is initialized with that data, the state's isFormValid SHALL be true.
+**Validates: Requirements 44.4, 44.5**
+
+**Property 65: Validation updates after field modification**
+*For any* controller initialized with valid FinanceData, when a field is modified to an invalid value (e.g., empty amount), the corresponding error field SHALL be non-null and isFormValid SHALL be false.
+**Validates: Requirements 44.7**
+
+**Property 66: Confirmed deletion removes attached finance**
+*For any* ActivityPublishState with a non-null attachedFinance, when the user confirms deletion in the dialog, the resulting state's attachedFinance SHALL be null.
+**Validates: Requirements 45.3**
+
+**Property 67: Cancelled deletion preserves attached finance**
+*For any* ActivityPublishState with a non-null attachedFinance, when the user cancels deletion in the dialog, the resulting state's attachedFinance SHALL equal the original attachedFinance value.
+**Validates: Requirements 45.4**

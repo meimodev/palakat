@@ -11,7 +11,15 @@ export class ChurchService {
     private helperService: HelperService,
   ) {}
   async getChurches(query: ChurchListQueryDto) {
-    const { search, latitude, longitude, skip, take } = query;
+    const {
+      search,
+      latitude,
+      longitude,
+      skip,
+      take,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = query;
 
     const lat = typeof latitude === 'number' ? latitude : null;
     const lng = typeof longitude === 'number' ? longitude : null;
@@ -56,7 +64,7 @@ export class ChurchService {
           where,
           take,
           skip,
-          orderBy: { name: 'asc' },
+          orderBy: { [sortBy]: sortOrder },
           include: { location: true },
         }),
       ]);

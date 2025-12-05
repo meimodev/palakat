@@ -51,6 +51,8 @@ class RevenueController extends _$RevenueController {
         ),
         page: state.currentPage,
         pageSize: state.pageSize,
+        sortBy: 'id',
+        sortOrder: 'desc',
       ),
     );
 
@@ -154,7 +156,10 @@ class RevenueController extends _$RevenueController {
 
     if (revenue.id != null) {
       final payload = revenue.toJson();
-      result = await repository.updateRevenue(revenueId: revenue.id!, update: payload);
+      result = await repository.updateRevenue(
+        revenueId: revenue.id!,
+        update: payload,
+      );
     } else {
       // Create new revenue using CreateRevenueRequest
       final request = CreateRevenueRequest(
@@ -216,7 +221,8 @@ class GetFetchRevenuesRequest {
       if (search != null) 'search': search,
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
-      if (paymentMethod != null) 'paymentMethod': paymentMethod!.name.toUpperCase(),
+      if (paymentMethod != null)
+        'paymentMethod': paymentMethod!.name.toUpperCase(),
     };
   }
 }

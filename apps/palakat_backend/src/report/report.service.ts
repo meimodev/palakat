@@ -8,7 +8,15 @@ export class ReportService {
   constructor(private prisma: PrismaService) {}
 
   async getReports(query: ReportListQueryDto) {
-    const { search, churchId, generatedBy, skip, take } = query;
+    const {
+      search,
+      churchId,
+      generatedBy,
+      skip,
+      take,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: Prisma.ReportWhereInput = {};
 
@@ -31,7 +39,7 @@ export class ReportService {
         where,
         take,
         skip,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           church: true,
           file: true,

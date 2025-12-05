@@ -6,6 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_controller.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_state.dart';
+import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/widgets.dart';
@@ -237,11 +238,21 @@ class ActivityDetailScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: _buildRejectButton(context, controller, isLoading),
+                  child: _buildRejectButton(
+                    context,
+                    ref,
+                    controller,
+                    isLoading,
+                  ),
                 ),
                 Gap.w12,
                 Expanded(
-                  child: _buildApproveButton(context, controller, isLoading),
+                  child: _buildApproveButton(
+                    context,
+                    ref,
+                    controller,
+                    isLoading,
+                  ),
                 ),
               ],
             ),
@@ -254,6 +265,7 @@ class ActivityDetailScreen extends ConsumerWidget {
   /// Builds the reject button for self-approval.
   Widget _buildRejectButton(
     BuildContext context,
+    WidgetRef ref,
     ActivityDetailController controller,
     bool isLoading,
   ) {
@@ -271,6 +283,8 @@ class ActivityDetailScreen extends ConsumerWidget {
               if (confirmed == true) {
                 final success = await controller.rejectSelfApproval();
                 if (context.mounted && success) {
+                  // Invalidate operations controller to refresh supervised activities list
+                  ref.invalidate(operationsControllerProvider);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Aktivitas berhasil ditolak'),
@@ -314,6 +328,7 @@ class ActivityDetailScreen extends ConsumerWidget {
   /// Builds the approve button for self-approval.
   Widget _buildApproveButton(
     BuildContext context,
+    WidgetRef ref,
     ActivityDetailController controller,
     bool isLoading,
   ) {
@@ -331,6 +346,8 @@ class ActivityDetailScreen extends ConsumerWidget {
               if (confirmed == true) {
                 final success = await controller.approveSelfApproval();
                 if (context.mounted && success) {
+                  // Invalidate operations controller to refresh supervised activities list
+                  ref.invalidate(operationsControllerProvider);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Aktivitas berhasil disetujui'),

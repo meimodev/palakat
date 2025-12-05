@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,7 +52,9 @@ class ApproverRepository {
   }
 
   /// Fetch a single approver by ID
-  Future<Result<Approver, Failure>> fetchApprover({required int approverId}) async {
+  Future<Result<Approver, Failure>> fetchApprover({
+    required int approverId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.get<Map<String, dynamic>>(
@@ -86,23 +90,43 @@ class ApproverRepository {
       );
 
       final data = response.data;
+      developer.log(
+        'updateApprover response: $data',
+        name: 'ApproverRepository',
+      );
+
       final Map<String, dynamic> json = data?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid update approver response payload'));
+        return Result.failure(
+          Failure('Invalid update approver response payload'),
+        );
       }
 
       return Result.success(Approver.fromJson(json));
     } on DioException catch (e) {
+      developer.log(
+        'updateApprover DioException: ${e.message}',
+        name: 'ApproverRepository',
+        error: e,
+      );
       final error = ErrorMapper.fromDio(e, 'Failed to update approver');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
+      developer.log(
+        'updateApprover error: $e',
+        name: 'ApproverRepository',
+        error: e,
+        stackTrace: st,
+      );
       final error = ErrorMapper.unknown('Failed to update approver', e, st);
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
 
   /// Create an approver
-  Future<Result<Approver, Failure>> createApprover({required Map<String, dynamic> data}) async {
+  Future<Result<Approver, Failure>> createApprover({
+    required Map<String, dynamic> data,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
@@ -113,7 +137,9 @@ class ApproverRepository {
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid create approver response payload'));
+        return Result.failure(
+          Failure('Invalid create approver response payload'),
+        );
       }
       return Result.success(Approver.fromJson(json));
     } on DioException catch (e) {
@@ -126,7 +152,9 @@ class ApproverRepository {
   }
 
   /// Delete an approver
-  Future<Result<void, Failure>> deleteApprover({required int approverId}) async {
+  Future<Result<void, Failure>> deleteApprover({
+    required int approverId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       await http.delete<void>(Endpoints.approver(approverId));

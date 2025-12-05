@@ -8,7 +8,7 @@ export class ColumnService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getColumns(query: ColumnListQueryDto) {
-    const { churchId, skip, take } = query;
+    const { churchId, skip, take, sortBy = 'name', sortOrder = 'asc' } = query;
 
     const where: Prisma.ColumnWhereInput = {};
     if (churchId) where.churchId = churchId;
@@ -19,7 +19,7 @@ export class ColumnService {
         where,
         skip,
         take,
-        orderBy: { name: 'asc' },
+        orderBy: { [sortBy]: sortOrder },
       }),
     ]);
 

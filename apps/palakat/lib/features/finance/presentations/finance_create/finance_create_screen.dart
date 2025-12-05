@@ -6,6 +6,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_controller.dart';
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_state.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/widgets.dart';
+import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 
@@ -328,6 +329,8 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
       if (!mounted) return;
 
       if (success) {
+        // Invalidate operations controller to refresh supervised activities list
+        ref.invalidate(operationsControllerProvider);
         context.pop();
         _showSnackBar(
           '${widget.financeType.displayName} created successfully!',

@@ -1,51 +1,49 @@
-import 'package:palakat_shared/core/constants/enums.dart';
-import 'package:palakat_shared/core/models/models.dart';
-import 'package:palakat_shared/core/models/request/request.dart';
-import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/core/models/request/get_fetch_activity_request.dart';
+import 'package:palakat_shared/core/models/request/pagination_request_wrapper.dart';
+import 'package:palakat_shared/core/repositories/activity_repository.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'supervised_activities_list_state.dart';
+import 'activity_picker_state.dart';
 
-part 'supervised_activities_list_controller.g.dart';
+part 'activity_picker_controller.g.dart';
 
-/// Controller for the Supervised Activities List screen.
-/// Manages fetching activities with pagination and filtering.
-///
-/// Requirements: 2.3, 3.1, 3.2, 3.3, 3.4
+/// Controller for the Activity Picker dialog.
+/// Manages fetching activities with pagination, infinite scrolling, and search.
+/// Activities are sorted by date in descending order (newest first).
 @riverpod
-class SupervisedActivitiesListController
-    extends _$SupervisedActivitiesListController {
+class ActivityPickerController extends _$ActivityPickerController {
   ActivityRepository get _activityRepository =>
       ref.read(activityRepositoryProvider);
-  AuthRepository get _authRepository => ref.read(authRepositoryProvider);
+  LocalStorageService get _localStorage =>
+      ref.read(localStorageServiceProvider);
 
-  static const int _pageSize = 10;
+  static const int _pageSize = 15;
 
   @override
-  SupervisedActivitiesListState build() {
+  ActivityPickerState build() {
     Future.microtask(() => _initialize());
-    return const SupervisedActivitiesListState();
+    return const ActivityPickerState();
   }
 
   /// Initializes the controller by fetching the membership ID and activities.
   Future<void> _initialize() async {
-    final accountResult = await _authRepository.getSignedInAccount();
-    accountResult.when(
-      onSuccess: (account) {
-        final membershipId = account?.membership?.id;
-        state = state.copyWith(membershipId: membershipId);
-        fetchActivities();
-      },
-      onFailure: (failure) {
-        state = state.copyWith(isLoading: false, errorMessage: failure.message);
-      },
-    );
+    final membership = _localStorage.currentMembership;
+
+    if (membership == null) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Session expired. Please sign in again.',
+      );
+      return;
+    }
+
+    state = state.copyWith(membershipId: membership.id);
+    await fetchActivities();
   }
 
-  /// Fetches activities with current filters and pagination.
+  /// Fetches activities with current search query and pagination.
   /// If [refresh] is true, resets to page 1.
-  ///
-  /// Requirements: 2.3, 3.3
   Future<void> fetchActivities({bool refresh = false}) async {
     if (state.membershipId == null) {
       state = state.copyWith(
@@ -90,8 +88,6 @@ class SupervisedActivitiesListController
 
   /// Loads more activities for infinite scroll.
   /// Appends new activities to the existing list.
-  ///
-  /// Requirements: 2.3
   Future<void> loadMoreActivities() async {
     if (state.isLoadingMore || !state.hasMorePages) return;
 
@@ -123,35 +119,14 @@ class SupervisedActivitiesListController
     );
   }
 
-  /// Sets the activity type filter and refreshes the list.
-  ///
-  /// Requirements: 3.1, 3.3
-  void setActivityTypeFilter(ActivityType? type) {
-    state = state.copyWith(filterActivityType: type);
+  /// Updates the search query and refreshes the list.
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query);
     fetchActivities(refresh: true);
   }
 
-  /// Sets the date range filter and refreshes the list.
-  ///
-  /// Requirements: 3.2, 3.3
-  void setDateRangeFilter(DateTime? start, DateTime? end) {
-    state = state.copyWith(filterStartDate: start, filterEndDate: end);
-    fetchActivities(refresh: true);
-  }
-
-  /// Clears all filters and refreshes the list.
-  ///
-  /// Requirements: 3.4
-  void clearFilters() {
-    state = state.copyWith(
-      filterActivityType: null,
-      filterStartDate: null,
-      filterEndDate: null,
-    );
-    fetchActivities(refresh: true);
-  }
-
-  /// Builds the pagination request with current filters.
+  /// Builds the pagination request with current search query.
+  /// Sorted by date in descending order (newest first).
   PaginationRequestWrapper<GetFetchActivitiesRequest> _buildRequest({
     required int page,
   }) {
@@ -162,9 +137,7 @@ class SupervisedActivitiesListController
       sortOrder: 'desc',
       data: GetFetchActivitiesRequest(
         membershipId: state.membershipId,
-        activityType: state.filterActivityType,
-        startDate: state.filterStartDate,
-        endDate: state.filterEndDate,
+        search: state.searchQuery.isNotEmpty ? state.searchQuery : null,
       ),
     );
   }

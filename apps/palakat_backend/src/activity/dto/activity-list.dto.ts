@@ -3,12 +3,19 @@ import { ActivityType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
   ValidateIf,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';
+import {
+  TransformToStartOfDayUtc,
+  TransformToEndOfDayUtc,
+} from '../../../common/transformers/utc-date.transformer';
+
+export type ActivitySortField = 'id' | 'date';
 
 export class ActivityListQueryDto extends PaginationQueryDto {
   @IsOptional()
@@ -30,11 +37,11 @@ export class ActivityListQueryDto extends PaginationQueryDto {
   columnId?: number;
 
   @IsOptional()
-  @Type(() => Date)
+  @TransformToStartOfDayUtc()
   startDate?: Date;
 
   @IsOptional()
-  @Type(() => Date)
+  @TransformToEndOfDayUtc()
   endDate?: Date;
 
   @IsOptional()
@@ -50,6 +57,11 @@ export class ActivityListQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  // Override to restrict sortBy to valid activity fields
+  @IsOptional()
+  @IsIn(['id', 'date'])
+  declare sortBy?: ActivitySortField;
 
   @ValidateIf((o) => {
     if (o.startDate && o.endDate && o.startDate > o.endDate) {

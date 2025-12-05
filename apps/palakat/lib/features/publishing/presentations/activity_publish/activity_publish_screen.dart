@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
@@ -1475,6 +1476,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     if (!mounted) return;
 
     if (success) {
+      // Invalidate operations controller to refresh supervised activities list
+      ref.invalidate(operationsControllerProvider);
       context.pop();
       _showSnackBar('Activity created successfully!');
     } else {

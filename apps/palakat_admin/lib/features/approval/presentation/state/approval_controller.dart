@@ -42,6 +42,8 @@ class ApprovalController extends _$ApprovalController {
           ),
           page: state.currentPage,
           pageSize: state.pageSize,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
         ),
       );
       result.when(

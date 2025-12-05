@@ -17,7 +17,15 @@ export class FinancialAccountNumberService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: FindAllFinancialAccountNumberDto, churchId: number) {
-    const { search, skip, take, type, includeApprovalRule } = query;
+    const {
+      search,
+      skip,
+      take,
+      type,
+      includeApprovalRule,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: any = {
       churchId,
@@ -53,7 +61,7 @@ export class FinancialAccountNumberService {
         where,
         take,
         skip,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         ...(include && { include }),
       }),
     ]);

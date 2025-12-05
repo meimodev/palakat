@@ -29,6 +29,8 @@ class DocumentController extends _$DocumentController {
         data: GetFetchDocumentsRequest(churchId: church.id!),
         page: state.currentPage,
         pageSize: state.pageSize,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
       ),
     );
 

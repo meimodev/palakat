@@ -39,6 +39,8 @@ class FinancialAccountListController extends _$FinancialAccountListController {
         ),
         page: state.currentPage,
         pageSize: state.pageSize,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
       ),
     );
 

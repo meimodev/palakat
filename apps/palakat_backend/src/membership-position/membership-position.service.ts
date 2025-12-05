@@ -19,7 +19,14 @@ export class MembershipPositionService {
   }
 
   async findAll(query: MembershipPositionListQueryDto) {
-    const { churchId, membershipId, skip, take } = query ?? ({} as any);
+    const {
+      churchId,
+      membershipId,
+      skip,
+      take,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = query ?? ({} as any);
 
     const where: Prisma.MembershipPositionWhereInput = {};
     if (churchId) where.churchId = churchId;
@@ -31,7 +38,7 @@ export class MembershipPositionService {
         where,
         take,
         skip,
-        orderBy: { name: 'asc' },
+        orderBy: { [sortBy]: sortOrder },
       }),
     ]);
 

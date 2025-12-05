@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsInt,
@@ -14,6 +13,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { TransformToUtcDate } from '../../../common/transformers/utc-date.transformer';
 
 class CreateMembershipPositionCreateDto {
   @IsString()
@@ -99,8 +99,8 @@ export class CreateAccountDto {
   @IsEnum(MaritalStatus)
   maritalStatus!: MaritalStatus;
 
-  @IsDateString()
-  dob?: string; // ISO date string; service will accept as Date
+  @TransformToUtcDate()
+  dob?: Date;
 
   @IsOptional()
   @ValidateNested()

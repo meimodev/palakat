@@ -777,3 +777,56 @@ This specification serves as the comprehensive system documentation, consolidati
 5. WHEN the seeder creates approval rules with financial accounts THEN the seeder SHALL use the financial account name as the approval rule name
 6. WHEN a financial account is not linked to an approval rule THEN the system SHALL use the manually provided rule name
 
+---
+
+### Requirement 43: Approver Module CRUD Operations
+
+**User Story:** As a church administrator, I want to manage approver records through a REST API, so that I can assign members to approve specific activities and track their approval status.
+
+#### Acceptance Criteria
+
+1. WHEN a user sends a POST request to `/approver` with valid membershipId and activityId, THE Backend_API SHALL create a new approver record with UNCONFIRMED status and return the created record
+2. WHEN a user sends a POST request with a duplicate membershipId and activityId combination, THE Backend_API SHALL reject the request with a 400 Bad Request error indicating the approver already exists
+3. WHEN a user sends a POST request with a non-existent membershipId, THE Backend_API SHALL reject the request with a 404 Not Found error
+4. WHEN a user sends a POST request with a non-existent activityId, THE Backend_API SHALL reject the request with a 404 Not Found error
+5. WHEN a user sends a GET request to `/approver` without filters, THE Backend_API SHALL return a paginated list of all approver records
+6. WHEN a user sends a GET request to `/approver` with a membershipId query parameter, THE Backend_API SHALL return only approver records for that membership
+7. WHEN a user sends a GET request to `/approver` with an activityId query parameter, THE Backend_API SHALL return only approver records for that activity
+8. WHEN a user sends a GET request to `/approver` with a status query parameter, THE Backend_API SHALL return only approver records matching that status
+9. WHEN a user sends a GET request to `/approver/:id`, THE Backend_API SHALL return the specific approver record with related activity and membership details
+10. WHEN a user sends a PATCH request to `/approver/:id` with a valid status, THE Backend_API SHALL update the approver record's status and return the updated record
+11. WHEN a user sends a DELETE request to `/approver/:id`, THE Backend_API SHALL delete the approver record and return a success message
+12. THE Approver Module SHALL use the same NestJS module structure as existing modules (controller, service, module, DTOs)
+13. THE Approver Module SHALL use class-validator decorators for DTO validation
+14. THE Approver Module SHALL be protected by JWT authentication using the existing AuthGuard
+15. THE Approver Module SHALL follow the existing response format with `message` and `data` fields
+
+---
+
+### Requirement 44: Finance Edit Pre-populate
+
+**User Story:** As a church member, I want to edit an attached financial record and see my previously entered values, so that I can make corrections without re-entering all information.
+
+#### Acceptance Criteria
+
+1. WHEN a user taps the edit button on an attached financial record THEN the Finance Create Screen SHALL display the previously entered amount value in the amount field
+2. WHEN a user taps the edit button on an attached financial record THEN the Finance Create Screen SHALL display the previously selected account number in the account picker
+3. WHEN a user taps the edit button on an attached financial record THEN the Finance Create Screen SHALL display the previously selected payment method in the payment method picker
+4. WHEN the Finance Create Screen receives initial finance data THEN the Finance Create Screen SHALL validate that the initial data contains all required fields before populating
+5. WHEN the Finance Create Screen is opened with initial data THEN the form SHALL be immediately valid if all required fields are populated
+6. WHEN the Finance Create Screen is opened with initial data THEN the submit button SHALL be enabled if the form is valid
+7. WHEN a user modifies any pre-populated field THEN the Finance Create Screen SHALL update validation state in real-time
+
+---
+
+### Requirement 45: Finance Delete Confirmation
+
+**User Story:** As a church member, I want to confirm before deleting an attached financial record, so that I can avoid accidental data loss.
+
+#### Acceptance Criteria
+
+1. WHEN a user taps the remove button on an attached financial record THEN the Activity Publish Screen SHALL display a confirmation dialog
+2. WHEN the confirmation dialog is displayed THEN the dialog SHALL show a clear message asking the user to confirm deletion
+3. WHEN the user confirms deletion in the dialog THEN the Activity Publish Screen SHALL remove the attached financial record
+4. WHEN the user cancels deletion in the dialog THEN the Activity Publish Screen SHALL keep the attached financial record unchanged
+

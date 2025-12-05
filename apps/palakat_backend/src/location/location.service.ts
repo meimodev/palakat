@@ -15,7 +15,13 @@ export class LocationService {
   }
 
   async findAll(query: LocationListQueryDto) {
-    const { search, skip, take } = query ?? ({} as any);
+    const {
+      search,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query ?? ({} as any);
 
     const where: Prisma.LocationWhereInput = {};
     if (search && search.length >= 1) {
@@ -28,7 +34,7 @@ export class LocationService {
         where,
         take,
         skip,
-        orderBy: { id: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
       }),
     ]);
 

@@ -43,8 +43,17 @@ export class ExpenseService {
   }
 
   async findAll(query: ExpenseListQueryDto) {
-    const { churchId, search, paymentMethod, startDate, endDate, skip, take } =
-      query;
+    const {
+      churchId,
+      search,
+      paymentMethod,
+      startDate,
+      endDate,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query;
 
     const where: any = {
       churchId: churchId,
@@ -64,10 +73,10 @@ export class ExpenseService {
     if (startDate || endDate) {
       where.createdAt = {};
       if (startDate) {
-        where.createdAt.gte = new Date(startDate);
+        where.createdAt.gte = startDate;
       }
       if (endDate) {
-        where.createdAt.lte = new Date(endDate);
+        where.createdAt.lte = endDate;
       }
     }
 
@@ -77,7 +86,7 @@ export class ExpenseService {
         where,
         take,
         skip,
-        orderBy: { id: 'desc' },
+        orderBy: { [sortBy]: sortOrder },
         include: {
           activity: {
             include: {

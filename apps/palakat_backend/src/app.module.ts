@@ -5,6 +5,7 @@ import { ActivitiesModule } from './activity/activity.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApprovalRuleModule } from './approval-rule/approval-rule.module';
+import { ApproverModule } from './approver/approver.module';
 import { AuthModule } from './auth/auth.module';
 import { ChurchRequestModule } from './church-request/church-request.module';
 import { ChurchModule } from './church/church.module';
@@ -30,6 +31,7 @@ import { SongModule } from './song/song.module';
     AccountModule,
     MembershipModule,
     ActivitiesModule,
+    ApproverModule,
     ChurchModule,
     SongModule,
     ColumnModule,
