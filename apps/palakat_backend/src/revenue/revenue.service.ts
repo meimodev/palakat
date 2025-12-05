@@ -169,8 +169,20 @@ export class RevenueService {
   async create(
     createRevenueDto: CreateRevenueDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, ...rest } =
+    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
       createRevenueDto;
+
+    // Validate: activity can only have revenue OR expense, not both
+    if (activityId) {
+      const existingExpense = await (this.prisma as any).expense.findUnique({
+        where: { activityId },
+      });
+      if (existingExpense) {
+        throw new BadRequestException(
+          'Activity already has an expense. An activity can only have one revenue or one expense, not both.',
+        );
+      }
+    }
 
     // Resolve the account number from FinancialAccountNumber if provided
     const resolvedAccountNumber = await this.resolveAccountNumber(
@@ -180,6 +192,7 @@ export class RevenueService {
 
     const data: any = {
       ...rest,
+      activityId,
       accountNumber: resolvedAccountNumber,
     };
 
@@ -208,10 +221,22 @@ export class RevenueService {
     id: number,
     updateRevenueDto: UpdateRevenueDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, ...rest } =
+    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
       updateRevenueDto;
 
-    const data: any = { ...rest };
+    // Validate: activity can only have revenue OR expense, not both
+    if (activityId) {
+      const existingExpense = await (this.prisma as any).expense.findUnique({
+        where: { activityId },
+      });
+      if (existingExpense) {
+        throw new BadRequestException(
+          'Activity already has an expense. An activity can only have one revenue or one expense, not both.',
+        );
+      }
+    }
+
+    const data: any = { ...rest, activityId };
 
     // If financialAccountNumberId is provided, resolve and update the account number
     if (financialAccountNumberId !== undefined) {

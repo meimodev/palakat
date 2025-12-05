@@ -1258,6 +1258,12 @@ async function resolveApproversForSeeder(
   return membershipsWithPositions.map((m) => m.id);
 }
 
+/**
+ * Financial type for activity: 'revenue', 'expense', or 'none'
+ * An activity can only have ONE financial type (revenue OR expense), never both.
+ */
+type ActivityFinancialType = 'revenue' | 'expense' | 'none';
+
 async function createActivityWithConnectedModels(
   supervisorId: number,
   churchId: number,
@@ -1265,8 +1271,7 @@ async function createActivityWithConnectedModels(
   bipra: Bipra,
   index: number,
   financialAccounts: FinancialAccountWithType[],
-  withRevenue: boolean,
-  withExpense: boolean,
+  financialType: ActivityFinancialType,
 ) {
   const activityData = generateActivityData(activityType, bipra, index);
 
@@ -1303,8 +1308,11 @@ async function createActivityWithConnectedModels(
     (fa) => fa.churchId === churchId && fa.type === 'expense',
   );
 
-  // Add revenue if specified (for SERVICE and EVENT types)
-  if (withRevenue && activityType !== ActivityType.ANNOUNCEMENT) {
+  // Add revenue if specified (for SERVICE and EVENT types only)
+  if (
+    financialType === 'revenue' &&
+    activityType !== ActivityType.ANNOUNCEMENT
+  ) {
     // Select a financial account for this revenue
     const selectedAccount =
       churchIncomeAccounts.length > 0
@@ -1325,7 +1333,7 @@ async function createActivityWithConnectedModels(
   }
 
   // Add expense if specified (for EVENT types primarily)
-  if (withExpense && activityType === ActivityType.EVENT) {
+  if (financialType === 'expense' && activityType === ActivityType.EVENT) {
     // Select a financial account for this expense
     const selectedAccount =
       churchExpenseAccounts.length > 0
@@ -1347,14 +1355,14 @@ async function createActivityWithConnectedModels(
 
   // Resolve approvers using the automatic approver linking logic
   // Determine financial type and account for resolution
-  let financialType: FinancialType | undefined;
+  let resolvedFinancialType: FinancialType | undefined;
   let financialAccountNumberId: number | undefined;
 
-  if (withRevenue && revenueFinancialAccountId) {
-    financialType = FinancialType.REVENUE;
+  if (financialType === 'revenue' && revenueFinancialAccountId) {
+    resolvedFinancialType = FinancialType.REVENUE;
     financialAccountNumberId = revenueFinancialAccountId;
-  } else if (withExpense && expenseFinancialAccountId) {
-    financialType = FinancialType.EXPENSE;
+  } else if (financialType === 'expense' && expenseFinancialAccountId) {
+    resolvedFinancialType = FinancialType.EXPENSE;
     financialAccountNumberId = expenseFinancialAccountId;
   }
 
@@ -1363,7 +1371,7 @@ async function createActivityWithConnectedModels(
     churchId,
     activityType,
     financialAccountNumberId,
-    financialType,
+    resolvedFinancialType,
   );
 
   // Create approver records with varying statuses
@@ -1393,6 +1401,13 @@ async function seedMainAccountActivities(
   const variations = getAllActivityVariations(); // 15 variations
   let globalIndex = 0;
 
+  // Financial type cycle: revenue, expense, none (an activity can only have one)
+  const financialTypes: ActivityFinancialType[] = [
+    'revenue',
+    'expense',
+    'none',
+  ];
+
   for (const mainMembership of mainMemberships) {
     console.log(
       `   Creating 25 activities for main account (phone: ${mainMembership.accountPhone})...`,
@@ -1401,9 +1416,8 @@ async function seedMainAccountActivities(
     // First 15 activities: cover all variations (3 types × 5 bipras)
     for (let i = 0; i < variations.length; i++) {
       const variation = variations[i];
-      // Vary connected models: some with revenue, some with expense, some with both, some with neither
-      const withRevenue = i % 4 === 0 || i % 4 === 2;
-      const withExpense = i % 4 === 1 || i % 4 === 2;
+      // Cycle through financial types: revenue, expense, none
+      const financialType = financialTypes[i % financialTypes.length];
 
       const activity = await createActivityWithConnectedModels(
         mainMembership.id,
@@ -1412,8 +1426,7 @@ async function seedMainAccountActivities(
         variation.bipra,
         globalIndex,
         financialAccounts,
-        withRevenue,
-        withExpense,
+        financialType,
       );
 
       activities.push({
@@ -1427,8 +1440,8 @@ async function seedMainAccountActivities(
     // Next 10 activities: additional variations to reach 25 total
     for (let i = 0; i < 10; i++) {
       const variation = variations[i % variations.length];
-      const withRevenue = i % 3 === 0;
-      const withExpense = i % 3 === 1;
+      // Cycle through financial types: revenue, expense, none
+      const financialType = financialTypes[i % financialTypes.length];
 
       const activity = await createActivityWithConnectedModels(
         mainMembership.id,
@@ -1437,8 +1450,7 @@ async function seedMainAccountActivities(
         variation.bipra,
         globalIndex,
         financialAccounts,
-        withRevenue,
-        withExpense,
+        financialType,
       );
 
       activities.push({
@@ -1467,6 +1479,13 @@ async function seedExtraChurchActivities(
   const variations = getAllActivityVariations();
   let globalIndex = 1000;
 
+  // Financial type cycle: revenue, expense, none (an activity can only have one)
+  const financialTypes: ActivityFinancialType[] = [
+    'revenue',
+    'expense',
+    'none',
+  ];
+
   for (const church of mainChurches) {
     // Get extra members (not the main account) to be supervisors
     const churchExtraMembers = extraMemberships.filter(
@@ -1486,8 +1505,8 @@ async function seedExtraChurchActivities(
       const supervisorIndex = i % churchExtraMembers.length;
       const supervisor = churchExtraMembers[supervisorIndex];
 
-      const withRevenue = i % 4 === 0 || i % 4 === 3;
-      const withExpense = i % 4 === 1 || i % 4 === 3;
+      // Cycle through financial types: revenue, expense, none
+      const financialType = financialTypes[i % financialTypes.length];
 
       const activity = await createActivityWithConnectedModels(
         supervisor.id,
@@ -1496,8 +1515,7 @@ async function seedExtraChurchActivities(
         variation.bipra,
         globalIndex,
         financialAccounts,
-        withRevenue,
-        withExpense,
+        financialType,
       );
 
       activities.push({
@@ -1514,8 +1532,8 @@ async function seedExtraChurchActivities(
       const supervisorIndex = (i + 5) % churchExtraMembers.length;
       const supervisor = churchExtraMembers[supervisorIndex];
 
-      const withRevenue = i % 2 === 0;
-      const withExpense = i % 2 === 1;
+      // Cycle through financial types: revenue, expense, none
+      const financialType = financialTypes[i % financialTypes.length];
 
       const activity = await createActivityWithConnectedModels(
         supervisor.id,
@@ -1524,8 +1542,7 @@ async function seedExtraChurchActivities(
         variation.bipra,
         globalIndex,
         financialAccounts,
-        withRevenue,
-        withExpense,
+        financialType,
       );
 
       activities.push({

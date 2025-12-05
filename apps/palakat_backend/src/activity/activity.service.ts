@@ -53,21 +53,9 @@ export class ActivitiesService {
     if (startDate || endDate) {
       where.date = {};
       if (startDate) {
-        console.log(
-          '[ActivityService] startDate filter:',
-          startDate,
-          '| ISO:',
-          startDate.toISOString(),
-        );
         where.date.gte = startDate;
       }
       if (endDate) {
-        console.log(
-          '[ActivityService] endDate filter:',
-          endDate,
-          '| ISO:',
-          endDate.toISOString(),
-        );
         where.date.lte = endDate;
       }
     }
@@ -84,6 +72,7 @@ export class ActivitiesService {
     }
 
     // hasExpense filter: filter activities by expense record presence
+    // For one-to-one relations, use 'is' and 'isNot' operators
     if (hasExpense === true) {
       where.expense = { isNot: null };
     } else if (hasExpense === false) {
@@ -150,17 +139,6 @@ export class ActivitiesService {
         },
       }),
     ]);
-
-    // Log returned activities' dates for debugging
-    console.log(
-      '[ActivityService] Returned activities count:',
-      activities.length,
-    );
-    activities.forEach((activity: any) => {
-      console.log(
-        `[ActivityService] Activity ID: ${activity.id}, date: ${activity.date}, ISO: ${activity.date?.toISOString?.() ?? 'null'}`,
-      );
-    });
 
     // Transform activities to include hasRevenue/hasExpense flags
     const transformedActivities = activities.map((activity: any) => {

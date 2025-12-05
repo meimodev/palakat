@@ -65,20 +65,26 @@ export class ActivityListQueryDto extends PaginationQueryDto {
   declare sortBy?: ActivitySortField;
 
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ obj }) => {
+    const value = obj.hasExpense;
     if (value === 'true') return true;
     if (value === 'false') return false;
-    return value;
+    if (value === true || value === false) return value;
+    return undefined;
   })
+  @ValidateIf((o) => o.hasExpense !== undefined)
   @IsBoolean()
   hasExpense?: boolean;
 
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ obj }) => {
+    const value = obj.hasRevenue;
     if (value === 'true') return true;
     if (value === 'false') return false;
-    return value;
+    if (value === true || value === false) return value;
+    return undefined;
   })
+  @ValidateIf((o) => o.hasRevenue !== undefined)
   @IsBoolean()
   hasRevenue?: boolean;
 
