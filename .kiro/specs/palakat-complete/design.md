@@ -1115,3 +1115,203 @@ All migrated widgets use `Theme.of(context)` instead of hardcoded constants:
 **Property 67: Cancelled deletion preserves attached finance**
 *For any* ActivityPublishState with a non-null attachedFinance, when the user cancels deletion in the dialog, the resulting state's attachedFinance SHALL equal the original attachedFinance value.
 **Validates: Requirements 45.4**
+
+
+---
+
+## Additional Features (Consolidated from Other Specs)
+
+### Activity Financial Filter
+
+The Backend_API extends `ActivityListQueryDto` with `hasExpense` and `hasRevenue` boolean query parameters. The service builds Prisma where clauses:
+
+```typescript
+// hasExpense filter
+if (hasExpense === true) {
+  where.expense = { isNot: null };
+} else if (hasExpense === false) {
+  where.expense = { is: null };
+}
+
+// hasRevenue filter  
+if (hasRevenue === true) {
+  where.revenue = { isNot: null };
+} else if (hasRevenue === false) {
+  where.revenue = { is: null };
+}
+```
+
+### Announcement Financial Support
+
+The backend already supports financial data for all activity types through `CreateActivityDto.finance`. The approver resolver handles ANNOUNCEMENT activities with financial data by matching both activityType and financialAccountNumberId.
+
+### Mobile Approval Screen Redesign
+
+**New State Structure:**
+```dart
+@freezed
+class ApprovalState with _$ApprovalState {
+  const factory ApprovalState({
+    @Default(<Activity>[]) List<Activity> pendingMyAction,
+    @Default(<Activity>[]) List<Activity> pendingOthers,
+    @Default(<Activity>[]) List<Activity> approved,
+    @Default(<Activity>[]) List<Activity> rejected,
+    DateTime? filterStartDate,
+    DateTime? filterEndDate,
+    @Default(ApprovalFilterStatus.all) ApprovalFilterStatus statusFilter,
+  }) = _ApprovalState;
+}
+```
+
+**UI Components:**
+- Pending Action Summary Badge
+- Status Filter Chips
+- Activity Card with Quick Actions
+- Financial Indicator Badge
+- Pull-to-Refresh
+
+### Approval Card and Detail Redesign
+
+**ApproverStatusBadge:**
+- Approved: Green checkmark icon + "Approved" text
+- Rejected: Red X icon + "Rejected" text
+- Unconfirmed: Amber clock icon + "Pending" text
+
+**ApprovalDetailScreen Sections:**
+1. Header: Activity title, type badge
+2. Approval Section: Approvers with status badges
+3. Activity Summary: Supervisor, date, description
+4. Financial Section (conditional)
+5. Action Bar (conditional for pending approvers)
+6. Activity Link: "View Full Activity Details" button
+
+### Icon Consolidation
+
+**AppIcons Class Structure:**
+```dart
+abstract class AppIcons {
+  // Navigation Icons
+  static const IconData back = FontAwesomeIcons.chevronLeft;
+  static const IconData forward = FontAwesomeIcons.chevronRight;
+  
+  // Action Icons
+  static const IconData approve = FontAwesomeIcons.circleCheck;
+  static const IconData reject = FontAwesomeIcons.xmark;
+  
+  // Status Icons
+  static const IconData pending = FontAwesomeIcons.clock;
+  static const IconData success = FontAwesomeIcons.circleCheck;
+  
+  // Content Icons
+  static const IconData document = FontAwesomeIcons.fileLines;
+  static const IconData calendar = FontAwesomeIcons.calendar;
+  
+  // Financial Icons
+  static const IconData money = FontAwesomeIcons.dollarSign;
+  static const IconData revenue = FontAwesomeIcons.arrowTrendUp;
+  static const IconData expense = FontAwesomeIcons.arrowTrendDown;
+  
+  // Location Icons
+  static const IconData mapPin = FontAwesomeIcons.locationDot;
+  static const IconData gps = FontAwesomeIcons.locationCrosshairs;
+}
+```
+
+**AppIconWidget Helper:**
+```dart
+class AppIconWidget extends StatelessWidget {
+  factory AppIconWidget.small(IconData icon, {Color? color});
+  factory AppIconWidget.medium(IconData icon, {Color? color});
+  factory AppIconWidget.large(IconData icon, {Color? color});
+}
+```
+
+---
+
+## Additional Correctness Properties
+
+### Activity Financial Filter Properties
+
+**Property 68: hasExpense filter correctness**
+*For any* set of activities and any boolean value for `hasExpense`, when the filter is applied, all returned activities SHALL have an expense record if `hasExpense=true`, and no returned activities SHALL have an expense record if `hasExpense=false`.
+**Validates: Requirements 46.1, 46.2**
+
+**Property 69: hasRevenue filter correctness**
+*For any* set of activities and any boolean value for `hasRevenue`, when the filter is applied, all returned activities SHALL have a revenue record if `hasRevenue=true`, and no returned activities SHALL have a revenue record if `hasRevenue=false`.
+**Validates: Requirements 46.3, 46.4**
+
+**Property 70: Combined filter AND logic**
+*For any* set of activities and any combination of `hasExpense` and `hasRevenue` values, the returned activities SHALL satisfy ALL filter conditions simultaneously.
+**Validates: Requirements 46.6, 46.7, 46.8**
+
+### Announcement Financial Support Properties
+
+**Property 71: Announcement activity with finance creates linked record**
+*For any* ANNOUNCEMENT activity created with a valid finance object, the system should create a corresponding Revenue or Expense record linked to that activity.
+**Validates: Requirements 47.1, 47.2, 47.4**
+
+**Property 72: Financial filter includes announcement activities**
+*For any* query with hasExpense=true or hasRevenue=true filter, the results should include ANNOUNCEMENT activities that have the corresponding financial record.
+**Validates: Requirements 47.3**
+
+**Property 73: Approver resolution considers financial account for announcements**
+*For any* ANNOUNCEMENT activity created with a financialAccountNumberId, the approver resolution should include approvers from rules matching both the ANNOUNCEMENT activity type and the financial account number.
+**Validates: Requirements 47.5**
+
+### Mobile Approval Screen Properties
+
+**Property 74: Status grouping correctness**
+*For any* list of activities with various approval statuses, grouping by status should correctly categorize activities into pending my action, pending others, approved, and rejected.
+**Validates: Requirements 48.1**
+
+**Property 75: Pending action prioritization**
+*For any* approval screen state, activities requiring the current user's action should appear before activities pending other approvers' actions.
+**Validates: Requirements 48.2**
+
+**Property 76: Activity card displays required information**
+*For any* activity displayed in the approval list, the card should contain title, supervisor name, date, activity type, overall approval status, and financial indicator.
+**Validates: Requirements 48.3, 48.9**
+
+**Property 77: Quick action updates status**
+*For any* approve or reject action on an activity card, the approval status should be updated and the activity should move to the appropriate status group.
+**Validates: Requirements 48.5**
+
+**Property 78: Pending count accuracy**
+*For any* approval screen state, the pending action count badge should equal the number of activities where the current user has UNCONFIRMED approval status.
+**Validates: Requirements 48.7**
+
+### Approval Card Redesign Properties
+
+**Property 79: Approver name containers have no colored background**
+*For any* approval card with approvers, the approver name display widgets SHALL NOT have a BoxDecoration with a non-transparent background color.
+**Validates: Requirements 49.2**
+
+**Property 80: Status icon color matches approval status**
+*For any* approver with a given ApprovalStatus, the status icon color SHALL match the expected color (green for approved, red for rejected, amber for unconfirmed).
+**Validates: Requirements 49.3**
+
+**Property 81: Financial section visibility matches financial data presence**
+*For any* activity displayed in the approval detail screen, the financial section SHALL be visible if and only if the activity has hasRevenue=true OR hasExpense=true.
+**Validates: Requirements 49.5**
+
+**Property 82: Action buttons visibility for pending approvers**
+*For any* approval detail screen where the current user is a pending approver, the approve and reject buttons SHALL be visible.
+**Validates: Requirements 49.6**
+
+**Property 83: Activity detail from approval context has no action buttons**
+*For any* activity detail screen accessed from the approval detail context, the approve/reject action buttons SHALL NOT be present.
+**Validates: Requirements 49.8**
+
+### Icon Consolidation Properties
+
+**Property 84: AppIcons accessors return valid IconData**
+*For any* icon accessor in the AppIcons class, calling the accessor SHALL return a non-null IconData instance from FontAwesomeIcons.
+**Validates: Requirements 50.1**
+
+**Property 85: Icon helper sizing consistency**
+*For any* size parameter passed to AppIconWidget, the resulting FaIcon widget SHALL have that exact size value.
+**Validates: Requirements 50.3**
+
+**Property 86: Icon helper color application**
+*For any* color parameter passed to AppIconWidget, the resulting FaIcon widget SHALL have that exact color value applied.
+**Validates: Requirements 50.3**

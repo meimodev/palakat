@@ -528,3 +528,166 @@ This spec consolidates the following previously separate specs:
 - **finance-edit-prepopulate**: Pre-population of finance form when editing (Requirements 44-45, Properties 61-67) - COMPLETE
 
 All requirements, design elements, and tasks from these specs have been merged into this comprehensive document.
+
+
+---
+
+## Consolidated Tasks from Other Specs
+
+### Activity Financial Filter (activity-financial-filter spec)
+
+- [x] 30. Backend: Extend ActivityListQueryDto with financial filter parameters
+  - [x] 30.1 Add hasExpense and hasRevenue optional boolean fields
+  - [x] 30.2 Write property test for DTO round-trip consistency (Property 5)
+
+- [x] 31. Backend: Implement financial filtering in ActivityService
+  - [x] 31.1 Modify findAll() to apply hasExpense filter
+  - [x] 31.2 Modify findAll() to apply hasRevenue filter
+  - [ ]* 31.3 Write property test for hasExpense filter correctness (Property 68)
+  - [ ]* 31.4 Write property test for hasRevenue filter correctness (Property 69)
+  - [ ]* 31.5 Write property test for combined filter AND logic (Property 70)
+
+- [x] 32. Shared Package: Extend GetFetchActivitiesRequest model
+  - [x] 32.1 Add hasExpense and hasRevenue fields
+  - [ ]* 32.2 Write unit test for serialization
+
+- [x] 33. Mobile App: Update Activity Picker and Supervised Activities List
+  - [x] 33.1 Update ActivityPickerController to pass hasExpense=false and hasRevenue=false
+  - [x] 33.2 Add filterHasExpense and filterHasRevenue to SupervisedActivitiesListState
+  - [x] 33.3 Add setFinancialFilter method to controller
+  - [x] 33.4 Update clearFilters to clear financial filters
+
+- [x] 34. Backend: Write remaining property tests for response consistency
+  - [x] 34.1 Write property test for response structure consistency (Property 6)
+  - [x] 34.2 Write property test for total count accuracy (Property 7)
+  - [x] 34.3 Write property test for pagination with filters (Property 8)
+
+### Announcement Financial Support (announcement-financial-admin-cleanup-approval-redesign spec)
+
+- [-] 35. Verify and test announcement activity financial support
+  - [x] 35.1 Verify backend handles ANNOUNCEMENT with finance
+  - [x] 35.2 Verify approver resolver handles ANNOUNCEMENT with financial account
+  - [ ]* 35.3 Write property test for announcement financial record creation (Property 71)
+  - [ ]* 35.4 Write property test for financial filter with announcements (Property 72)
+  - [ ]* 35.5 Write property test for approver resolution (Property 73)
+
+### Admin Panel Inventory Removal (announcement-financial-admin-cleanup-approval-redesign spec)
+
+- [x] 36. Remove inventory feature from admin panel
+  - [x] 36.1 Remove inventory directory and files
+  - [x] 36.2 Remove inventory route from main.dart
+  - [x] 36.3 Remove inventory navigation from sidebar
+  - [x] 36.4 Remove inventory from dashboard
+  - [x] 36.5 Remove inventory report option
+  - [x] 36.6 Write unit tests for verification
+
+### Mobile Approval Screen Redesign (announcement-financial-admin-cleanup-approval-redesign spec)
+
+- [x] 37. Update approval state and controller for real API integration
+  - [x] 37.1 Update approval state with status grouping
+  - [x] 37.2 Implement real API data fetching
+  - [x] 37.3 Implement quick approve/reject actions
+  - [x] 37.4 Implement status filtering
+  - [x] 37.5 Implement pull-to-refresh
+  - [x] 37.6 Write property test for status grouping (Property 74)
+  - [x] 37.7 Write property test for pending action prioritization (Property 75)
+  - [x] 37.8 Write property test for date filter with status grouping (Property 9)
+  - [x] 37.9 Write property test for pending count accuracy (Property 78)
+
+- [x] 38. Redesign approval screen UI
+  - [x] 38.1 Add pending action summary badge
+  - [x] 38.2 Add status filter chips
+  - [x] 38.3 Update activity card with financial indicator
+  - [x] 38.4 Update activity card quick actions
+  - [x] 38.5 Implement pull-to-refresh UI
+  - [x] 38.6 Implement status-based list display
+  - [x] 38.7 Write property test for activity card content (Property 76)
+  - [x] 38.8 Write property test for quick action button visibility (Property 7)
+  - [x] 38.9 Write widget tests for approval screen
+
+- [x] 39. Update approval detail screen
+  - [x] 39.1 Replace dummy data with real API call
+  - [x] 39.2 Add financial data display
+  - [x] 39.3 Write unit tests for detail controller
+
+### Approval Card and Detail Redesign (approval-card-detail-redesign spec)
+
+- [x] 40. Create ApproverStatusBadge widget
+  - [x] 40.1 Create widget with status-to-icon/color mapping
+  - [x] 40.2 Write property test for status icon color (Property 80)
+
+- [x] 41. Redesign ApproverChip to ApproverListItem
+  - [x] 41.1 Update to remove background container
+  - [x] 41.2 Write property test for background removal (Property 79)
+
+- [x] 42. Redesign ApprovalCardWidget
+  - [x] 42.1 Update card styling for better visual separation
+  - [x] 42.2 Write unit tests for approval card rendering
+
+- [x] 43. Redesign ApprovalDetailScreen layout
+  - [x] 43.1 Reorganize screen sections
+  - [x] 43.2 Write property test for financial section visibility (Property 81)
+
+- [-] 44. Implement approval action buttons logic
+  - [x] 44.1 Update action buttons visibility and behavior
+  - [ ]* 44.2 Write property test for action button visibility (Property 82)
+  - [ ]* 44.3 Write property test for action buttons hidden for non-pending users (Property 5)
+  - [ ]* 44.4 Write property test for loading state behavior (Property 6)
+
+- [x] 45. Add navigation to Activity Detail
+  - [x] 45.1 Add "View Activity Details" button
+  - [x] 45.2 Update activity detail screen for read-only mode
+  - [x] 45.3 Write property test for read-only mode (Property 83)
+
+- [x] 46. Update approval screen card spacing
+  - [x] 46.1 Update card list spacing
+
+### Icon Consolidation (icon-consolidation spec)
+
+- [ ] 47. Set up Font Awesome infrastructure
+  - [ ] 47.1 Add font_awesome_flutter dependency to palakat pubspec.yaml
+  - [ ] 47.2 Create AppIcons class in apps/palakat/lib/core/constants/app_icons.dart
+  - [ ] 47.3 Create AppIconWidget helper in apps/palakat/lib/core/widgets/app_icon_widget.dart
+  - [ ] 47.4 Write unit tests for AppIcons accessors (Property 84)
+  - [ ] 47.5 Write unit tests for AppIconWidget sizing (Property 85)
+  - [ ] 47.6 Write unit tests for AppIconWidget color application (Property 86)
+  - _Requirements: 50.1, 50.2, 50.3_
+
+- [ ] 48. Migrate Material Icons to Font Awesome
+  - [ ] 48.1 Replace Icons.* usages in approval feature
+  - [ ] 48.2 Replace Icons.* usages in activity feature
+  - [ ] 48.3 Replace Icons.* usages in finance feature
+  - [ ] 48.4 Replace Icons.* usages in operations feature
+  - [ ] 48.5 Replace Icons.* usages in song book feature
+  - [ ] 48.6 Replace Icons.* usages in account feature
+  - [ ] 48.7 Replace Icons.* usages in home feature
+  - [ ] 48.8 Replace Icons.* usages in church request feature
+  - [ ] 48.9 Verify no direct Icons.* usages remain in features
+  - _Requirements: 50.4_
+
+- [ ] 49. Migrate SVG Assets to Font Awesome
+  - [ ] 49.1 Replace Assets.icons.* usages in all features
+  - [ ] 49.2 Update FlutterGen configuration to exclude icon SVGs
+  - [ ] 49.3 Remove unused SVG icon files from assets/icons/
+  - [ ] 49.4 Regenerate assets.gen.dart
+  - [ ] 49.5 Verify no Assets.icons.* usages remain
+  - _Requirements: 50.5, 50.7_
+
+- [ ] 50. Final icon consolidation verification
+  - [ ] 50.1 Run grep to verify no Icons.* in lib/features/
+  - [ ] 50.2 Run grep to verify no Assets.icons.* in lib/features/
+  - [ ] 50.3 Verify app builds and runs correctly
+  - [ ] 50.4 Visual QA of icon replacements
+  - _Requirements: 50.4, 50.5_
+
+---
+
+## Notes on Consolidated Specs
+
+This palakat-complete spec now includes all requirements, design, and tasks from:
+- **activity-financial-filter**: Activity list filtering by financial records (Requirements 46, Properties 68-70)
+- **announcement-financial-admin-cleanup-approval-redesign**: Announcement financial support, admin inventory removal, approval screen redesign (Requirements 47-48, Properties 71-78)
+- **approval-card-detail-redesign**: Approval UI improvements (Requirement 49, Properties 79-83)
+- **icon-consolidation**: Font Awesome migration (Requirement 50, Properties 84-86)
+
+All previous individual specs can now be deleted as their content has been fully integrated into this comprehensive specification.

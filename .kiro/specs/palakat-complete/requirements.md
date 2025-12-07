@@ -830,3 +830,87 @@ This specification serves as the comprehensive system documentation, consolidati
 3. WHEN the user confirms deletion in the dialog THEN the Activity Publish Screen SHALL remove the attached financial record
 4. WHEN the user cancels deletion in the dialog THEN the Activity Publish Screen SHALL keep the attached financial record unchanged
 
+
+
+---
+
+### Requirement 46: Activity Financial Filter
+
+**User Story:** As an API consumer, I want to filter activities by their financial record status, so that I can retrieve only activities that have expenses, revenues, or no financial records attached.
+
+#### Acceptance Criteria
+
+1. WHEN the `hasExpense` query parameter is set to `true`, THE Backend_API SHALL return only activities that have an associated Expense record
+2. WHEN the `hasExpense` query parameter is set to `false`, THE Backend_API SHALL return only activities that do not have an associated Expense record
+3. WHEN the `hasRevenue` query parameter is set to `true`, THE Backend_API SHALL return only activities that have an associated Revenue record
+4. WHEN the `hasRevenue` query parameter is set to `false`, THE Backend_API SHALL return only activities that do not have an associated Revenue record
+5. WHEN both `hasExpense` and `hasRevenue` query parameters are omitted, THE Backend_API SHALL return activities regardless of their financial record status
+6. WHEN `hasExpense=false` AND `hasRevenue=false` are both provided, THE Backend_API SHALL return only activities that have neither an Expense nor a Revenue record
+7. WHEN `hasExpense=true` AND `hasRevenue=true` are both provided, THE Backend_API SHALL return only activities that have both an Expense AND a Revenue record
+8. WHEN financial filters are combined with existing filters, THE Backend_API SHALL apply all filters together using AND logic
+
+---
+
+### Requirement 47: Announcement Activity Financial Support
+
+**User Story:** As a church administrator, I want to attach financial records to announcement-type activities, so that I can track financial transactions associated with announcements.
+
+#### Acceptance Criteria
+
+1. WHEN a user creates an activity with activityType ANNOUNCEMENT THEN the System SHALL accept an optional finance object
+2. WHEN a user creates an ANNOUNCEMENT activity with a finance object THEN the System SHALL create the corresponding Revenue or Expense record linked to the activity
+3. WHEN a user queries activities with hasExpense or hasRevenue filters THEN the System SHALL return ANNOUNCEMENT activities that match the financial filter criteria
+4. WHEN a user retrieves an ANNOUNCEMENT activity detail THEN the System SHALL include the linked financial record data in the response
+5. WHEN an ANNOUNCEMENT activity with financial data is created THEN the System SHALL resolve approvers based on both activityType and financialAccountNumberId if provided
+
+---
+
+### Requirement 48: Mobile Approval Screen Redesign
+
+**User Story:** As a church member with approval responsibilities, I want a redesigned approval screen that lets me quickly see and act on pending approvals, so that I can efficiently manage my approval tasks.
+
+#### Acceptance Criteria
+
+1. WHEN a user opens the approval screen THEN the System SHALL display activities grouped or filterable by approval status
+2. WHEN a user views the approval screen THEN the System SHALL prominently highlight activities that require the current user's action
+3. WHEN a user views an activity card THEN the System SHALL display the activity title, supervisor name, date, activity type, and overall approval status
+4. WHEN a user has pending approval actions THEN the System SHALL display approve and reject action buttons directly on the activity card
+5. WHEN a user taps approve or reject on an activity card THEN the System SHALL update the approval status and refresh the list
+6. WHEN a user filters activities by date range THEN the System SHALL filter the displayed activities while maintaining status grouping
+7. WHEN a user views the approval screen THEN the System SHALL display a count badge showing the number of pending approvals
+8. WHEN the approval screen loads THEN the System SHALL fetch real activity data from the backend API
+9. WHEN an activity has financial data attached THEN the System SHALL display a visual indicator showing whether it has revenue or expense
+10. WHEN a user pulls to refresh the approval screen THEN the System SHALL reload the approval data from the backend
+
+---
+
+### Requirement 49: Approval Card and Detail Screen Redesign
+
+**User Story:** As a church member, I want approval cards to be visually distinct and the detail screen to clearly present information, so that I can easily review and act on approvals.
+
+#### Acceptance Criteria
+
+1. WHEN the approval screen displays multiple cards THEN the System SHALL render each card with increased vertical spacing for clear visual separation
+2. WHEN an approver name is displayed THEN the System SHALL render the name without a colored background container
+3. WHEN an approver's status is displayed THEN the System SHALL use a prominent colored status indicator that is larger and more visible
+4. WHEN a user opens the approval detail screen THEN the System SHALL display a clear header section with the activity title and type
+5. WHEN the approval detail screen loads THEN the System SHALL display approval-specific information in a dedicated prominent section
+6. WHEN the current user is a pending approver THEN the System SHALL display prominent approve and reject buttons
+7. WHEN viewing the approval detail screen THEN the System SHALL display a "View Activity Details" link or button
+8. WHEN the user taps "View Activity Details" THEN the System SHALL navigate to the activity detail screen in read-only mode
+
+---
+
+### Requirement 50: Icon Consolidation
+
+**User Story:** As a developer, I want a centralized icon registry using Font Awesome, so that I can access all icons from a single location with consistent styling.
+
+#### Acceptance Criteria
+
+1. WHEN a developer needs to use an icon THEN the AppIcons class SHALL provide a static accessor returning a FontAwesomeIcons IconData
+2. WHEN the font_awesome_flutter package is added THEN the pubspec.yaml SHALL include the dependency
+3. WHEN rendering an icon THEN the system SHALL provide helper methods that apply consistent sizing
+4. WHEN the migration is complete THEN all direct `Icons.*` usages in feature code SHALL be replaced with AppIcons accessors
+5. WHEN the migration is complete THEN all `Assets.icons.*` SVG usages SHALL be replaced with AppIcons accessors
+6. WHEN accessing icons THEN the AppIcons class SHALL organize icons into logical categories
+7. WHEN the migration is complete THEN unused SVG icon files SHALL be removed
