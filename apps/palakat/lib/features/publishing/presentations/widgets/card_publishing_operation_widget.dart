@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 class CardPublishingOperationWidget extends StatelessWidget {
@@ -50,8 +51,8 @@ class CardPublishingOperationWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      Icons.add,
+                    child: FaIcon(
+                      AppIcons.add,
                       size: BaseSize.w32,
                       color: BaseColor.textOnPrimary,
                     ),
@@ -85,8 +86,8 @@ class CardPublishingOperationWidget extends StatelessWidget {
                   ),
                   Gap.w8,
                   // Arrow icon
-                  Icon(
-                    Icons.arrow_forward,
+                  FaIcon(
+                    AppIcons.arrowForwardIcon,
                     size: BaseSize.w24,
                     color: BaseColor.textOnPrimary,
                   ),

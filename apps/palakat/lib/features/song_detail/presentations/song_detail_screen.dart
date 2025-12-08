@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
-import 'package:palakat_shared/widgets.dart';
 
 import 'song_detail_controller.dart';
 
 class SongDetailScreen extends ConsumerWidget {
-  const SongDetailScreen({
-    super.key,
-    required this.song,
-  });
+  const SongDetailScreen({super.key, required this.song});
 
   final Song song;
 
@@ -30,7 +25,7 @@ class SongDetailScreen extends ConsumerWidget {
           ScreenTitleWidget.primary(
             title: song.title,
             subTitle: song.subTitle,
-            leadIcon: Assets.icons.line.chevronBackOutline,
+            leadIcon: AppIcons.back,
             leadIconColor: BaseColor.black,
             onPressedLeadIcon: () => Navigator.pop(context),
           ),
@@ -69,7 +64,7 @@ class SongDetailScreen extends ConsumerWidget {
                                       ),
                                       alignment: Alignment.center,
                                       child: Icon(
-                                        Icons.music_note,
+                                        AppIcons.musicNote,
                                         size: BaseSize.w16,
                                         color: BaseColor.red[700],
                                       ),
@@ -78,10 +73,11 @@ class SongDetailScreen extends ConsumerWidget {
                                     Expanded(
                                       child: Text(
                                         songPart.type.name,
-                                        style: BaseTypography.titleMedium.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: BaseColor.black,
-                                        ),
+                                        style: BaseTypography.titleMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: BaseColor.black,
+                                            ),
                                       ),
                                     ),
                                   ],
@@ -137,16 +133,13 @@ class SongDetailScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: BaseColor.cardBackground1,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: BaseColor.neutral20,
-                        width: 1,
-                      ),
+                      border: Border.all(color: BaseColor.neutral20, width: 1),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.error_outline,
+                          AppIcons.error,
                           size: BaseSize.w48,
                           color: BaseColor.secondaryText,
                         ),

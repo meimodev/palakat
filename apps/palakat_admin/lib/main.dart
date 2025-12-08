@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 
 import 'core/layout/app_scaffold.dart';
@@ -20,7 +21,6 @@ import 'features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'features/document/presentation/screens/document_screen.dart';
 import 'features/expense/presentation/screens/expense_screen.dart';
 import 'features/financial/presentation/screens/financial_account_list_screen.dart';
-import 'features/inventory/presentation/screens/inventory_screen.dart';
 import 'features/member/presentation/screens/member_screen.dart';
 import 'features/report/presentation/screens/report_screen.dart';
 import 'features/revenue/presentation/screens/revenue_screen.dart';
@@ -45,11 +45,17 @@ class PalakatAdminApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final locale = ref.watch(localeControllerProvider);
+
     return MaterialApp.router(
       title: 'Palakat Admin',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,
+      // Localization configuration - Requirements: 1.2, 1.4
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
     );
   }
 }
@@ -164,15 +170,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               key: state.pageKey,
               name: 'expense',
               child: const ExpenseScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/inventory',
-            name: 'inventory',
-            pageBuilder: (context, state) => SmoothPageTransition<void>(
-              key: state.pageKey,
-              name: 'inventory',
-              child: const InventoryScreen(),
             ),
           ),
           GoRoute(

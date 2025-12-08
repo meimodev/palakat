@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
@@ -68,16 +69,13 @@ class CardActivitySectionWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: BaseColor.cardBackground1,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: BaseColor.neutral20,
-                width: 1,
-              ),
+              border: Border.all(color: BaseColor.neutral20, width: 1),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.event_busy_outlined,
+                FaIcon(
+                  AppIcons.eventBusy,
                   size: BaseSize.w24,
                   color: BaseColor.secondaryText,
                 ),

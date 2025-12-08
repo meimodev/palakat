@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
-import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
@@ -15,6 +14,7 @@ class ApprovalCardWidget extends StatelessWidget {
     required this.onTap,
     required this.onApprove,
     required this.onReject,
+    this.isLoading = false,
   });
 
   final Activity approval;
@@ -22,6 +22,31 @@ class ApprovalCardWidget extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onApprove;
   final VoidCallback onReject;
+  final bool isLoading;
+
+  /// Returns the background color based on overall approval status
+  Color _getStatusBackgroundColor(ApprovalStatus status) {
+    switch (status) {
+      case ApprovalStatus.approved:
+        return BaseColor.green.shade50;
+      case ApprovalStatus.rejected:
+        return BaseColor.red.shade50;
+      case ApprovalStatus.unconfirmed:
+        return BaseColor.yellow.shade50;
+    }
+  }
+
+  /// Returns the border color based on overall approval status
+  Color _getStatusBorderColor(ApprovalStatus status) {
+    switch (status) {
+      case ApprovalStatus.approved:
+        return BaseColor.green.shade200;
+      case ApprovalStatus.rejected:
+        return BaseColor.red.shade200;
+      case ApprovalStatus.unconfirmed:
+        return BaseColor.yellow.shade200;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +70,19 @@ class ApprovalCardWidget extends StatelessWidget {
 
     Widget statusPill(ApprovalStatus s) => ApprovalStatusPill(status: s);
 
+    // Check for financial data
+    final hasFinancial =
+        approval.hasRevenue == true || approval.hasExpense == true;
+    final isRevenue = approval.hasRevenue == true;
+
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
+      color: _getStatusBackgroundColor(overall),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.teal[50],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: _getStatusBorderColor(overall), width: 1.5),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
@@ -61,28 +92,32 @@ class ApprovalCardWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Title row with chevron
+              // Activity type and financial badges row
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      approval.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: BaseTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: BaseColor.black,
-                      ),
-                    ),
-                  ),
-                  Gap.w8,
-                  Icon(
-                    Icons.chevron_right,
+                  _ActivityTypeBadge(activityType: approval.activityType),
+                  if (hasFinancial) ...[
+                    Gap.w8,
+                    _FinancialIndicatorBadge(isRevenue: isRevenue),
+                  ],
+                  const Spacer(),
+                  FaIcon(
+                    AppIcons.forward,
                     size: BaseSize.w24,
                     color: BaseColor.secondaryText,
                   ),
                 ],
+              ),
+              Gap.h8,
+              // Title row
+              Text(
+                approval.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: BaseTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: BaseColor.black,
+                ),
               ),
               Gap.h12,
               // Supervisor and date info
@@ -96,8 +131,8 @@ class ApprovalCardWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      Icons.person_outline,
+                    child: FaIcon(
+                      AppIcons.person,
                       size: BaseSize.w16,
                       color: BaseColor.blue[700],
                     ),
@@ -114,8 +149,8 @@ class ApprovalCardWidget extends StatelessWidget {
                     ),
                   ),
                   Gap.w12,
-                  Icon(
-                    Icons.schedule_outlined,
+                  FaIcon(
+                    AppIcons.time,
                     size: BaseSize.w16,
                     color: BaseColor.secondaryText,
                   ),
@@ -135,12 +170,20 @@ class ApprovalCardWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: approval.approvers.map((ap) {
                     final name = ap.membership?.account?.name ?? '-';
+                    // Check if this approver is the current user by membershipId
+                    final approverMembershipId =
+                        ap.membershipId ?? ap.membership?.id;
+                    final isCurrentUser =
+                        currentMembershipId != null &&
+                        approverMembershipId != null &&
+                        approverMembershipId == currentMembershipId;
                     return Padding(
                       padding: EdgeInsets.only(bottom: BaseSize.h6),
                       child: ApproverChip(
                         name: name,
                         status: ap.status,
                         updatedAt: ap.updatedAt,
+                        isCurrentUser: isCurrentUser,
                       ),
                     );
                   }).toList(),
@@ -152,54 +195,179 @@ class ApprovalCardWidget extends StatelessWidget {
                 // Show unconfirmed status pill above actions when the pending approver is not me
                 if (!isMinePending) statusPill(ApprovalStatus.unconfirmed),
                 if (isMinePending) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ButtonWidget.outlinedIcon(
-                          icon: Assets.icons.line.times.svg(
-                            width: BaseSize.w20,
-                            height: BaseSize.w20,
-                            colorFilter: ColorFilter.mode(
-                              BaseColor.red.shade500,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          outlineColor: BaseColor.red.shade500,
-                          focusColor: BaseColor.red.shade400,
-                          overlayColor: BaseColor.red.shade400.withValues(
-                            alpha: 0.12,
-                          ),
-                          buttonSize: ButtonSize.small,
-                          onTap: onReject,
+                  if (isLoading)
+                    Center(
+                      child: SizedBox(
+                        width: BaseSize.w24,
+                        height: BaseSize.w24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: BaseColor.teal.shade500,
                         ),
                       ),
-                      Gap.w12,
-                      Expanded(
-                        child: ButtonWidget.outlinedIcon(
-                          icon: Assets.icons.fill.checkCircle.svg(
-                            width: BaseSize.w20,
-                            height: BaseSize.w20,
-                            colorFilter: ColorFilter.mode(
-                              BaseColor.green.shade600,
-                              BlendMode.srcIn,
-                            ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ActionIconButton(
+                            icon: AppIcons.close,
+                            color: BaseColor.red.shade500,
+                            onTap: onReject,
                           ),
-                          outlineColor: BaseColor.green.shade600,
-                          focusColor: BaseColor.green.shade400,
-                          overlayColor: BaseColor.green.shade400.withValues(
-                            alpha: 0.12,
-                          ),
-                          buttonSize: ButtonSize.small,
-                          onTap: onApprove,
                         ),
-                      ),
-                    ],
-                  ),
+                        Gap.w12,
+                        Expanded(
+                          child: _ActionIconButton(
+                            icon: AppIcons.approve,
+                            color: BaseColor.green.shade600,
+                            onTap: onApprove,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ] else ...[
                 statusPill(overall),
               ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Badge widget for displaying activity type
+class _ActivityTypeBadge extends StatelessWidget {
+  const _ActivityTypeBadge({required this.activityType});
+
+  final ActivityType activityType;
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (activityType) {
+      case ActivityType.service:
+        backgroundColor = BaseColor.blue.shade100;
+        textColor = BaseColor.blue.shade700;
+        icon = AppIcons.church;
+        break;
+      case ActivityType.event:
+        backgroundColor = BaseColor.teal.shade100;
+        textColor = BaseColor.teal.shade700;
+        icon = AppIcons.event;
+        break;
+      case ActivityType.announcement:
+        backgroundColor = BaseColor.yellow.shade100;
+        textColor = BaseColor.yellow.shade700;
+        icon = AppIcons.announcement;
+        break;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w8,
+        vertical: BaseSize.h4,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FaIcon(icon, size: BaseSize.w14, color: textColor),
+          Gap.w4,
+          Text(
+            activityType.displayName,
+            style: BaseTypography.labelSmall.copyWith(
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Badge widget for displaying financial indicator (revenue/expense)
+class _FinancialIndicatorBadge extends StatelessWidget {
+  const _FinancialIndicatorBadge({required this.isRevenue});
+
+  final bool isRevenue;
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = isRevenue
+        ? BaseColor.green.shade100
+        : BaseColor.red.shade100;
+    final textColor = isRevenue
+        ? BaseColor.green.shade700
+        : BaseColor.red.shade700;
+    final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
+    final label = isRevenue ? 'Revenue' : 'Expense';
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w8,
+        vertical: BaseSize.h4,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FaIcon(icon, size: BaseSize.w14, color: textColor),
+          Gap.w4,
+          Text(
+            label,
+            style: BaseTypography.labelSmall.copyWith(
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Helper widget for action icon buttons with Font Awesome icons
+class _ActionIconButton extends StatelessWidget {
+  const _ActionIconButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        onTap: onTap,
+        overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
+        child: Container(
+          padding: EdgeInsets.all(BaseSize.w8),
+          decoration: BoxDecoration(
+            border: Border.all(color: color),
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          ),
+          child: Center(
+            child: FaIcon(icon, size: BaseSize.w20, color: color),
           ),
         ),
       ),

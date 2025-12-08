@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
@@ -117,7 +118,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     switch (widget.type) {
       case ActivityType.service:
         return _TypeConfig(
-          icon: Icons.church_outlined,
+          icon: AppIcons.church,
           label: 'Church Service',
           backgroundColor: BaseColor.primary[50]!,
           borderColor: BaseColor.primary[200]!,
@@ -126,7 +127,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         );
       case ActivityType.event:
         return _TypeConfig(
-          icon: Icons.event_outlined,
+          icon: AppIcons.event,
           label: 'Church Event',
           backgroundColor: BaseColor.blue[50]!,
           borderColor: BaseColor.blue[200]!,
@@ -135,7 +136,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         );
       case ActivityType.announcement:
         return _TypeConfig(
-          icon: Icons.campaign_outlined,
+          icon: AppIcons.announcement,
           label: 'Announcement',
           backgroundColor: BaseColor.yellow[50]!,
           borderColor: BaseColor.yellow[200]!,
@@ -231,7 +232,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     return _buildSectionCard(
       title: 'Basic Information',
-      icon: Icons.info_outline,
+      icon: AppIcons.info,
       subtitle: 'Title and target audience',
       children: [
         InputWidget<String>.text(
@@ -313,8 +314,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             color: BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
-            Icons.group_outlined,
+          child: FaIcon(
+            AppIcons.group,
             size: BaseSize.w20,
             color: BaseColor.neutral[500],
           ),
@@ -328,8 +329,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ),
           ),
         ),
-        Icon(
-          Icons.chevron_right,
+        FaIcon(
+          AppIcons.forward,
           size: BaseSize.w20,
           color: BaseColor.neutral[400],
         ),
@@ -375,8 +376,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               Gap.h4,
               Row(
                 children: [
-                  Icon(
-                    Icons.group_outlined,
+                  FaIcon(
+                    AppIcons.group,
                     size: BaseSize.w12,
                     color: BaseColor.teal[600],
                   ),
@@ -392,11 +393,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ],
           ),
         ),
-        Icon(
-          Icons.edit_outlined,
-          size: BaseSize.w18,
-          color: BaseColor.teal[600],
-        ),
+        FaIcon(AppIcons.edit, size: BaseSize.w18, color: BaseColor.teal[600]),
       ],
     );
   }
@@ -408,7 +405,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     return _buildSectionCard(
       title: 'Location',
-      icon: Icons.location_on_outlined,
+      icon: AppIcons.locationOnOutlined,
       subtitle: 'Where will this take place?',
       children: [
         InputWidget<String>.text(
@@ -501,8 +498,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             color: BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
-            Icons.map_outlined,
+          child: FaIcon(
+            AppIcons.mapOutlined,
             size: BaseSize.w20,
             color: BaseColor.neutral[500],
           ),
@@ -516,8 +513,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ),
           ),
         ),
-        Icon(
-          Icons.chevron_right,
+        FaIcon(
+          AppIcons.forward,
           size: BaseSize.w20,
           color: BaseColor.neutral[400],
         ),
@@ -535,8 +532,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             color: BaseColor.primary[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
-            Icons.location_on,
+          child: FaIcon(
+            AppIcons.locationOn,
             size: BaseSize.w20,
             color: BaseColor.primary[600],
           ),
@@ -556,8 +553,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               Gap.h4,
               Row(
                 children: [
-                  Icon(
-                    Icons.my_location,
+                  FaIcon(
+                    AppIcons.myLocation,
                     size: BaseSize.w14,
                     color: BaseColor.neutral[600],
                   ),
@@ -575,8 +572,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ],
           ),
         ),
-        Icon(
-          Icons.edit_outlined,
+        FaIcon(
+          AppIcons.edit,
           size: BaseSize.w18,
           color: BaseColor.primary[600],
         ),
@@ -591,7 +588,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     return _buildSectionCard(
       title: 'Schedule',
-      icon: Icons.schedule_outlined,
+      icon: AppIcons.scheduleOutlined,
       subtitle: 'When will this happen?',
       children: [
         _buildDateTimePickers(state, controller, context),
@@ -631,8 +628,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.event_available,
+              FaIcon(
+                AppIcons.eventAvailable,
                 size: BaseSize.w16,
                 color: BaseColor.blue[700],
               ),
@@ -718,8 +715,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         : BaseColor.neutral[100],
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.calendar_today,
+                  child: FaIcon(
+                    AppIcons.calendarToday,
                     size: BaseSize.w18,
                     color: hasDate
                         ? BaseColor.blue[600]
@@ -818,8 +815,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         : BaseColor.neutral[100],
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.access_time,
+                  child: FaIcon(
+                    AppIcons.accessTime,
                     size: BaseSize.w18,
                     color: hasTime
                         ? BaseColor.primary[600]
@@ -954,8 +951,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.notifications_active,
+                    FaIcon(
+                      AppIcons.notificationsActive,
                       size: BaseSize.w16,
                       color: BaseColor.yellow[800],
                     ),
@@ -1013,10 +1010,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            FaIcon(
                               isSelected
-                                  ? Icons.check_circle
-                                  : Icons.access_time,
+                                  ? AppIcons.checkCircle
+                                  : AppIcons.accessTime,
                               size: BaseSize.w14,
                               color: isSelected
                                   ? Colors.white
@@ -1064,7 +1061,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     return _buildSectionCard(
       title: 'Announcement Details',
-      icon: Icons.article_outlined,
+      icon: AppIcons.article,
       subtitle: 'Content and attachments',
       children: [
         InputWidget<String>.text(
@@ -1131,8 +1128,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 color: BaseColor.primary[100],
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
-                Icons.upload_file,
+              child: FaIcon(
+                AppIcons.uploadFile,
                 size: BaseSize.w20,
                 color: BaseColor.primary[600],
               ),
@@ -1159,8 +1156,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 ],
               ),
             ),
-            Icon(
-              Icons.add_circle_outline,
+            FaIcon(
+              AppIcons.addCircle,
               size: BaseSize.w20,
               color: BaseColor.primary[600],
             ),
@@ -1229,8 +1226,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 color: BaseColor.neutral[100],
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
-                Icons.edit_outlined,
+              child: FaIcon(
+                AppIcons.edit,
                 size: BaseSize.w18,
                 color: BaseColor.neutral[600],
               ),
@@ -1246,8 +1243,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 color: BaseColor.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
-                Icons.close,
+              child: FaIcon(
+                AppIcons.close,
                 size: BaseSize.w18,
                 color: BaseColor.error,
               ),
@@ -1275,16 +1272,16 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   IconData _getFileIcon(String extension) {
     switch (extension) {
       case 'pdf':
-        return Icons.picture_as_pdf;
+        return AppIcons.pictureAsPdf;
       case 'doc':
       case 'docx':
-        return Icons.description;
+        return AppIcons.document;
       case 'jpg':
       case 'jpeg':
       case 'png':
-        return Icons.image;
+        return AppIcons.image;
       default:
-        return Icons.insert_drive_file;
+        return AppIcons.insertDriveFile;
     }
   }
 
@@ -1326,8 +1323,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   color: BaseColor.primary[100],
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.person,
+                child: FaIcon(
+                  AppIcons.person,
                   color: BaseColor.primary[600],
                   size: BaseSize.w20,
                 ),
@@ -1348,8 +1345,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                     Gap.h4,
                     Row(
                       children: [
-                        Icon(
-                          Icons.church_outlined,
+                        FaIcon(
+                          AppIcons.church,
                           size: BaseSize.w12,
                           color: BaseColor.neutral[500],
                         ),
@@ -1409,8 +1406,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.badge_outlined,
+                      FaIcon(
+                        AppIcons.badgeOutlined,
                         size: BaseSize.w12,
                         color: BaseColor.blue[700],
                       ),
@@ -1504,7 +1501,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     return _buildSectionCard(
       title: 'Financial Record',
-      icon: Icons.account_balance_wallet_outlined,
+      icon: AppIcons.accountBalanceWalletOutlined,
       subtitle: 'Optional: Attach revenue or expense',
       children: [
         if (state.attachedFinance == null)
@@ -1546,8 +1543,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 color: BaseColor.primary[100],
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
-                Icons.add,
+              child: FaIcon(
+                AppIcons.add,
                 size: BaseSize.w20,
                 color: BaseColor.primary[600],
               ),

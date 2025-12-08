@@ -50,7 +50,7 @@ class MembershipPositionsCardWidget extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Icon(
-                    Icons.badge_outlined,
+                    AppIcons.badge,
                     size: BaseSize.w20,
                     // Primary teal dark shade for icon
                     color: BaseColor.primary[700],

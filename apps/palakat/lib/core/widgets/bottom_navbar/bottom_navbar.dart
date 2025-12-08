@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat/core/assets/assets.gen.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
 class BottomNavBar extends ConsumerWidget {
@@ -91,6 +92,7 @@ class BottomNavBar extends ConsumerWidget {
               // Always show labels (Requirements 6.2)
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               destinations: _buildDestinations(
+                context,
                 visibleIndices,
                 selectedColor,
                 unselectedColor,
@@ -104,6 +106,7 @@ class BottomNavBar extends ConsumerWidget {
 
   /// Builds navigation destinations based on visible indices
   List<NavigationDestination> _buildDestinations(
+    BuildContext context,
     List<int> visibleIndices,
     Color selectedColor,
     Color unselectedColor,
@@ -111,17 +114,17 @@ class BottomNavBar extends ConsumerWidget {
     // Consistent icon sizing at 24px (Requirements 5.4)
     const double iconSize = 24.0;
 
-    // Map of all possible destinations
+    // Map of all possible destinations with localized labels
     final allDestinations = <int, _DestinationData>{
-      0: _DestinationData(icon: Assets.icons.line.gridOutline, label: 'Home'),
-      1: _DestinationData(icon: Assets.icons.line.musicalNotes, label: 'Songs'),
+      0: _DestinationData(icon: AppIcons.grid, label: context.l10n.nav_home),
+      1: _DestinationData(icon: AppIcons.music, label: context.l10n.nav_songs),
       2: _DestinationData(
-        icon: Assets.icons.line.documentOutline,
-        label: 'Ops',
+        icon: AppIcons.document,
+        label: context.l10n.nav_operations,
       ),
       3: _DestinationData(
-        icon: Assets.icons.line.readerOutline,
-        label: 'Approval',
+        icon: AppIcons.reader,
+        label: context.l10n.nav_approval,
       ),
     };
 
@@ -130,16 +133,8 @@ class BottomNavBar extends ConsumerWidget {
       final data = allDestinations[logicalIndex]!;
 
       return NavigationDestination(
-        icon: data.icon.svg(
-          width: iconSize,
-          height: iconSize,
-          colorFilter: ColorFilter.mode(unselectedColor, BlendMode.srcIn),
-        ),
-        selectedIcon: data.icon.svg(
-          width: iconSize,
-          height: iconSize,
-          colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
-        ),
+        icon: FaIcon(data.icon, size: iconSize, color: unselectedColor),
+        selectedIcon: FaIcon(data.icon, size: iconSize, color: selectedColor),
         label: data.label,
       );
     }).toList();
@@ -148,7 +143,7 @@ class BottomNavBar extends ConsumerWidget {
 
 /// Helper class to store destination data
 class _DestinationData {
-  final SvgGenImage icon;
+  final IconData icon;
   final String label;
 
   const _DestinationData({required this.icon, required this.label});

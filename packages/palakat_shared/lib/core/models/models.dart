@@ -23,6 +23,7 @@ export 'file_manager.dart';
 export 'finance_data.dart';
 export 'finance_type.dart';
 export 'financial_account_number.dart';
+export 'language_option.dart';
 export 'location.dart';
 export 'member_position.dart';
 export 'member_position_detail.dart';

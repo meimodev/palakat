@@ -122,7 +122,7 @@ class ReportButtonWidget extends StatelessWidget {
               // Arrow Icon
               if (!isLoading)
                 Icon(
-                  Icons.chevron_right,
+                  AppIcons.forward,
                   color: isDisabled
                       ? BaseColor.textDisabled
                       : BaseColor.textSecondary,

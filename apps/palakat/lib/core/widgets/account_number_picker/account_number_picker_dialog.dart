@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/data/financial_account_repository.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
@@ -19,7 +21,7 @@ Future<FinancialAccountNumber?> showAccountNumberPickerDialog({
 }) {
   return showDialogCustomWidget<FinancialAccountNumber?>(
     context: context,
-    title: 'Select ${financeType.displayName} Account',
+    title: context.l10n.lbl_selectAccount(financeType.displayName),
     scrollControlled: false,
     content: Expanded(
       child: _AccountNumberPickerDialogContent(
@@ -96,10 +98,12 @@ class _AccountNumberPickerDialogContentState
     final churchId = localStorage.currentMembership?.church?.id;
 
     if (churchId == null) {
-      setState(() {
-        _errorMessage = 'Church information not available';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = context.l10n.lbl_churchNotAvailable;
+          _isLoading = false;
+        });
+      }
       return;
     }
 
@@ -196,11 +200,11 @@ class _AccountNumberPickerDialogContentState
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Search account number or description...',
-              prefixIcon: const Icon(Icons.search),
+              hintText: context.l10n.lbl_searchAccountNumber,
+              prefixIcon: FaIcon(AppIcons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: FaIcon(AppIcons.clear),
                       onPressed: () {
                         _searchController.clear();
                         _onSearchChanged('');
@@ -242,7 +246,10 @@ class _AccountNumberPickerDialogContentState
                 textAlign: TextAlign.center,
               ),
               Gap.h16,
-              TextButton(onPressed: _fetchAccounts, child: const Text('Retry')),
+              TextButton(
+                onPressed: _fetchAccounts,
+                child: Text(context.l10n.btn_retry),
+              ),
             ],
           ),
         ),
@@ -255,8 +262,8 @@ class _AccountNumberPickerDialogContentState
           padding: EdgeInsets.all(BaseSize.w24),
           child: Text(
             _searchQuery.isNotEmpty
-                ? 'No results found for "$_searchQuery"'
-                : 'No account numbers available',
+                ? context.l10n.lbl_noResultsFor(_searchQuery)
+                : context.l10n.lbl_noAccountNumbers,
             style: BaseTypography.bodyMedium.toSecondary,
             textAlign: TextAlign.center,
           ),
@@ -350,8 +357,8 @@ class _AccountNumberCard extends StatelessWidget {
               ),
               if (isSelected) ...[
                 Gap.w8,
-                Icon(
-                  Icons.check_circle,
+                FaIcon(
+                  AppIcons.successSolid,
                   color: BaseColor.primary,
                   size: BaseSize.w20,
                 ),

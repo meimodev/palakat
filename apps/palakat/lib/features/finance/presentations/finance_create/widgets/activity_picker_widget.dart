@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_dialog.dart';
@@ -74,8 +75,8 @@ class ActivityPickerWidget extends StatelessWidget {
             color: BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
-            Icons.event_outlined,
+          child: FaIcon(
+            AppIcons.event,
             size: BaseSize.w20,
             color: BaseColor.neutral[500],
           ),
@@ -89,8 +90,8 @@ class ActivityPickerWidget extends StatelessWidget {
             ),
           ),
         ),
-        Icon(
-          Icons.chevron_right,
+        FaIcon(
+          AppIcons.forward,
           size: BaseSize.w20,
           color: BaseColor.neutral[400],
         ),
@@ -112,8 +113,8 @@ class ActivityPickerWidget extends StatelessWidget {
             color: BaseColor.blue[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
-            Icons.event,
+          child: FaIcon(
+            AppIcons.event,
             size: BaseSize.w20,
             color: BaseColor.blue[600],
           ),
@@ -135,8 +136,8 @@ class ActivityPickerWidget extends StatelessWidget {
               Gap.h4,
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today,
+                  FaIcon(
+                    AppIcons.calendar,
                     size: BaseSize.w12,
                     color: BaseColor.blue[600],
                   ),
@@ -170,11 +171,7 @@ class ActivityPickerWidget extends StatelessWidget {
             ],
           ),
         ),
-        Icon(
-          Icons.edit_outlined,
-          size: BaseSize.w18,
-          color: BaseColor.blue[600],
-        ),
+        FaIcon(AppIcons.edit, size: BaseSize.w18, color: BaseColor.blue[600]),
       ],
     );
   }

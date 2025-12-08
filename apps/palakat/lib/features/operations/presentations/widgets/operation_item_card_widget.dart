@@ -69,7 +69,7 @@ class OperationItemCard extends StatelessWidget {
                   Gap.w8,
                   // Chevron indicator
                   Icon(
-                    Icons.chevron_right,
+                    AppIcons.forward,
                     color: operation.isEnabled
                         ? BaseColor.textSecondary
                         : BaseColor.textDisabled,

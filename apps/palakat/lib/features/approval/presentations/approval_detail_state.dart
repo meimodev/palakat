@@ -7,7 +7,13 @@ part 'approval_detail_state.freezed.dart';
 abstract class ApprovalDetailState with _$ApprovalDetailState {
   const factory ApprovalDetailState({
     @Default(true) bool loadingScreen,
+
+    /// Loading state for approve/reject actions (Req 5.5)
+    @Default(false) bool isActionLoading,
     Activity? activity,
     final String? errorMessage,
+
+    /// Success message after approve/reject action
+    final String? successMessage,
   }) = _ApprovalDetailState;
 }

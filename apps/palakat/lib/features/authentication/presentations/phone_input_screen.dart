@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 /// Phone input screen for Firebase Phone Authentication
 ///
@@ -118,8 +120,8 @@ class PhoneInputScreen extends ConsumerWidget {
                                 shape: BoxShape.circle,
                               ),
                               alignment: Alignment.center,
-                              child: Icon(
-                                Icons.phone_outlined,
+                              child: FaIcon(
+                                AppIcons.phone,
                                 size: BaseSize.w16,
                                 color: BaseColor.teal[700],
                               ),
@@ -127,7 +129,7 @@ class PhoneInputScreen extends ConsumerWidget {
                             Gap.w12,
                             Expanded(
                               child: Text(
-                                "Sign In",
+                                context.l10n.btn_signIn,
                                 style: BaseTypography.titleMedium.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: BaseColor.black,
@@ -140,8 +142,8 @@ class PhoneInputScreen extends ConsumerWidget {
 
                         // Phone Number Input
                         Semantics(
-                          label: 'Phone number input field',
-                          hint: 'Enter your phone number',
+                          label: context.l10n.lbl_phone,
+                          hint: context.l10n.auth_enterPhoneNumber,
                           textField: true,
                           enabled: !isSendingOtp,
                           child: AnimatedOpacity(
@@ -153,7 +155,7 @@ class PhoneInputScreen extends ConsumerWidget {
                                 currentInputValue: phoneNumber,
                                 onChanged: controller.onPhoneNumberChanged,
                                 hint: '0812-3456-7890',
-                                label: 'Phone Number',
+                                label: context.l10n.lbl_phone,
                                 textInputType: TextInputType.phone,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
@@ -191,12 +193,12 @@ class PhoneInputScreen extends ConsumerWidget {
 
                 // Continue Button
                 Semantics(
-                  label: 'Continue button',
-                  hint: 'Tap to send verification code to your phone number',
+                  label: context.l10n.btn_continue,
+                  hint: context.l10n.auth_otpSent,
                   button: true,
                   enabled: !isSendingOtp,
                   child: ButtonWidget.primary(
-                    text: "Continue",
+                    text: context.l10n.btn_continue,
                     isLoading: isSendingOtp,
                     onTap: controller.sendOtp,
                   ),

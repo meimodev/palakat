@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/approval_status.dart';
 
 class CompactStatusChip extends StatelessWidget {
@@ -13,22 +14,28 @@ class CompactStatusChip extends StatelessWidget {
     required this.foreground,
   });
 
-  factory CompactStatusChip.forApproval(ApprovalStatus status) {
+  /// Creates a CompactStatusChip for the given approval status with localized label.
+  /// Requires BuildContext to access l10n translations.
+  static CompactStatusChip forApproval(
+    BuildContext context,
+    ApprovalStatus status,
+  ) {
+    final l10n = context.l10n;
     final (bg, fg, label) = switch (status) {
       ApprovalStatus.unconfirmed => (
         Colors.orange.shade50,
         Colors.orange.shade700,
-        ApprovalStatus.unconfirmed.name.toUpperCase(),
+        l10n.status_unconfirmed.toUpperCase(),
       ),
       ApprovalStatus.approved => (
         Colors.green.shade50,
         Colors.green.shade700,
-        ApprovalStatus.approved.name.toUpperCase(),
+        l10n.status_approved.toUpperCase(),
       ),
       ApprovalStatus.rejected => (
         Colors.red.shade50,
         Colors.red.shade700,
-        ApprovalStatus.rejected.name.toUpperCase(),
+        l10n.status_rejected.toUpperCase(),
       ),
     };
     return CompactStatusChip(label: label, background: bg, foreground: fg);
@@ -48,9 +55,9 @@ class CompactStatusChip extends StatelessWidget {
         children: [
           Icon(
             switch (label.toUpperCase()) {
-              "UNCONFIRMED" => Icons.pending,
-              "APPROVED" => Icons.check_circle,
-              "REJECTED" => Icons.cancel,
+              "UNCONFIRMED" || "BELUM DIKONFIRMASI" => Icons.pending,
+              "APPROVED" || "DISETUJUI" => Icons.check_circle,
+              "REJECTED" || "DITOLAK" => Icons.cancel,
               _ => Icons.help_outline,
             },
             color: foreground,

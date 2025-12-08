@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
 import 'package:palakat/features/approval/presentations/approval_detail_controller.dart';
+import 'package:palakat/features/finance/presentations/finance_create/widgets/currency_input_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
+/// Approval Detail Screen - Redesigned layout per Requirements 4.1-4.4
+///
+/// Section order:
+/// 1. Header section with activity title and type badge (Req 4.1)
+/// 2. Approval section with approvers and status badges (Req 4.2)
+/// 3. Activity summary section - supervisor, date, description (Req 4.3)
+/// 4. Financial section - when hasRevenue or hasExpense is true (Req 4.4)
+/// 5. Location section (conditional)
+/// 6. Notes section (conditional)
+/// 7. Action bar for pending approvers
 class ApprovalDetailScreen extends ConsumerWidget {
   const ApprovalDetailScreen({
     super.key,
@@ -30,33 +42,75 @@ class ApprovalDetailScreen extends ConsumerWidget {
       approvalDetailControllerProvider(activityId: activityId),
     );
     final activity = detailState.activity;
+    final isActionLoading = detailState.isActionLoading;
 
-    final overall = activity != null ? _getOverallStatus(activity.approvers) : null;
-    final bool isMinePending = activity != null &&
-        activity.approvers.any(
-          (ap) =>
-              ap.status == ApprovalStatus.unconfirmed &&
-              ap.membership!.id == currentMembershipId,
-        );
+    final overall = activity != null
+        ? _getOverallStatus(activity.approvers)
+        : null;
+
+    // Find the pending approver for the current user (Req 5.1, 5.2)
+    final pendingApprover = activity?.approvers.firstWhere(
+      (ap) =>
+          ap.status == ApprovalStatus.unconfirmed &&
+          ap.membership?.id == currentMembershipId,
+      orElse: () => const Approver(
+        id: -1,
+        status: ApprovalStatus.approved,
+        createdAt: null,
+        updatedAt: null,
+      ),
+    );
+
+    final bool isMinePending =
+        pendingApprover != null &&
+        pendingApprover.id != null &&
+        pendingApprover.id != -1;
+
+    // Build action buttons only for pending approvers (Req 5.1, 5.2)
+    Widget? actionButtons;
+    if (overall == ApprovalStatus.unconfirmed && isMinePending) {
+      actionButtons = _buildActionButtons(
+        context,
+        ref,
+        pendingApprover.id!, // Safe to use ! since we checked id != null above
+        isActionLoading,
+        activity!.title,
+      );
+    }
 
     return ScaffoldWidget(
-      persistBottomWidget:
-          (overall == ApprovalStatus.unconfirmed && isMinePending)
-              ? _buildActionButtons(context)
-              : null,
+      persistBottomWidget: actionButtons,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.primary(
-            leadIcon: Assets.icons.line.chevronBackOutline,
-            title: "Approval Details",
-            onPressedLeadIcon: () => context.pop(),
-            leadIconColor: BaseColor.primary3,
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => context.pop(),
+                icon: FaIcon(
+                  AppIcons.back,
+                  size: BaseSize.w24,
+                  color: BaseColor.primary3,
+                ),
+              ),
+              Gap.w8,
+              Expanded(
+                child: Text(
+                  "Approval Details",
+                  style: BaseTypography.headlineSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: BaseColor.primaryText,
+                  ),
+                ),
+              ),
+            ],
           ),
           Gap.h16,
           LoadingWrapper(
             loading: detailState.loadingScreen,
-            hasError: detailState.errorMessage != null && detailState.loadingScreen == false,
+            hasError:
+                detailState.errorMessage != null &&
+                detailState.loadingScreen == false,
             errorMessage: detailState.errorMessage,
             onRetry: () => controller.fetch(activityId),
             shimmerPlaceholder: Column(
@@ -80,6 +134,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
     );
   }
 
+  /// Builds the activity details with reorganized sections per Requirements 4.1-4.4
   Widget _buildActivityDetails(
     BuildContext context,
     WidgetRef ref,
@@ -89,46 +144,58 @@ class ApprovalDetailScreen extends ConsumerWidget {
     final bool isMinePending = activity.approvers.any(
       (ap) =>
           ap.status == ApprovalStatus.unconfirmed &&
-          ap.membership!.id == currentMembershipId,
+          ap.membership?.id == currentMembershipId,
     );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildActivityInfoCard(activity),
+        // Section 1: Header with activity title and type badge (Req 4.1)
+        _buildHeaderSection(activity),
+        Gap.h12,
+        // Section 2: Approval section with approvers and status badges (Req 4.2)
+        _buildApproversCard(activity),
+        Gap.h12,
+        // Section 3: Activity summary - supervisor, date, description (Req 4.3)
+        _buildActivitySummaryCard(activity),
+        // Section 4: Financial section when hasRevenue or hasExpense is true (Req 4.4)
+        // **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
+        if (activity.hasRevenue == true || activity.hasExpense == true) ...[
           Gap.h12,
-          _buildSupervisorCard(activity),
-          Gap.h12,
-          _buildApproversCard(activity),
-          if (activity.location != null) ...[
-            Gap.h12,
-            _buildLocationCard(context, activity),
-          ],
-          if (activity.note?.trim().isNotEmpty ?? false) ...[
-            Gap.h12,
-            _buildNoteCard(activity),
-          ],
-          if (overall == ApprovalStatus.unconfirmed &&
-              activity.approvers.any(
-                (ap) =>
-                    ap.status == ApprovalStatus.approved &&
-                    ap.membership!.id == currentMembershipId,
-              )) ...[
-            Gap.h12,
-            const InfoBoxWidget(
-              message:
-                  'Waiting on other approver to either accept or reject this approval',
-            ),
-          ],
-          Gap.h12,
-          if (overall == ApprovalStatus.unconfirmed) ...[
-            if (!isMinePending) ApprovalStatusPill(status: overall),
-            if (!isMinePending) Gap.h8,
-          ] else ...[
-            ApprovalStatusPill(status: overall),
-          ],
+          _buildFinancialCard(activity),
         ],
-      );
+        if (activity.location != null) ...[
+          Gap.h12,
+          _buildLocationCard(context, activity),
+        ],
+        if (activity.note?.trim().isNotEmpty ?? false) ...[
+          Gap.h12,
+          _buildNoteCard(activity),
+        ],
+        if (overall == ApprovalStatus.unconfirmed &&
+            activity.approvers.any(
+              (ap) =>
+                  ap.status == ApprovalStatus.approved &&
+                  ap.membership?.id == currentMembershipId,
+            )) ...[
+          Gap.h12,
+          const InfoBoxWidget(
+            message:
+                'Waiting on other approver to either accept or reject this approval',
+          ),
+        ],
+        Gap.h12,
+        if (overall == ApprovalStatus.unconfirmed) ...[
+          if (!isMinePending) ApprovalStatusPill(status: overall),
+          if (!isMinePending) Gap.h8,
+        ] else ...[
+          ApprovalStatusPill(status: overall),
+        ],
+        // Section 8: View Activity Details button (Req 6.1, 6.2)
+        Gap.h16,
+        _buildViewActivityDetailsButton(context, activity),
+      ],
+    );
   }
 
   ApprovalStatus _getOverallStatus(List<Approver> items) {
@@ -141,8 +208,25 @@ class ApprovalDetailScreen extends ConsumerWidget {
     return ApprovalStatus.approved;
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  /// Builds the action buttons for approve/reject
+  /// Requirements: 5.1, 5.2, 5.3, 5.4, 5.5
+  /// - Show buttons only for pending approvers (Req 5.1)
+  /// - Hide buttons when user is not a pending approver (Req 5.2)
+  /// - Navigate back after action (Req 5.3, 5.4)
+  /// - Show loading state with disabled buttons (Req 5.5)
+  Widget _buildActionButtons(
+    BuildContext context,
+    WidgetRef ref,
+    int approverId,
+    bool isLoading,
+    String activityTitle,
+  ) {
+    final controller = ref.read(
+      approvalDetailControllerProvider(activityId: activityId).notifier,
+    );
+
     return Container(
+      key: const Key('action_buttons_container'),
       decoration: BoxDecoration(
         color: BaseColor.white,
         border: Border(
@@ -161,49 +245,49 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Row(
           children: [
             Expanded(
-              child: ButtonWidget.outlined(
+              child: _buildActionButton(
+                key: const Key('reject_button'),
                 text: 'Reject',
-                icon: Assets.icons.line.times.svg(
-                  width: BaseSize.w18,
-                  height: BaseSize.w18,
-                  colorFilter: ColorFilter.mode(
-                    BaseColor.red.shade500,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                textColor: BaseColor.red.shade500,
-                outlineColor: BaseColor.red.shade500,
-                focusColor: BaseColor.red.shade400,
-                overlayColor: BaseColor.red.shade400.withValues(
-                  alpha: 0.12,
-                ),
-                buttonSize: ButtonSize.small,
-                onTap: () {
-                  context.pop();
+                icon: AppIcons.close,
+                color: BaseColor.red.shade500,
+                isLoading: isLoading,
+                onTap: () async {
+                  // Show confirmation bottom sheet
+                  final confirmed = await showApprovalConfirmationBottomSheet(
+                    context: context,
+                    isApprove: false,
+                    activityTitle: activityTitle,
+                  );
+                  if (confirmed != true || !context.mounted) return;
+
+                  final success = await controller.rejectActivity(approverId);
+                  if (success && context.mounted) {
+                    context.pop(true); // Return true to indicate action taken
+                  }
                 },
               ),
             ),
             Gap.w12,
             Expanded(
-              child: ButtonWidget.outlined(
+              child: _buildActionButton(
+                key: const Key('approve_button'),
                 text: 'Approve',
-                icon: Assets.icons.fill.checkCircle.svg(
-                  width: BaseSize.w18,
-                  height: BaseSize.w18,
-                  colorFilter: ColorFilter.mode(
-                    BaseColor.green.shade600,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                textColor: BaseColor.green.shade600,
-                outlineColor: BaseColor.green.shade600,
-                focusColor: BaseColor.green.shade400,
-                overlayColor: BaseColor.green.shade400.withValues(
-                  alpha: 0.12,
-                ),
-                buttonSize: ButtonSize.small,
-                onTap: () {
-                  context.pop();
+                icon: AppIcons.approve,
+                color: BaseColor.green.shade600,
+                isLoading: isLoading,
+                onTap: () async {
+                  // Show confirmation bottom sheet
+                  final confirmed = await showApprovalConfirmationBottomSheet(
+                    context: context,
+                    isApprove: true,
+                    activityTitle: activityTitle,
+                  );
+                  if (confirmed != true || !context.mounted) return;
+
+                  final success = await controller.approveActivity(approverId);
+                  if (success && context.mounted) {
+                    context.pop(true); // Return true to indicate action taken
+                  }
                 },
               ),
             ),
@@ -213,16 +297,69 @@ class ApprovalDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivityInfoCard(Activity activity) {
+  /// Helper method to build action buttons with Font Awesome icons
+  Widget _buildActionButton({
+    required Key key,
+    required String text,
+    required IconData icon,
+    required Color color,
+    required bool isLoading,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      key: key,
+      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        onTap: isLoading ? null : onTap,
+        overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: BaseSize.w24,
+            vertical: BaseSize.h8,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: color),
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          ),
+          child: isLoading
+              ? Center(
+                  child: SizedBox(
+                    height: BaseSize.h18,
+                    width: BaseSize.h18,
+                    child: CircularProgressIndicator(color: color),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(icon, size: BaseSize.w18, color: color),
+                    Gap.w8,
+                    Text(
+                      text,
+                      style: BaseTypography.labelSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the header section with activity title and type badge
+  /// Requirements: 4.1
+  Widget _buildHeaderSection(Activity activity) {
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -231,8 +368,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: BaseSize.w48,
+                  height: BaseSize.w48,
                   decoration: BoxDecoration(
                     color: BaseColor.teal[100],
                     shape: BoxShape.circle,
@@ -245,119 +382,11 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.event_note_outlined,
-                    size: BaseSize.w20,
+                  child: FaIcon(
+                    AppIcons.event,
+                    size: BaseSize.w24,
                     color: BaseColor.teal[700],
                   ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    'Activity Information',
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
-                    ),
-                  ),
-                ),
-                _buildActivityTypeBadge(activity.activityType),
-              ],
-            ),
-            Gap.h16,
-            _buildInfoRow(
-              icon: Icons.tag_outlined,
-              iconColor: BaseColor.blue.shade500,
-              label: 'Activity ID',
-              value: '#${activity.id}',
-            ),
-            Gap.h12,
-            _buildInfoRow(
-              icon: Icons.title,
-              iconColor: BaseColor.teal.shade600,
-              label: 'Title',
-              value: activity.title,
-            ),
-            if (activity.description?.isNotEmpty ?? false) ...[
-              Gap.h12,
-              _buildInfoRow(
-                icon: Icons.description_outlined,
-                iconColor: BaseColor.neutral.shade60,
-                label: 'Description',
-                value: activity.description!,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSupervisorCard(Activity activity) {
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.blue[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.blue[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.blue[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.person_outline,
-                    size: BaseSize.w20,
-                    color: BaseColor.blue[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    'Supervisor',
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Gap.h16,
-            _buildInfoRow(
-              icon: Icons.person_outline,
-              iconColor: BaseColor.blue.shade600,
-              label: 'Name',
-              value: activity.supervisor.account?.name ?? 'Unknown',
-            ),
-            Gap.h12,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.badge_outlined,
-                  size: BaseSize.w20,
-                  color: BaseColor.teal.shade600,
                 ),
                 Gap.w12,
                 Expanded(
@@ -365,49 +394,18 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Positions',
-                        style: BaseTypography.labelMedium.copyWith(
-                          color: BaseColor.secondaryText,
-                          fontWeight: FontWeight.w600,
+                        activity.title,
+                        style: BaseTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: BaseColor.black,
                         ),
                       ),
-                      Gap.h8,
-                      Builder(
-                        builder: (context) {
-                          final positions =
-                              activity.supervisor.membershipPositions;
-                          final labels = positions.isNotEmpty
-                              ? positions.map((e) => e.name).toList()
-                              : <String>['Member'];
-
-                          return Wrap(
-                            spacing: BaseSize.w8,
-                            runSpacing: BaseSize.h8,
-                            children: labels.map((label) {
-                              return Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: BaseSize.w12,
-                                  vertical: BaseSize.h6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: BaseColor.teal.shade50,
-                                  border: Border.all(
-                                    color: BaseColor.teal.shade200,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  label,
-                                  style: BaseTypography.bodySmall.copyWith(
-                                    color: BaseColor.teal.shade700,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
+                      Gap.h4,
+                      Text(
+                        '#${activity.id}',
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.secondaryText,
+                        ),
                       ),
                     ],
                   ),
@@ -415,14 +413,12 @@ class ApprovalDetailScreen extends ConsumerWidget {
               ],
             ),
             Gap.h12,
-            _buildInfoRow(
-              icon: Icons.schedule,
-              iconColor: BaseColor.yellow.shade600,
-              label: 'Created',
-              value: (() {
-                final dt = activity.createdAt;
-                return "${dt.EEEEddMMMyyyy} ${dt.HHmm} • ${dt.toFromNow}";
-              })(),
+            Row(
+              children: [
+                _buildActivityTypeBadge(activity.activityType),
+                Gap.w8,
+                if (activity.bipra != null) _buildBipraBadge(activity.bipra!),
+              ],
             ),
           ],
         ),
@@ -430,16 +426,16 @@ class ApprovalDetailScreen extends ConsumerWidget {
     );
   }
 
+  /// Builds the approvers card with prominent status badges
+  /// Requirements: 4.2
   Widget _buildApproversCard(Activity activity) {
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.green[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -462,8 +458,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.approval_outlined,
+                  child: FaIcon(
+                    AppIcons.approval,
                     size: BaseSize.w20,
                     color: BaseColor.green[700],
                   ),
@@ -486,10 +482,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: BaseColor.green[50],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: BaseColor.green[200]!,
-                      width: 1,
-                    ),
+                    border: Border.all(color: BaseColor.green[200]!, width: 1),
                   ),
                   child: Text(
                     activity.approvers.length.toString(),
@@ -506,15 +499,237 @@ class ApprovalDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: activity.approvers.map((ap) {
                 final name = ap.membership?.account?.name ?? 'Unknown';
+                // Check if this approver is the current user by membershipId
+                final approverMembershipId =
+                    ap.membershipId ?? ap.membership?.id;
+                final isCurrentUser =
+                    currentMembershipId != null &&
+                    approverMembershipId != null &&
+                    approverMembershipId == currentMembershipId;
                 return Padding(
                   padding: EdgeInsets.only(bottom: BaseSize.h8),
                   child: ApproverChip(
                     name: name,
                     status: ap.status,
                     updatedAt: ap.updatedAt,
+                    isCurrentUser: isCurrentUser,
                   ),
                 );
               }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the activity summary card with supervisor, date, and description
+  /// Requirements: 4.3
+  Widget _buildActivitySummaryCard(Activity activity) {
+    return Material(
+      clipBehavior: Clip.hardEdge,
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.blue[50],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
+                  decoration: BoxDecoration(
+                    color: BaseColor.blue[100],
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: BaseColor.blue[200]!.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    AppIcons.info,
+                    size: BaseSize.w20,
+                    color: BaseColor.blue[700],
+                  ),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: Text(
+                    'Activity Summary',
+                    style: BaseTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: BaseColor.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Gap.h16,
+            // Supervisor info
+            _buildInfoRow(
+              icon: AppIcons.person,
+              iconColor: BaseColor.blue.shade600,
+              label: 'Supervisor',
+              value: activity.supervisor.account?.name ?? 'Unknown',
+            ),
+            Gap.h12,
+            // Date info
+            _buildInfoRow(
+              icon: AppIcons.time,
+              iconColor: BaseColor.yellow.shade600,
+              label: 'Date',
+              value: (() {
+                final dt = activity.date;
+                return "${dt.EEEEddMMMyyyy} ${dt.HHmm}";
+              })(),
+            ),
+            Gap.h12,
+            // Created at
+            _buildInfoRow(
+              icon: AppIcons.createdAt,
+              iconColor: BaseColor.neutral60,
+              label: 'Created',
+              value: (() {
+                final dt = activity.createdAt;
+                return "${dt.EEEEddMMMyyyy} ${dt.HHmm} • ${dt.toFromNow}";
+              })(),
+            ),
+            if (activity.description?.isNotEmpty ?? false) ...[
+              Gap.h12,
+              _buildInfoRow(
+                icon: AppIcons.description,
+                iconColor: BaseColor.teal.shade600,
+                label: 'Description',
+                value: activity.description!,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the financial data card showing revenue/expense details
+  /// Requirements: 4.4
+  /// **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
+  Widget _buildFinancialCard(Activity activity) {
+    final isRevenue = activity.hasRevenue == true;
+    final financeData = isRevenue ? activity.revenue : activity.expense;
+    final financeType = isRevenue ? 'Revenue' : 'Expense';
+    final baseColor = isRevenue ? BaseColor.green : BaseColor.red;
+
+    return Material(
+      key: const Key('financial_section'),
+      clipBehavior: Clip.hardEdge,
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: baseColor[50],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
+                  decoration: BoxDecoration(
+                    color: baseColor[100],
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: baseColor[200]!.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    isRevenue ? AppIcons.revenue : AppIcons.expense,
+                    size: BaseSize.w20,
+                    color: baseColor[700],
+                  ),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: Text(
+                    'Financial Data',
+                    style: BaseTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: BaseColor.black,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: BaseSize.w10,
+                    vertical: BaseSize.h6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: baseColor[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: baseColor[200]!, width: 1),
+                  ),
+                  child: Text(
+                    financeType,
+                    style: BaseTypography.labelMedium.copyWith(
+                      color: baseColor[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Gap.h16,
+            // Amount
+            _buildInfoRow(
+              icon: AppIcons.money,
+              iconColor: baseColor.shade600,
+              label: 'Amount',
+              value: financeData?.amount != null
+                  ? formatRupiah(financeData!.amount!)
+                  : '-',
+            ),
+            Gap.h12,
+            // Account Number
+            _buildInfoRow(
+              icon: AppIcons.bankAccount,
+              iconColor: BaseColor.blue.shade600,
+              label: 'Account Number',
+              value:
+                  financeData?.financialAccountNumber?.accountNumber ??
+                  financeData?.accountNumber ??
+                  '-',
+            ),
+            if (financeData?.financialAccountNumber?.description != null) ...[
+              Gap.h12,
+              _buildInfoRow(
+                icon: AppIcons.description,
+                iconColor: BaseColor.neutral60,
+                label: 'Account Description',
+                value: financeData!.financialAccountNumber!.description!,
+              ),
+            ],
+            Gap.h12,
+            // Payment Method
+            _buildInfoRow(
+              icon: AppIcons.payment,
+              iconColor: BaseColor.teal.shade600,
+              label: 'Payment Method',
+              value: financeData?.paymentMethod?.toCamelCase ?? '-',
             ),
           ],
         ),
@@ -529,9 +744,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.red[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -554,8 +767,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.place_outlined,
+                  child: FaIcon(
+                    AppIcons.mapPin,
                     size: BaseSize.w20,
                     color: BaseColor.red[700],
                   ),
@@ -580,14 +793,13 @@ class ApprovalDetailScreen extends ConsumerWidget {
                           params: {
                             RouteParamKey.mapOperationType:
                                 MapOperationType.read,
-                            RouteParamKey.location: activity.location!
-                                .toJson(),
+                            RouteParamKey.location: activity.location!.toJson(),
                           },
                         ),
                       );
                     },
-                    icon: Icon(
-                      Icons.map_outlined,
+                    icon: FaIcon(
+                      AppIcons.map,
                       size: BaseSize.w20,
                       color: BaseColor.primary3,
                     ),
@@ -601,7 +813,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             ),
             Gap.h16,
             _buildInfoRow(
-              icon: Icons.location_on,
+              icon: AppIcons.location,
               iconColor: BaseColor.red.shade500,
               label: 'Address',
               value: activity.location?.name ?? "-",
@@ -609,7 +821,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             if (activity.location != null) ...[
               Gap.h12,
               _buildInfoRow(
-                icon: Icons.my_location,
+                icon: AppIcons.coordinates,
                 iconColor: BaseColor.blue.shade500,
                 label: 'Coordinates',
                 value:
@@ -629,9 +841,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.yellow[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -654,8 +864,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.sticky_note_2_outlined,
+                  child: FaIcon(
+                    AppIcons.notes,
                     size: BaseSize.w20,
                     color: BaseColor.yellow[700],
                   ),
@@ -676,8 +886,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.note_outlined,
+                FaIcon(
+                  AppIcons.notes,
                   size: BaseSize.w20,
                   color: BaseColor.yellow.shade600,
                 ),
@@ -708,11 +918,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: BaseSize.w20,
-          color: iconColor,
-        ),
+        FaIcon(icon, size: BaseSize.w20, color: iconColor),
         Gap.w12,
         Expanded(
           child: Column(
@@ -747,10 +953,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
               : BaseColor.blue.shade600);
 
     final IconData iconData = type == ActivityType.announcement
-        ? Icons.campaign_outlined
-        : (type == ActivityType.event
-              ? Icons.event_outlined
-              : Icons.info_outline);
+        ? AppIcons.announcement
+        : (type == ActivityType.event ? AppIcons.event : AppIcons.info);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -759,20 +963,13 @@ class ApprovalDetailScreen extends ConsumerWidget {
       ),
       decoration: BoxDecoration(
         color: baseColor.withValues(alpha: 0.1),
-        border: Border.all(
-          color: baseColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: baseColor.withValues(alpha: 0.3), width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            iconData,
-            size: BaseSize.w14,
-            color: baseColor,
-          ),
+          FaIcon(iconData, size: BaseSize.w14, color: baseColor),
           Gap.w6,
           Text(
             type.name.toCamelCase,
@@ -782,6 +979,113 @@ class ApprovalDetailScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBipraBadge(Bipra bipra) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w10,
+        vertical: BaseSize.h6,
+      ),
+      decoration: BoxDecoration(
+        color: BaseColor.teal.shade50,
+        border: Border.all(color: BaseColor.teal.shade200, width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        bipra.name,
+        style: BaseTypography.labelMedium.copyWith(
+          color: BaseColor.teal.shade700,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  /// Builds the "View Activity Details" button
+  /// Requirements: 6.1, 6.2
+  /// - Display a link/button to view full activity details (Req 6.1)
+  /// - Navigate to activity detail screen with read-only context (Req 6.2)
+  Widget _buildViewActivityDetailsButton(
+    BuildContext context,
+    Activity activity,
+  ) {
+    return Material(
+      key: const Key('view_activity_details_button'),
+      clipBehavior: Clip.hardEdge,
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.blue[50],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          // Navigate to activity detail with read-only context flag (Req 6.2)
+          context.pushNamed(
+            AppRoute.activityDetail,
+            pathParameters: {'activityId': activity.id.toString()},
+            extra: RouteParam(
+              params: {RouteParamKey.isFromApprovalContext: true},
+            ),
+          );
+        },
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.blue[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.blue[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.openExternal,
+                  size: BaseSize.w20,
+                  color: BaseColor.blue[700],
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'View Activity Details',
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: BaseColor.blue[700],
+                      ),
+                    ),
+                    Gap.h4,
+                    Text(
+                      'See full activity information',
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.secondaryText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FaIcon(
+                AppIcons.forward,
+                size: BaseSize.w24,
+                color: BaseColor.blue[600],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -644,40 +644,40 @@ All requirements, design elements, and tasks from these specs have been merged i
 
 ### Icon Consolidation (icon-consolidation spec)
 
-- [ ] 47. Set up Font Awesome infrastructure
-  - [ ] 47.1 Add font_awesome_flutter dependency to palakat pubspec.yaml
-  - [ ] 47.2 Create AppIcons class in apps/palakat/lib/core/constants/app_icons.dart
-  - [ ] 47.3 Create AppIconWidget helper in apps/palakat/lib/core/widgets/app_icon_widget.dart
-  - [ ] 47.4 Write unit tests for AppIcons accessors (Property 84)
-  - [ ] 47.5 Write unit tests for AppIconWidget sizing (Property 85)
-  - [ ] 47.6 Write unit tests for AppIconWidget color application (Property 86)
+- [x] 47. Set up Font Awesome infrastructure
+  - [x] 47.1 Add font_awesome_flutter dependency to palakat pubspec.yaml
+  - [x] 47.2 Create AppIcons class in apps/palakat/lib/core/constants/app_icons.dart
+  - [x] 47.3 Create AppIconWidget helper in apps/palakat/lib/core/widgets/app_icon_widget.dart
+  - [x] 47.4 Write unit tests for AppIcons accessors (Property 84)
+  - [x] 47.5 Write unit tests for AppIconWidget sizing (Property 85)
+  - [x] 47.6 Write unit tests for AppIconWidget color application (Property 86)
   - _Requirements: 50.1, 50.2, 50.3_
 
-- [ ] 48. Migrate Material Icons to Font Awesome
-  - [ ] 48.1 Replace Icons.* usages in approval feature
-  - [ ] 48.2 Replace Icons.* usages in activity feature
-  - [ ] 48.3 Replace Icons.* usages in finance feature
-  - [ ] 48.4 Replace Icons.* usages in operations feature
-  - [ ] 48.5 Replace Icons.* usages in song book feature
-  - [ ] 48.6 Replace Icons.* usages in account feature
-  - [ ] 48.7 Replace Icons.* usages in home feature
-  - [ ] 48.8 Replace Icons.* usages in church request feature
-  - [ ] 48.9 Verify no direct Icons.* usages remain in features
+- [x] 48. Migrate Material Icons to Font Awesome
+  - [x] 48.1 Replace Icons.* usages in approval feature
+  - [x] 48.2 Replace Icons.* usages in activity feature
+  - [x] 48.3 Replace Icons.* usages in finance feature
+  - [x] 48.4 Replace Icons.* usages in operations feature
+  - [x] 48.5 Replace Icons.* usages in song book feature
+  - [x] 48.6 Replace Icons.* usages in account feature
+  - [x] 48.7 Replace Icons.* usages in home feature
+  - [x] 48.8 Replace Icons.* usages in church request feature
+  - [x] 48.9 Verify no direct Icons.* usages remain in features
   - _Requirements: 50.4_
 
-- [ ] 49. Migrate SVG Assets to Font Awesome
-  - [ ] 49.1 Replace Assets.icons.* usages in all features
-  - [ ] 49.2 Update FlutterGen configuration to exclude icon SVGs
-  - [ ] 49.3 Remove unused SVG icon files from assets/icons/
-  - [ ] 49.4 Regenerate assets.gen.dart
-  - [ ] 49.5 Verify no Assets.icons.* usages remain
+- [x] 49. Migrate SVG Assets to Font Awesome
+  - [x] 49.1 Replace Assets.icons.* usages in all features
+  - [x] 49.2 Update FlutterGen configuration to exclude icon SVGs
+  - [x] 49.3 Remove unused SVG icon files from assets/icons/
+  - [x] 49.4 Regenerate assets.gen.dart
+  - [x] 49.5 Verify no Assets.icons.* usages remain
   - _Requirements: 50.5, 50.7_
 
-- [ ] 50. Final icon consolidation verification
-  - [ ] 50.1 Run grep to verify no Icons.* in lib/features/
-  - [ ] 50.2 Run grep to verify no Assets.icons.* in lib/features/
-  - [ ] 50.3 Verify app builds and runs correctly
-  - [ ] 50.4 Visual QA of icon replacements
+- [x] 50. Final icon consolidation verification
+  - [x] 50.1 Run grep to verify no Icons.* in lib/features/
+  - [x] 50.2 Run grep to verify no Assets.icons.* in lib/features/
+  - [x] 50.3 Verify app builds and runs correctly
+  - [x] 50.4 Visual QA of icon replacements
   - _Requirements: 50.4, 50.5_
 
 ---

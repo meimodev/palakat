@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 /// Error display widget for authentication screens
@@ -50,8 +51,8 @@ class AuthErrorDisplay extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      Icons.error_outline,
+                    child: FaIcon(
+                      AppIcons.error,
                       size: BaseSize.w16,
                       color: BaseColor.red[700],
                     ),

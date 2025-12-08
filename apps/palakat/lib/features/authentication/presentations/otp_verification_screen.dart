@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/data/utils/phone_number_formatter.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:pinput/pinput.dart';
 
 /// OTP verification screen for Firebase Phone Authentication
@@ -123,8 +125,8 @@ class OtpVerificationScreen extends ConsumerWidget {
                         controller.goBackToPhoneInput();
                         // Navigation will be handled by the listener
                       },
-                      icon: Icon(
-                        Icons.arrow_back,
+                      icon: FaIcon(
+                        AppIcons.back,
                         color: BaseColor.black,
                         size: BaseSize.w24,
                       ),
@@ -160,8 +162,8 @@ class OtpVerificationScreen extends ConsumerWidget {
                                 shape: BoxShape.circle,
                               ),
                               alignment: Alignment.center,
-                              child: Icon(
-                                Icons.security_outlined,
+                              child: FaIcon(
+                                AppIcons.security,
                                 size: BaseSize.w16,
                                 color: BaseColor.teal[700],
                               ),
@@ -169,7 +171,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                             Gap.w12,
                             Expanded(
                               child: Text(
-                                "Verify OTP",
+                                context.l10n.auth_verifyOtp,
                                 style: BaseTypography.titleMedium.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: BaseColor.black,
@@ -182,7 +184,7 @@ class OtpVerificationScreen extends ConsumerWidget {
 
                         // Masked phone number display
                         Text(
-                          'Enter the verification code sent to',
+                          context.l10n.auth_enterCode,
                           style: BaseTypography.bodyMedium.toSecondary,
                           textAlign: TextAlign.center,
                         ),
@@ -238,6 +240,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                           isLoading: isSendingOtp,
                           onResend: controller.resendOtp,
                           formatTime: controller.formatTime,
+                          resendCodeLabel: context.l10n.btn_resendCode,
                         ),
                       ],
                     ),
@@ -306,7 +309,10 @@ class OtpVerificationScreen extends ConsumerWidget {
                     );
                   },
                   child: showSuccessFeedback
-                      ? _SuccessFeedback()
+                      ? _SuccessFeedback(
+                          successLabel:
+                              context.l10n.auth_verificationSuccessful,
+                        )
                       : (isVerifyingOtp || isValidatingAccount)
                       ? ButtonWidget.primary(
                           text: isValidatingAccount
@@ -430,6 +436,7 @@ class _TimerAndResendButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onResend;
   final String Function(int) formatTime;
+  final String resendCodeLabel;
 
   const _TimerAndResendButton({
     required this.remainingSeconds,
@@ -437,6 +444,7 @@ class _TimerAndResendButton extends StatelessWidget {
     required this.isLoading,
     required this.onResend,
     required this.formatTime,
+    required this.resendCodeLabel,
   });
 
   @override
@@ -450,8 +458,8 @@ class _TimerAndResendButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.timer_outlined,
+                FaIcon(
+                  AppIcons.timer,
                   size: BaseSize.w16,
                   color: BaseColor.secondaryText,
                 ),
@@ -480,8 +488,8 @@ class _TimerAndResendButton extends StatelessWidget {
             )
           else
             Semantics(
-              label: 'Resend code button',
-              hint: 'Tap to resend verification code to your phone',
+              label: resendCodeLabel,
+              hint: resendCodeLabel,
               button: true,
               child: TextButton(
                 onPressed: onResend,
@@ -494,7 +502,7 @@ class _TimerAndResendButton extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  'Resend Code',
+                  resendCodeLabel,
                   style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.teal[700],
                     fontWeight: FontWeight.w600,
@@ -510,6 +518,10 @@ class _TimerAndResendButton extends StatelessWidget {
 
 /// Success feedback widget with animation
 class _SuccessFeedback extends StatelessWidget {
+  final String successLabel;
+
+  const _SuccessFeedback({required this.successLabel});
+
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
@@ -539,15 +551,15 @@ class _SuccessFeedback extends StatelessWidget {
                 color: BaseColor.teal[700],
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.check,
+              child: FaIcon(
+                AppIcons.check,
                 size: BaseSize.w16,
                 color: BaseColor.white,
               ),
             ),
             Gap.w12,
             Text(
-              'Verification Successful',
+              successLabel,
               style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.teal[700],
                 fontWeight: FontWeight.w600,

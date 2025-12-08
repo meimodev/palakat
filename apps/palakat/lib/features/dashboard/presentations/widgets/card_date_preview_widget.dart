@@ -33,19 +33,14 @@ class CardDatePreviewWidget extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: today ? BaseColor.teal[300] : BaseColor.teal[50],
       color: today ? Colors.transparent : BaseColor.cardBackground1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: today
             ? BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    BaseColor.blue[600]!,
-                    BaseColor.teal[500]!,
-                  ],
+                  colors: [BaseColor.blue[600]!, BaseColor.teal[500]!],
                 ),
                 borderRadius: BorderRadius.circular(16),
               )
@@ -67,7 +62,9 @@ class CardDatePreviewWidget extends StatelessWidget {
                 Text(
                   date.toStringFormatted("E"),
                   style: BaseTypography.bodySmall.copyWith(
-                    color: today ? Colors.white.withValues(alpha: 0.9) : BaseColor.secondaryText,
+                    color: today
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : BaseColor.secondaryText,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -81,10 +78,7 @@ class CardDatePreviewWidget extends StatelessWidget {
                   ),
                 ),
                 // Event counters
-                if (hasEvents) ...[
-                  Gap.h6,
-                  _buildCounters(today),
-                ],
+                if (hasEvents) ...[Gap.h6, _buildCounters(today)],
               ],
             ),
           ),
@@ -102,19 +96,27 @@ class CardDatePreviewWidget extends StatelessWidget {
         children: [
           if (serviceCount != 0)
             _pillChip(
-              icon: Icons.church_outlined,
+              icon: AppIcons.church,
               label: serviceCount.toString(),
-              bg: isToday ? Colors.white.withValues(alpha: 0.2) : BaseColor.green[50]!,
+              bg: isToday
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : BaseColor.green[50]!,
               fg: isToday ? Colors.white : BaseColor.green[700]!,
-              border: isToday ? Colors.white.withValues(alpha: 0.3) : BaseColor.green[200]!,
+              border: isToday
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : BaseColor.green[200]!,
             ),
           if (eventCount != 0)
             _pillChip(
-              icon: Icons.event_outlined,
+              icon: AppIcons.event,
               label: eventCount.toString(),
-              bg: isToday ? Colors.white.withValues(alpha: 0.2) : BaseColor.blue[50]!,
+              bg: isToday
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : BaseColor.blue[50]!,
               fg: isToday ? Colors.white : BaseColor.blue[700]!,
-              border: isToday ? Colors.white.withValues(alpha: 0.3) : BaseColor.blue[200]!,
+              border: isToday
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : BaseColor.blue[200]!,
             ),
         ],
       ),

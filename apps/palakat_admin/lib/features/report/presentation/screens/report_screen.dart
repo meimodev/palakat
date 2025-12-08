@@ -23,7 +23,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         reportTitle: reportTitle,
         description: description,
         onClose: () => DrawerUtils.closeDrawer(context),
-        onGenerate: (range) async{
+        onGenerate: (range) async {
           if (context.mounted) {
             // DrawerUtils.closeDrawer(context);
             // TODO: Call controller.generateReport() with proper data
@@ -107,15 +107,6 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                       'Generate a report of all activities.',
                     ),
                   ),
-                  _GenerateCard(
-                    title: 'Inventory',
-                    icon: Icons.inventory_2_outlined,
-                    color: Colors.teal,
-                    onGenerate: () => _showGenerateDrawer(
-                      'Inventory Report',
-                      'Generate a report of all inventory.',
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -167,10 +158,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
                       dropdownLabel: 'By',
-                      dropdownOptions: {
-                        'manual': 'Manual',
-                        'system': 'System',
-                      },
+                      dropdownOptions: {'manual': 'Manual', 'system': 'System'},
                       dropdownValue: state.generatedByFilter?.name,
                       onDropdownChanged: (value) {
                         final generatedBy = value == null
@@ -359,11 +347,7 @@ class _GenerateCard extends StatelessWidget {
                         color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
-                        icon,
-                        color: color,
-                        size: 24,
-                      ),
+                      child: Icon(icon, color: color, size: 24),
                     ),
                     const Spacer(),
                     Icon(
@@ -374,12 +358,7 @@ class _GenerateCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  title,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                  ),
-                ),
-
+                Text(title, style: theme.textTheme.bodySmall?.copyWith()),
               ],
             ),
           ),

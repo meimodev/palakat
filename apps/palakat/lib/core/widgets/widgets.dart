@@ -60,12 +60,8 @@ export 'package:palakat_shared/core/widgets/mobile/bottom_navbar.dart'
 // Account Number Picker - app-specific (uses Riverpod providers)
 export 'account_number_picker/account_number_picker_barrel.dart';
 
-// App Bar - app-specific wrapper around shared AppBarWidget
-export 'appbar/appbar_widget.dart';
-
 // Bottom Nav Bar - app-specific implementations using local assets
 export 'bottom_navbar/bottom_navbar.dart';
-export 'bottom_navbar/bottom_navbar_item.dart';
 
 // Dialog - app-specific dialog widgets that use local controllers
 export 'dialog/dialog_church_picker_widget.dart';
@@ -80,3 +76,6 @@ export 'loading/shimmer_widgets.dart';
 
 // Scaffold - app-specific implementation using local LoadingWrapper
 export 'scaffold/scaffold_widget.dart';
+
+// Icon widget - app-specific helper for Font Awesome icons
+export 'app_icon_widget.dart';

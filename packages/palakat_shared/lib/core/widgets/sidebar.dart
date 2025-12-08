@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:palakat_shared/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/extension/string_extension.dart';
 
 class AppSidebar extends ConsumerWidget {
@@ -10,6 +10,7 @@ class AppSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final route = GoRouterState.of(context).uri.toString();
+    final l10n = context.l10n;
     // TODO: Implement auth controller in consuming app
     // final auth = ref.watch(authControllerProvider).asData?.value;
     // final account = auth?.account;
@@ -64,30 +65,30 @@ class AppSidebar extends ConsumerWidget {
                   children: [
                     _NavItem(
                       icon: Icons.dashboard_outlined,
-                      label: 'Dashboard',
+                      label: l10n.nav_dashboard,
                       selected: route.startsWith('/dashboard'),
                       onTap: () => context.go('/dashboard'),
                       color: Colors.indigo,
                     ),
                     _NavItem(
                       icon: Icons.group_outlined,
-                      label: 'Member',
+                      label: l10n.nav_members,
                       selected: route.startsWith('/member'),
                       onTap: () => context.go('/member'),
                       color: Colors.teal,
                     ),
                     _NavItem(
                       icon: Icons.event_note,
-                      label: 'Activity',
+                      label: l10n.nav_activity,
                       selected: route.startsWith('/activity'),
                       onTap: () => context.go('/activity'),
                       color: Colors.deepOrange,
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(12, 16, 12, 8),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
                       child: Text(
-                        'Report',
-                        style: TextStyle(
+                        l10n.nav_section_report,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -96,37 +97,30 @@ class AppSidebar extends ConsumerWidget {
                     ),
                     _NavItem(
                       icon: Icons.attach_money,
-                      label: 'Revenue',
+                      label: l10n.nav_revenue,
                       selected: route.startsWith('/revenue'),
                       onTap: () => context.go('/revenue'),
                       color: Colors.green,
                     ),
                     _NavItem(
                       icon: Icons.credit_card,
-                      label: 'Expense',
+                      label: l10n.nav_expense,
                       selected: route.startsWith('/expense'),
                       onTap: () => context.go('/expense'),
                       color: Colors.purple,
                     ),
                     _NavItem(
-                      icon: Icons.archive_outlined,
-                      label: 'Inventory',
-                      selected: route.startsWith('/inventory'),
-                      onTap: () => context.go('/inventory'),
-                      color: Colors.deepPurple,
-                    ),
-                    _NavItem(
                       icon: Icons.insert_drive_file_outlined,
-                      label: 'Report',
+                      label: l10n.nav_report,
                       selected: route.startsWith('/report'),
                       onTap: () => context.go('/report'),
                       color: Colors.orange,
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(12, 16, 12, 8),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
                       child: Text(
-                        'Administration',
-                        style: TextStyle(
+                        l10n.nav_section_administration,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
@@ -135,35 +129,35 @@ class AppSidebar extends ConsumerWidget {
                     ),
                     _NavItem(
                       icon: Icons.account_balance,
-                      label: 'Church',
+                      label: l10n.nav_church,
                       selected: route.startsWith('/church'),
                       onTap: () => context.go('/church'),
                       color: Colors.red,
                     ),
                     _NavItem(
                       icon: Icons.description_outlined,
-                      label: 'Document',
+                      label: l10n.nav_document,
                       selected: route.startsWith('/document'),
                       onTap: () => context.go('/document'),
                       color: Colors.orange,
                     ),
                     _NavItem(
                       icon: Icons.check_box_outlined,
-                      label: 'Approval',
+                      label: l10n.nav_approval,
                       selected: route.startsWith('/approval'),
                       onTap: () => context.go('/approval'),
                       color: Colors.cyan,
                     ),
                     _NavItem(
                       icon: Icons.account_balance_wallet_outlined,
-                      label: 'Financial',
+                      label: l10n.nav_financial,
                       selected: route.startsWith('/financial'),
                       onTap: () => context.go('/financial'),
                       color: Colors.amber,
                     ),
                     _NavItem(
                       icon: Icons.receipt_long,
-                      label: 'Billing',
+                      label: l10n.nav_billing,
                       selected: route.startsWith('/billing'),
                       onTap: () => context.go('/billing'),
                       color: Colors.blue,
@@ -346,7 +340,6 @@ class _NavItemState extends State<_NavItem>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   onTap: () {
-                    // Add haptic feedback for better UX
                     if (theme.platform == TargetPlatform.iOS ||
                         theme.platform == TargetPlatform.android) {
                       // Note: You might want to add haptic feedback here

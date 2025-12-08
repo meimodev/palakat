@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/account/account_controller.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/widgets.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
   final String? verifiedPhone;
@@ -89,7 +90,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           children: [
             ScreenTitleWidget.primary(
               title: "Account",
-              leadIcon: Assets.icons.line.chevronBackOutline,
+              leadIcon: AppIcons.back,
               leadIconColor: BaseColor.black,
               onPressedLeadIcon: () async {
                 if (_isFromSignIn) {
@@ -127,8 +128,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: Icon(
-                            Icons.person_outline,
+                          child: FaIcon(
+                            AppIcons.person,
                             size: BaseSize.w16,
                             color: BaseColor.primary[700],
                           ),
@@ -199,10 +200,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       hint: "Date Of Birth",
                       currentInputValue: state.dob,
                       errorText: state.errorDob,
-                      endIcon: Assets.icons.line.calendarOutline.svg(
-                        width: 20,
-                        height: 20,
-                      ),
+                      endIcon: FaIcon(AppIcons.calendar, size: 20),
                       optionLabel: (DateTime option) => option.ddMmmmYyyy,
                       onChanged: controller.onChangedDOB,
                       onPressedWithResult: () async =>
@@ -276,6 +274,55 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+            Gap.h16,
+            // Language Settings Section - Requirements: 6.1
+            Material(
+              color: BaseColor.cardBackground1,
+              elevation: 1,
+              shadowColor: BaseColor.black.withValues(alpha: 0.05),
+              surfaceTintColor: BaseColor.primary[50],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(BaseSize.w16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: BaseSize.w32,
+                          height: BaseSize.w32,
+                          decoration: BoxDecoration(
+                            color: BaseColor.primary[100],
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: FaIcon(
+                            FontAwesomeIcons.language,
+                            size: BaseSize.w16,
+                            color: BaseColor.primary[700],
+                          ),
+                        ),
+                        Gap.w12,
+                        Expanded(
+                          child: Text(
+                            "Language Settings",
+                            style: BaseTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: BaseColor.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Gap.h16,
+                    const LanguageSelector(),
                   ],
                 ),
               ),
@@ -406,8 +453,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(
-                Icons.warning_amber_rounded,
+              child: FaIcon(
+                AppIcons.warning,
                 size: BaseSize.w32,
                 color: BaseColor.yellow[700],
               ),
@@ -519,8 +566,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(
-                Icons.warning_amber_rounded,
+              child: FaIcon(
+                AppIcons.warning,
                 size: BaseSize.w32,
                 color: BaseColor.yellow[700],
               ),

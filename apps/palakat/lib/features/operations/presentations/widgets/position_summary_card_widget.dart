@@ -61,7 +61,7 @@ class PositionSummaryCard extends StatelessWidget {
                     ),
                     Gap.w4,
                     Icon(
-                      Icons.chevron_right,
+                      AppIcons.forward,
                       size: BaseSize.w14,
                       color: BaseColor.textSecondary,
                     ),
@@ -107,7 +107,7 @@ class _PositionSummaryHeader extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Icon(
-            Icons.badge_outlined,
+            AppIcons.badge,
             size: BaseSize.w20,
             color: BaseColor.primary[700],
           ),

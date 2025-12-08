@@ -189,10 +189,13 @@ class ScreenTitleWidget extends StatelessWidget {
       return SizedBox(width: iconSize, height: iconSize);
     }
 
-    return IconButton(
-      padding: EdgeInsets.zero,
-      constraints: BoxConstraints(minHeight: iconSize, minWidth: iconSize),
-      icon: SizedBox(
+    // Support both IconData and SVG assets
+    Widget iconWidget;
+    if (icon is IconData) {
+      iconWidget = Icon(icon, size: iconSize, color: iconColor);
+    } else {
+      // Assume it's an SVG asset with .svg() method
+      iconWidget = SizedBox(
         width: iconSize,
         height: iconSize,
         child: icon.svg(
@@ -200,7 +203,13 @@ class ScreenTitleWidget extends StatelessWidget {
           height: iconSize,
           colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
         ),
-      ),
+      );
+    }
+
+    return IconButton(
+      padding: EdgeInsets.zero,
+      constraints: BoxConstraints(minHeight: iconSize, minWidth: iconSize),
+      icon: iconWidget,
       onPressed: onPressedIcon,
     );
   }

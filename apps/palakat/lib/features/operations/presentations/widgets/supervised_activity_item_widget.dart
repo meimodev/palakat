@@ -149,7 +149,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
               Gap.w4,
               // Chevron icon
               Icon(
-                Icons.chevron_right,
+                AppIcons.forward,
                 size: BaseSize.w16,
                 color: BaseColor.textSecondary,
               ),

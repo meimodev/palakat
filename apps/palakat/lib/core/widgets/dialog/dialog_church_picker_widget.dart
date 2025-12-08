@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.gen.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
 import 'package:palakat_shared/core/widgets/card/card_church.dart';
@@ -21,12 +21,12 @@ Future<Church?> showDialogChurchPickerWidget({
 }) {
   return showDialogCustomWidget<Church?>(
     context: context,
-    title: "Select Church",
+    title: context.l10n.lbl_selectChurch,
     scrollControlled: false,
-    closeIcon: Assets.icons.line.times.svg(
-      width: BaseSize.w24,
-      height: BaseSize.w24,
-      colorFilter: BaseColor.primaryText.filterSrcIn,
+    closeIcon: FaIcon(
+      AppIcons.close,
+      size: BaseSize.w24,
+      color: BaseColor.primaryText,
     ),
     content: const Expanded(child: _DialogChurchPickerWidget()),
   );
@@ -100,11 +100,11 @@ class _DialogChurchPickerWidgetState
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Search churches...',
-              prefixIcon: const Icon(Icons.search),
+              hintText: context.l10n.lbl_searchChurches,
+              prefixIcon: FaIcon(AppIcons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: FaIcon(AppIcons.clear),
                       onPressed: () {
                         _searchController.clear();
                         _onSearchChanged('');
@@ -129,7 +129,7 @@ class _DialogChurchPickerWidgetState
               : _churches.isEmpty
               ? Center(
                   child: Text(
-                    'No churches found',
+                    context.l10n.lbl_noChurchesFound,
                     style: BaseTypography.bodyMedium.toSecondary,
                   ),
                 )

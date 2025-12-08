@@ -167,7 +167,7 @@ class _CategoryHeader extends StatelessWidget {
                 turns: category.isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
-                  Icons.keyboard_arrow_down,
+                  AppIcons.keyboardArrowDown,
                   color: BaseColor.primary,
                   size: BaseSize.w24,
                 ),

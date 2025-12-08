@@ -80,6 +80,7 @@ export 'date_of_birth_picker.dart';
 export 'date_range_filter.dart';
 export 'financial_account_picker.dart';
 export 'gender_dropdown.dart';
+export 'language_selector.dart';
 export 'marital_status_dropdown.dart';
 export 'position_selector.dart';
 

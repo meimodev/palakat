@@ -1,0 +1,461 @@
+{
+  "@@locale": "id",
+
+  "appTitle": "Palakat",
+  "@appTitle": {
+    "description": "The application title"
+  },
+
+  "nav_dashboard": "Beranda",
+  "@nav_dashboard": {
+    "description": "Navigation label for dashboard"
+  },
+  "nav_members": "Anggota",
+  "@nav_members": {
+    "description": "Navigation label for members"
+  },
+  "nav_activity": "Kegiatan",
+  "@nav_activity": {
+    "description": "Navigation label for activity"
+  },
+  "nav_revenue": "Pendapatan",
+  "@nav_revenue": {
+    "description": "Navigation label for revenue"
+  },
+  "nav_expense": "Pengeluaran",
+  "@nav_expense": {
+    "description": "Navigation label for expense"
+  },
+  "nav_report": "Laporan",
+  "@nav_report": {
+    "description": "Navigation label for report"
+  },
+  "nav_church": "Gereja",
+  "@nav_church": {
+    "description": "Navigation label for church"
+  },
+  "nav_document": "Dokumen",
+  "@nav_document": {
+    "description": "Navigation label for document"
+  },
+  "nav_approval": "Persetujuan",
+  "@nav_approval": {
+    "description": "Navigation label for approval"
+  },
+  "nav_financial": "Keuangan",
+  "@nav_financial": {
+    "description": "Navigation label for financial"
+  },
+  "nav_billing": "Tagihan",
+  "@nav_billing": {
+    "description": "Navigation label for billing"
+  },
+  "nav_account": "Akun",
+  "@nav_account": {
+    "description": "Navigation label for account"
+  },
+  "nav_section_report": "Laporan",
+  "@nav_section_report": {
+    "description": "Navigation section label for report"
+  },
+  "nav_section_administration": "Administrasi",
+  "@nav_section_administration": {
+    "description": "Navigation section label for administration"
+  },
+  "nav_home": "Beranda",
+  "@nav_home": {
+    "description": "Navigation label for home"
+  },
+  "nav_songs": "Lagu",
+  "@nav_songs": {
+    "description": "Navigation label for songs"
+  },
+  "nav_operations": "Ops",
+  "@nav_operations": {
+    "description": "Navigation label for operations"
+  },
+
+  "btn_continue": "Lanjutkan",
+  "@btn_continue": {
+    "description": "Button text for continue"
+  },
+  "btn_cancel": "Batal",
+  "@btn_cancel": {
+    "description": "Button text for cancel"
+  },
+  "btn_save": "Simpan",
+  "@btn_save": {
+    "description": "Button text for save"
+  },
+  "btn_delete": "Hapus",
+  "@btn_delete": {
+    "description": "Button text for delete"
+  },
+  "btn_retry": "Coba Lagi",
+  "@btn_retry": {
+    "description": "Button text for retry"
+  },
+  "btn_signIn": "Masuk",
+  "@btn_signIn": {
+    "description": "Button text for sign in"
+  },
+  "btn_signOut": "Keluar",
+  "@btn_signOut": {
+    "description": "Button text for sign out"
+  },
+  "btn_signOutConfirm": "Keluar?",
+  "@btn_signOutConfirm": {
+    "description": "Sign out confirmation title"
+  },
+  "btn_signOutMessage": "Apakah Anda yakin ingin keluar? Anda perlu masuk kembali untuk mengakses akun Anda.",
+  "@btn_signOutMessage": {
+    "description": "Sign out confirmation message"
+  },
+  "btn_resendCode": "Kirim Ulang Kode",
+  "@btn_resendCode": {
+    "description": "Button text for resend code"
+  },
+  "btn_submit": "Kirim",
+  "@btn_submit": {
+    "description": "Button text for submit"
+  },
+  "btn_edit": "Ubah",
+  "@btn_edit": {
+    "description": "Button text for edit"
+  },
+  "btn_add": "Tambah",
+  "@btn_add": {
+    "description": "Button text for add"
+  },
+  "btn_close": "Tutup",
+  "@btn_close": {
+    "description": "Button text for close"
+  },
+  "btn_confirm": "Konfirmasi",
+  "@btn_confirm": {
+    "description": "Button text for confirm"
+  },
+  "btn_back": "Kembali",
+  "@btn_back": {
+    "description": "Button text for back"
+  },
+
+  "lbl_email": "Email",
+  "@lbl_email": {
+    "description": "Label for email field"
+  },
+  "lbl_phone": "Nomor Telepon",
+  "@lbl_phone": {
+    "description": "Label for phone field"
+  },
+  "lbl_password": "Kata Sandi",
+  "@lbl_password": {
+    "description": "Label for password field"
+  },
+  "lbl_language": "Bahasa",
+  "@lbl_language": {
+    "description": "Label for language setting"
+  },
+  "lbl_name": "Nama",
+  "@lbl_name": {
+    "description": "Label for name field"
+  },
+  "lbl_address": "Alamat",
+  "@lbl_address": {
+    "description": "Label for address field"
+  },
+  "lbl_date": "Tanggal",
+  "@lbl_date": {
+    "description": "Label for date field"
+  },
+  "lbl_time": "Waktu",
+  "@lbl_time": {
+    "description": "Label for time field"
+  },
+  "lbl_description": "Deskripsi",
+  "@lbl_description": {
+    "description": "Label for description field"
+  },
+  "lbl_amount": "Jumlah",
+  "@lbl_amount": {
+    "description": "Label for amount field"
+  },
+  "lbl_search": "Cari",
+  "@lbl_search": {
+    "description": "Label for search field"
+  },
+  "lbl_selectChurch": "Pilih Gereja",
+  "@lbl_selectChurch": {
+    "description": "Label for select church dialog"
+  },
+  "lbl_selectColumn": "Pilih Kolom",
+  "@lbl_selectColumn": {
+    "description": "Label for select column dialog"
+  },
+  "lbl_searchChurches": "Cari gereja...",
+  "@lbl_searchChurches": {
+    "description": "Hint for search churches field"
+  },
+  "lbl_searchColumns": "Cari kolom...",
+  "@lbl_searchColumns": {
+    "description": "Hint for search columns field"
+  },
+  "lbl_noChurchesFound": "Tidak ada gereja ditemukan",
+  "@lbl_noChurchesFound": {
+    "description": "Message when no churches found"
+  },
+  "lbl_noColumnsFound": "Tidak ada kolom ditemukan",
+  "@lbl_noColumnsFound": {
+    "description": "Message when no columns found"
+  },
+  "lbl_selectChurchFirst": "Silakan pilih gereja terlebih dahulu",
+  "@lbl_selectChurchFirst": {
+    "description": "Message to select church first"
+  },
+  "lbl_selectAccount": "Pilih Akun {type}",
+  "@lbl_selectAccount": {
+    "description": "Label for select account dialog",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "lbl_searchAccountNumber": "Cari nomor akun atau deskripsi...",
+  "@lbl_searchAccountNumber": {
+    "description": "Hint for search account number field"
+  },
+  "lbl_noResultsFor": "Tidak ada hasil untuk \"{query}\"",
+  "@lbl_noResultsFor": {
+    "description": "Message when no results found for query",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "lbl_noAccountNumbers": "Tidak ada nomor akun tersedia",
+  "@lbl_noAccountNumbers": {
+    "description": "Message when no account numbers available"
+  },
+  "lbl_churchNotAvailable": "Informasi gereja tidak tersedia",
+  "@lbl_churchNotAvailable": {
+    "description": "Message when church information not available"
+  },
+
+  "status_approved": "Disetujui",
+  "@status_approved": {
+    "description": "Status label for approved"
+  },
+  "status_pending": "Menunggu",
+  "@status_pending": {
+    "description": "Status label for pending"
+  },
+  "status_rejected": "Ditolak",
+  "@status_rejected": {
+    "description": "Status label for rejected"
+  },
+  "status_draft": "Draf",
+  "@status_draft": {
+    "description": "Status label for draft"
+  },
+  "status_completed": "Selesai",
+  "@status_completed": {
+    "description": "Status label for completed"
+  },
+  "status_cancelled": "Dibatalkan",
+  "@status_cancelled": {
+    "description": "Status label for cancelled"
+  },
+  "status_active": "Aktif",
+  "@status_active": {
+    "description": "Status label for active"
+  },
+  "status_inactive": "Tidak Aktif",
+  "@status_inactive": {
+    "description": "Status label for inactive"
+  },
+  "status_unconfirmed": "Belum Dikonfirmasi",
+  "@status_unconfirmed": {
+    "description": "Status label for unconfirmed"
+  },
+
+  "err_networkError": "Kesalahan jaringan. Periksa koneksi Anda.",
+  "@err_networkError": {
+    "description": "Error message for network error"
+  },
+  "err_serverError": "Kesalahan server. Coba lagi nanti.",
+  "@err_serverError": {
+    "description": "Error message for server error"
+  },
+  "err_unauthorized": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+  "@err_unauthorized": {
+    "description": "Error message for unauthorized"
+  },
+  "err_invalidCredentials": "Email/telepon atau kata sandi salah.",
+  "@err_invalidCredentials": {
+    "description": "Error message for invalid credentials"
+  },
+  "err_requiredField": "Kolom ini wajib diisi.",
+  "@err_requiredField": {
+    "description": "Error message for required field"
+  },
+  "err_invalidEmail": "Format email tidak valid.",
+  "@err_invalidEmail": {
+    "description": "Error message for invalid email"
+  },
+  "err_invalidPhone": "Format nomor telepon tidak valid.",
+  "@err_invalidPhone": {
+    "description": "Error message for invalid phone"
+  },
+  "err_somethingWentWrong": "Terjadi kesalahan. Silakan coba lagi.",
+  "@err_somethingWentWrong": {
+    "description": "Error message for generic error"
+  },
+  "err_noData": "Tidak ada data.",
+  "@err_noData": {
+    "description": "Error message for no data"
+  },
+  "err_loadFailed": "Gagal memuat data.",
+  "@err_loadFailed": {
+    "description": "Error message for load failed"
+  },
+  "err_badRequest": "Permintaan tidak valid",
+  "@err_badRequest": {
+    "description": "Error label for bad request (400)"
+  },
+  "err_forbidden": "Akses ditolak",
+  "@err_forbidden": {
+    "description": "Error label for forbidden (403)"
+  },
+  "err_notFound": "Tidak ditemukan",
+  "@err_notFound": {
+    "description": "Error label for not found (404)"
+  },
+  "err_conflict": "Konflik data",
+  "@err_conflict": {
+    "description": "Error label for conflict (409)"
+  },
+  "err_validationError": "Kesalahan validasi",
+  "@err_validationError": {
+    "description": "Error label for validation error (422)"
+  },
+  "err_error": "Kesalahan",
+  "@err_error": {
+    "description": "Generic error label"
+  },
+  "err_accountLocked": "Akun Anda terkunci sementara. Silakan tunggu 5 menit dan coba lagi.",
+  "@err_accountLocked": {
+    "description": "Error message for account locked (403)"
+  },
+  "err_statusWithCode": "{code} • {label}",
+  "@err_statusWithCode": {
+    "description": "Error status with code",
+    "placeholders": {
+      "code": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+
+  "auth_welcomeBack": "Selamat Datang Kembali",
+  "@auth_welcomeBack": {
+    "description": "Auth welcome back title"
+  },
+  "auth_signInSubtitle": "Masuk ke akun admin Anda",
+  "@auth_signInSubtitle": {
+    "description": "Auth sign in subtitle"
+  },
+  "auth_verifyOtp": "Verifikasi OTP",
+  "@auth_verifyOtp": {
+    "description": "Auth verify OTP title"
+  },
+  "auth_enterCode": "Masukkan kode verifikasi yang dikirim ke",
+  "@auth_enterCode": {
+    "description": "Auth enter code instruction"
+  },
+  "auth_verificationSuccessful": "Verifikasi Berhasil",
+  "@auth_verificationSuccessful": {
+    "description": "Auth verification successful message"
+  },
+  "auth_enterPhoneNumber": "Masukkan Nomor Telepon",
+  "@auth_enterPhoneNumber": {
+    "description": "Auth enter phone number title"
+  },
+  "auth_phoneHint": "Contoh: 08123456789",
+  "@auth_phoneHint": {
+    "description": "Auth phone number hint"
+  },
+  "auth_otpSent": "Kode OTP telah dikirim",
+  "@auth_otpSent": {
+    "description": "Auth OTP sent message"
+  },
+  "auth_resendIn": "Kirim ulang dalam {seconds} detik",
+  "@auth_resendIn": {
+    "description": "Auth resend countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+
+  "dashboard_title": "Dasbor",
+  "@dashboard_title": {
+    "description": "Dashboard title"
+  },
+  "dashboard_subtitle": "Ringkasan kegiatan gereja Anda.",
+  "@dashboard_subtitle": {
+    "description": "Dashboard subtitle"
+  },
+  "dashboard_totalMembers": "Total Anggota",
+  "@dashboard_totalMembers": {
+    "description": "Dashboard total members label"
+  },
+  "dashboard_totalRevenue": "Total Pendapatan",
+  "@dashboard_totalRevenue": {
+    "description": "Dashboard total revenue label"
+  },
+  "dashboard_totalExpense": "Total Pengeluaran",
+  "@dashboard_totalExpense": {
+    "description": "Dashboard total expense label"
+  },
+  "dashboard_recentActivity": "Aktivitas Terbaru",
+  "@dashboard_recentActivity": {
+    "description": "Dashboard recent activity label"
+  },
+  "dashboard_overview": "Ringkasan",
+  "@dashboard_overview": {
+    "description": "Dashboard overview label"
+  },
+  "dashboard_statistics": "Statistik",
+  "@dashboard_statistics": {
+    "description": "Dashboard statistics label"
+  },
+  "msg_pressBackToExit": "Tekan kembali untuk keluar",
+  "@msg_pressBackToExit": {
+    "description": "Message shown when user presses back to exit"
+  },
+
+  "memberCount": "{count, plural, =0{Tidak ada anggota} =1{1 anggota} other{{count} anggota}}",
+  "@memberCount": {
+    "description": "Member count with pluralization",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "lang_indonesian": "Bahasa Indonesia",
+  "@lang_indonesian": {
+    "description": "Indonesian language name"
+  },
+  "lang_english": "English",
+  "@lang_english": {
+    "description": "English language name"
+  }
+}

@@ -25,7 +25,15 @@ final dashboardRouting = GoRoute(
 
         final activityId = int.parse(activityIdStr!);
 
-        return ActivityDetailScreen(activityId: activityId);
+        // Check if navigating from approval context (Req 6.2, 6.3)
+        final params = (state.extra as RouteParam?)?.params;
+        final isFromApprovalContext =
+            params?[RouteParamKey.isFromApprovalContext] as bool? ?? false;
+
+        return ActivityDetailScreen(
+          activityId: activityId,
+          isFromApprovalContext: isFromApprovalContext,
+        );
       },
     ),
   ],

@@ -209,7 +209,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
   ) {
     return _buildSectionCard(
       title: 'Financial Details',
-      icon: Icons.account_balance_wallet_outlined,
+      icon: AppIcons.wallet,
       subtitle: 'Amount and payment information',
       children: [
         // Amount input with Rupiah formatting
@@ -249,7 +249,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
   ) {
     return _buildSectionCard(
       title: 'Activity',
-      icon: Icons.event_outlined,
+      icon: AppIcons.event,
       subtitle: 'Link to an existing activity',
       children: [
         ActivityPickerWidget(

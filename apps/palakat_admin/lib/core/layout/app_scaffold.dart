@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
-import 'package:palakat_shared/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key, required this.child});
@@ -20,7 +20,7 @@ class _AppScaffoldState extends State<AppScaffold> {
     return Scaffold(
       appBar: isSmall
           ? AppBar(
-              title: const Text('Palakat Admin'),
+              title: Text(context.l10n.appTitle),
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
@@ -221,25 +221,26 @@ class _AvatarMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return PopupMenuButton<String>(
       icon: const CircleAvatar(
         radius: 16,
         backgroundImage: NetworkImage('https://placehold.co/100x100.png'),
       ),
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'profile',
           child: ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Profile'),
+            leading: const Icon(Icons.person),
+            title: Text(l10n.nav_account),
             contentPadding: EdgeInsets.zero,
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'logout',
           child: ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Log out'),
+            leading: const Icon(Icons.logout),
+            title: Text(l10n.btn_signOut),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -252,25 +253,26 @@ class _AvatarMenu extends ConsumerWidget {
   }
 
   void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.btn_signOut),
+        content: Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.btn_cancel),
           ),
           FilledButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               await ref.read(authControllerProvider.notifier).signOut();
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
-            child: const Text('Sign Out'),
+            child: Text(l10n.btn_signOut),
           ),
         ],
       ),

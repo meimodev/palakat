@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -58,7 +57,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
         children: [
           ScreenTitleWidget.primary(
             title: "Membership",
-            leadIcon: Assets.icons.line.chevronBackOutline,
+            leadIcon: AppIcons.back,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,
           ),
@@ -87,7 +86,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Icon(
-                          Icons.church_outlined,
+                          AppIcons.church,
                           size: BaseSize.w16,
                           color: BaseColor.blue[700],
                         ),
@@ -112,10 +111,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                     hint: "Church",
                     currentInputValue: state.church,
                     errorText: state.errorChurch,
-                    endIcon: Assets.icons.line.chevronDownOutline.svg(
-                      width: 20,
-                      height: 20,
-                    ),
+                    endIcon: Icon(AppIcons.chevronDown, size: 20),
                     onChanged: controller.onChangedChurch,
                     optionLabel: (model.Church option) => option.name,
                     onPressedWithResult: () async =>
@@ -129,10 +125,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                         : "Column",
                     currentInputValue: state.column,
                     errorText: state.errorColumn,
-                    endIcon: Assets.icons.line.chevronDownOutline.svg(
-                      width: 20,
-                      height: 20,
-                    ),
+                    endIcon: Icon(AppIcons.chevronDown, size: 20),
                     onChanged: controller.onChangedColumn,
                     optionLabel: (model.Column? option) => option?.name ?? '',
                     onPressedWithResult: state.church == null

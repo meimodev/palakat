@@ -249,7 +249,7 @@ class _ActivityTypeFilter extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
-              Icons.apps,
+              AppIcons.apps,
               size: BaseSize.w16,
               color: BaseColor.neutral[600],
             ),
@@ -349,7 +349,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    Icons.apps,
+                    AppIcons.apps,
                     size: BaseSize.w18,
                     color: BaseColor.neutral[600],
                   ),
@@ -359,7 +359,9 @@ class _ActivityTypeFilter extends StatelessWidget {
                   'Show all activity types',
                   style: BaseTypography.bodySmall.toSecondary,
                 ),
-                trailing: currentValue == null ? const Icon(Icons.check) : null,
+                trailing: currentValue == null
+                    ? const Icon(AppIcons.check)
+                    : null,
                 onTap: () => Navigator.of(ctx).pop(null),
               ),
               ...ActivityType.values.map((type) {
@@ -383,7 +385,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                     style: BaseTypography.bodySmall.toSecondary,
                   ),
                   trailing: currentValue == type
-                      ? const Icon(Icons.check)
+                      ? const Icon(AppIcons.check)
                       : null,
                   onTap: () => Navigator.of(ctx).pop(type),
                 );
@@ -398,11 +400,11 @@ class _ActivityTypeFilter extends StatelessWidget {
   IconData _getActivityIcon(ActivityType type) {
     switch (type) {
       case ActivityType.service:
-        return Icons.church_outlined;
+        return AppIcons.church;
       case ActivityType.event:
-        return Icons.event_outlined;
+        return AppIcons.event;
       case ActivityType.announcement:
-        return Icons.campaign_outlined;
+        return AppIcons.announcement;
     }
   }
 
@@ -450,7 +452,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            Icons.filter_list,
+            AppIcons.filterList,
             size: BaseSize.w16,
             color: BaseColor.primary[700],
           ),
@@ -515,8 +517,8 @@ class _EmptyState extends StatelessWidget {
           children: [
             Icon(
               hasActiveFilters
-                  ? Icons.filter_list_off_outlined
-                  : Icons.supervisor_account_outlined,
+                  ? AppIcons.filterListOff
+                  : AppIcons.supervisorAccount,
               size: BaseSize.w48,
               color: BaseColor.secondaryText,
             ),
@@ -545,7 +547,7 @@ class _EmptyState extends StatelessWidget {
               Gap.h16,
               OutlinedButton.icon(
                 onPressed: onClearFilters,
-                icon: Icon(Icons.clear, size: BaseSize.w14),
+                icon: Icon(AppIcons.clear, size: BaseSize.w14),
                 label: const Text('Clear filters'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: BaseColor.primary[700],

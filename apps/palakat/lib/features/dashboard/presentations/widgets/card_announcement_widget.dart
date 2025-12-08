@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:palakat/core/assets/assets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/extensions.dart';
 
@@ -25,9 +25,7 @@ class CardAnnouncementWidget extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.yellow[50],
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onPressedCard,
         child: Padding(
@@ -50,10 +48,10 @@ class CardAnnouncementWidget extends StatelessWidget {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Assets.icons.line.documentOutline.svg(
-                  width: BaseSize.w20,
-                  height: BaseSize.w20,
-                  colorFilter: BaseColor.yellow[700]!.filterSrcIn,
+                child: FaIcon(
+                  AppIcons.document,
+                  size: BaseSize.w20,
+                  color: BaseColor.yellow[700],
                 ),
               ),
               Gap.w12,
@@ -96,10 +94,10 @@ class CardAnnouncementWidget extends StatelessWidget {
                     width: BaseSize.w40,
                     height: BaseSize.w40,
                     alignment: Alignment.center,
-                    child: Assets.icons.line.download.svg(
-                      width: BaseSize.w20,
-                      height: BaseSize.w20,
-                      colorFilter: BaseColor.yellow[700]!.filterSrcIn,
+                    child: FaIcon(
+                      AppIcons.download,
+                      size: BaseSize.w20,
+                      color: BaseColor.yellow[700],
                     ),
                   ),
                 ),

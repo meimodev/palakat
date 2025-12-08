@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column, ActivityType;
 
 import '../state/dashboard_controller.dart';
 import '../state/dashboard_screen_state.dart';
@@ -15,6 +16,8 @@ class DashboardScreen extends ConsumerWidget {
     final state = ref.watch(dashboardControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
 
+    final l10n = context.l10n;
+
     return Material(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -22,10 +25,10 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header with title and subtitle
-            Text('Dashboard', style: theme.textTheme.headlineMedium),
+            Text(l10n.dashboard_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 4),
             Text(
-              "An overview of your church's activities.",
+              l10n.dashboard_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -76,7 +79,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Failed to load dashboard stats',
+                      l10n.err_loadFailed,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onErrorContainer,
                       ),
@@ -85,7 +88,7 @@ class DashboardScreen extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: controller.fetchStats,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: Text(l10n.btn_retry),
                     ),
                   ],
                 ),
@@ -95,32 +98,24 @@ class DashboardScreen extends ConsumerWidget {
                 runSpacing: 16,
                 children: [
                   _StatCard(
-                    title: 'Total Members',
+                    title: l10n.dashboard_totalMembers,
                     value: NumberFormat('#,###').format(stats.totalMembers),
                     icon: Icons.groups_outlined,
                     change: '+${stats.membersChange} from last month',
                   ),
                   _StatCard(
-                    title: 'Total Revenue',
+                    title: l10n.dashboard_totalRevenue,
                     value:
                         '\$${NumberFormat('#,##0.00').format(stats.totalRevenue)}',
                     icon: Icons.attach_money,
                     change: '+${stats.revenueChange}% from last month',
                   ),
                   _StatCard(
-                    title: 'Total Expense',
+                    title: l10n.dashboard_totalExpense,
                     value:
                         '\$${NumberFormat('#,##0.00').format(stats.totalExpense)}',
                     icon: Icons.credit_card,
                     change: '+${stats.expenseChange}% from last month',
-                  ),
-                  _StatCard(
-                    title: 'Inventory Status',
-                    value:
-                        stats.inventoryStatus ??
-                        '${stats.lowStockItems} Items Low',
-                    icon: Icons.inventory_2_outlined,
-                    change: 'Check stock levels',
                   ),
                 ],
               ),
@@ -130,7 +125,7 @@ class DashboardScreen extends ConsumerWidget {
 
             // Recent Activity card
             SurfaceCard(
-              title: 'Recent Activity',
+              title: l10n.dashboard_recentActivity,
               subtitle:
                   state.recentActivities.hasValue &&
                       state.recentActivities.value!.isNotEmpty
@@ -196,7 +191,7 @@ class DashboardScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-                        'Failed to load recent activities',
+                        l10n.err_loadFailed,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.error,
                         ),
@@ -205,7 +200,7 @@ class DashboardScreen extends ConsumerWidget {
                       ElevatedButton.icon(
                         onPressed: controller.fetchRecentActivities,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
+                        label: Text(l10n.btn_retry),
                       ),
                     ],
                   ),
@@ -216,7 +211,7 @@ class DashboardScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(vertical: 32),
                         alignment: Alignment.center,
                         child: Text(
-                          'No recent activity to display.',
+                          l10n.err_noData,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -320,8 +315,6 @@ class _ActivityItem extends StatelessWidget {
         return Icons.person_add;
       case ActivityType.transaction:
         return Icons.attach_money;
-      case ActivityType.inventory:
-        return Icons.inventory_2_outlined;
       case ActivityType.approval:
         return Icons.check_circle_outline;
       case ActivityType.event:
@@ -335,8 +328,6 @@ class _ActivityItem extends StatelessWidget {
         return theme.colorScheme.primary;
       case ActivityType.transaction:
         return theme.colorScheme.tertiary;
-      case ActivityType.inventory:
-        return theme.colorScheme.secondary;
       case ActivityType.approval:
         return Colors.green;
       case ActivityType.event:

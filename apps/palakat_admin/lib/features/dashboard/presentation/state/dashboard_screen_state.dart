@@ -7,7 +7,8 @@ part 'dashboard_screen_state.freezed.dart';
 abstract class DashboardScreenState with _$DashboardScreenState {
   const factory DashboardScreenState({
     @Default(AsyncValue.loading()) AsyncValue<DashboardStats> stats,
-    @Default(AsyncValue.loading()) AsyncValue<List<RecentActivity>> recentActivities,
+    @Default(AsyncValue.loading())
+    AsyncValue<List<RecentActivity>> recentActivities,
   }) = _DashboardScreenState;
 }
 
@@ -20,8 +21,6 @@ abstract class DashboardStats with _$DashboardStats {
     @Default(0.0) double revenueChange,
     @Default(0.0) double totalExpense,
     @Default(0.0) double expenseChange,
-    @Default(0) int lowStockItems,
-    String? inventoryStatus,
   }) = _DashboardStats;
 }
 
@@ -37,10 +36,4 @@ abstract class RecentActivity with _$RecentActivity {
   }) = _RecentActivity;
 }
 
-enum ActivityType {
-  member,
-  transaction,
-  inventory,
-  approval,
-  event
-}
+enum ActivityType { member, transaction, approval, event }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 
 import 'core/constants/constants.dart';
@@ -30,6 +31,8 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(goRouterProvider);
+    final locale = ref.watch(localeControllerProvider);
+
     return ScreenUtilInit(
       designSize: const Size(360, 640),
       ensureScreenSize: true,
@@ -42,7 +45,10 @@ class MyApp extends ConsumerWidget {
         routeInformationProvider: router.routeInformationProvider,
         title: "PALAKAT",
         theme: BaseTheme.appTheme,
-        locale: const Locale('id', 'ID'),
+        // Localization configuration - Requirements: 1.1, 1.4
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
       ),
     );
   }

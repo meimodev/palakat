@@ -2,14 +2,16 @@ import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
-import 'package:palakat/core/constants/constants.dart';
 
 part 'approval_controller.g.dart';
 
 @riverpod
 class ApprovalController extends _$ApprovalController {
-  AuthRepository get _authRepository =>
-      ref.read(authRepositoryProvider);
+  AuthRepository get _authRepository => ref.read(authRepositoryProvider);
+  ActivityRepository get _activityRepository =>
+      ref.read(activityRepositoryProvider);
+  ApproverRepository get _approverRepository =>
+      ref.read(approverRepositoryProvider);
 
   @override
   ApprovalState build() {
@@ -19,30 +21,179 @@ class ApprovalController extends _$ApprovalController {
 
   void fetchData() async {
     await fetchMembership();
-    _setDummyApprovals();
+    await fetchActivities();
   }
 
   Future<void> fetchMembership() async {
     final result = await _authRepository.getSignedInAccount();
     result.when(
       onSuccess: (account) {
-        state = state.copyWith(membership: account?.membership, loadingScreen: false);
+        state = state.copyWith(
+          membership: account?.membership,
+          loadingScreen: false,
+        );
       },
       onFailure: (failure) {
         state = state.copyWith(
           loadingScreen: false,
-          errorMessage: failure.message ,
+          errorMessage: failure.message,
         );
       },
     );
   }
 
+  /// Fetch activities from the API and group them by status
+  /// [isLoadMore] - if true, appends to existing list; if false, replaces list
+  Future<void> fetchActivities({bool isLoadMore = false}) async {
+    final membership = state.membership;
+    if (membership == null) return;
+
+    // Don't fetch if already loading more or no more data
+    if (isLoadMore && (state.isLoadingMore || !state.hasMoreData)) return;
+
+    if (isLoadMore) {
+      state = state.copyWith(isLoadingMore: true);
+    }
+
+    final page = isLoadMore ? state.currentPage + 1 : 1;
+
+    final request = PaginationRequestWrapper<GetFetchActivitiesRequest>(
+      page: page,
+      pageSize: state.pageSize,
+      data: GetFetchActivitiesRequest(membershipId: membership.id),
+    );
+
+    final result = await _activityRepository.fetchActivities(
+      paginationRequest: request,
+    );
+
+    result.when(
+      onSuccess: (response) {
+        final newActivities = response.data;
+        final total = response.pagination.total;
+
+        // Determine if there's more data to load
+        final hasMore = response.pagination.hasNext;
+
+        List<Activity> updatedActivities;
+        if (isLoadMore) {
+          // Append new activities to existing list
+          updatedActivities = [...state.allActivities, ...newActivities];
+        } else {
+          // Replace with new activities
+          updatedActivities = newActivities;
+        }
+
+        state = state.copyWith(
+          allActivities: updatedActivities,
+          loadingScreen: false,
+          isLoadingMore: false,
+          currentPage: page,
+          totalItems: total,
+          hasMoreData: hasMore,
+        );
+        _groupActivitiesByStatus();
+        _applyFilters();
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          loadingScreen: false,
+          isLoadingMore: false,
+          errorMessage: failure.message,
+        );
+      },
+    );
+  }
+
+  /// Load more activities for infinite scrolling
+  Future<void> loadMore() async {
+    await fetchActivities(isLoadMore: true);
+  }
+
+  /// Group activities by their approval status relative to the current user
+  void _groupActivitiesByStatus() {
+    final membership = state.membership;
+    if (membership == null) return;
+
+    final pendingMyAction = <Activity>[];
+    final pendingOthers = <Activity>[];
+    final approved = <Activity>[];
+    final rejected = <Activity>[];
+
+    for (final activity in state.allActivities) {
+      final status = _getActivityStatusForUser(activity, membership.id);
+      switch (status) {
+        case _ActivityUserStatus.pendingMyAction:
+          pendingMyAction.add(activity);
+          break;
+        case _ActivityUserStatus.pendingOthers:
+          pendingOthers.add(activity);
+          break;
+        case _ActivityUserStatus.approved:
+          approved.add(activity);
+          break;
+        case _ActivityUserStatus.rejected:
+          rejected.add(activity);
+          break;
+      }
+    }
+
+    state = state.copyWith(
+      pendingMyAction: pendingMyAction,
+      pendingOthers: pendingOthers,
+      approved: approved,
+      rejected: rejected,
+    );
+  }
+
+  /// Determine the status of an activity for the current user
+  _ActivityUserStatus _getActivityStatusForUser(
+    Activity activity,
+    int? membershipId,
+  ) {
+    final approvers = activity.approvers;
+    if (approvers.isEmpty) {
+      return _ActivityUserStatus.pendingOthers;
+    }
+
+    // Check if any approver has rejected
+    final hasRejection = approvers.any(
+      (a) => a.status == ApprovalStatus.rejected,
+    );
+    if (hasRejection) {
+      return _ActivityUserStatus.rejected;
+    }
+
+    // Check if all approvers have approved
+    final allApproved = approvers.every(
+      (a) => a.status == ApprovalStatus.approved,
+    );
+    if (allApproved) {
+      return _ActivityUserStatus.approved;
+    }
+
+    // Check if current user has pending action
+    final userApprover = approvers.firstWhere(
+      (a) => a.membership?.id == membershipId,
+      orElse: () => const Approver(
+        id: -1,
+        status: ApprovalStatus.approved,
+        createdAt: null,
+        updatedAt: null,
+      ),
+    );
+
+    if (userApprover.id != -1 &&
+        userApprover.status == ApprovalStatus.unconfirmed) {
+      return _ActivityUserStatus.pendingMyAction;
+    }
+
+    return _ActivityUserStatus.pendingOthers;
+  }
+
   // Date filter controls
   void setDateRange({DateTime? start, DateTime? end}) {
-    state = state.copyWith(
-      filterStartDate: start,
-      filterEndDate: end,
-    );
+    state = state.copyWith(filterStartDate: start, filterEndDate: end);
     _applyFilters();
   }
 
@@ -51,12 +202,57 @@ class ApprovalController extends _$ApprovalController {
     _applyFilters();
   }
 
+  /// Set the status filter and update the filtered list
+  void setStatusFilter(ApprovalFilterStatus status) {
+    state = state.copyWith(statusFilter: status);
+    _applyFilters();
+  }
+
+  /// Refresh the activity list (for pull-to-refresh)
+  Future<void> refresh() async {
+    state = state.copyWith(
+      isRefreshing: true,
+      currentPage: 1,
+      hasMoreData: true,
+    );
+    await fetchActivities(isLoadMore: false);
+    state = state.copyWith(isRefreshing: false);
+  }
+
   void _applyFilters() {
     final start = state.filterStartDate;
     final end = state.filterEndDate;
+    final statusFilter = state.statusFilter;
 
+    // Get the base list based on status filter
+    List<Activity> baseList;
+    switch (statusFilter) {
+      case ApprovalFilterStatus.all:
+        // Combine all lists with pending my action first
+        baseList = [
+          ...state.pendingMyAction,
+          ...state.pendingOthers,
+          ...state.approved,
+          ...state.rejected,
+        ];
+        break;
+      case ApprovalFilterStatus.pendingMyAction:
+        baseList = state.pendingMyAction;
+        break;
+      case ApprovalFilterStatus.pendingOthers:
+        baseList = state.pendingOthers;
+        break;
+      case ApprovalFilterStatus.approved:
+        baseList = state.approved;
+        break;
+      case ApprovalFilterStatus.rejected:
+        baseList = state.rejected;
+        break;
+    }
+
+    // Apply date filter if set
     if (start == null && end == null) {
-      state = state.copyWith(filteredApprovals: state.approvals);
+      state = state.copyWith(filteredApprovals: baseList);
       return;
     }
 
@@ -66,8 +262,8 @@ class ApprovalController extends _$ApprovalController {
       return sOk && eOk;
     }
 
-    final filtered = state.approvals.where((a) {
-      final activityDate = a.createdAt; // use activity date for filtering
+    final filtered = baseList.where((a) {
+      final activityDate = a.createdAt;
       return inRange(activityDate);
     }).toList();
 
@@ -75,220 +271,49 @@ class ApprovalController extends _$ApprovalController {
   }
 
   DateTime _atStartOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
-  DateTime _atEndOfDay(DateTime d) => DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
+  DateTime _atEndOfDay(DateTime d) =>
+      DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
 
-  void _setDummyApprovals() {
-    final a1Supervisor = Membership(
-        id: 101,
-        baptize: true,
-        sidi: true,
-        account: Account(
-          id: 1001,
-          phone: '+62 812-3456-7890',
-          name: 'Jane Doe',
-          dob: DateTime(1990, 5, 20),
-          gender: Gender.female,
-          maritalStatus: MaritalStatus.single,
-        ),
-      );
-
-    final a1 = Activity(
-      id: 1,
-      supervisorId: a1Supervisor.id,
-      bipra: Bipra.fathers,
-      title: 'Buying of the office supplies',
-      description: 'Purchase of printer paper, pens, and folders for church office',
-      date: DateTime.now(),
-      note: 'Urgent - office supplies running low',
-      fileUrl: 'https://example.com/receipts/office-supplies-2025.pdf',
-      activityType: ActivityType.service,
-      createdAt: DateTime(2025, 9, 14, 8, 30),
-      updatedAt: DateTime(2025, 9, 14, 14, 45),
-      supervisor: a1Supervisor,
-      approvers: [
-        Approver(
-          id: 5001,
-          status: ApprovalStatus.unconfirmed,
-          createdAt: DateTime(2025, 9, 14, 9, 15),
-          updatedAt: DateTime(2025, 9, 14, 9, 15),
-          membership: Membership(
-            id: 201,
-            baptize: true,
-            sidi: false,
-            account: Account(
-              id: 2001,
-              phone: '+62 813-9876-5432',
-              name: 'Robert Manembo',
-              dob: DateTime(1988, 2, 14),
-              gender: Gender.male,
-              maritalStatus: MaritalStatus.married,
-            ),
-          ),
-        ),
-        Approver(
-          id: 5002,
-          status: ApprovalStatus.approved,
-          createdAt: DateTime(2025, 9, 14, 10, 22),
-          updatedAt: DateTime(2025, 9, 14, 14, 45),
-          membership: Membership(
-            id: 202,
-            baptize: true,
-            sidi: true,
-            account: Account(
-              id: 2002,
-              phone: '+62 815-2468-1357',
-              name: 'Sarah Williams',
-              dob: DateTime(1985, 11, 8),
-              gender: Gender.female,
-              maritalStatus: MaritalStatus.married,
-            ),
-          ),
-        ),
-      ],
+  /// Approve an activity by updating the approver status
+  Future<void> approveActivity(int activityId, int approverId) async {
+    final result = await _approverRepository.updateApprover(
+      approverId: approverId,
+      update: {'status': 'APPROVED'},
     );
 
-    final a2Supervisor = Membership(
-        id: 102,
-        baptize: true,
-        sidi: true,
-        account: Account(
-          id: 1002,
-          phone: '+62 821-5555-7777',
-          name: 'Michael Chen',
-          dob: DateTime(1985, 7, 11),
-          gender: Gender.male,
-          maritalStatus: MaritalStatus.married,
-        ),
-      );
+    result.when(
+      onSuccess: (_) {
+        // Refresh the activity list after approval
+        fetchActivities();
+      },
+      onFailure: (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+      },
+    );
+  }
 
-    final a2 = Activity(
-      id: 2,
-      supervisorId: a2Supervisor.id,
-      title: 'Income: Donation Transfer',
-      description: 'Monthly donation from parish members via bank transfer',
-      date: DateTime.now().subtract(const Duration(days: 5)),
-      note: 'Total received: Rp 15,000,000',
-      fileUrl: 'https://example.com/transactions/donation-sept-2025.pdf',
-      activityType: ActivityType.service,
-      createdAt: DateTime(2025, 9, 12, 11, 20),
-      updatedAt: DateTime(2025, 9, 12, 16, 30),
-      supervisor: a2Supervisor,
-      approvers: [
-        Approver(
-          id: 5003,
-          status: ApprovalStatus.approved,
-          createdAt: DateTime(2025, 9, 12, 13, 45),
-          updatedAt: DateTime(2025, 9, 12, 16, 30),
-          membership: Membership(
-            id: 203,
-            baptize: true,
-            sidi: true,
-            account: Account(
-              id: 2003,
-              phone: '+62 822-1122-3344',
-              name: 'David Lumbantobing',
-              dob: DateTime(1992, 3, 9),
-              gender: Gender.male,
-              maritalStatus: MaritalStatus.single,
-            ),
-          ),
-        ),
-        Approver(
-          id: 5004,
-          status: ApprovalStatus.approved,
-          createdAt: DateTime(2025, 9, 12, 14, 10),
-          updatedAt: DateTime(2025, 9, 12, 15, 55),
-          membership: Membership(
-            id: 204,
-            baptize: true,
-            sidi: true,
-            account: Account(
-              id: 2004,
-              phone: '+62 823-9988-7766',
-              name: 'Grace Sihombing',
-              dob: DateTime(1990, 6, 25),
-              gender: Gender.female,
-              maritalStatus: MaritalStatus.married,
-            ),
-          ),
-        ),
-      ],
+  /// Reject an activity by updating the approver status
+  Future<void> rejectActivity(int activityId, int approverId) async {
+    final result = await _approverRepository.updateApprover(
+      approverId: approverId,
+      update: {'status': 'REJECTED'},
     );
 
-    final a3Supervisor = Membership(
-        id: 103,
-        baptize: true,
-        sidi: true,
-        account: Account(
-          id: 1003,
-          phone: '+62 856-4321-8765',
-          name: 'Patricia Situmorang',
-          dob: DateTime(1987, 12, 3),
-          gender: Gender.female,
-          maritalStatus: MaritalStatus.married,
-        ),
-      );
-
-    final a3 = Activity(
-      id: 3,
-      supervisorId: a3Supervisor.id,
-      bipra: Bipra.mothers,
-      title: 'Document Request',
-      description: 'Request for baptism certificates for 5 children',
-      date: DateTime.now().subtract(const Duration(days: 10)),
-      note: 'Rejected due to incomplete parent information',
-      fileUrl: null,
-      activityType: ActivityType.service,
-      createdAt: DateTime(2025, 9, 5, 9, 0),
-      updatedAt: DateTime(2025, 9, 6, 10, 15),
-      supervisor: a3Supervisor,
-      approvers: [
-        Approver(
-          id: 5005,
-          status: ApprovalStatus.rejected,
-          createdAt: DateTime(2025, 9, 5, 15, 30),
-          updatedAt: DateTime(2025, 9, 6, 10, 15),
-          membership: Membership(
-            id: 205,
-            baptize: true,
-            sidi: true,
-            account: Account(
-              id: 2005,
-              phone: '+62 857-6655-4433',
-              name: 'Thomas Hutabarat',
-              dob: DateTime(1983, 8, 17),
-              gender: Gender.male,
-              maritalStatus: MaritalStatus.married,
-            ),
-          ),
-        ),
-        Approver(
-          id: 5006,
-          status: ApprovalStatus.rejected,
-          createdAt: DateTime(2025, 9, 5, 16, 45),
-          updatedAt: DateTime(2025, 9, 6, 9, 20),
-          membership: Membership(
-            id: 206,
-            baptize: true,
-            sidi: false,
-            account: Account(
-              id: 2006,
-              phone: '+62 858-3322-1100',
-              name: 'Maria Simbolon',
-              dob: DateTime(1995, 1, 30),
-              gender: Gender.female,
-              maritalStatus: MaritalStatus.single,
-            ),
-          ),
-        ),
-      ],
+    result.when(
+      onSuccess: (_) {
+        // Refresh the activity list after rejection
+        fetchActivities();
+      },
+      onFailure: (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+      },
     );
-
-    final approvals = [a1, a2, a3];
-    state = state.copyWith(approvals: approvals, filteredApprovals: approvals);
   }
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }
 }
+
+/// Internal enum for activity status relative to current user
+enum _ActivityUserStatus { pendingMyAction, pendingOthers, approved, rejected }

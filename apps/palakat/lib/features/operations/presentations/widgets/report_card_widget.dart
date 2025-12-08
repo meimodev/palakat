@@ -100,7 +100,7 @@ class ReportCardWidget extends StatelessWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.delete_outline,
+                                AppIcons.delete,
                                 size: 16,
                                 color: BaseColor.error,
                               ),
@@ -114,7 +114,7 @@ class ReportCardWidget extends StatelessWidget {
                         ),
                       ],
                       child: Icon(
-                        Icons.more_vert,
+                        AppIcons.moreVert,
                         color: BaseColor.neutral60,
                         size: BaseSize.w20,
                       ),
@@ -141,7 +141,7 @@ class ReportCardWidget extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        Icons.schedule,
+                        AppIcons.schedule,
                         size: BaseSize.w16,
                         color: BaseColor.neutral60,
                       ),
@@ -174,9 +174,9 @@ class ReportCardWidget extends StatelessWidget {
   IconData _getGenerationTypeIcon(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return Icons.person_outline;
+        return AppIcons.person;
       case GeneratedBy.system:
-        return Icons.auto_awesome;
+        return AppIcons.autoAwesome;
     }
   }
 

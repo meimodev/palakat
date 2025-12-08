@@ -154,7 +154,7 @@ class _EmptyStateWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.work_off_outlined,
+            AppIcons.workOff,
             size: BaseSize.w48,
             color: BaseColor.textSecondary,
           ),

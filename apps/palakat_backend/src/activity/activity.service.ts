@@ -109,11 +109,13 @@ export class ActivitiesService {
           approvers: {
             select: {
               id: true,
+              membershipId: true,
               status: true,
               createdAt: true,
               updatedAt: true,
               membership: {
                 select: {
+                  id: true,
                   account: {
                     select: {
                       id: true,
@@ -327,14 +329,13 @@ export class ActivitiesService {
     }
 
     // Resolve approvers based on approval rules
-    // Note: Financial data is not available at activity creation time,
-    // so we only resolve based on activity type for now
+    // Include financial data if provided for rule matching
     const approverResolution = await this.approverResolver.resolveApprovers({
       churchId: membership.churchId,
       activityType: activityData.activityType,
       supervisorId: supervisorId,
-      // financialAccountNumberId and financialType will be added when
-      // revenue/expense is linked to the activity
+      financialAccountNumberId: finance?.financialAccountNumberId,
+      financialType: finance?.type as 'REVENUE' | 'EXPENSE' | undefined,
     });
 
     // Use a transaction to create activity, link finance records, and create approvers

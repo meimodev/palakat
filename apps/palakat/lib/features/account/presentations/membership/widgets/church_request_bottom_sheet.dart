@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
@@ -82,7 +83,7 @@ class _ChurchRequestBottomSheetState
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: FaIcon(AppIcons.close),
                   color: BaseColor.neutral[600],
                 ),
               ],
@@ -113,8 +114,8 @@ class _ChurchRequestBottomSheetState
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.error_outline,
+                    FaIcon(
+                      AppIcons.error,
                       size: BaseSize.w20,
                       color: BaseColor.red.shade700,
                     ),
@@ -130,8 +131,8 @@ class _ChurchRequestBottomSheetState
                     ),
                     InkWell(
                       onTap: () => setState(() => _errorMessage = null),
-                      child: Icon(
-                        Icons.close,
+                      child: FaIcon(
+                        AppIcons.close,
                         size: BaseSize.w16,
                         color: BaseColor.red.shade700,
                       ),
@@ -303,8 +304,8 @@ class _ChurchRequestBottomSheetState
         children: [
           Row(
             children: [
-              Icon(
-                Icons.person_outline,
+              FaIcon(
+                AppIcons.person,
                 size: BaseSize.w20,
                 color: BaseColor.blue.shade700,
               ),
@@ -496,7 +497,7 @@ class _ChurchRequestBottomSheetState
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.check_circle, color: BaseColor.white),
+                  FaIcon(AppIcons.success, color: BaseColor.white),
                   Gap.w8,
                   const Expanded(
                     child: Text(
@@ -525,7 +526,7 @@ class _ChurchRequestBottomSheetState
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.error_outline, color: BaseColor.white),
+                  FaIcon(AppIcons.error, color: BaseColor.white),
                   Gap.w8,
                   Expanded(child: Text(failure.message)),
                 ],
@@ -548,7 +549,7 @@ class _ChurchRequestBottomSheetState
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.error_outline, color: BaseColor.white),
+              FaIcon(AppIcons.error, color: BaseColor.white),
               Gap.w8,
               Expanded(child: Text('Error: ${e.toString()}')),
             ],
@@ -569,7 +570,7 @@ class _ChurchRequestBottomSheetState
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.error_outline, color: BaseColor.white),
+              FaIcon(AppIcons.error, color: BaseColor.white),
               Gap.w8,
               const Expanded(
                 child: Text('An unexpected error occurred. Please try again.'),

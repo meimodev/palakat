@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
@@ -86,10 +87,10 @@ class _ActivityPickerDialogContentState
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
               hintText: 'Search activities...',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: FaIcon(AppIcons.search, size: BaseSize.w20),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: FaIcon(AppIcons.clear, size: BaseSize.w20),
                       onPressed: () {
                         _searchController.clear();
                         _onSearchChanged('');
@@ -123,11 +124,7 @@ class _ActivityPickerDialogContentState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: BaseSize.w48,
-              color: BaseColor.error,
-            ),
+            FaIcon(AppIcons.error, size: BaseSize.w48, color: BaseColor.error),
             Gap.h12,
             Text(
               state.errorMessage!,
@@ -149,8 +146,8 @@ class _ActivityPickerDialogContentState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.event_busy_outlined,
+            FaIcon(
+              AppIcons.eventBusy,
               size: BaseSize.w48,
               color: BaseColor.neutral[400],
             ),
@@ -235,7 +232,7 @@ class _ActivityCard extends StatelessWidget {
                 color: _getActivityTypeColor().withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
+              child: FaIcon(
                 _getActivityTypeIcon(),
                 size: BaseSize.w20,
                 color: _getActivityTypeColor(),
@@ -259,8 +256,8 @@ class _ActivityCard extends StatelessWidget {
                   Gap.h4,
                   Row(
                     children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
+                      FaIcon(
+                        AppIcons.calendar,
                         size: BaseSize.w12,
                         color: BaseColor.neutral[500],
                       ),
@@ -298,8 +295,8 @@ class _ActivityCard extends StatelessWidget {
               ),
             ),
             // Chevron
-            Icon(
-              Icons.chevron_right,
+            FaIcon(
+              AppIcons.forward,
               size: BaseSize.w20,
               color: BaseColor.neutral[400],
             ),
@@ -312,13 +309,13 @@ class _ActivityCard extends StatelessWidget {
   IconData _getActivityTypeIcon() {
     switch (activity.activityType.name) {
       case 'service':
-        return Icons.church_outlined;
+        return AppIcons.church;
       case 'event':
-        return Icons.event_outlined;
+        return AppIcons.event;
       case 'announcement':
-        return Icons.campaign_outlined;
+        return AppIcons.announcement;
       default:
-        return Icons.event_outlined;
+        return AppIcons.event;
     }
   }
 

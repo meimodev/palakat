@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -72,7 +73,7 @@ class _FinanceTypeCard extends StatelessWidget {
                 color: config.iconBackgroundColor,
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
+              child: FaIcon(
                 financeType.icon,
                 size: BaseSize.w24,
                 color: config.iconColor,
@@ -102,8 +103,8 @@ class _FinanceTypeCard extends StatelessWidget {
               ),
             ),
             // Chevron
-            Icon(
-              Icons.chevron_right,
+            FaIcon(
+              AppIcons.forward,
               size: BaseSize.w24,
               color: config.chevronColor,
             ),

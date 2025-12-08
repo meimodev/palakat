@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_controller.dart';
@@ -13,9 +13,17 @@ import 'package:palakat_shared/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ActivityDetailScreen extends ConsumerWidget {
-  const ActivityDetailScreen({super.key, required this.activityId});
+  const ActivityDetailScreen({
+    super.key,
+    required this.activityId,
+    this.isFromApprovalContext = false,
+  });
 
   final int activityId;
+
+  /// Flag indicating navigation from approval context (Req 6.2, 6.3)
+  /// When true, approve/reject buttons are hidden (read-only mode)
+  final bool isFromApprovalContext;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +37,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             children: [
               ScreenTitleWidget.primary(
                 title: 'Memuat...',
-                leadIcon: Assets.icons.line.chevronBackOutline,
+                leadIcon: AppIcons.back,
                 leadIconColor: Colors.black,
                 onPressedLeadIcon: context.pop,
               ),
@@ -65,7 +73,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48, color: BaseColor.red),
+                FaIcon(AppIcons.error, size: 48, color: BaseColor.red),
                 Gap.h16,
                 Text(
                   state.errorMessage!,
@@ -110,7 +118,10 @@ class ActivityDetailScreen extends ConsumerWidget {
     Activity activity,
   ) {
     // Check if supervisor can self-approve (Requirements: 8.1, 8.2)
-    final showSelfApprovalButtons = state.isSupervisorApprovalPending;
+    // Hide approval buttons when accessed from approval context (Req 6.3)
+    // **Feature: approval-card-detail-redesign, Property 7: Activity detail from approval context has no action buttons**
+    final showSelfApprovalButtons =
+        state.isSupervisorApprovalPending && !isFromApprovalContext;
 
     return ScaffoldWidget(
       persistBottomWidget: showSelfApprovalButtons
@@ -123,7 +134,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             ScreenTitleWidget.primary(
               title: activity.activityType.displayName,
               subTitle: activity.title,
-              leadIcon: Assets.icons.line.chevronBackOutline,
+              leadIcon: AppIcons.back,
               leadIconColor: Colors.black,
               onPressedLeadIcon: context.pop,
             ),
@@ -219,8 +230,8 @@ class ActivityDetailScreen extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.person_pin_outlined,
+                  FaIcon(
+                    AppIcons.personPin,
                     size: BaseSize.w16,
                     color: BaseColor.blue[700],
                   ),
@@ -303,7 +314,11 @@ class ActivityDetailScreen extends ConsumerWidget {
                 color: BaseColor.red[500],
               ),
             )
-          : Icon(Icons.close, size: BaseSize.w18, color: BaseColor.red[500]),
+          : FaIcon(
+              AppIcons.close,
+              size: BaseSize.w18,
+              color: BaseColor.red[500],
+            ),
       label: Text(
         'Tolak',
         style: BaseTypography.titleMedium.copyWith(
@@ -366,7 +381,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 color: Colors.white,
               ),
             )
-          : Icon(Icons.check, size: BaseSize.w18, color: Colors.white),
+          : FaIcon(AppIcons.check, size: BaseSize.w18, color: Colors.white),
       label: Text(
         'Setujui',
         style: BaseTypography.titleMedium.copyWith(
@@ -465,7 +480,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     switch (activity.activityType) {
       case ActivityType.service:
         return _TypeConfig(
-          icon: Icons.church_outlined,
+          icon: AppIcons.church,
           label: 'Ibadah',
           backgroundColor: BaseColor.primary[50]!,
           borderColor: BaseColor.primary[200]!,
@@ -474,7 +489,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         );
       case ActivityType.event:
         return _TypeConfig(
-          icon: Icons.event_outlined,
+          icon: AppIcons.event,
           label: 'Kegiatan',
           backgroundColor: BaseColor.blue[50]!,
           borderColor: BaseColor.blue[200]!,
@@ -483,7 +498,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         );
       case ActivityType.announcement:
         return _TypeConfig(
-          icon: Icons.campaign_outlined,
+          icon: AppIcons.announcement,
           label: 'Pengumuman',
           backgroundColor: BaseColor.yellow[50]!,
           borderColor: BaseColor.yellow[200]!,
@@ -577,7 +592,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     final positions = supervisor.membershipPositions;
     return _buildSectionCard(
       title: 'Penanggung Jawab',
-      icon: Icons.person_outline,
+      icon: AppIcons.person,
       iconBgColor: BaseColor.teal[50],
       iconColor: BaseColor.teal[600],
       children: [
@@ -602,8 +617,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                 Gap.h4,
                 Row(
                   children: [
-                    Icon(
-                      Icons.phone_outlined,
+                    FaIcon(
+                      AppIcons.phone,
                       size: BaseSize.w12,
                       color: BaseColor.teal[600],
                     ),
@@ -663,7 +678,7 @@ class ActivityDetailScreen extends ConsumerWidget {
 
     return _buildSectionCard(
       title: activity.title,
-      icon: Icons.info_outline,
+      icon: AppIcons.info,
       subtitle: 'Detail kegiatan',
       children: [
         if (hasBipra) _buildBipraInfo(activity),
@@ -767,7 +782,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: _buildDateTimeItem(
-              icon: Icons.calendar_today,
+              icon: AppIcons.calendar,
               label: 'Tanggal',
               value: activity.date.ddMmmmYyyy,
               subValue: activity.date.EEEEddMMMyyyyShort.split(',').first,
@@ -781,7 +796,7 @@ class ActivityDetailScreen extends ConsumerWidget {
           ),
           Expanded(
             child: _buildDateTimeItem(
-              icon: Icons.access_time,
+              icon: AppIcons.time,
               label: 'Waktu',
               value: activity.date.HHmm,
               subValue: _getTimePeriod(activity.date),
@@ -851,8 +866,8 @@ class ActivityDetailScreen extends ConsumerWidget {
               color: BaseColor.yellow[100],
               borderRadius: BorderRadius.circular(BaseSize.radiusSm),
             ),
-            child: Icon(
-              Icons.notifications_active_outlined,
+            child: FaIcon(
+              AppIcons.notificationActive,
               size: BaseSize.w20,
               color: BaseColor.yellow[700],
             ),
@@ -928,8 +943,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                 color: BaseColor.primary[100],
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
-              child: Icon(
-                Icons.location_on,
+              child: FaIcon(
+                AppIcons.location,
                 size: BaseSize.w20,
                 color: BaseColor.primary[600],
               ),
@@ -949,8 +964,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                   Gap.h4,
                   Row(
                     children: [
-                      Icon(
-                        Icons.my_location,
+                      FaIcon(
+                        AppIcons.coordinates,
                         size: BaseSize.w12,
                         color: BaseColor.primary[500],
                       ),
@@ -968,8 +983,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.open_in_new,
+            FaIcon(
+              AppIcons.openExternal,
               size: BaseSize.w18,
               color: BaseColor.primary[400],
             ),
@@ -1060,8 +1075,8 @@ class ActivityDetailScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.account_balance_outlined,
+                FaIcon(
+                  AppIcons.bankAccount,
                   size: BaseSize.w16,
                   color: color[600],
                 ),
@@ -1139,8 +1154,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                     color: BaseColor.yellow[200],
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
-                  child: Icon(
-                    Icons.sticky_note_2_outlined,
+                  child: FaIcon(
+                    AppIcons.notes,
                     size: BaseSize.w16,
                     color: BaseColor.yellow[700],
                   ),
@@ -1178,7 +1193,7 @@ class ActivityDetailScreen extends ConsumerWidget {
 
     return _buildSectionCard(
       title: 'Status Persetujuan',
-      icon: Icons.how_to_reg_outlined,
+      icon: AppIcons.verified,
       subtitle: '${activity.approvers.length} approver(s)',
       iconBgColor: BaseColor.green[50],
       iconColor: BaseColor.green[600],
@@ -1257,8 +1272,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.person_pin_outlined,
+                            FaIcon(
+                              AppIcons.personPin,
                               size: BaseSize.w12,
                               color: BaseColor.blue[700],
                             ),
@@ -1353,11 +1368,11 @@ class ActivityDetailScreen extends ConsumerWidget {
   IconData _getApprovalStatusIcon(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
-        return Icons.check_circle;
+        return AppIcons.successSolid;
       case ApprovalStatus.rejected:
-        return Icons.cancel;
+        return AppIcons.cancel;
       case ApprovalStatus.unconfirmed:
-        return Icons.schedule;
+        return AppIcons.schedule;
     }
   }
 

@@ -1,10 +1,17 @@
 import 'package:flutter/widgets.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 // import 'package:palakat/core/routing/app_routing.dart';
 // import 'package:palakat/core/widgets/widgets.dart';
 
 extension XBuildContext on BuildContext {
+  /// Provides easy access to localized strings.
+  ///
+  /// Usage: `context.l10n.appTitle`
+  ///
+  /// Requirements: 3.1
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
   // void navigateToHome(WidgetRef ref) {
   //   goNamed(AppRoute.home);
   //   ref.read(bottomNavBarProvider.notifier).navigateToHome();

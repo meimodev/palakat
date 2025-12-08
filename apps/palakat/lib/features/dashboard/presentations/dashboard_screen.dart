@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
 import 'widgets/widgets.dart';
 
-void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
+void _showSignOutConfirmation(
+  BuildContext context,
+  WidgetRef ref, {
+  required String signOutTitle,
+  required String signOutMessage,
+  required String cancelLabel,
+  required String signOutLabel,
+}) {
   showModalBottomSheet<bool>(
     context: context,
     backgroundColor: BaseColor.transparent,
@@ -45,15 +54,15 @@ void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(
-              Icons.logout,
+            child: FaIcon(
+              AppIcons.logout,
               size: BaseSize.w32,
               color: BaseColor.red[700],
             ),
           ),
           Gap.h16,
           Text(
-            "Sign Out?",
+            signOutTitle,
             style: BaseTypography.titleLarge.copyWith(
               fontWeight: FontWeight.bold,
               color: BaseColor.black,
@@ -62,7 +71,7 @@ void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
           ),
           Gap.h12,
           Text(
-            "Are you sure you want to sign out? You will need to sign in again to access your account.",
+            signOutMessage,
             style: BaseTypography.bodyMedium.toSecondary,
             textAlign: TextAlign.center,
           ),
@@ -80,7 +89,7 @@ void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
                     ),
                   ),
                   child: Text(
-                    "Cancel",
+                    cancelLabel,
                     style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: BaseColor.secondaryText,
@@ -107,7 +116,7 @@ void _showSignOutConfirmation(BuildContext context, WidgetRef ref) {
                     ),
                   ),
                   child: Text(
-                    "Sign Out",
+                    signOutLabel,
                     style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: BaseColor.white,
@@ -140,7 +149,7 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Dashboard",
+                context.l10n.dashboard_title,
                 style: BaseTypography.headlineLarge.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.black,
@@ -149,13 +158,20 @@ class DashboardScreen extends ConsumerWidget {
               ),
               if (state.account != null)
                 IconButton(
-                  onPressed: () => _showSignOutConfirmation(context, ref),
-                  icon: Icon(
-                    Icons.logout,
+                  onPressed: () => _showSignOutConfirmation(
+                    context,
+                    ref,
+                    signOutTitle: context.l10n.btn_signOutConfirm,
+                    signOutMessage: context.l10n.btn_signOutMessage,
+                    cancelLabel: context.l10n.btn_cancel,
+                    signOutLabel: context.l10n.btn_signOut,
+                  ),
+                  icon: FaIcon(
+                    AppIcons.logout,
                     size: BaseSize.w24,
                     color: BaseColor.red[600],
                   ),
-                  tooltip: 'Sign Out',
+                  tooltip: context.l10n.btn_signOut,
                   style: IconButton.styleFrom(
                     backgroundColor: BaseColor.red[50],
                     shape: RoundedRectangleBorder(

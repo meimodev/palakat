@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 class MapScreen extends StatefulWidget {
@@ -265,10 +264,10 @@ class _MapScreenState extends State<MapScreen> {
               // Back button
               _MapIconButton(
                 onTap: () => context.pop(),
-                child: Assets.icons.line.chevronBackOutline.svg(
-                  width: BaseSize.w24,
-                  height: BaseSize.w24,
-                  colorFilter: BaseColor.neutral90.filterSrcIn,
+                child: FaIcon(
+                  AppIcons.back,
+                  size: BaseSize.w24,
+                  color: BaseColor.neutral90,
                 ),
               ),
               Gap.w12,
@@ -331,10 +330,10 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
                   child: Center(
-                    child: Assets.icons.fill.mapPin.svg(
-                      width: BaseSize.w24,
-                      height: BaseSize.w24,
-                      colorFilter: BaseColor.white.filterSrcIn,
+                    child: FaIcon(
+                      AppIcons.mapPin,
+                      size: BaseSize.w24,
+                      color: BaseColor.white,
                     ),
                   ),
                 ),
@@ -417,10 +416,10 @@ class _MapScreenState extends State<MapScreen> {
                             BaseSize.radiusMd,
                           ),
                         ),
-                        child: Assets.icons.fill.mapPin.svg(
-                          width: BaseSize.w24,
-                          height: BaseSize.w24,
-                          colorFilter: BaseColor.primary3.filterSrcIn,
+                        child: FaIcon(
+                          AppIcons.mapPin,
+                          size: BaseSize.w24,
+                          color: BaseColor.primary3,
                         ),
                       ),
                       Gap.w12,
@@ -473,8 +472,8 @@ class _MapScreenState extends State<MapScreen> {
           // Zoom in
           _MapIconButton(
             onTap: _zoomIn,
-            child: Icon(
-              Icons.add,
+            child: FaIcon(
+              AppIcons.add,
               size: BaseSize.w24,
               color: BaseColor.neutral80,
             ),
@@ -483,8 +482,8 @@ class _MapScreenState extends State<MapScreen> {
           // Zoom out
           _MapIconButton(
             onTap: _zoomOut,
-            child: Icon(
-              Icons.remove,
+            child: FaIcon(
+              AppIcons.remove,
               size: BaseSize.w24,
               color: BaseColor.neutral80,
             ),
@@ -502,10 +501,10 @@ class _MapScreenState extends State<MapScreen> {
                       color: BaseColor.primary3,
                     ),
                   )
-                : Assets.icons.fill.gps.svg(
-                    width: BaseSize.w22,
-                    height: BaseSize.w22,
-                    colorFilter: BaseColor.primary3.filterSrcIn,
+                : FaIcon(
+                    AppIcons.gps,
+                    size: BaseSize.w22,
+                    color: BaseColor.primary3,
                   ),
           ),
         ],

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -62,8 +62,8 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(
-                Icons.library_books_outlined,
+              child: FaIcon(
+                AppIcons.libraryBooks,
                 size: BaseSize.w16,
                 color: BaseColor.primary,
               ),
@@ -157,7 +157,11 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
           InputWidget.text(
             controller: _searchController,
             hint: "Search song title or number",
-            endIcon: Assets.icons.line.search.svg(width: 20, height: 20),
+            endIcon: FaIcon(
+              AppIcons.search,
+              size: 20,
+              color: BaseColor.primary,
+            ),
             borderColor: BaseColor.primary,
             onChanged: (String? query) {
               // Cancel previous timer to implement debouncing (Requirement 3.2)
@@ -316,8 +320,8 @@ class _EmptySearchStateWidget extends StatelessWidget {
               color: BaseColor.primary[50],
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.search_off,
+            child: FaIcon(
+              AppIcons.searchOff,
               size: BaseSize.w24,
               color: BaseColor.primary,
             ),

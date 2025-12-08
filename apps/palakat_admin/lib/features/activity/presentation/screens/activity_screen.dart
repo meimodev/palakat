@@ -85,17 +85,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search by title, description, or supervisor name ...',
+                      searchHint:
+                          'Search by title, description, or supervisor name ...',
                       onSearchChanged: controller.onChangedSearch,
                       dateRangePreset: state.dateRangePreset,
                       customDateRange: state.customDateRange,
-                      onDateRangePresetChanged: controller.onChangedDateRangePreset,
-                      onCustomDateRangeSelected: controller.onCustomDateRangeSelected,
+                      onDateRangePresetChanged:
+                          controller.onChangedDateRangePreset,
+                      onCustomDateRangeSelected:
+                          controller.onCustomDateRangeSelected,
                       dropdownLabel: 'Type',
                       dropdownOptions: {
-                        ActivityType.service.name: ActivityType.service.displayName,
+                        ActivityType.service.name:
+                            ActivityType.service.displayName,
                         ActivityType.event.name: ActivityType.event.displayName,
-                        ActivityType.announcement.name: ActivityType.announcement.displayName,
+                        ActivityType.announcement.name:
+                            ActivityType.announcement.displayName,
                       },
                       dropdownValue: state.activityTypeFilter?.name,
                       onDropdownChanged: (value) {
@@ -103,7 +108,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           controller.onChangedActivityType(null);
                         } else {
                           controller.onChangedActivityType(
-                            ActivityType.values.firstWhere((e) => e.name == value),
+                            ActivityType.values.firstWhere(
+                              (e) => e.name == value,
+                            ),
                           );
                         }
                       },
@@ -197,7 +204,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         title: 'Approval',
         flex: 2,
         cellBuilder: (ctx, activity) {
-          return CompactStatusChip.forApproval(activity.approvers.approvalStatus);
+          return CompactStatusChip.forApproval(
+            ctx,
+            activity.approvers.approvalStatus,
+          );
         },
       ),
       AppTableColumn<Activity>(
@@ -210,8 +220,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           );
         },
       ),
-
     ];
   }
 }
-

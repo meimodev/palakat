@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat/core/assets/assets.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
@@ -31,25 +30,13 @@ class CardArticlesWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              title,
-              style: BaseTypography.bodySmall,
-            ),
+            Text(title, style: BaseTypography.bodySmall),
             Gap.h6,
             Wrap(
               runSpacing: BaseSize.h6,
               direction: Axis.horizontal,
-              children: [
-                ...categories
-                    .map(
-                      (e) => ChipsWidget(
-                        title: e,
-                        icon: Assets.icons.line.trash,
-                      ),
-                    )
-                ,
-              ],
-            )
+              children: [...categories.map((e) => ChipsWidget(title: e))],
+            ),
           ],
         ),
       ),

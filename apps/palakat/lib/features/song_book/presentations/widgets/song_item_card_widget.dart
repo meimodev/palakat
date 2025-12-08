@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
@@ -47,8 +48,8 @@ class SongItemCard extends StatelessWidget {
               ),
               Gap.w8,
               // Chevron indicator
-              Icon(
-                Icons.chevron_right,
+              FaIcon(
+                AppIcons.forward,
                 color: BaseColor.textSecondary,
                 size: BaseSize.w24,
               ),
@@ -71,8 +72,8 @@ class _SongIcon extends StatelessWidget {
         color: BaseColor.primary[50],
         borderRadius: BorderRadius.circular(BaseSize.w12),
       ),
-      child: Icon(
-        Icons.music_note,
+      child: FaIcon(
+        AppIcons.musicNote,
         color: BaseColor.primary,
         size: BaseSize.w24,
       ),

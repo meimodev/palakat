@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:palakat/core/constants/app_icons.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
@@ -120,7 +120,7 @@ class OperationsController extends _$OperationsController {
         id: 'publish_service',
         title: 'Publish Service',
         description: 'Create and publish church service activities',
-        icon: Icons.handshake,
+        icon: AppIcons.handshake,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.service},
         isEnabled: hasPositions,
@@ -129,7 +129,7 @@ class OperationsController extends _$OperationsController {
         id: 'publish_event',
         title: 'Publish Event',
         description: 'Create and publish church events',
-        icon: Icons.event,
+        icon: AppIcons.event,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.event},
         isEnabled: hasPositions,
@@ -138,7 +138,7 @@ class OperationsController extends _$OperationsController {
         id: 'publish_announcement',
         title: 'Publish Announcement',
         description: 'Create and publish announcements',
-        icon: Icons.campaign,
+        icon: AppIcons.announcement,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.announcement},
         isEnabled: hasPositions,
@@ -152,7 +152,7 @@ class OperationsController extends _$OperationsController {
         id: 'add_income',
         title: 'Add Revenue',
         description: 'Record church income and offerings',
-        icon: Icons.trending_up,
+        icon: AppIcons.revenue,
         routeName: AppRoute.financeCreate,
         routeParams: {
           RouteParamKey.financeType: FinanceType.revenue,
@@ -164,7 +164,7 @@ class OperationsController extends _$OperationsController {
         id: 'add_expense',
         title: 'Add Expense',
         description: 'Record church expenses',
-        icon: Icons.trending_down,
+        icon: AppIcons.expense,
         routeName: AppRoute.financeCreate,
         routeParams: {
           RouteParamKey.financeType: FinanceType.expense,
@@ -180,7 +180,7 @@ class OperationsController extends _$OperationsController {
         id: 'generate_report',
         title: 'Generate Report',
         description: 'Create activity and financial reports',
-        icon: Icons.assessment,
+        icon: AppIcons.assessment,
         routeName:
             AppRoute.operations, // Placeholder - update when route exists
         isEnabled: hasPositions,
@@ -191,19 +191,19 @@ class OperationsController extends _$OperationsController {
       OperationCategory(
         id: 'publishing',
         title: 'Publishing',
-        icon: Icons.publish,
+        icon: AppIcons.publish,
         operations: publishingOperations,
       ),
       OperationCategory(
         id: 'financial',
         title: 'Financial',
-        icon: Icons.account_balance_wallet,
+        icon: AppIcons.wallet,
         operations: financialOperations,
       ),
       OperationCategory(
         id: 'reports',
         title: 'Reports',
-        icon: Icons.bar_chart,
+        icon: AppIcons.barChart,
         operations: reportsOperations,
       ),
     ];

@@ -63,7 +63,7 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                   ),
                   Gap.w8,
                   Icon(
-                    Icons.chevron_right,
+                    AppIcons.forward,
                     size: BaseSize.w20,
                     color: BaseColor.textSecondary,
                   ),
@@ -113,11 +113,11 @@ class _ActivityIcon extends StatelessWidget {
   IconData _getIcon() {
     switch (activityType) {
       case ActivityType.service:
-        return Icons.church_outlined;
+        return AppIcons.church;
       case ActivityType.event:
-        return Icons.event_outlined;
+        return AppIcons.event;
       case ActivityType.announcement:
-        return Icons.campaign_outlined;
+        return AppIcons.announcement;
     }
   }
 
@@ -299,19 +299,19 @@ class _ApprovalStatusBadge extends StatelessWidget {
         return _StatusInfo(
           label: 'Approved',
           color: BaseColor.green[700]!,
-          icon: Icons.check_circle_outline,
+          icon: AppIcons.success,
         );
       case ApprovalStatus.rejected:
         return _StatusInfo(
           label: 'Rejected',
           color: BaseColor.red[700]!,
-          icon: Icons.cancel_outlined,
+          icon: AppIcons.cancel,
         );
       case ApprovalStatus.unconfirmed:
         return _StatusInfo(
           label: 'Pending',
           color: BaseColor.yellow[700]!,
-          icon: Icons.schedule_outlined,
+          icon: AppIcons.schedule,
         );
     }
   }

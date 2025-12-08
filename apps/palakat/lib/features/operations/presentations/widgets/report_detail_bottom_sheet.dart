@@ -178,9 +178,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.neutral60,
-          ),
+          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.neutral60),
         ),
         Gap.w16,
         Flexible(
@@ -208,9 +206,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
   IconData _getGenerationTypeIcon(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return Icons.person_outline;
+        return AppIcons.person;
       case GeneratedBy.system:
-        return Icons.auto_awesome;
+        return AppIcons.autoAwesome;
     }
   }
 
@@ -251,5 +249,4 @@ class ReportDetailBottomSheet extends StatelessWidget {
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
-
 }

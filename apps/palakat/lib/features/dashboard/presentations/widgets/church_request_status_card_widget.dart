@@ -95,7 +95,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
         return _StatusInfo(
           statusLabel: 'On Review',
           message: 'Your request is on us and soon will be acted upon.',
-          icon: Icons.schedule_outlined,
+          icon: AppIcons.schedule,
           iconColor: BaseColor.yellow[700]!,
           iconBackgroundColor: BaseColor.yellow[50]!,
           backgroundColor: BaseColor.yellow[50]!,
@@ -106,9 +106,8 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
       case RequestStatus.doing:
         return _StatusInfo(
           statusLabel: 'On Progress',
-          message:
-              'YAY! Your request is being processed.',
-          icon: Icons.sync_outlined,
+          message: 'YAY! Your request is being processed.',
+          icon: AppIcons.sync,
           iconColor: BaseColor.blue[700]!,
           iconBackgroundColor: BaseColor.blue[50]!,
           backgroundColor: BaseColor.blue[50]!,
@@ -121,7 +120,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
           statusLabel: 'Completed',
           message:
               'Your church has been registered! You can now select it in when editing membership data.',
-          icon: Icons.check_circle_outline,
+          icon: AppIcons.success,
           iconColor: BaseColor.green[700]!,
           iconBackgroundColor: BaseColor.green[50]!,
           backgroundColor: BaseColor.green[50]!,

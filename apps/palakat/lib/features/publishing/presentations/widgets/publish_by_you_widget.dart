@@ -24,7 +24,7 @@ class PublishByYouWidget extends StatelessWidget {
           onPressedViewAll: onPressedViewAll,
           count: data.length,
           title: 'Published By You',
-          leadingIcon: Icons.person_outline,
+          leadingIcon: AppIcons.person,
           leadingBg: BaseColor.teal[50],
           leadingFg: BaseColor.teal[700],
         ),
@@ -35,16 +35,13 @@ class PublishByYouWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: BaseColor.cardBackground1,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: BaseColor.neutral20,
-                width: 1,
-              ),
+              border: Border.all(color: BaseColor.neutral20, width: 1),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.publish_outlined,
+                  AppIcons.publishOutlined,
                   size: BaseSize.w48,
                   color: BaseColor.secondaryText,
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/currency_input_widget.dart';
 import 'package:palakat_shared/models.dart' hide Column;
@@ -72,14 +73,14 @@ class FinanceSummaryCard extends StatelessWidget {
           const Spacer(),
           // Edit button
           _ActionButton(
-            icon: Icons.edit_outlined,
+            icon: AppIcons.edit,
             onTap: onEdit,
             color: BaseColor.primary,
           ),
           Gap.w8,
           // Remove button
           _ActionButton(
-            icon: Icons.delete_outline,
+            icon: AppIcons.delete,
             onTap: onRemove,
             color: BaseColor.error,
           ),
@@ -101,7 +102,7 @@ class FinanceSummaryCard extends StatelessWidget {
         children: [
           // Amount (formatted as Rupiah, negative for expense)
           _InfoRow(
-            icon: _isExpense ? Icons.trending_down : Icons.trending_up,
+            icon: _isExpense ? AppIcons.expense : AppIcons.revenue,
             iconColor: _accentColor,
             label: 'Amount',
             value: formattedAmount,
@@ -113,7 +114,7 @@ class FinanceSummaryCard extends StatelessWidget {
           Gap.h12,
           // Account number with description
           _InfoRow(
-            icon: Icons.account_balance_outlined,
+            icon: AppIcons.bankAccount,
             label: 'Account Number',
             value: financeData.accountNumber,
             subtitle: financeData.accountDescription,
@@ -122,8 +123,8 @@ class FinanceSummaryCard extends StatelessWidget {
           // Payment method
           _InfoRow(
             icon: financeData.paymentMethod == PaymentMethod.cash
-                ? Icons.payments_outlined
-                : Icons.credit_card_outlined,
+                ? AppIcons.cash
+                : AppIcons.payment,
             label: 'Payment Method',
             value: _getPaymentMethodDisplayName(financeData.paymentMethod),
           ),
@@ -164,7 +165,7 @@ class _FinanceTypeBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(type.icon, size: BaseSize.w16, color: type.color),
+          FaIcon(type.icon, size: BaseSize.w16, color: type.color),
           Gap.w6,
           Text(
             type.displayName,
@@ -202,7 +203,7 @@ class _ActionButton extends StatelessWidget {
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(BaseSize.radiusSm),
         ),
-        child: Icon(icon, size: BaseSize.w18, color: color),
+        child: FaIcon(icon, size: BaseSize.w18, color: color),
       ),
     );
   }
@@ -239,7 +240,7 @@ class _InfoRow extends StatelessWidget {
             color: iconColor?.withValues(alpha: 0.1) ?? BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
-          child: Icon(
+          child: FaIcon(
             icon,
             size: BaseSize.w16,
             color: iconColor ?? BaseColor.neutral[600],

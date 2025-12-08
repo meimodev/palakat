@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 /// A widget for selecting payment method (CASH or CASHLESS).
@@ -122,7 +123,7 @@ class _PaymentMethodCard extends StatelessWidget {
                 color: isSelected ? config.iconBgColor : BaseColor.neutral[100],
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: FaIcon(
                 config.icon,
                 size: BaseSize.w20,
                 color: isSelected ? config.iconColor : BaseColor.neutral[500],
@@ -163,8 +164,8 @@ class _PaymentMethodCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.check_circle,
+                    FaIcon(
+                      AppIcons.successSolid,
                       size: BaseSize.w12,
                       color: Colors.white,
                     ),
@@ -190,7 +191,7 @@ class _PaymentMethodCard extends StatelessWidget {
     switch (method) {
       case PaymentMethod.cash:
         return _PaymentMethodConfig(
-          icon: Icons.payments_outlined,
+          icon: AppIcons.cash,
           label: 'Cash',
           description: 'Physical currency',
           selectedBgColor: BaseColor.teal[50]!,
@@ -201,7 +202,7 @@ class _PaymentMethodCard extends StatelessWidget {
         );
       case PaymentMethod.cashless:
         return _PaymentMethodConfig(
-          icon: Icons.credit_card_outlined,
+          icon: AppIcons.payment,
           label: 'Cashless',
           description: 'Digital payment',
           selectedBgColor: BaseColor.blue[50]!,

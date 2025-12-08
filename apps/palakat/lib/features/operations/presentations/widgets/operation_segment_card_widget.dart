@@ -26,7 +26,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Icon(
-                Icons.work_outline,
+                AppIcons.work,
                 size: BaseSize.w16,
                 color: BaseColor.blue[700],
               ),
@@ -49,7 +49,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
         ReportButtonWidget(
           title: "Add Income",
           description: "Generate detailed income and donation reports",
-          icon: Icons.trending_up,
+          icon: AppIcons.revenue,
           type: ReportButtonType.primary, // Teal for income
           isLoading: false,
           onPressed: () {},
@@ -58,7 +58,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
         ReportButtonWidget(
           title: "Add Expense",
           description: "Generate expense and spending reports",
-          icon: Icons.trending_down,
+          icon: AppIcons.expense,
           type: ReportButtonType.error, // Red for expense
           isLoading: false,
           onPressed: () {},
@@ -67,7 +67,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
         ReportButtonWidget(
           title: "Add Report",
           description: "Generate inventory and asset reports",
-          icon: Icons.inventory_2,
+          icon: AppIcons.inventory,
           type: ReportButtonType.info, // Info teal for reports
           isLoading: false,
           onPressed: () {},

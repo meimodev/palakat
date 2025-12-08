@@ -1,19 +1,24 @@
 import 'dart:developer' as dev show log;
+import 'dart:ui';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
 import 'package:palakat_shared/core/models/membership.dart';
+import 'package:palakat_shared/core/utils/locale_serializer.dart';
 
 /// Auth persistence service backed by Hive. Stores the full AuthResponse
 /// (tokens + account) as JSON, enabling session restore and account caching.
+/// Also handles locale preference persistence.
 class LocalStorageService {
   static const _kAuthBox = 'auth';
   static const _kAuthKey = 'auth.response';
   static const _kMembershipKey = 'membership';
+  static const _kLocaleKey = 'app.locale';
 
   AuthResponse? _auth;
   Membership? _membership;
+  Locale? _locale;
 
   // Consider presence of cached AuthResponse as logged-in state
   bool get isAuthenticated => _auth != null;
@@ -22,6 +27,7 @@ class LocalStorageService {
   DateTime? get expiresAt => _auth?.tokens.expiresAt;
   AuthResponse? get currentAuth => _auth;
   Membership? get currentMembership => _membership;
+  Locale? get currentLocale => _locale;
 
   Future<void> init() async {
     await _ensureBoxOpen();
@@ -89,6 +95,44 @@ class LocalStorageService {
     );
   }
 
+  /// Save locale preference to Hive storage.
+  ///
+  /// Serializes the locale to a string representation and persists it.
+  /// Requirements: 1.5, 5.4
+  Future<void> saveLocale(Locale locale) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    _locale = locale;
+    final serialized = LocaleSerializer.serialize(locale);
+    await box.put(_kLocaleKey, serialized);
+    dev.log(
+      'LocalStorageService.saveLocale: saved locale "$serialized" to Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
+  /// Load saved locale preference from Hive storage.
+  ///
+  /// Returns null if no locale has been saved.
+  /// Requirements: 1.6, 5.4
+  Future<Locale?> loadLocale() async {
+    await _ensureBoxOpen();
+    _loadLocaleFromBox();
+    return _locale;
+  }
+
+  /// Clear saved locale preference from Hive storage.
+  Future<void> clearLocale() async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    _locale = null;
+    await box.delete(_kLocaleKey);
+    dev.log(
+      'LocalStorageService.clearLocale: cleared locale from Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
   static Future<void> initHive() async {
     await Hive.initFlutter();
     await Hive.openBox(_kAuthBox);
@@ -137,6 +181,26 @@ class LocalStorageService {
         _membership = null;
         dev.log(
           'LocalStorageService._loadMembershipFromBox: failed to parse cached membership, ignoring',
+          name: 'LocalStorageService',
+        );
+      }
+    }
+  }
+
+  void _loadLocaleFromBox() {
+    final box = Hive.box(_kAuthBox);
+    final data = box.get(_kLocaleKey);
+    if (data is String && data.isNotEmpty) {
+      try {
+        _locale = LocaleSerializer.deserialize(data);
+        dev.log(
+          'LocalStorageService._loadLocaleFromBox: loaded locale "${_locale?.languageCode}"',
+          name: 'LocalStorageService',
+        );
+      } catch (_) {
+        _locale = null;
+        dev.log(
+          'LocalStorageService._loadLocaleFromBox: failed to parse cached locale, ignoring',
           name: 'LocalStorageService',
         );
       }

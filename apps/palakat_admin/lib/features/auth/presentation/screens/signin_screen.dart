@@ -5,6 +5,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/validation.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -22,7 +23,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -37,12 +37,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final notifier = ref.read(authControllerProvider.notifier);
     final raw = _identifierCtrl.text.trim();
     final identifier = raw.contains('@') ? raw : _normalizePhoneDigits(raw);
-    await notifier.signIn(
-      identifier: identifier,
-      password: _passwordCtrl.text,
-    );
+    await notifier.signIn(identifier: identifier, password: _passwordCtrl.text);
   }
-
 
   String _normalizePhoneDigits(String input) {
     return input.replaceAll(RegExp(r'[^0-9]'), '');
@@ -102,7 +98,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               clipBehavior: Clip.antiAlias,
               elevation: 2,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 24,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -115,20 +114,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           CircleAvatar(
                             radius: 20,
                             backgroundColor: theme.colorScheme.primaryContainer,
-                            child: Icon(Icons.lock_outline, color: theme.colorScheme.onPrimaryContainer),
+                            child: Icon(
+                              Icons.lock_outline,
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Welcome back',
-                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+                        context.l10n.auth_welcomeBack,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Sign in to your admin account',
-                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        context.l10n.auth_signInSubtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
@@ -136,34 +142,44 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       // Identifier
                       TextFormField(
                         controller: _identifierCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Email or Phone',
+                        decoration: InputDecoration(
+                          labelText:
+                              '${context.l10n.lbl_email} / ${context.l10n.lbl_phone}',
                           hintText: 'e.g. name@company.com or 1234-5678-9012',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.username, AutofillHints.email],
+                        autofillHints: const [
+                          AutofillHints.username,
+                          AutofillHints.email,
+                        ],
                         onChanged: (value) {
                           if (_isFormatting) return;
                           // If it contains letters (likely email or mixed), don't format
-                          if (value.contains('@') || RegExp(r'[A-Za-z]').hasMatch(value)) return;
+                          if (value.contains('@') ||
+                              RegExp(r'[A-Za-z]').hasMatch(value))
+                            return;
                           // Strip all non-digits and limit to 13 (no country code)
                           final digits = _normalizePhoneDigits(value);
-                          final limited = digits.length > 13 ? digits.substring(0, 13) : digits;
+                          final limited = digits.length > 13
+                              ? digits.substring(0, 13)
+                              : digits;
                           final formatted = _formatLocalPhone(limited);
                           if (formatted != value) {
                             _isFormatting = true;
                             final baseOffset = formatted.length;
                             _identifierCtrl.value = TextEditingValue(
                               text: formatted,
-                              selection: TextSelection.collapsed(offset: baseOffset),
+                              selection: TextSelection.collapsed(
+                                offset: baseOffset,
+                              ),
                             );
                             _isFormatting = false;
                           }
                         },
-                        validator: (v) => AuthValidators.identifier()
-                            .asFormFieldValidator(v),
+                        validator: (v) =>
+                            AuthValidators.identifier().asFormFieldValidator(v),
                       ),
                       const SizedBox(height: 12),
 
@@ -172,17 +188,23 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         controller: _passwordCtrl,
                         obscureText: _obscure,
                         decoration: InputDecoration(
-                          labelText: 'Password',
+                          labelText: context.l10n.lbl_password,
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                            onPressed: () => setState(() => _obscure = !_obscure),
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
                           ),
                         ),
                         autofillHints: const [AutofillHints.password],
                         onFieldSubmitted: (_) => _submit(),
-                        validator: (v) => Validators.required('Please enter your password')
-                            .asFormFieldValidator(v),
+                        validator: (v) => Validators.required(
+                          'Please enter your password',
+                        ).asFormFieldValidator(v),
                       ),
 
                       const SizedBox(height: 24),
@@ -195,9 +217,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
-                              : const Text('Sign in'),
+                              : Text(context.l10n.btn_signIn),
                         ),
                       ),
 

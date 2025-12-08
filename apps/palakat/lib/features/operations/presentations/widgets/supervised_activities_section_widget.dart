@@ -128,7 +128,7 @@ class _SectionHeader extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Icon(
-                Icons.supervisor_account_outlined,
+                AppIcons.supervisorAccount,
                 size: BaseSize.w16,
                 color: BaseColor.primary[700],
               ),
@@ -168,7 +168,7 @@ class _SectionHeader extends StatelessWidget {
                 ),
                 Gap.w4,
                 Icon(
-                  Icons.arrow_forward_ios,
+                  AppIcons.arrowForwardIos,
                   size: BaseSize.w12,
                   color: BaseColor.primary[700],
                 ),
@@ -252,7 +252,7 @@ class _ErrorState extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Icon(
-                    Icons.error_outline,
+                    AppIcons.error,
                     size: BaseSize.w16,
                     color: BaseColor.red[700],
                   ),
@@ -285,7 +285,7 @@ class _ErrorState extends StatelessWidget {
             Gap.h12,
             OutlinedButton.icon(
               onPressed: onRetry,
-              icon: Icon(Icons.refresh, size: BaseSize.w14),
+              icon: Icon(AppIcons.refresh, size: BaseSize.w14),
               label: const Text('Retry'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: BaseColor.red[700],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat/core/constants/constants.dart';
 
 part 'song_category_model.freezed.dart';
 
@@ -35,25 +36,25 @@ class SongCategories {
       id: 'nnbt',
       title: 'Nanyikanlah Nyanyian Baru Bagi Tuhan',
       abbreviation: 'NNBT',
-      icon: Icons.library_music_outlined,
+      icon: AppIcons.libraryMusic,
     ),
     SongCategory(
       id: 'kj',
       title: 'Kidung Jemaat',
       abbreviation: 'KJ',
-      icon: Icons.library_music_outlined,
+      icon: AppIcons.libraryMusic,
     ),
     SongCategory(
       id: 'nkb',
       title: 'Nanyikanlah Kidung Baru',
       abbreviation: 'NKB',
-      icon: Icons.library_music_outlined,
+      icon: AppIcons.libraryMusic,
     ),
     SongCategory(
       id: 'dsl',
       title: 'Dua Sahabat Lama',
       abbreviation: 'DSL',
-      icon: Icons.library_music_outlined,
+      icon: AppIcons.libraryMusic,
     ),
   ];
 

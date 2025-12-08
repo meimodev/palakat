@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Press back again to exit',
+                    context.l10n.msg_pressBackToExit,
                     style: BaseTypography.titleMedium,
                   ),
                   duration: const Duration(seconds: 2),

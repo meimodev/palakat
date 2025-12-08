@@ -19,10 +19,10 @@ class DashboardController extends _$DashboardController {
   Future<void> fetchStats() async {
     try {
       state = state.copyWith(stats: const AsyncValue.loading());
-      
+
       // Simulate API delay for realistic loading experience
       await Future.delayed(const Duration(seconds: 1));
-      
+
       // TODO: Replace with actual API call when backend is ready
       final stats = DashboardStats(
         totalMembers: 1234,
@@ -31,10 +31,8 @@ class DashboardController extends _$DashboardController {
         revenueChange: 12.5,
         totalExpense: 12789.45,
         expenseChange: 8.1,
-        lowStockItems: 5,
-        inventoryStatus: '5 Items Low on Stock',
       );
-      
+
       state = state.copyWith(stats: AsyncValue.data(stats));
     } catch (e, st) {
       state = state.copyWith(stats: AsyncValue.error(e, st));
@@ -44,10 +42,10 @@ class DashboardController extends _$DashboardController {
   Future<void> fetchRecentActivities() async {
     try {
       state = state.copyWith(recentActivities: const AsyncValue.loading());
-      
+
       // Simulate API delay
       await Future.delayed(const Duration(milliseconds: 800));
-      
+
       // TODO: Replace with actual API call when backend is ready
       final now = DateTime.now();
       final activities = [
@@ -75,13 +73,6 @@ class DashboardController extends _$DashboardController {
         ),
         RecentActivity(
           id: '4',
-          title: 'Inventory Alert',
-          description: 'Communion supplies running low',
-          type: ActivityType.inventory,
-          timestamp: now.subtract(const Duration(days: 2)),
-        ),
-        RecentActivity(
-          id: '5',
           title: 'Expense Recorded',
           description: 'Utility bills payment',
           type: ActivityType.transaction,
@@ -89,7 +80,7 @@ class DashboardController extends _$DashboardController {
           amount: '\$450.00',
         ),
       ];
-      
+
       state = state.copyWith(recentActivities: AsyncValue.data(activities));
     } catch (e, st) {
       state = state.copyWith(recentActivities: AsyncValue.error(e, st));

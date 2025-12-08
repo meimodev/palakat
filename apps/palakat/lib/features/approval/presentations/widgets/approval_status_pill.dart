@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 
 class ApprovalStatusPill extends StatelessWidget {
@@ -24,15 +25,15 @@ class ApprovalStatusPill extends StatelessWidget {
     String label;
     switch (status) {
       case ApprovalStatus.approved:
-        icon = Icons.check_circle;
+        icon = AppIcons.successSolid;
         label = 'Approved';
         break;
       case ApprovalStatus.rejected:
-        icon = Icons.cancel;
+        icon = AppIcons.cancel;
         label = 'Rejected';
         break;
       case ApprovalStatus.unconfirmed:
-        icon = Icons.pending;
+        icon = AppIcons.pending;
         label = 'Pending';
     }
     return Container(
@@ -48,7 +49,7 @@ class ApprovalStatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: BaseSize.w20, color: color),
+          FaIcon(icon, size: BaseSize.w20, color: color),
           Gap.w8,
           Text(
             label,

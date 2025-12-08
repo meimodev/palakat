@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
 import 'package:palakat/features/song_book/presentations/widgets/song_item_card_widget.dart';
@@ -126,8 +127,8 @@ class _CategoryEmptyState extends StatelessWidget {
               color: BaseColor.primary[50],
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.music_off_outlined,
+            child: FaIcon(
+              AppIcons.musicOff,
               size: BaseSize.w16,
               color: BaseColor.primary,
             ),
@@ -235,8 +236,8 @@ class _CategoryHeader extends StatelessWidget {
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
+                child: FaIcon(
+                  AppIcons.chevronDown,
                   color: BaseColor.primary,
                   size: BaseSize.w24,
                 ),
