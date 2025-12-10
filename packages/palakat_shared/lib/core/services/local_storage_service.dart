@@ -5,20 +5,28 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
 import 'package:palakat_shared/core/models/membership.dart';
+import 'package:palakat_shared/core/models/notification_settings.dart';
+import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/core/utils/locale_serializer.dart';
 
 /// Auth persistence service backed by Hive. Stores the full AuthResponse
 /// (tokens + account) as JSON, enabling session restore and account caching.
-/// Also handles locale preference persistence.
+/// Also handles locale preference persistence, permission state, and notification settings.
 class LocalStorageService {
   static const _kAuthBox = 'auth';
   static const _kAuthKey = 'auth.response';
   static const _kMembershipKey = 'membership';
   static const _kLocaleKey = 'app.locale';
+  static const _kPermissionStateBox = 'permission_state';
+  static const _kPermissionStateKey = 'permission_state';
+  static const _kNotificationSettingsBox = 'notification_settings';
+  static const _kNotificationSettingsKey = 'notification_settings';
 
   AuthResponse? _auth;
   Membership? _membership;
   Locale? _locale;
+  PermissionStateModel? _permissionState;
+  NotificationSettingsModel? _notificationSettings;
 
   // Consider presence of cached AuthResponse as logged-in state
   bool get isAuthenticated => _auth != null;
@@ -28,6 +36,9 @@ class LocalStorageService {
   AuthResponse? get currentAuth => _auth;
   Membership? get currentMembership => _membership;
   Locale? get currentLocale => _locale;
+  PermissionStateModel? get currentPermissionState => _permissionState;
+  NotificationSettingsModel? get currentNotificationSettings =>
+      _notificationSettings;
 
   Future<void> init() async {
     await _ensureBoxOpen();
@@ -133,11 +144,84 @@ class LocalStorageService {
     );
   }
 
+  /// Save permission state to Hive storage.
+  ///
+  /// Requirements: 7.1, 7.2, 7.3
+  Future<void> savePermissionState(PermissionStateModel state) async {
+    await _ensurePermissionStateBoxOpen();
+    final box = Hive.box(_kPermissionStateBox);
+    _permissionState = state;
+    await box.put(_kPermissionStateKey, state.toJson());
+    dev.log(
+      'LocalStorageService.savePermissionState: saved permission state to Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
+  /// Load permission state from Hive storage.
+  ///
+  /// Returns null if no permission state has been saved.
+  /// Requirements: 7.1, 7.2, 7.3
+  Future<PermissionStateModel?> loadPermissionState() async {
+    await _ensurePermissionStateBoxOpen();
+    _loadPermissionStateFromBox();
+    return _permissionState;
+  }
+
+  /// Clear permission state from Hive storage.
+  Future<void> clearPermissionState() async {
+    await _ensurePermissionStateBoxOpen();
+    final box = Hive.box(_kPermissionStateBox);
+    _permissionState = null;
+    await box.delete(_kPermissionStateKey);
+    dev.log(
+      'LocalStorageService.clearPermissionState: cleared permission state from Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
+  /// Save notification settings to Hive storage.
+  Future<void> saveNotificationSettings(
+    NotificationSettingsModel settings,
+  ) async {
+    await _ensureNotificationSettingsBoxOpen();
+    final box = Hive.box(_kNotificationSettingsBox);
+    _notificationSettings = settings;
+    await box.put(_kNotificationSettingsKey, settings.toJson());
+    dev.log(
+      'LocalStorageService.saveNotificationSettings: saved notification settings to Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
+  /// Load notification settings from Hive storage.
+  ///
+  /// Returns default settings if none have been saved.
+  Future<NotificationSettingsModel> loadNotificationSettings() async {
+    await _ensureNotificationSettingsBoxOpen();
+    _loadNotificationSettingsFromBox();
+    return _notificationSettings ?? const NotificationSettingsModel();
+  }
+
+  /// Clear notification settings from Hive storage.
+  Future<void> clearNotificationSettings() async {
+    await _ensureNotificationSettingsBoxOpen();
+    final box = Hive.box(_kNotificationSettingsBox);
+    _notificationSettings = null;
+    await box.delete(_kNotificationSettingsKey);
+    dev.log(
+      'LocalStorageService.clearNotificationSettings: cleared notification settings from Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
   static Future<void> initHive() async {
     await Hive.initFlutter();
     await Hive.openBox(_kAuthBox);
+    await Hive.openBox(_kPermissionStateBox);
+    await Hive.openBox(_kNotificationSettingsBox);
     dev.log(
-      'LocalStorageService.initHive: Hive initialized and auth box opened',
+      'LocalStorageService.initHive: Hive initialized and boxes opened',
       name: 'LocalStorageService',
     );
   }
@@ -145,6 +229,18 @@ class LocalStorageService {
   Future<void> _ensureBoxOpen() async {
     if (!Hive.isBoxOpen(_kAuthBox)) {
       await Hive.openBox(_kAuthBox);
+    }
+  }
+
+  Future<void> _ensurePermissionStateBoxOpen() async {
+    if (!Hive.isBoxOpen(_kPermissionStateBox)) {
+      await Hive.openBox(_kPermissionStateBox);
+    }
+  }
+
+  Future<void> _ensureNotificationSettingsBoxOpen() async {
+    if (!Hive.isBoxOpen(_kNotificationSettingsBox)) {
+      await Hive.openBox(_kNotificationSettingsBox);
     }
   }
 
@@ -201,6 +297,48 @@ class LocalStorageService {
         _locale = null;
         dev.log(
           'LocalStorageService._loadLocaleFromBox: failed to parse cached locale, ignoring',
+          name: 'LocalStorageService',
+        );
+      }
+    }
+  }
+
+  void _loadPermissionStateFromBox() {
+    final box = Hive.box(_kPermissionStateBox);
+    final data = box.get(_kPermissionStateKey);
+    if (data is Map) {
+      try {
+        final normalized = _normalizeJson(data) as Map<String, dynamic>;
+        _permissionState = PermissionStateModel.fromJson(normalized);
+        dev.log(
+          'LocalStorageService._loadPermissionStateFromBox: loaded permission state',
+          name: 'LocalStorageService',
+        );
+      } catch (_) {
+        _permissionState = null;
+        dev.log(
+          'LocalStorageService._loadPermissionStateFromBox: failed to parse cached permission state, ignoring',
+          name: 'LocalStorageService',
+        );
+      }
+    }
+  }
+
+  void _loadNotificationSettingsFromBox() {
+    final box = Hive.box(_kNotificationSettingsBox);
+    final data = box.get(_kNotificationSettingsKey);
+    if (data is Map) {
+      try {
+        final normalized = _normalizeJson(data) as Map<String, dynamic>;
+        _notificationSettings = NotificationSettingsModel.fromJson(normalized);
+        dev.log(
+          'LocalStorageService._loadNotificationSettingsFromBox: loaded notification settings',
+          name: 'LocalStorageService',
+        );
+      } catch (_) {
+        _notificationSettings = null;
+        dev.log(
+          'LocalStorageService._loadNotificationSettingsFromBox: failed to parse cached notification settings, ignoring',
           name: 'LocalStorageService',
         );
       }

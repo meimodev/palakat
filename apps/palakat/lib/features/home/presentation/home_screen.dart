@@ -2,14 +2,106 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
+  bool _hasRegisteredInterests = false;
+  bool _hasCheckedMembership = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Register push notification interests after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _registerPushNotificationInterests();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Re-check when app comes to foreground (in case user just signed in)
+    if (state == AppLifecycleState.resumed && !_hasRegisteredInterests) {
+      _registerPushNotificationInterests();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This runs every time the widget is rebuilt due to navigation
+    // Check if we need to register interests (e.g., after sign-in)
+    if (!_hasCheckedMembership) {
+      _hasCheckedMembership = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _registerPushNotificationInterests();
+      });
+    }
+  }
+
+  /// Registers push notification interests if user is signed in.
+  ///
+  /// This method checks if the user has a valid membership in local storage
+  /// and registers device interests for push notifications.
+  ///
+  /// **Validates: Requirements 3.2**
+  Future<void> _registerPushNotificationInterests() async {
+    debugPrint('🔔 [HomeScreen] Starting push notification registration...');
+
+    // Prevent duplicate registration
+    if (_hasRegisteredInterests) {
+      debugPrint('🔔 [HomeScreen] Already registered, skipping');
+      return;
+    }
+
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membership = localStorage.currentMembership;
+
+    debugPrint('🔔 [HomeScreen] Current membership: ${membership?.id}');
+
+    // Only register if user has a valid membership
+    if (membership != null && membership.id != null) {
+      try {
+        debugPrint('🔔 [HomeScreen] Calling registerInterests...');
+        final pusherBeamsController = ref.read(
+          pusherBeamsControllerProvider.notifier,
+        );
+        await pusherBeamsController.registerInterests(membership);
+        _hasRegisteredInterests = true;
+        debugPrint('🔔 [HomeScreen] Registration complete');
+      } catch (e, stackTrace) {
+        // Log error but don't block the UI
+        debugPrint(
+          '🔔 [HomeScreen] Failed to register push notification interests: $e',
+        );
+        debugPrint('🔔 [HomeScreen] Stack trace: $stackTrace');
+      }
+    } else {
+      debugPrint(
+        '🔔 [HomeScreen] No valid membership found, skipping registration',
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(homeControllerProvider.notifier);
     final state = ref.watch(homeControllerProvider);
 
@@ -77,7 +169,5 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
     );
-
-    //Contain the bottom navbar widget
   }
 }

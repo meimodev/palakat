@@ -5,8 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/data/utils/phone_number_formatter.dart';
+import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:pinput/pinput.dart';
@@ -29,6 +31,27 @@ class OtpVerificationScreen extends ConsumerWidget {
         lowerError.contains('unavailable') ||
         lowerError.contains('failed') ||
         lowerError.contains('error occurred');
+  }
+
+  /// Check for 7-day permission re-request on sign-in
+  /// Requirements: 6.1
+  Future<void> _checkPermissionReRequest(
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
+    final permissionManager = ref.read(permissionManagerServiceProvider);
+
+    // Sync permission status with system
+    await permissionManager.syncPermissionStatus();
+
+    // Check if we should show rationale (7-day check)
+    final shouldShow = await permissionManager.shouldShowRationale();
+
+    if (shouldShow && context.mounted) {
+      // Show permission rationale and request if user allows
+      final permissionState = ref.read(permissionStateProvider.notifier);
+      await permissionState.requestPermissions(context);
+    }
   }
 
   @override
@@ -209,9 +232,45 @@ class OtpVerificationScreen extends ConsumerWidget {
                           onCompleted: (otp) {
                             // Auto-submit when 6 digits entered
                             controller.verifyOtp(
-                              onAlreadyRegistered: (account) {
+                              onAlreadyRegistered: (account) async {
+                                // Check for 7-day permission re-request (Requirement 6.1)
+                                await _checkPermissionReRequest(ref, context);
+
+                                // Register push notifications after successful sign-in
+                                debugPrint(
+                                  '🔔 [OtpVerification] Sign-in successful, registering push notifications...',
+                                );
+                                debugPrint(
+                                  '🔔 [OtpVerification] Account membership: ${account.membership?.id}',
+                                );
+                                try {
+                                  // Use membership from account (just received from backend)
+                                  // localStorage.currentMembership may not be saved yet
+                                  final membership = account.membership;
+                                  if (membership != null &&
+                                      membership.id != null) {
+                                    final pusherBeamsController = ref.read(
+                                      pusherBeamsControllerProvider.notifier,
+                                    );
+                                    await pusherBeamsController
+                                        .registerInterests(membership);
+                                    debugPrint(
+                                      '🔔 [OtpVerification] Push notification registration complete',
+                                    );
+                                  } else {
+                                    debugPrint(
+                                      '🔔 [OtpVerification] No membership in account, skipping push registration',
+                                    );
+                                  }
+                                } catch (e) {
+                                  debugPrint(
+                                    '🔔 [OtpVerification] Push notification registration failed: $e',
+                                  );
+                                }
                                 // Navigate to home screen for existing users
-                                context.goNamed(AppRoute.home);
+                                if (context.mounted) {
+                                  context.goNamed(AppRoute.home);
+                                }
                               },
                               onNotRegistered: () {
                                 // Navigate to registration for new users
@@ -264,8 +323,38 @@ class OtpVerificationScreen extends ConsumerWidget {
                                       if (otp.length ==
                                           AppConstants.otpLength) {
                                         controller.verifyOtp(
-                                          onAlreadyRegistered: (account) {
-                                            context.goNamed(AppRoute.home);
+                                          onAlreadyRegistered: (account) async {
+                                            // Check for 7-day permission re-request (Requirement 6.1)
+                                            await _checkPermissionReRequest(
+                                              ref,
+                                              context,
+                                            );
+
+                                            // Register push notifications after successful sign-in
+                                            try {
+                                              // Use membership from account directly
+                                              final membership =
+                                                  account.membership;
+                                              if (membership != null &&
+                                                  membership.id != null) {
+                                                final pusherBeamsController =
+                                                    ref.read(
+                                                      pusherBeamsControllerProvider
+                                                          .notifier,
+                                                    );
+                                                await pusherBeamsController
+                                                    .registerInterests(
+                                                      membership,
+                                                    );
+                                              }
+                                            } catch (e) {
+                                              debugPrint(
+                                                '🔔 Push notification registration failed: $e',
+                                              );
+                                            }
+                                            if (context.mounted) {
+                                              context.goNamed(AppRoute.home);
+                                            }
                                           },
                                           onNotRegistered: () {
                                             final verifiedPhone =

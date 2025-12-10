@@ -31,6 +31,7 @@
     "test:prisma": "ts-node test-prisma-connection.ts"
   },
   "dependencies": {
+    "@pusher/push-notifications-server": "^1.2.6",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",
@@ -40,6 +41,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^6.19.0",
+    "@pusher/push-notifications-server": "^1.2.7",
     "@types/passport": "^1.0.17",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",

@@ -29,7 +29,10 @@ export 'member_position.dart';
 export 'member_position_detail.dart';
 export 'member_screen_state_counts.dart';
 export 'membership.dart';
+export 'notification.dart';
+export 'notification_settings.dart';
 export 'payment_method.dart';
+export 'permission_state.dart';
 export 'report.dart';
 // Request/Response models
 export 'request/request.dart';

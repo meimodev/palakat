@@ -21,20 +21,28 @@ import {
 import { ActivitiesService } from '../../src/activity/activity.service';
 import { PrismaService } from '../../src/prisma.service';
 import { ApproverResolverService } from '../../src/activity/approver-resolver.service';
+import { NotificationService } from '../../src/notification/notification.service';
 
 describe('Activity Financial Filter Property Tests', () => {
   let prisma: PrismaClient;
   let prismaService: PrismaService;
   let activitiesService: ActivitiesService;
   let approverResolverService: ApproverResolverService;
+  let notificationService: NotificationService;
 
   beforeAll(() => {
     prisma = new PrismaClient();
     prismaService = prisma as unknown as PrismaService;
     approverResolverService = new ApproverResolverService(prismaService);
+    // Create a mock NotificationService that does nothing
+    notificationService = {
+      notifyActivityCreated: async () => {},
+      notifyApprovalStatusChanged: async () => {},
+    } as unknown as NotificationService;
     activitiesService = new ActivitiesService(
       prismaService,
       approverResolverService,
+      notificationService,
     );
   });
 

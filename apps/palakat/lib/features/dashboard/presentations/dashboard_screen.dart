@@ -6,6 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
+import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
@@ -181,6 +182,8 @@ class DashboardScreen extends ConsumerWidget {
                 ),
             ],
           ),
+          // Notification permission banner - Requirements: 6.2, 6.3
+          const NotificationPermissionBanner(),
           if (state.account != null && state.churchRequest != null)
             LoadingWrapper(
               loading: state.churchRequestLoading,

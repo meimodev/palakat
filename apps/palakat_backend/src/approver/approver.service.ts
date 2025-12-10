@@ -7,10 +7,14 @@ import { PrismaService } from '../prisma.service';
 import { CreateApproverDto } from './dto/create-approver.dto';
 import { UpdateApproverDto } from './dto/update-approver.dto';
 import { ApproverListQueryDto } from './dto/approver-list.dto';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ApproverService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   async create(
     createApproverDto: CreateApproverDto,
@@ -235,6 +239,13 @@ export class ApproverService {
                 },
               },
             },
+            approvers: {
+              select: {
+                id: true,
+                membershipId: true,
+                status: true,
+              },
+            },
           },
         },
         membership: {
@@ -251,6 +262,19 @@ export class ApproverService {
         },
       },
     });
+
+    // Send approval status change notifications
+    // Handle notification errors without blocking approval update
+    // **Validates: Requirements 8.4**
+    try {
+      await this.notificationService.notifyApprovalStatusChanged(
+        approver,
+        updateApproverDto.status,
+      );
+    } catch {
+      // Notification errors are already logged in NotificationService
+      // Continue with the response even if notification fails
+    }
 
     return {
       message: 'Approver updated successfully',

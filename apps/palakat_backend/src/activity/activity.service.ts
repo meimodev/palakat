@@ -1,15 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ApproverResolverService } from './approver-resolver.service';
+import { NotificationService } from '../notification/notification.service';
 
+/**
+ * Service for managing church activities.
+ *
+ * This service handles:
+ * - CRUD operations for activities
+ * - Approver resolution based on approval rules
+ * - Notification sending when activities are created
+ *
+ * **Validates: Requirements 8.3**
+ */
 @Injectable()
 export class ActivitiesService {
+  private readonly logger = new Logger(ActivitiesService.name);
+
   constructor(
     private prisma: PrismaService,
     private approverResolver: ApproverResolverService,
+    private notificationService: NotificationService,
   ) {}
 
   async findAll(query: ActivityListQueryDto) {
@@ -397,6 +411,7 @@ export class ActivitiesService {
           include: {
             supervisor: {
               include: {
+                churchId: true,
                 account: {
                   select: {
                     id: true,
@@ -445,10 +460,70 @@ export class ActivitiesService {
       },
     );
 
+    // Send notifications after activity creation (non-blocking)
+    // **Validates: Requirements 8.3**
+    this.notifyActivityCreated(activity, membership.churchId).catch((error) => {
+      this.logger.error(
+        `Failed to send activity creation notifications: ${error.message}`,
+        error.stack,
+      );
+    });
+
     return {
       message: 'Activity created successfully',
       data: activity,
     };
+  }
+
+  /**
+   * Helper method to send activity creation notifications.
+   * This is called after the activity transaction completes.
+   *
+   * @param activity - The created activity with relations
+   * @param churchId - The church ID for the activity
+   *
+   * **Validates: Requirements 8.3**
+   */
+  private async notifyActivityCreated(
+    activity: any,
+    churchId: number,
+  ): Promise<void> {
+    try {
+      // Build the activity data structure expected by NotificationService
+      const activityWithRelations = {
+        id: activity.id,
+        title: activity.title,
+        bipra: activity.bipra,
+        activityType: activity.activityType,
+        date: activity.date,
+        supervisorId: activity.supervisorId,
+        supervisor: {
+          id: activity.supervisor.id,
+          churchId: churchId,
+        },
+        approvers: activity.approvers.map((approver: any) => ({
+          id: approver.id,
+          membershipId: approver.membershipId,
+          membership: {
+            id: approver.membership.id,
+          },
+        })),
+      };
+
+      await this.notificationService.notifyActivityCreated(
+        activityWithRelations,
+      );
+
+      this.logger.log(
+        `Activity creation notifications sent for activity ${activity.id}`,
+      );
+    } catch (error) {
+      // Log error but don't throw - notifications should not block activity creation
+      this.logger.error(
+        `Failed to send activity creation notifications for activity ${activity.id}: ${error.message}`,
+        error.stack,
+      );
+    }
   }
 
   async update(

@@ -1,3 +1,4 @@
+import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
@@ -213,7 +214,28 @@ class DashboardController extends _$DashboardController {
   }
 
   /// Signs out the user and clears all locally saved data
+  ///
+  /// This method:
+  /// 1. Unregisters all push notification interests
+  /// 2. Signs out from Firebase
+  /// 3. Clears local storage
+  /// 4. Resets dashboard state
+  ///
+  /// **Validates: Requirements 3.4**
   Future<void> signOut() async {
+    // Unregister push notification interests before signing out
+    try {
+      final pusherBeamsController = ref.read(
+        pusherBeamsControllerProvider.notifier,
+      );
+      await pusherBeamsController.unregisterAllInterests();
+    } catch (e) {
+      // Log error but continue with sign out
+      // Push notification cleanup should not block logout
+      print('Failed to unregister push notification interests: $e');
+    }
+
+    // Proceed with sign out
     final result = await _authRepo.signOut();
     result.when(
       onSuccess: (_) {

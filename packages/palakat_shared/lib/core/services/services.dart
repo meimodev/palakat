@@ -5,3 +5,4 @@ export 'http_service.dart';
 export 'local_storage_service.dart';
 export 'local_storage_service_provider.dart';
 export 'locale_controller.dart';
+export 'pusher_beams_service.dart';

@@ -1,3 +1,4 @@
+import 'package:palakat_admin/features/notification/application/pusher_beams_controller.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/services.dart';
@@ -26,6 +27,9 @@ class AuthController extends _$AuthController {
     result.when(
       onSuccess: (auth) {
         state = AsyncValue.data(auth);
+        // Register push notification interests after successful sign-in
+        // **Validates: Requirements 4.2**
+        _registerPushNotificationInterests(auth);
       },
       onFailure: (failure) {
         state = AsyncValue.error(
@@ -36,7 +40,32 @@ class AuthController extends _$AuthController {
     );
   }
 
+  /// Registers push notification interests based on the authenticated user's membership.
+  ///
+  /// This is called after successful sign-in to subscribe to relevant device interests.
+  /// **Validates: Requirements 4.2**
+  Future<void> _registerPushNotificationInterests(AuthResponse auth) async {
+    final membership = auth.account.membership;
+    if (membership == null) {
+      return;
+    }
+
+    try {
+      final pusherBeamsController = ref.read(
+        pusherBeamsControllerProvider.notifier,
+      );
+      await pusherBeamsController.registerInterests(membership);
+    } catch (e) {
+      // Don't block sign-in flow if push notification registration fails
+      // The error is already logged in the controller
+    }
+  }
+
   Future<void> signOut() async {
+    // Unregister push notification interests before signing out
+    // **Validates: Requirements 4.4**
+    await _unregisterPushNotificationInterests();
+
     final repo = ref.read(authRepositoryProvider);
     final result = await repo.signOut();
     result.when(
@@ -49,6 +78,23 @@ class AuthController extends _$AuthController {
         state = const AsyncValue.data(null);
       },
     );
+  }
+
+  /// Unregisters all push notification interests.
+  ///
+  /// This is called before sign-out to unsubscribe from all device interests
+  /// and clear the Pusher Beams state.
+  /// **Validates: Requirements 4.4**
+  Future<void> _unregisterPushNotificationInterests() async {
+    try {
+      final pusherBeamsController = ref.read(
+        pusherBeamsControllerProvider.notifier,
+      );
+      await pusherBeamsController.unregisterAllInterests();
+    } catch (e) {
+      // Don't block sign-out flow if push notification unregistration fails
+      // The error is already logged in the controller
+    }
   }
 
   /// Force sign-out locally without calling the API.

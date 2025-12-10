@@ -5,11 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/services/notification_display_service.dart';
+import 'package:palakat/core/services/notification_navigation_service.dart';
+import 'package:palakat/core/services/permission_manager_service_provider.dart';
+import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
+import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 
 import 'core/constants/constants.dart';
 import 'firebase_options.dart';
+
+// Global variable to store notification tap data from cold start
+Map<String, dynamic>? _coldStartNotificationData;
+
+// Global flag to track if app is initialized
+bool _isAppInitialized = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,14 +33,149 @@ void main() async {
 
   await Jiffy.setLocale('id');
 
+  // Initialize notification display service for background notification handling
+  final notificationService = NotificationDisplayServiceImpl();
+  await notificationService.initialize();
+  await notificationService.initializeChannels();
+
+  // Set up notification tap handler for cold start
+  // This captures notification taps when the app is launched from a terminated state
+  notificationService.setNotificationTapHandler((data) {
+    if (!_isAppInitialized) {
+      // Store the data to be processed after app initialization
+      _coldStartNotificationData = data;
+    }
+  });
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+
+    // Add lifecycle observer to detect return from settings
+    WidgetsBinding.instance.addObserver(this);
+
+    // Mark app as initialized
+    _isAppInitialized = true;
+
+    // Handle cold start notification after app initialization
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleColdStartNotification();
+      _initializePermissionFlow();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Detect return from settings (app resumed)
+    // Requirements: 6.5
+    if (state == AppLifecycleState.resumed) {
+      _handleReturnFromSettings();
+    }
+  }
+
+  /// Initialize permission flow on app startup
+  /// Requirements: 4.1, 6.1
+  Future<void> _initializePermissionFlow() async {
+    final permissionManager = ref.read(permissionManagerServiceProvider);
+
+    // Sync permission status with system
+    await permissionManager.syncPermissionStatus();
+
+    // Check if we should show rationale (first time or 7-day retry)
+    final shouldShow = await permissionManager.shouldShowRationale();
+
+    if (shouldShow && mounted) {
+      // Show permission rationale and request if user allows
+      final permissionState = ref.read(permissionStateProvider.notifier);
+      await permissionState.requestPermissions(context);
+    }
+  }
+
+  /// Handle return from settings - auto-register if permission granted
+  /// Requirements: 6.5
+  Future<void> _handleReturnFromSettings() async {
+    final permissionManager = ref.read(permissionManagerServiceProvider);
+
+    // Sync permission status with system
+    await permissionManager.syncPermissionStatus();
+
+    // Get updated permission state
+    final state = await permissionManager.getPermissionState();
+
+    // If permission was granted, initialize push notifications
+    if (state.status == PermissionStatus.granted) {
+      // Initialize Pusher Beams with granted permission
+      final pusherBeams = PusherBeamsMobileService(
+        permissionManager: permissionManager,
+        notificationDisplay: NotificationDisplayServiceImpl(),
+      );
+
+      await pusherBeams.initialize();
+
+      // Refresh permission state provider
+      ref.read(permissionStateProvider.notifier).refresh();
+    }
+  }
+
+  void _handleColdStartNotification() {
+    if (_coldStartNotificationData != null) {
+      final router = ref.read(goRouterProvider);
+      final navigationService = NotificationNavigationService(router);
+
+      // Extract deep link data from notification payload
+      final data = _extractDeepLinkData(_coldStartNotificationData!);
+
+      // Navigate to the appropriate screen
+      navigationService.handleNotificationTap(data);
+
+      // Clear the cold start data
+      _coldStartNotificationData = null;
+    }
+  }
+
+  Map<String, dynamic> _extractDeepLinkData(Map<String, dynamic> payload) {
+    // The payload might contain the data in different formats
+    // Try to extract the actual notification data
+
+    if (payload.containsKey('data')) {
+      return payload['data'] as Map<String, dynamic>;
+    }
+
+    // If payload is a string representation, try to parse it
+    if (payload.containsKey('payload')) {
+      final payloadStr = payload['payload'] as String?;
+      if (payloadStr != null) {
+        // For now, return empty map as we need proper JSON parsing
+        // In production, you'd parse the JSON string here
+        return <String, dynamic>{};
+      }
+    }
+
+    // Return the payload as-is if it already contains the expected keys
+    return payload;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.read(goRouterProvider);
     final locale = ref.watch(localeControllerProvider);
 

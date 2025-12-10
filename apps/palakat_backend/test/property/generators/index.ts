@@ -16,6 +16,12 @@ export const approvalStatusArb = fc.constantFrom(
 export const bookArb = fc.constantFrom('NKB', 'NNBT', 'KJ', 'DSL');
 export const paymentMethodArb = fc.constantFrom('CASH', 'CASHLESS');
 export const requestStatusArb = fc.constantFrom('TODO', 'DOING', 'DONE');
+export const notificationTypeArb = fc.constantFrom(
+  'ACTIVITY_CREATED',
+  'APPROVAL_REQUIRED',
+  'APPROVAL_CONFIRMED',
+  'APPROVAL_REJECTED',
+);
 export const reminderArb = fc.constantFrom(
   'TEN_MINUTES',
   'THIRTY_MINUTES',
@@ -83,4 +89,27 @@ export const churchRequestDataArb = fc.record({
 export const paginationParamsArb = fc.record({
   page: pageArb,
   pageSize: pageSizeArb,
+});
+
+// Notification generators
+export const notificationTitleArb = fc.string({ minLength: 1, maxLength: 100 });
+export const notificationBodyArb = fc.string({ minLength: 1, maxLength: 500 });
+export const membershipIdArb = fc.integer({ min: 1, max: 1000000 });
+export const churchIdArb = fc.integer({ min: 1, max: 1000000 });
+
+export const notificationRecipientArb = fc.oneof(
+  membershipIdArb.map((id) => `membership.${id}`),
+  fc
+    .tuple(churchIdArb, bipraArb)
+    .map(([churchId, bipra]) => `church.${churchId}_bipra.${bipra}`),
+);
+
+export const notificationDataArb = fc.record({
+  title: notificationTitleArb,
+  body: notificationBodyArb,
+  type: notificationTypeArb,
+  recipient: notificationRecipientArb,
+  activityId: fc.option(fc.integer({ min: 1, max: 1000000 }), {
+    nil: undefined,
+  }),
 });

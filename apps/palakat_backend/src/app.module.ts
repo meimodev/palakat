@@ -18,6 +18,7 @@ import { FinancialAccountNumberModule } from './financial-account-number/financi
 import { LocationModule } from './location/location.module';
 import { MembershipPositionModule } from './membership-position/membership-position.module';
 import { MembershipModule } from './membership/membership.module';
+import { NotificationModule } from './notification/notification.module';
 import { PrismaModule } from './prisma.module';
 import { ReportModule } from './report/report.module';
 import { RevenueModule } from './revenue/revenue.module';
@@ -46,6 +47,7 @@ import { SongModule } from './song/song.module';
     ApprovalRuleModule,
     ChurchRequestModule,
     FinancialAccountNumberModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, PrismaExceptionFilter, HelperService],

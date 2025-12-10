@@ -1,0 +1,176 @@
+# Implementation Plan
+
+- [x] 1. Set up Pusher Beams backend infrastructure
+  - [x] 1.1 Add Pusher Beams dependencies and environment configuration
+    - Install `@pusher/push-notifications-server` package
+    - Add PUSHER_BEAMS_INSTANCE_ID and PUSHER_BEAMS_SECRET_KEY to .env.example
+    - _Requirements: 2.1_
+  - [x] 1.2 Create Notification Prisma model and migration
+    - Add NotificationType enum and Notification model to schema.prisma
+    - Add relation from Activity to Notification
+    - Run prisma generate and create migration
+    - _Requirements: 1.1_
+  - [x] 1.3 Write property test for interest name formatting
+    - **Property 4: Interest Name Formatting - BIPRA**
+    - **Property 5: Interest Name Formatting - Membership**
+    - **Validates: Requirements 2.2, 2.3, 5.1, 6.1**
+  - [x] 1.4 Implement PusherBeamsService
+    - Create src/notification/pusher-beams.service.ts
+    - Implement interest name formatters (formatBipraInterest, formatMembershipInterest, etc.)
+    - Implement publishToInterests method with error handling and logging
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+
+- [x] 2. Implement Notification CRUD operations
+  - [x] 2.1 Create NotificationModule structure
+    - Create src/notification/notification.module.ts
+    - Create DTOs: create-notification.dto.ts, notification-list.dto.ts, update-notification.dto.ts
+    - _Requirements: 8.1_
+  - [x] 2.2 Write property test for notification persistence
+    - **Property 1: Notification Persistence Round-Trip**
+    - **Validates: Requirements 1.2, 1.3**
+  - [x] 2.3 Implement NotificationService CRUD methods
+    - Implement findAll with pagination and filtering (recipient, isRead, type)
+    - Implement findOne with authorization check
+    - Implement markAsRead
+    - Implement remove
+    - Implement getUnreadCount
+    - _Requirements: 1.2, 1.3, 1.4, 1.5, 7.1, 7.2, 7.3, 7.4, 7.5_
+  - [x] 2.4 Write property tests for CRUD operations
+    - **Property 2: Read Status State Transition**
+    - **Property 3: Notification Filtering Correctness**
+    - **Property 10: Notification Authorization**
+    - **Property 11: Notification Deletion**
+    - **Property 12: Unread Count Accuracy**
+    - **Validates: Requirements 1.4, 1.5, 7.1, 7.2, 7.3, 7.4, 7.5**
+  - [x] 2.5 Implement NotificationController
+    - Create src/notification/notification.controller.ts
+    - Implement GET /notifications (list with pagination)
+    - Implement GET /notifications/:id
+    - Implement PATCH /notifications/:id/read
+    - Implement DELETE /notifications/:id
+    - Add JwtAuthGuard to all endpoints
+    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
+
+- [x] 3. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Implement activity creation notifications
+  - [x] 4.1 Write property test for activity creation notifications
+    - **Property 6: Notification Payload Structure**
+    - **Property 7: Activity Creation Notification Count**
+    - **Validates: Requirements 2.5, 5.2, 5.3, 5.4, 5.5**
+  - [x] 4.2 Implement notifyActivityCreated in NotificationService
+    - Send BIPRA group notification to church.{churchId}_bipra.{BIPRA}
+    - Send individual notifications to each approver's membership.{membershipId}
+    - Create Notification records for each recipient
+    - Format notification title with activity title, body with type and date
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [x] 4.3 Integrate notification into ActivityService.create
+    - Import NotificationService into ActivityModule
+    - Call notifyActivityCreated after activity creation transaction
+    - Handle notification errors without blocking activity creation
+    - _Requirements: 8.3_
+
+- [x] 5. Implement approval status change notifications
+  - [x] 5.1 Write property test for approval notifications
+    - **Property 8: Approval Notification Deduplication**
+    - **Property 9: Approval Notification Recipients**
+    - **Validates: Requirements 6.2, 6.3, 6.5**
+  - [x] 5.2 Implement notifyApprovalStatusChanged in NotificationService
+    - Identify supervisor membership ID from activity
+    - Identify other unconfirmed approvers
+    - Deduplicate if supervisor is also an approver
+    - Send notifications to all recipients
+    - Create Notification records with approver name and status in body
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+  - [x] 5.3 Integrate notification into ApproverService.update
+    - Import NotificationService into ApproverModule
+    - Call notifyApprovalStatusChanged after status update
+    - Handle notification errors without blocking approval update
+    - _Requirements: 8.4_
+
+- [x] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Implement Flutter shared notification components
+  - [x] 7.1 Add Pusher Beams dependencies to Flutter packages
+    - Add pusher_beams to palakat/pubspec.yaml
+    - Add pusher_beams_web to palakat_admin/pubspec.yaml
+    - Add shared dependencies to palakat_shared/pubspec.yaml if needed
+    - _Requirements: 3.1, 4.1_
+  - [x] 7.2 Create InterestBuilder utility in palakat_shared
+    - Create packages/palakat_shared/lib/core/utils/interest_builder.dart
+    - Implement static methods for all interest patterns
+    - Implement buildUserInterests method
+    - _Requirements: 3.2, 4.2_
+  - [x] 7.3 Write property test for InterestBuilder
+    - Test interest name formatting matches backend patterns
+    - Test buildUserInterests returns correct number of interests
+    - _Requirements: 3.2, 4.2_
+  - [x] 7.4 Create NotificationModel in palakat_shared
+    - Create packages/palakat_shared/lib/core/models/notification.dart
+    - Define NotificationType enum
+    - Create freezed NotificationModel class
+    - Run build_runner to generate code
+    - _Requirements: 1.1_
+  - [x] 7.5 Create PusherBeamsService interface in palakat_shared
+    - Create packages/palakat_shared/lib/core/services/pusher_beams_service.dart
+    - Define abstract interface for initialize, subscribe, unsubscribe methods
+    - _Requirements: 3.1, 4.1_
+
+- [x] 8. Implement Mobile App push notification integration
+  - [x] 8.1 Implement PusherBeamsService for mobile
+    - Create apps/palakat/lib/core/services/pusher_beams_mobile_service.dart
+    - Implement SDK initialization with instance ID from .env
+    - Implement subscribeToInterests with logging
+    - Implement unsubscribeFromAllInterests with logging
+    - _Requirements: 3.1, 3.3, 3.4_
+  - [x] 8.2 Create PusherBeamsController with Riverpod
+    - Create apps/palakat/lib/features/notification/data/pusher_beams_controller.dart
+    - Implement registerInterests method using InterestBuilder
+    - Implement unregisterAllInterests method
+    - Log each interest registration/unregistration
+    - _Requirements: 3.2, 3.3, 3.4_
+  - [x] 8.3 Integrate push notification registration on home screen
+    - Modify home screen to check if user is signed in
+    - Call registerInterests when user is already signed in or after sign-in
+    - Use membership data to build interests (churchId, bipra, columnId, membershipId)
+    - _Requirements: 3.2_
+  - [x] 8.4 Integrate push notification unregistration on logout
+    - Modify logout flow to call unregisterAllInterests
+    - Clear Pusher Beams state after unsubscription
+    - _Requirements: 3.4_
+  - [x] 8.5 Implement notification tap handling
+    - Configure notification tap callback
+    - Parse deep link data from notification
+    - Navigate to relevant screen (activity detail, approval screen)
+    - _Requirements: 3.5_
+
+- [x] 9. Implement Admin Panel push notification integration
+  - [x] 9.1 Implement PusherBeamsWebService for admin panel
+    - Create apps/palakat_admin/lib/core/services/pusher_beams_web_service.dart
+    - Implement web SDK initialization
+    - Implement subscribeToInterests with logging
+    - Implement unsubscribeFromAllInterests with logging
+    - _Requirements: 4.1, 4.3, 4.4_
+  - [x] 9.2 Create PusherBeamsController for admin panel
+    - Create apps/palakat_admin/lib/features/notification/application/pusher_beams_controller.dart
+    - Implement registerInterests method using InterestBuilder
+    - Implement unregisterAllInterests method
+    - Log each interest registration/unregistration
+    - _Requirements: 4.2, 4.3, 4.4_
+  - [x] 9.3 Integrate push notification registration on sign-in
+    - Modify sign-in flow to call registerInterests after successful authentication
+    - Use membership data to build interests
+    - _Requirements: 4.2_
+  - [x] 9.4 Integrate push notification unregistration on sign-out
+    - Modify sign-out flow to call unregisterAllInterests
+    - Clear Pusher Beams state after unsubscription
+    - _Requirements: 4.4_
+  - [x] 9.5 Implement browser notification handling
+    - Configure service worker for web push (if required)
+    - Handle notification click to navigate to relevant screen
+    - _Requirements: 4.5, 4.6_
+
+- [x] 10. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

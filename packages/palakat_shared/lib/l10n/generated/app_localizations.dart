@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// Navigation label for dashboard
   ///
   /// In id, this message translates to:
-  /// **'Dasbor'**
+  /// **'Beranda'**
   String get nav_dashboard;
 
   /// Navigation label for members

@@ -121,23 +121,24 @@ model ApprovalRule {
 }
 
 model Activity {
-  id           Int          @id @default(autoincrement())
-  supervisorId Int
-  bipra        Bipra
-  title        String
-  description  String?
-  locationId   Int?
-  date         DateTime?
-  note         String?
-  activityType ActivityType
-  reminder     Reminder?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  supervisor   Membership   @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
-  approvers    Approver[]
-  location     Location?    @relation(fields: [locationId], references: [id])
-  revenue      Revenue?
-  expense      Expense?
+  id            Int            @id @default(autoincrement())
+  supervisorId  Int
+  bipra         Bipra
+  title         String
+  description   String?
+  locationId    Int?
+  date          DateTime?
+  note          String?
+  activityType  ActivityType
+  reminder      Reminder?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  supervisor    Membership     @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
+  approvers     Approver[]
+  location      Location?      @relation(fields: [locationId], references: [id])
+  revenue       Revenue?
+  expense       Expense?
+  notifications Notification[]
 
   @@index([date])
   @@index([supervisorId])
@@ -290,6 +291,13 @@ enum FinancialType {
   EXPENSE
 }
 
+enum NotificationType {
+  ACTIVITY_CREATED
+  APPROVAL_REQUIRED
+  APPROVAL_CONFIRMED
+  APPROVAL_REJECTED
+}
+
 enum GeneratedBy {
   MANUAL
   SYSTEM
@@ -369,4 +377,23 @@ model FinancialAccountNumber {
   @@index([churchId])
   @@index([accountNumber])
   @@index([type])
+}
+
+model Notification {
+  id         Int              @id @default(autoincrement())
+  title      String
+  body       String
+  type       NotificationType
+  recipient  String
+  activityId Int?
+  activity   Activity?        @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([recipient])
+  @@index([isRead])
+  @@index([type])
+  @@index([activityId])
+  @@index([createdAt])
 }

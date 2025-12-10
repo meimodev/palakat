@@ -12,7 +12,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get appTitle => 'Palakat';
 
   @override
-  String get nav_dashboard => 'Dasbor';
+  String get nav_dashboard => 'Beranda';
 
   @override
   String get nav_members => 'Anggota';
