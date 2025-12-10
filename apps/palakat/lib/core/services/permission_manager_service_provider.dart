@@ -28,10 +28,13 @@ class PermissionState extends _$PermissionState {
   /// Refresh the permission state
   Future<void> refresh() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final service = ref.read(permissionManagerServiceProvider);
       return service.getPermissionState();
     });
+    // Check if provider is still mounted before setting state
+    if (!ref.mounted) return;
+    state = result;
   }
 
   /// Request permissions with rationale

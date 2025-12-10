@@ -3,7 +3,10 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/services/in_app_notification_service.dart';
+import 'package:palakat/core/services/notification_display_service_provider.dart';
 import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
+import 'package:palakat/core/widgets/in_app_notification/in_app_notification_banner.dart';
 import 'package:palakat_shared/core/extension/account_extension.dart';
 import 'package:palakat_shared/core/models/membership.dart';
 import 'package:palakat_shared/core/utils/interest_builder.dart';
@@ -25,10 +28,25 @@ class PusherBeamsController extends _$PusherBeamsController {
 
   PusherBeamsMobileService? _service;
 
+  InAppNotificationService? _inAppNotificationService;
+
   @override
   void build() {
-    // Initialize the service
-    _service = PusherBeamsMobileService();
+    // Initialize the in-app notification service with navigator key
+    _inAppNotificationService = InAppNotificationService(
+      navigatorKey: navigatorKey,
+    );
+
+    // Get the shared notification display service (initialized in main.dart)
+    final notificationDisplay = ref.read(
+      notificationDisplayServiceSyncProvider,
+    );
+
+    // Initialize the service with proper dependencies
+    _service = PusherBeamsMobileService(
+      notificationDisplay: notificationDisplay,
+      inAppNotificationService: _inAppNotificationService,
+    );
   }
 
   /// Registers device interests for the given membership.
@@ -107,10 +125,84 @@ class PusherBeamsController extends _$PusherBeamsController {
     // Subscribe to all interests
     await _service!.subscribeToInterests(interests);
 
-    // Set up notification tap handler
+    // Set up foreground notification handler to show in-app banners
+    _setupForegroundNotificationHandler(membershipId);
+
+    // Set up background/system notification tap handler
     _setupNotificationTapHandler(membershipId);
 
     _log('Successfully registered all interests');
+  }
+
+  /// Sets up foreground notification handler to show in-app banners.
+  ///
+  /// When the app is in foreground and receives a notification,
+  /// this displays an in-app banner at the top of the screen.
+  void _setupForegroundNotificationHandler(int currentMembershipId) {
+    if (_service == null || !_service!.isInitialized) {
+      _log('Service not ready for foreground notification handler');
+      return;
+    }
+
+    _service!.setupForegroundNotificationHandler(
+      onNotificationTapped: (notification) {
+        _log('In-app notification tapped: ${notification.title}');
+        _handleInAppNotificationTap(notification, currentMembershipId);
+      },
+    );
+
+    _log('Foreground notification handler set up');
+  }
+
+  /// Handles tap on in-app notification banner.
+  void _handleInAppNotificationTap(
+    InAppNotificationData notification,
+    int currentMembershipId,
+  ) {
+    try {
+      final data = notification.data;
+      if (data == null) {
+        _log('No data in notification, skipping navigation');
+        return;
+      }
+
+      final activityId = _parseIntValue(data['activityId']);
+      final notificationType = notification.type;
+
+      if (activityId == null) {
+        _log('No activityId in notification, skipping navigation');
+        return;
+      }
+
+      final context = navigatorKey.currentContext;
+      if (context == null) {
+        _log('No navigator context available');
+        return;
+      }
+
+      if (notificationType == 'APPROVAL_REQUIRED' ||
+          notificationType == 'APPROVAL_CONFIRMED' ||
+          notificationType == 'APPROVAL_REJECTED') {
+        _log('Navigating to approval detail for activity $activityId');
+        context.pushNamed(
+          AppRoute.approvalDetail,
+          extra: RouteParam(
+            params: {
+              'activityId': activityId,
+              'currentMembershipId': currentMembershipId,
+            },
+          ),
+        );
+      } else {
+        _log('Navigating to activity detail for activity $activityId');
+        context.pushNamed(
+          AppRoute.activityDetail,
+          pathParameters: {'activityId': activityId.toString()},
+        );
+      }
+    } catch (e) {
+      _log('Error handling in-app notification tap: $e');
+    }
   }
 
   /// Sets up the notification tap handler to navigate to relevant screens.
@@ -125,21 +217,13 @@ class PusherBeamsController extends _$PusherBeamsController {
       return;
     }
 
-    _service!.setOnNotificationTapped((notification) {
+    _service!.setOnSystemNotificationTapped((notificationData) {
       _log('Notification tapped, processing navigation...');
 
       try {
-        // Parse notification data
-        final data = notification['data'] as Map<Object?, Object?>?;
-
-        if (data == null) {
-          _log('No data in notification, skipping navigation');
-          return;
-        }
-
-        // Extract deep link information
-        final activityId = _parseIntValue(data['activityId']);
-        final notificationType = data['type'] as String?;
+        // Extract deep link information from notification data
+        final activityId = _parseIntValue(notificationData['activityId']);
+        final notificationType = notificationData['type'] as String?;
 
         _log(
           'Parsed notification: activityId=$activityId, type=$notificationType',

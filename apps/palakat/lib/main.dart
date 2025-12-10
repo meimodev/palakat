@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/core/services/in_app_notification_service.dart';
 import 'package:palakat/core/services/notification_display_service.dart';
+import 'package:palakat/core/services/notification_display_service_provider.dart';
 import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
@@ -37,6 +39,9 @@ void main() async {
   final notificationService = NotificationDisplayServiceImpl();
   await notificationService.initialize();
   await notificationService.initializeChannels();
+
+  // Set the shared instance so other parts of the app can use it
+  setSharedNotificationDisplayService(notificationService);
 
   // Set up notification tap handler for cold start
   // This captures notification taps when the app is launched from a terminated state
@@ -123,10 +128,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     // If permission was granted, initialize push notifications
     if (state.status == PermissionStatus.granted) {
+      // Initialize in-app notification service for foreground banner display
+      final inAppNotificationService = InAppNotificationService(
+        navigatorKey: navigatorKey,
+      );
+
       // Initialize Pusher Beams with granted permission
       final pusherBeams = PusherBeamsMobileService(
         permissionManager: permissionManager,
         notificationDisplay: NotificationDisplayServiceImpl(),
+        inAppNotificationService: inAppNotificationService,
       );
 
       await pusherBeams.initialize();

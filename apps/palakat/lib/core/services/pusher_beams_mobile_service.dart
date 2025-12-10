@@ -8,6 +8,8 @@ import 'package:pusher_beams/pusher_beams.dart';
 
 import '../constants/notification_channels.dart';
 import '../models/notification_payload.dart';
+import '../widgets/in_app_notification/in_app_notification_banner.dart';
+import 'in_app_notification_service.dart';
 import 'notification_display_service.dart';
 import 'permission_manager_service.dart';
 
@@ -26,6 +28,7 @@ class PusherBeamsMobileService {
 
   final PermissionManagerService? _permissionManager;
   final NotificationDisplayService? _notificationDisplay;
+  final InAppNotificationService? _inAppNotificationService;
 
   bool _isInitialized = false;
 
@@ -33,8 +36,10 @@ class PusherBeamsMobileService {
   PusherBeamsMobileService({
     PermissionManagerService? permissionManager,
     NotificationDisplayService? notificationDisplay,
+    InAppNotificationService? inAppNotificationService,
   }) : _permissionManager = permissionManager,
-       _notificationDisplay = notificationDisplay;
+       _notificationDisplay = notificationDisplay,
+       _inAppNotificationService = inAppNotificationService;
 
   /// Returns whether the service has been initialized
   bool get isInitialized => _isInitialized;
@@ -85,9 +90,45 @@ class PusherBeamsMobileService {
     }
   }
 
-  /// Set up foreground notification handler
+  /// Set up foreground notification handler to show in-app banner
   /// Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
-  void setupForegroundNotificationHandler() {
+  ///
+  /// When a notification is received in the foreground, this shows an in-app
+  /// banner instead of a system notification. The banner auto-dismisses and
+  /// can be tapped to navigate to the related content.
+  void setupForegroundNotificationHandler({
+    void Function(InAppNotificationData notification)? onNotificationTapped,
+  }) {
+    if (_inAppNotificationService == null) {
+      _log(
+        'No in-app notification service provided, falling back to system notification',
+      );
+      _setupSystemNotificationFallback();
+      return;
+    }
+
+    // Set up tap handler for in-app notifications
+    if (onNotificationTapped != null) {
+      _inAppNotificationService.setOnNotificationTapped(onNotificationTapped);
+    }
+
+    setOnMessageReceivedInTheForeground((notification) {
+      _log('Foreground notification received: $notification');
+
+      // Show in-app notification banner
+      _inAppNotificationService.showFromMap(notification);
+
+      // Also show system notification (like when app is in background)
+      _showSystemNotification(notification);
+    });
+
+    _log(
+      'Foreground notification handler set up with in-app banner and system notification',
+    );
+  }
+
+  /// Fallback to system notification when in-app service is not available
+  void _setupSystemNotificationFallback() {
     if (_notificationDisplay == null) {
       _log(
         'No notification display service provided, skipping foreground handler setup',
@@ -96,13 +137,24 @@ class PusherBeamsMobileService {
     }
 
     setOnMessageReceivedInTheForeground((notification) {
-      _log('Foreground notification received: $notification');
+      _log('Foreground notification received (fallback): $notification');
 
       // Extract payload data
       final title = notification['title'] as String? ?? 'Notification';
       final body = notification['body'] as String? ?? '';
       final icon = notification['icon'] as String?;
-      final data = notification['data'] as Map<String, dynamic>?;
+
+      // Convert data from Map<Object?, Object?> to Map<String, dynamic>
+      Map<String, dynamic>? data;
+      final rawData = notification['data'];
+      if (rawData is Map) {
+        data = <String, dynamic>{};
+        rawData.forEach((key, value) {
+          if (key != null) {
+            data![key.toString()] = value;
+          }
+        });
+      }
 
       // Create notification payload
       final payload = NotificationPayload(
@@ -116,7 +168,9 @@ class PusherBeamsMobileService {
       final type = data?['type'] as String?;
       final channelId = NotificationChannels.getChannelForType(type ?? '');
 
-      _log('Displaying notification with channel: $channelId');
+      _log(
+        'Displaying system notification (fallback): title=$title, channel=$channelId',
+      );
 
       // Display system notification
       _notificationDisplay.displayNotification(
@@ -125,7 +179,62 @@ class PusherBeamsMobileService {
       );
     });
 
-    _log('Foreground notification handler set up');
+    _log(
+      'Foreground notification handler set up with system notification fallback',
+    );
+  }
+
+  /// Shows a system notification from notification data map.
+  ///
+  /// This displays a notification in the system tray alongside
+  /// the in-app banner when the app is in foreground.
+  void _showSystemNotification(Map<Object?, Object?> notification) {
+    if (_notificationDisplay == null) {
+      _log('No notification display service, skipping system notification');
+      return;
+    }
+
+    try {
+      // Extract payload data
+      final title = notification['title'] as String? ?? 'Notification';
+      final body = notification['body'] as String? ?? '';
+      final icon = notification['icon'] as String?;
+
+      // Convert data from Map<Object?, Object?> to Map<String, dynamic>
+      Map<String, dynamic>? data;
+      final rawData = notification['data'];
+      if (rawData is Map) {
+        data = <String, dynamic>{};
+        rawData.forEach((key, value) {
+          if (key != null) {
+            data![key.toString()] = value;
+          }
+        });
+      }
+
+      // Create notification payload
+      final payload = NotificationPayload(
+        title: title,
+        body: body,
+        icon: icon,
+        data: data,
+      );
+
+      // Get notification type and determine channel
+      final type = data?['type'] as String?;
+      final channelId = NotificationChannels.getChannelForType(type ?? '');
+
+      _log('Displaying system notification: title=$title, channel=$channelId');
+
+      // Display system notification
+      _notificationDisplay.displayNotification(
+        payload: payload,
+        channelId: channelId,
+      );
+    } catch (e, stackTrace) {
+      _log('Error showing system notification: $e');
+      _log('Stack trace: $stackTrace');
+    }
   }
 
   /// Initializes the Pusher Beams SDK with the instance ID from environment.
@@ -312,28 +421,25 @@ class PusherBeamsMobileService {
     }
   }
 
-  /// Sets a callback for when a notification is tapped.
+  /// Sets a callback for when a system notification is tapped (background/terminated).
   ///
-  /// The callback receives the notification data which includes deep link information
-  /// for navigation to the relevant screen.
+  /// Note: For foreground notifications, the tap handler is set via
+  /// setupForegroundNotificationHandler's onNotificationTapped parameter.
+  ///
+  /// This method is primarily for handling taps on system notifications that
+  /// were shown when the app was in background or terminated state.
   ///
   /// **Validates: Requirements 3.5**
-  void setOnNotificationTapped(
-    void Function(Map<Object?, Object?> notification) callback,
+  void setOnSystemNotificationTapped(
+    void Function(Map<String, dynamic> data) callback,
   ) {
-    if (!_isInitialized) {
-      _log('Not initialized. Cannot set notification tap callback.');
-      return;
-    }
-
-    try {
-      PusherBeams.instance.onMessageReceivedInTheForeground((notification) {
-        _log('Notification tapped: $notification');
-        callback(notification);
-      });
-      _log('Notification tap callback set');
-    } catch (e) {
-      _log('Failed to set notification tap callback: $e');
+    // System notification taps are handled by NotificationDisplayService
+    // through flutter_local_notifications
+    if (_notificationDisplay != null) {
+      _notificationDisplay.setNotificationTapHandler(callback);
+      _log('System notification tap callback set');
+    } else {
+      _log('No notification display service, cannot set tap callback');
     }
   }
 

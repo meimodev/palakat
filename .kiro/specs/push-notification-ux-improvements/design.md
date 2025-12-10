@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines enhancements to the existing push notification system to improve user experience through proper notification display and graceful permission handling. The improvements build upon the existing Pusher Beams implementation specified in `.kiro/specs/push-notification/`.
+This design document outlines enhancements to the existing push notification system to improve user experience through proper notification display and graceful permission handling. The improvements build upon the existing Pusher Beams implemtientaon specified in `.kiro/specs/push-notification/`.
 
 The key improvements are:
 
