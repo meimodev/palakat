@@ -411,7 +411,7 @@ export class ActivitiesService {
           include: {
             supervisor: {
               include: {
-                churchId: true,
+                church: true,
                 account: {
                   select: {
                     id: true,
@@ -462,12 +462,20 @@ export class ActivitiesService {
 
     // Send notifications after activity creation (non-blocking)
     // **Validates: Requirements 8.3**
-    this.notifyActivityCreated(activity, membership.churchId).catch((error) => {
-      this.logger.error(
-        `Failed to send activity creation notifications: ${error.message}`,
-        error.stack,
+    if (activity) {
+      this.notifyActivityCreated(activity, membership.churchId).catch(
+        (error) => {
+          this.logger.error(
+            `Failed to send activity creation notifications: ${error.message}`,
+            error.stack,
+          );
+        },
       );
-    });
+    } else {
+      this.logger.warn(
+        'Activity was null after creation, skipping notifications',
+      );
+    }
 
     return {
       message: 'Activity created successfully',
@@ -501,11 +509,11 @@ export class ActivitiesService {
           id: activity.supervisor.id,
           churchId: churchId,
         },
-        approvers: activity.approvers.map((approver: any) => ({
+        approvers: (activity.approvers || []).map((approver: any) => ({
           id: approver.id,
           membershipId: approver.membershipId,
           membership: {
-            id: approver.membership.id,
+            id: approver.membership?.id ?? approver.membershipId,
           },
         })),
       };

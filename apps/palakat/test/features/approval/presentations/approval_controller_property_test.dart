@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
-import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/models.dart';
 
 /// Property-based tests for ApprovalController status grouping and filtering.

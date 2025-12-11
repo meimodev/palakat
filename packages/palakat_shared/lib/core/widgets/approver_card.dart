@@ -20,7 +20,7 @@ class ApproverCardCompact extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final approverRepository = ref.watch(approverRepositoryProvider);
-    
+
     final approverName = approver.membership?.account?.name ?? 'Unknown';
     final status = approver.status;
     final statusDisplay = approverRepository.getStatusDisplay(status);
@@ -33,18 +33,13 @@ class ApproverCardCompact extends ConsumerWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            statusIcon,
-            size: 16,
-            color: statusColor,
-          ),
+          Icon(statusIcon, size: 16, color: statusColor),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,6 +100,7 @@ class ApproverCardFull extends ConsumerWidget {
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(statusIcon, size: 16, color: statusColor),
           const SizedBox(width: 8),
@@ -200,10 +196,12 @@ class ApproversWrapDisplay extends StatelessWidget {
       runSpacing: 6,
       direction: Axis.vertical,
       children: approvers
-          .map((approver) => ApproverCardCompact(
-                approver: approver,
-                fallbackDate: fallbackDate,
-              ))
+          .map(
+            (approver) => ApproverCardCompact(
+              approver: approver,
+              fallbackDate: fallbackDate,
+            ),
+          )
           .toList(),
     );
   }
@@ -230,10 +228,12 @@ class ApproversStackDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: approvers
-          .map((approver) => ApproverCardFull(
-                approver: approver,
-                fallbackDate: fallbackDate,
-              ))
+          .map(
+            (approver) => ApproverCardFull(
+              approver: approver,
+              fallbackDate: fallbackDate,
+            ),
+          )
           .toList(),
     );
   }

@@ -640,6 +640,7 @@ class _SuccessFeedback extends StatelessWidget {
                 color: BaseColor.teal[700],
                 shape: BoxShape.circle,
               ),
+              alignment: Alignment.center,
               child: FaIcon(
                 AppIcons.check,
                 size: BaseSize.w16,

@@ -123,6 +123,7 @@ class _PaymentMethodCard extends StatelessWidget {
                 color: isSelected ? config.iconBgColor : BaseColor.neutral[100],
                 shape: BoxShape.circle,
               ),
+              alignment: Alignment.center,
               child: FaIcon(
                 config.icon,
                 size: BaseSize.w20,

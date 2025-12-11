@@ -93,7 +93,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     ),
                     InfoRow(
                       label: 'Account Number',
-                      value: _expense!.accountNumber ?? '-',
+                      value: _expense!.accountNumber,
                     ),
                     InfoRow(
                       label: 'Amount',

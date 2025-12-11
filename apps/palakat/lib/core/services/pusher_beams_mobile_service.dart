@@ -74,6 +74,7 @@ class PusherBeamsMobileService {
 
     if (shouldShow) {
       // Request permissions with rationale flow
+      if (!context.mounted) return;
       final status = await _permissionManager.requestPermissionsWithRationale(
         context,
       );

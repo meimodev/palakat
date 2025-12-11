@@ -283,7 +283,7 @@ class _MapScreenState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                     boxShadow: [
                       BoxShadow(
-                        color: BaseColor.shadow.withOpacity(0.1),
+                        color: BaseColor.shadow.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -323,7 +323,7 @@ class _MapScreenState extends State<MapScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: BaseColor.primary3.withOpacity(0.3),
+                        color: BaseColor.primary3.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -348,8 +348,8 @@ class _MapScreenState extends State<MapScreen> {
                   width: _isMapMoving ? BaseSize.w8 : BaseSize.w16,
                   height: BaseSize.h4,
                   decoration: BoxDecoration(
-                    color: BaseColor.shadow.withOpacity(
-                      _isMapMoving ? 0.2 : 0.3,
+                    color: BaseColor.shadow.withValues(
+                      alpha: _isMapMoving ? 0.2 : 0.3,
                     ),
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
@@ -378,7 +378,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: BaseColor.shadow.withOpacity(0.1),
+                color: BaseColor.shadow.withValues(alpha: 0.1),
                 blurRadius: 16,
                 offset: const Offset(0, -4),
               ),
@@ -526,7 +526,7 @@ class _MapIconButton extends StatelessWidget {
       color: BaseColor.white,
       borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       elevation: 2,
-      shadowColor: BaseColor.shadow.withOpacity(0.2),
+      shadowColor: BaseColor.shadow.withValues(alpha: 0.2),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),

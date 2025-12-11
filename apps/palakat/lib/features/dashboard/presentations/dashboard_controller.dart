@@ -230,9 +230,7 @@ class DashboardController extends _$DashboardController {
       );
       await pusherBeamsController.unregisterAllInterests();
     } catch (e) {
-      // Log error but continue with sign out
-      // Push notification cleanup should not block logout
-      print('Failed to unregister push notification interests: $e');
+      // Ignore cleanup errors; sign-out should proceed
     }
 
     // Proceed with sign out

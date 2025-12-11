@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
@@ -93,10 +92,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
                       dropdownLabel: 'Payment Method',
-                      dropdownOptions: {
-                        'cash': 'Cash',
-                        'cashless': 'Cashless',
-                      },
+                      dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
                         final paymentMethod = value == null
@@ -132,7 +128,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
           return Text(
-            revenue.accountNumber ?? '-',
+            revenue.accountNumber,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),
@@ -226,4 +222,3 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
     ];
   }
 }
-

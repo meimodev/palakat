@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column, ActivityType;
 
 import '../state/dashboard_controller.dart';

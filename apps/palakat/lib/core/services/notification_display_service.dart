@@ -107,16 +107,12 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
                 AndroidFlutterLocalNotificationsPlugin
               >()
               ?.createNotificationChannel(androidChannel);
-
-          print('Created notification channel: ${channel.id}');
         } catch (e) {
-          // Log error for individual channel but continue with others
-          print('Error creating notification channel ${channel.id}: $e');
+          // Continue with other channels if one fails
         }
       }
     } catch (e) {
-      // Log general error but don't throw - app should continue to work
-      print('Error initializing notification channels: $e');
+      // App should continue to work even if channel init fails
     }
   }
 
@@ -170,8 +166,7 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
         try {
           payloadString = _encodePayloadData(payload.data!);
         } catch (e) {
-          // If encoding fails, log error and use string representation
-          print('Warning: Failed to encode notification payload data: $e');
+          // If encoding fails, use string representation
           payloadString = payload.data.toString();
         }
       }
@@ -184,15 +179,8 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
         notificationDetails,
         payload: payloadString,
       );
-
-      print('Notification displayed successfully: ${payload.title}');
     } catch (e) {
-      // Log the error but don't throw - notification display failures should not crash the app
-      print('Error displaying notification: $e');
-      print('Payload: ${payload.title} - ${payload.body}');
-
-      // Optionally, we could implement a fallback mechanism here
-      // For now, we just log and continue
+      // Notification display failures should not crash the app
     }
   }
 
@@ -212,7 +200,6 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
       });
       return parts.join(';');
     } catch (e) {
-      print('Error encoding payload data: $e');
       rethrow;
     }
   }
@@ -237,7 +224,6 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
       }
       return data;
     } catch (e) {
-      print('Error decoding payload data: $e');
       return <String, dynamic>{};
     }
   }
@@ -266,10 +252,8 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
   Future<void> clearAllNotifications() async {
     try {
       await _plugin.cancelAll();
-      print('All notifications cleared successfully');
     } catch (e) {
-      // Log error but don't throw - clearing notifications is not critical
-      print('Error clearing notifications: $e');
+      // Clearing notifications is not critical
     }
   }
 
@@ -280,7 +264,6 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
     try {
       // Validate badge count
       if (count < 0) {
-        print('Warning: Badge count cannot be negative, setting to 0');
         count = 0;
       }
 
@@ -320,14 +303,9 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
         // Immediately cancel the notification so it doesn't appear in notification center
         // but the badge count remains
         await _plugin.cancel(badgeUpdateId);
-
-        print('Badge count updated to: $count');
-      } else {
-        print('Warning: iOS plugin not available for badge count update');
       }
     } catch (e) {
-      // Log error but don't throw - badge count updates are not critical
-      print('Error updating badge count: $e');
+      // Badge count updates are not critical
     }
   }
 
@@ -344,7 +322,5 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
 
     // Reset notification ID counter
     _notificationIdCounter = 0;
-
-    print('NotificationDisplayService disposed');
   }
 }

@@ -373,6 +373,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       },
       onApprove: () async {
         if (currentUserApproverId != null && activity.id != null) {
+          // Capture messenger before async gap
+          final messenger = ScaffoldMessenger.of(context);
           // Show confirmation bottom sheet
           final confirmed = await showApprovalConfirmationBottomSheet(
             context: context,
@@ -381,7 +383,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           );
           if (confirmed != true || !mounted) return;
 
-          final messenger = ScaffoldMessenger.of(context);
           setState(() => _processingActivityId = activity.id);
           await controller.approveActivity(activity.id!, currentUserApproverId);
           if (mounted) {
@@ -397,6 +398,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       },
       onReject: () async {
         if (currentUserApproverId != null && activity.id != null) {
+          // Capture messenger before async gap
+          final messenger = ScaffoldMessenger.of(context);
           // Show confirmation bottom sheet
           final confirmed = await showApprovalConfirmationBottomSheet(
             context: context,
@@ -405,7 +408,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           );
           if (confirmed != true || !mounted) return;
 
-          final messenger = ScaffoldMessenger.of(context);
           setState(() => _processingActivityId = activity.id);
           await controller.rejectActivity(activity.id!, currentUserApproverId);
           if (mounted) {

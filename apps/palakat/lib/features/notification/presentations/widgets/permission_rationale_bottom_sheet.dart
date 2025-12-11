@@ -53,7 +53,7 @@ class _PermissionRationaleContent extends StatelessWidget {
                 width: BaseSize.w80,
                 height: BaseSize.w80,
                 decoration: BoxDecoration(
-                  color: BaseColor.primary3.withOpacity(0.1),
+                  color: BaseColor.primary3.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -152,7 +152,7 @@ class _BenefitItem extends StatelessWidget {
           width: BaseSize.w40,
           height: BaseSize.w40,
           decoration: BoxDecoration(
-            color: BaseColor.primary3.withOpacity(0.1),
+            color: BaseColor.primary3.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
           ),
           alignment: Alignment.center,

@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
-import 'package:riverpod/src/framework.dart' show Override;
 
 /// Mock PermissionState notifier for testing
 class _MockPermissionState extends PermissionState {
@@ -20,9 +19,13 @@ class _MockPermissionState extends PermissionState {
 }
 
 /// Wraps a widget with MaterialApp and ScreenUtilInit for testing.
-Widget _wrapWithMaterialApp(Widget child, List<Override> overrides) {
+Widget _wrapWithMaterialApp(
+  Widget child,
+  // ignore: always_specify_types
+  List overrides,
+) {
   return ProviderScope(
-    overrides: overrides,
+    overrides: overrides.cast(),
     child: ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,

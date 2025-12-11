@@ -178,8 +178,9 @@ class CompactErrorWidget extends StatelessWidget {
           }
         } else if (errs is Map) {
           for (final v in errs.values) {
-            if (v is List && v.isNotEmpty && v.first is String)
+            if (v is List && v.isNotEmpty && v.first is String) {
               return (v.first as String).trim();
+            }
             if (v is String && v.trim().isNotEmpty) return v.trim();
           }
         }

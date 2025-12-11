@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/validation.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -158,8 +155,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           if (_isFormatting) return;
                           // If it contains letters (likely email or mixed), don't format
                           if (value.contains('@') ||
-                              RegExp(r'[A-Za-z]').hasMatch(value))
+                              RegExp(r'[A-Za-z]').hasMatch(value)) {
                             return;
+                          }
                           // Strip all non-digits and limit to 13 (no country code)
                           final digits = _normalizePhoneDigits(value);
                           final limited = digits.length > 13

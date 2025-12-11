@@ -715,6 +715,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         : BaseColor.neutral[100],
                     shape: BoxShape.circle,
                   ),
+                  alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.calendarToday,
                     size: BaseSize.w18,
@@ -815,6 +816,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         : BaseColor.neutral[100],
                     shape: BoxShape.circle,
                   ),
+                  alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.accessTime,
                     size: BaseSize.w18,
@@ -1323,6 +1325,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   color: BaseColor.primary[100],
                   shape: BoxShape.circle,
                 ),
+                alignment: Alignment.center,
                 child: FaIcon(
                   AppIcons.person,
                   color: BaseColor.primary[600],

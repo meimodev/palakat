@@ -8,6 +8,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_controller.dart';
+import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_state.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 
 /// Shows a dialog for selecting an activity from the user's supervised activities.
@@ -114,7 +115,10 @@ class _ActivityPickerDialogContentState
     );
   }
 
-  Widget _buildContent(state, controller) {
+  Widget _buildContent(
+    ActivityPickerState state,
+    ActivityPickerController controller,
+  ) {
     if (state.isLoading && state.activities.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }

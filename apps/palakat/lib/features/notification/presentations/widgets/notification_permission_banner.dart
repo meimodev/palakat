@@ -136,19 +136,21 @@ class _NotificationPermissionBannerState
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
   Future<void> _handleEnableNotifications(BuildContext context) async {
+    // Capture provider before async gap
+    final permissionNotifier = ref.read(permissionStateProvider.notifier);
     // Show permission rationale bottom sheet
     final result = await showPermissionRationaleBottomSheet(context: context);
 
-    if (result == true && mounted) {
+    if (!mounted || !context.mounted) return;
+
+    if (result == true) {
       // User tapped "Allow Notifications"
-      await ref
-          .read(permissionStateProvider.notifier)
-          .requestPermissions(context);
+      await permissionNotifier.requestPermissions(context);
     }
   }
 

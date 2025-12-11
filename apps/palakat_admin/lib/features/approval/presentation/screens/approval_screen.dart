@@ -4,7 +4,6 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
-import 'package:palakat_shared/core/models/finance_type.dart';
 import '../state/approval_controller.dart';
 import '../state/approval_screen_state.dart';
 import '../widgets/approval_edit_drawer.dart';
@@ -274,9 +273,9 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ];
   }
 
-  void _showAddRuleDialog(BuildContext context) {
+  void _showAddRuleDialog(BuildContext ctx) {
     DrawerUtils.showDrawer(
-      context: context,
+      context: ctx,
       drawer: ApprovalEditDrawer(
         churchId: controller.church.id!,
         onSave: (rule) async {
@@ -302,7 +301,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             );
           }
         },
-        onClose: () => DrawerUtils.closeDrawer(context),
+        onClose: () => DrawerUtils.closeDrawer(ctx),
       ),
     );
   }

@@ -9,7 +9,6 @@ import 'package:palakat/features/notification/presentations/notification_setting
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/models/notification_settings.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
-import 'package:palakat_shared/widgets.dart';
 
 /// Notification settings screen
 ///

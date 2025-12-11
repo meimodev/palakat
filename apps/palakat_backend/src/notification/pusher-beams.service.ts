@@ -92,13 +92,14 @@ export class PusherBeamsService {
     }
 
     try {
+      // For web, deep_link must be a valid URI - we omit it and pass in data instead
+      // For mobile (FCM/APNs), we pass the path in data for the app to handle
       const publishRequest = {
         interests,
         web: {
           notification: {
             title: payload.title,
             body: payload.body,
-            deep_link: payload.deepLink,
             ...(payload.data && { data: payload.data }),
           },
         },

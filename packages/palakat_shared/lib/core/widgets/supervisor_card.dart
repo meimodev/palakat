@@ -4,7 +4,11 @@ class SupervisorCard extends StatelessWidget {
   final String name;
   final List<String> positions;
 
-  const SupervisorCard({super.key, required this.name, required this.positions});
+  const SupervisorCard({
+    super.key,
+    required this.name,
+    required this.positions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +24,7 @@ class SupervisorCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Icon(Icons.person, size: 16),
               const SizedBox(width: 8),

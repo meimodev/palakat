@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -38,7 +39,8 @@ class PermissionState extends _$PermissionState {
   }
 
   /// Request permissions with rationale
-  Future<PermissionStatus> requestPermissions(context) async {
+  // ignore: avoid_passing_build_context_to_providers
+  Future<PermissionStatus> requestPermissions(BuildContext context) async {
     final service = ref.read(permissionManagerServiceProvider);
     final result = await service.requestPermissionsWithRationale(context);
     await refresh();

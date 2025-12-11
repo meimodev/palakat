@@ -31,27 +31,19 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   void initState() {
     super.initState();
     // Debug: Print what data was received
-    print('🔍 AccountScreen: verifiedPhone: ${widget.verifiedPhone}');
-    print('🔍 AccountScreen: accountId: ${widget.accountId}');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = ref.read(accountControllerProvider.notifier);
 
       // Fetch account data if accountId is provided (signed-in user editing profile)
       if (widget.accountId != null) {
-        print(
-          '✅ AccountScreen: Fetching account data for ID: ${widget.accountId}',
-        );
         controller.fetchAccountData(widget.accountId!);
       }
       // Otherwise, initialize with verified phone if provided (new registration)
       else if (widget.verifiedPhone != null &&
           widget.verifiedPhone!.isNotEmpty) {
-        print('✅ AccountScreen: Initializing with verified phone');
         controller.initializeWithVerifiedPhone(widget.verifiedPhone!);
-      } else {
-        print('⚠️ AccountScreen: No initialization data provided');
-      }
+      } else {}
     });
   }
 
@@ -59,11 +51,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     final controller = ref.read(accountControllerProvider.notifier);
     final state = ref.watch(accountControllerProvider);
-
-    // Debug: Print current state values
-    print(
-      '🔍 AccountScreen build: name=${state.name}, phone=${state.phone}, dob=${state.dob}',
-    );
 
     return PopScope(
       canPop: !_isFromSignIn,
@@ -354,9 +341,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
                     // Navigate to membership screen if membershipId exists
                     if (updatedAccount.membership?.id != null) {
-                      print(
-                        '🔍 AccountScreen: Navigating to membership with ID: ${updatedAccount.membership!.id}',
-                      );
                       context.pushNamed(
                         AppRoute.membership,
                         extra: RouteParam(
@@ -386,9 +370,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     // Registration successful, check for membership
                     final account = authResponse.account;
                     if (account.membership?.id != null) {
-                      print(
-                        '🔍 AccountScreen: Navigating to membership with ID: ${account.membership!.id}',
-                      );
                       context.goNamed(
                         AppRoute.membership,
                         extra: RouteParam(

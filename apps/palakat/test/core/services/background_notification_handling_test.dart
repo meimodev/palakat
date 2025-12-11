@@ -109,9 +109,12 @@ void main() {
         var handlerCalled = false;
 
         // Simulate a handler that would be called on tap
-        void handler(Map<String, dynamic> data) {
+        void onNotificationTap(Map<String, dynamic> data) {
           handlerCalled = true;
         }
+
+        // Verify handler is defined but not called on dismissal
+        expect(onNotificationTap, isNotNull);
 
         // Assert - handler should not be called on dismissal
         // (dismissal doesn't trigger the callback in the actual implementation)

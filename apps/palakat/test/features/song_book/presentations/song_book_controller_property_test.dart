@@ -95,7 +95,7 @@ Future<T> runWithProvider<T>(
   Future<T> Function(SongBookController controller) testFn,
 ) async {
   // Keep a listener alive to prevent auto-dispose
-  final subscription = container.listen(songBookControllerProvider, (_, __) {});
+  final subscription = container.listen(songBookControllerProvider, (_, _) {});
 
   try {
     final controller = container.read(songBookControllerProvider.notifier);
@@ -149,7 +149,7 @@ void main() {
           // Keep a listener alive to prevent auto-dispose
           final subscription = container.listen(
             songBookControllerProvider,
-            (_, __) {},
+            (_, _) {},
           );
 
           // Act - Initialize controller and wait for initial fetch

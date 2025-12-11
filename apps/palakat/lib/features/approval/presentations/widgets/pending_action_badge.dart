@@ -27,6 +27,7 @@ class PendingActionBadge extends StatelessWidget {
                 color: BaseColor.green.shade100,
                 shape: BoxShape.circle,
               ),
+              alignment: Alignment.center,
               child: FaIcon(
                 AppIcons.success,
                 size: BaseSize.w24,

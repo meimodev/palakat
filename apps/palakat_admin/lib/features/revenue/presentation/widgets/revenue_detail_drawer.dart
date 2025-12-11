@@ -94,7 +94,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                     ),
                     InfoRow(
                       label: 'Account Number',
-                      value: _revenue!.accountNumber ?? '-',
+                      value: _revenue!.accountNumber,
                     ),
                     InfoRow(
                       label: 'Amount',

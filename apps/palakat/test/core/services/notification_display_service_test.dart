@@ -506,9 +506,8 @@ void main() {
     group('dispose', () {
       test('clears handlers and resets state', () {
         // Set up a handler first
-        bool handlerCalled = false;
         service.setNotificationTapHandler((data) {
-          handlerCalled = true;
+          // Handler callback - not expected to be called after dispose
         });
 
         // Dispose the service

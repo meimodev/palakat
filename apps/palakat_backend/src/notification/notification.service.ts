@@ -127,11 +127,28 @@ export class NotificationService {
    */
   async notifyActivityCreated(activity: ActivityWithRelations): Promise<void> {
     try {
-      const churchId = activity.supervisor.churchId;
+      this.logger.log(
+        `Starting notification for activity ${activity.id}: ${activity.title}`,
+      );
+
+      const churchId = activity.supervisor?.churchId;
+      if (!churchId) {
+        this.logger.error(
+          `Cannot send notifications: churchId is missing for activity ${activity.id}`,
+        );
+        return;
+      }
+
       const bipra = activity.bipra;
-      const dateStr = activity.date
-        ? activity.date.toLocaleDateString()
-        : 'No date set';
+      // Handle date as either Date object or string
+      let dateStr = 'No date set';
+      if (activity.date) {
+        const dateObj =
+          activity.date instanceof Date
+            ? activity.date
+            : new Date(activity.date);
+        dateStr = dateObj.toLocaleDateString();
+      }
 
       // 1. Send BIPRA group notification
       const bipraInterest = this.pusherBeams.formatBipraInterest(

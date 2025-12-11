@@ -72,16 +72,15 @@ class ReportButtonWidget extends StatelessWidget {
                     ),
                   ],
                 ),
+                alignment: Alignment.center,
                 child: isLoading
-                    ? Center(
-                        child: SizedBox(
-                          width: BaseSize.w20,
-                          height: BaseSize.w20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              _accentColor,
-                            ),
+                    ? SizedBox(
+                        width: BaseSize.w20,
+                        height: BaseSize.w20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            _accentColor,
                           ),
                         ),
                       )

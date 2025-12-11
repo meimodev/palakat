@@ -130,7 +130,8 @@ class OutputWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-              const SizedBox(width: 12),
+              if (startIcon != null && startText != null)
+                const SizedBox(height: 4),
               if (startText != null)
                 Text(
                   startText!,

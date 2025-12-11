@@ -3,7 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:palakat/features/authentication/data/firebase_auth_repository.dart';
 import 'package:palakat/features/authentication/presentations/authentication_controller.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Mock classes
 class MockAuthRepository extends Mock implements AuthRepository {}

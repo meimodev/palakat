@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
@@ -94,10 +93,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
                       dropdownLabel: 'Payment Method',
-                      dropdownOptions: {
-                        'cash': 'Cash',
-                        'cashless': 'Cashless',
-                      },
+                      dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
                         final paymentMethod = value == null
@@ -133,7 +129,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
           return Text(
-            expense.accountNumber ?? '-',
+            expense.accountNumber,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),
@@ -201,10 +197,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
-          return Text("- ${expense.amount.toCurrency}", style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.error,
-            fontWeight: FontWeight.w600,
-          ));
+          return Text(
+            "- ${expense.amount.toCurrency}",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.error,
+              fontWeight: FontWeight.w600,
+            ),
+          );
         },
       ),
       AppTableColumn<Expense>(
@@ -222,4 +221,3 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     ];
   }
 }
-

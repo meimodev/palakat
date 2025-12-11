@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat/core/services/permission_manager_service.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/services.dart';

@@ -109,7 +109,7 @@ void main() {
       // Act
       await repository.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (credential) {
           verificationCompletedCalled = true;
         },
@@ -151,7 +151,7 @@ void main() {
       // Act
       await repository.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (_) {},
         onVerificationFailed: (failure) {
           verificationFailedCalled = true;
@@ -189,7 +189,7 @@ void main() {
       // Act
       final result = await repository.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (_) {},
         onVerificationFailed: (_) {},
       );
@@ -231,7 +231,7 @@ void main() {
       await repository.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         timeout: customTimeout,
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (_) {},
         onVerificationFailed: (_) {},
       );
@@ -480,7 +480,7 @@ void main() {
       await repository.resendOtp(
         phoneNumber: phoneNumber,
         resendToken: null,
-        onCodeSent: (_, __) {
+        onCodeSent: (_, _) {
           codeSentCalled = true;
         },
         onVerificationCompleted: (_) {},
@@ -534,7 +534,7 @@ void main() {
       // Act
       await repository.resendOtp(
         phoneNumber: phoneNumber,
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (_) {},
         onVerificationFailed: (failure) {
           failureCalled = true;
@@ -608,7 +608,7 @@ void main() {
       // Act
       final result = await repository.verifyPhoneNumber(
         phoneNumber: '+123',
-        onCodeSent: (_, __) {},
+        onCodeSent: (_, _) {},
         onVerificationCompleted: (_) {},
         onVerificationFailed: (_) {},
       );

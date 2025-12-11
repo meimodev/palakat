@@ -109,7 +109,7 @@ class InAppNotificationService {
     }
   }
 
-  /// Converts a Map<Object?, Object?> to Map<String, dynamic>
+  /// Converts a `Map<Object?, Object?>` to `Map<String, dynamic>`
   Map<String, dynamic> _convertToStringDynamicMap(Map<Object?, Object?> map) {
     final result = <String, dynamic>{};
     map.forEach((key, value) {

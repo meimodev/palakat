@@ -4,7 +4,11 @@ class SupervisorChip extends StatelessWidget {
   final String name;
   final List<String> positions;
 
-  const SupervisorChip({super.key, required this.name, required this.positions});
+  const SupervisorChip({
+    super.key,
+    required this.name,
+    required this.positions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +29,7 @@ class SupervisorChip extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Icon(Icons.person, size: 16),
             const SizedBox(width: 4),

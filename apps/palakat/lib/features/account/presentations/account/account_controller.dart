@@ -46,7 +46,6 @@ class AccountController extends _$AccountController {
 
   /// Fetch account data from backend by ID
   Future<void> fetchAccountData(int accountId) async {
-    print('🔄 AccountController: Fetching account data for ID: $accountId');
     state = state.copyWith(isFetchingAccount: true, errorMessage: null);
 
     try {
@@ -57,14 +56,11 @@ class AccountController extends _$AccountController {
       final account = result.when(
         onSuccess: (acc) => acc,
         onFailure: (failure) {
-          print(
-            '❌ AccountController: Failed to fetch account: ${failure.message}',
-          );
           state = state.copyWith(
             isFetchingAccount: false,
             errorMessage: 'Failed to load account: ${failure.message}',
           );
-          return null;
+          return;
         },
       );
 
@@ -72,15 +68,11 @@ class AccountController extends _$AccountController {
         return;
       }
 
-      print('✅ AccountController: Account fetched successfully');
-
       // Initialize with fetched account data
       initializeWithAccountData(account.toJson());
 
       state = state.copyWith(isFetchingAccount: false);
-    } catch (e, stackTrace) {
-      print('❌ AccountController: Error fetching account: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       state = state.copyWith(
         isFetchingAccount: false,
         errorMessage: 'An unexpected error occurred: ${e.toString()}',
@@ -91,15 +83,7 @@ class AccountController extends _$AccountController {
   /// Initialize with existing account data (for signed-in users editing profile)
   void initializeWithAccountData(Map<String, dynamic> accountData) {
     try {
-      // Debug: Print received data
-      print('🔍 AccountController: Received accountData: $accountData');
-
       final account = Account.fromJson(accountData);
-
-      // Debug: Print parsed account
-      print(
-        '✅ AccountController: Parsed account - name: ${account.name}, phone: ${account.phone}',
-      );
 
       // Format the phone number for display
       final formattedPhone = _formatPhoneNumber(account.phone);
@@ -116,15 +100,8 @@ class AccountController extends _$AccountController {
         verifiedPhone: formattedPhone,
         isPhoneVerified: true,
       );
-
-      // Debug: Print updated state
-      print(
-        '✅ AccountController: State updated - name: ${state.name}, phone: ${state.phone}, email: ${state.email}',
-      );
-    } catch (e, stackTrace) {
+    } catch (e) {
       // If parsing fails, log detailed error
-      print('❌ AccountController: Failed to parse account data: $e');
-      print('Stack trace: $stackTrace');
       state = state.copyWith(
         errorMessage: 'Failed to load account data: ${e.toString()}',
       );
@@ -298,7 +275,7 @@ class AccountController extends _$AccountController {
             isRegistering: false,
             errorMessage: 'Failed to update account: ${failure.message}',
           );
-          return null;
+          return;
         },
       );
 
@@ -307,7 +284,6 @@ class AccountController extends _$AccountController {
       }
 
       // Update locally saved account
-      print('✅ AccountController: Updating locally saved account');
       final authRepo = ref.read(authRepositoryProvider);
       final localStorage = ref.read(localStorageServiceProvider);
 
@@ -317,7 +293,6 @@ class AccountController extends _$AccountController {
         // Update the account in the auth response
         final updatedAuth = currentAuth.copyWith(account: updatedAccount);
         await authRepo.updateLocallySavedAuth(updatedAuth);
-        print('✅ AccountController: Local account updated successfully');
       }
 
       state = state.copyWith(
@@ -390,7 +365,7 @@ class AccountController extends _$AccountController {
             isRegistering: false,
             errorMessage: 'Failed to register: ${failure.message}',
           );
-          return null;
+          return;
         },
       );
 
@@ -409,7 +384,7 @@ class AccountController extends _$AccountController {
             errorMessage:
                 'Registration successful but failed to sign in: ${failure.message}',
           );
-          return null;
+          return;
         },
       );
 

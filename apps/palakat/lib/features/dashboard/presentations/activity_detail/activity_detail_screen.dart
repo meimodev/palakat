@@ -9,7 +9,6 @@ import 'package:palakat/features/dashboard/presentations/activity_detail/activit
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
-import 'package:palakat_shared/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ActivityDetailScreen extends ConsumerWidget {

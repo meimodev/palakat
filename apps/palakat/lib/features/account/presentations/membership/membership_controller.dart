@@ -15,8 +15,6 @@ class MembershipController extends _$MembershipController {
 
   /// Fetch churches from backend with optional search
   Future<List<Church>> fetchChurches({String? searchQuery}) async {
-    print('🔄 MembershipController: Fetching churches, search: $searchQuery');
-
     try {
       final churchRepo = ref.read(churchRepositoryProvider);
 
@@ -33,21 +31,13 @@ class MembershipController extends _$MembershipController {
 
       final churches = result.when<List<Church>>(
         onSuccess: (response) {
-          print(
-            '✅ MembershipController: Fetched ${response.data.length} churches',
-          );
           return response.data.cast<Church>();
         },
-        onFailure: (failure) {
-          print(
-            '❌ MembershipController: Failed to fetch churches: ${failure.message}',
-          );
-        },
+        onFailure: (failure) {},
       );
 
       return churches ?? <Church>[];
     } catch (e) {
-      print('❌ MembershipController: Error fetching churches: $e');
       return [];
     }
   }
@@ -57,10 +47,6 @@ class MembershipController extends _$MembershipController {
     required int churchId,
     String? searchQuery,
   }) async {
-    print(
-      '🔄 MembershipController: Fetching columns for church $churchId, search: $searchQuery',
-    );
-
     try {
       final churchRepo = ref.read(churchRepositoryProvider);
 
@@ -80,30 +66,19 @@ class MembershipController extends _$MembershipController {
 
       final columns = result.when<List<Column>>(
         onSuccess: (response) {
-          print(
-            '✅ MembershipController: Fetched ${response.data.length} columns',
-          );
           return response.data.cast<Column>();
         },
-        onFailure: (failure) {
-          print(
-            '❌ MembershipController: Failed to fetch columns: ${failure.message}',
-          );
-        },
+        onFailure: (failure) {},
       );
 
       return columns ?? <Column>[];
     } catch (e) {
-      print('❌ MembershipController: Error fetching columns: $e');
       return [];
     }
   }
 
   /// Fetch membership data from backend by ID
   Future<void> fetchMembership(int membershipId) async {
-    print(
-      '🔄 MembershipController: Fetching membership data for ID: $membershipId',
-    );
     state = state.copyWith(loading: true, errorMessage: null);
 
     try {
@@ -114,9 +89,6 @@ class MembershipController extends _$MembershipController {
       final membership = result.when(
         onSuccess: (m) => m,
         onFailure: (failure) {
-          print(
-            '❌ MembershipController: Failed to fetch membership: ${failure.message}',
-          );
           state = state.copyWith(
             loading: false,
             errorMessage: 'Failed to load membership: ${failure.message}',
@@ -129,8 +101,6 @@ class MembershipController extends _$MembershipController {
         return;
       }
 
-      print('✅ MembershipController: Membership fetched successfully');
-
       // Populate the form with fetched membership data
       state = state.copyWith(
         loading: false,
@@ -140,9 +110,7 @@ class MembershipController extends _$MembershipController {
         baptize: membership.baptize,
         sidi: membership.sidi,
       );
-    } catch (e, stackTrace) {
-      print('❌ MembershipController: Error fetching membership: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       state = state.copyWith(
         loading: false,
         errorMessage: 'An unexpected error occurred: ${e.toString()}',
@@ -285,32 +253,23 @@ class MembershipController extends _$MembershipController {
 
       // Update or create based on whether we have an existing membership with id
       if (state.membership?.id != null) {
-        print(
-          '🔄 MembershipController: Updating membership ${state.membership!.id}',
-        );
         result = await membershipRepo.updateMembership(
           membershipId: state.membership!.id!,
           data: data,
         );
       } else {
-        print('🔄 MembershipController: Creating new membership');
         result = await membershipRepo.createMembership(data: data);
       }
 
       final membership = result.when<Membership?>(
         onSuccess: (m) => m,
         onFailure: (failure) {
-          print(
-            '❌ MembershipController: Failed to save membership: ${failure.message}',
-          );
           state = state.copyWith(loading: false, errorMessage: failure.message);
-          return null;
+          return;
         },
       );
 
       if (membership != null) {
-        print('✅ MembershipController: Membership saved successfully');
-
         // Save membership to local storage
         await storageService.saveMembership(membership);
 
@@ -322,9 +281,6 @@ class MembershipController extends _$MembershipController {
           );
           final updatedAuth = currentAuth.copyWith(account: updatedAccount);
           await storageService.saveAuth(updatedAuth);
-          print(
-            '✅ MembershipController: Updated account membership in auth storage',
-          );
         }
 
         state = state.copyWith(loading: false, membership: membership);
@@ -335,9 +291,7 @@ class MembershipController extends _$MembershipController {
           Failure(state.errorMessage ?? 'Failed to save membership'),
         );
       }
-    } catch (e, stackTrace) {
-      print('❌ MembershipController: Error saving membership: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       state = state.copyWith(
         loading: false,
         errorMessage: 'An unexpected error occurred: ${e.toString()}',
