@@ -122,6 +122,7 @@ class _CategoryHeader extends StatelessWidget {
               Container(
                 width: BaseSize.w40,
                 height: BaseSize.w40,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(BaseSize.w12),

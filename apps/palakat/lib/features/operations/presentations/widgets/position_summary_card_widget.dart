@@ -47,27 +47,6 @@ class PositionSummaryCard extends StatelessWidget {
               Gap.h16,
               // Position chips with consistent styling
               _PositionChipsList(positions: membership.membershipPositions),
-              // Tap hint
-              if (onTap != null) ...[
-                Gap.h12,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Tap to view membership details',
-                      style: BaseTypography.labelSmall.copyWith(
-                        color: BaseColor.textSecondary,
-                      ),
-                    ),
-                    Gap.w4,
-                    Icon(
-                      AppIcons.forward,
-                      size: BaseSize.w14,
-                      color: BaseColor.textSecondary,
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
         ),
@@ -133,38 +112,7 @@ class _PositionSummaryHeader extends StatelessWidget {
             ],
           ),
         ),
-        _PositionCountBadge(count: membership.membershipPositions.length),
       ],
-    );
-  }
-}
-
-/// Badge displaying the number of positions
-class _PositionCountBadge extends StatelessWidget {
-  const _PositionCountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // 8px grid spacing (Requirement 3.4)
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h4,
-      ),
-      decoration: BoxDecoration(
-        color: BaseColor.primary[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: BaseColor.primary[200]!, width: 1),
-      ),
-      child: Text(
-        count.toString(),
-        style: BaseTypography.labelMedium.copyWith(
-          color: BaseColor.primary[700],
-          fontWeight: FontWeight.w600,
-        ),
-      ),
     );
   }
 }

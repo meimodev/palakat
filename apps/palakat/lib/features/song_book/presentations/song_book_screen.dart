@@ -316,6 +316,7 @@ class _EmptySearchStateWidget extends StatelessWidget {
           Container(
             width: BaseSize.w48,
             height: BaseSize.w48,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: BaseColor.primary[50],
               shape: BoxShape.circle,

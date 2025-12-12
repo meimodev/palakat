@@ -41,6 +41,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                 Container(
                   width: BaseSize.w48,
                   height: BaseSize.w48,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: _getGenerationTypeColor(
                       report.generatedBy,

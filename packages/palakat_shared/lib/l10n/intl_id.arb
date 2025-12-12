@@ -457,5 +457,22 @@
   "lang_english": "English",
   "@lang_english": {
     "description": "English language name"
+  },
+
+  "settings_title": "Pengaturan",
+  "@settings_title": {
+    "description": "Settings screen title"
+  },
+  "settings_accountSettings": "Pengaturan Akun",
+  "@settings_accountSettings": {
+    "description": "Account settings menu item"
+  },
+  "settings_membershipSettings": "Pengaturan Keanggotaan",
+  "@settings_membershipSettings": {
+    "description": "Membership settings menu item"
+  },
+  "settings_noMembership": "Tidak ada keanggotaan tersedia",
+  "@settings_noMembership": {
+    "description": "Message when user has no membership"
   }
 }

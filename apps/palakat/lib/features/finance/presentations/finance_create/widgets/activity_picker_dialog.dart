@@ -232,6 +232,7 @@ class _ActivityCard extends StatelessWidget {
             // Activity type icon
             Container(
               padding: EdgeInsets.all(BaseSize.w10),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: _getActivityTypeColor().withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),

@@ -100,6 +100,15 @@ class PusherBeamsMobileService {
   void setupForegroundNotificationHandler({
     void Function(InAppNotificationData notification)? onNotificationTapped,
   }) {
+    _log('setupForegroundNotificationHandler called');
+    _log(
+      '  _inAppNotificationService: ${_inAppNotificationService != null ? "exists" : "null"}',
+    );
+    _log(
+      '  _notificationDisplay: ${_notificationDisplay != null ? "exists" : "null"}',
+    );
+    _log('  _isInitialized: $_isInitialized');
+
     if (_inAppNotificationService == null) {
       _log(
         'No in-app notification service provided, falling back to system notification',
@@ -111,10 +120,12 @@ class PusherBeamsMobileService {
     // Set up tap handler for in-app notifications
     if (onNotificationTapped != null) {
       _inAppNotificationService.setOnNotificationTapped(onNotificationTapped);
+      _log('Tap handler set on in-app notification service');
     }
 
+    _log('Setting up Pusher Beams foreground message callback...');
     setOnMessageReceivedInTheForeground((notification) {
-      _log('Foreground notification received: $notification');
+      _log('🔔 Foreground notification received: $notification');
 
       // Show in-app notification banner
       _inAppNotificationService.showFromMap(notification);
@@ -124,7 +135,7 @@ class PusherBeamsMobileService {
     });
 
     _log(
-      'Foreground notification handler set up with in-app banner and system notification',
+      '✅ Foreground notification handler set up with in-app banner and system notification',
     );
   }
 
@@ -277,23 +288,63 @@ class PusherBeamsMobileService {
       // Step 2: Ensure FCM token is available before starting Pusher Beams
       // Pusher Beams requires FCM token to register the device
       _log('Requesting FCM token...');
-      final fcmToken = await messaging.getToken();
+      String? fcmToken = await messaging.getToken();
+
+      // If token is null, wait a bit and retry (can happen after token deletion)
+      if (fcmToken == null) {
+        _log('FCM token is null, waiting and retrying...');
+        await Future.delayed(const Duration(seconds: 1));
+        fcmToken = await messaging.getToken();
+      }
+
+      // Try one more time with longer delay
+      if (fcmToken == null) {
+        _log('FCM token still null, waiting longer and retrying...');
+        await Future.delayed(const Duration(seconds: 2));
+        fcmToken = await messaging.getToken();
+      }
 
       if (fcmToken == null) {
-        _log('Failed to get FCM token. Cannot initialize Pusher Beams.');
+        _log(
+          'Failed to get FCM token after retries. Cannot initialize Pusher Beams.',
+        );
         return;
       }
 
       _log('FCM token obtained: ${fcmToken.substring(0, 20)}...');
 
-      // Step 3: Start Pusher Beams (now that FCM is ready)
+      // Step 3: Clear any existing Pusher Beams state to ensure clean initialization
+      // This is important for re-initialization after sign-out
+      _log('Clearing any existing Pusher Beams state...');
+      try {
+        await PusherBeams.instance.clearAllState();
+        _log('Existing state cleared');
+      } catch (e) {
+        _log('Clear state failed (may be first initialization): $e');
+        // Continue anyway
+      }
+
+      // Step 4: Stop Pusher Beams to ensure clean state
+      _log('Stopping Pusher Beams to ensure clean state...');
+      try {
+        await PusherBeams.instance.stop();
+        _log('Pusher Beams stopped');
+      } catch (e) {
+        _log('Stop failed (may not have been started): $e');
+        // Continue anyway - stop might fail if SDK wasn't started
+      }
+
+      // Small delay to ensure SDK is fully stopped
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Step 5: Start Pusher Beams fresh
       _log(
         'Starting Pusher Beams with instance ID: ${instanceId.substring(0, 8)}...',
       );
       await PusherBeams.instance.start(instanceId);
 
       // Add a delay to ensure SDK is fully initialized
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 2000));
 
       _isInitialized = true;
       _log('Initialized successfully');
@@ -341,20 +392,49 @@ class PusherBeamsMobileService {
     );
   }
 
-  /// Unsubscribes from all device interests.
+  /// Ensures the Pusher Beams SDK is started before performing operations.
   ///
-  /// This should be called when the user logs out.
-  ///
-  /// **Validates: Requirements 3.4**
-  Future<void> unsubscribeFromAllInterests() async {
-    if (!_isInitialized) {
-      _log('Not initialized. Skipping unsubscription.');
-      return;
+  /// This is needed because the SDK throws null check errors if methods are
+  /// called before start() has been called.
+  Future<bool> _ensureSdkStarted() async {
+    final instanceId = dotenv.env['PUSHER_BEAMS_INSTANCE_ID'];
+    if (instanceId == null || instanceId.isEmpty) {
+      _log('PUSHER_BEAMS_INSTANCE_ID not configured, cannot start SDK');
+      return false;
     }
 
     try {
+      // Try to start the SDK - if already started, this should be a no-op
+      await PusherBeams.instance.start(instanceId);
+      return true;
+    } catch (e) {
+      _log('Failed to ensure SDK started: $e');
+      return false;
+    }
+  }
+
+  /// Unsubscribes from all device interests.
+  ///
+  /// This should be called when the user logs out.
+  /// This method will attempt to start the SDK if needed before clearing interests.
+  ///
+  /// **Validates: Requirements 3.4**
+  Future<void> unsubscribeFromAllInterests() async {
+    try {
+      // Ensure SDK is started before calling methods
+      final sdkReady = await _ensureSdkStarted();
+      if (!sdkReady) {
+        _log('SDK not ready, skipping unsubscription');
+        return;
+      }
+
       // Get current interests for logging
       final currentInterests = await PusherBeams.instance.getDeviceInterests();
+
+      if (currentInterests.isEmpty) {
+        _log('No interests to unsubscribe from');
+        return;
+      }
 
       for (final interest in currentInterests) {
         _log('Unsubscribing from interest: $interest');
@@ -368,34 +448,76 @@ class PusherBeamsMobileService {
     }
   }
 
-  /// Clears all Pusher Beams state.
+  /// Clears all Pusher Beams state including device token registration.
   ///
   /// This should be called after unsubscribing from interests on logout.
+  /// This method will attempt to start the SDK if needed before clearing state.
+  ///
+  /// Also deletes the FCM token to ensure a fresh token is obtained on next
+  /// sign-in, which is required for Pusher Beams to properly re-register
+  /// the device.
   ///
   /// **Validates: Requirements 3.4**
   Future<void> clearAllState() async {
-    if (!_isInitialized) {
-      _log('Not initialized. Skipping state clear.');
-      return;
-    }
+    _log('clearAllState() called');
+
+    // Mark as not initialized first
+    _isInitialized = false;
 
     try {
-      await PusherBeams.instance.clearAllState();
-      _isInitialized = false;
-      _log('All state cleared');
+      // Ensure SDK is started before calling methods
+      final sdkReady = await _ensureSdkStarted();
+      if (!sdkReady) {
+        _log('SDK not ready, skipping Pusher Beams state clear');
+      } else {
+        // Clear all Pusher Beams state (while SDK is running)
+        _log('Clearing Pusher Beams state...');
+        try {
+          await PusherBeams.instance.clearAllState();
+          _log('Pusher Beams state cleared');
+        } catch (e) {
+          _log('Failed to clear Pusher Beams state: $e');
+        }
+
+        // Stop the SDK
+        try {
+          _log('Stopping Pusher Beams...');
+          await PusherBeams.instance.stop();
+          _log('Pusher Beams stopped');
+        } catch (e) {
+          _log('Failed to stop Pusher Beams: $e');
+        }
+      }
+
+      // Delete FCM token to force a fresh token on next sign-in
+      // This is done regardless of Pusher Beams state
+      _log('Deleting FCM token...');
+      try {
+        await FirebaseMessaging.instance.deleteToken();
+        _log('FCM token deleted');
+      } catch (e) {
+        _log('Failed to delete FCM token: $e');
+      }
+
+      _log('clearAllState() completed');
     } catch (e) {
-      _log('Failed to clear state: $e');
+      _log('Error in clearAllState: $e');
       // Don't throw - continue with logout flow
     }
   }
 
   /// Gets the list of currently subscribed interests.
+  ///
+  /// Returns an empty list if the SDK is not ready or if there's an error.
   Future<List<String>> getSubscribedInterests() async {
-    if (!_isInitialized) {
-      return [];
-    }
-
     try {
+      // Ensure SDK is started before calling methods
+      final sdkReady = await _ensureSdkStarted();
+      if (!sdkReady) {
+        _log('SDK not ready, returning empty interests');
+        return [];
+      }
+
       final interests = await PusherBeams.instance.getDeviceInterests();
       // Filter out null values and return only non-null strings
       return interests.whereType<String>().toList();
@@ -409,16 +531,21 @@ class PusherBeamsMobileService {
   void setOnMessageReceivedInTheForeground(
     void Function(Map<Object?, Object?> notification) callback,
   ) {
+    _log(
+      'setOnMessageReceivedInTheForeground called, _isInitialized=$_isInitialized',
+    );
+
     if (!_isInitialized) {
-      _log('Not initialized. Cannot set message callback.');
+      _log('❌ Not initialized. Cannot set message callback.');
       return;
     }
 
     try {
       PusherBeams.instance.onMessageReceivedInTheForeground(callback);
-      _log('Foreground message callback set');
-    } catch (e) {
-      _log('Failed to set foreground message callback: $e');
+      _log('✅ Foreground message callback set on Pusher Beams SDK');
+    } catch (e, stackTrace) {
+      _log('❌ Failed to set foreground message callback: $e');
+      _log('Stack trace: $stackTrace');
     }
   }
 

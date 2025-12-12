@@ -237,34 +237,24 @@ class OtpVerificationScreen extends ConsumerWidget {
                                 await _checkPermissionReRequest(ref, context);
 
                                 // Register push notifications after successful sign-in
-                                debugPrint(
-                                  '🔔 [OtpVerification] Sign-in successful, registering push notifications...',
-                                );
-                                debugPrint(
-                                  '🔔 [OtpVerification] Account membership: ${account.membership?.id}',
-                                );
                                 try {
-                                  // Use membership from account (just received from backend)
-                                  // localStorage.currentMembership may not be saved yet
                                   final membership = account.membership;
                                   if (membership != null &&
                                       membership.id != null) {
                                     final pusherBeamsController = ref.read(
                                       pusherBeamsControllerProvider.notifier,
                                     );
+                                    // Pass account explicitly since membership.account
+                                    // might be null (no back-reference from backend)
                                     await pusherBeamsController
-                                        .registerInterests(membership);
-                                    debugPrint(
-                                      '🔔 [OtpVerification] Push notification registration complete',
-                                    );
-                                  } else {
-                                    debugPrint(
-                                      '🔔 [OtpVerification] No membership in account, skipping push registration',
+                                        .registerInterests(
+                                      membership,
+                                      account: account,
                                     );
                                   }
                                 } catch (e) {
                                   debugPrint(
-                                    '🔔 [OtpVerification] Push notification registration failed: $e',
+                                    '🔔 Push notification registration failed: $e',
                                   );
                                 }
                                 // Navigate to home screen for existing users
@@ -342,9 +332,11 @@ class OtpVerificationScreen extends ConsumerWidget {
                                                       pusherBeamsControllerProvider
                                                           .notifier,
                                                     );
+                                                // Pass account explicitly
                                                 await pusherBeamsController
                                                     .registerInterests(
                                                       membership,
+                                                      account: account,
                                                     );
                                               }
                                             } catch (e) {

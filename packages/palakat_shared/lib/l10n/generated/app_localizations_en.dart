@@ -344,4 +344,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lang_english => 'English';
+
+  @override
+  String get settings_title => 'Settings';
+
+  @override
+  String get settings_accountSettings => 'Account Settings';
+
+  @override
+  String get settings_membershipSettings => 'Membership Settings';
+
+  @override
+  String get settings_noMembership => 'No membership available';
 }

@@ -33,6 +33,9 @@ class AppRoute {
   static const String account = 'account';
   static const String membership = 'membership';
 
+  //Settings
+  static const String settings = 'settings';
+
   //song
   static const String songBook = 'song-book';
   static const String songBookDetail = 'song-book-detail';
@@ -72,6 +75,7 @@ GoRouter goRouter(Ref ref) {
       operationsRouting,
       approvalRouting,
       accountRouting,
+      settingsRouting,
     ],
   );
 }

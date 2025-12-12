@@ -97,6 +97,7 @@ class _OperationIcon extends StatelessWidget {
     return Container(
       width: BaseSize.w48,
       height: BaseSize.w48,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isEnabled ? BaseColor.primary[50] : BaseColor.neutral[100],
         borderRadius: BorderRadius.circular(BaseSize.w12),

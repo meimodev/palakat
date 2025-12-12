@@ -244,6 +244,7 @@ class _ActivityTypeFilter extends StatelessWidget {
           Container(
             width: BaseSize.w28,
             height: BaseSize.w28,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: BaseColor.neutral[100],
               borderRadius: BorderRadius.circular(6),
@@ -285,6 +286,7 @@ class _ActivityTypeFilter extends StatelessWidget {
         Container(
           width: BaseSize.w28,
           height: BaseSize.w28,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: _getActivityColor(type).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
@@ -344,6 +346,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                 leading: Container(
                   width: BaseSize.w32,
                   height: BaseSize.w32,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: BaseColor.neutral[100],
                     borderRadius: BorderRadius.circular(8),
@@ -369,6 +372,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                   leading: Container(
                     width: BaseSize.w32,
                     height: BaseSize.w32,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: _getActivityColor(type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),

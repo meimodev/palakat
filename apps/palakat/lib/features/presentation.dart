@@ -47,6 +47,10 @@ export 'publishing/presentations/widgets/widgets.dart';
 export 'song_book/presentations/song_book_controller.dart';
 export 'song_book/presentations/song_book_screen.dart';
 export 'song_book/presentations/song_book_state.dart';
+//Settings
+export 'settings/presentations/settings_controller.dart';
+export 'settings/presentations/settings_screen.dart';
+export 'settings/presentations/settings_state.dart';
 //Song Detail
 export 'song_detail/presentations/song_detail_screen.dart';
 //Splash

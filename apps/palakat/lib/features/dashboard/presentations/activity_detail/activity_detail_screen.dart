@@ -819,6 +819,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         Container(
           width: BaseSize.w36,
           height: BaseSize.w36,
+          alignment: Alignment.center,
           decoration: BoxDecoration(color: color[100], shape: BoxShape.circle),
           child: Icon(icon, size: BaseSize.w18, color: color[600]),
         ),

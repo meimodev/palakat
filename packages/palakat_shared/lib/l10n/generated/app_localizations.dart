@@ -727,6 +727,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'English'**
   String get lang_english;
+
+  /// Settings screen title
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get settings_title;
+
+  /// Account settings menu item
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan Akun'**
+  String get settings_accountSettings;
+
+  /// Membership settings menu item
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan Keanggotaan'**
+  String get settings_membershipSettings;
+
+  /// Message when user has no membership
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada keanggotaan tersedia'**
+  String get settings_noMembership;
 }
 
 class _AppLocalizationsDelegate

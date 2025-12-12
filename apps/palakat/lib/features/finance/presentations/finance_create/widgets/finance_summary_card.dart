@@ -199,6 +199,7 @@ class _ActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       child: Container(
         padding: EdgeInsets.all(BaseSize.w8),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(BaseSize.radiusSm),
@@ -236,6 +237,7 @@ class _InfoRow extends StatelessWidget {
         Container(
           width: BaseSize.w32,
           height: BaseSize.w32,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: iconColor?.withValues(alpha: 0.1) ?? BaseColor.neutral[100],
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),

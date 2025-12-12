@@ -68,6 +68,7 @@ class _SongIcon extends StatelessWidget {
     return Container(
       width: BaseSize.w48,
       height: BaseSize.w48,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: BaseColor.primary[50],
         borderRadius: BorderRadius.circular(BaseSize.w12),

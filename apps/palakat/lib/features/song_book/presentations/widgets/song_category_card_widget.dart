@@ -123,6 +123,7 @@ class _CategoryEmptyState extends StatelessWidget {
           Container(
             width: BaseSize.w32,
             height: BaseSize.w32,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: BaseColor.primary[50],
               shape: BoxShape.circle,
@@ -178,11 +179,12 @@ class _CategoryHeader extends StatelessWidget {
               Container(
                 width: BaseSize.w40,
                 height: BaseSize.w40,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(BaseSize.w12),
                 ),
-                child: Icon(
+                child: FaIcon(
                   category.icon,
                   color: BaseColor.primary,
                   size: BaseSize.w24,

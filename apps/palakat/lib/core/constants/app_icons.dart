@@ -219,6 +219,9 @@ abstract class AppIcons {
   /// Logout/sign out
   static const IconData logout = FontAwesomeIcons.rightFromBracket;
 
+  /// Settings/gear
+  static const IconData settings = FontAwesomeIcons.gear;
+
   /// Sync/refresh
   static const IconData sync = FontAwesomeIcons.arrowsRotate;
 

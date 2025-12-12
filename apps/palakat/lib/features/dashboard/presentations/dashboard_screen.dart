@@ -12,128 +12,6 @@ import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
 import 'widgets/widgets.dart';
 
-void _showSignOutConfirmation(
-  BuildContext context,
-  WidgetRef ref, {
-  required String signOutTitle,
-  required String signOutMessage,
-  required String cancelLabel,
-  required String signOutLabel,
-}) {
-  showModalBottomSheet<bool>(
-    context: context,
-    backgroundColor: BaseColor.transparent,
-    builder: (dialogContext) => Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg),
-          topRight: Radius.circular(BaseSize.radiusLg),
-        ),
-      ),
-      padding: EdgeInsets.all(BaseSize.w24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: BaseSize.w40,
-              height: BaseSize.h4,
-              decoration: BoxDecoration(
-                color: BaseColor.neutral30,
-                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-              ),
-            ),
-          ),
-          Gap.h16,
-          Container(
-            width: BaseSize.w56,
-            height: BaseSize.w56,
-            decoration: BoxDecoration(
-              color: BaseColor.red[50],
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: FaIcon(
-              AppIcons.logout,
-              size: BaseSize.w32,
-              color: BaseColor.red[700],
-            ),
-          ),
-          Gap.h16,
-          Text(
-            signOutTitle,
-            style: BaseTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.bold,
-              color: BaseColor.black,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Gap.h12,
-          Text(
-            signOutMessage,
-            style: BaseTypography.bodyMedium.toSecondary,
-            textAlign: TextAlign.center,
-          ),
-          Gap.h24,
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                    side: BorderSide(color: BaseColor.neutral40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    ),
-                  ),
-                  child: Text(
-                    cancelLabel,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: BaseColor.secondaryText,
-                    ),
-                  ),
-                ),
-              ),
-              Gap.w12,
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.of(dialogContext).pop();
-                    await ref
-                        .read(dashboardControllerProvider.notifier)
-                        .signOut();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: BaseColor.red[600],
-                    foregroundColor: BaseColor.white,
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    ),
-                  ),
-                  child: Text(
-                    signOutLabel,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: BaseColor.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Gap.h8,
-        ],
-      ),
-    ),
-  );
-}
-
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -159,22 +37,15 @@ class DashboardScreen extends ConsumerWidget {
               ),
               if (state.account != null)
                 IconButton(
-                  onPressed: () => _showSignOutConfirmation(
-                    context,
-                    ref,
-                    signOutTitle: context.l10n.btn_signOutConfirm,
-                    signOutMessage: context.l10n.btn_signOutMessage,
-                    cancelLabel: context.l10n.btn_cancel,
-                    signOutLabel: context.l10n.btn_signOut,
-                  ),
+                  onPressed: () => context.pushNamed(AppRoute.settings),
                   icon: FaIcon(
-                    AppIcons.logout,
+                    AppIcons.settings,
                     size: BaseSize.w24,
-                    color: BaseColor.red[600],
+                    color: BaseColor.primary[600],
                   ),
-                  tooltip: context.l10n.btn_signOut,
+                  tooltip: context.l10n.settings_title,
                   style: IconButton.styleFrom(
-                    backgroundColor: BaseColor.red[50],
+                    backgroundColor: BaseColor.primary[50],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

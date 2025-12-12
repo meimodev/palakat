@@ -113,5 +113,10 @@
   "memberCount": "{count, plural, =0{No members} =1{1 member} other{{count} members}}",
 
   "lang_indonesian": "Bahasa Indonesia",
-  "lang_english": "English"
+  "lang_english": "English",
+
+  "settings_title": "Settings",
+  "settings_accountSettings": "Account Settings",
+  "settings_membershipSettings": "Membership Settings",
+  "settings_noMembership": "No membership available"
 }

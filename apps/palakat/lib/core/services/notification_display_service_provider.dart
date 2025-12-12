@@ -40,7 +40,8 @@ Future<NotificationDisplayService> notificationDisplayService(Ref ref) async {
 /// Synchronous provider that returns the service if already initialized.
 ///
 /// Use this when you need synchronous access and are sure the service is ready.
-@riverpod
+/// Using keepAlive since this is used by keepAlive providers.
+@Riverpod(keepAlive: true)
 NotificationDisplayService? notificationDisplayServiceSync(Ref ref) {
   return _sharedInstance;
 }

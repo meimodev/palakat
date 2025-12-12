@@ -267,55 +267,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             ),
             Gap.h16,
-            // Language Settings Section - Requirements: 6.1
-            Material(
-              color: BaseColor.cardBackground1,
-              elevation: 1,
-              shadowColor: BaseColor.black.withValues(alpha: 0.05),
-              surfaceTintColor: BaseColor.primary[50],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: BaseSize.w32,
-                          height: BaseSize.w32,
-                          decoration: BoxDecoration(
-                            color: BaseColor.primary[100],
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: FaIcon(
-                            FontAwesomeIcons.language,
-                            size: BaseSize.w16,
-                            color: BaseColor.primary[700],
-                          ),
-                        ),
-                        Gap.w12,
-                        Expanded(
-                          child: Text(
-                            "Language Settings",
-                            style: BaseTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: BaseColor.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap.h16,
-                    const LanguageSelector(),
-                  ],
-                ),
-              ),
-            ),
-            Gap.h16,
             // Notification permission banner - Requirements: 6.2, 6.3
             const NotificationPermissionBanner(),
             Gap.h16,

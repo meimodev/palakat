@@ -83,8 +83,12 @@ class OperationsScreen extends ConsumerWidget {
         // Add spacing only if section is visible
         if (state.supervisedActivities.isNotEmpty ||
             state.loadingSupervisedActivities ||
-            state.supervisedActivitiesError != null)
-          Gap.h16,
+            state.supervisedActivitiesError != null) ...[
+          Gap.h8,
+          Divider(),
+          Gap.h8,
+        ],
+
         // Category-based operation list (Requirement 2.2)
         _OperationCategoryList(
           categories: state.categories,

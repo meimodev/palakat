@@ -81,9 +81,10 @@ class AuthRepository {
   }
 
   /// Clears all authentication data from local storage
-  /// This includes tokens, account data, and membership information
+  /// This includes tokens, account data, membership, permission state,
+  /// and notification settings
   Future<void> clearAuth() async {
-    await _localStorageService.clear();
+    await _localStorageService.clearAllUserData();
   }
 
   Future<Result<Account?, Failure>> getSignedInAccount() async {

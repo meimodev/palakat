@@ -62,7 +62,7 @@ class SupervisedActivitiesSection extends StatelessWidget {
           onSeeAllTap: onSeeAllTap,
           showSeeAll: !isLoading && error == null && activities.isNotEmpty,
         ),
-        Gap.h12,
+        Gap.h4,
         // Content: loading, error, or activities list
         _buildContent(),
       ],
@@ -116,32 +116,12 @@ class _SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Section title
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: BaseSize.w32,
-              height: BaseSize.w32,
-              decoration: BoxDecoration(
-                color: BaseColor.primary[100],
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                AppIcons.supervisorAccount,
-                size: BaseSize.w16,
-                color: BaseColor.primary[700],
-              ),
-            ),
-            Gap.w8,
-            Text(
-              'Supervised Activities',
-              style: BaseTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                color: BaseColor.textPrimary,
-              ),
-            ),
-          ],
+        Text(
+          'Supervised Activities',
+          style: BaseTypography.titleLarge.copyWith(
+            fontWeight: FontWeight.bold,
+            color: BaseColor.textPrimary,
+          ),
         ),
         // "See All" button - Requirement 2.1
         if (showSeeAll)

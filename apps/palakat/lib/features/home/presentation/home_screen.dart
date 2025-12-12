@@ -18,6 +18,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   bool _hasRegisteredInterests = false;
   bool _hasCheckedMembership = false;
+  String? _lastMembershipId;
 
   @override
   void initState() {
@@ -46,6 +47,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Check if membership has changed (e.g., after sign-in or sign-out)
+    final localStorage = ref.read(localStorageServiceProvider);
+    final currentMembershipId = localStorage.currentMembership?.id?.toString();
+
+    // Reset registration state if membership changed (including logout)
+    if (_lastMembershipId != currentMembershipId) {
+      _lastMembershipId = currentMembershipId;
+      _hasRegisteredInterests = false;
+      _hasCheckedMembership = false;
+    }
+
     // This runs every time the widget is rebuilt due to navigation
     // Check if we need to register interests (e.g., after sign-in)
     if (!_hasCheckedMembership) {
@@ -63,40 +75,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   ///
   /// **Validates: Requirements 3.2**
   Future<void> _registerPushNotificationInterests() async {
-    debugPrint('🔔 [HomeScreen] Starting push notification registration...');
-
     // Prevent duplicate registration
     if (_hasRegisteredInterests) {
-      debugPrint('🔔 [HomeScreen] Already registered, skipping');
       return;
     }
 
     final localStorage = ref.read(localStorageServiceProvider);
     final membership = localStorage.currentMembership;
-
-    debugPrint('🔔 [HomeScreen] Current membership: ${membership?.id}');
+    final account = localStorage.currentAuth?.account;
 
     // Only register if user has a valid membership
     if (membership != null && membership.id != null) {
       try {
-        debugPrint('🔔 [HomeScreen] Calling registerInterests...');
         final pusherBeamsController = ref.read(
           pusherBeamsControllerProvider.notifier,
         );
-        await pusherBeamsController.registerInterests(membership);
-        _hasRegisteredInterests = true;
-        debugPrint('🔔 [HomeScreen] Registration complete');
-      } catch (e, stackTrace) {
-        // Log error but don't block the UI
-        debugPrint(
-          '🔔 [HomeScreen] Failed to register push notification interests: $e',
+        // Pass account explicitly since membership.account might be null
+        await pusherBeamsController.registerInterests(
+          membership,
+          account: account,
         );
-        debugPrint('🔔 [HomeScreen] Stack trace: $stackTrace');
+        _hasRegisteredInterests = true;
+      } catch (e) {
+        // Log error but don't block the UI
+        debugPrint('🔔 [HomeScreen] Push notification registration failed: $e');
       }
-    } else {
-      debugPrint(
-        '🔔 [HomeScreen] No valid membership found, skipping registration',
-      );
     }
   }
 

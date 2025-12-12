@@ -8,6 +8,7 @@ import 'package:palakat/core/services/notification_display_service_provider.dart
 import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
 import 'package:palakat/core/widgets/in_app_notification/in_app_notification_banner.dart';
 import 'package:palakat_shared/core/extension/account_extension.dart';
+import 'package:palakat_shared/core/models/account.dart';
 import 'package:palakat_shared/core/models/membership.dart';
 import 'package:palakat_shared/core/utils/interest_builder.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21,14 +22,23 @@ part 'pusher_beams_controller.g.dart';
 /// - Unregistering all interests on logout
 /// - Logging each interest registration/unregistration
 ///
+/// Using keepAlive to ensure the controller persists across the app lifecycle
+/// and doesn't get disposed between sign-out and sign-in.
+///
 /// **Validates: Requirements 3.2, 3.3, 3.4**
-@riverpod
+@Riverpod(keepAlive: true)
 class PusherBeamsController extends _$PusherBeamsController {
   static const String _tag = 'PusherBeamsController';
 
   PusherBeamsMobileService? _service;
 
   InAppNotificationService? _inAppNotificationService;
+
+  /// Flag to track if interests have been registered for the current session
+  bool _hasRegisteredInterests = false;
+
+  /// The membership ID for which interests were registered
+  int? _registeredMembershipId;
 
   @override
   void build() {
@@ -59,13 +69,42 @@ class PusherBeamsController extends _$PusherBeamsController {
   /// - Column BIPRA interest if applicable
   /// - Membership interest (membership.{membershipId})
   ///
+  /// [membership] - The membership to register interests for
+  /// [account] - Optional account object. If not provided, will try to get from
+  ///             membership.account. This is useful when the membership doesn't
+  ///             have the account back-reference populated.
+  ///
   /// Each interest registration is logged for debugging.
   ///
   /// **Validates: Requirements 3.2, 3.3**
-  Future<void> registerInterests(Membership membership) async {
-    if (_service == null) {
-      _log('Service not initialized');
+  Future<void> registerInterests(
+    Membership membership, {
+    Account? account,
+  }) async {
+    final membershipId = membership.id;
+
+    // Check if already registered for this membership
+    if (_hasRegisteredInterests && _registeredMembershipId == membershipId) {
+      _log(
+        'Already registered interests for membership $membershipId, skipping',
+      );
       return;
+    }
+
+    _log('registerInterests called for membership $membershipId');
+
+    // Recreate service if it was cleared during sign-out
+    if (_service == null) {
+      _inAppNotificationService = InAppNotificationService(
+        navigatorKey: navigatorKey,
+      );
+      final notificationDisplay = ref.read(
+        notificationDisplayServiceSyncProvider,
+      );
+      _service = PusherBeamsMobileService(
+        notificationDisplay: notificationDisplay,
+        inAppNotificationService: _inAppNotificationService,
+      );
     }
 
     // Ensure service is initialized
@@ -83,9 +122,9 @@ class PusherBeamsController extends _$PusherBeamsController {
     }
 
     // Extract required data from membership
-    final membershipId = membership.id;
     final churchId = membership.church?.id;
-    final account = membership.account;
+    // Use provided account or fall back to membership.account
+    final effectiveAccount = account ?? membership.account;
 
     // Validate required fields
     if (membershipId == null) {
@@ -98,13 +137,13 @@ class PusherBeamsController extends _$PusherBeamsController {
       return;
     }
 
-    if (account == null) {
+    if (effectiveAccount == null) {
       _log('Cannot register interests: account is null');
       return;
     }
 
     // Get BIPRA from account using the calculateBipra extension
-    final bipra = account.calculateBipra.abv;
+    final bipra = effectiveAccount.calculateBipra.abv;
 
     final columnId = membership.column?.id;
 
@@ -123,7 +162,21 @@ class PusherBeamsController extends _$PusherBeamsController {
     _log('Built ${interests.length} interests: ${interests.join(", ")}');
 
     // Subscribe to all interests
+    _log('Subscribing to interests...');
     await _service!.subscribeToInterests(interests);
+
+    // Verify interests were registered
+    final registeredInterests = await _service!.getSubscribedInterests();
+    _log(
+      'Verified registered interests (${registeredInterests.length}): ${registeredInterests.join(", ")}',
+    );
+
+    // Check if interests match what we expected
+    if (registeredInterests.length != interests.length) {
+      _log(
+        'WARNING: Expected ${interests.length} interests but got ${registeredInterests.length}',
+      );
+    }
 
     // Set up foreground notification handler to show in-app banners
     _setupForegroundNotificationHandler(membershipId);
@@ -131,7 +184,13 @@ class PusherBeamsController extends _$PusherBeamsController {
     // Set up background/system notification tap handler
     _setupNotificationTapHandler(membershipId);
 
-    _log('Successfully registered all interests');
+    // Mark as registered
+    _hasRegisteredInterests = true;
+    _registeredMembershipId = membershipId;
+
+    _log(
+      '✅ Successfully registered all interests and handlers for membership $membershipId',
+    );
   }
 
   /// Sets up foreground notification handler to show in-app banners.
@@ -146,12 +205,9 @@ class PusherBeamsController extends _$PusherBeamsController {
 
     _service!.setupForegroundNotificationHandler(
       onNotificationTapped: (notification) {
-        _log('In-app notification tapped: ${notification.title}');
         _handleInAppNotificationTap(notification, currentMembershipId);
       },
     );
-
-    _log('Foreground notification handler set up');
   }
 
   /// Handles tap on in-app notification banner.
@@ -277,21 +333,22 @@ class PusherBeamsController extends _$PusherBeamsController {
     return null;
   }
 
-  /// Unregisters all device interests.
+  /// Unregisters all device interests and clears Pusher Beams state.
   ///
   /// This should be called when the user logs out.
   /// Each interest unregistration is logged for debugging.
   ///
+  /// Note: This method does NOT check service initialization because the
+  /// Pusher Beams SDK is a singleton and may have been initialized by a
+  /// previous controller instance. We always attempt to clear interests
+  /// to ensure the device stops receiving notifications after logout.
+  ///
   /// **Validates: Requirements 3.4**
   Future<void> unregisterAllInterests() async {
     if (_service == null) {
-      _log('Service not initialized');
-      return;
-    }
-
-    if (!_service!.isInitialized) {
-      _log('Service not initialized, skipping unregistration');
-      return;
+      _log('Service not initialized, creating temporary service for cleanup');
+      // Create a temporary service just for cleanup
+      _service = PusherBeamsMobileService();
     }
 
     _log('Unregistering all interests');
@@ -305,10 +362,20 @@ class PusherBeamsController extends _$PusherBeamsController {
     // Unsubscribe from all interests
     await _service!.unsubscribeFromAllInterests();
 
-    // Clear all Pusher Beams state
+    // Clear all Pusher Beams state (this also clears the device token)
     await _service!.clearAllState();
 
-    _log('Successfully unregistered all interests and cleared state');
+    // Reset the service to ensure a fresh instance is created on next registration
+    // This is important because the service's internal state (like _isInitialized)
+    // needs to be reset for the next sign-in
+    _service = null;
+    _inAppNotificationService = null;
+
+    // Reset registration flags
+    _hasRegisteredInterests = false;
+    _registeredMembershipId = null;
+
+    _log('✅ Successfully unregistered all interests and cleared state');
   }
 
   void _log(String message) {

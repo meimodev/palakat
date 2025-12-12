@@ -44,6 +44,7 @@ class ReportCardWidget extends StatelessWidget {
                     Container(
                       width: BaseSize.w40,
                       height: BaseSize.w40,
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: _getGenerationTypeColor(
                           report.generatedBy,

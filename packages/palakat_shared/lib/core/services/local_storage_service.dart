@@ -84,6 +84,26 @@ class LocalStorageService {
     );
   }
 
+  /// Clears all user-related data from local storage.
+  ///
+  /// This includes:
+  /// - Auth data (tokens, account)
+  /// - Membership data
+  /// - Permission state
+  /// - Notification settings
+  ///
+  /// Note: Locale preference is NOT cleared as it's a device preference,
+  /// not user-specific data.
+  Future<void> clearAllUserData() async {
+    await clear();
+    await clearPermissionState();
+    await clearNotificationSettings();
+    dev.log(
+      'LocalStorageService.clearAllUserData: cleared all user data from Hive',
+      name: 'LocalStorageService',
+    );
+  }
+
   Future<void> saveMembership(Membership membership) async {
     await _ensureBoxOpen();
     final box = Hive.box(_kAuthBox);

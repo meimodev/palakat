@@ -342,4 +342,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lang_english => 'English';
+
+  @override
+  String get settings_title => 'Pengaturan';
+
+  @override
+  String get settings_accountSettings => 'Pengaturan Akun';
+
+  @override
+  String get settings_membershipSettings => 'Pengaturan Keanggotaan';
+
+  @override
+  String get settings_noMembership => 'Tidak ada keanggotaan tersedia';
 }
