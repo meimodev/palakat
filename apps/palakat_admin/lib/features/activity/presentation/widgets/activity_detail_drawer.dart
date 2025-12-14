@@ -76,7 +76,9 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                   children: [
                     InfoRow(
                       label: l10n.lbl_activityId,
-                      value: "# ${_activity!.id?.toString() ?? '-'}",
+                      value: l10n.lbl_hashId(
+                        _activity!.id?.toString() ?? l10n.lbl_na,
+                      ),
                     ),
                     InfoRow(label: l10n.lbl_title, value: _activity!.title),
                     InfoRow(
@@ -92,7 +94,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     ),
                     InfoRow(
                       label: l10n.lbl_description,
-                      value: _activity!.description ?? '-',
+                      value: _activity!.description ?? l10n.lbl_na,
                     ),
                     if (_activity!.note != null)
                       InfoRow(label: l10n.lbl_notes, value: _activity!.note!),
@@ -154,7 +156,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _activity!.supervisor.account?.name ?? '-',
+                            _activity!.supervisor.account?.name ?? l10n.lbl_na,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
@@ -230,7 +232,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     children: [
                       InfoRow(
                         label: l10n.tbl_approvers,
-                        value: 'No approvers assigned',
+                        value: l10n.msg_noApproversAssigned,
                       ),
                     ],
                   ),
@@ -245,12 +247,12 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                         value:
                             _activity!.location?.name.trim().isNotEmpty == true
                             ? _activity!.location!.name
-                            : 'Not specified',
+                            : l10n.lbl_notSpecified,
                       ),
                       if (_activity!.location?.latitude != null &&
                           _activity!.location?.longitude != null)
                         InfoRow(
-                          label: 'Position',
+                          label: l10n.lbl_locationPosition,
                           value:
                               "${_activity!.location!.latitude} - ${_activity!.location!.longitude}",
                         ),
@@ -291,7 +293,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Published activities can only be managed on mobile app by the corresponding supervisor.',
+                        l10n.publish_publishedNotice,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),

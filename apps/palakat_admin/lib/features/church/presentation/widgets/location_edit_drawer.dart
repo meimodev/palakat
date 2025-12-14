@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/validation.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -122,9 +119,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
       subtitle: l10n.drawer_editLocation_subtitle,
       onClose: widget.onClose,
       isLoading: _saving || _loading,
-      loadingMessage: _loading
-          ? l10n.loading_data
-          : l10n.loading_saving,
+      loadingMessage: _loading ? l10n.loading_data : l10n.loading_saving,
       errorMessage: _errorMessage,
       onRetry: _loading ? _fetchLatestLocation : null,
       content: Form(

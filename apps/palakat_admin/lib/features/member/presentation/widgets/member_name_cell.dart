@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 /// Widget for displaying member name with status badges in table cells
@@ -8,10 +6,7 @@ import 'package:palakat_shared/palakat_shared.dart' hide Column;
 class MemberNameCell extends StatelessWidget {
   final Account account;
 
-  const MemberNameCell({
-    super.key,
-    required this.account,
-  });
+  const MemberNameCell({super.key, required this.account});
 
   @override
   Widget build(BuildContext context) {

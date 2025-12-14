@@ -167,6 +167,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get admin_activity_title => 'Kegiatan';
 
   @override
+  String get admin_activity_subtitle =>
+      'Pantau dan kelola semua kegiatan gereja.';
+
+  @override
   String get admin_revenue_title => 'Pendapatan';
 
   @override
@@ -318,13 +322,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_name => 'Nama';
 
   @override
+  String get lbl_notSpecified => 'Tidak ditentukan';
+
+  @override
+  String get lbl_locationPosition => 'Posisi';
+
+  @override
   String get lbl_address => 'Alamat';
 
   @override
-  String get lbl_date => 'Tanggal';
+  String get lbl_city => 'Kota';
 
   @override
-  String get lbl_time => 'Waktu';
+  String get lbl_state => 'Provinsi';
+
+  @override
+  String get lbl_zipCode => 'Kode Pos';
 
   @override
   String get lbl_description => 'Deskripsi';
@@ -395,6 +408,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_targetAudience => 'Target Audiens';
+
+  @override
+  String lbl_hashId(String id) {
+    return '# $id';
+  }
+
+  @override
+  String lbl_negativeAmount(String amount) {
+    return '- $amount';
+  }
 
   @override
   String get timePeriod_morning => 'Pagi';
@@ -538,6 +561,38 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashboard_subtitle => 'Ringkasan kegiatan gereja Anda.';
 
   @override
+  String get dashboard_recentActivity => 'Aktivitas Terbaru';
+
+  @override
+  String get dashboard_recent_memberRegistered_title =>
+      'Anggota Baru Terdaftar';
+
+  @override
+  String get dashboard_recent_memberRegistered_desc =>
+      'John Doe bergabung dengan jemaat';
+
+  @override
+  String get dashboard_recent_donationReceived_title => 'Donasi Diterima';
+
+  @override
+  String get dashboard_recent_donationReceived_desc =>
+      'Persepuluhan dan persembahan terkumpul';
+
+  @override
+  String get dashboard_recent_eventApproved_title => 'Kegiatan Disetujui';
+
+  @override
+  String get dashboard_recent_eventApproved_desc =>
+      'Pertemuan Persekutuan Pemuda dijadwalkan';
+
+  @override
+  String get dashboard_recent_expenseRecorded_title => 'Pengeluaran Dicatat';
+
+  @override
+  String get dashboard_recent_expenseRecorded_desc =>
+      'Pembayaran tagihan utilitas';
+
+  @override
   String get dashboard_totalMembers => 'Total Anggota';
 
   @override
@@ -547,7 +602,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashboard_totalExpense => 'Total Pengeluaran';
 
   @override
-  String get dashboard_recentActivity => 'Aktivitas Terbaru';
+  String get dashboard_membersChange => 'Anggota bulan ini';
 
   @override
   String get dashboard_overview => 'Ringkasan';
@@ -1241,6 +1296,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Apakah Anda yakin ingin menghapus catatan keuangan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
+  String get publish_publishedNotice =>
+      'Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.';
+
+  @override
   String get churchRequest_title => 'Permohonan Pendaftaran Gereja';
 
   @override
@@ -1513,6 +1572,54 @@ class AppLocalizationsId extends AppLocalizations {
   String get opt_system => 'Sistem';
 
   @override
+  String get financeType_revenue => 'Pendapatan';
+
+  @override
+  String get financeType_expense => 'Pengeluaran';
+
+  @override
+  String get inventoryCondition_good => 'Baik';
+
+  @override
+  String get inventoryCondition_used => 'Bekas';
+
+  @override
+  String get inventoryCondition_new => 'Baru';
+
+  @override
+  String get inventoryCondition_notApplicable => 'N/A';
+
+  @override
+  String get paymentMethod_cash => 'Tunai';
+
+  @override
+  String get paymentMethod_cashless => 'Non-tunai';
+
+  @override
+  String get billingType_subscription => 'Langganan';
+
+  @override
+  String get billingType_oneTime => 'Sekali Bayar';
+
+  @override
+  String get billingType_recurring => 'Berulang';
+
+  @override
+  String get billingStatus_pending => 'Menunggu';
+
+  @override
+  String get billingStatus_paid => 'Lunas';
+
+  @override
+  String get billingStatus_overdue => 'Terlambat';
+
+  @override
+  String get billingStatus_cancelled => 'Dibatalkan';
+
+  @override
+  String get billingStatus_refunded => 'Dikembalikan';
+
+  @override
   String get reportType_incomingDocument => 'Dokumen Masuk';
 
   @override
@@ -1665,6 +1772,27 @@ class AppLocalizationsId extends AppLocalizations {
   String get dateRangeFilter_clearTooltip => 'Hapus rentang tanggal';
 
   @override
+  String get dateRangePreset_allTime => 'Sepanjang Waktu';
+
+  @override
+  String get dateRangePreset_today => 'Hari Ini';
+
+  @override
+  String get dateRangePreset_thisWeek => 'Minggu Ini';
+
+  @override
+  String get dateRangePreset_thisMonth => 'Bulan Ini';
+
+  @override
+  String get dateRangePreset_lastWeek => 'Minggu Lalu';
+
+  @override
+  String get dateRangePreset_lastMonth => 'Bulan Lalu';
+
+  @override
+  String get dateRangePreset_custom => 'Rentang Kustom';
+
+  @override
   String get msg_saved => 'Berhasil disimpan';
 
   @override
@@ -1716,6 +1844,29 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_activityRejected => 'Kegiatan berhasil ditolak';
+
+  @override
+  String get msg_noApproversAssigned => 'Tidak ada penyetuju yang ditetapkan';
+
+  @override
+  String btn_viewAllPaymentsWithCount(int count) {
+    return 'Lihat Semua $count pembayaran';
+  }
+
+  @override
+  String lbl_memberWithId(String membershipId, String name) {
+    return '#$membershipId • $name';
+  }
+
+  @override
+  String lbl_fileSizeMb(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String lbl_dateRangeStartEnd(String start, String end) {
+    return '$start - $end';
+  }
 
   @override
   String msg_generatedOn(String date) {
@@ -1851,6 +2002,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get validation_required => 'Kolom ini wajib diisi';
+
+  @override
+  String get validation_passwordRequired => 'Silakan masukkan kata sandi Anda';
 
   @override
   String get validation_requiredField => 'Kolom ini wajib diisi';

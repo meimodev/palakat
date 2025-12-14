@@ -186,9 +186,12 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                               ),
                             );
                           }
-                          final format = DateFormat('EEEE, dd MMMM yyyy');
+                          final format = DateFormat.yMMMMEEEEd();
                           return Text(
-                            '${format.format(effectiveRange.start)} - ${format.format(effectiveRange.end)}',
+                            l10n.lbl_dateRangeStartEnd(
+                              format.format(effectiveRange.start),
+                              format.format(effectiveRange.end),
+                            ),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),

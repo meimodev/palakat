@@ -380,6 +380,12 @@ abstract class AppLocalizations {
   /// **'Activity'**
   String get admin_activity_title;
 
+  /// No description provided for @admin_activity_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor and manage all church activity.'**
+  String get admin_activity_subtitle;
+
   /// No description provided for @admin_revenue_title.
   ///
   /// In en, this message translates to:
@@ -668,23 +674,41 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get lbl_name;
 
+  /// No description provided for @lbl_notSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get lbl_notSpecified;
+
+  /// No description provided for @lbl_locationPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get lbl_locationPosition;
+
   /// No description provided for @lbl_address.
   ///
   /// In en, this message translates to:
   /// **'Address'**
   String get lbl_address;
 
-  /// No description provided for @lbl_date.
+  /// No description provided for @lbl_city.
   ///
   /// In en, this message translates to:
-  /// **'Date'**
-  String get lbl_date;
+  /// **'City'**
+  String get lbl_city;
 
-  /// No description provided for @lbl_time.
+  /// No description provided for @lbl_state.
   ///
   /// In en, this message translates to:
-  /// **'Time'**
-  String get lbl_time;
+  /// **'State'**
+  String get lbl_state;
+
+  /// No description provided for @lbl_zipCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Zip Code'**
+  String get lbl_zipCode;
 
   /// No description provided for @lbl_description.
   ///
@@ -817,6 +841,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Target Audience'**
   String get lbl_targetAudience;
+
+  /// No description provided for @lbl_hashId.
+  ///
+  /// In en, this message translates to:
+  /// **'# {id}'**
+  String lbl_hashId(String id);
+
+  /// No description provided for @lbl_negativeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'- {amount}'**
+  String lbl_negativeAmount(String amount);
 
   /// No description provided for @timePeriod_morning.
   ///
@@ -1088,6 +1124,60 @@ abstract class AppLocalizations {
   /// **'Summary of your church activities.'**
   String get dashboard_subtitle;
 
+  /// Dashboard recent activity label
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get dashboard_recentActivity;
+
+  /// No description provided for @dashboard_recent_memberRegistered_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Member Registered'**
+  String get dashboard_recent_memberRegistered_title;
+
+  /// No description provided for @dashboard_recent_memberRegistered_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'John Doe joined the congregation'**
+  String get dashboard_recent_memberRegistered_desc;
+
+  /// No description provided for @dashboard_recent_donationReceived_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation Received'**
+  String get dashboard_recent_donationReceived_title;
+
+  /// No description provided for @dashboard_recent_donationReceived_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tithes and offerings collected'**
+  String get dashboard_recent_donationReceived_desc;
+
+  /// No description provided for @dashboard_recent_eventApproved_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Approved'**
+  String get dashboard_recent_eventApproved_title;
+
+  /// No description provided for @dashboard_recent_eventApproved_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Youth Fellowship meeting scheduled'**
+  String get dashboard_recent_eventApproved_desc;
+
+  /// No description provided for @dashboard_recent_expenseRecorded_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense Recorded'**
+  String get dashboard_recent_expenseRecorded_title;
+
+  /// No description provided for @dashboard_recent_expenseRecorded_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Utility bills payment'**
+  String get dashboard_recent_expenseRecorded_desc;
+
   /// No description provided for @dashboard_totalMembers.
   ///
   /// In en, this message translates to:
@@ -1106,11 +1196,11 @@ abstract class AppLocalizations {
   /// **'Total Expense'**
   String get dashboard_totalExpense;
 
-  /// No description provided for @dashboard_recentActivity.
+  /// No description provided for @dashboard_membersChange.
   ///
   /// In en, this message translates to:
-  /// **'Recent Activity'**
-  String get dashboard_recentActivity;
+  /// **'Members this month'**
+  String get dashboard_membersChange;
 
   /// No description provided for @dashboard_overview.
   ///
@@ -2396,6 +2486,12 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to remove this financial record? This action cannot be undone.'**
   String get publish_removeFinancialRecordContent;
 
+  /// No description provided for @publish_publishedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Published activities can only be managed on mobile app by the corresponding supervisor.'**
+  String get publish_publishedNotice;
+
   /// Title for church registration request bottom sheet
   ///
   /// In en, this message translates to:
@@ -2900,6 +2996,102 @@ abstract class AppLocalizations {
   /// **'System'**
   String get opt_system;
 
+  /// No description provided for @financeType_revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get financeType_revenue;
+
+  /// No description provided for @financeType_expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get financeType_expense;
+
+  /// No description provided for @inventoryCondition_good.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get inventoryCondition_good;
+
+  /// No description provided for @inventoryCondition_used.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get inventoryCondition_used;
+
+  /// No description provided for @inventoryCondition_new.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get inventoryCondition_new;
+
+  /// No description provided for @inventoryCondition_notApplicable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get inventoryCondition_notApplicable;
+
+  /// No description provided for @paymentMethod_cash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentMethod_cash;
+
+  /// No description provided for @paymentMethod_cashless.
+  ///
+  /// In en, this message translates to:
+  /// **'Cashless'**
+  String get paymentMethod_cashless;
+
+  /// No description provided for @billingType_subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get billingType_subscription;
+
+  /// No description provided for @billingType_oneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time'**
+  String get billingType_oneTime;
+
+  /// No description provided for @billingType_recurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get billingType_recurring;
+
+  /// No description provided for @billingStatus_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get billingStatus_pending;
+
+  /// No description provided for @billingStatus_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get billingStatus_paid;
+
+  /// No description provided for @billingStatus_overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get billingStatus_overdue;
+
+  /// No description provided for @billingStatus_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get billingStatus_cancelled;
+
+  /// No description provided for @billingStatus_refunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get billingStatus_refunded;
+
   /// No description provided for @reportType_incomingDocument.
   ///
   /// In en, this message translates to:
@@ -3182,6 +3374,48 @@ abstract class AppLocalizations {
   /// **'Clear date range'**
   String get dateRangeFilter_clearTooltip;
 
+  /// No description provided for @dateRangePreset_allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All Time'**
+  String get dateRangePreset_allTime;
+
+  /// No description provided for @dateRangePreset_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dateRangePreset_today;
+
+  /// No description provided for @dateRangePreset_thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get dateRangePreset_thisWeek;
+
+  /// No description provided for @dateRangePreset_thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get dateRangePreset_thisMonth;
+
+  /// No description provided for @dateRangePreset_lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Week'**
+  String get dateRangePreset_lastWeek;
+
+  /// No description provided for @dateRangePreset_lastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Month'**
+  String get dateRangePreset_lastMonth;
+
+  /// No description provided for @dateRangePreset_custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Range'**
+  String get dateRangePreset_custom;
+
   /// No description provided for @msg_saved.
   ///
   /// In en, this message translates to:
@@ -3283,6 +3517,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Activity rejected successfully'**
   String get msg_activityRejected;
+
+  /// No description provided for @msg_noApproversAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No approvers assigned'**
+  String get msg_noApproversAssigned;
+
+  /// No description provided for @btn_viewAllPaymentsWithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'View All {count} payments'**
+  String btn_viewAllPaymentsWithCount(int count);
+
+  /// No description provided for @lbl_memberWithId.
+  ///
+  /// In en, this message translates to:
+  /// **'#{membershipId} • {name}'**
+  String lbl_memberWithId(String membershipId, String name);
+
+  /// No description provided for @lbl_fileSizeMb.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MB'**
+  String lbl_fileSizeMb(String size);
+
+  /// No description provided for @lbl_dateRangeStartEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} - {end}'**
+  String lbl_dateRangeStartEnd(String start, String end);
 
   /// No description provided for @msg_generatedOn.
   ///
@@ -3529,6 +3793,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This field is required'**
   String get validation_required;
+
+  /// No description provided for @validation_passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get validation_passwordRequired;
 
   /// No description provided for @validation_requiredField.
   ///

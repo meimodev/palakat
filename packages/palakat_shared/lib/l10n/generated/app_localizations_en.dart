@@ -167,6 +167,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get admin_activity_title => 'Activity';
 
   @override
+  String get admin_activity_subtitle =>
+      'Monitor and manage all church activity.';
+
+  @override
   String get admin_revenue_title => 'Revenue';
 
   @override
@@ -317,13 +321,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_name => 'Name';
 
   @override
+  String get lbl_notSpecified => 'Not specified';
+
+  @override
+  String get lbl_locationPosition => 'Position';
+
+  @override
   String get lbl_address => 'Address';
 
   @override
-  String get lbl_date => 'Date';
+  String get lbl_city => 'City';
 
   @override
-  String get lbl_time => 'Time';
+  String get lbl_state => 'State';
+
+  @override
+  String get lbl_zipCode => 'Zip Code';
 
   @override
   String get lbl_description => 'Description';
@@ -395,6 +408,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_targetAudience => 'Target Audience';
+
+  @override
+  String lbl_hashId(String id) {
+    return '# $id';
+  }
+
+  @override
+  String lbl_negativeAmount(String amount) {
+    return '- $amount';
+  }
 
   @override
   String get timePeriod_morning => 'Morning';
@@ -539,6 +562,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_subtitle => 'Summary of your church activities.';
 
   @override
+  String get dashboard_recentActivity => 'Recent Activity';
+
+  @override
+  String get dashboard_recent_memberRegistered_title => 'New Member Registered';
+
+  @override
+  String get dashboard_recent_memberRegistered_desc =>
+      'John Doe joined the congregation';
+
+  @override
+  String get dashboard_recent_donationReceived_title => 'Donation Received';
+
+  @override
+  String get dashboard_recent_donationReceived_desc =>
+      'Tithes and offerings collected';
+
+  @override
+  String get dashboard_recent_eventApproved_title => 'Event Approved';
+
+  @override
+  String get dashboard_recent_eventApproved_desc =>
+      'Youth Fellowship meeting scheduled';
+
+  @override
+  String get dashboard_recent_expenseRecorded_title => 'Expense Recorded';
+
+  @override
+  String get dashboard_recent_expenseRecorded_desc => 'Utility bills payment';
+
+  @override
   String get dashboard_totalMembers => 'Total Members';
 
   @override
@@ -548,7 +601,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_totalExpense => 'Total Expense';
 
   @override
-  String get dashboard_recentActivity => 'Recent Activity';
+  String get dashboard_membersChange => 'Members this month';
 
   @override
   String get dashboard_overview => 'Overview';
@@ -1242,6 +1295,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to remove this financial record? This action cannot be undone.';
 
   @override
+  String get publish_publishedNotice =>
+      'Published activities can only be managed on mobile app by the corresponding supervisor.';
+
+  @override
   String get churchRequest_title => 'Request Church Registration';
 
   @override
@@ -1514,6 +1571,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get opt_system => 'System';
 
   @override
+  String get financeType_revenue => 'Revenue';
+
+  @override
+  String get financeType_expense => 'Expense';
+
+  @override
+  String get inventoryCondition_good => 'Good';
+
+  @override
+  String get inventoryCondition_used => 'Used';
+
+  @override
+  String get inventoryCondition_new => 'New';
+
+  @override
+  String get inventoryCondition_notApplicable => 'N/A';
+
+  @override
+  String get paymentMethod_cash => 'Cash';
+
+  @override
+  String get paymentMethod_cashless => 'Cashless';
+
+  @override
+  String get billingType_subscription => 'Subscription';
+
+  @override
+  String get billingType_oneTime => 'One-time';
+
+  @override
+  String get billingType_recurring => 'Recurring';
+
+  @override
+  String get billingStatus_pending => 'Pending';
+
+  @override
+  String get billingStatus_paid => 'Paid';
+
+  @override
+  String get billingStatus_overdue => 'Overdue';
+
+  @override
+  String get billingStatus_cancelled => 'Cancelled';
+
+  @override
+  String get billingStatus_refunded => 'Refunded';
+
+  @override
   String get reportType_incomingDocument => 'Incoming Document';
 
   @override
@@ -1667,6 +1772,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateRangeFilter_clearTooltip => 'Clear date range';
 
   @override
+  String get dateRangePreset_allTime => 'All Time';
+
+  @override
+  String get dateRangePreset_today => 'Today';
+
+  @override
+  String get dateRangePreset_thisWeek => 'This Week';
+
+  @override
+  String get dateRangePreset_thisMonth => 'This Month';
+
+  @override
+  String get dateRangePreset_lastWeek => 'Last Week';
+
+  @override
+  String get dateRangePreset_lastMonth => 'Last Month';
+
+  @override
+  String get dateRangePreset_custom => 'Custom Range';
+
+  @override
   String get msg_saved => 'Saved successfully';
 
   @override
@@ -1717,6 +1843,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_activityRejected => 'Activity rejected successfully';
+
+  @override
+  String get msg_noApproversAssigned => 'No approvers assigned';
+
+  @override
+  String btn_viewAllPaymentsWithCount(int count) {
+    return 'View All $count payments';
+  }
+
+  @override
+  String lbl_memberWithId(String membershipId, String name) {
+    return '#$membershipId • $name';
+  }
+
+  @override
+  String lbl_fileSizeMb(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String lbl_dateRangeStartEnd(String start, String end) {
+    return '$start - $end';
+  }
 
   @override
   String msg_generatedOn(String date) {
@@ -1850,6 +1999,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validation_required => 'This field is required';
+
+  @override
+  String get validation_passwordRequired => 'Please enter your password';
 
   @override
   String get validation_requiredField => 'This field is required';

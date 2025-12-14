@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/validation.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -174,7 +170,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                   LabeledField(
                     label: l10n.lbl_positionId,
                     child: Text(
-                      "# ${_positionDetail!.id}",
+                      l10n.lbl_hashId(_positionDetail!.id.toString()),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

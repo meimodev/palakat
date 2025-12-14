@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
 part 'billing.freezed.dart';
 part 'billing.g.dart';
 
-bool _isIndonesianLocale() {
-  final locale = intl.Intl.getCurrentLocale();
-  return locale.startsWith('id');
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
 }
 
 @freezed
@@ -62,44 +66,44 @@ abstract class PaymentHistory with _$PaymentHistory {
 
 extension BillingTypeExtension on BillingType {
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case BillingType.subscription:
-        return isId ? 'Langganan' : 'Subscription';
+        return l10n.billingType_subscription;
       case BillingType.oneTime:
-        return isId ? 'Sekali Bayar' : 'One-time';
+        return l10n.billingType_oneTime;
       case BillingType.recurring:
-        return isId ? 'Berulang' : 'Recurring';
+        return l10n.billingType_recurring;
     }
   }
 }
 
 extension BillingStatusExtension on BillingStatus {
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case BillingStatus.pending:
-        return isId ? 'Menunggu' : 'Pending';
+        return l10n.billingStatus_pending;
       case BillingStatus.paid:
-        return isId ? 'Lunas' : 'Paid';
+        return l10n.billingStatus_paid;
       case BillingStatus.overdue:
-        return isId ? 'Terlambat' : 'Overdue';
+        return l10n.billingStatus_overdue;
       case BillingStatus.cancelled:
-        return isId ? 'Dibatalkan' : 'Cancelled';
+        return l10n.billingStatus_cancelled;
       case BillingStatus.refunded:
-        return isId ? 'Dikembalikan' : 'Refunded';
+        return l10n.billingStatus_refunded;
     }
   }
 }
 
 extension PaymentMethodExtension on PaymentMethod {
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case PaymentMethod.cash:
-        return isId ? 'Tunai' : 'Cash';
+        return l10n.paymentMethod_cash;
       case PaymentMethod.cashless:
-        return isId ? 'Non-tunai' : 'Cashless';
+        return l10n.paymentMethod_cashless;
     }
   }
 

@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
-bool _isIndonesianLocale() {
-  final locale = intl.Intl.getCurrentLocale();
-  return locale.startsWith('id');
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
 }
 
 enum Gender {
@@ -145,16 +150,16 @@ enum InventoryCondition {
   notApplicable;
 
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case InventoryCondition.good:
-        return isId ? 'Baik' : 'Good';
+        return l10n.inventoryCondition_good;
       case InventoryCondition.used:
-        return isId ? 'Bekas' : 'Used';
+        return l10n.inventoryCondition_used;
       case InventoryCondition.new_:
-        return isId ? 'Baru' : 'New';
+        return l10n.inventoryCondition_new;
       case InventoryCondition.notApplicable:
-        return isId ? 'N/A' : 'N/A';
+        return l10n.inventoryCondition_notApplicable;
     }
   }
 }
@@ -213,14 +218,14 @@ enum FormFieldType {
 
 extension ActivityTypeExtension on ActivityType {
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case ActivityType.service:
-        return isId ? 'Ibadah' : 'Service';
+        return l10n.activityType_service;
       case ActivityType.event:
-        return isId ? 'Kegiatan' : 'Event';
+        return l10n.activityType_event;
       case ActivityType.announcement:
-        return isId ? 'Pengumuman' : 'Announcement';
+        return l10n.activityType_announcement;
     }
   }
 

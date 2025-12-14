@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class AccountScreen extends ConsumerStatefulWidget {
@@ -60,7 +57,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       ),
     );
   }
-
 
   void _openEditAccountDrawer() {
     final l10n = context.l10n;
@@ -174,7 +170,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
-
   void _openChangePasswordDrawer() {
     final l10n = context.l10n;
     final currentCtrl = TextEditingController();
@@ -283,7 +278,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
-
   void _initializeControllers() {
     _nameController = TextEditingController(text: _currentAccount.name);
     _phoneController = TextEditingController(text: _currentAccount.phone);
@@ -379,7 +373,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -390,7 +383,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.admin_account_title, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_account_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             Text(
               l10n.admin_account_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(

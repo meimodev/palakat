@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
-bool _isIndonesianLocale() {
-  final locale = intl.Intl.getCurrentLocale();
-  return locale.startsWith('id');
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
 }
 
 /// Extension for ApprovalStatus enum providing display properties
 extension ApprovalStatusExtension on ApprovalStatus {
   /// Display label for the approval status
   String get displayLabel {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case ApprovalStatus.unconfirmed:
-        return isId
-            ? 'Belum Dikonfirmasi'
-            : ApprovalStatus.unconfirmed.name.toCamelCase;
+        return l10n.status_unconfirmed;
       case ApprovalStatus.approved:
-        return isId ? 'Disetujui' : ApprovalStatus.approved.name.toCamelCase;
+        return l10n.status_approved;
       case ApprovalStatus.rejected:
-        return isId ? 'Ditolak' : ApprovalStatus.rejected.name.toCamelCase;
+        return l10n.status_rejected;
     }
   }
 

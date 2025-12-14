@@ -90,7 +90,9 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                   children: [
                     InfoRow(
                       label: l10n.lbl_expenseId,
-                      value: "# ${_expense!.id?.toString() ?? '-'}",
+                      value: l10n.lbl_hashId(
+                        _expense!.id?.toString() ?? l10n.lbl_na,
+                      ),
                     ),
                     InfoRow(
                       label: l10n.lbl_accountNumber,
@@ -98,7 +100,9 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     ),
                     InfoRow(
                       label: l10n.lbl_amount,
-                      value: "- ${_expense!.amount.toCurrency}",
+                      value: l10n.lbl_negativeAmount(
+                        _expense!.amount.toCurrency,
+                      ),
                       valueStyle: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(
                             fontWeight: FontWeight.w800,
@@ -141,9 +145,14 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     children: [
                       InfoRow(
                         label: l10n.lbl_activityId,
-                        value: "# ${_expense!.activity!.id ?? '-'}",
+                        value: l10n.lbl_hashId(
+                          _expense!.activity!.id?.toString() ?? l10n.lbl_na,
+                        ),
                       ),
-                      InfoRow(label: l10n.lbl_title, value: _expense!.activity!.title),
+                      InfoRow(
+                        label: l10n.lbl_title,
+                        value: _expense!.activity!.title,
+                      ),
                       if (_expense!.activity!.description != null)
                         InfoRow(
                           label: l10n.lbl_description,
@@ -167,7 +176,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     children: [
                       InfoRow(
                         label: l10n.lbl_activity,
-                        value: 'Not linked to any activity',
+                        value: l10n.noData_activityLink,
                       ),
                     ],
                   ),

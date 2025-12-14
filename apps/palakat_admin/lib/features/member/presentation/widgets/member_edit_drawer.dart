@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/validation.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/church/application/church_controller.dart';
 import 'package:palakat_admin/features/member/presentation/state/member_controller.dart';
-import 'package:palakat_admin/models.dart' as cm show Column;
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
+import 'package:palakat_shared/palakat_shared.dart' as cm show Column;
 
 class MemberEditDrawer extends ConsumerStatefulWidget {
   final Function(Account) onSave;
@@ -161,9 +156,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       _emailError = null;
       _phoneError = null;
     });
-    
+
     if (!_formKey.currentState!.validate()) return;
-    
+
     // Validate date of birth
     bool hasError = false;
     if (_dateOfBirth == null) {
@@ -172,7 +167,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       });
       hasError = true;
     }
-    
+
     // Validate column
     if (_selectedColumn == null) {
       setState(() {
@@ -180,9 +175,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       });
       hasError = true;
     }
-    
+
     if (hasError) return;
-    
+
     Account account;
 
     //read locally saved account
@@ -226,15 +221,16 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       widget.onClose();
     } catch (e) {
       if (!mounted) return;
-      
+
       // Check if error is a 400 status error with unique constraint violation
       if (e is AppError && e.statusCode == 400) {
         final message = e.message.toLowerCase();
         final details = (e.details ?? '').toLowerCase();
         final combinedMessage = '$message $details';
-        
+
         // Check for unique email constraint
-        if (combinedMessage.contains('unique') && combinedMessage.contains('email')) {
+        if (combinedMessage.contains('unique') &&
+            combinedMessage.contains('email')) {
           setState(() {
             _emailError = context.l10n.validation_duplicateEntry;
             _saving = false;
@@ -242,9 +238,10 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
           _scrollToField(_emailFieldKey);
           return;
         }
-        
+
         // Check for unique phone constraint
-        if (combinedMessage.contains('unique') && combinedMessage.contains('phone')) {
+        if (combinedMessage.contains('unique') &&
+            combinedMessage.contains('phone')) {
           setState(() {
             _phoneError = context.l10n.validation_duplicateEntry;
             _saving = false;
@@ -253,7 +250,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
           return;
         }
       }
-      
+
       // For other errors, show generic error message
       setState(() {
         _errorMessage = context.l10n.msg_saveFailed;
@@ -268,9 +265,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(context.l10n.dlg_deleteMember_title),
-          content: Text(
-            context.l10n.dlg_deleteMember_content,
-          ),
+          content: Text(context.l10n.dlg_deleteMember_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -318,7 +313,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
     final availableColumns = churchState.columns.value ?? [];
 
     return SideDrawer(
-      title: widget.accountId == null ? context.l10n.drawer_addMember_title : context.l10n.drawer_editMember_title,
+      title: widget.accountId == null
+          ? context.l10n.drawer_addMember_title
+          : context.l10n.drawer_editMember_title,
       subtitle: widget.accountId == null
           ? context.l10n.drawer_addMember_subtitle
           : context.l10n.drawer_editMember_subtitle,
@@ -348,7 +345,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   LabeledField(
                     label: context.l10n.lbl_memberId,
                     child: Text(
-                      "# ${_fetchedAccount!.id}",
+                      context.l10n.lbl_hashId(_fetchedAccount!.id.toString()),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -427,7 +424,10 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.error,
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: _isClaimed
@@ -467,7 +467,10 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.error,
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: _isClaimed
@@ -481,25 +484,34 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       if (_phoneError != null) {
                         setState(() => _phoneError = null);
                       }
-                      
+
                       if (_isFormatting) return;
                       // Strip all non-digits and limit to 13 (no country code)
                       final digits = _normalizePhoneDigits(value);
-                      final limited = digits.length > 13 ? digits.substring(0, 13) : digits;
+                      final limited = digits.length > 13
+                          ? digits.substring(0, 13)
+                          : digits;
                       final formatted = _formatLocalPhone(limited);
                       if (formatted != value) {
                         _isFormatting = true;
                         final baseOffset = formatted.length;
                         _phoneController.value = TextEditingValue(
                           text: formatted,
-                          selection: TextSelection.collapsed(offset: baseOffset),
+                          selection: TextSelection.collapsed(
+                            offset: baseOffset,
+                          ),
                         );
                         _isFormatting = false;
                       }
                     },
                     validator: (v) => Validators.combine<String>([
-                      Validators.required(context.l10n.validation_phoneRequired),
-                      Validators.optionalPhoneMinDigits(12, context.l10n.validation_invalidPhone),
+                      Validators.required(
+                        context.l10n.validation_phoneRequired,
+                      ),
+                      Validators.optionalPhoneMinDigits(
+                        12,
+                        context.l10n.validation_invalidPhone,
+                      ),
                     ]).asFormFieldValidator(v),
                   ),
                 ),
@@ -539,7 +551,8 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     onChanged: (DateTime? newDate) {
                       setState(() {
                         _dateOfBirth = newDate;
-                        _dateOfBirthError = null; // Clear error when user selects a date
+                        _dateOfBirthError =
+                            null; // Clear error when user selects a date
                       });
                     },
                   ),
@@ -582,7 +595,10 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.error,
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: theme.colorScheme.surface,
@@ -598,7 +614,8 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     onChanged: (cm.Column? newValue) {
                       setState(() {
                         _selectedColumn = newValue;
-                        _columnError = null; // Clear error when user selects a column
+                        _columnError =
+                            null; // Clear error when user selects a column
                       });
                     },
                   ),
@@ -655,7 +672,11 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(widget.accountId == null ? context.l10n.btn_create : context.l10n.btn_save),
+              child: Text(
+                widget.accountId == null
+                    ? context.l10n.btn_create
+                    : context.l10n.btn_save,
+              ),
             ),
           ),
         ],

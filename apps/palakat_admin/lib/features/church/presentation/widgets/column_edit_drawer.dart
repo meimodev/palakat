@@ -191,7 +191,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                   LabeledField(
                     label: l10n.lbl_columnId,
                     child: Text(
-                      "# ${_columnDetail!.id}",
+                      l10n.lbl_hashId(_columnDetail!.id.toString()),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -254,7 +254,10 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                           children: [
                             Expanded(
                               child: Text(
-                                '#${m.membershipId} • ${m.name}',
+                                l10n.lbl_memberWithId(
+                                  m.membershipId.toString(),
+                                  m.name,
+                                ),
                                 style: theme.textTheme.bodyMedium,
                               ),
                             ),

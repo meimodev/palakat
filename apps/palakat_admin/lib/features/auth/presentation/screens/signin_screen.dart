@@ -142,7 +142,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         decoration: InputDecoration(
                           labelText:
                               '${context.l10n.lbl_email} / ${context.l10n.lbl_phone}',
-                          hintText: 'e.g. name@company.com or 1234-5678-9012',
+                          hintText: context.l10n.hint_signInCredentials,
                           border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
@@ -201,7 +201,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         autofillHints: const [AutofillHints.password],
                         onFieldSubmitted: (_) => _submit(),
                         validator: (v) => Validators.required(
-                          'Please enter your password',
+                          context.l10n.validation_passwordRequired,
                         ).asFormFieldValidator(v),
                       ),
 

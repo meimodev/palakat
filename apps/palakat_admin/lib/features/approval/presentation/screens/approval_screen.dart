@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import '../state/approval_controller.dart';
 import '../state/approval_screen_state.dart';
@@ -32,7 +28,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.admin_approval_title, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_approval_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               l10n.card_approvalRules_subtitle,

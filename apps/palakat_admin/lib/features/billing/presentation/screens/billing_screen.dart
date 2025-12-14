@@ -16,7 +16,8 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   late final TextEditingController _searchController;
   late final Debouncer _searchDebouncer;
 
-  BillingController get controller => ref.read(billingControllerProvider.notifier);
+  BillingController get controller =>
+      ref.read(billingControllerProvider.notifier);
   BillingScreenState get state => ref.watch(billingControllerProvider);
 
   @override
@@ -50,7 +51,10 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.admin_billing_title, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_billing_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               l10n.admin_billing_subtitle,
@@ -111,13 +115,13 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   Widget _buildOverdueBillsSection(BuildContext context, ThemeData theme) {
     final l10n = context.l10n;
     final billingItemsAsync = state.billingItems;
-    
+
     return billingItemsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (e, st) => const SizedBox.shrink(),
       data: (items) {
         final overdueItems = controller.getOverdueItems();
-        
+
         if (overdueItems.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -164,9 +168,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
             padding: const EdgeInsets.all(16.0),
             child: LoadingShimmer(
               child: Column(
-                children: [
-                  ShimmerPlaceholders.table(rows: 5, columns: 5),
-                ],
+                children: [ShimmerPlaceholders.table(rows: 5, columns: 5)],
               ),
             ),
           ),
@@ -183,14 +185,16 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
             children: [
               _PaymentHistoryHeader(),
               const Divider(height: 1),
-              ...payments.take(10).map(
-                (payment) => _PaymentHistoryRow(payment: payment),
-              ),
+              ...payments
+                  .take(10)
+                  .map((payment) => _PaymentHistoryRow(payment: payment)),
               if (payments.length > 10) ...[
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => _showFullPaymentHistory(payments),
-                  child: Text('${l10n.btn_viewAll} ${payments.length} ${l10n.lbl_payments}'),
+                  child: Text(
+                    l10n.btn_viewAllPaymentsWithCount(payments.length),
+                  ),
                 ),
               ],
             ],
@@ -320,7 +324,9 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                 },
                 onNext: () {
                   final maxPage = (total / state.rowsPerPage).ceil() - 1;
-                  if (state.page < maxPage) controller.updatePage(state.page + 1);
+                  if (state.page < maxPage) {
+                    controller.updatePage(state.page + 1);
+                  }
                 },
                 onPageChanged: (int value) {},
               ),
@@ -354,11 +360,17 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
 
               if (mounted) {
                 DrawerUtils.closeDrawer(context);
-                AppSnackbars.showSuccess(context, message: context.l10n.msg_recordedPayment);
+                AppSnackbars.showSuccess(
+                  context,
+                  message: context.l10n.msg_recordedPayment,
+                );
               }
             } catch (e) {
               if (mounted) {
-                AppSnackbars.showError(context, message: '${context.l10n.msg_recordPaymentFailed}: $e');
+                AppSnackbars.showError(
+                  context,
+                  message: '${context.l10n.msg_recordPaymentFailed}: $e',
+                );
               }
             }
           }
@@ -380,9 +392,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           children: [
             _PaymentHistoryHeader(),
             const Divider(height: 1),
-            ...payments.map(
-              (payment) => _PaymentHistoryRow(payment: payment),
-            ),
+            ...payments.map((payment) => _PaymentHistoryRow(payment: payment)),
           ],
         ),
       ),
@@ -445,7 +455,7 @@ class _BillingRow extends StatelessWidget {
                   children: [
                     _cell(
                       Text(
-                        item.id ?? '-',
+                        item.id ?? context.l10n.lbl_na,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -503,7 +513,7 @@ class _BillingRow extends StatelessWidget {
   }
 
   String _formatDate(DateTime d) {
-    return DateFormat('MMM dd, yyyy').format(d);
+    return DateFormat.yMMMd().format(d);
   }
 
   Widget _cell(Widget child, {int flex = 1}) =>
@@ -590,7 +600,7 @@ class _PaymentHistoryRow extends StatelessWidget {
             children: [
               _cell(
                 Text(
-                  payment.id ?? '-',
+                  payment.id ?? context.l10n.lbl_na,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -618,14 +628,17 @@ class _PaymentHistoryRow extends StatelessWidget {
                     method: payment.paymentMethod,
                     iconSize: 10,
                     fontSize: 11,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                   ),
                 ),
                 flex: 2,
               ),
               _cell(
                 Text(
-                  DateFormat('MMM dd, yyyy').format(payment.paymentDate),
+                  DateFormat.yMMMd().format(payment.paymentDate),
                   style: theme.textTheme.bodyMedium,
                 ),
                 flex: 2,
@@ -641,7 +654,6 @@ class _PaymentHistoryRow extends StatelessWidget {
   Widget _cell(Widget child, {int flex = 1}) =>
       Expanded(flex: flex, child: child);
 }
-
 
 class _BillingDetailDrawer extends StatelessWidget {
   final BillingItem item;
@@ -693,7 +705,7 @@ class _BillingDetailDrawer extends StatelessWidget {
               ),
               InfoRow(
                 label: context.l10n.tbl_dueDate,
-                value: DateFormat('MMM dd, yyyy').format(item.dueDate),
+                value: DateFormat.yMMMd().format(item.dueDate),
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -701,8 +713,8 @@ class _BillingDetailDrawer extends StatelessWidget {
               InfoRow(
                 label: context.l10n.lbl_paidDate,
                 value: item.paidDate != null
-                    ? DateFormat('MMM dd, yyyy').format(item.paidDate!)
-                    : '—',
+                    ? DateFormat.yMMMd().format(item.paidDate!)
+                    : context.l10n.lbl_na,
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -717,7 +729,7 @@ class _BillingDetailDrawer extends StatelessWidget {
             children: [
               InfoRow(
                 label: context.l10n.lbl_method,
-                value: item.paymentMethod?.displayName ?? '—',
+                value: item.paymentMethod?.displayName ?? context.l10n.lbl_na,
                 valueWidget: item.paymentMethod != null
                     ? Align(
                         alignment: Alignment.centerLeft,
@@ -730,7 +742,7 @@ class _BillingDetailDrawer extends StatelessWidget {
               ),
               InfoRow(
                 label: context.l10n.lbl_transactionId,
-                value: item.transactionId ?? '—',
+                value: item.transactionId ?? context.l10n.lbl_na,
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -829,7 +841,8 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             TextFormField(
               controller: _transactionController,
               decoration: InputDecoration(
-                labelText: '${context.l10n.lbl_transactionId} ${context.l10n.lbl_optional}',
+                labelText:
+                    '${context.l10n.lbl_transactionId} ${context.l10n.lbl_optional}',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -837,7 +850,8 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             TextFormField(
               controller: _notesController,
               decoration: InputDecoration(
-                labelText: '${context.l10n.lbl_notes} ${context.l10n.lbl_optional}',
+                labelText:
+                    '${context.l10n.lbl_notes} ${context.l10n.lbl_optional}',
                 border: const OutlineInputBorder(),
               ),
               maxLines: 2,

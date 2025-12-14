@@ -94,7 +94,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
                       dropdownLabel: l10n.filter_paymentMethod,
-                      dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
+                      dropdownOptions: {
+                        PaymentMethod.cash.name: PaymentMethod.cash.displayName,
+                        PaymentMethod.cashless.name:
+                            PaymentMethod.cashless.displayName,
+                      },
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
                         final paymentMethod = value == null
@@ -148,7 +152,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                expense.activity?.title ?? '-',
+                expense.activity?.title ?? ctx.l10n.lbl_na,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -174,7 +178,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
           if (expense.createdAt == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
           final requestDate = expense.createdAt!;
           final date = requestDate.toCustomFormat("EEEE, dd MMMM yyyy");
@@ -187,7 +191,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
           if (expense.activity?.date == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
           final approvalDate = expense.activity!.approvers.approvalDate;
           final date = approvalDate.toCustomFormat("EEEE, dd MMMM yyyy");
@@ -200,7 +204,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
           return Text(
-            "- ${expense.amount.toCurrency}",
+            ctx.l10n.lbl_negativeAmount(expense.amount.toCurrency),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.error,
               fontWeight: FontWeight.w600,

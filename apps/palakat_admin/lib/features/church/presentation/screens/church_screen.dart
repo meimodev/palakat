@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_admin/models.dart' as cm show Column;
 import 'package:palakat_admin/features/church/church.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
+import 'package:palakat_shared/palakat_shared.dart' as cm show Column;
 
 class ChurchScreen extends ConsumerStatefulWidget {
   const ChurchScreen({super.key});
@@ -20,7 +18,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
   ChurchState get state => ref.watch(churchControllerProvider);
 
-  get l10n => context.l10n;
+  AppLocalizations get l10n => context.l10n;
 
   void _openEditDrawer(Church church) {
     DrawerUtils.showDrawer(
@@ -267,9 +265,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : l10n.msg_createFailed;
+            final msg = e is AppError ? e.userMessage : l10n.msg_createFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
@@ -423,20 +419,24 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                 Expanded(
                   child: _buildInfoRow(
                     l10n.lbl_phone,
-                    church.phoneNumber ?? '-',
+                    church.phoneNumber ?? l10n.lbl_na,
                     theme,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildInfoRow(l10n.lbl_email, church.email ?? '-', theme),
+                  child: _buildInfoRow(
+                    l10n.lbl_email,
+                    church.email ?? l10n.lbl_na,
+                    theme,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             _buildInfoRow(
               l10n.lbl_descriptionOptional,
-              church.description ?? '-',
+              church.description ?? l10n.lbl_na,
               theme,
               maxLines: 3,
             ),
@@ -540,7 +540,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                 Expanded(
                   child: _buildInfoRow(
                     l10n.lbl_latitude,
-                    location.latitude?.toString() ?? '-',
+                    location.latitude?.toString() ?? l10n.lbl_na,
                     theme,
                   ),
                 ),
@@ -548,7 +548,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                 Expanded(
                   child: _buildInfoRow(
                     l10n.lbl_longitude,
-                    location.longitude?.toString() ?? '-',
+                    location.longitude?.toString() ?? l10n.lbl_na,
                     theme,
                   ),
                 ),
@@ -636,7 +636,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                                 SizedBox(
                                   width: 60,
                                   child: Text(
-                                    "#${column.id}",
+                                    l10n.lbl_hashId(column.id.toString()),
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                 ),
@@ -739,7 +739,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                                 SizedBox(
                                   width: 60,
                                   child: Text(
-                                    "#${position.id}",
+                                    l10n.lbl_hashId(position.id.toString()),
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                 ),

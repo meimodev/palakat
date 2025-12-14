@@ -264,7 +264,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
               if (report.file.sizeInKB > 0) ...[
                 const SizedBox(height: 2),
                 Text(
-                  '${(report.file.sizeInKB / 1024).toStringAsFixed(2)} MB',
+                  ctx.l10n.lbl_fileSizeMb(
+                    (report.file.sizeInKB / 1024).toStringAsFixed(2),
+                  ),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

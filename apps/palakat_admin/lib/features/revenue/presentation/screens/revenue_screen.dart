@@ -40,7 +40,10 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.admin_revenue_title, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_revenue_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               l10n.admin_revenue_subtitle,
@@ -93,7 +96,11 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
                       dropdownLabel: l10n.filter_paymentMethod,
-                      dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
+                      dropdownOptions: {
+                        PaymentMethod.cash.name: PaymentMethod.cash.displayName,
+                        PaymentMethod.cashless.name:
+                            PaymentMethod.cashless.displayName,
+                      },
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
                         final paymentMethod = value == null
@@ -146,7 +153,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                revenue.activity?.title ?? '-',
+                revenue.activity?.title ?? ctx.l10n.lbl_na,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -172,7 +179,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
           if (revenue.createdAt == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
           final requestDate = revenue.createdAt!;
           final date = requestDate.toCustomFormat("EEEE, dd MMMM yyyy");
@@ -185,7 +192,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
           if (revenue.activity?.date == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
           final approvalDate = revenue.activity!.approvers.approvalDate;
           final date = approvalDate.toCustomFormat("EEEE, dd MMMM yyyy");

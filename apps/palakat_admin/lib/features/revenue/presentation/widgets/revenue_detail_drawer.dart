@@ -91,7 +91,9 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                   children: [
                     InfoRow(
                       label: l10n.lbl_revenueId,
-                      value: "# ${_revenue!.id?.toString() ?? '-'}",
+                      value: l10n.lbl_hashId(
+                        _revenue!.id?.toString() ?? l10n.lbl_na,
+                      ),
                     ),
                     InfoRow(
                       label: l10n.lbl_accountNumber,
@@ -142,9 +144,14 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                     children: [
                       InfoRow(
                         label: l10n.lbl_activityId,
-                        value: "# ${_revenue!.activity!.id}",
+                        value: l10n.lbl_hashId(
+                          _revenue!.activity!.id.toString(),
+                        ),
                       ),
-                      InfoRow(label: l10n.lbl_title, value: _revenue!.activity!.title),
+                      InfoRow(
+                        label: l10n.lbl_title,
+                        value: _revenue!.activity!.title,
+                      ),
                       if (_revenue!.activity!.description != null)
                         InfoRow(
                           label: l10n.lbl_description,

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class FinancialAccountEditDrawer extends StatefulWidget {
@@ -79,9 +77,9 @@ class _FinancialAccountEditDrawerState
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${l10n.msg_error}: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.churchRequest_errorWithDetail('$e'))),
+        );
       }
     } finally {
       if (mounted) {

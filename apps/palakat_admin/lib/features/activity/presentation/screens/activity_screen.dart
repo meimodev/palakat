@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -42,10 +37,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.admin_activity_title, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_activity_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
-              'Monitor and manage all church activity.',
+              l10n.admin_activity_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

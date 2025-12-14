@@ -85,6 +85,7 @@
   "admin_account_title": "Account",
   "admin_account_subtitle": "Manage your account information and settings",
   "admin_activity_title": "Activity",
+  "admin_activity_subtitle": "Monitor and manage all church activity.",
   "admin_revenue_title": "Revenue",
   "admin_revenue_subtitle": "Track and manage all revenue sources.",
   "admin_member_title": "Member",
@@ -135,9 +136,12 @@
   "lbl_password": "Password",
   "lbl_language": "Language",
   "lbl_name": "Name",
+  "lbl_notSpecified": "Not specified",
+  "lbl_locationPosition": "Position",
   "lbl_address": "Address",
-  "lbl_date": "Date",
-  "lbl_time": "Time",
+  "lbl_city": "City",
+  "lbl_state": "State",
+  "lbl_zipCode": "Zip Code",
   "lbl_description": "Description",
   "lbl_amount": "Amount",
   "lbl_search": "Search",
@@ -160,6 +164,22 @@
   "lbl_you": "You",
   "lbl_reminder": "Reminder",
   "lbl_targetAudience": "Target Audience",
+  "lbl_hashId": "# {id}",
+  "@lbl_hashId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "lbl_negativeAmount": "- {amount}",
+  "@lbl_negativeAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "timePeriod_morning": "Morning",
   "timePeriod_afternoon": "Afternoon",
   "timePeriod_evening": "Evening",
@@ -209,10 +229,22 @@
 
   "dashboard_title": "Dashboard",
   "dashboard_subtitle": "Summary of your church activities.",
+  "dashboard_recentActivity": "Recent Activity",
+  "@dashboard_recentActivity": {
+    "description": "Dashboard recent activity label"
+  },
+  "dashboard_recent_memberRegistered_title": "New Member Registered",
+  "dashboard_recent_memberRegistered_desc": "John Doe joined the congregation",
+  "dashboard_recent_donationReceived_title": "Donation Received",
+  "dashboard_recent_donationReceived_desc": "Tithes and offerings collected",
+  "dashboard_recent_eventApproved_title": "Event Approved",
+  "dashboard_recent_eventApproved_desc": "Youth Fellowship meeting scheduled",
+  "dashboard_recent_expenseRecorded_title": "Expense Recorded",
+  "dashboard_recent_expenseRecorded_desc": "Utility bills payment",
   "dashboard_totalMembers": "Total Members",
   "dashboard_totalRevenue": "Total Revenue",
   "dashboard_totalExpense": "Total Expense",
-  "dashboard_recentActivity": "Recent Activity",
+  "dashboard_membersChange": "Members this month",
   "dashboard_overview": "Overview",
   "dashboard_statistics": "Statistics",
   "msg_pressBackToExit": "Press back again to exit",
@@ -456,6 +488,7 @@
   "publish_addFinancialRecord": "Add Financial Record",
   "publish_removeFinancialRecordTitle": "Remove Financial Record?",
   "publish_removeFinancialRecordContent": "Are you sure you want to remove this financial record? This action cannot be undone.",
+  "publish_publishedNotice": "Published activities can only be managed on mobile app by the corresponding supervisor.",
 
   "churchRequest_title": "Request Church Registration",
   "@churchRequest_title": {
@@ -609,6 +642,23 @@
   "opt_manual": "Manual",
   "opt_system": "System",
 
+  "financeType_revenue": "Revenue",
+  "financeType_expense": "Expense",
+  "inventoryCondition_good": "Good",
+  "inventoryCondition_used": "Used",
+  "inventoryCondition_new": "New",
+  "inventoryCondition_notApplicable": "N/A",
+  "paymentMethod_cash": "Cash",
+  "paymentMethod_cashless": "Cashless",
+  "billingType_subscription": "Subscription",
+  "billingType_oneTime": "One-time",
+  "billingType_recurring": "Recurring",
+  "billingStatus_pending": "Pending",
+  "billingStatus_paid": "Paid",
+  "billingStatus_overdue": "Overdue",
+  "billingStatus_cancelled": "Cancelled",
+  "billingStatus_refunded": "Refunded",
+
   "reportType_incomingDocument": "Incoming Document",
   "reportTitle_incomingDocument": "Incoming Document Report",
   "reportDesc_incomingDocument": "Generate a report for documents received.",
@@ -641,7 +691,6 @@
   "filter_allActivityTypes": "All activity types",
   "filter_noFinancialFilter": "No financial filter",
   "filter_paymentMethod": "Payment Method",
-
   "filter_items": "Items",
   "filter_allPositions": "All Positions",
   "filter_allWithLabel": "All {label}",
@@ -687,6 +736,14 @@
   "dateRangeFilter_lastMonth": "Last month",
   "dateRangeFilter_clearTooltip": "Clear date range",
 
+  "dateRangePreset_allTime": "All Time",
+  "dateRangePreset_today": "Today",
+  "dateRangePreset_thisWeek": "This Week",
+  "dateRangePreset_thisMonth": "This Month",
+  "dateRangePreset_lastWeek": "Last Week",
+  "dateRangePreset_lastMonth": "Last Month",
+  "dateRangePreset_custom": "Custom Range",
+
   "msg_saved": "Saved successfully",
   "msg_created": "Created successfully",
   "msg_updated": "Updated successfully",
@@ -704,6 +761,45 @@
   "msg_activityNotFound": "Activity not found",
   "msg_activityApproved": "Activity approved successfully",
   "msg_activityRejected": "Activity rejected successfully",
+  "msg_noApproversAssigned": "No approvers assigned",
+  "btn_viewAllPaymentsWithCount": "View All {count} payments",
+  "@btn_viewAllPaymentsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lbl_memberWithId": "#{membershipId} • {name}",
+  "@lbl_memberWithId": {
+    "placeholders": {
+      "membershipId": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lbl_fileSizeMb": "{size} MB",
+  "@lbl_fileSizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "lbl_dateRangeStartEnd": "{start} - {end}",
+  "@lbl_dateRangeStartEnd": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "msg_generatedOn": "Generated on {date}",
   "@msg_generatedOn": {
     "placeholders": {
@@ -774,6 +870,7 @@
   "msg_tryAgainLater": "Please try again later",
 
   "validation_required": "This field is required",
+  "validation_passwordRequired": "Please enter your password",
   "validation_requiredField": "This field is required",
   "validation_invalidEmail": "Please enter a valid email address",
   "validation_invalidPhone": "Please enter a valid phone number",

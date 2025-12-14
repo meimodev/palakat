@@ -1,7 +1,20 @@
+import 'dart:ui' show Locale;
+
+import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'dashboard_screen_state.dart';
 
 part 'dashboard_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class DashboardController extends _$DashboardController {
@@ -48,33 +61,34 @@ class DashboardController extends _$DashboardController {
 
       // TODO: Replace with actual API call when backend is ready
       final now = DateTime.now();
+      final l10n = _l10n();
       final activities = [
         RecentActivity(
           id: '1',
-          title: 'New Member Registered',
-          description: 'John Doe joined the congregation',
+          title: l10n.dashboard_recent_memberRegistered_title,
+          description: l10n.dashboard_recent_memberRegistered_desc,
           type: ActivityType.member,
           timestamp: now.subtract(const Duration(hours: 2)),
         ),
         RecentActivity(
           id: '2',
-          title: 'Donation Received',
-          description: 'Tithes and offerings collected',
+          title: l10n.dashboard_recent_donationReceived_title,
+          description: l10n.dashboard_recent_donationReceived_desc,
           type: ActivityType.transaction,
           timestamp: now.subtract(const Duration(hours: 5)),
           amount: '\$1,250.00',
         ),
         RecentActivity(
           id: '3',
-          title: 'Event Approved',
-          description: 'Youth Fellowship meeting scheduled',
+          title: l10n.dashboard_recent_eventApproved_title,
+          description: l10n.dashboard_recent_eventApproved_desc,
           type: ActivityType.approval,
           timestamp: now.subtract(const Duration(days: 1)),
         ),
         RecentActivity(
           id: '4',
-          title: 'Expense Recorded',
-          description: 'Utility bills payment',
+          title: l10n.dashboard_recent_expenseRecorded_title,
+          description: l10n.dashboard_recent_expenseRecorded_desc,
           type: ActivityType.transaction,
           timestamp: now.subtract(const Duration(days: 3)),
           amount: '\$450.00',

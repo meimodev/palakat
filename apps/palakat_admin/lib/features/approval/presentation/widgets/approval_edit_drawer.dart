@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import '../state/approval_controller.dart';
 
@@ -154,7 +151,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     // Validate financial account is required when financial type is selected
     if (_selectedFinancialType != null && _selectedFinancialAccount == null) {
       setState(() {
-        _financialAccountError = context.l10n.validation_financialAccountRequired;
+        _financialAccountError =
+            context.l10n.validation_financialAccountRequired;
       });
       hasError = true;
     }
@@ -202,7 +200,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e is AppError ? e.userMessage : context.l10n.msg_saveFailed;
+        _errorMessage = e is AppError
+            ? e.userMessage
+            : context.l10n.msg_saveFailed;
       });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -247,7 +247,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e is AppError ? e.userMessage : context.l10n.msg_deleteFailed;
+        _errorMessage = e is AppError
+            ? e.userMessage
+            : context.l10n.msg_deleteFailed;
       });
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -317,7 +319,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     final theme = Theme.of(context);
 
     return SideDrawer(
-      title: _isNew ? context.l10n.drawer_addApprovalRule_title : context.l10n.drawer_editApprovalRule_title,
+      title: _isNew
+          ? context.l10n.drawer_addApprovalRule_title
+          : context.l10n.drawer_editApprovalRule_title,
       subtitle: _isNew
           ? context.l10n.drawer_addApprovalRule_subtitle
           : context.l10n.drawer_editApprovalRule_subtitle,
@@ -342,7 +346,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                 LabeledField(
                   label: context.l10n.lbl_ruleId,
                   child: Text(
-                    "# ${_fetchedRule!.id}",
+                    context.l10n.lbl_hashId(_fetchedRule!.id.toString()),
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -597,7 +601,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                               });
                             },
                             availablePositions: _allPositions,
-                            hintText: context.l10n.hint_selectPositionsToApprove,
+                            hintText:
+                                context.l10n.hint_selectPositionsToApprove,
                             enabled: true,
                           ),
                     if (_positionsError != null) ...[
@@ -638,7 +643,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(_isNew ? context.l10n.btn_create : context.l10n.btn_save),
+              child: Text(
+                _isNew ? context.l10n.btn_create : context.l10n.btn_save,
+              ),
             ),
           ),
         ],

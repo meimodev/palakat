@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
-bool _isIndonesianLocale() {
-  final locale = intl.Intl.getCurrentLocale();
-  return locale.startsWith('id');
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
 }
 
 /// Preset date range options for filtering
@@ -17,22 +21,22 @@ enum DateRangePreset {
   custom;
 
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case DateRangePreset.allTime:
-        return isId ? 'Semua Waktu' : 'All Time';
+        return l10n.dateRangePreset_allTime;
       case DateRangePreset.today:
-        return isId ? 'Hari Ini' : 'Today';
+        return l10n.dateRangePreset_today;
       case DateRangePreset.thisWeek:
-        return isId ? 'Minggu Ini' : 'This Week';
+        return l10n.dateRangePreset_thisWeek;
       case DateRangePreset.thisMonth:
-        return isId ? 'Bulan Ini' : 'This Month';
+        return l10n.dateRangePreset_thisMonth;
       case DateRangePreset.lastWeek:
-        return isId ? 'Minggu Lalu' : 'Last Week';
+        return l10n.dateRangePreset_lastWeek;
       case DateRangePreset.lastMonth:
-        return isId ? 'Bulan Lalu' : 'Last Month';
+        return l10n.dateRangePreset_lastMonth;
       case DateRangePreset.custom:
-        return isId ? 'Rentang Kustom' : 'Custom Range';
+        return l10n.dateRangePreset_custom;
     }
   }
 

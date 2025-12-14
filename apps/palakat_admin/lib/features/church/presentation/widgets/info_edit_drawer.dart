@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/validation.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -83,10 +80,12 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
     if (!_formKey.currentState!.validate()) return;
     final updatedChurch = widget.church.copyWith(
       name: _nameController.text.trim(),
-      phoneNumber:
-          _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-      email:
-          _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+      phoneNumber: _phoneController.text.trim().isEmpty
+          ? null
+          : _phoneController.text.trim(),
+      email: _emailController.text.trim().isEmpty
+          ? null
+          : _emailController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
@@ -145,8 +144,8 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                       filled: true,
                       fillColor: theme.colorScheme.surface,
                     ),
-                    validator: (value) =>
-                        ChurchValidators.churchName().asFormFieldValidator(value),
+                    validator: (value) => ChurchValidators.churchName()
+                        .asFormFieldValidator(value),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -164,8 +163,9 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                       filled: true,
                       fillColor: theme.colorScheme.surface,
                     ),
-                    validator: (value) =>
-                        Validators.optionalPhoneMinDigits(12).asFormFieldValidator(value),
+                    validator: (value) => Validators.optionalPhoneMinDigits(
+                      12,
+                    ).asFormFieldValidator(value),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -183,7 +183,8 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                       filled: true,
                       fillColor: theme.colorScheme.surface,
                     ),
-                    validator: (value) => Validators.email().asFormFieldValidator(value),
+                    validator: (value) =>
+                        Validators.email().asFormFieldValidator(value),
                   ),
                 ),
                 const SizedBox(height: 16),

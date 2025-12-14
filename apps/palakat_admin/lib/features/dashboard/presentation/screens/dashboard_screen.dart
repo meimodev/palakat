@@ -100,21 +100,29 @@ class DashboardScreen extends ConsumerWidget {
                     title: l10n.dashboard_totalMembers,
                     value: NumberFormat('#,###').format(stats.totalMembers),
                     icon: Icons.groups_outlined,
-                    change: l10n.stat_changeFromLastMonth(stats.membersChange.toString()),
+                    change: l10n.stat_changeFromLastMonth(
+                      stats.membersChange.toString(),
+                    ),
                   ),
                   _StatCard(
                     title: l10n.dashboard_totalRevenue,
-                    value:
-                        '\$${NumberFormat('#,##0.00').format(stats.totalRevenue)}',
+                    value: NumberFormat.simpleCurrency().format(
+                      stats.totalRevenue,
+                    ),
                     icon: Icons.attach_money,
-                    change: l10n.stat_changePercentFromLastMonth(stats.revenueChange.toString()),
+                    change: l10n.stat_changePercentFromLastMonth(
+                      stats.revenueChange.toString(),
+                    ),
                   ),
                   _StatCard(
                     title: l10n.dashboard_totalExpense,
-                    value:
-                        '\$${NumberFormat('#,##0.00').format(stats.totalExpense)}',
+                    value: NumberFormat.simpleCurrency().format(
+                      stats.totalExpense,
+                    ),
                     icon: Icons.credit_card,
-                    change: l10n.stat_changePercentFromLastMonth(stats.expenseChange.toString()),
+                    change: l10n.stat_changePercentFromLastMonth(
+                      stats.expenseChange.toString(),
+                    ),
                   ),
                 ],
               ),
@@ -128,7 +136,9 @@ class DashboardScreen extends ConsumerWidget {
               subtitle:
                   state.recentActivities.hasValue &&
                       state.recentActivities.value!.isNotEmpty
-                  ? l10n.dashboard_recentActivitiesCount(state.recentActivities.value!.length)
+                  ? l10n.dashboard_recentActivitiesCount(
+                      state.recentActivities.value!.length,
+                    )
                   : l10n.dashboard_recentActivitiesEmpty,
               trailing: IconButton(
                 onPressed: controller.fetchRecentActivities,

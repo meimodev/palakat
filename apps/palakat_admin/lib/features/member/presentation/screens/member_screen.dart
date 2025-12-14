@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/member/member.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -18,7 +14,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
   /// Shows member drawer for editing or creating
   void _showMemberDrawer({int? accountId}) {
     final isEditing = accountId != null;
-    
+
     DrawerUtils.showDrawer(
       context: context,
       drawer: MemberEditDrawer(
@@ -29,8 +25,10 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
           if (!mounted) return;
           AppSnackbars.showSuccess(
             context,
-            title: isEditing ? context.l10n.msg_saved : context.l10n.msg_created,
-            message: isEditing 
+            title: isEditing
+                ? context.l10n.msg_saved
+                : context.l10n.msg_created,
+            message: isEditing
                 ? context.l10n.msg_saved
                 : context.l10n.msg_created,
           );
@@ -73,10 +71,12 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         ? error.userMessage
         : 'Failed to $operation member';
     final code = error is AppError ? error.statusCode : null;
-    
+
     AppSnackbars.showError(
       context,
-      title: operation == 'delete' ? context.l10n.msg_deleteFailed : context.l10n.msg_saveFailed,
+      title: operation == 'delete'
+          ? context.l10n.msg_deleteFailed
+          : context.l10n.msg_saveFailed,
       message: msg,
       statusCode: code,
     );
@@ -96,7 +96,10 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.l10n.admin_member_title, style: theme.textTheme.headlineMedium),
+            Text(
+              context.l10n.admin_member_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               context.l10n.card_memberDirectory_subtitle,

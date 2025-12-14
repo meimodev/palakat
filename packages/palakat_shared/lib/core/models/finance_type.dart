@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
-bool _isIndonesianLocale() {
-  final locale = intl.Intl.getCurrentLocale();
-  return locale.startsWith('id');
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
 }
 
 /// Enum representing the type of financial record.
@@ -22,12 +26,12 @@ enum FinanceType {
 extension FinanceTypeExtension on FinanceType {
   /// Returns the display name for the finance type.
   String get displayName {
-    final isId = _isIndonesianLocale();
+    final l10n = _l10n();
     switch (this) {
       case FinanceType.revenue:
-        return isId ? 'Pendapatan' : 'Revenue';
+        return l10n.financeType_revenue;
       case FinanceType.expense:
-        return isId ? 'Pengeluaran' : 'Expense';
+        return l10n.financeType_expense;
     }
   }
 
