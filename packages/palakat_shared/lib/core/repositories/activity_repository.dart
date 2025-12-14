@@ -107,9 +107,29 @@ class ActivityRepository {
   }) async {
     try {
       final http = _ref.read(httpServiceProvider);
+
+      final payload = request.toJson();
+
+      final locationName = payload.remove('locationName');
+      final locationLatitude = payload.remove('locationLatitude');
+      final locationLongitude = payload.remove('locationLongitude');
+
+      final hasLocationName =
+          locationName is String && locationName.trim().isNotEmpty;
+      final hasCoordinates =
+          locationLatitude != null && locationLongitude != null;
+
+      if (hasLocationName || hasCoordinates) {
+        payload['location'] = {
+          'name': hasLocationName ? locationName : '',
+          'latitude': locationLatitude,
+          'longitude': locationLongitude,
+        };
+      }
+
       final response = await http.post<Map<String, dynamic>>(
         Endpoints.activities,
-        data: request.toJson(),
+        data: payload,
       );
 
       final body = response.data;

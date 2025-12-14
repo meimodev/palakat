@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
@@ -60,7 +61,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
+
   void _openEditAccountDrawer() {
+    final l10n = context.l10n;
     final nameCtrl = TextEditingController(text: _currentAccount.name);
     final phoneCtrl = TextEditingController(text: _currentAccount.phone);
     final posCtrl = TextEditingController(
@@ -74,13 +77,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final theme = Theme.of(context);
 
     _showSideDrawer(
-      title: 'Edit Account Information',
-      subtitle: 'Update your profile details',
+      title: l10n.drawer_editAccountInfo_title,
+      subtitle: l10n.drawer_editAccountInfo_subtitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Full Name',
+            l10n.lbl_fullName,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -88,14 +91,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: nameCtrl,
-            decoration: const InputDecoration(
-              hintText: 'Enter your full name',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_enterFullName,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Phone Number',
+            l10n.lbl_phone,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -103,14 +106,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: phoneCtrl,
-            decoration: const InputDecoration(
-              hintText: 'Enter your phone number',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_enterYourPhoneNumber,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Position',
+            l10n.lbl_position,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -118,9 +121,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: posCtrl,
-            decoration: const InputDecoration(
-              hintText: 'Enter your position',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_enterYourPosition,
+              border: const OutlineInputBorder(),
             ),
           ),
         ],
@@ -130,7 +133,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           Expanded(
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -159,11 +162,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 Navigator.of(context).pop();
                 AppSnackbars.showSuccess(
                   context,
-                  title: 'Saved',
-                  message: 'Account information updated successfully',
+                  title: l10n.msg_saved,
+                  message: l10n.msg_accountUpdated,
                 );
               },
-              child: const Text('Save Changes'),
+              child: Text(l10n.btn_saveChanges),
             ),
           ),
         ],
@@ -171,20 +174,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
+
   void _openChangePasswordDrawer() {
+    final l10n = context.l10n;
     final currentCtrl = TextEditingController();
     final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
     final theme = Theme.of(context);
 
     _showSideDrawer(
-      title: 'Change Password',
-      subtitle: 'Keep your account secure with a strong password',
+      title: l10n.drawer_changePassword_title,
+      subtitle: l10n.drawer_changePassword_subtitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Current Password',
+            l10n.lbl_currentPassword,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -193,14 +198,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: currentCtrl,
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Enter current password',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_enterCurrentPassword,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'New Password',
+            l10n.lbl_newPassword,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -209,14 +214,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: newCtrl,
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Enter new password',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_enterNewPassword,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Confirm New Password',
+            l10n.lbl_confirmNewPassword,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -225,9 +230,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: confirmCtrl,
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Re-enter new password',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.hint_reEnterNewPassword,
+              border: const OutlineInputBorder(),
             ),
           ),
         ],
@@ -237,7 +242,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           Expanded(
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -249,16 +254,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 if (newPass.length < 6) {
                   AppSnackbars.showError(
                     context,
-                    title: 'Invalid password',
-                    message: 'Password must be at least 6 characters',
+                    title: l10n.err_error,
+                    message: l10n.msg_invalidPassword,
                   );
                   return;
                 }
                 if (newPass != confirmPass) {
                   AppSnackbars.showError(
                     context,
-                    title: 'Mismatch',
-                    message: 'New password and confirmation do not match',
+                    title: l10n.err_error,
+                    message: l10n.msg_passwordMismatch,
                   );
                   return;
                 }
@@ -266,17 +271,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 Navigator.of(context).pop();
                 AppSnackbars.showSuccess(
                   context,
-                  title: 'Updated',
-                  message: 'Password updated successfully',
+                  title: l10n.msg_updated,
+                  message: l10n.msg_passwordChanged,
                 );
               },
-              child: const Text('Update Password'),
+              child: Text(l10n.btn_updatePassword),
             ),
           ),
         ],
       ),
     );
   }
+
 
   void _initializeControllers() {
     _nameController = TextEditingController(text: _currentAccount.name);
@@ -345,15 +351,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   void _signOut() {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+        title: Text(l10n.dlg_signOut_title),
+        content: Text(l10n.dlg_signOut_content),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.btn_cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -361,29 +368,31 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               // TODO: Implement actual sign out logic
               AppSnackbars.showSuccess(
                 context,
-                title: 'Signed out',
-                message: 'Signed out successfully',
+                title: l10n.msg_saved,
+                message: l10n.msg_signedOut,
               );
             },
-            child: const Text('Sign Out'),
+            child: Text(l10n.btn_signOut),
           ),
         ],
       ),
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Material(
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Account', style: theme.textTheme.headlineMedium),
+            Text(l10n.admin_account_title, style: theme.textTheme.headlineMedium),
             Text(
-              'Manage your account information and settings',
+              l10n.admin_account_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -392,12 +401,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
             // Account Information Card
             SurfaceCard(
-              title: 'Account Information',
-              subtitle: 'Manage your profile and personal information',
+              title: l10n.card_accountInfo_title,
+              subtitle: l10n.card_accountInfo_subtitle,
               trailing: FilledButton.icon(
                 onPressed: _openEditAccountDrawer,
                 icon: const Icon(Icons.edit),
-                label: const Text('Edit'),
+                label: Text(l10n.btn_edit),
               ),
               child: Column(
                 children: [
@@ -450,7 +459,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       Expanded(
                         child: _buildInfoField(
                           theme,
-                          'Full Name',
+                          l10n.lbl_fullName,
                           _currentAccount.name,
                         ),
                       ),
@@ -458,7 +467,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       Expanded(
                         child: _buildInfoField(
                           theme,
-                          'Position',
+                          l10n.lbl_position,
                           _currentAccount.membership?.membershipPositions
                                   .map((mp) => mp.name)
                                   .join(' - ') ??
@@ -475,8 +484,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
             // Security Settings Card
             SurfaceCard(
-              title: 'Security Settings',
-              subtitle: 'Manage your account security',
+              title: l10n.card_securitySettings_title,
+              subtitle: l10n.card_securitySettings_subtitle,
               child: Column(
                 children: [
                   InkWell(
@@ -493,13 +502,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Change Password',
+                                  l10n.lbl_changePassword,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
-                                  'Update your password regularly for security',
+                                  l10n.lbl_changePasswordDesc,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -520,13 +529,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
             // Language Settings Card - Requirements: 6.2
             SurfaceCard(
-              title: 'Language Settings',
-              subtitle: 'Choose your preferred language',
+              title: l10n.card_languageSettings_title,
+              subtitle: l10n.card_languageSettings_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Language',
+                    l10n.lbl_language,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
@@ -542,8 +551,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
             // Account Actions Card
             SurfaceCard(
-              title: 'Account Actions',
-              subtitle: 'Manage your account session',
+              title: l10n.card_accountActions_title,
+              subtitle: l10n.card_accountActions_subtitle,
               child: Column(
                 children: [
                   InkWell(
@@ -560,13 +569,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Sign Out',
+                                  l10n.btn_signOut,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
-                                  'Sign out from your current session',
+                                  l10n.lbl_signOutDesc,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),

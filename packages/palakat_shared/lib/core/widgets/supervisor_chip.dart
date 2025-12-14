@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 class SupervisorChip extends StatelessWidget {
   final String name;
@@ -85,8 +86,9 @@ class SupervisorChip extends StatelessWidget {
   void _showAllPositions(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         final theme = Theme.of(context);
+        final l10n = context.l10n;
         return AlertDialog(
           title: Row(
             children: [
@@ -100,7 +102,7 @@ class SupervisorChip extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Positions:',
+                '${l10n.lbl_positions}:',
                 style: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -135,7 +137,7 @@ class SupervisorChip extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(l10n.btn_close),
             ),
           ],
         );

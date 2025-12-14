@@ -100,21 +100,21 @@ class DashboardScreen extends ConsumerWidget {
                     title: l10n.dashboard_totalMembers,
                     value: NumberFormat('#,###').format(stats.totalMembers),
                     icon: Icons.groups_outlined,
-                    change: '+${stats.membersChange} from last month',
+                    change: l10n.stat_changeFromLastMonth(stats.membersChange.toString()),
                   ),
                   _StatCard(
                     title: l10n.dashboard_totalRevenue,
                     value:
                         '\$${NumberFormat('#,##0.00').format(stats.totalRevenue)}',
                     icon: Icons.attach_money,
-                    change: '+${stats.revenueChange}% from last month',
+                    change: l10n.stat_changePercentFromLastMonth(stats.revenueChange.toString()),
                   ),
                   _StatCard(
                     title: l10n.dashboard_totalExpense,
                     value:
                         '\$${NumberFormat('#,##0.00').format(stats.totalExpense)}',
                     icon: Icons.credit_card,
-                    change: '+${stats.expenseChange}% from last month',
+                    change: l10n.stat_changePercentFromLastMonth(stats.expenseChange.toString()),
                   ),
                 ],
               ),
@@ -128,12 +128,12 @@ class DashboardScreen extends ConsumerWidget {
               subtitle:
                   state.recentActivities.hasValue &&
                       state.recentActivities.value!.isNotEmpty
-                  ? '${state.recentActivities.value!.length} recent activities'
-                  : 'Recent transactions and member updates will be shown here.',
+                  ? l10n.dashboard_recentActivitiesCount(state.recentActivities.value!.length)
+                  : l10n.dashboard_recentActivitiesEmpty,
               trailing: IconButton(
                 onPressed: controller.fetchRecentActivities,
                 icon: const Icon(Icons.refresh),
-                tooltip: 'Refresh',
+                tooltip: l10n.tooltip_refresh,
               ),
               child: state.recentActivities.when(
                 loading: () => LoadingShimmer(
@@ -334,18 +334,19 @@ class _ActivityItem extends StatelessWidget {
     }
   }
 
-  String _formatTimestamp(DateTime timestamp) {
+  String _formatTimestamp(BuildContext context, DateTime timestamp) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final diff = now.difference(timestamp);
 
     if (diff.inDays > 0) {
-      return '${diff.inDays} ${diff.inDays == 1 ? 'day' : 'days'} ago';
+      return l10n.time_daysAgo(diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} ${diff.inHours == 1 ? 'hour' : 'hours'} ago';
+      return l10n.time_hoursAgo(diff.inHours);
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} ${diff.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      return l10n.time_minutesAgo(diff.inMinutes);
     } else {
-      return 'Just now';
+      return l10n.time_justNow;
     }
   }
 
@@ -402,7 +403,7 @@ class _ActivityItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatTimestamp(activity.timestamp),
+                  _formatTimestamp(context, activity.timestamp),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant.withValues(
                       alpha: 0.6,

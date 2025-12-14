@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 class PaginationBar extends StatefulWidget {
   final int total;
@@ -45,6 +46,7 @@ class _PaginationBarState extends State<PaginationBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Calculate pageCount internally
     final pageCount = widget.total == 0
@@ -58,13 +60,13 @@ class _PaginationBarState extends State<PaginationBar> {
       child: Row(
         children: [
           Text(
-            'Showing $showingCount of ${widget.total} rows',
+            l10n.pagination_showingRows(showingCount, widget.total),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const Spacer(),
-          Text('Rows per page', style: theme.textTheme.bodySmall),
+          Text(l10n.pagination_rowsPerPage, style: theme.textTheme.bodySmall),
           const SizedBox(width: 8),
           DropdownButton<int>(
             value: pageSize,
@@ -87,7 +89,7 @@ class _PaginationBarState extends State<PaginationBar> {
             },
           ),
           const SizedBox(width: 16),
-          Text('Page', style: theme.textTheme.bodySmall),
+          Text(l10n.pagination_page, style: theme.textTheme.bodySmall),
           const SizedBox(width: 8),
           DropdownButton<int>(
             value: widget.page.clamp(1, pageCount),
@@ -109,14 +111,20 @@ class _PaginationBarState extends State<PaginationBar> {
             },
           ),
           const SizedBox(width: 8),
-          Text('of $pageCount', style: theme.textTheme.bodySmall),
+          Text(
+            l10n.pagination_ofPageCount(pageCount),
+            style: theme.textTheme.bodySmall,
+          ),
           const SizedBox(width: 12),
           OutlinedButton(
             onPressed: widget.onPrev,
-            child: const Text('Previous'),
+            child: Text(l10n.pagination_previous),
           ),
           const SizedBox(width: 8),
-          OutlinedButton(onPressed: widget.onNext, child: const Text('Next')),
+          OutlinedButton(
+            onPressed: widget.onNext,
+            child: Text(l10n.pagination_next),
+          ),
         ],
       ),
     );

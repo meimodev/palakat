@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 
 /// A reusable widget for selecting member positions with a dropdown + chips pattern.
@@ -167,6 +168,7 @@ class _PositionSelectorState extends State<PositionSelector> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final hasAvailableItems = _availableItems.isNotEmpty;
 
     return Column(
@@ -201,7 +203,7 @@ class _PositionSelectorState extends State<PositionSelector> {
               ),
             ),
             child: Text(
-              hasAvailableItems ? widget.hintText : 'No positions available',
+              hasAvailableItems ? widget.hintText : l10n.noData_positions,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: hasAvailableItems
                     ? theme.colorScheme.onSurfaceVariant
@@ -295,6 +297,7 @@ class _SearchablePositionDropdownState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenSize = MediaQuery.of(context).size;
+    final l10n = context.l10n;
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -311,7 +314,7 @@ class _SearchablePositionDropdownState
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                'Select Position',
+                l10n.dlg_selectPosition_title,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -325,7 +328,7 @@ class _SearchablePositionDropdownState
                 onChanged: _onSearchChanged,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Search by position name',
+                  hintText: l10n.hint_searchPositions,
                   prefixIcon: const Icon(Icons.search, size: 20),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
@@ -393,7 +396,7 @@ class _SearchablePositionDropdownState
               padding: const EdgeInsets.all(8),
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
+                child: Text(l10n.btn_cancel),
               ),
             ),
           ],
@@ -404,6 +407,7 @@ class _SearchablePositionDropdownState
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -417,14 +421,14 @@ class _SearchablePositionDropdownState
           ),
           const SizedBox(height: 12),
           Text(
-            'No positions found',
+            l10n.noData_positions,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Try a different search term',
+            l10n.msg_tryDifferentSearchTerm,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

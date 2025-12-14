@@ -70,12 +70,13 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SideDrawer(
-      title: 'Expense Details',
-      subtitle: 'View detailed information about this expense entry',
+      title: l10n.drawer_expenseDetails_title,
+      subtitle: l10n.drawer_expenseDetails_subtitle,
       onClose: widget.onClose,
       isLoading: _isLoading,
-      loadingMessage: 'Loading expense details...',
+      loadingMessage: l10n.loading_expenses,
       errorMessage: _errorMessage,
       onRetry: _loadExpense,
       content: _expense == null
@@ -85,18 +86,18 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
               children: [
                 // Basic Information
                 InfoSection(
-                  title: 'Basic Information',
+                  title: l10n.section_basicInformation,
                   children: [
                     InfoRow(
-                      label: 'Expense ID',
+                      label: l10n.lbl_expenseId,
                       value: "# ${_expense!.id?.toString() ?? '-'}",
                     ),
                     InfoRow(
-                      label: 'Account Number',
+                      label: l10n.lbl_accountNumber,
                       value: _expense!.accountNumber,
                     ),
                     InfoRow(
-                      label: 'Amount',
+                      label: l10n.lbl_amount,
                       value: "- ${_expense!.amount.toCurrency}",
                       valueStyle: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(
@@ -105,7 +106,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                           ),
                     ),
                     InfoRow(
-                      label: 'Payment Method',
+                      label: l10n.lbl_method,
                       value: _expense!.paymentMethod.displayName,
                       valueWidget: Align(
                         alignment: Alignment.centerLeft,
@@ -122,11 +123,11 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                 // Activity Information (only show if activity exists)
                 if (_expense!.activity != null) ...[
                   InfoSection(
-                    title: 'Activity Information',
+                    title: l10n.section_activityInformation,
                     action: IconButton(
                       icon: const Icon(Icons.open_in_new, size: 18),
                       onPressed: _showActivityDetail,
-                      tooltip: 'View Activity Details',
+                      tooltip: l10n.tooltip_viewActivityDetails,
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
                           context,
@@ -139,22 +140,22 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     ),
                     children: [
                       InfoRow(
-                        label: 'Activity ID',
+                        label: l10n.lbl_activityId,
                         value: "# ${_expense!.activity!.id ?? '-'}",
                       ),
-                      InfoRow(label: 'Title', value: _expense!.activity!.title),
+                      InfoRow(label: l10n.lbl_title, value: _expense!.activity!.title),
                       if (_expense!.activity!.description != null)
                         InfoRow(
-                          label: 'Description',
+                          label: l10n.lbl_description,
                           value: _expense!.activity!.description!,
                         ),
                       InfoRow(
-                        label: 'Activity Date & Time',
+                        label: l10n.lbl_activityDateTime,
                         value: _expense!.activity!.date.toDateTimeString(),
                       ),
                       if (_expense!.activity!.note != null)
                         InfoRow(
-                          label: 'Note',
+                          label: l10n.lbl_note,
                           value: _expense!.activity!.note!,
                         ),
                     ],
@@ -162,10 +163,10 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                   const SizedBox(height: 24),
                 ] else ...[
                   InfoSection(
-                    title: 'Activity Information',
+                    title: l10n.section_activityInformation,
                     children: [
                       InfoRow(
-                        label: 'Activity',
+                        label: l10n.lbl_activity,
                         value: 'Not linked to any activity',
                       ),
                     ],
@@ -181,7 +182,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          'Supervisor',
+                          l10n.tbl_supervisor,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -268,7 +269,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                 // Approval (only show if activity exists)
                 if (_expense!.activity != null)
                   InfoSection(
-                    title: 'Approval',
+                    title: l10n.section_approval,
                     trailing: Builder(
                       builder: (context) {
                         final status =
@@ -290,7 +291,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                     children: [
                       if (_expense!.createdAt != null)
                         InfoRow(
-                          label: 'Approve On',
+                          label: l10n.lbl_approveOn,
                           value:
                               "${_expense!.activity!.approvers.approvalDate.toDateTimeString()}"
                               "\n"
@@ -298,7 +299,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                         ),
                       if (_expense!.updatedAt != null)
                         InfoRow(
-                          label: 'Requested At',
+                          label: l10n.lbl_requestedAt,
                           value:
                               "${_expense!.createdAt!.toDateTimeString()}"
                               "\n"
@@ -310,11 +311,11 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                 // Timestamps (show when no activity)
                 if (_expense!.activity == null)
                   InfoSection(
-                    title: 'Timestamps',
+                    title: l10n.section_timestamps,
                     children: [
                       if (_expense!.createdAt != null)
                         InfoRow(
-                          label: 'Created At',
+                          label: l10n.lbl_createdAt,
                           value:
                               "${_expense!.createdAt!.toDateTimeString()}"
                               "\n"
@@ -322,7 +323,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                         ),
                       if (_expense!.updatedAt != null)
                         InfoRow(
-                          label: 'Updated At',
+                          label: l10n.lbl_updatedAt,
                           value:
                               "${_expense!.updatedAt!.toDateTimeString()}"
                               "\n"
@@ -340,7 +341,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                   // Placeholder for future actions (e.g., edit, export)
                 },
                 icon: const Icon(Icons.receipt_long),
-                label: const Text('Export Expense'),
+                label: Text(l10n.btn_exportReceipt),
               ),
             ),
     );

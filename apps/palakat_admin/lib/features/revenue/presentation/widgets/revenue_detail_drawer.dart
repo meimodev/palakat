@@ -71,12 +71,13 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SideDrawer(
-      title: 'Revenue Details',
-      subtitle: 'View detailed information about this revenue entry',
+      title: l10n.drawer_revenueDetails_title,
+      subtitle: l10n.drawer_revenueDetails_subtitle,
       onClose: widget.onClose,
       isLoading: _isLoading,
-      loadingMessage: 'Fetching revenue details...',
+      loadingMessage: l10n.loading_revenue,
       errorMessage: _errorMessage,
       onRetry: _fetchRevenue,
       content: _revenue == null
@@ -86,18 +87,18 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
               children: [
                 // Basic Information
                 InfoSection(
-                  title: 'Basic Information',
+                  title: l10n.section_basicInformation,
                   children: [
                     InfoRow(
-                      label: 'Revenue ID',
+                      label: l10n.lbl_revenueId,
                       value: "# ${_revenue!.id?.toString() ?? '-'}",
                     ),
                     InfoRow(
-                      label: 'Account Number',
+                      label: l10n.lbl_accountNumber,
                       value: _revenue!.accountNumber,
                     ),
                     InfoRow(
-                      label: 'Amount',
+                      label: l10n.lbl_amount,
                       value: _revenue!.amount.toCurrency,
                       valueStyle: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(
@@ -106,7 +107,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                           ),
                     ),
                     InfoRow(
-                      label: 'Payment Method',
+                      label: l10n.lbl_method,
                       value: _revenue!.paymentMethod.displayName,
                       valueWidget: Align(
                         alignment: Alignment.centerLeft,
@@ -123,11 +124,11 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                 // Activity Information (only show if activity exists)
                 if (_revenue!.activity != null) ...[
                   InfoSection(
-                    title: 'Activity Information',
+                    title: l10n.section_activityInformation,
                     action: IconButton(
                       icon: const Icon(Icons.open_in_new, size: 18),
                       onPressed: _showActivityDetail,
-                      tooltip: 'View Activity Details',
+                      tooltip: l10n.tooltip_viewActivityDetails,
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
                           context,
@@ -140,22 +141,22 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                     ),
                     children: [
                       InfoRow(
-                        label: 'Activity ID',
+                        label: l10n.lbl_activityId,
                         value: "# ${_revenue!.activity!.id}",
                       ),
-                      InfoRow(label: 'Title', value: _revenue!.activity!.title),
+                      InfoRow(label: l10n.lbl_title, value: _revenue!.activity!.title),
                       if (_revenue!.activity!.description != null)
                         InfoRow(
-                          label: 'Description',
+                          label: l10n.lbl_description,
                           value: _revenue!.activity!.description!,
                         ),
                       InfoRow(
-                        label: 'Activity Date & Time',
+                        label: l10n.lbl_activityDateTime,
                         value: _revenue!.activity!.date.toDateTimeString(),
                       ),
                       if (_revenue!.activity!.note != null)
                         InfoRow(
-                          label: 'Note',
+                          label: l10n.lbl_note,
                           value: _revenue!.activity!.note!,
                         ),
                     ],
@@ -163,11 +164,11 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                   const SizedBox(height: 24),
                 ] else ...[
                   InfoSection(
-                    title: 'Activity Information',
+                    title: l10n.section_activityInformation,
                     children: [
                       InfoRow(
-                        label: 'Activity',
-                        value: 'Not linked to any activity',
+                        label: l10n.lbl_activity,
+                        value: l10n.noData_activityLink,
                       ),
                     ],
                   ),
@@ -182,7 +183,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          'Supervisor',
+                          l10n.tbl_supervisor,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -269,7 +270,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                 // Approval (only show if activity exists)
                 if (_revenue!.activity != null)
                   InfoSection(
-                    title: 'Approval',
+                    title: l10n.section_approval,
                     trailing: Builder(
                       builder: (context) {
                         final status =
@@ -291,7 +292,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                     children: [
                       if (_revenue!.createdAt != null)
                         InfoRow(
-                          label: 'Approve On',
+                          label: l10n.lbl_approveOn,
                           value:
                               "${_revenue!.activity!.approvers.approvalDate.toDateTimeString()}"
                               "\n"
@@ -299,7 +300,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                         ),
                       if (_revenue!.updatedAt != null)
                         InfoRow(
-                          label: 'Requested At',
+                          label: l10n.lbl_requestedAt,
                           value:
                               "${_revenue!.createdAt!.toDateTimeString()}"
                               "\n"
@@ -311,11 +312,11 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                 // Timestamps (show when no activity)
                 if (_revenue!.activity == null)
                   InfoSection(
-                    title: 'Timestamps',
+                    title: l10n.section_timestamps,
                     children: [
                       if (_revenue!.createdAt != null)
                         InfoRow(
-                          label: 'Created At',
+                          label: l10n.lbl_createdAt,
                           value:
                               "${_revenue!.createdAt!.toDateTimeString()}"
                               "\n"
@@ -323,7 +324,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                         ),
                       if (_revenue!.updatedAt != null)
                         InfoRow(
-                          label: 'Updated At',
+                          label: l10n.lbl_updatedAt,
                           value:
                               "${_revenue!.updatedAt!.toDateTimeString()}"
                               "\n"
@@ -333,15 +334,17 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                   ),
               ],
             ),
-      footer: Center(
-        child: FilledButton.icon(
-          onPressed: () {
-            // Placeholder for future actions (e.g., edit, export)
-          },
-          icon: const Icon(Icons.print),
-          label: const Text('Export Receipt'),
-        ),
-      ),
+      footer: _revenue == null
+          ? null
+          : Center(
+              child: FilledButton.icon(
+                onPressed: () {
+                  // Placeholder for future actions (e.g., edit, export)
+                },
+                icon: const Icon(Icons.print),
+                label: Text(l10n.btn_exportReceipt),
+              ),
+            ),
     );
   }
 }

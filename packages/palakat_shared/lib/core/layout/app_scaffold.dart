@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 import '../widgets/sidebar.dart';
 
@@ -15,11 +16,12 @@ class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     final isSmall = MediaQuery.of(context).size.width < 900;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: isSmall
           ? AppBar(
-              title: const Text('Palakat Admin'),
+              title: Text(l10n.appTitle_admin),
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
@@ -220,25 +222,26 @@ class _AvatarMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return PopupMenuButton<String>(
       icon: const CircleAvatar(
         radius: 16,
         backgroundImage: NetworkImage('https://placehold.co/100x100.png'),
       ),
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'profile',
           child: ListTile(
             leading: Icon(Icons.person),
-            title: Text('Profile'),
+            title: Text(l10n.nav_account),
             contentPadding: EdgeInsets.zero,
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'logout',
           child: ListTile(
             leading: Icon(Icons.logout),
-            title: Text('Log out'),
+            title: Text(l10n.btn_signOut),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -256,21 +259,23 @@ class _AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final year = DateTime.now().year;
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.6);
+    final l10n = context.l10n;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 32),
-        const Divider(height: 16, color: Colors.black54,),
+        const Divider(height: 16, color: Colors.black54),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
-            '© ' '$year' ' Palakat. All rights reserved.',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: color),
+            l10n.footer_copyright(year),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color),
             textAlign: TextAlign.center,
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/extensions.dart';
 
 /// A widget that displays an approver's status with a colored icon and optional label.
 ///
@@ -71,11 +72,26 @@ class ApproverStatusBadge extends StatelessWidget {
     }
   }
 
+  static String getStatusLabelLocalized(
+    BuildContext context,
+    ApprovalStatus status,
+  ) {
+    final l10n = context.l10n;
+    switch (status) {
+      case ApprovalStatus.approved:
+        return l10n.status_approved;
+      case ApprovalStatus.rejected:
+        return l10n.status_rejected;
+      case ApprovalStatus.unconfirmed:
+        return l10n.status_pending;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final color = getStatusColor(status);
     final icon = getStatusIcon(status);
-    final label = getStatusLabel(status);
+    final label = getStatusLabelLocalized(context, status);
     final size = iconSize ?? BaseSize.w20;
 
     if (!showLabel) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 class ReportDetailBottomSheet extends StatelessWidget {
@@ -9,6 +11,8 @@ class ReportDetailBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       decoration: BoxDecoration(
         color: BaseColor.white,
@@ -68,8 +72,10 @@ class ReportDetailBottomSheet extends StatelessWidget {
                       Gap.h4,
                       Text(
                         report.createdAt != null
-                            ? 'Generated on ${_formatDate(report.createdAt!)}'
-                            : 'No generation date',
+                            ? l10n.msg_generatedOn(
+                                _formatDate(context, report.createdAt!),
+                              )
+                            : l10n.msg_noGenerationDate,
                         style: BaseTypography.bodySmall.copyWith(
                           color: BaseColor.neutral60,
                         ),
@@ -87,7 +93,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
           Flexible(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: _buildReportContent(),
+              child: _buildReportContent(context),
             ),
           ),
 
@@ -101,7 +107,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Close'),
+                    child: Text(l10n.btn_close),
                   ),
                 ),
                 Gap.w12,
@@ -110,12 +116,10 @@ class ReportDetailBottomSheet extends StatelessWidget {
                     onPressed: () {
                       // TODO: Implement export functionality
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Export functionality coming soon'),
-                        ),
+                        SnackBar(content: Text(l10n.msg_exportComingSoon)),
                       );
                     },
-                    child: const Text('Export'),
+                    child: Text(l10n.btn_export),
                   ),
                 ),
               ],
@@ -126,7 +130,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildReportContent() {
+  Widget _buildReportContent(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,30 +145,39 @@ class ReportDetailBottomSheet extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _buildInfoRow('Report Name', report.name),
+              _buildInfoRow(l10n.tbl_reportName, report.name),
               Gap.h12,
               _buildInfoRow(
-                'Generation Type',
-                _getGenerationTypeLabel(report.generatedBy),
+                l10n.lbl_generationType,
+                _getGenerationTypeLabel(context, report.generatedBy),
               ),
               Gap.h12,
               if (report.church != null)
-                _buildInfoRow('Church', report.church!.name),
+                _buildInfoRow(l10n.nav_church, report.church!.name),
               if (report.church != null) Gap.h12,
-              _buildInfoRow('File', _getFileName(report.file.url)),
+              _buildInfoRow(
+                l10n.tbl_file,
+                _getFileName(context, report.file.url),
+              ),
               Gap.h12,
               if (report.createdAt != null)
-                _buildInfoRow('Created', _formatDate(report.createdAt!)),
+                _buildInfoRow(
+                  l10n.lbl_createdAt,
+                  _formatDate(context, report.createdAt!),
+                ),
               if (report.updatedAt != null) ...[
                 Gap.h12,
-                _buildInfoRow('Last Updated', _formatDate(report.updatedAt!)),
+                _buildInfoRow(
+                  l10n.lbl_updatedAt,
+                  _formatDate(context, report.updatedAt!),
+                ),
               ],
             ],
           ),
         ),
         Gap.h16,
         Text(
-          'To view the full report details, please download the file.',
+          l10n.msg_downloadReportToViewDetails,
           style: BaseTypography.bodySmall.copyWith(
             color: BaseColor.neutral60,
             fontStyle: FontStyle.italic,
@@ -213,41 +228,27 @@ class ReportDetailBottomSheet extends StatelessWidget {
     }
   }
 
-  String _getGenerationTypeLabel(GeneratedBy type) {
+  String _getGenerationTypeLabel(BuildContext context, GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return 'Manual Report';
+        return context.l10n.opt_manual;
       case GeneratedBy.system:
-        return 'System Generated';
+        return context.l10n.opt_system;
     }
   }
 
-  String _getFileName(String url) {
+  String _getFileName(BuildContext context, String url) {
     try {
       final uri = Uri.parse(url);
       final segments = uri.pathSegments;
-      return segments.isNotEmpty ? segments.last : 'Unknown';
+      return segments.isNotEmpty ? segments.last : context.l10n.lbl_unknown;
     } catch (e) {
-      return 'Unknown';
+      return context.l10n.lbl_unknown;
     }
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  String _formatDate(BuildContext context, DateTime date) {
+    final locale = Localizations.localeOf(context).toString();
+    return intl.DateFormat.yMMMd(locale).format(date);
   }
 }

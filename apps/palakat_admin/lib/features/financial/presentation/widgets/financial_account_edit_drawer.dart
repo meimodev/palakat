@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class FinancialAccountEditDrawer extends StatefulWidget {
   const FinancialAccountEditDrawer({
@@ -67,22 +68,20 @@ class _FinancialAccountEditDrawerState
             : _descriptionController.text.trim(),
       );
       if (mounted) {
+        final l10n = context.l10n;
         widget.onClose();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              isEditMode
-                  ? 'Account number updated successfully'
-                  : 'Account number created successfully',
-            ),
+            content: Text(isEditMode ? l10n.msg_updated : l10n.msg_created),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.msg_error}: $e')));
       }
     } finally {
       if (mounted) {
@@ -94,12 +93,15 @@ class _FinancialAccountEditDrawerState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SideDrawer(
-      title: isEditMode ? 'Edit Account Number' : 'Add Account Number',
+      title: isEditMode
+          ? l10n.drawer_editAccountNumber_title
+          : l10n.drawer_addAccountNumber_title,
       subtitle: isEditMode
-          ? 'Update the account number details'
-          : 'Create a new financial account number',
+          ? l10n.drawer_editAccountNumber_subtitle
+          : l10n.drawer_addAccountNumber_subtitle,
       onClose: widget.onClose,
       content: Form(
         key: _formKey,
@@ -108,7 +110,7 @@ class _FinancialAccountEditDrawerState
           children: [
             // Account Number Field
             Text(
-              'Account Number',
+              l10n.lbl_accountNumber,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -116,13 +118,13 @@ class _FinancialAccountEditDrawerState
             const SizedBox(height: 8),
             TextFormField(
               controller: _accountNumberController,
-              decoration: const InputDecoration(
-                hintText: 'Enter account number',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: l10n.hint_enterAccountNumber,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Account number is required';
+                  return l10n.validation_required;
                 }
                 return null;
               },
@@ -132,7 +134,7 @@ class _FinancialAccountEditDrawerState
 
             // Type Field
             Text(
-              'Type',
+              l10n.lbl_type,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -142,12 +144,12 @@ class _FinancialAccountEditDrawerState
               segments: [
                 ButtonSegment<FinanceType>(
                   value: FinanceType.revenue,
-                  label: const Text('Revenue'),
+                  label: Text(FinanceType.revenue.displayName),
                   icon: Icon(FinanceType.revenue.icon),
                 ),
                 ButtonSegment<FinanceType>(
                   value: FinanceType.expense,
-                  label: const Text('Expense'),
+                  label: Text(FinanceType.expense.displayName),
                   icon: Icon(FinanceType.expense.icon),
                 ),
               ],
@@ -160,7 +162,7 @@ class _FinancialAccountEditDrawerState
 
             // Description Field
             Text(
-              'Description (Optional)',
+              l10n.lbl_descriptionOptional,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -168,9 +170,9 @@ class _FinancialAccountEditDrawerState
             const SizedBox(height: 8),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                hintText: 'Enter description',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: l10n.hint_enterDescription,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
               textInputAction: TextInputAction.done,
@@ -183,7 +185,7 @@ class _FinancialAccountEditDrawerState
           Expanded(
             child: OutlinedButton(
               onPressed: _isLoading ? null : widget.onClose,
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -199,7 +201,7 @@ class _FinancialAccountEditDrawerState
                         color: theme.colorScheme.onPrimary,
                       ),
                     )
-                  : Text(isEditMode ? 'Update' : 'Create'),
+                  : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
             ),
           ),
         ],

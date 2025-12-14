@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
 
 part 'billing.freezed.dart';
 part 'billing.g.dart';
+
+bool _isIndonesianLocale() {
+  final locale = intl.Intl.getCurrentLocale();
+  return locale.startsWith('id');
+}
 
 @freezed
 abstract class BillingItem with _$BillingItem {
@@ -24,9 +30,11 @@ abstract class BillingItem with _$BillingItem {
     DateTime? updatedAt,
   }) = _BillingItem;
 
-  factory BillingItem.fromJson(Map<String, dynamic> json) => _$BillingItemFromJson(json);
+  factory BillingItem.fromJson(Map<String, dynamic> json) =>
+      _$BillingItemFromJson(json);
 
-  bool get isOverdue => status == BillingStatus.pending && DateTime.now().isAfter(dueDate);
+  bool get isOverdue =>
+      status == BillingStatus.pending && DateTime.now().isAfter(dueDate);
   bool get isPaid => status == BillingStatus.paid;
   String get formattedAmount => '\$${amount.toStringAsFixed(2)}';
 }
@@ -46,48 +54,52 @@ abstract class PaymentHistory with _$PaymentHistory {
     required String processedBy,
   }) = _PaymentHistory;
 
-  factory PaymentHistory.fromJson(Map<String, dynamic> json) => _$PaymentHistoryFromJson(json);
+  factory PaymentHistory.fromJson(Map<String, dynamic> json) =>
+      _$PaymentHistoryFromJson(json);
 
   String get formattedAmount => '\$${amount.toStringAsFixed(2)}';
 }
 
 extension BillingTypeExtension on BillingType {
   String get displayName {
+    final isId = _isIndonesianLocale();
     switch (this) {
       case BillingType.subscription:
-        return 'Subscription';
+        return isId ? 'Langganan' : 'Subscription';
       case BillingType.oneTime:
-        return 'One-time';
+        return isId ? 'Sekali Bayar' : 'One-time';
       case BillingType.recurring:
-        return 'Recurring';
+        return isId ? 'Berulang' : 'Recurring';
     }
   }
 }
 
 extension BillingStatusExtension on BillingStatus {
   String get displayName {
+    final isId = _isIndonesianLocale();
     switch (this) {
       case BillingStatus.pending:
-        return 'Pending';
+        return isId ? 'Menunggu' : 'Pending';
       case BillingStatus.paid:
-        return 'Paid';
+        return isId ? 'Lunas' : 'Paid';
       case BillingStatus.overdue:
-        return 'Overdue';
+        return isId ? 'Terlambat' : 'Overdue';
       case BillingStatus.cancelled:
-        return 'Cancelled';
+        return isId ? 'Dibatalkan' : 'Cancelled';
       case BillingStatus.refunded:
-        return 'Refunded';
+        return isId ? 'Dikembalikan' : 'Refunded';
     }
   }
 }
 
 extension PaymentMethodExtension on PaymentMethod {
   String get displayName {
+    final isId = _isIndonesianLocale();
     switch (this) {
       case PaymentMethod.cash:
-        return 'Cash';
+        return isId ? 'Tunai' : 'Cash';
       case PaymentMethod.cashless:
-        return 'Cashless';
+        return isId ? 'Non-tunai' : 'Cashless';
     }
   }
 
@@ -104,4 +116,3 @@ extension PaymentMethodExtension on PaymentMethod {
   IconData get icon => iconAndColor.$1;
   Color get color => iconAndColor.$2;
 }
-

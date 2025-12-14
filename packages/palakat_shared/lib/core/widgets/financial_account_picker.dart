@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 import '../models/finance_type.dart';
 import '../models/financial_account_number.dart';
@@ -167,6 +168,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
 
   Widget _buildDisplayContent(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     if (widget.isLoading) {
       return Row(
@@ -181,7 +183,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
           ),
           const SizedBox(width: 8),
           Text(
-            'Loading accounts...',
+            l10n.loading_data,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w400,
@@ -197,7 +199,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
         widget.accounts != null &&
         widget.accounts!.isEmpty) {
       return Text(
-        'All accounts are assigned to other rules',
+        l10n.noData_financial,
         style: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w400,
@@ -208,7 +210,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
 
     if (widget.selectedAccount == null) {
       return Text(
-        'Select account number',
+        l10n.lbl_selectAccount(widget.financeType.displayName),
         style: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w400,
@@ -258,6 +260,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
       builder: (dialogContext) => _SearchableAccountDropdown(
         accounts: widget.accounts!,
         selectedAccount: widget.selectedAccount,
+        financeTypeLabel: widget.financeType.displayName,
         buttonWidth: buttonWidth,
       ),
     ).then((value) {
@@ -315,11 +318,13 @@ class _SearchableAccountDropdown extends StatefulWidget {
   const _SearchableAccountDropdown({
     required this.accounts,
     required this.selectedAccount,
+    required this.financeTypeLabel,
     required this.buttonWidth,
   });
 
   final List<FinancialAccountNumber> accounts;
   final FinancialAccountNumber? selectedAccount;
+  final String financeTypeLabel;
   final double buttonWidth;
 
   @override
@@ -385,6 +390,7 @@ class _SearchableAccountDropdownState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenSize = MediaQuery.of(context).size;
+    final l10n = context.l10n;
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -401,7 +407,7 @@ class _SearchableAccountDropdownState
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                'Select Account',
+                l10n.lbl_selectAccount(widget.financeTypeLabel),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -415,7 +421,7 @@ class _SearchableAccountDropdownState
                 onChanged: _onSearchChanged,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Search by description or account number',
+                  hintText: l10n.lbl_searchAccountNumber,
                   prefixIcon: const Icon(Icons.search, size: 20),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
@@ -479,7 +485,7 @@ class _SearchableAccountDropdownState
               padding: const EdgeInsets.all(8),
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
+                child: Text(l10n.btn_cancel),
               ),
             ),
           ],
@@ -490,6 +496,7 @@ class _SearchableAccountDropdownState
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -503,14 +510,14 @@ class _SearchableAccountDropdownState
           ),
           const SizedBox(height: 12),
           Text(
-            'No accounts found',
+            l10n.noData_financial,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Try a different search term',
+            l10n.msg_tryDifferentSearchTerm,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

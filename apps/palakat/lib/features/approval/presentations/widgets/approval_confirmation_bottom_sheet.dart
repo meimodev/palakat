@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/extensions.dart';
 
 /// Shows a confirmation bottom sheet for approval actions (approve/reject)
 ///
@@ -31,13 +32,16 @@ class _ApprovalConfirmationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final baseColor = isApprove ? BaseColor.green : BaseColor.red;
     final icon = isApprove ? AppIcons.success : AppIcons.reject;
-    final title = isApprove ? 'Approve Activity?' : 'Reject Activity?';
+    final title = isApprove
+        ? l10n.approval_confirmApproveTitle
+        : l10n.approval_confirmRejectTitle;
     final description = isApprove
-        ? 'Are you sure you want to approve this activity? This action cannot be undone.'
-        : 'Are you sure you want to reject this activity? This action cannot be undone.';
-    final confirmText = isApprove ? 'Approve' : 'Reject';
+        ? l10n.approval_confirmApproveDescription
+        : l10n.approval_confirmRejectDescription;
+    final confirmText = isApprove ? l10n.btn_approve : l10n.btn_reject;
 
     return Container(
       decoration: BoxDecoration(
@@ -131,7 +135,7 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Cancel',
+                    l10n.btn_cancel,
                     style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: BaseColor.secondaryText,

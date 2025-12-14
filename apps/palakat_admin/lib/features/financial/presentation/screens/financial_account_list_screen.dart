@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/financial/financial.dart';
+import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
@@ -58,6 +59,7 @@ class _FinancialAccountListScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final state = ref.watch(financialAccountListControllerProvider);
     final controller = ref.watch(
@@ -76,12 +78,12 @@ class _FinancialAccountListScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Financial Account Numbers',
+                      l10n.admin_financial_title,
                       style: theme.textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Manage predefined account numbers for revenues and expenses.',
+                      l10n.admin_financial_subtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -91,15 +93,14 @@ class _FinancialAccountListScreenState
                 FilledButton.icon(
                   onPressed: _showAddDrawer,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Account Number'),
+                  label: Text(l10n.btn_addAccountNumber),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             SurfaceCard(
-              title: 'Account Numbers',
-              subtitle:
-                  'List of all financial account numbers for your church.',
+              title: l10n.card_accountNumbers_title,
+              subtitle: l10n.card_accountNumbers_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -133,9 +134,9 @@ class _FinancialAccountListScreenState
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search by account number or description...',
+                      searchHint: l10n.hint_searchAccountNumberDescription,
                       onSearchChanged: controller.onChangedSearch,
-                      dropdownLabel: 'Type',
+                      dropdownLabel: l10n.lbl_type,
                       dropdownOptions: {
                         for (var type in FinanceType.values)
                           type.value: type.displayName,
@@ -163,9 +164,10 @@ class _FinancialAccountListScreenState
 
   List<AppTableColumn<FinancialAccountNumber>> _buildTableColumns() {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return [
       AppTableColumn<FinancialAccountNumber>(
-        title: 'Account Number',
+        title: l10n.tbl_accountNumber,
         flex: 2,
         cellBuilder: (ctx, account) {
           return Text(
@@ -177,7 +179,7 @@ class _FinancialAccountListScreenState
         },
       ),
       AppTableColumn<FinancialAccountNumber>(
-        title: 'Type',
+        title: l10n.tbl_type,
         flex: 1,
         cellBuilder: (ctx, account) {
           return Row(
@@ -213,11 +215,11 @@ class _FinancialAccountListScreenState
         },
       ),
       AppTableColumn<FinancialAccountNumber>(
-        title: 'Description',
+        title: l10n.tbl_description,
         flex: 3,
         cellBuilder: (ctx, account) {
           return Text(
-            account.description ?? '-',
+            account.description ?? l10n.lbl_na,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: account.description != null
                   ? null
@@ -229,13 +231,13 @@ class _FinancialAccountListScreenState
         },
       ),
       AppTableColumn<FinancialAccountNumber>(
-        title: 'Linked Approval Rule',
+        title: l10n.tbl_linkedApprovalRule,
         flex: 2,
         cellBuilder: (ctx, account) {
           final approvalRule = account.approvalRule;
           if (approvalRule == null) {
             return Text(
-              '-',
+              l10n.lbl_na,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

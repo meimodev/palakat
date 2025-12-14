@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
@@ -246,25 +247,30 @@ class _ActivityTypeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     Color backgroundColor;
     Color textColor;
     IconData icon;
+    String label;
 
     switch (activityType) {
       case ActivityType.service:
         backgroundColor = BaseColor.blue.shade100;
         textColor = BaseColor.blue.shade700;
         icon = AppIcons.church;
+        label = l10n.activityType_service;
         break;
       case ActivityType.event:
         backgroundColor = BaseColor.teal.shade100;
         textColor = BaseColor.teal.shade700;
         icon = AppIcons.event;
+        label = l10n.activityType_event;
         break;
       case ActivityType.announcement:
         backgroundColor = BaseColor.yellow.shade100;
         textColor = BaseColor.yellow.shade700;
         icon = AppIcons.announcement;
+        label = l10n.activityType_announcement;
         break;
     }
 
@@ -283,7 +289,7 @@ class _ActivityTypeBadge extends StatelessWidget {
           FaIcon(icon, size: BaseSize.w14, color: textColor),
           Gap.w4,
           Text(
-            activityType.displayName,
+            label,
             style: BaseTypography.labelSmall.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
@@ -303,6 +309,7 @@ class _FinancialIndicatorBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final backgroundColor = isRevenue
         ? BaseColor.green.shade100
         : BaseColor.red.shade100;
@@ -310,7 +317,7 @@ class _FinancialIndicatorBadge extends StatelessWidget {
         ? BaseColor.green.shade700
         : BaseColor.red.shade700;
     final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
-    final label = isRevenue ? 'Revenue' : 'Expense';
+    final label = isRevenue ? l10n.nav_revenue : l10n.nav_expense;
 
     return Container(
       padding: EdgeInsets.symmetric(

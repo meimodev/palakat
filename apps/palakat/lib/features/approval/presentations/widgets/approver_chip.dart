@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_status_badge.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/extensions.dart';
 
 /// A widget that displays an approver's name and status in a clean list format.
 ///
@@ -74,7 +75,7 @@ class ApproverChip extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'You',
+                          context.l10n.lbl_you,
                           style: BaseTypography.labelSmall.copyWith(
                             color: BaseColor.white,
                             fontWeight: FontWeight.w600,
@@ -102,7 +103,7 @@ class ApproverChip extends StatelessWidget {
           ),
           // Status label on trailing for additional context
           Text(
-            ApproverStatusBadge.getStatusLabel(status),
+            ApproverStatusBadge.getStatusLabelLocalized(context, status),
             style: BaseTypography.bodySmall.copyWith(
               color: ApproverStatusBadge.getStatusColor(status),
               fontWeight: FontWeight.w600,

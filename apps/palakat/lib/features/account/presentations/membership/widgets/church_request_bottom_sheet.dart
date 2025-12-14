@@ -7,6 +7,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
+import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 
@@ -46,6 +47,8 @@ class _ChurchRequestBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       decoration: BoxDecoration(
         color: BaseColor.white,
@@ -74,7 +77,7 @@ class _ChurchRequestBottomSheetState
               children: [
                 Expanded(
                   child: Text(
-                    "Request Church Registration",
+                    l10n.churchRequest_title,
                     style: BaseTypography.titleLarge.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -93,7 +96,7 @@ class _ChurchRequestBottomSheetState
           Padding(
             padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
             child: Text(
-              "Fill in the details below to request registration for your church. We'll review and add it to our system.",
+              l10n.churchRequest_description,
               style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.neutral[600],
               ),
@@ -156,7 +159,7 @@ class _ChurchRequestBottomSheetState
                     Gap.h20,
                     // Church Information Section
                     Text(
-                      "Church Information",
+                      l10n.churchRequest_churchInformation,
                       style: BaseTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: BaseColor.black,
@@ -165,32 +168,21 @@ class _ChurchRequestBottomSheetState
                     Gap.h12,
                     InputWidget.text(
                       controller: _churchNameController,
-                      label: "Church Name",
-                      hint: "Enter church name",
+                      label: l10n.lbl_churchName,
+                      hint: l10n.hint_enterChurchName,
                       errorText: _churchNameError,
                       onChanged: (_) {
                         if (_churchNameError != null) {
                           setState(() => _churchNameError = null);
                         }
                       },
-                      validators: (value) {
-                        if (value.isEmpty) {
-                          return 'Church name is required';
-                        }
-                        if (value.length < 3) {
-                          return 'Church name must be at least 3 characters';
-                        }
-                        if (value.length > 100) {
-                          return 'Church name must not exceed 100 characters';
-                        }
-                        return null;
-                      },
+                      validators: _validateChurchName,
                     ),
                     Gap.h12,
                     InputWidget.text(
                       controller: _addressController,
-                      label: "Church Address",
-                      hint: "Enter full address",
+                      label: l10n.lbl_churchAddress,
+                      hint: l10n.hint_enterChurchAddress,
                       maxLines: 2,
                       errorText: _addressError,
                       onChanged: (_) {
@@ -198,48 +190,26 @@ class _ChurchRequestBottomSheetState
                           setState(() => _addressError = null);
                         }
                       },
-                      validators: (value) {
-                        if (value.isEmpty) {
-                          return 'Address is required';
-                        }
-                        if (value.length < 10) {
-                          return 'Please enter a complete address';
-                        }
-                        if (value.length > 200) {
-                          return 'Address must not exceed 200 characters';
-                        }
-                        return null;
-                      },
+                      validators: _validateAddress,
                     ),
                     Gap.h12,
                     InputWidget.text(
                       controller: _contactPersonController,
-                      label: "Contact Person",
-                      hint: "Enter contact person name",
+                      label: l10n.lbl_contactPerson,
+                      hint: l10n.churchRequest_hintEnterContactPersonName,
                       errorText: _contactPersonError,
                       onChanged: (_) {
                         if (_contactPersonError != null) {
                           setState(() => _contactPersonError = null);
                         }
                       },
-                      validators: (value) {
-                        if (value.isEmpty) {
-                          return 'Contact person is required';
-                        }
-                        if (value.length < 3) {
-                          return 'Name must be at least 3 characters';
-                        }
-                        if (value.length > 100) {
-                          return 'Name must not exceed 100 characters';
-                        }
-                        return null;
-                      },
+                      validators: _validateContactPerson,
                     ),
                     Gap.h12,
                     InputWidget.text(
                       controller: _phoneController,
-                      label: "Phone Number",
-                      hint: "0812-3456-7890",
+                      label: l10n.lbl_phone,
+                      hint: l10n.churchRequest_hintPhoneExample,
                       textInputType: TextInputType.phone,
                       errorText: _phoneError,
                       inputFormatters: [
@@ -251,23 +221,7 @@ class _ChurchRequestBottomSheetState
                           setState(() => _phoneError = null);
                         }
                       },
-                      validators: (value) {
-                        if (value.isEmpty) {
-                          return 'Phone number is required';
-                        }
-                        // Remove any non-digit characters for validation
-                        final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
-                        if (digitsOnly.length < 10) {
-                          return 'Phone number must be at least 10 digits';
-                        }
-                        if (digitsOnly.length > 13) {
-                          return 'Phone number must not exceed 13 digits';
-                        }
-                        if (!digitsOnly.startsWith('0')) {
-                          return 'Phone number must start with 0';
-                        }
-                        return null;
-                      },
+                      validators: _validatePhone,
                     ),
                     Gap.h24,
                   ],
@@ -279,7 +233,9 @@ class _ChurchRequestBottomSheetState
           Padding(
             padding: EdgeInsets.all(BaseSize.w16),
             child: ButtonWidget.primary(
-              text: _isSubmitting ? "Submitting..." : "Submit Request",
+              text: _isSubmitting
+                  ? l10n.churchRequest_submitting
+                  : l10n.churchRequest_submitRequest,
               onTap: _isSubmitting ? null : _handleSubmit,
             ),
           ),
@@ -289,6 +245,7 @@ class _ChurchRequestBottomSheetState
   }
 
   Widget _buildRequesterInfoSection() {
+    final l10n = context.l10n;
     final localStorage = ref.watch(localStorageServiceProvider);
     final account = localStorage.currentAuth?.account;
 
@@ -311,7 +268,7 @@ class _ChurchRequestBottomSheetState
               ),
               Gap.w8,
               Text(
-                "Requester Information",
+                l10n.churchRequest_requesterInformation,
                 style: BaseTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.blue.shade700,
@@ -320,9 +277,9 @@ class _ChurchRequestBottomSheetState
             ],
           ),
           Gap.h8,
-          _buildInfoRow("Name", account?.name ?? "N/A"),
+          _buildInfoRow(l10n.lbl_name, account?.name ?? l10n.lbl_na),
           Gap.h4,
-          _buildInfoRow("Phone", account?.phone ?? "N/A"),
+          _buildInfoRow(l10n.lbl_phone, account?.phone ?? l10n.lbl_na),
         ],
       ),
     );
@@ -362,57 +319,61 @@ class _ChurchRequestBottomSheetState
   }
 
   String? _validateChurchName(String value) {
+    final l10n = context.l10n;
     if (value.isEmpty) {
-      return 'Church name is required';
+      return l10n.err_requiredField;
     }
     if (value.length < 3) {
-      return 'Church name must be at least 3 characters';
+      return l10n.validation_minLength(3);
     }
     if (value.length > 100) {
-      return 'Church name must not exceed 100 characters';
+      return l10n.validation_maxLength(100);
     }
     return null;
   }
 
   String? _validateAddress(String value) {
+    final l10n = context.l10n;
     if (value.isEmpty) {
-      return 'Address is required';
+      return l10n.err_requiredField;
     }
     if (value.length < 10) {
-      return 'Please enter a complete address';
+      return l10n.churchRequest_validation_completeAddress;
     }
     if (value.length > 200) {
-      return 'Address must not exceed 200 characters';
+      return l10n.validation_maxLength(200);
     }
     return null;
   }
 
   String? _validateContactPerson(String value) {
+    final l10n = context.l10n;
     if (value.isEmpty) {
-      return 'Contact person is required';
+      return l10n.err_requiredField;
     }
     if (value.length < 3) {
-      return 'Name must be at least 3 characters';
+      return l10n.validation_minLength(3);
     }
     if (value.length > 100) {
-      return 'Name must not exceed 100 characters';
+      return l10n.validation_maxLength(100);
     }
     return null;
   }
 
   String? _validatePhone(String value) {
+    final l10n = context.l10n;
     if (value.isEmpty) {
-      return 'Phone number is required';
+      return l10n.err_requiredField;
     }
     final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
     if (digitsOnly.length < 10) {
-      return 'Phone number must be at least 10 digits';
+      return l10n.churchRequest_validation_phoneMinDigits(10);
     }
     if (digitsOnly.length > 13) {
-      return 'Phone number must not exceed 13 digits';
+      return l10n.churchRequest_validation_phoneMaxDigits(13);
     }
     if (!digitsOnly.startsWith('0')) {
-      return 'Phone number must start with 0';
+      return l10n.churchRequest_validation_phoneMustStartWithZero;
     }
     return null;
   }
@@ -454,7 +415,7 @@ class _ChurchRequestBottomSheetState
     // Validate form
     if (!_validateForm()) {
       setState(() {
-        _errorMessage = 'Please fix the errors above before submitting';
+        _errorMessage = context.l10n.churchRequest_fixErrorsBeforeSubmitting;
       });
       return;
     }
@@ -462,7 +423,8 @@ class _ChurchRequestBottomSheetState
     // Check if form key validates (additional check)
     if (!_formKey.currentState!.validate()) {
       setState(() {
-        _errorMessage = 'Please fill in all required fields correctly';
+        _errorMessage =
+            context.l10n.churchRequest_fillAllRequiredFieldsCorrectly;
       });
       return;
     }
@@ -499,9 +461,9 @@ class _ChurchRequestBottomSheetState
                 children: [
                   FaIcon(AppIcons.success, color: BaseColor.white),
                   Gap.w8,
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Church registration request submitted successfully!',
+                      context.l10n.churchRequest_submittedSuccessfully,
                     ),
                   ),
                 ],
@@ -542,7 +504,7 @@ class _ChurchRequestBottomSheetState
 
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'An unexpected error occurred. Please try again.';
+        _errorMessage = context.l10n.err_somethingWentWrong;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -551,7 +513,11 @@ class _ChurchRequestBottomSheetState
             children: [
               FaIcon(AppIcons.error, color: BaseColor.white),
               Gap.w8,
-              Expanded(child: Text('Error: ${e.toString()}')),
+              Expanded(
+                child: Text(
+                  context.l10n.churchRequest_errorWithDetail(e.toString()),
+                ),
+              ),
             ],
           ),
           backgroundColor: BaseColor.error,
@@ -563,7 +529,7 @@ class _ChurchRequestBottomSheetState
 
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'An unexpected error occurred. Please try again.';
+        _errorMessage = context.l10n.err_somethingWentWrong;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -572,9 +538,7 @@ class _ChurchRequestBottomSheetState
             children: [
               FaIcon(AppIcons.error, color: BaseColor.white),
               Gap.w8,
-              const Expanded(
-                child: Text('An unexpected error occurred. Please try again.'),
-              ),
+              Expanded(child: Text(context.l10n.err_somethingWentWrong)),
             ],
           ),
           backgroundColor: BaseColor.error,

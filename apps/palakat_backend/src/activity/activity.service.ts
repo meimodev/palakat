@@ -287,9 +287,7 @@ export class ActivitiesService {
     createActivityDto: CreateActivityDto,
   ): Promise<{ message: string; data: any }> {
     const {
-      locationName,
-      locationLatitude,
-      locationLongitude,
+      location: locationDto,
       supervisorId,
       reminder,
       finance,
@@ -326,18 +324,28 @@ export class ActivitiesService {
       reminder: reminder ?? null,
     };
 
-    // If location data is provided, create a nested location
-    if (
+    const locationName = locationDto?.name;
+    const locationLatitude = locationDto?.latitude;
+    const locationLongitude = locationDto?.longitude;
+
+    const hasCoordinates =
       locationLatitude !== undefined &&
       locationLongitude !== undefined &&
       locationLatitude !== null &&
-      locationLongitude !== null
-    ) {
+      locationLongitude !== null;
+
+    const hasLocationName =
+      locationName !== undefined &&
+      locationName !== null &&
+      locationName.trim().length > 0;
+
+    // If location name/coordinates are provided, create a nested location
+    if (hasCoordinates || hasLocationName) {
       createData.location = {
         create: {
-          name: locationName || '',
-          latitude: locationLatitude,
-          longitude: locationLongitude,
+          name: locationName ?? '',
+          latitude: hasCoordinates ? locationLatitude : null,
+          longitude: hasCoordinates ? locationLongitude : null,
         },
       };
     }
@@ -539,12 +547,14 @@ export class ActivitiesService {
     updateActivityDto: UpdateActivityDto,
   ): Promise<{ message: string; data: any }> {
     const {
-      locationName,
-      locationLatitude,
-      locationLongitude,
+      location: locationDto,
       supervisorId,
       ...updateData
     } = updateActivityDto;
+
+    const locationName = locationDto?.name;
+    const locationLatitude = locationDto?.latitude;
+    const locationLongitude = locationDto?.longitude;
 
     // Build the update data
     const data: any = { ...updateData };
@@ -554,6 +564,40 @@ export class ActivitiesService {
       data.supervisor = {
         connect: { id: supervisorId },
       };
+    }
+
+    if ((updateActivityDto as any).location === null) {
+      data.location = { disconnect: true };
+    }
+
+    if (
+      data.location === undefined &&
+      locationName !== undefined &&
+      (locationLatitude === undefined || locationLatitude === null) &&
+      (locationLongitude === undefined || locationLongitude === null)
+    ) {
+      const existing = await (this.prisma as any).activity.findUnique({
+        where: { id },
+        select: { locationId: true },
+      });
+
+      if (existing?.locationId) {
+        data.location = {
+          update: {
+            name: locationName || '',
+            ...(locationLatitude === null ? { latitude: null } : {}),
+            ...(locationLongitude === null ? { longitude: null } : {}),
+          },
+        };
+      } else if (locationName !== null) {
+        data.location = {
+          create: {
+            name: locationName || '',
+            latitude: locationLatitude ?? null,
+            longitude: locationLongitude ?? null,
+          },
+        };
+      }
     }
 
     // Handle location update if coordinates are provided
@@ -566,12 +610,12 @@ export class ActivitiesService {
       data.location = {
         upsert: {
           create: {
-            name: locationName || '',
+            name: locationName ?? '',
             latitude: locationLatitude,
             longitude: locationLongitude,
           },
           update: {
-            name: locationName || '',
+            ...(locationName !== undefined ? { name: locationName || '' } : {}),
             latitude: locationLatitude,
             longitude: locationLongitude,
           },

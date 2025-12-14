@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/language_option.dart';
 import 'package:palakat_shared/core/services/locale_controller.dart';
 
@@ -73,9 +74,10 @@ class _LanguageSelectionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return AlertDialog(
-      title: const Text('Select Language'),
+      title: Text(l10n.lbl_language),
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -95,7 +97,7 @@ class _LanguageSelectionDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.btn_cancel),
         ),
       ],
     );

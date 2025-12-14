@@ -28,6 +28,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final ExpenseScreenState state = ref.watch(expenseControllerProvider);
     final ExpenseController controller = ref.watch(
@@ -39,18 +40,18 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Expense', style: theme.textTheme.headlineMedium),
+            Text(l10n.nav_expense, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Track and manage expense records.',
+              l10n.card_expenseRecords_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
             SurfaceCard(
-              title: 'Expense Log',
-              subtitle: 'A record of all logged expenses.',
+              title: l10n.card_expenseRecords_title,
+              subtitle: l10n.card_expenseRecords_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -84,7 +85,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     }.call(),
 
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search by account number, activity title...',
+                      searchHint: l10n.hint_searchByAccountNumber,
                       onSearchChanged: controller.onChangedSearch,
                       dateRangePreset: state.dateRangePreset,
                       customDateRange: state.customDateRange,
@@ -92,7 +93,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                           controller.onChangedDateRangePreset,
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
-                      dropdownLabel: 'Payment Method',
+                      dropdownLabel: l10n.filter_paymentMethod,
                       dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
@@ -121,10 +122,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   /// Builds the table column configuration for the expense table
-  static List<AppTableColumn<Expense>> _buildTableColumns() {
+  List<AppTableColumn<Expense>> _buildTableColumns() {
+    final l10n = context.l10n;
     return [
       AppTableColumn<Expense>(
-        title: 'Account Number',
+        title: l10n.tbl_accountNumber,
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
@@ -137,7 +139,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         },
       ),
       AppTableColumn<Expense>(
-        title: 'Activity',
+        title: l10n.tbl_activity,
         flex: 3,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
@@ -167,7 +169,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         },
       ),
       AppTableColumn<Expense>(
-        title: 'Request Date',
+        title: l10n.tbl_requestDate,
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
@@ -180,7 +182,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         },
       ),
       AppTableColumn<Expense>(
-        title: 'Approval Date',
+        title: l10n.tbl_approvalDate,
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
@@ -193,7 +195,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         },
       ),
       AppTableColumn<Expense>(
-        title: 'Amount',
+        title: l10n.tbl_amount,
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
@@ -207,7 +209,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         },
       ),
       AppTableColumn<Expense>(
-        title: 'Payment Method',
+        title: l10n.tbl_paymentMethod,
         flex: 2,
         cellBuilder: (ctx, expense) {
           return PaymentMethodChip(

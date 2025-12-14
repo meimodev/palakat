@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_screen_state.dart';
+import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/utils.dart';
@@ -13,6 +14,7 @@ class DocumentScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final DocumentScreenState state = ref.watch(documentControllerProvider);
     final DocumentController controller = ref.watch(
       documentControllerProvider.notifier,
@@ -24,10 +26,13 @@ class DocumentScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Document Settings', style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.admin_documentSettings_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
-              'Manage document identity numbers and view recent approvals.',
+              l10n.admin_documentSettings_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -37,8 +42,8 @@ class DocumentScreen extends ConsumerWidget {
             // Document Identity Number card
             settingsAsync.when(
               data: (settings) => SurfaceCard(
-                title: 'Document Identity Number',
-                subtitle: 'Current template used for new documents.',
+                title: l10n.admin_documentIdentityNumber_title,
+                subtitle: l10n.admin_documentIdentityNumber_subtitle,
                 trailing: FilledButton.icon(
                   onPressed: () => _openIdentityDrawer(
                     context,
@@ -46,7 +51,7 @@ class DocumentScreen extends ConsumerWidget {
                     settings?.identityNumberTemplate ?? '',
                   ),
                   icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
+                  label: Text(l10n.btn_edit),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -56,7 +61,7 @@ class DocumentScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        'Template:',
+                        '${l10n.lbl_template}:',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
@@ -75,8 +80,8 @@ class DocumentScreen extends ConsumerWidget {
                 ),
               ),
               loading: () => SurfaceCard(
-                title: 'Document Identity Number',
-                subtitle: 'Loading...',
+                title: l10n.admin_documentIdentityNumber_title,
+                subtitle: l10n.loading_data,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
@@ -91,9 +96,10 @@ class DocumentScreen extends ConsumerWidget {
                 ),
               ),
               error: (error, stack) => SurfaceCard(
-                title: 'Document Identity Number',
-                subtitle: 'Failed to load settings',
+                title: l10n.admin_documentIdentityNumber_title,
+                subtitle: l10n.err_loadFailed,
                 child: _buildErrorWidget(
+                  context: context,
                   theme: theme,
                   error: error,
                   onRetry: () => ref.invalidate(documentSettingsProvider),
@@ -105,8 +111,8 @@ class DocumentScreen extends ConsumerWidget {
 
             // Document Directory Section
             SurfaceCard(
-              title: 'Document Directory',
-              subtitle: 'A record of all approved church documents.',
+              title: l10n.admin_documentDirectory_title,
+              subtitle: l10n.admin_documentDirectory_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -117,7 +123,7 @@ class DocumentScreen extends ConsumerWidget {
                         ? state.documents.error.toString()
                         : null,
                     onRetry: () => controller.refresh(),
-                    columns: _buildTableColumns(),
+                    columns: _buildTableColumns(context),
                   ),
                 ],
               ),
@@ -129,10 +135,13 @@ class DocumentScreen extends ConsumerWidget {
   }
 
   /// Builds the table column configuration for the documents table
-  static List<AppTableColumn<Document>> _buildTableColumns() {
+  static List<AppTableColumn<Document>> _buildTableColumns(
+    BuildContext context,
+  ) {
+    final l10n = context.l10n;
     return [
       AppTableColumn<Document>(
-        title: 'Document Name',
+        title: l10n.tbl_documentName,
         flex: 3,
         cellBuilder: (ctx, document) {
           final theme = Theme.of(ctx);
@@ -146,7 +155,7 @@ class DocumentScreen extends ConsumerWidget {
         },
       ),
       AppTableColumn<Document>(
-        title: 'Account Number',
+        title: l10n.tbl_accountNumber,
         flex: 2,
         cellBuilder: (ctx, document) {
           final theme = Theme.of(ctx);
@@ -158,12 +167,13 @@ class DocumentScreen extends ConsumerWidget {
         },
       ),
       AppTableColumn<Document>(
-        title: 'Created Date',
+        title: l10n.tbl_createdDate,
         flex: 2,
         cellBuilder: (ctx, document) {
           final theme = Theme.of(ctx);
           return Text(
-            document.createdAt?.toCustomFormat('yyyy-MM-dd HH:mm') ?? 'N/A',
+            document.createdAt?.toCustomFormat('yyyy-MM-dd HH:mm') ??
+                l10n.lbl_na,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -174,10 +184,12 @@ class DocumentScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorWidget({
+    required BuildContext context,
     required ThemeData theme,
     required Object error,
     required VoidCallback onRetry,
   }) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -194,7 +206,7 @@ class DocumentScreen extends ConsumerWidget {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(l10n.btn_retry),
           ),
         ],
       ),
@@ -206,6 +218,7 @@ class DocumentScreen extends ConsumerWidget {
     WidgetRef ref,
     String currentTemplate,
   ) {
+    final l10n = context.l10n;
     DrawerUtils.showDrawer(
       context: context,
       drawer: _IdentityNumberEditDrawer(
@@ -216,9 +229,9 @@ class DocumentScreen extends ConsumerWidget {
           // Refresh provider and show snackbar after successful save
           ref.invalidate(documentSettingsProvider);
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Template updated successfully')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(l10n.msg_templateUpdated)));
           }
         },
         onClose: () {
@@ -266,7 +279,7 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
     final newTemplate = _controller.text.trim();
     if (newTemplate.isEmpty) {
       setState(() {
-        _errorMessage = 'Template cannot be empty';
+        _errorMessage = context.l10n.validation_required;
       });
       return;
     }
@@ -305,19 +318,20 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return SideDrawer(
-      title: 'Edit Document Identity Number',
-      subtitle: 'Update the template used for new documents',
+      title: l10n.drawer_editDocumentId_title,
+      subtitle: l10n.drawer_editDocumentId_subtitle,
       onClose: widget.onClose,
       isLoading: _isLoading,
-      loadingMessage: 'Saving template...',
+      loadingMessage: l10n.loading_saving,
       errorMessage: _errorMessage,
       onRetry: _errorMessage != null ? _handleRetry : null,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Template',
+            l10n.lbl_template,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
@@ -326,10 +340,10 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
           const SizedBox(height: 8),
           TextField(
             controller: _controller,
-            decoration: const InputDecoration(
-              hintText: 'e.g., DOC-2024-001',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.tag),
+            decoration: InputDecoration(
+              hintText: l10n.hint_documentIdExample,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.tag),
             ),
           ),
           const SizedBox(height: 16),
@@ -352,7 +366,7 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Changing the identity number template may cause certain numbers to be skipped.',
+                    l10n.msg_documentTemplateWarning,
                     style: theme.textTheme.bodySmall,
                   ),
                 ),
@@ -366,7 +380,7 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
         children: [
           FilledButton(
             onPressed: _handleSave,
-            child: const Text('Save Changes'),
+            child: Text(l10n.btn_saveChanges),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import '../state/approval_controller.dart';
 
 class ApprovalEditDrawer extends ConsumerStatefulWidget {
@@ -111,7 +112,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load data';
+        _errorMessage = context.l10n.error_loadingData;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -138,14 +139,14 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
     if (_nameController.text.trim().isEmpty) {
       setState(() {
-        _nameError = 'Rule name is required';
+        _nameError = context.l10n.validation_ruleNameRequired;
       });
       hasError = true;
     }
 
     if (_selectedPositions.isEmpty) {
       setState(() {
-        _positionsError = 'At least one position must be selected';
+        _positionsError = context.l10n.validation_positionsRequired;
       });
       hasError = true;
     }
@@ -153,8 +154,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     // Validate financial account is required when financial type is selected
     if (_selectedFinancialType != null && _selectedFinancialAccount == null) {
       setState(() {
-        _financialAccountError =
-            'Financial account number is required when financial type is selected';
+        _financialAccountError = context.l10n.validation_financialAccountRequired;
       });
       hasError = true;
     }
@@ -202,7 +202,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e is AppError ? e.userMessage : 'Failed to save rule';
+        _errorMessage = e is AppError ? e.userMessage : context.l10n.msg_saveFailed;
       });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -215,21 +215,19 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Rule'),
-        content: const Text(
-          'Are you sure you want to delete this approval rule?',
-        ),
+        title: Text(context.l10n.dlg_deleteRule_title),
+        content: Text(context.l10n.dlg_deleteRule_content),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.btn_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(context.l10n.btn_delete),
           ),
         ],
       ),
@@ -249,7 +247,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e is AppError ? e.userMessage : 'Failed to delete rule';
+        _errorMessage = e is AppError ? e.userMessage : context.l10n.msg_deleteFailed;
       });
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -319,17 +317,17 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     final theme = Theme.of(context);
 
     return SideDrawer(
-      title: _isNew ? 'Add Approval Rule' : 'Edit Approval Rule',
+      title: _isNew ? context.l10n.drawer_addApprovalRule_title : context.l10n.drawer_editApprovalRule_title,
       subtitle: _isNew
-          ? 'Create a new approval rule'
-          : 'Update approval rule information',
+          ? context.l10n.drawer_addApprovalRule_subtitle
+          : context.l10n.drawer_editApprovalRule_subtitle,
       onClose: widget.onClose,
       isLoading: _loading || _deleting || _saving,
       loadingMessage: _deleting
-          ? 'Deleting rule...'
+          ? context.l10n.loading_deleting
           : _saving
-          ? 'Saving rule...'
-          : 'Loading rule details...',
+          ? context.l10n.loading_saving
+          : context.l10n.loading_approvals,
       errorMessage: _errorMessage,
       onRetry: _onRetry,
       content: Column(
@@ -337,12 +335,12 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
         children: [
           // Rule Information Section
           InfoSection(
-            title: 'Rule Information',
+            title: context.l10n.section_ruleInformation,
             titleSpacing: 16,
             children: [
               if (!_isNew && _fetchedRule != null) ...[
                 LabeledField(
-                  label: 'Rule ID',
+                  label: context.l10n.lbl_ruleId,
                   child: Text(
                     "# ${_fetchedRule!.id}",
                     style: theme.textTheme.bodyLarge?.copyWith(
@@ -353,14 +351,14 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                 const SizedBox(height: 16),
               ],
               LabeledField(
-                label: 'Rule Name',
+                label: context.l10n.lbl_ruleName,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        hintText: 'e.g. Financial Transactions',
+                        hintText: context.l10n.hint_approvalRuleExample,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -399,11 +397,11 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
               ),
               const SizedBox(height: 16),
               LabeledField(
-                label: 'Description (Optional)',
+                label: context.l10n.lbl_ruleDescription,
                 child: TextField(
                   controller: _descriptionController,
                   decoration: InputDecoration(
-                    hintText: 'Describe when this approval is required',
+                    hintText: context.l10n.hint_describeApprovalRule,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -420,7 +418,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
           // Status Section
           InfoSection(
-            title: 'Status',
+            title: context.l10n.section_status,
             titleSpacing: 16,
             children: [
               SwitchListTile(
@@ -430,11 +428,11 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                     _active = value;
                   });
                 },
-                title: const Text('Active'),
+                title: Text(context.l10n.lbl_active),
                 subtitle: Text(
                   _active
-                      ? 'This rule is currently active'
-                      : 'This rule is inactive and will not be enforced',
+                      ? context.l10n.desc_ruleActive
+                      : context.l10n.desc_ruleInactive,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -448,15 +446,15 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
           // Activity Type Section
           InfoSection(
-            title: 'Activity Type Filter',
+            title: context.l10n.section_activityTypeFilter,
             titleSpacing: 16,
             children: [
               LabeledField(
-                label: 'Activity Type (Optional)',
+                label: context.l10n.lbl_activityType,
                 child: DropdownButtonFormField<ActivityType?>(
                   value: _selectedActivityType,
                   decoration: InputDecoration(
-                    hintText: 'All activity types',
+                    hintText: context.l10n.hint_allActivityTypes,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -464,9 +462,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                     fillColor: theme.colorScheme.surface,
                   ),
                   items: [
-                    const DropdownMenuItem<ActivityType?>(
+                    DropdownMenuItem<ActivityType?>(
                       value: null,
-                      child: Text('All activity types'),
+                      child: Text(context.l10n.hint_allActivityTypes),
                     ),
                     ...ActivityType.values.map((type) {
                       return DropdownMenuItem<ActivityType?>(
@@ -480,7 +478,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
               ),
               const SizedBox(height: 8),
               Text(
-                'When set, this rule only applies to activities of the selected type.',
+                context.l10n.desc_activityTypeFilter,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -492,15 +490,15 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
           // Financial Type Section
           InfoSection(
-            title: 'Financial Filter',
+            title: context.l10n.section_financialFilter,
             titleSpacing: 16,
             children: [
               LabeledField(
-                label: 'Financial Type (Optional)',
+                label: context.l10n.lbl_financialType,
                 child: DropdownButtonFormField<FinanceType?>(
                   value: _selectedFinancialType,
                   decoration: InputDecoration(
-                    hintText: 'No financial filter',
+                    hintText: context.l10n.hint_noFinancialFilter,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -508,9 +506,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                     fillColor: theme.colorScheme.surface,
                   ),
                   items: [
-                    const DropdownMenuItem<FinanceType?>(
+                    DropdownMenuItem<FinanceType?>(
                       value: null,
-                      child: Text('No financial filter'),
+                      child: Text(context.l10n.hint_noFinancialFilter),
                     ),
                     ...FinanceType.values.map((type) {
                       return DropdownMenuItem<FinanceType?>(
@@ -529,7 +527,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   selectedAccount: _selectedFinancialAccount,
                   accounts: _financialAccounts,
                   isLoading: _loadingFinancialAccounts,
-                  label: 'Financial Account Number *',
+                  label: context.l10n.lbl_financialAccountNumber,
                   onSelected: (account) {
                     _onFinancialAccountSelected(account);
                     // Clear error when user selects an account
@@ -552,7 +550,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
               ],
               const SizedBox(height: 8),
               Text(
-                'When set, this rule only applies to activities with matching financial data.',
+                context.l10n.desc_financialFilter,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -564,11 +562,11 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
 
           // Positions Section
           InfoSection(
-            title: 'Required Approvers',
+            title: context.l10n.section_requiredApprovers,
             titleSpacing: 16,
             children: [
               LabeledField(
-                label: 'Positions',
+                label: context.l10n.lbl_positions,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -580,7 +578,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'No positions available',
+                              context.l10n.noData_positions,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -599,7 +597,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                               });
                             },
                             availablePositions: _allPositions,
-                            hintText: 'Select positions to approve...',
+                            hintText: context.l10n.hint_selectPositionsToApprove,
                             enabled: true,
                           ),
                     if (_positionsError != null) ...[
@@ -628,7 +626,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   foregroundColor: theme.colorScheme.error,
                   side: BorderSide(color: theme.colorScheme.error),
                 ),
-                child: const Text('Delete'),
+                child: Text(context.l10n.btn_delete),
               ),
             ),
             const SizedBox(width: 12),
@@ -640,7 +638,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(_isNew ? 'Create' : 'Save'),
+              child: Text(_isNew ? context.l10n.btn_create : context.l10n.btn_save),
             ),
           ),
         ],

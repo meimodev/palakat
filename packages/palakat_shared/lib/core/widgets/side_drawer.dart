@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 class SideDrawer extends StatelessWidget {
   final String title;
@@ -29,6 +30,7 @@ class SideDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Material(
       child: Container(
         width: width,
@@ -111,7 +113,9 @@ class SideDrawer extends StatelessWidget {
                               const SizedBox(
                                 width: 32,
                                 height: 32,
-                                child: CircularProgressIndicator(strokeWidth: 3),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -138,7 +142,7 @@ class SideDrawer extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Something went wrong',
+                                l10n.err_error,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -156,7 +160,7 @@ class SideDrawer extends StatelessWidget {
                                 FilledButton.icon(
                                   onPressed: onRetry,
                                   icon: const Icon(Icons.refresh),
-                                  label: const Text('Retry'),
+                                  label: Text(l10n.btn_retry),
                                 ),
                             ],
                           ),

@@ -4,6 +4,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/validation.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class LocationEditDrawer extends ConsumerStatefulWidget {
   final Church church;
@@ -38,10 +39,10 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
       text: widget.church.location?.name,
     );
     _latitudeController = TextEditingController(
-      text: widget.church.location?.latitude.toString(),
+      text: widget.church.location?.latitude?.toString() ?? '',
     );
     _longitudeController = TextEditingController(
-      text: widget.church.location?.longitude.toString(),
+      text: widget.church.location?.longitude?.toString() ?? '',
     );
     _fetchLatestLocation();
   }
@@ -67,12 +68,12 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
           .fetchLocationDetail(locationId);
       if (!mounted) return;
       _addressController.text = latest.name;
-      _latitudeController.text = latest.latitude.toString();
-      _longitudeController.text = latest.longitude.toString();
+      _latitudeController.text = latest.latitude?.toString() ?? '';
+      _longitudeController.text = latest.longitude?.toString() ?? '';
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to load location details';
+        _errorMessage = context.l10n.error_loadingData;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -104,7 +105,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to save changes';
+        _errorMessage = context.l10n.msg_saveFailed;
       });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -114,15 +115,16 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SideDrawer(
-      title: 'Edit Location',
-      subtitle: 'Update address and coordinates for your church',
+      title: l10n.drawer_editLocation_title,
+      subtitle: l10n.drawer_editLocation_subtitle,
       onClose: widget.onClose,
       isLoading: _saving || _loading,
       loadingMessage: _loading
-          ? 'Loading location details...'
-          : 'Saving changes...',
+          ? l10n.loading_data
+          : l10n.loading_saving,
       errorMessage: _errorMessage,
       onRetry: _loading ? _fetchLatestLocation : null,
       content: Form(
@@ -131,16 +133,16 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InfoSection(
-              title: 'Location Details',
+              title: l10n.section_locationDetails,
               titleSpacing: 16,
               children: [
                 LabeledField(
-                  label: 'Address',
+                  label: l10n.lbl_address,
                   child: TextFormField(
                     controller: _addressController,
                     maxLines: 2,
                     decoration: InputDecoration(
-                      hintText: 'Enter church address',
+                      hintText: l10n.hint_enterChurchAddress,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -155,7 +157,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                 Column(
                   children: [
                     LabeledField(
-                      label: 'Latitude',
+                      label: l10n.lbl_latitude,
                       child: TextFormField(
                         controller: _latitudeController,
                         keyboardType: const TextInputType.numberWithOptions(
@@ -163,7 +165,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                           signed: true,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'e.g. -6.1754',
+                          hintText: l10n.hint_latitudeExample,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -176,7 +178,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                     ),
                     const SizedBox(height: 16),
                     LabeledField(
-                      label: 'Longitude',
+                      label: l10n.lbl_longitude,
                       child: TextFormField(
                         controller: _longitudeController,
                         keyboardType: const TextInputType.numberWithOptions(
@@ -184,7 +186,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                           signed: true,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'e.g. 106.8272',
+                          hintText: l10n.hint_longitudeExample,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -211,7 +213,7 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.onPrimary,
             ),
-            child: const Text('Save Changes'),
+            child: Text(l10n.btn_saveChanges),
           ),
         ],
       ),

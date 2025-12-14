@@ -1,4 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart' as intl;
+
+bool _isIndonesianLocale() {
+  final locale = intl.Intl.getCurrentLocale();
+  return locale.startsWith('id');
+}
 
 enum Gender {
   @JsonValue("MALE")
@@ -139,15 +145,16 @@ enum InventoryCondition {
   notApplicable;
 
   String get displayName {
+    final isId = _isIndonesianLocale();
     switch (this) {
       case InventoryCondition.good:
-        return 'Good';
+        return isId ? 'Baik' : 'Good';
       case InventoryCondition.used:
-        return 'Used';
+        return isId ? 'Bekas' : 'Used';
       case InventoryCondition.new_:
-        return 'New';
+        return isId ? 'Baru' : 'New';
       case InventoryCondition.notApplicable:
-        return 'N/A';
+        return isId ? 'N/A' : 'N/A';
     }
   }
 }
@@ -206,13 +213,14 @@ enum FormFieldType {
 
 extension ActivityTypeExtension on ActivityType {
   String get displayName {
+    final isId = _isIndonesianLocale();
     switch (this) {
       case ActivityType.service:
-        return 'Service';
+        return isId ? 'Ibadah' : 'Service';
       case ActivityType.event:
-        return 'Event';
+        return isId ? 'Kegiatan' : 'Event';
       case ActivityType.announcement:
-        return 'Announcement';
+        return isId ? 'Pengumuman' : 'Announcement';
     }
   }
 

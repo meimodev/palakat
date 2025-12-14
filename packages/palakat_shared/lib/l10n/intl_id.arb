@@ -5,6 +5,10 @@
   "@appTitle": {
     "description": "The application title"
   },
+  "appTitle_admin": "Palakat Admin",
+  "@appTitle_admin": {
+    "description": "The admin application title"
+  },
 
   "nav_dashboard": "Beranda",
   "@nav_dashboard": {
@@ -75,6 +79,189 @@
     "description": "Navigation label for operations"
   },
 
+  "approval_title": "Persetujuan",
+  "@approval_title": {
+    "description": "Title for approval screen"
+  },
+  "approval_filterAll": "Semua",
+  "@approval_filterAll": {
+    "description": "Filter label for showing all approvals"
+  },
+  "approval_filterMyAction": "Tindakan Saya",
+  "@approval_filterMyAction": {
+    "description": "Filter label for approvals requiring my action"
+  },
+  "approval_filterByDate": "Filter berdasarkan tanggal",
+  "@approval_filterByDate": {
+    "description": "Label for date filter in approval screen"
+  },
+  "approval_noMoreApprovals": "Tidak ada persetujuan lagi",
+  "@approval_noMoreApprovals": {
+    "description": "Text shown when reaching end of approvals list"
+  },
+  "approval_sectionPendingYourAction": "Menunggu Tindakan Anda",
+  "@approval_sectionPendingYourAction": {
+    "description": "Section header for approvals pending current user's action"
+  },
+  "approval_sectionPendingOthers": "Menunggu Tindakan Lain",
+  "@approval_sectionPendingOthers": {
+    "description": "Section header for approvals pending others"
+  },
+  "approval_allCaughtUpTitle": "Semua selesai!",
+  "@approval_allCaughtUpTitle": {
+    "description": "Title shown when there are no pending approvals"
+  },
+  "approval_allCaughtUpSubtitle": "Tidak ada persetujuan yang menunggu tindakan Anda",
+  "@approval_allCaughtUpSubtitle": {
+    "description": "Subtitle shown when there are no pending approvals"
+  },
+  "approval_pendingReviewCount": "{count, plural, =1{1 persetujuan menunggu tinjauan Anda} other{{count} persetujuan menunggu tinjauan Anda}}",
+  "@approval_pendingReviewCount": {
+    "description": "Text describing how many approvals are waiting for review",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "approval_emptyTitle": "Tidak ada persetujuan",
+  "@approval_emptyTitle": {
+    "description": "Empty state title for approval screen"
+  },
+  "approval_emptySubtitle": "Coba sesuaikan filter Anda",
+  "@approval_emptySubtitle": {
+    "description": "Empty state subtitle for approval screen"
+  },
+  "approval_errorTitle": "Terjadi kesalahan",
+  "@approval_errorTitle": {
+    "description": "Error state title for approval screen"
+  },
+  "approval_confirmApproveTitle": "Setujui Kegiatan?",
+  "@approval_confirmApproveTitle": {
+    "description": "Confirmation title for approving an activity"
+  },
+  "approval_confirmRejectTitle": "Tolak Kegiatan?",
+  "@approval_confirmRejectTitle": {
+    "description": "Confirmation title for rejecting an activity"
+  },
+  "approval_confirmApproveDescription": "Apakah Anda yakin ingin menyetujui kegiatan ini? Tindakan ini tidak dapat dibatalkan.",
+  "@approval_confirmApproveDescription": {
+    "description": "Confirmation description for approving an activity"
+  },
+  "approval_confirmRejectDescription": "Apakah Anda yakin ingin menolak kegiatan ini? Tindakan ini tidak dapat dibatalkan.",
+  "@approval_confirmRejectDescription": {
+    "description": "Confirmation description for rejecting an activity"
+  },
+
+  "activityType_service": "Ibadah",
+  "@activityType_service": {
+    "description": "Label for activity type SERVICE"
+  },
+  "activityType_event": "Kegiatan",
+  "@activityType_event": {
+    "description": "Label for activity type EVENT"
+  },
+  "activityType_announcement": "Pengumuman",
+  "@activityType_announcement": {
+    "description": "Label for activity type ANNOUNCEMENT"
+  },
+
+  "approval_snackbarApproved": "Disetujui: {activityTitle}",
+  "@approval_snackbarApproved": {
+    "description": "Snackbar text shown after approving an activity",
+    "placeholders": {
+      "activityTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "approval_snackbarRejected": "Ditolak: {activityTitle}",
+  "@approval_snackbarRejected": {
+    "description": "Snackbar text shown after rejecting an activity",
+    "placeholders": {
+      "activityTitle": {
+        "type": "String"
+      }
+    }
+  },
+
+  "admin_billing_title": "Manajemen Tagihan",
+  "@admin_billing_title": {
+    "description": "Admin screen title for billing management"
+  },
+  "admin_billing_subtitle": "Kelola tagihan gereja, pembayaran, dan lihat riwayat pembayaran.",
+  "@admin_billing_subtitle": {
+    "description": "Admin screen subtitle for billing management"
+  },
+  "admin_approval_title": "Persetujuan",
+  "@admin_approval_title": {
+    "description": "Admin screen title for approvals"
+  },
+  "admin_account_title": "Akun",
+  "@admin_account_title": {
+    "description": "Admin screen title for account"
+  },
+  "admin_account_subtitle": "Kelola informasi akun dan pengaturan Anda",
+  "@admin_account_subtitle": {
+    "description": "Admin screen subtitle for account"
+  },
+  "admin_activity_title": "Kegiatan",
+  "@admin_activity_title": {
+    "description": "Admin screen title for activity"
+  },
+  "admin_revenue_title": "Pendapatan",
+  "@admin_revenue_title": {
+    "description": "Admin screen title for revenue"
+  },
+  "admin_revenue_subtitle": "Lacak dan kelola semua sumber pendapatan.",
+  "@admin_revenue_subtitle": {
+    "description": "Admin screen subtitle for revenue"
+  },
+  "admin_member_title": "Anggota",
+  "@admin_member_title": {
+    "description": "Admin screen title for member"
+  },
+  "admin_financial_title": "Nomor Akun Keuangan",
+  "@admin_financial_title": {
+    "description": "Admin screen title for financial account numbers"
+  },
+  "admin_financial_subtitle": "Kelola nomor akun keuangan untuk gereja Anda.",
+  "@admin_financial_subtitle": {
+    "description": "Admin screen subtitle for financial account numbers"
+  },
+  "admin_documentSettings_title": "Pengaturan Dokumen",
+  "@admin_documentSettings_title": {
+    "description": "Admin screen title for document settings"
+  },
+  "admin_documentSettings_subtitle": "Kelola nomor identitas dokumen dan lihat persetujuan terbaru.",
+  "@admin_documentSettings_subtitle": {
+    "description": "Admin screen subtitle for document settings"
+  },
+  "admin_documentIdentityNumber_title": "Nomor Identitas Dokumen",
+  "@admin_documentIdentityNumber_title": {
+    "description": "Card title for document identity number settings"
+  },
+  "admin_documentIdentityNumber_subtitle": "Template saat ini yang digunakan untuk dokumen baru.",
+  "@admin_documentIdentityNumber_subtitle": {
+    "description": "Card subtitle for document identity number settings"
+  },
+  "admin_documentDirectory_title": "Direktori Dokumen",
+  "@admin_documentDirectory_title": {
+    "description": "Card title for document directory"
+  },
+  "admin_documentDirectory_subtitle": "Catatan semua dokumen gereja yang telah disetujui.",
+  "@admin_documentDirectory_subtitle": {
+    "description": "Card subtitle for document directory"
+  },
+  "admin_church_title": "Profil Gereja",
+  "@admin_church_title": {
+    "description": "Admin screen title for church profile"
+  },
+  "admin_church_subtitle": "Kelola informasi publik dan kolom gereja Anda.",
+  "@admin_church_subtitle": {
+    "description": "Admin screen subtitle for church profile"
+  },
+
   "btn_continue": "Lanjutkan",
   "@btn_continue": {
     "description": "Button text for continue"
@@ -139,6 +326,62 @@
   "@btn_back": {
     "description": "Button text for back"
   },
+  "btn_addAccountNumber": "Tambah Nomor Akun",
+  "@btn_addAccountNumber": {
+    "description": "Button text for add account number"
+  },
+  "btn_generateReport": "Buat Laporan",
+  "@btn_generateReport": {
+    "description": "Button text for generate report"
+  },
+  "btn_recordPayment": "Catat Pembayaran",
+  "@btn_recordPayment": {
+    "description": "Button text for record payment"
+  },
+  "btn_exportReceipt": "Ekspor Kwitansi",
+  "@btn_exportReceipt": {
+    "description": "Button text for export receipt"
+  },
+  "btn_approve": "Setujui",
+  "@btn_approve": {
+    "description": "Button text for approve"
+  },
+  "btn_reject": "Tolak",
+  "@btn_reject": {
+    "description": "Button text for reject"
+  },
+  "btn_export": "Ekspor",
+  "@btn_export": {
+    "description": "Button text for export"
+  },
+  "btn_remove": "Hapus",
+  "@btn_remove": {
+    "description": "Button text for remove"
+  },
+  "btn_create": "Buat",
+  "@btn_create": {
+    "description": "Button text for create"
+  },
+  "btn_update": "Perbarui",
+  "@btn_update": {
+    "description": "Button text for update"
+  },
+  "btn_addRule": "Tambah Aturan",
+  "@btn_addRule": {
+    "description": "Button text for add rule"
+  },
+  "btn_viewAll": "Lihat Semua",
+  "@btn_viewAll": {
+    "description": "Button text for view all"
+  },
+  "btn_saveChanges": "Simpan Perubahan",
+  "@btn_saveChanges": {
+    "description": "Button text for save changes"
+  },
+  "btn_updatePassword": "Perbarui Kata Sandi",
+  "@btn_updatePassword": {
+    "description": "Button text for update password"
+  },
 
   "lbl_email": "Email",
   "@lbl_email": {
@@ -171,6 +414,10 @@
   "lbl_time": "Waktu",
   "@lbl_time": {
     "description": "Label for time field"
+  },
+  "lbl_generationType": "Jenis Pembuatan",
+  "@lbl_generationType": {
+    "description": "Label for generation type"
   },
   "lbl_description": "Deskripsi",
   "@lbl_description": {
@@ -213,27 +460,11 @@
     "description": "Message to select church first"
   },
   "lbl_selectAccount": "Pilih Akun {type}",
-  "@lbl_selectAccount": {
-    "description": "Label for select account dialog",
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "lbl_searchAccountNumber": "Cari nomor akun atau deskripsi...",
   "@lbl_searchAccountNumber": {
     "description": "Hint for search account number field"
   },
   "lbl_noResultsFor": "Tidak ada hasil untuk \"{query}\"",
-  "@lbl_noResultsFor": {
-    "description": "Message when no results found for query",
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
   "lbl_noAccountNumbers": "Tidak ada nomor akun tersedia",
   "@lbl_noAccountNumbers": {
     "description": "Message when no account numbers available"
@@ -241,6 +472,59 @@
   "lbl_churchNotAvailable": "Informasi gereja tidak tersedia",
   "@lbl_churchNotAvailable": {
     "description": "Message when church information not available"
+  },
+  "lbl_template": "Template",
+  "@lbl_template": {
+    "description": "Label for template"
+  },
+  "lbl_na": "N/A",
+  "@lbl_na": {
+    "description": "Label for not available"
+  },
+  "lbl_unknown": "Tidak diketahui",
+  "@lbl_unknown": {
+    "description": "Label for unknown"
+  },
+  "lbl_you": "Anda",
+  "@lbl_you": {
+    "description": "Label for you"
+  },
+  "lbl_reminder": "Pengingat",
+  "@lbl_reminder": {
+    "description": "Label for reminder"
+  },
+  "lbl_targetAudience": "Target Audiens",
+  "@lbl_targetAudience": {
+    "description": "Label for target audience"
+  },
+  "timePeriod_morning": "Pagi",
+  "@timePeriod_morning": {
+    "description": "Time period for morning"
+  },
+  "timePeriod_afternoon": "Siang",
+  "@timePeriod_afternoon": {
+    "description": "Time period for afternoon"
+  },
+  "timePeriod_evening": "Malam",
+  "@timePeriod_evening": {
+    "description": "Time period for evening"
+  },
+
+  "reminder_tenMinutes": "10 menit sebelumnya",
+  "@reminder_tenMinutes": {
+    "description": "Reminder label for 10 minutes"
+  },
+  "reminder_thirtyMinutes": "30 menit sebelumnya",
+  "@reminder_thirtyMinutes": {
+    "description": "Reminder label for 30 minutes"
+  },
+  "reminder_oneHour": "1 jam sebelumnya",
+  "@reminder_oneHour": {
+    "description": "Reminder label for 1 hour"
+  },
+  "reminder_twoHour": "2 jam sebelumnya",
+  "@reminder_twoHour": {
+    "description": "Reminder label for 2 hours"
   },
 
   "status_approved": "Disetujui",
@@ -349,17 +633,6 @@
     "description": "Error message for account locked (403)"
   },
   "err_statusWithCode": "{code} • {label}",
-  "@err_statusWithCode": {
-    "description": "Error status with code",
-    "placeholders": {
-      "code": {
-        "type": "int"
-      },
-      "label": {
-        "type": "String"
-      }
-    }
-  },
 
   "auth_welcomeBack": "Selamat Datang Kembali",
   "@auth_welcomeBack": {
@@ -394,14 +667,6 @@
     "description": "Auth OTP sent message"
   },
   "auth_resendIn": "Kirim ulang dalam {seconds} detik",
-  "@auth_resendIn": {
-    "description": "Auth resend countdown",
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
 
   "dashboard_title": "Dasbor",
   "@dashboard_title": {
@@ -441,14 +706,6 @@
   },
 
   "memberCount": "{count, plural, =0{Tidak ada anggota} =1{1 anggota} other{{count} anggota}}",
-  "@memberCount": {
-    "description": "Member count with pluralization",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
 
   "lang_indonesian": "Bahasa Indonesia",
   "@lang_indonesian": {
@@ -474,5 +731,2141 @@
   "settings_noMembership": "Tidak ada keanggotaan tersedia",
   "@settings_noMembership": {
     "description": "Message when user has no membership"
+  },
+
+  "card_overdueBills_title": "Tagihan Terlambat",
+  "@card_overdueBills_title": {
+    "description": "Card title for overdue bills"
+  },
+  "card_overdueBills_subtitle": "Tagihan yang memerlukan perhatian segera",
+  "@card_overdueBills_subtitle": {
+    "description": "Card subtitle for overdue bills"
+  },
+  "card_paymentHistory_title": "Riwayat Pembayaran",
+  "@card_paymentHistory_title": {
+    "description": "Card title for payment history"
+  },
+  "card_paymentHistory_subtitle": "Lihat semua transaksi dan riwayat pembayaran.",
+  "@card_paymentHistory_subtitle": {
+    "description": "Card subtitle for payment history"
+  },
+  "card_billingItems_title": "Item Tagihan",
+  "@card_billingItems_title": {
+    "description": "Card title for billing items"
+  },
+  "card_billingItems_subtitle": "Kelola tagihan dan catatan pembayaran gereja.",
+  "@card_billingItems_subtitle": {
+    "description": "Card subtitle for billing items"
+  },
+  "card_billingItems_subtitleWithTotal": "Kelola tagihan dan catatan pembayaran gereja. Total item: {total}",
+  "@card_billingItems_subtitleWithTotal": {
+    "description": "Card subtitle for billing items with total count",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "card_approvalRules_title": "Aturan Persetujuan",
+  "@card_approvalRules_title": {
+    "description": "Card title for approval rules"
+  },
+  "card_approvalRules_subtitle": "Konfigurasi aturan routing persetujuan dan persyaratan",
+  "@card_approvalRules_subtitle": {
+    "description": "Card subtitle for approval rules"
+  },
+  "card_memberDirectory_title": "Direktori Anggota",
+  "@card_memberDirectory_title": {
+    "description": "Card title for member directory"
+  },
+  "card_memberDirectory_subtitle": "Catatan semua anggota gereja.",
+  "@card_memberDirectory_subtitle": {
+    "description": "Card subtitle for member directory"
+  },
+  "card_accountNumbers_title": "Nomor Akun",
+  "@card_accountNumbers_title": {
+    "description": "Card title for account numbers"
+  },
+  "card_accountNumbers_subtitle": "Daftar semua nomor akun keuangan untuk gereja Anda.",
+  "@card_accountNumbers_subtitle": {
+    "description": "Card subtitle for account numbers"
+  },
+  "card_basicInfo_title": "Informasi Dasar",
+  "@card_basicInfo_title": {
+    "description": "Card title for basic information"
+  },
+  "card_basicInfo_subtitle": "Detail gereja dan informasi kontak",
+  "@card_basicInfo_subtitle": {
+    "description": "Card subtitle for basic information"
+  },
+  "card_location_title": "Lokasi",
+  "@card_location_title": {
+    "description": "Card title for location"
+  },
+  "card_location_subtitle": "Alamat gereja dan informasi geografis",
+  "@card_location_subtitle": {
+    "description": "Card subtitle for location"
+  },
+  "card_columnManagement_title": "Manajemen Kolom",
+  "@card_columnManagement_title": {
+    "description": "Card title for column management"
+  },
+  "card_columnManagement_subtitle": "Kelola kolom organisasi gereja",
+  "@card_columnManagement_subtitle": {
+    "description": "Card subtitle for column management"
+  },
+  "card_positionManagement_title": "Manajemen Jabatan",
+  "@card_positionManagement_title": {
+    "description": "Card title for position management"
+  },
+  "card_positionManagement_subtitle": "Kelola jabatan kepemimpinan gereja",
+  "@card_positionManagement_subtitle": {
+    "description": "Card subtitle for position management"
+  },
+  "card_revenueRecords_title": "Catatan Pendapatan",
+  "@card_revenueRecords_title": {
+    "description": "Card title for revenue records"
+  },
+  "card_revenueRecords_subtitle": "Lacak dan kelola pendapatan gereja.",
+  "@card_revenueRecords_subtitle": {
+    "description": "Card subtitle for revenue records"
+  },
+  "card_revenueLog_title": "Log Pendapatan",
+  "@card_revenueLog_title": {
+    "description": "Card title for revenue log"
+  },
+  "card_revenueLog_subtitle": "Catatan semua pendapatan yang tercatat.",
+  "@card_revenueLog_subtitle": {
+    "description": "Card subtitle for revenue log"
+  },
+  "card_expenseRecords_title": "Catatan Pengeluaran",
+  "@card_expenseRecords_title": {
+    "description": "Card title for expense records"
+  },
+  "card_expenseRecords_subtitle": "Lacak dan kelola pengeluaran gereja.",
+  "@card_expenseRecords_subtitle": {
+    "description": "Card subtitle for expense records"
+  },
+  "card_activityList_title": "Daftar Kegiatan",
+  "@card_activityList_title": {
+    "description": "Card title for activity list"
+  },
+  "card_activityList_subtitle": "Lihat semua kegiatan dan acara gereja.",
+  "@card_activityList_subtitle": {
+    "description": "Card subtitle for activity list"
+  },
+  "card_documentList_title": "Dokumen",
+  "@card_documentList_title": {
+    "description": "Card title for document list"
+  },
+  "card_documentList_subtitle": "Kelola dokumen dan file gereja.",
+  "@card_documentList_subtitle": {
+    "description": "Card subtitle for document list"
+  },
+  "card_reportList_title": "Laporan",
+  "@card_reportList_title": {
+    "description": "Card title for report list"
+  },
+  "card_reportList_subtitle": "Buat dan lihat laporan gereja.",
+  "@card_reportList_subtitle": {
+    "description": "Card subtitle for report list"
+  },
+  "card_reportHistory_title": "Riwayat Laporan",
+  "@card_reportHistory_title": {
+    "description": "Card title for report history"
+  },
+  "card_paymentInfo_title": "Informasi Pembayaran",
+  "@card_paymentInfo_title": {
+    "description": "Card title for payment information"
+  },
+  "card_paymentInfo_subtitle": "Detail tentang metode pembayaran dan akun",
+  "@card_paymentInfo_subtitle": {
+    "description": "Card subtitle for payment information"
+  },
+  "card_recentActivity_title": "Aktivitas Terbaru",
+  "@card_recentActivity_title": {
+    "description": "Card title for recent activity"
+  },
+  "card_recentActivity_subtitle": "Kegiatan dan acara gereja terbaru",
+  "@card_recentActivity_subtitle": {
+    "description": "Card subtitle for recent activity"
+  },
+  "card_statistics_title": "Statistik",
+  "@card_statistics_title": {
+    "description": "Card title for statistics"
+  },
+  "card_statistics_subtitle": "Metrik kinerja dan analitik gereja",
+  "@card_statistics_subtitle": {
+    "description": "Card subtitle for statistics"
+  },
+  "card_overview_title": "Ringkasan",
+  "@card_overview_title": {
+    "description": "Card title for overview"
+  },
+  "card_overview_subtitle": "Ringkasan informasi kunci gereja",
+  "@card_overview_subtitle": {
+    "description": "Card subtitle for overview"
+  },
+  "card_accountSettings_title": "Pengaturan Akun",
+  "@card_accountSettings_title": {
+    "description": "Card title for account settings"
+  },
+  "card_accountSettings_subtitle": "Kelola preferensi akun pribadi Anda",
+  "@card_accountSettings_subtitle": {
+    "description": "Card subtitle for account settings"
+  },
+  "card_churchInfo_title": "Informasi Gereja",
+  "@card_churchInfo_title": {
+    "description": "Card title for church information"
+  },
+  "card_churchInfo_subtitle": "Detail dasar gereja dan pengaturan",
+  "@card_churchInfo_subtitle": {
+    "description": "Card subtitle for church information"
+  },
+  "card_financialSummary_title": "Ringkasan Keuangan",
+  "@card_financialSummary_title": {
+    "description": "Card title for financial summary"
+  },
+  "card_financialSummary_subtitle": "Ringkasan status keuangan gereja",
+  "@card_financialSummary_subtitle": {
+    "description": "Card subtitle for financial summary"
+  },
+  "card_accountInfo_title": "Informasi Akun",
+  "@card_accountInfo_title": {
+    "description": "Card title for account information"
+  },
+  "card_accountInfo_subtitle": "Kelola profil dan informasi pribadi Anda",
+  "@card_accountInfo_subtitle": {
+    "description": "Card subtitle for account information"
+  },
+  "card_securitySettings_title": "Pengaturan Keamanan",
+  "@card_securitySettings_title": {
+    "description": "Card title for security settings"
+  },
+  "card_securitySettings_subtitle": "Kelola keamanan akun Anda",
+  "@card_securitySettings_subtitle": {
+    "description": "Card subtitle for security settings"
+  },
+  "card_languageSettings_title": "Pengaturan Bahasa",
+  "@card_languageSettings_title": {
+    "description": "Card title for language settings"
+  },
+  "card_languageSettings_subtitle": "Pilih bahasa yang Anda inginkan",
+  "@card_languageSettings_subtitle": {
+    "description": "Card subtitle for language settings"
+  },
+  "card_accountActions_title": "Tindakan Akun",
+  "@card_accountActions_title": {
+    "description": "Card title for account actions"
+  },
+  "card_accountActions_subtitle": "Kelola sesi akun Anda",
+  "@card_accountActions_subtitle": {
+    "description": "Card subtitle for account actions"
+  },
+
+  "drawer_addMember_title": "Tambah Anggota",
+  "@drawer_addMember_title": {
+    "description": "Drawer title for adding member"
+  },
+  "drawer_addMember_subtitle": "Buat anggota baru",
+  "@drawer_addMember_subtitle": {
+    "description": "Drawer subtitle for adding member"
+  },
+  "drawer_editMember_title": "Ubah Anggota",
+  "@drawer_editMember_title": {
+    "description": "Drawer title for editing member"
+  },
+  "drawer_editMember_subtitle": "Perbarui informasi anggota",
+  "@drawer_editMember_subtitle": {
+    "description": "Drawer subtitle for editing member"
+  },
+  "drawer_addApprovalRule_title": "Tambah Aturan Persetujuan",
+  "@drawer_addApprovalRule_title": {
+    "description": "Drawer title for adding approval rule"
+  },
+  "drawer_addApprovalRule_subtitle": "Buat aturan persetujuan baru",
+  "@drawer_addApprovalRule_subtitle": {
+    "description": "Drawer subtitle for adding approval rule"
+  },
+  "drawer_editApprovalRule_title": "Ubah Aturan Persetujuan",
+  "@drawer_editApprovalRule_title": {
+    "description": "Drawer title for editing approval rule"
+  },
+  "drawer_editApprovalRule_subtitle": "Perbarui informasi aturan persetujuan",
+  "@drawer_editApprovalRule_subtitle": {
+    "description": "Drawer subtitle for editing approval rule"
+  },
+  "drawer_activityDetails_title": "Detail Kegiatan",
+  "@drawer_activityDetails_title": {
+    "description": "Drawer title for activity details"
+  },
+  "drawer_activityDetails_subtitle": "Lihat informasi detail tentang kegiatan ini",
+  "@drawer_activityDetails_subtitle": {
+    "description": "Drawer subtitle for activity details"
+  },
+  "drawer_revenueDetails_title": "Detail Pendapatan",
+  "@drawer_revenueDetails_title": {
+    "description": "Drawer title for revenue details"
+  },
+  "drawer_revenueDetails_subtitle": "Lihat informasi detail tentang entri pendapatan ini",
+  "@drawer_revenueDetails_subtitle": {
+    "description": "Drawer subtitle for revenue details"
+  },
+  "drawer_expenseDetails_title": "Detail Pengeluaran",
+  "@drawer_expenseDetails_title": {
+    "description": "Drawer title for expense details"
+  },
+  "drawer_expenseDetails_subtitle": "Lihat informasi detail tentang entri pengeluaran ini",
+  "@drawer_expenseDetails_subtitle": {
+    "description": "Drawer subtitle for expense details"
+  },
+  "drawer_editChurchInfo_title": "Ubah Informasi Gereja",
+  "@drawer_editChurchInfo_title": {
+    "description": "Drawer title for editing church information"
+  },
+  "drawer_editChurchInfo_subtitle": "Perbarui detail gereja Anda",
+  "@drawer_editChurchInfo_subtitle": {
+    "description": "Drawer subtitle for editing church information"
+  },
+  "drawer_editLocation_title": "Ubah Lokasi",
+  "@drawer_editLocation_title": {
+    "description": "Drawer title for editing location"
+  },
+  "drawer_editLocation_subtitle": "Perbarui alamat dan koordinat gereja Anda",
+  "@drawer_editLocation_subtitle": {
+    "description": "Drawer subtitle for editing location"
+  },
+  "drawer_addColumn_title": "Tambah Kolom",
+  "@drawer_addColumn_title": {
+    "description": "Drawer title for adding column"
+  },
+  "drawer_addColumn_subtitle": "Buat kolom baru",
+  "@drawer_addColumn_subtitle": {
+    "description": "Drawer subtitle for adding column"
+  },
+  "drawer_editColumn_title": "Ubah Kolom",
+  "@drawer_editColumn_title": {
+    "description": "Drawer title for editing column"
+  },
+  "drawer_editColumn_subtitle": "Perbarui informasi kolom",
+  "@drawer_editColumn_subtitle": {
+    "description": "Drawer subtitle for editing column"
+  },
+  "drawer_addPosition_title": "Tambah Jabatan",
+  "@drawer_addPosition_title": {
+    "description": "Drawer title for adding position"
+  },
+  "drawer_addPosition_subtitle": "Buat jabatan baru",
+  "@drawer_addPosition_subtitle": {
+    "description": "Drawer subtitle for adding position"
+  },
+  "drawer_editPosition_title": "Ubah Jabatan",
+  "@drawer_editPosition_title": {
+    "description": "Drawer title for editing position"
+  },
+  "drawer_editPosition_subtitle": "Perbarui informasi jabatan",
+  "@drawer_editPosition_subtitle": {
+    "description": "Drawer subtitle for editing position"
+  },
+  "drawer_addAccountNumber_title": "Tambah Nomor Akun",
+  "@drawer_addAccountNumber_title": {
+    "description": "Drawer title for adding account number"
+  },
+  "drawer_addAccountNumber_subtitle": "Buat nomor akun keuangan baru",
+  "@drawer_addAccountNumber_subtitle": {
+    "description": "Drawer subtitle for adding account number"
+  },
+  "drawer_editAccountNumber_title": "Ubah Nomor Akun",
+  "@drawer_editAccountNumber_title": {
+    "description": "Drawer title for editing account number"
+  },
+  "drawer_editAccountNumber_subtitle": "Perbarui detail nomor akun",
+  "@drawer_editAccountNumber_subtitle": {
+    "description": "Drawer subtitle for editing account number"
+  },
+  "drawer_generateReport_title": "Buat Laporan",
+  "@drawer_generateReport_title": {
+    "description": "Drawer title for generating report"
+  },
+  "drawer_generateReport_subtitle": "Konfigurasi laporan yang baru dibuat",
+  "@drawer_generateReport_subtitle": {
+    "description": "Drawer subtitle for generating report"
+  },
+  "drawer_editDocumentId_title": "Ubah Nomor Identitas Dokumen",
+  "@drawer_editDocumentId_title": {
+    "description": "Drawer title for editing document identity number"
+  },
+  "drawer_editDocumentId_subtitle": "Perbarui template yang digunakan untuk dokumen baru",
+  "@drawer_editDocumentId_subtitle": {
+    "description": "Drawer subtitle for editing document identity number"
+  },
+  "drawer_paymentHistory_title": "Riwayat Pembayaran",
+  "@drawer_paymentHistory_title": {
+    "description": "Drawer title for payment history"
+  },
+  "drawer_paymentHistory_subtitle": "Riwayat transaksi pembayaran lengkap",
+  "@drawer_paymentHistory_subtitle": {
+    "description": "Drawer subtitle for payment history"
+  },
+  "drawer_billingDetails_title": "Detail Tagihan",
+  "@drawer_billingDetails_title": {
+    "description": "Drawer title for billing details"
+  },
+  "drawer_editAccountInfo_title": "Ubah Informasi Akun",
+  "@drawer_editAccountInfo_title": {
+    "description": "Drawer title for editing account information"
+  },
+  "drawer_editAccountInfo_subtitle": "Perbarui detail profil Anda",
+  "@drawer_editAccountInfo_subtitle": {
+    "description": "Drawer subtitle for editing account information"
+  },
+  "drawer_changePassword_title": "Ubah Kata Sandi",
+  "@drawer_changePassword_title": {
+    "description": "Drawer title for changing password"
+  },
+  "drawer_changePassword_subtitle": "Jaga keamanan akun Anda dengan kata sandi yang kuat",
+  "@drawer_changePassword_subtitle": {
+    "description": "Drawer subtitle for changing password"
+  },
+
+  "lbl_ruleId": "ID Aturan",
+  "@lbl_ruleId": {
+    "description": "Label for rule ID field"
+  },
+  "lbl_ruleName": "Nama Aturan",
+  "@lbl_ruleName": {
+    "description": "Label for rule name field"
+  },
+  "lbl_ruleDescription": "Deskripsi (Opsional)",
+  "@lbl_ruleDescription": {
+    "description": "Label for rule description field"
+  },
+  "lbl_activityType": "Jenis Kegiatan (Opsional)",
+  "@lbl_activityType": {
+    "description": "Label for activity type field"
+  },
+  "lbl_financialType": "Jenis Keuangan (Opsional)",
+  "@lbl_financialType": {
+    "description": "Label for financial type field"
+  },
+  "lbl_financialAccountNumber": "Nomor Akun Keuangan *",
+  "@lbl_financialAccountNumber": {
+    "description": "Label for financial account number field"
+  },
+  "lbl_positions": "Jabatan",
+  "@lbl_positions": {
+    "description": "Label for positions field"
+  },
+  "lbl_memberId": "ID Anggota",
+  "@lbl_memberId": {
+    "description": "Label for member ID field"
+  },
+  "lbl_maritalStatus": "Status Pernikahan",
+  "@lbl_maritalStatus": {
+    "description": "Label for marital status field"
+  },
+  "lbl_gender": "Jenis Kelamin",
+  "@lbl_gender": {
+    "description": "Label for gender field"
+  },
+  "lbl_dateOfBirth": "Tanggal Lahir",
+  "@lbl_dateOfBirth": {
+    "description": "Label for date of birth field"
+  },
+  "lbl_churchName": "Nama Gereja",
+  "@lbl_churchName": {
+    "description": "Label for church name field"
+  },
+  "lbl_churchAddress": "Alamat Gereja",
+  "@lbl_churchAddress": {
+    "description": "Label for church address field"
+  },
+  "lbl_contactPerson": "Narahubung",
+  "@lbl_contactPerson": {
+    "description": "Label for contact person field"
+  },
+  "lbl_phoneNumberOptional": "Nomor Telepon (Opsional)",
+  "@lbl_phoneNumberOptional": {
+    "description": "Label for optional phone number field"
+  },
+  "lbl_emailOptional": "Email (Opsional)",
+  "@lbl_emailOptional": {
+    "description": "Label for optional email field"
+  },
+  "lbl_descriptionOptional": "Deskripsi (Opsional)",
+  "@lbl_descriptionOptional": {
+    "description": "Label for optional description field"
+  },
+  "lbl_address": "Alamat",
+  "@lbl_address": {
+    "description": "Label for address field"
+  },
+  "lbl_latitude": "Lintang",
+  "@lbl_latitude": {
+    "description": "Label for latitude field"
+  },
+  "lbl_longitude": "Bujur",
+  "@lbl_longitude": {
+    "description": "Label for longitude field"
+  },
+  "lbl_accountNumber": "Nomor Akun",
+  "@lbl_accountNumber": {
+    "description": "Label for account number field"
+  },
+  "lbl_type": "Jenis",
+  "@lbl_type": {
+    "description": "Label for type field"
+  },
+  "lbl_columnId": "ID Kolom",
+  "@lbl_columnId": {
+    "description": "Label for column ID field"
+  },
+  "lbl_columnName": "Nama Kolom",
+  "@lbl_columnName": {
+    "description": "Label for column name field"
+  },
+  "lbl_positionId": "ID Jabatan",
+  "@lbl_positionId": {
+    "description": "Label for position ID field"
+  },
+  "lbl_positionName": "Nama Jabatan",
+  "@lbl_positionName": {
+    "description": "Label for position name field"
+  },
+  "lbl_reportType": "Jenis Laporan",
+  "@lbl_reportType": {
+    "description": "Label for report type"
+  },
+  "lbl_dateRange": "Rentang Tanggal",
+  "@lbl_dateRange": {
+    "description": "Label for date range"
+  },
+  "lbl_allTime": "Sepanjang Waktu",
+  "@lbl_allTime": {
+    "description": "Label for all time"
+  },
+  "lbl_revenueId": "ID Pendapatan",
+  "@lbl_revenueId": {
+    "description": "Label for revenue ID field"
+  },
+  "lbl_expenseId": "ID Pengeluaran",
+  "@lbl_expenseId": {
+    "description": "Label for expense ID field"
+  },
+  "lbl_activityId": "ID Kegiatan",
+  "@lbl_activityId": {
+    "description": "Label for activity ID field"
+  },
+  "lbl_title": "Judul",
+  "@lbl_title": {
+    "description": "Label for title field"
+  },
+  "lbl_activityDateTime": "Tanggal & Waktu Kegiatan",
+  "@lbl_activityDateTime": {
+    "description": "Label for activity date time field"
+  },
+  "lbl_note": "Catatan",
+  "@lbl_note": {
+    "description": "Label for note field"
+  },
+  "lbl_activity": "Kegiatan",
+  "@lbl_activity": {
+    "description": "Label for activity field"
+  },
+  "lbl_approveOn": "Disetujui Pada",
+  "@lbl_approveOn": {
+    "description": "Label for approve on field"
+  },
+  "lbl_requestedAt": "Diminta Pada",
+  "@lbl_requestedAt": {
+    "description": "Label for requested at field"
+  },
+  "lbl_createdAt": "Dibuat Pada",
+  "@lbl_createdAt": {
+    "description": "Label for created at field"
+  },
+  "lbl_updatedAt": "Diperbarui Pada",
+  "@lbl_updatedAt": {
+    "description": "Label for updated at field"
+  },
+  "lbl_method": "Metode",
+  "@lbl_method": {
+    "description": "Label for method field"
+  },
+  "lbl_transactionId": "ID Transaksi",
+  "@lbl_transactionId": {
+    "description": "Label for transaction ID field"
+  },
+  "lbl_notes": "Catatan",
+  "@lbl_notes": {
+    "description": "Label for notes field"
+  },
+  "lbl_paidDate": "Tanggal Bayar",
+  "@lbl_paidDate": {
+    "description": "Label for paid date field"
+  },
+  "lbl_payments": "Pembayaran",
+  "@lbl_payments": {
+    "description": "Label for payments"
+  },
+  "lbl_bill": "Tagihan",
+  "@lbl_bill": {
+    "description": "Label for bill"
+  },
+  "lbl_optional": "(Opsional)",
+  "@lbl_optional": {
+    "description": "Label for optional fields"
+  },
+  "lbl_active": "Aktif",
+  "@lbl_active": {
+    "description": "Label for active field"
+  },
+  "lbl_baptized": "Dibaptis",
+  "@lbl_baptized": {
+    "description": "Label for baptized field"
+  },
+  "lbl_sidi": "SIDI",
+  "@lbl_sidi": {
+    "description": "Label for SIDI field"
+  },
+  "lbl_noFilters": "Tidak ada filter",
+  "@lbl_noFilters": {
+    "description": "Label for no filters"
+  },
+  "desc_ruleActive": "Aturan ini sedang aktif",
+  "@desc_ruleActive": {
+    "description": "Description for active rule"
+  },
+  "desc_ruleInactive": "Aturan ini tidak aktif dan tidak akan diterapkan",
+  "@desc_ruleInactive": {
+    "description": "Description for inactive rule"
+  },
+  "desc_activityTypeFilter": "Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan jenis yang dipilih.",
+  "@desc_activityTypeFilter": {
+    "description": "Description for activity type filter"
+  },
+  "desc_financialFilter": "Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan data keuangan yang sesuai.",
+  "@desc_financialFilter": {
+    "description": "Description for financial filter"
+  },
+  "lbl_adminUser": "Pengguna Admin",
+  "@lbl_adminUser": {
+    "description": "Label for admin user"
+  },
+  "lbl_fullName": "Nama Lengkap",
+  "@lbl_fullName": {
+    "description": "Label for full name field"
+  },
+  "lbl_position": "Jabatan",
+  "@lbl_position": {
+    "description": "Label for position field"
+  },
+  "lbl_currentPassword": "Kata Sandi Saat Ini",
+  "@lbl_currentPassword": {
+    "description": "Label for current password field"
+  },
+  "lbl_newPassword": "Kata Sandi Baru",
+  "@lbl_newPassword": {
+    "description": "Label for new password field"
+  },
+  "lbl_confirmNewPassword": "Konfirmasi Kata Sandi Baru",
+  "@lbl_confirmNewPassword": {
+    "description": "Label for confirm new password field"
+  },
+  "lbl_changePassword": "Ubah Kata Sandi",
+  "@lbl_changePassword": {
+    "description": "Label for change password action"
+  },
+  "lbl_changePasswordDesc": "Perbarui kata sandi Anda secara berkala untuk keamanan",
+  "@lbl_changePasswordDesc": {
+    "description": "Description for change password action"
+  },
+  "lbl_signOutDesc": "Keluar dari sesi Anda saat ini",
+  "@lbl_signOutDesc": {
+    "description": "Description for sign out action"
+  },
+
+  "section_basicInformation": "Informasi Dasar",
+  "@section_basicInformation": {
+    "description": "Section title for basic information"
+  },
+  "section_ruleInformation": "Informasi Aturan",
+  "@section_ruleInformation": {
+    "description": "Section title for rule information"
+  },
+  "section_status": "Status",
+  "@section_status": {
+    "description": "Section title for status"
+  },
+  "section_activityTypeFilter": "Filter Jenis Kegiatan",
+  "@section_activityTypeFilter": {
+    "description": "Section title for activity type filter"
+  },
+  "section_financialFilter": "Filter Keuangan",
+  "@section_financialFilter": {
+    "description": "Section title for financial filter"
+  },
+  "section_requiredApprovers": "Penyetuju Wajib",
+  "@section_requiredApprovers": {
+    "description": "Section title for required approvers"
+  },
+  "section_activityInformation": "Informasi Kegiatan",
+  "@section_activityInformation": {
+    "description": "Section title for activity information"
+  },
+  "section_approval": "Persetujuan",
+  "@section_approval": {
+    "description": "Section title for approval"
+  },
+  "section_approvalStatus": "Status Persetujuan",
+  "@section_approvalStatus": {
+    "description": "Section title for approval status"
+  },
+  "section_personInCharge": "Penanggung Jawab",
+  "@section_personInCharge": {
+    "description": "Section title for person in charge"
+  },
+  "section_schedule": "Jadwal",
+  "@section_schedule": {
+    "description": "Section title for schedule"
+  },
+  "section_financialRecord": "Catatan Keuangan",
+  "@section_financialRecord": {
+    "description": "Section title for financial record"
+  },
+  "section_announcementDetails": "Detail Pengumuman",
+  "@section_announcementDetails": {
+    "description": "Section title for announcement details"
+  },
+  "section_timestamps": "Waktu",
+  "@section_timestamps": {
+    "description": "Section title for timestamps"
+  },
+  "section_locationDetails": "Detail Lokasi",
+  "@section_locationDetails": {
+    "description": "Section title for location details"
+  },
+  "section_reportDetails": "Detail Laporan",
+  "@section_reportDetails": {
+    "description": "Section title for report details"
+  },
+  "section_paymentInformation": "Informasi Pembayaran",
+  "@section_paymentInformation": {
+    "description": "Section title for payment information"
+  },
+  "section_positionInformation": "Informasi Jabatan",
+  "@section_positionInformation": {
+    "description": "Section title for position information"
+  },
+  "section_memberInThisPosition": "Anggota dalam Jabatan Ini",
+  "@section_memberInThisPosition": {
+    "description": "Section title for member in this position"
+  },
+  "section_registeredMembers": "Anggota Terdaftar ({count})",
+  "@section_registeredMembers": {
+    "description": "Section title for registered members with count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "publish_basicInfoSubtitle": "Judul dan target audiens",
+  "@publish_basicInfoSubtitle": {
+    "description": "Subtitle for basic information section in activity publish"
+  },
+  "publish_hintEnterActivityTitle": "Masukkan judul kegiatan",
+  "@publish_hintEnterActivityTitle": {
+    "description": "Hint for activity title"
+  },
+  "publish_targetAudienceBipra": "Target Audiens (BIPRA)",
+  "@publish_targetAudienceBipra": {
+    "description": "Label for target audience bipra"
+  },
+  "publish_selectTargetGroup": "Pilih kelompok target",
+  "@publish_selectTargetGroup": {
+    "description": "Placeholder for selecting target group"
+  },
+  "publish_targetGroup": "Kelompok Target",
+  "@publish_targetGroup": {
+    "description": "Label for target group"
+  },
+  "publish_locationSubtitle": "Di mana kegiatan ini berlangsung?",
+  "@publish_locationSubtitle": {
+    "description": "Subtitle for location section"
+  },
+  "publish_hintLocationExample": "contoh: Aula Gereja, Nama Tuan Rumah",
+  "@publish_hintLocationExample": {
+    "description": "Hint for location example"
+  },
+  "publish_lblLocationName": "Nama Lokasi",
+  "@publish_lblLocationName": {
+    "description": "Label for location name"
+  },
+  "publish_pinOnMapOptional": "Pin di Peta (opsional)",
+  "@publish_pinOnMapOptional": {
+    "description": "Label for pin on map optional"
+  },
+  "publish_tapToSelectLocationOptional": "Ketuk untuk memilih lokasi di peta (opsional)",
+  "@publish_tapToSelectLocationOptional": {
+    "description": "Hint for tap to select location"
+  },
+  "publish_locationSelected": "Lokasi Dipilih",
+  "@publish_locationSelected": {
+    "description": "Label when location selected"
+  },
+  "publish_scheduleSubtitle": "Kapan kegiatan ini berlangsung?",
+  "@publish_scheduleSubtitle": {
+    "description": "Subtitle for schedule section"
+  },
+  "publish_hintAdditionalNotes": "Detail lain yang perlu diketahui peserta",
+  "@publish_hintAdditionalNotes": {
+    "description": "Hint for additional notes"
+  },
+  "publish_eventSchedule": "Jadwal Kegiatan",
+  "@publish_eventSchedule": {
+    "description": "Label for event schedule header"
+  },
+  "publish_reminderSubtitle": "Kapan memberi notifikasi ke peserta",
+  "@publish_reminderSubtitle": {
+    "description": "Subtitle for reminder section"
+  },
+  "publish_announcementDetailsSubtitle": "Konten dan lampiran",
+  "@publish_announcementDetailsSubtitle": {
+    "description": "Subtitle for announcement details"
+  },
+  "publish_hintAnnouncement": "Tulis pengumuman Anda di sini...",
+  "@publish_hintAnnouncement": {
+    "description": "Hint for announcement input"
+  },
+  "publish_uploadFile": "Unggah File",
+  "@publish_uploadFile": {
+    "description": "Upload file label"
+  },
+  "publish_supportedFileTypes": "JPG, PNG, PDF, DOC, DOCX",
+  "@publish_supportedFileTypes": {
+    "description": "Supported file types label"
+  },
+  "publish_fillAllRequiredFields": "Silakan isi semua kolom yang wajib",
+  "@publish_fillAllRequiredFields": {
+    "description": "Validation message for missing required fields"
+  },
+  "publish_financialRecordSubtitle": "Opsional: Lampirkan pendapatan atau pengeluaran",
+  "@publish_financialRecordSubtitle": {
+    "description": "Subtitle for financial record section"
+  },
+  "publish_addFinancialRecord": "Tambah Catatan Keuangan",
+  "@publish_addFinancialRecord": {
+    "description": "Add financial record button label"
+  },
+  "publish_removeFinancialRecordTitle": "Hapus Catatan Keuangan?",
+  "@publish_removeFinancialRecordTitle": {
+    "description": "Confirm remove financial record title"
+  },
+  "publish_removeFinancialRecordContent": "Apakah Anda yakin ingin menghapus catatan keuangan ini? Tindakan ini tidak dapat dibatalkan.",
+  "@publish_removeFinancialRecordContent": {
+    "description": "Confirm remove financial record content"
+  },
+
+  "churchRequest_title": "Permohonan Pendaftaran Gereja",
+  "@churchRequest_title": {
+    "description": "Title for church registration request bottom sheet"
+  },
+  "churchRequest_description": "Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem kami.",
+  "@churchRequest_description": {
+    "description": "Description text for church registration request bottom sheet"
+  },
+  "churchRequest_requesterInformation": "Informasi Pemohon",
+  "@churchRequest_requesterInformation": {
+    "description": "Section title for requester information"
+  },
+  "churchRequest_churchInformation": "Informasi Gereja",
+  "@churchRequest_churchInformation": {
+    "description": "Section title for church information"
+  },
+  "churchRequest_hintEnterContactPersonName": "Masukkan nama narahubung",
+  "@churchRequest_hintEnterContactPersonName": {
+    "description": "Hint for contact person name input"
+  },
+  "churchRequest_hintPhoneExample": "0812-3456-7890",
+  "@churchRequest_hintPhoneExample": {
+    "description": "Hint/example for phone number input"
+  },
+  "churchRequest_submitting": "Mengirim...",
+  "@churchRequest_submitting": {
+    "description": "Button text while submitting church request"
+  },
+  "churchRequest_submitRequest": "Kirim Permintaan",
+  "@churchRequest_submitRequest": {
+    "description": "Submit button text for church request"
+  },
+  "churchRequest_fixErrorsBeforeSubmitting": "Silakan perbaiki kesalahan di atas sebelum mengirim",
+  "@churchRequest_fixErrorsBeforeSubmitting": {
+    "description": "Error message shown when validation fails before submitting"
+  },
+  "churchRequest_fillAllRequiredFieldsCorrectly": "Silakan isi semua kolom wajib dengan benar",
+  "@churchRequest_fillAllRequiredFieldsCorrectly": {
+    "description": "Error message shown when form state validation fails"
+  },
+  "churchRequest_submittedSuccessfully": "Permohonan pendaftaran gereja berhasil dikirim!",
+  "@churchRequest_submittedSuccessfully": {
+    "description": "Success message when church request is submitted"
+  },
+  "churchRequest_validation_completeAddress": "Silakan masukkan alamat lengkap",
+  "@churchRequest_validation_completeAddress": {
+    "description": "Validation message when address is too short"
+  },
+  "churchRequest_validation_phoneMinDigits": "Nomor telepon minimal {min} digit",
+  "@churchRequest_validation_phoneMinDigits": {
+    "description": "Validation message when phone number is too short",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "churchRequest_validation_phoneMaxDigits": "Nomor telepon maksimal {max} digit",
+  "@churchRequest_validation_phoneMaxDigits": {
+    "description": "Validation message when phone number is too long",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "churchRequest_validation_phoneMustStartWithZero": "Nomor telepon harus diawali 0",
+  "@churchRequest_validation_phoneMustStartWithZero": {
+    "description": "Validation message when phone number does not start with 0"
+  },
+  "churchRequest_errorWithDetail": "Kesalahan: {error}",
+  "@churchRequest_errorWithDetail": {
+    "description": "Error message with detail for church request",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "hint_enterChurchName": "Masukkan nama gereja",
+  "@hint_enterChurchName": {
+    "description": "Hint for church name field"
+  },
+  "hint_enterPhoneNumber": "Masukkan nomor telepon",
+  "@hint_enterPhoneNumber": {
+    "description": "Hint for phone number field"
+  },
+  "hint_enterEmailAddress": "Masukkan alamat email",
+  "@hint_enterEmailAddress": {
+    "description": "Hint for email address field"
+  },
+  "hint_describeYourChurch": "Deskripsikan gereja Anda (terlihat oleh anggota)",
+  "@hint_describeYourChurch": {
+    "description": "Hint for church description field"
+  },
+  "hint_enterChurchAddress": "Masukkan alamat gereja",
+  "@hint_enterChurchAddress": {
+    "description": "Hint for church address field"
+  },
+  "hint_latitudeExample": "contoh: -6.1754",
+  "@hint_latitudeExample": {
+    "description": "Hint for latitude field with example"
+  },
+  "hint_longitudeExample": "contoh: 106.8272",
+  "@hint_longitudeExample": {
+    "description": "Hint for longitude field with example"
+  },
+  "hint_enterAccountNumber": "Masukkan nomor akun",
+  "@hint_enterAccountNumber": {
+    "description": "Hint for account number field"
+  },
+  "hint_enterDescription": "Masukkan deskripsi",
+  "@hint_enterDescription": {
+    "description": "Hint for description field"
+  },
+  "hint_enterColumnName": "Masukkan nama kolom",
+  "@hint_enterColumnName": {
+    "description": "Hint for column name field"
+  },
+  "hint_enterPositionName": "Masukkan nama jabatan",
+  "@hint_enterPositionName": {
+    "description": "Hint for position name field"
+  },
+  "hint_enterMemberName": "Masukkan nama anggota",
+  "@hint_enterMemberName": {
+    "description": "Hint for member name field"
+  },
+  "hint_enterFullName": "Masukkan nama lengkap Anda",
+  "@hint_enterFullName": {
+    "description": "Hint for full name field"
+  },
+  "hint_enterYourPhoneNumber": "Masukkan nomor telepon Anda",
+  "@hint_enterYourPhoneNumber": {
+    "description": "Hint for your phone number field"
+  },
+  "hint_enterYourPosition": "Masukkan jabatan Anda",
+  "@hint_enterYourPosition": {
+    "description": "Hint for your position field"
+  },
+  "hint_enterCurrentPassword": "Masukkan kata sandi saat ini",
+  "@hint_enterCurrentPassword": {
+    "description": "Hint for current password field"
+  },
+  "hint_enterNewPassword": "Masukkan kata sandi baru",
+  "@hint_enterNewPassword": {
+    "description": "Hint for new password field"
+  },
+  "hint_reEnterNewPassword": "Masukkan ulang kata sandi baru",
+  "@hint_reEnterNewPassword": {
+    "description": "Hint for re-enter new password field"
+  },
+  "hint_documentIdExample": "contoh: DOC-2024-001",
+  "@hint_documentIdExample": {
+    "description": "Hint for document ID field with example"
+  },
+  "hint_approvalRuleExample": "contoh: Transaksi Keuangan",
+  "@hint_approvalRuleExample": {
+    "description": "Hint for approval rule field with example"
+  },
+  "hint_describeApprovalRule": "Deskripsikan kapan persetujuan ini diperlukan",
+  "@hint_describeApprovalRule": {
+    "description": "Hint for approval rule description field"
+  },
+  "hint_allActivityTypes": "Semua jenis kegiatan",
+  "@hint_allActivityTypes": {
+    "description": "Hint for all activity types option"
+  },
+  "hint_noFinancialFilter": "Tanpa filter keuangan",
+  "@hint_noFinancialFilter": {
+    "description": "Hint for no financial filter option"
+  },
+  "hint_selectPositionsToApprove": "Pilih jabatan untuk menyetujui...",
+  "@hint_selectPositionsToApprove": {
+    "description": "Hint for select positions to approve field"
+  },
+  "hint_signInCredentials": "contoh: nama@perusahaan.com atau 1234-5678-9012",
+  "@hint_signInCredentials": {
+    "description": "Hint for sign in credentials field"
+  },
+  "hint_searchApprovalRules": "Cari aturan persetujuan...",
+  "@hint_searchApprovalRules": {
+    "description": "Hint for search approval rules field"
+  },
+  "hint_searchBillingItems": "Cari item tagihan...",
+  "@hint_searchBillingItems": {
+    "description": "Hint for search billing items field"
+  },
+  "hint_searchByAccountNumber": "Cari berdasarkan nomor akun, judul kegiatan...",
+  "@hint_searchByAccountNumber": {
+    "description": "Hint for search by account number field"
+  },
+  "hint_searchByReportName": "Cari berdasarkan nama laporan...",
+  "@hint_searchByReportName": {
+    "description": "Hint for search by report name field"
+  },
+  "hint_searchNameColumnPosition": "Cari nama / kolom / jabatan ...",
+  "@hint_searchNameColumnPosition": {
+    "description": "Hint for search name/column/position field"
+  },
+  "hint_searchByTitleDescription": "Cari berdasarkan judul, deskripsi, atau nama supervisor ...",
+  "@hint_searchByTitleDescription": {
+    "description": "Hint for search by title description field"
+  },
+  "hint_searchAccountNumberDescription": "Cari nomor akun atau deskripsi...",
+  "@hint_searchAccountNumberDescription": {
+    "description": "Hint for search account number/description field"
+  },
+
+  "dlg_selectPosition_title": "Pilih Jabatan",
+  "@dlg_selectPosition_title": {
+    "description": "Dialog title for selecting a position"
+  },
+  "hint_searchPositions": "Cari berdasarkan nama jabatan",
+  "@hint_searchPositions": {
+    "description": "Hint for searching positions"
+  },
+
+  "dlg_deleteRule_title": "Hapus Aturan",
+  "@dlg_deleteRule_title": {
+    "description": "Title for delete rule confirmation dialog"
+  },
+  "dlg_deleteRule_content": "Apakah Anda yakin ingin menghapus aturan persetujuan ini?",
+  "@dlg_deleteRule_content": {
+    "description": "Content for delete rule confirmation dialog"
+  },
+  "dlg_deleteMember_title": "Hapus Anggota",
+  "@dlg_deleteMember_title": {
+    "description": "Title for delete member confirmation dialog"
+  },
+  "dlg_deleteMember_content": "Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.",
+  "@dlg_deleteMember_content": {
+    "description": "Content for delete member confirmation dialog"
+  },
+  "dlg_deletePosition_title": "Hapus Jabatan",
+  "@dlg_deletePosition_title": {
+    "description": "Title for delete position confirmation dialog"
+  },
+  "dlg_deletePosition_content": "Apakah Anda yakin ingin menghapus jabatan ini? Tindakan ini tidak dapat dibatalkan.",
+  "@dlg_deletePosition_content": {
+    "description": "Content for delete position confirmation dialog"
+  },
+  "dlg_deleteColumn_title": "Hapus Kolom",
+  "@dlg_deleteColumn_title": {
+    "description": "Title for delete column confirmation dialog"
+  },
+  "dlg_deleteColumn_content": "Apakah Anda yakin ingin menghapus kolom ini? Tindakan ini tidak dapat dibatalkan.",
+  "@dlg_deleteColumn_content": {
+    "description": "Content for delete column confirmation dialog"
+  },
+  "dlg_signOut_title": "Keluar",
+  "@dlg_signOut_title": {
+    "description": "Title for sign out confirmation dialog"
+  },
+  "dlg_signOut_content": "Apakah Anda yakin ingin keluar?",
+  "@dlg_signOut_content": {
+    "description": "Content for sign out confirmation dialog"
+  },
+  "dlg_recordPayment_title": "Catat Pembayaran",
+  "@dlg_recordPayment_title": {
+    "description": "Title for record payment dialog"
+  },
+  "dlg_confirmAction_title": "Konfirmasi Tindakan",
+  "@dlg_confirmAction_title": {
+    "description": "Generic title for action confirmation dialog"
+  },
+  "dlg_confirmDelete_title": "Konfirmasi Hapus",
+  "@dlg_confirmDelete_title": {
+    "description": "Generic title for delete confirmation dialog"
+  },
+
+  "tbl_billId": "ID Tagihan",
+  "@tbl_billId": {
+    "description": "Table column header for bill ID"
+  },
+  "tbl_description": "Deskripsi",
+  "@tbl_description": {
+    "description": "Table column header for description"
+  },
+  "tbl_amount": "Jumlah",
+  "@tbl_amount": {
+    "description": "Table column header for amount"
+  },
+  "tbl_dueDate": "Tanggal Jatuh Tempo",
+  "@tbl_dueDate": {
+    "description": "Table column header for due date"
+  },
+  "tbl_status": "Status",
+  "@tbl_status": {
+    "description": "Table column header for status"
+  },
+  "tbl_paymentId": "ID Pembayaran",
+  "@tbl_paymentId": {
+    "description": "Table column header for payment ID"
+  },
+  "tbl_accountId": "ID Akun",
+  "@tbl_accountId": {
+    "description": "Table column header for account ID"
+  },
+  "tbl_method": "Metode",
+  "@tbl_method": {
+    "description": "Table column header for method"
+  },
+  "tbl_date": "Tanggal",
+  "@tbl_date": {
+    "description": "Table column header for date"
+  },
+  "tbl_accountNumber": "Nomor Akun",
+  "@tbl_accountNumber": {
+    "description": "Table column header for account number"
+  },
+  "tbl_activity": "Kegiatan",
+  "@tbl_activity": {
+    "description": "Table column header for activity"
+  },
+  "tbl_requestDate": "Tanggal Permintaan",
+  "@tbl_requestDate": {
+    "description": "Table column header for request date"
+  },
+  "tbl_approvalDate": "Tanggal Persetujuan",
+  "@tbl_approvalDate": {
+    "description": "Table column header for approval date"
+  },
+  "tbl_paymentMethod": "Metode Pembayaran",
+  "@tbl_paymentMethod": {
+    "description": "Table column header for payment method"
+  },
+  "tbl_title": "Judul",
+  "@tbl_title": {
+    "description": "Table column header for title"
+  },
+  "tbl_type": "Jenis",
+  "@tbl_type": {
+    "description": "Table column header for type"
+  },
+  "tbl_supervisor": "Supervisor",
+  "@tbl_supervisor": {
+    "description": "Table column header for supervisor"
+  },
+  "tbl_approval": "Persetujuan",
+  "@tbl_approval": {
+    "description": "Table column header for approval"
+  },
+  "tbl_approvers": "Penyetuju",
+  "@tbl_approvers": {
+    "description": "Table column header for approvers"
+  },
+  "tbl_name": "Nama",
+  "@tbl_name": {
+    "description": "Table column header for name"
+  },
+  "tbl_phone": "Telepon",
+  "@tbl_phone": {
+    "description": "Table column header for phone"
+  },
+  "tbl_birth": "Lahir",
+  "@tbl_birth": {
+    "description": "Table column header for birth"
+  },
+  "tbl_bipra": "BIPRA",
+  "@tbl_bipra": {
+    "description": "Table column header for BIPRA"
+  },
+  "tbl_positions": "Jabatan",
+  "@tbl_positions": {
+    "description": "Table column header for positions"
+  },
+  "tbl_ruleName": "Nama Aturan",
+  "@tbl_ruleName": {
+    "description": "Table column header for rule name"
+  },
+  "tbl_filters": "Filter",
+  "@tbl_filters": {
+    "description": "Table column header for filters"
+  },
+  "tbl_documentName": "Nama Dokumen",
+  "@tbl_documentName": {
+    "description": "Table column header for document name"
+  },
+  "tbl_createdDate": "Tanggal Dibuat",
+  "@tbl_createdDate": {
+    "description": "Table column header for created date"
+  },
+  "tbl_reportName": "Nama Laporan",
+  "@tbl_reportName": {
+    "description": "Table column header for report name"
+  },
+  "tbl_by": "Oleh",
+  "@tbl_by": {
+    "description": "Table column header for by"
+  },
+  "tbl_on": "Pada",
+  "@tbl_on": {
+    "description": "Table column header for on"
+  },
+  "tbl_file": "File",
+  "@tbl_file": {
+    "description": "Table column header for file"
+  },
+
+  "opt_manual": "Manual",
+  "@opt_manual": {
+    "description": "Option label for manual generated by"
+  },
+  "opt_system": "Sistem",
+  "@opt_system": {
+    "description": "Option label for system generated by"
+  },
+
+  "reportType_incomingDocument": "Dokumen Masuk",
+  "@reportType_incomingDocument": {
+    "description": "Generate report card title for incoming document"
+  },
+  "reportTitle_incomingDocument": "Laporan Dokumen Masuk",
+  "@reportTitle_incomingDocument": {
+    "description": "Report drawer title for incoming document report"
+  },
+  "reportDesc_incomingDocument": "Buat laporan untuk dokumen yang diterima.",
+  "@reportDesc_incomingDocument": {
+    "description": "Report drawer description for incoming document report"
+  },
+  "reportType_congregation": "Jemaat",
+  "@reportType_congregation": {
+    "description": "Generate report card title for congregation"
+  },
+  "reportTitle_congregation": "Laporan Jemaat",
+  "@reportTitle_congregation": {
+    "description": "Report drawer title for congregation report"
+  },
+  "reportDesc_congregation": "Buat laporan mengenai jemaat.",
+  "@reportDesc_congregation": {
+    "description": "Report drawer description for congregation report"
+  },
+  "reportType_services": "Ibadah",
+  "@reportType_services": {
+    "description": "Generate report card title for services"
+  },
+  "reportTitle_services": "Laporan Ibadah",
+  "@reportTitle_services": {
+    "description": "Report drawer title for services report"
+  },
+  "reportDesc_services": "Buat laporan untuk semua ibadah.",
+  "@reportDesc_services": {
+    "description": "Report drawer description for services report"
+  },
+  "reportType_activity": "Kegiatan",
+  "@reportType_activity": {
+    "description": "Generate report card title for activity"
+  },
+  "reportTitle_activity": "Laporan Kegiatan",
+  "@reportTitle_activity": {
+    "description": "Report drawer title for activity report"
+  },
+  "reportDesc_activity": "Buat laporan untuk semua kegiatan.",
+  "@reportDesc_activity": {
+    "description": "Report drawer description for activity report"
+  },
+  "tbl_linkedApprovalRule": "Aturan Persetujuan Terkait",
+  "@tbl_linkedApprovalRule": {
+    "description": "Table column header for linked approval rule"
+  },
+
+  "filter_allStatus": "Semua Status",
+  "@filter_allStatus": {
+    "description": "Filter option for all status"
+  },
+  "filter_allActivityTypes": "Semua jenis kegiatan",
+  "@filter_allActivityTypes": {
+    "description": "Filter option for all activity types"
+  },
+  "filter_noFinancialFilter": "Tanpa filter keuangan",
+  "@filter_noFinancialFilter": {
+    "description": "Filter option for no financial filter"
+  },
+  "filter_paymentMethod": "Metode Pembayaran",
+  "@filter_paymentMethod": {
+    "description": "Filter label for payment method"
+  },
+
+  "filter_items": "Item",
+  "@filter_items": {
+    "description": "Generic dropdown label for items"
+  },
+  "filter_allPositions": "Semua Jabatan",
+  "@filter_allPositions": {
+    "description": "Filter option for all positions"
+  },
+  "filter_allWithLabel": "Semua {label}",
+  "@filter_allWithLabel": {
+    "description": "Generic dropdown option for selecting all items by label",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tooltip_clearSearch": "Hapus pencarian",
+  "@tooltip_clearSearch": {
+    "description": "Tooltip for clearing search"
+  },
+  "msg_tryDifferentSearchTerm": "Coba kata kunci pencarian lain",
+  "@msg_tryDifferentSearchTerm": {
+    "description": "Message prompting user to try a different search term"
+  },
+
+  "pagination_showingRows": "Menampilkan {showing} dari {total} baris",
+  "@pagination_showingRows": {
+    "description": "Pagination summary text showing rows",
+    "placeholders": {
+      "showing": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pagination_rowsPerPage": "Baris per halaman",
+  "@pagination_rowsPerPage": {
+    "description": "Label for rows per page selector"
+  },
+  "pagination_page": "Halaman",
+  "@pagination_page": {
+    "description": "Label for page selector"
+  },
+  "pagination_ofPageCount": "dari {pageCount}",
+  "@pagination_ofPageCount": {
+    "description": "Pagination label showing total page count",
+    "placeholders": {
+      "pageCount": {
+        "type": "int"
+      }
+    }
+  },
+  "pagination_previous": "Sebelumnya",
+  "@pagination_previous": {
+    "description": "Button text for previous page"
+  },
+  "pagination_next": "Berikutnya",
+  "@pagination_next": {
+    "description": "Button text for next page"
+  },
+
+  "dateRangeFilter_quickRangesTooltip": "Rentang cepat",
+  "@dateRangeFilter_quickRangesTooltip": {
+    "description": "Tooltip for quick date ranges"
+  },
+  "dateRangeFilter_thisWeek": "Minggu ini",
+  "@dateRangeFilter_thisWeek": {
+    "description": "Quick date range option for this week"
+  },
+  "dateRangeFilter_lastWeek": "Minggu lalu",
+  "@dateRangeFilter_lastWeek": {
+    "description": "Quick date range option for last week"
+  },
+  "dateRangeFilter_thisMonth": "Bulan ini",
+  "@dateRangeFilter_thisMonth": {
+    "description": "Quick date range option for this month"
+  },
+  "dateRangeFilter_lastMonth": "Bulan lalu",
+  "@dateRangeFilter_lastMonth": {
+    "description": "Quick date range option for last month"
+  },
+  "dateRangeFilter_clearTooltip": "Hapus rentang tanggal",
+  "@dateRangeFilter_clearTooltip": {
+    "description": "Tooltip for clearing selected date range"
+  },
+
+  "msg_saved": "Berhasil disimpan",
+  "@msg_saved": {
+    "description": "Success message for saved operation"
+  },
+  "msg_created": "Berhasil dibuat",
+  "@msg_created": {
+    "description": "Success message for created operation"
+  },
+  "msg_updated": "Berhasil diperbarui",
+  "@msg_updated": {
+    "description": "Success message for updated operation"
+  },
+  "msg_deleted": "Berhasil dihapus",
+  "@msg_deleted": {
+    "description": "Success message for deleted operation"
+  },
+  "msg_approvalRuleCreated": "Aturan persetujuan berhasil dibuat",
+  "@msg_approvalRuleCreated": {
+    "description": "Success message for approval rule created"
+  },
+  "msg_approvalRuleUpdated": "Aturan persetujuan berhasil diperbarui",
+  "@msg_approvalRuleUpdated": {
+    "description": "Success message for approval rule updated"
+  },
+  "msg_approvalRuleDeleted": "Aturan persetujuan berhasil dihapus",
+  "@msg_approvalRuleDeleted": {
+    "description": "Success message for approval rule deleted"
+  },
+  "msg_recordedPayment": "Pembayaran berhasil dicatat",
+  "@msg_recordedPayment": {
+    "description": "Success message for recorded payment"
+  },
+  "msg_templateUpdated": "Template berhasil diperbarui",
+  "@msg_templateUpdated": {
+    "description": "Success message for template update"
+  },
+  "msg_documentTemplateWarning": "Mengubah template nomor identitas dapat menyebabkan beberapa nomor terlewati.",
+  "@msg_documentTemplateWarning": {
+    "description": "Warning about changing document identity template"
+  },
+  "msg_reportGenerated": "Laporan berhasil dibuat",
+  "@msg_reportGenerated": {
+    "description": "Success message for report generation"
+  },
+  "msg_signedOut": "Berhasil keluar",
+  "@msg_signedOut": {
+    "description": "Success message for sign out"
+  },
+  "msg_passwordChanged": "Kata sandi berhasil diubah",
+  "@msg_passwordChanged": {
+    "description": "Success message for password change"
+  },
+  "msg_accountUpdated": "Informasi akun berhasil diperbarui",
+  "@msg_accountUpdated": {
+    "description": "Success message for account update"
+  },
+  "msg_activityNotFound": "Kegiatan tidak ditemukan",
+  "@msg_activityNotFound": {
+    "description": "Message when activity is not found"
+  },
+  "msg_activityApproved": "Kegiatan berhasil disetujui",
+  "@msg_activityApproved": {
+    "description": "Success message for approving an activity"
+  },
+  "msg_activityRejected": "Kegiatan berhasil ditolak",
+  "@msg_activityRejected": {
+    "description": "Success message for rejecting an activity"
+  },
+  "msg_generatedOn": "Dibuat pada {date}",
+  "@msg_generatedOn": {
+    "description": "Generated on label",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_noGenerationDate": "Tidak ada tanggal pembuatan",
+  "@msg_noGenerationDate": {
+    "description": "Message when generation date is not available"
+  },
+  "msg_exportComingSoon": "Fitur ekspor akan segera hadir",
+  "@msg_exportComingSoon": {
+    "description": "Message for export coming soon"
+  },
+  "msg_downloadReportToViewDetails": "Untuk melihat detail laporan lengkap, silakan unduh file.",
+  "@msg_downloadReportToViewDetails": {
+    "description": "Note to download report to view details"
+  },
+  "msg_willBeRemindedAt": "Akan diingatkan pada {reminderDate}",
+  "@msg_willBeRemindedAt": {
+    "description": "Message for reminder schedule",
+    "placeholders": {
+      "reminderDate": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_approverCount": "{count} penyetuju",
+  "@msg_approverCount": {
+    "description": "Approver count label",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msg_opening": "Membuka...",
+  "@msg_opening": {
+    "description": "Message for opening"
+  },
+  "msg_openingReport": "Membuka {reportName}...",
+  "@msg_openingReport": {
+    "description": "Message for opening a report",
+    "placeholders": {
+      "reportName": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_cannotOpenReportFile": "Tidak dapat membuka file laporan.",
+  "@msg_cannotOpenReportFile": {
+    "description": "Error message when report file cannot be opened"
+  },
+  "msg_reportGenerationMayTakeAWhile": "Pembuatan laporan mungkin membutuhkan waktu, tergantung data yang diminta.",
+  "@msg_reportGenerationMayTakeAWhile": {
+    "description": "Info message about report generation duration"
+  },
+
+  "msg_saveFailed": "Gagal menyimpan",
+  "@msg_saveFailed": {
+    "description": "Error message for save failure"
+  },
+  "msg_createFailed": "Gagal membuat",
+  "@msg_createFailed": {
+    "description": "Error message for create failure"
+  },
+  "msg_updateFailed": "Gagal memperbarui",
+  "@msg_updateFailed": {
+    "description": "Error message for update failure"
+  },
+  "msg_deleteFailed": "Gagal menghapus",
+  "@msg_deleteFailed": {
+    "description": "Error message for delete failure"
+  },
+  "msg_createApprovalRuleFailed": "Gagal membuat aturan persetujuan",
+  "@msg_createApprovalRuleFailed": {
+    "description": "Error message for approval rule creation failure"
+  },
+  "msg_updateApprovalRuleFailed": "Gagal memperbarui aturan persetujuan",
+  "@msg_updateApprovalRuleFailed": {
+    "description": "Error message for approval rule update failure"
+  },
+  "msg_deleteApprovalRuleFailed": "Gagal menghapus aturan persetujuan",
+  "@msg_deleteApprovalRuleFailed": {
+    "description": "Error message for approval rule deletion failure"
+  },
+  "msg_recordPaymentFailed": "Gagal mencatat pembayaran",
+  "@msg_recordPaymentFailed": {
+    "description": "Error message for payment recording failure"
+  },
+  "msg_generateReportFailed": "Gagal membuat laporan",
+  "@msg_generateReportFailed": {
+    "description": "Error message for report generation failure"
+  },
+  "msg_invalidPassword": "Kata sandi harus minimal 6 karakter",
+  "@msg_invalidPassword": {
+    "description": "Error message for invalid password"
+  },
+  "msg_passwordMismatch": "Kata sandi tidak cocok",
+  "@msg_passwordMismatch": {
+    "description": "Error message for password mismatch"
+  },
+  "msg_invalidUrl": "URL tidak valid",
+  "@msg_invalidUrl": {
+    "description": "Error message for invalid URL"
+  },
+  "msg_operationFailed": "Operasi gagal",
+  "@msg_operationFailed": {
+    "description": "Generic error message for operation failure"
+  },
+  "msg_serverError": "Kesalahan Server",
+  "@msg_serverError": {
+    "description": "Error title for server error"
+  },
+  "msg_badRequest": "Permintaan Tidak Valid",
+  "@msg_badRequest": {
+    "description": "Error title for bad request"
+  },
+  "msg_unauthorized": "Tidak Diotorisasi",
+  "@msg_unauthorized": {
+    "description": "Error title for unauthorized"
+  },
+  "msg_forbidden": "Akses Ditolak",
+  "@msg_forbidden": {
+    "description": "Error title for forbidden"
+  },
+  "msg_notFound": "Tidak Ditemukan",
+  "@msg_notFound": {
+    "description": "Error title for not found"
+  },
+  "msg_conflict": "Konflik",
+  "@msg_conflict": {
+    "description": "Error title for conflict"
+  },
+  "msg_validationError": "Kesalahan Validasi",
+  "@msg_validationError": {
+    "description": "Error title for validation error"
+  },
+  "msg_tooManyRequests": "Terlalu Banyak Permintaan",
+  "@msg_tooManyRequests": {
+    "description": "Error title for too many requests"
+  },
+  "msg_error": "Kesalahan",
+  "@msg_error": {
+    "description": "Generic error title"
+  },
+  "msg_checkInput": "Periksa masukan Anda",
+  "@msg_checkInput": {
+    "description": "Error hint for bad request"
+  },
+  "msg_signInAgain": "Silakan masuk kembali",
+  "@msg_signInAgain": {
+    "description": "Error hint for unauthorized"
+  },
+  "msg_insufficientPermissions": "Izin tidak mencukupi",
+  "@msg_insufficientPermissions": {
+    "description": "Error hint for forbidden"
+  },
+  "msg_resourceNotFound": "Sumber daya tidak ditemukan",
+  "@msg_resourceNotFound": {
+    "description": "Error hint for not found"
+  },
+  "msg_stateConflict": "Konflik status",
+  "@msg_stateConflict": {
+    "description": "Error hint for conflict"
+  },
+  "msg_validationFailed": "Validasi gagal",
+  "@msg_validationFailed": {
+    "description": "Error hint for validation error"
+  },
+  "msg_slowDown": "Perlambat",
+  "@msg_slowDown": {
+    "description": "Error hint for too many requests"
+  },
+  "msg_tryAgainLater": "Silakan coba lagi nanti",
+  "@msg_tryAgainLater": {
+    "description": "Error hint for server error"
+  },
+
+  "validation_required": "Kolom ini wajib diisi",
+  "@validation_required": {
+    "description": "Generic required field validation message"
+  },
+  "validation_requiredField": "Kolom ini wajib diisi",
+  "@validation_requiredField": {
+    "description": "Required field validation message"
+  },
+  "validation_invalidEmail": "Silakan masukkan alamat email yang valid",
+  "@validation_invalidEmail": {
+    "description": "Invalid email validation message"
+  },
+  "validation_invalidPhone": "Silakan masukkan nomor telepon yang valid",
+  "@validation_invalidPhone": {
+    "description": "Invalid phone validation message"
+  },
+  "validation_invalidUrl": "Silakan masukkan URL yang valid",
+  "@validation_invalidUrl": {
+    "description": "Invalid URL validation message"
+  },
+  "validation_invalidNumber": "Silakan masukkan angka yang valid",
+  "@validation_invalidNumber": {
+    "description": "Invalid number validation message"
+  },
+  "validation_invalidDate": "Silakan masukkan tanggal yang valid",
+  "@validation_invalidDate": {
+    "description": "Invalid date validation message"
+  },
+  "validation_minLength": "Harus minimal {min} karakter",
+  "@validation_minLength": {
+    "description": "Minimum length validation message",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_maxLength": "Maksimal {max} karakter",
+  "@validation_maxLength": {
+    "description": "Maximum length validation message",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_passwordTooShort": "Kata sandi harus minimal 6 karakter",
+  "@validation_passwordTooShort": {
+    "description": "Password too short validation message"
+  },
+  "validation_passwordTooWeak": "Kata sandi harus mengandung minimal satu huruf besar, satu huruf kecil, dan satu angka",
+  "@validation_passwordTooWeak": {
+    "description": "Password too weak validation message"
+  },
+  "validation_passwordMismatch": "Kata sandi tidak cocok",
+  "@validation_passwordMismatch": {
+    "description": "Password mismatch validation message"
+  },
+  "validation_confirmPassword": "Silakan konfirmasi kata sandi Anda",
+  "@validation_confirmPassword": {
+    "description": "Confirm password validation message"
+  },
+  "validation_currentPasswordRequired": "Kata sandi saat ini diperlukan",
+  "@validation_currentPasswordRequired": {
+    "description": "Current password required validation message"
+  },
+  "validation_newPasswordRequired": "Kata sandi baru diperlukan",
+  "@validation_newPasswordRequired": {
+    "description": "New password required validation message"
+  },
+  "validation_invalidAmount": "Silakan masukkan jumlah yang valid",
+  "@validation_invalidAmount": {
+    "description": "Invalid amount validation message"
+  },
+  "validation_amountTooLow": "Jumlah harus lebih besar dari 0",
+  "@validation_amountTooLow": {
+    "description": "Amount too low validation message"
+  },
+  "validation_amountTooHigh": "Jumlah melebihi batas maksimum",
+  "@validation_amountTooHigh": {
+    "description": "Amount too high validation message"
+  },
+  "validation_invalidAccountNumber": "Silakan masukkan nomor akun yang valid",
+  "@validation_invalidAccountNumber": {
+    "description": "Invalid account number validation message"
+  },
+  "validation_accountNumberExists": "Nomor akun ini sudah ada",
+  "@validation_accountNumberExists": {
+    "description": "Account number exists validation message"
+  },
+  "validation_nameRequired": "Nama diperlukan",
+  "@validation_nameRequired": {
+    "description": "Name required validation message"
+  },
+  "validation_titleRequired": "Judul diperlukan",
+  "@validation_titleRequired": {
+    "description": "Title required validation message"
+  },
+  "validation_descriptionRequired": "Deskripsi diperlukan",
+  "@validation_descriptionRequired": {
+    "description": "Description required validation message"
+  },
+  "validation_addressRequired": "Alamat diperlukan",
+  "@validation_addressRequired": {
+    "description": "Address required validation message"
+  },
+  "validation_phoneRequired": "Nomor telepon diperlukan",
+  "@validation_phoneRequired": {
+    "description": "Phone required validation message"
+  },
+  "validation_emailRequired": "Alamat email diperlukan",
+  "@validation_emailRequired": {
+    "description": "Email required validation message"
+  },
+  "validation_dateRequired": "Tanggal diperlukan",
+  "@validation_dateRequired": {
+    "description": "Date required validation message"
+  },
+  "validation_timeRequired": "Waktu diperlukan",
+  "@validation_timeRequired": {
+    "description": "Time required validation message"
+  },
+  "validation_selectionRequired": "Silakan buat pilihan",
+  "@validation_selectionRequired": {
+    "description": "Selection required validation message"
+  },
+  "validation_churchRequired": "Silakan pilih gereja",
+  "@validation_churchRequired": {
+    "description": "Church required validation message"
+  },
+  "validation_columnRequired": "Silakan pilih kolom",
+  "@validation_columnRequired": {
+    "description": "Column required validation message"
+  },
+  "validation_positionRequired": "Silakan pilih jabatan",
+  "@validation_positionRequired": {
+    "description": "Position required validation message"
+  },
+  "validation_activityTypeRequired": "Silakan pilih jenis kegiatan",
+  "@validation_activityTypeRequired": {
+    "description": "Activity type required validation message"
+  },
+  "validation_financialTypeRequired": "Silakan pilih jenis keuangan",
+  "@validation_financialTypeRequired": {
+    "description": "Financial type required validation message"
+  },
+  "validation_approverRequired": "Minimal satu penyetuju diperlukan",
+  "@validation_approverRequired": {
+    "description": "Approver required validation message"
+  },
+  "validation_ruleNameRequired": "Nama aturan diperlukan",
+  "@validation_ruleNameRequired": {
+    "description": "Rule name required validation message"
+  },
+  "validation_positionsRequired": "Minimal satu posisi harus dipilih",
+  "@validation_positionsRequired": {
+    "description": "Positions required validation message"
+  },
+  "validation_financialAccountRequired": "Nomor akun keuangan diperlukan ketika jenis keuangan dipilih",
+  "@validation_financialAccountRequired": {
+    "description": "Financial account required validation message"
+  },
+  "validation_duplicateEntry": "Entri ini sudah ada",
+  "@validation_duplicateEntry": {
+    "description": "Duplicate entry validation message"
+  },
+  "validation_invalidFormat": "Format tidak valid",
+  "@validation_invalidFormat": {
+    "description": "Invalid format validation message"
+  },
+  "validation_futureDate": "Tanggal harus di masa depan",
+  "@validation_futureDate": {
+    "description": "Future date validation message"
+  },
+  "validation_pastDate": "Tanggal harus di masa lalu",
+  "@validation_pastDate": {
+    "description": "Past date validation message"
+  },
+  "validation_invalidRange": "Rentang tanggal tidak valid",
+  "@validation_invalidRange": {
+    "description": "Invalid range validation message"
+  },
+  "validation_startDateAfterEnd": "Tanggal mulai harus sebelum tanggal akhir",
+  "@validation_startDateAfterEnd": {
+    "description": "Start date after end validation message"
+  },
+  "validation_coordinatesRequired": "Koordinat diperlukan",
+  "@validation_coordinatesRequired": {
+    "description": "Coordinates required validation message"
+  },
+  "validation_invalidLatitude": "Lintang harus antara -90 dan 90",
+  "@validation_invalidLatitude": {
+    "description": "Invalid latitude validation message"
+  },
+  "validation_invalidLongitude": "Bujur harus antara -180 dan 180",
+  "@validation_invalidLongitude": {
+    "description": "Invalid longitude validation message"
+  },
+
+  "loading_data": "Memuat data...",
+  "@loading_data": {
+    "description": "Loading message for data"
+  },
+  "loading_members": "Memuat anggota...",
+  "@loading_members": {
+    "description": "Loading message for members"
+  },
+  "loading_activities": "Memuat kegiatan...",
+  "@loading_activities": {
+    "description": "Loading message for activities"
+  },
+  "loading_revenue": "Memuat pendapatan...",
+  "@loading_revenue": {
+    "description": "Loading message for revenue"
+  },
+  "loading_expenses": "Memuat pengeluaran...",
+  "@loading_expenses": {
+    "description": "Loading message for expenses"
+  },
+  "loading_reports": "Memuat laporan...",
+  "@loading_reports": {
+    "description": "Loading message for reports"
+  },
+  "loading_documents": "Memuat dokumen...",
+  "@loading_documents": {
+    "description": "Loading message for documents"
+  },
+  "loading_approvals": "Memuat persetujuan...",
+  "@loading_approvals": {
+    "description": "Loading message for approvals"
+  },
+  "loading_billing": "Memuat tagihan...",
+  "@loading_billing": {
+    "description": "Loading message for billing"
+  },
+  "loading_financial": "Memuat data keuangan...",
+  "@loading_financial": {
+    "description": "Loading message for financial data"
+  },
+  "loading_church": "Memuat informasi gereja...",
+  "@loading_church": {
+    "description": "Loading message for church information"
+  },
+  "loading_account": "Memuat informasi akun...",
+  "@loading_account": {
+    "description": "Loading message for account information"
+  },
+  "loading_please_wait": "Mohon tunggu...",
+  "@loading_please_wait": {
+    "description": "Loading message for please wait"
+  },
+  "loading_saving": "Menyimpan...",
+  "@loading_saving": {
+    "description": "Loading message for saving"
+  },
+  "loading_deleting": "Menghapus...",
+  "@loading_deleting": {
+    "description": "Loading message for deleting"
+  },
+
+  "error_loadingData": "Gagal memuat data",
+  "@error_loadingData": {
+    "description": "Error message for loading data"
+  },
+  "error_loadingMembers": "Gagal memuat anggota",
+  "@error_loadingMembers": {
+    "description": "Error message for loading members"
+  },
+  "error_loadingActivities": "Gagal memuat kegiatan",
+  "@error_loadingActivities": {
+    "description": "Error message for loading activities"
+  },
+  "error_loadingRevenue": "Gagal memuat pendapatan",
+  "@error_loadingRevenue": {
+    "description": "Error message for loading revenue"
+  },
+  "error_loadingExpenses": "Gagal memuat pengeluaran",
+  "@error_loadingExpenses": {
+    "description": "Error message for loading expenses"
+  },
+  "error_loadingReports": "Gagal memuat laporan",
+  "@error_loadingReports": {
+    "description": "Error message for loading reports"
+  },
+  "error_loadingDocuments": "Gagal memuat dokumen",
+  "@error_loadingDocuments": {
+    "description": "Error message for loading documents"
+  },
+  "error_loadingApprovals": "Gagal memuat persetujuan",
+  "@error_loadingApprovals": {
+    "description": "Error message for loading approvals"
+  },
+  "error_loadingBilling": "Gagal memuat tagihan",
+  "@error_loadingBilling": {
+    "description": "Error message for loading billing"
+  },
+  "error_loadingFinancial": "Gagal memuat data keuangan",
+  "@error_loadingFinancial": {
+    "description": "Error message for loading financial data"
+  },
+  "error_loadingChurch": "Gagal memuat informasi gereja",
+  "@error_loadingChurch": {
+    "description": "Error message for loading church information"
+  },
+  "error_loadingAccount": "Gagal memuat informasi akun",
+  "@error_loadingAccount": {
+    "description": "Error message for loading account information"
+  },
+  "error_connectionFailed": "Koneksi gagal. Periksa koneksi internet Anda.",
+  "@error_connectionFailed": {
+    "description": "Error message for connection failed"
+  },
+  "error_timeout": "Permintaan timeout. Silakan coba lagi.",
+  "@error_timeout": {
+    "description": "Error message for timeout"
+  },
+  "error_unexpectedError": "Terjadi kesalahan yang tidak terduga",
+  "@error_unexpectedError": {
+    "description": "Error message for unexpected error"
+  },
+
+  "noData_available": "Tidak ada data tersedia",
+  "@noData_available": {
+    "description": "No data message for available"
+  },
+  "noData_members": "Tidak ada anggota ditemukan",
+  "@noData_members": {
+    "description": "No data message for members"
+  },
+  "noData_activities": "Tidak ada kegiatan ditemukan",
+  "@noData_activities": {
+    "description": "No data message for activities"
+  },
+  "noData_revenue": "Tidak ada catatan pendapatan ditemukan",
+  "@noData_revenue": {
+    "description": "No data message for revenue"
+  },
+  "noData_expenses": "Tidak ada catatan pengeluaran ditemukan",
+  "@noData_expenses": {
+    "description": "No data message for expenses"
+  },
+  "noData_reports": "Tidak ada laporan ditemukan",
+  "@noData_reports": {
+    "description": "No data message for reports"
+  },
+  "noData_documents": "Tidak ada dokumen ditemukan",
+  "@noData_documents": {
+    "description": "No data message for documents"
+  },
+  "noData_approvals": "Tidak ada aturan persetujuan ditemukan",
+  "@noData_approvals": {
+    "description": "No data message for approvals"
+  },
+  "noData_billing": "Tidak ada item tagihan ditemukan",
+  "@noData_billing": {
+    "description": "No data message for billing"
+  },
+  "noData_financial": "Tidak ada nomor akun keuangan ditemukan",
+  "@noData_financial": {
+    "description": "No data message for financial"
+  },
+  "noData_church": "Tidak ada informasi gereja tersedia",
+  "@noData_church": {
+    "description": "No data message for church"
+  },
+  "noData_results": "Tidak ada hasil ditemukan",
+  "@noData_results": {
+    "description": "No data message for results"
+  },
+  "noData_matchingCriteria": "Tidak ada data yang sesuai dengan kriteria pencarian Anda",
+  "@noData_matchingCriteria": {
+    "description": "No data message for matching criteria"
+  },
+  "noData_positions": "Tidak ada posisi tersedia",
+  "@noData_positions": {
+    "description": "No data message for positions"
+  },
+  "noData_activityLink": "Tidak terhubung ke kegiatan apapun",
+  "@noData_activityLink": {
+    "description": "No data message for activity link"
+  },
+
+  "tooltip_refresh": "Segarkan",
+  "@tooltip_refresh": {
+    "description": "Tooltip for refresh"
+  },
+  "tooltip_viewActivityDetails": "Lihat Detail Kegiatan",
+  "@tooltip_viewActivityDetails": {
+    "description": "Tooltip for view activity details"
+  },
+  "tooltip_downloadReport": "Unduh Laporan",
+  "@tooltip_downloadReport": {
+    "description": "Tooltip for download report"
+  },
+  "tooltip_baptized": "Dibaptis",
+  "@tooltip_baptized": {
+    "description": "Tooltip for baptized"
+  },
+  "tooltip_sidi": "SIDI",
+  "@tooltip_sidi": {
+    "description": "Tooltip for SIDI"
+  },
+  "tooltip_appLinked": "Aplikasi Terhubung",
+  "@tooltip_appLinked": {
+    "description": "Tooltip for app linked"
+  },
+
+  "footer_copyright": "© {year} Palakat. Semua hak dilindungi.",
+  "@footer_copyright": {
+    "description": "Footer copyright text",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+
+  "time_justNow": "Baru saja",
+  "@time_justNow": {
+    "description": "Time relative string for just now"
+  },
+  "time_minutesAgo": "{count, plural, =1{1 menit yang lalu} other{{count} menit yang lalu}}",
+  "@time_minutesAgo": {
+    "description": "Time relative string for minutes ago with pluralization",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "time_hoursAgo": "{count, plural, =1{1 jam yang lalu} other{{count} jam yang lalu}}",
+  "@time_hoursAgo": {
+    "description": "Time relative string for hours ago with pluralization",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "time_daysAgo": "{count, plural, =1{1 hari yang lalu} other{{count} hari yang lalu}}",
+  "@time_daysAgo": {
+    "description": "Time relative string for days ago with pluralization",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "stat_changeFromLastMonth": "+{change} dari bulan lalu",
+  "@stat_changeFromLastMonth": {
+    "description": "Stat card change text showing increase from last month",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "stat_changePercentFromLastMonth": "+{change}% dari bulan lalu",
+  "@stat_changePercentFromLastMonth": {
+    "description": "Stat card change text showing percentage increase from last month",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+
+  "dashboard_recentActivitiesCount": "{count} aktivitas terbaru",
+  "@dashboard_recentActivitiesCount": {
+    "description": "Text showing count of recent activities",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboard_recentActivitiesEmpty": "Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.",
+  "@dashboard_recentActivitiesEmpty": {
+    "description": "Empty state text for recent activities section"
   }
 }

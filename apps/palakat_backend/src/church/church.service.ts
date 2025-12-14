@@ -49,11 +49,23 @@ export class ChurchService {
           distance: this.helperService.calculateDistance(
             lat,
             lng,
-            Number(church.location.latitude),
-            Number(church.location.longitude),
+            church.location.latitude == null
+              ? Number.NaN
+              : Number(church.location.latitude),
+            church.location.longitude == null
+              ? Number.NaN
+              : Number(church.location.longitude),
           ),
         }))
-        .sort((a, b) => a.distance - b.distance);
+        .sort((a, b) => {
+          const aDistance = Number.isFinite(a.distance)
+            ? a.distance
+            : Number.POSITIVE_INFINITY;
+          const bDistance = Number.isFinite(b.distance)
+            ? b.distance
+            : Number.POSITIVE_INFINITY;
+          return aDistance - bDistance;
+        });
 
       // Apply pagination AFTER sorting
       churches = churchesWithDistance.slice(skip, skip + take);

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 class ActivityPublishScreen extends ConsumerStatefulWidget {
@@ -36,6 +38,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final provider = activityPublishControllerProvider(widget.type);
     final controller = ref.read(provider.notifier);
     final state = ref.watch(provider);
+    final l10n = context.l10n;
 
     return ScaffoldWidget(
       loading: state.loading,
@@ -45,7 +48,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ScreenTitleWidget.titleSecondary(
-              title: 'Create ${state.type.displayName}',
+              title: '${l10n.btn_create} ${state.type.displayName}',
             ),
             Gap.h16,
             Padding(
@@ -119,7 +122,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       case ActivityType.service:
         return _TypeConfig(
           icon: AppIcons.church,
-          label: 'Church Service',
+          label: widget.type.displayName,
           backgroundColor: BaseColor.primary[50]!,
           borderColor: BaseColor.primary[200]!,
           iconColor: BaseColor.primary[700]!,
@@ -128,7 +131,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       case ActivityType.event:
         return _TypeConfig(
           icon: AppIcons.event,
-          label: 'Church Event',
+          label: widget.type.displayName,
           backgroundColor: BaseColor.blue[50]!,
           borderColor: BaseColor.blue[200]!,
           iconColor: BaseColor.blue[700]!,
@@ -137,7 +140,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       case ActivityType.announcement:
         return _TypeConfig(
           icon: AppIcons.announcement,
-          label: 'Announcement',
+          label: widget.type.displayName,
           backgroundColor: BaseColor.yellow[50]!,
           borderColor: BaseColor.yellow[200]!,
           iconColor: BaseColor.yellow[700]!,
@@ -231,13 +234,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return _buildSectionCard(
-      title: 'Basic Information',
+      title: context.l10n.section_basicInformation,
       icon: AppIcons.info,
-      subtitle: 'Title and target audience',
+      subtitle: context.l10n.publish_basicInfoSubtitle,
       children: [
         InputWidget<String>.text(
-          hint: 'Enter activity title',
-          label: 'Title',
+          hint: context.l10n.publish_hintEnterActivityTitle,
+          label: context.l10n.lbl_title,
           currentInputValue: state.title,
           errorText: state.errorTitle,
           onChanged: controller.onChangedTitle,
@@ -260,7 +263,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Target Audience (BIPRA)',
+          context.l10n.publish_targetAudienceBipra,
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -323,7 +326,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         Gap.w12,
         Expanded(
           child: Text(
-            'Select target group',
+            context.l10n.publish_selectTargetGroup,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.neutral[500],
             ),
@@ -383,7 +386,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   ),
                   Gap.w4,
                   Text(
-                    'Target Group',
+                    context.l10n.publish_targetGroup,
                     style: BaseTypography.bodySmall.copyWith(
                       color: BaseColor.teal[600],
                     ),
@@ -404,13 +407,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return _buildSectionCard(
-      title: 'Location',
+      title: context.l10n.card_location_title,
       icon: AppIcons.locationOnOutlined,
-      subtitle: 'Where will this take place?',
+      subtitle: context.l10n.publish_locationSubtitle,
       children: [
         InputWidget<String>.text(
-          hint: 'e.g., Church Hall, Host Name',
-          label: 'Location Name',
+          hint: context.l10n.publish_hintLocationExample,
+          label: context.l10n.publish_lblLocationName,
           currentInputValue: state.location,
           errorText: state.errorLocation,
           onChanged: controller.onChangedLocation,
@@ -435,7 +438,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Pin on Map',
+          context.l10n.publish_pinOnMapOptional,
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -507,7 +510,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         Gap.w12,
         Expanded(
           child: Text(
-            'Tap to select location on map',
+            context.l10n.publish_tapToSelectLocationOptional,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.neutral[500],
             ),
@@ -523,6 +526,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   }
 
   Widget _buildSelectedLocationInfo(Location location) {
+    final hasCoordinates =
+        location.latitude != null && location.longitude != null;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -544,7 +549,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Location Selected',
+                context.l10n.publish_locationSelected,
                 style: BaseTypography.bodyMedium.copyWith(
                   color: BaseColor.primary[700],
                   fontWeight: FontWeight.w600,
@@ -561,7 +566,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.w4,
                   Expanded(
                     child: Text(
-                      '${location.latitude.toStringAsFixed(5)}, ${location.longitude.toStringAsFixed(5)}',
+                      hasCoordinates
+                          ? '${location.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
+                          : context.l10n.lbl_na,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.neutral[600],
                       ),
@@ -587,17 +594,17 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return _buildSectionCard(
-      title: 'Schedule',
+      title: context.l10n.section_schedule,
       icon: AppIcons.scheduleOutlined,
-      subtitle: 'When will this happen?',
+      subtitle: context.l10n.publish_scheduleSubtitle,
       children: [
         _buildDateTimePickers(state, controller, context),
         Gap.h12,
         _buildReminderPicker(state, controller, context),
         Gap.h12,
         InputWidget<String>.text(
-          label: 'Additional Notes (Optional)',
-          hint: 'Any other details attendees should know',
+          label: '${context.l10n.lbl_note} ${context.l10n.lbl_optional}',
+          hint: context.l10n.publish_hintAdditionalNotes,
           currentInputValue: state.note,
           errorText: state.errorNote,
           onChanged: controller.onChangedNote,
@@ -635,7 +642,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               ),
               Gap.w6,
               Text(
-                'Event Schedule',
+                context.l10n.publish_eventSchedule,
                 style: BaseTypography.bodyMedium.copyWith(
                   color: BaseColor.blue[700],
                   fontWeight: FontWeight.w600,
@@ -726,7 +733,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 ),
                 Gap.h8,
                 Text(
-                  hasDate ? _formatDateShort(state.selectedDate!) : 'Date',
+                  hasDate
+                      ? _formatDateShort(context, state.selectedDate!)
+                      : context.l10n.lbl_date,
                   style: BaseTypography.bodyMedium.copyWith(
                     color: hasDate
                         ? BaseColor.blue[700]
@@ -738,7 +747,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 if (hasDate) ...[
                   Gap.h4,
                   Text(
-                    _formatDayOfWeek(state.selectedDate!),
+                    _formatDayOfWeek(context, state.selectedDate!),
                     style: BaseTypography.bodySmall.copyWith(
                       color: BaseColor.blue[500],
                     ),
@@ -827,7 +836,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 ),
                 Gap.h8,
                 Text(
-                  hasTime ? _formatTime(state.selectedTime!) : 'Time',
+                  hasTime
+                      ? _formatTime(context, state.selectedTime!)
+                      : context.l10n.lbl_time,
                   style: BaseTypography.bodyMedium.copyWith(
                     color: hasTime
                         ? BaseColor.primary[700]
@@ -839,7 +850,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 if (hasTime) ...[
                   Gap.h4,
                   Text(
-                    _getTimePeriod(state.selectedTime!),
+                    _getTimePeriod(context, state.selectedTime!),
                     style: BaseTypography.bodySmall.copyWith(
                       color: BaseColor.primary[500],
                     ),
@@ -862,48 +873,39 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     );
   }
 
-  String _formatDateShort(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${months[date.month - 1]}';
+  String _formatDateShort(BuildContext context, DateTime date) {
+    final locale = Localizations.localeOf(context).toString();
+    return intl.DateFormat.MMMd(locale).format(date);
   }
 
-  String _formatDayOfWeek(DateTime date) {
-    final days = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-    return days[date.weekday - 1];
+  String _formatDayOfWeek(BuildContext context, DateTime date) {
+    final locale = Localizations.localeOf(context).toString();
+    return intl.DateFormat.EEEE(locale).format(date);
   }
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
+  String _formatTime(BuildContext context, TimeOfDay time) {
+    return MaterialLocalizations.of(context).formatTimeOfDay(time);
   }
 
-  String _getTimePeriod(TimeOfDay time) {
-    if (time.hour < 12) return 'Morning';
-    if (time.hour < 17) return 'Afternoon';
-    return 'Evening';
+  String _getTimePeriod(BuildContext context, TimeOfDay time) {
+    final l10n = context.l10n;
+    if (time.hour < 12) return l10n.timePeriod_morning;
+    if (time.hour < 17) return l10n.timePeriod_afternoon;
+    return l10n.timePeriod_evening;
+  }
+
+  String _getReminderLabel(BuildContext context, Reminder reminder) {
+    final l10n = context.l10n;
+    switch (reminder) {
+      case Reminder.tenMinutes:
+        return l10n.reminder_tenMinutes;
+      case Reminder.thirtyMinutes:
+        return l10n.reminder_thirtyMinutes;
+      case Reminder.oneHour:
+        return l10n.reminder_oneHour;
+      case Reminder.twoHour:
+        return l10n.reminder_twoHour;
+    }
   }
 
   Widget _buildReminderPicker(
@@ -918,7 +920,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Reminder',
+          context.l10n.lbl_reminder,
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -960,7 +962,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                     ),
                     Gap.w6,
                     Text(
-                      'When to notify attendees',
+                      context.l10n.publish_reminderSubtitle,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.yellow[800],
                         fontWeight: FontWeight.w500,
@@ -1023,7 +1025,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                             ),
                             Gap.w6,
                             Text(
-                              reminder.name,
+                              _getReminderLabel(context, reminder),
                               style: BaseTypography.bodySmall.copyWith(
                                 color: isSelected
                                     ? Colors.white
@@ -1062,13 +1064,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return _buildSectionCard(
-      title: 'Announcement Details',
+      title: context.l10n.section_announcementDetails,
       icon: AppIcons.article,
-      subtitle: 'Content and attachments',
+      subtitle: context.l10n.publish_announcementDetailsSubtitle,
       children: [
         InputWidget<String>.text(
-          hint: 'Write your announcement here...',
-          label: 'Description',
+          hint: context.l10n.publish_hintAnnouncement,
+          label: context.l10n.lbl_description,
           currentInputValue: state.description,
           errorText: state.errorDescription,
           onChanged: controller.onChangedDescription,
@@ -1092,7 +1094,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Attachment (Optional)',
+          '${context.l10n.tbl_file} ${context.l10n.lbl_optional}',
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -1142,7 +1144,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Upload File',
+                    context.l10n.publish_uploadFile,
                     style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.primary[700],
                       fontWeight: FontWeight.w600,
@@ -1150,7 +1152,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   ),
                   Gap.h4,
                   Text(
-                    'JPG, PNG, PDF, DOC, DOCX',
+                    context.l10n.publish_supportedFileTypes,
                     style: BaseTypography.bodySmall.copyWith(
                       color: BaseColor.neutral[500],
                     ),
@@ -1339,7 +1341,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      state.authorName ?? 'Loading...',
+                      state.authorName ?? context.l10n.loading_please_wait,
                       style: BaseTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BaseColor.textPrimary,
@@ -1460,7 +1462,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       child: SafeArea(
         top: false,
         child: ButtonWidget.primary(
-          text: 'Create ${widget.type.displayName}',
+          text: '${context.l10n.btn_create} ${widget.type.displayName}',
           isLoading: state.loading,
           isEnabled: isEnabled,
           onTap: isEnabled ? () => _handleSubmit(controller) : null,
@@ -1479,11 +1481,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       // Invalidate operations controller to refresh supervised activities list
       ref.invalidate(operationsControllerProvider);
       context.pop();
-      _showSnackBar('Activity created successfully!');
+      _showSnackBar(context.l10n.msg_created);
     } else {
       final state = ref.read(activityPublishControllerProvider(widget.type));
       // Show specific error message or generic validation message
-      _showSnackBar(state.errorMessage ?? 'Please fill all required fields');
+      _showSnackBar(
+        state.errorMessage ?? context.l10n.publish_fillAllRequiredFields,
+      );
     }
   }
 
@@ -1503,9 +1507,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return _buildSectionCard(
-      title: 'Financial Record',
+      title: context.l10n.section_financialRecord,
       icon: AppIcons.accountBalanceWalletOutlined,
-      subtitle: 'Optional: Attach revenue or expense',
+      subtitle: context.l10n.publish_financialRecordSubtitle,
       children: [
         if (state.attachedFinance == null)
           _buildAddFinanceButton(controller, context)
@@ -1554,7 +1558,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ),
             Gap.w12,
             Text(
-              'Add Financial Record',
+              context.l10n.publish_addFinancialRecord,
               style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.primary[700],
                 fontWeight: FontWeight.w600,
@@ -1629,20 +1633,17 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Financial Record?'),
-        content: const Text(
-          'Are you sure you want to remove this financial record? '
-          'This action cannot be undone.',
-        ),
+        title: Text(context.l10n.publish_removeFinancialRecordTitle),
+        content: Text(context.l10n.publish_removeFinancialRecordContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.btn_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: BaseColor.error),
-            child: const Text('Remove'),
+            child: Text(context.l10n.btn_remove),
           ),
         ],
       ),

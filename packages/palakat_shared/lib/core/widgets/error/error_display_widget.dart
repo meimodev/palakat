@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 /// Error display widget with retry button
 ///
@@ -35,6 +36,7 @@ class ErrorDisplayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
 
     return Container(
       padding: padding ?? const EdgeInsets.all(24),
@@ -80,7 +82,7 @@ class ErrorDisplayWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          title ?? 'Error',
+                          title ?? l10n.err_error,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colorScheme.onErrorContainer,
@@ -107,7 +109,7 @@ class ErrorDisplayWidget extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Retry'),
+                    label: Text(l10n.btn_retry),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: colorScheme.error,
                       side: BorderSide(

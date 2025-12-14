@@ -28,6 +28,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final RevenueScreenState state = ref.watch(revenueControllerProvider);
     final RevenueController controller = ref.watch(
@@ -39,18 +40,18 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Revenue', style: theme.textTheme.headlineMedium),
+            Text(l10n.admin_revenue_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Track and manage all revenue sources.',
+              l10n.admin_revenue_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
             SurfaceCard(
-              title: 'Revenue Log',
-              subtitle: 'A record of all logged revenue.',
+              title: l10n.card_revenueLog_title,
+              subtitle: l10n.card_revenueLog_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -83,7 +84,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search by account number, activity title...',
+                      searchHint: l10n.hint_searchByAccountNumber,
                       onSearchChanged: controller.onChangedSearch,
                       dateRangePreset: state.dateRangePreset,
                       customDateRange: state.customDateRange,
@@ -91,7 +92,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
                           controller.onChangedDateRangePreset,
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
-                      dropdownLabel: 'Payment Method',
+                      dropdownLabel: l10n.filter_paymentMethod,
                       dropdownOptions: {'cash': 'Cash', 'cashless': 'Cashless'},
                       dropdownValue: state.paymentMethodFilter?.name,
                       onDropdownChanged: (value) {
@@ -108,7 +109,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
                         _showRevenueDrawer(revenue.id!);
                       }
                     },
-                    columns: _buildTableColumns(),
+                    columns: _buildTableColumns(l10n),
                   ),
                 ],
               ),
@@ -120,10 +121,10 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
   }
 
   /// Builds the table column configuration for the revenue table
-  static List<AppTableColumn<Revenue>> _buildTableColumns() {
+  static List<AppTableColumn<Revenue>> _buildTableColumns(dynamic l10n) {
     return [
       AppTableColumn<Revenue>(
-        title: 'Account Number',
+        title: l10n.tbl_accountNumber,
         flex: 2,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
@@ -136,7 +137,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         },
       ),
       AppTableColumn<Revenue>(
-        title: 'Activity',
+        title: l10n.tbl_activity,
         flex: 3,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
@@ -166,7 +167,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         },
       ),
       AppTableColumn<Revenue>(
-        title: 'Request Date',
+        title: l10n.tbl_requestDate,
         flex: 2,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
@@ -179,7 +180,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         },
       ),
       AppTableColumn<Revenue>(
-        title: 'Approval Date',
+        title: l10n.tbl_approvalDate,
         flex: 2,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
@@ -192,7 +193,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         },
       ),
       AppTableColumn<Revenue>(
-        title: 'Amount',
+        title: l10n.tbl_amount,
         flex: 2,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
@@ -208,7 +209,7 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         },
       ),
       AppTableColumn<Revenue>(
-        title: 'Payment Method',
+        title: l10n.tbl_paymentMethod,
         flex: 2,
         cellBuilder: (ctx, revenue) {
           return PaymentMethodChip(

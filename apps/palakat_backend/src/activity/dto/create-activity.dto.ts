@@ -29,6 +29,19 @@ export class CreateFinanceDto {
   financialAccountNumberId?: number;
 }
 
+export class CreateActivityLocationDto {
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+}
+
 export class CreateActivityDto {
   @IsInt()
   supervisorId: number;
@@ -44,16 +57,9 @@ export class CreateActivityDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
-  locationName?: string;
-
-  @IsOptional()
-  @IsNumber()
-  locationLatitude?: number;
-
-  @IsOptional()
-  @IsNumber()
-  locationLongitude?: number;
+  @ValidateNested()
+  @Type(() => CreateActivityLocationDto)
+  location?: CreateActivityLocationDto;
 
   @IsOptional()
   @TransformToUtcDate()

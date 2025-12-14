@@ -9,6 +9,7 @@ import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/church/application/church_controller.dart';
 import 'package:palakat_admin/features/member/presentation/state/member_controller.dart';
 import 'package:palakat_admin/models.dart' as cm show Column;
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class MemberEditDrawer extends ConsumerStatefulWidget {
   final Function(Account) onSave;
@@ -145,7 +146,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
     } catch (e) {
       // Surface error inline but keep drawer open
       setState(() {
-        _errorMessage = 'Failed to load member details';
+        _errorMessage = context.l10n.error_loadingMembers;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -167,7 +168,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
     bool hasError = false;
     if (_dateOfBirth == null) {
       setState(() {
-        _dateOfBirthError = 'Date of birth is required';
+        _dateOfBirthError = context.l10n.validation_dateRequired;
       });
       hasError = true;
     }
@@ -175,7 +176,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
     // Validate column
     if (_selectedColumn == null) {
       setState(() {
-        _columnError = 'Column is required';
+        _columnError = context.l10n.validation_columnRequired;
       });
       hasError = true;
     }
@@ -235,7 +236,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
         // Check for unique email constraint
         if (combinedMessage.contains('unique') && combinedMessage.contains('email')) {
           setState(() {
-            _emailError = 'This email is already in use';
+            _emailError = context.l10n.validation_duplicateEntry;
             _saving = false;
           });
           _scrollToField(_emailFieldKey);
@@ -245,7 +246,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
         // Check for unique phone constraint
         if (combinedMessage.contains('unique') && combinedMessage.contains('phone')) {
           setState(() {
-            _phoneError = 'This phone number is already in use';
+            _phoneError = context.l10n.validation_duplicateEntry;
             _saving = false;
           });
           _scrollToField(_phoneFieldKey);
@@ -255,7 +256,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       
       // For other errors, show generic error message
       setState(() {
-        _errorMessage = 'Failed to save member';
+        _errorMessage = context.l10n.msg_saveFailed;
         _saving = false;
       });
     }
@@ -266,14 +267,14 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Member'),
-          content: const Text(
-            'Are you sure you want to delete this member? This action cannot be undone.',
+          title: Text(context.l10n.dlg_deleteMember_title),
+          content: Text(
+            context.l10n.dlg_deleteMember_content,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.btn_cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -290,7 +291,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   // Surface error inline; parent shows snackbar too
                   if (!mounted) return;
                   setState(() {
-                    _errorMessage = 'Failed to delete member';
+                    _errorMessage = context.l10n.msg_deleteFailed;
                   });
                 } finally {
                   if (mounted) setState(() => _deleting = false);
@@ -299,7 +300,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Delete'),
+              child: Text(context.l10n.btn_delete),
             ),
           ],
         ),
@@ -317,17 +318,17 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
     final availableColumns = churchState.columns.value ?? [];
 
     return SideDrawer(
-      title: widget.accountId == null ? 'Add Member' : 'Edit Member',
+      title: widget.accountId == null ? context.l10n.drawer_addMember_title : context.l10n.drawer_editMember_title,
       subtitle: widget.accountId == null
-          ? 'Create a new member'
-          : 'Update member information',
+          ? context.l10n.drawer_addMember_subtitle
+          : context.l10n.drawer_editMember_subtitle,
       onClose: widget.onClose,
       isLoading: (widget.accountId != null && _loading) || _deleting || _saving,
       loadingMessage: _deleting
-          ? 'Deleting member...'
+          ? context.l10n.loading_deleting
           : _saving
-          ? 'Saving member...'
-          : 'Loading member details...',
+          ? context.l10n.loading_saving
+          : context.l10n.loading_members,
       errorMessage: _errorMessage,
       onRetry: widget.accountId != null && !_deleting
           ? _fetchAccountDetails
@@ -339,13 +340,13 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
           children: [
             // Account Information Section
             InfoSection(
-              title: 'Account Information',
+              title: context.l10n.section_basicInformation,
               titleSpacing: 16,
               children: [
                 // Show ID field only when editing existing member
                 if (_fetchedAccount != null) ...[
                   LabeledField(
-                    label: 'Member ID',
+                    label: context.l10n.lbl_memberId,
                     child: Text(
                       "# ${_fetchedAccount!.id}",
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -373,7 +374,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'This account has been claimed. Account info can only be changed by the owner.',
+                            context.l10n.tooltip_appLinked,
                             style: TextStyle(
                               color: Colors.orange.shade700,
                               fontSize: 14,
@@ -387,13 +388,13 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   const SizedBox(height: 16),
                 ],
                 LabeledField(
-                  label: 'Name',
+                  label: context.l10n.lbl_name,
                   child: TextFormField(
                     controller: _nameController,
                     enabled: !_isClaimed,
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
-                      hintText: 'Enter member name',
+                      hintText: context.l10n.hint_enterMemberName,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -403,20 +404,20 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                           : theme.colorScheme.surface,
                     ),
                     validator: (value) => Validators.required(
-                      'Name is required',
+                      context.l10n.validation_nameRequired,
                     ).asFormFieldValidator(value),
                   ),
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
                   key: _emailFieldKey,
-                  label: 'Email',
+                  label: context.l10n.lbl_email,
                   child: TextFormField(
                     controller: _emailController,
                     enabled: !_isClaimed,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      hintText: 'Enter email address',
+                      hintText: context.l10n.hint_enterEmailAddress,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -442,21 +443,21 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       }
                     },
                     validator: (value) => Validators.email(
-                      'Please enter a valid email address',
+                      context.l10n.validation_invalidEmail,
                     ).asFormFieldValidator(value),
                   ),
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
                   key: _phoneFieldKey,
-                  label: 'Phone',
+                  label: context.l10n.lbl_phone,
                   child: TextFormField(
                     controller: _phoneController,
                     enabled: !_isClaimed,
                     keyboardType: TextInputType.phone,
                     maxLength: 15,
                     decoration: InputDecoration(
-                      hintText: '08xx-xxxx-xxxx',
+                      hintText: context.l10n.auth_phoneHint,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -497,14 +498,14 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                       }
                     },
                     validator: (v) => Validators.combine<String>([
-                      Validators.required('Phone number is required'),
-                      Validators.optionalPhoneMinDigits(12, 'Phone number must contain at least 12 digits'),
+                      Validators.required(context.l10n.validation_phoneRequired),
+                      Validators.optionalPhoneMinDigits(12, context.l10n.validation_invalidPhone),
                     ]).asFormFieldValidator(v),
                   ),
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Marital Status',
+                  label: context.l10n.lbl_maritalStatus,
                   child: MaritalStatusDropdown(
                     value: _maritalStatus,
                     enabled: !_isClaimed,
@@ -517,7 +518,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Gender',
+                  label: context.l10n.lbl_gender,
                   child: GenderDropdown(
                     value: _gender,
                     enabled: !_isClaimed,
@@ -530,7 +531,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Date of Birth',
+                  label: context.l10n.lbl_dateOfBirth,
                   child: DateOfBirthPicker(
                     value: _dateOfBirth,
                     enabled: !_isClaimed,
@@ -550,7 +551,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
 
             // Membership Information Section
             InfoSection(
-              title: 'Membership Information',
+              title: context.l10n.settings_membershipSettings,
               titleSpacing: 16,
               children: [
                 PositionSelector(
@@ -563,15 +564,15 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     });
                   },
                   availablePositions: availablePositions,
-                  label: 'Positions',
+                  label: context.l10n.lbl_positions,
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Column',
+                  label: context.l10n.lbl_selectColumn,
                   child: DropdownButtonFormField<cm.Column?>(
                     value: _selectedColumn,
                     decoration: InputDecoration(
-                      hintText: 'Select a column',
+                      hintText: context.l10n.lbl_selectColumn,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -607,7 +608,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   children: [
                     Expanded(
                       child: CheckboxListTile(
-                        title: const Text('Baptized'),
+                        title: Text(context.l10n.lbl_baptized),
                         value: _isBaptized,
                         onChanged: (value) =>
                             setState(() => _isBaptized = value ?? false),
@@ -617,7 +618,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     ),
                     Expanded(
                       child: CheckboxListTile(
-                        title: const Text('SIDI'),
+                        title: Text(context.l10n.lbl_sidi),
                         value: _isSidi,
                         onChanged: (value) =>
                             setState(() => _isSidi = value ?? false),
@@ -642,7 +643,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   foregroundColor: theme.colorScheme.error,
                   side: BorderSide(color: theme.colorScheme.error),
                 ),
-                child: const Text('Delete'),
+                child: Text(context.l10n.btn_delete),
               ),
             ),
             const SizedBox(width: 12),
@@ -654,7 +655,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(widget.accountId == null ? 'Create' : 'Save'),
+              child: Text(widget.accountId == null ? context.l10n.btn_create : context.l10n.btn_save),
             ),
           ),
         ],

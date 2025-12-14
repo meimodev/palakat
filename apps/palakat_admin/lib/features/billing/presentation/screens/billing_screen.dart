@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import '../state/billing_controller.dart';
 import '../state/billing_screen_state.dart';
 
@@ -46,26 +43,27 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Material(
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Billing Management', style: theme.textTheme.headlineMedium),
+            Text(l10n.admin_billing_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Manage church billing, payments, and view payment history.',
+              l10n.admin_billing_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
 
-            _buildOverdueBillsSection(theme),
-            _buildPaymentHistorySection(theme),
+            _buildOverdueBillsSection(context, theme),
+            _buildPaymentHistorySection(context, theme),
             const SizedBox(height: 24),
-            _buildBillingItemsSection(theme),
+            _buildBillingItemsSection(context, theme),
           ],
         ),
       ),
@@ -73,11 +71,13 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   }
 
   Widget _cardError({
+    required BuildContext context,
     required ThemeData theme,
     required Object error,
     required VoidCallback onRetry,
     required String message,
   }) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -101,14 +101,15 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(l10n.btn_retry),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOverdueBillsSection(ThemeData theme) {
+  Widget _buildOverdueBillsSection(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     final billingItemsAsync = state.billingItems;
     
     return billingItemsAsync.when(
@@ -124,8 +125,8 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
         return Column(
           children: [
             SurfaceCard(
-              title: 'Overdue Bills',
-              subtitle: 'Require urgent attention',
+              title: l10n.card_overdueBills_title,
+              subtitle: l10n.card_overdueBills_subtitle,
               child: Column(
                 children: [
                   _BillingHeader(),
@@ -146,12 +147,13 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     );
   }
 
-  Widget _buildPaymentHistorySection(ThemeData theme) {
+  Widget _buildPaymentHistorySection(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     final paymentHistoryAsync = state.paymentHistory;
 
     return SurfaceCard(
-      title: 'Payment History',
-      subtitle: 'View all payment transactions and history.',
+      title: l10n.card_paymentHistory_title,
+      subtitle: l10n.card_paymentHistory_subtitle,
       child: paymentHistoryAsync.when(
         loading: () => Container(
           decoration: BoxDecoration(
@@ -170,10 +172,11 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           ),
         ),
         error: (e, st) => _cardError(
+          context: context,
           theme: theme,
           error: e,
           onRetry: controller.fetchPaymentHistory,
-          message: 'Failed to load payment history.',
+          message: l10n.error_loadingBilling,
         ),
         data: (payments) {
           return Column(
@@ -187,7 +190,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => _showFullPaymentHistory(payments),
-                  child: Text('View All ${payments.length} Payments'),
+                  child: Text('${l10n.btn_viewAll} ${payments.length} ${l10n.lbl_payments}'),
                 ),
               ],
             ],
@@ -197,17 +200,18 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     );
   }
 
-  Widget _buildBillingItemsSection(ThemeData theme) {
+  Widget _buildBillingItemsSection(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     final billingItemsAsync = state.billingItems;
     final filteredItems = controller.getFilteredBillingItems();
     final paginatedItems = controller.getPaginatedBillingItems();
     final total = filteredItems.length;
 
     return SurfaceCard(
-      title: 'Billing Items',
+      title: l10n.card_billingItems_title,
       subtitle: billingItemsAsync.hasValue && total > 0
-          ? 'Manage church billing and payment records. Total items: $total'
-          : 'Manage church billing and payment records.',
+          ? l10n.card_billingItems_subtitleWithTotal(total)
+          : l10n.card_billingItems_subtitle,
       child: billingItemsAsync.when(
         loading: () => Container(
           decoration: BoxDecoration(
@@ -230,10 +234,11 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           ),
         ),
         error: (e, st) => _cardError(
+          context: context,
           theme: theme,
           error: e,
           onRetry: controller.fetchBillingItems,
-          message: 'Failed to load billing items.',
+          message: l10n.error_loadingBilling,
         ),
         data: (items) {
           return Column(
@@ -245,21 +250,21 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                     flex: 2,
                     child: TextField(
                       controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search billing items...',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: l10n.hint_searchBillingItems,
+                        prefixIcon: const Icon(Icons.search),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   DropdownButton<BillingStatus?>(
                     value: state.statusFilter,
-                    hint: const Text('All Status'),
+                    hint: Text(l10n.filter_allStatus),
                     items: [
-                      const DropdownMenuItem(
+                      DropdownMenuItem(
                         value: null,
-                        child: Text('All Status'),
+                        child: Text(l10n.filter_allStatus),
                       ),
                       ...BillingStatus.values.map(
                         (status) => DropdownMenuItem(
@@ -289,7 +294,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    'No billing items found.',
+                    l10n.noData_billing,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -349,11 +354,11 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
 
               if (mounted) {
                 DrawerUtils.closeDrawer(context);
-                AppSnackbars.showSuccess(context, message: 'Payment recorded successfully');
+                AppSnackbars.showSuccess(context, message: context.l10n.msg_recordedPayment);
               }
             } catch (e) {
               if (mounted) {
-                AppSnackbars.showError(context, message: 'Failed to record payment: $e');
+                AppSnackbars.showError(context, message: '${context.l10n.msg_recordPaymentFailed}: $e');
               }
             }
           }
@@ -363,11 +368,12 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   }
 
   void _showFullPaymentHistory(List<PaymentHistory> payments) {
+    final l10n = context.l10n;
     DrawerUtils.showDrawer(
       context: context,
       drawer: SideDrawer(
-        title: 'Payment History',
-        subtitle: 'Complete payment transaction history',
+        title: l10n.drawer_paymentHistory_title,
+        subtitle: l10n.drawer_paymentHistory_subtitle,
         onClose: () => DrawerUtils.closeDrawer(context),
         width: 600,
         content: Column(
@@ -388,15 +394,16 @@ class _BillingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.labelLarge;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       child: Row(
         children: [
-          _cell(const Text('Bill ID'), flex: 2, style: textStyle),
-          _cell(const Text('Description'), flex: 4, style: textStyle),
-          _cell(const Text('Amount'), flex: 2, style: textStyle),
-          _cell(const Text('Due Date'), flex: 2, style: textStyle),
-          _cell(const Text('Status'), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_billId), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_description), flex: 4, style: textStyle),
+          _cell(Text(l10n.tbl_amount), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_dueDate), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_status), flex: 2, style: textStyle),
         ],
       ),
     );
@@ -545,15 +552,16 @@ class _PaymentHistoryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.labelLarge;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       child: Row(
         children: [
-          _cell(const Text('Payment ID'), flex: 2, style: textStyle),
-          _cell(const Text('Account ID'), flex: 2, style: textStyle),
-          _cell(const Text('Amount'), flex: 2, style: textStyle),
-          _cell(const Text('Method'), flex: 2, style: textStyle),
-          _cell(const Text('Date'), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_paymentId), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_accountId), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_amount), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_method), flex: 2, style: textStyle),
+          _cell(Text(l10n.tbl_date), flex: 2, style: textStyle),
         ],
       ),
     );
@@ -649,31 +657,31 @@ class _BillingDetailDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SideDrawer(
-      title: 'Billing Details',
+      title: context.l10n.drawer_billingDetails_title,
       subtitle: item.id,
       onClose: onClose,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InfoSection(
-            title: 'Basic Information',
+            title: context.l10n.section_basicInformation,
             children: [
               InfoRow(
-                label: 'Description',
+                label: context.l10n.lbl_description,
                 value: item.description,
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
               InfoRow(
-                label: 'Amount',
+                label: context.l10n.lbl_amount,
                 value: item.formattedAmount,
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
               InfoRow(
-                label: 'Status',
+                label: context.l10n.tbl_status,
                 value: item.status.displayName,
                 valueWidget: Align(
                   alignment: Alignment.centerLeft,
@@ -684,14 +692,14 @@ class _BillingDetailDrawer extends StatelessWidget {
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
               InfoRow(
-                label: 'Due Date',
+                label: context.l10n.tbl_dueDate,
                 value: DateFormat('MMM dd, yyyy').format(item.dueDate),
                 labelWidth: 140,
                 spacing: 16,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
               InfoRow(
-                label: 'Paid Date',
+                label: context.l10n.lbl_paidDate,
                 value: item.paidDate != null
                     ? DateFormat('MMM dd, yyyy').format(item.paidDate!)
                     : '—',
@@ -705,10 +713,10 @@ class _BillingDetailDrawer extends StatelessWidget {
           const SizedBox(height: 24),
 
           InfoSection(
-            title: 'Payment Information',
+            title: context.l10n.section_paymentInformation,
             children: [
               InfoRow(
-                label: 'Method',
+                label: context.l10n.lbl_method,
                 value: item.paymentMethod?.displayName ?? '—',
                 valueWidget: item.paymentMethod != null
                     ? Align(
@@ -721,7 +729,7 @@ class _BillingDetailDrawer extends StatelessWidget {
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
               ),
               InfoRow(
-                label: 'Transaction ID',
+                label: context.l10n.lbl_transactionId,
                 value: item.transactionId ?? '—',
                 labelWidth: 140,
                 spacing: 16,
@@ -729,7 +737,7 @@ class _BillingDetailDrawer extends StatelessWidget {
               ),
               if (item.notes != null)
                 InfoRow(
-                  label: 'Notes',
+                  label: context.l10n.lbl_notes,
                   value: item.notes!,
                   labelWidth: 140,
                   spacing: 16,
@@ -745,7 +753,7 @@ class _BillingDetailDrawer extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onPayment,
               icon: const Icon(Icons.payment),
-              label: const Text('Record Payment'),
+              label: Text(context.l10n.btn_recordPayment),
             ),
           ),
         ],
@@ -780,7 +788,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AlertDialog(
-      title: const Text('Record Payment'),
+      title: Text(context.l10n.dlg_recordPayment_title),
       content: Form(
         key: _formKey,
         child: Column(
@@ -788,13 +796,13 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bill: ${widget.item.id}',
+              '${context.l10n.lbl_bill}: ${widget.item.id}',
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
-              'Amount: ${widget.item.formattedAmount}',
+              '${context.l10n.lbl_amount}: ${widget.item.formattedAmount}',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: Colors.green,
                 fontWeight: FontWeight.w600,
@@ -803,9 +811,9 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             const SizedBox(height: 16),
             DropdownButtonFormField<PaymentMethod>(
               value: _paymentMethod,
-              decoration: const InputDecoration(
-                labelText: 'Payment Method',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.filter_paymentMethod,
+                border: const OutlineInputBorder(),
               ),
               items: PaymentMethod.values
                   .map(
@@ -820,17 +828,17 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _transactionController,
-              decoration: const InputDecoration(
-                labelText: 'Transaction ID (Optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: '${context.l10n.lbl_transactionId} ${context.l10n.lbl_optional}',
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (Optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: '${context.l10n.lbl_notes} ${context.l10n.lbl_optional}',
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -840,7 +848,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.btn_cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -854,7 +862,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
                   : _notesController.text.trim(),
             });
           },
-          child: const Text('Record Payment'),
+          child: Text(context.l10n.btn_recordPayment),
         ),
       ],
     );

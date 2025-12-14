@@ -738,6 +738,15 @@ class ApprovalDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildLocationCard(BuildContext context, Activity activity) {
+    final location = activity.location;
+    final hasCoordinates =
+        location?.latitude != null && location?.longitude != null;
+    final displayName = (location?.name.trim().isNotEmpty ?? false)
+        ? location!.name
+        : hasCoordinates
+        ? "${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}"
+        : '-';
+
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
@@ -783,7 +792,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                if (activity.location != null)
+                if (location != null)
                   IconButton(
                     tooltip: 'View on Map',
                     onPressed: () {
@@ -793,7 +802,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                           params: {
                             RouteParamKey.mapOperationType:
                                 MapOperationType.read,
-                            RouteParamKey.location: activity.location!.toJson(),
+                            RouteParamKey.location: location.toJson(),
                           },
                         ),
                       );
@@ -816,16 +825,16 @@ class ApprovalDetailScreen extends ConsumerWidget {
               icon: AppIcons.location,
               iconColor: BaseColor.red.shade500,
               label: 'Address',
-              value: activity.location?.name ?? "-",
+              value: displayName,
             ),
-            if (activity.location != null) ...[
+            if (hasCoordinates) ...[
               Gap.h12,
               _buildInfoRow(
                 icon: AppIcons.coordinates,
                 iconColor: BaseColor.blue.shade500,
                 label: 'Coordinates',
                 value:
-                    "${activity.location!.latitude.toStringAsFixed(5)}, ${activity.location!.longitude.toStringAsFixed(5)}",
+                    "${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}",
               ),
             ],
           ],

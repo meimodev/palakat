@@ -1,17 +1,20 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat/core/services/in_app_notification_service.dart';
 import 'package:palakat/core/services/notification_display_service.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
 import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
-import 'package:palakat/core/services/pusher_beams_mobile_service.dart';
+import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 
@@ -66,6 +69,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    ref.listen(localeControllerProvider, (prev, next) {
+      intl.Intl.defaultLocale = next.languageCode;
+      unawaited(Jiffy.setLocale(next.languageCode));
+    });
 
     // Add lifecycle observer to detect return from settings
     WidgetsBinding.instance.addObserver(this);
@@ -126,21 +134,30 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Get updated permission state
     final state = await permissionManager.getPermissionState();
 
-    // If permission was granted, initialize push notifications
+    // If permission was granted, try to register push notifications
+    // using the controller (which coordinates with the rest of the app)
     if (state.status == PermissionStatus.granted) {
-      // Initialize in-app notification service for foreground banner display
-      final inAppNotificationService = InAppNotificationService(
-        navigatorKey: navigatorKey,
-      );
+      // Get membership from local storage
+      final localStorage = ref.read(localStorageServiceProvider);
+      final membership = localStorage.currentMembership;
+      final account = localStorage.currentAuth?.account;
 
-      // Initialize Pusher Beams with granted permission
-      final pusherBeams = PusherBeamsMobileService(
-        permissionManager: permissionManager,
-        notificationDisplay: NotificationDisplayServiceImpl(),
-        inAppNotificationService: inAppNotificationService,
-      );
-
-      await pusherBeams.initialize();
+      // Only register if user is signed in with valid membership
+      if (membership != null && membership.id != null) {
+        try {
+          // Use the controller to register interests
+          // This ensures proper coordination with the rest of the notification system
+          final pusherBeamsController = ref.read(
+            pusherBeamsControllerProvider.notifier,
+          );
+          await pusherBeamsController.registerInterests(
+            membership,
+            account: account,
+          );
+        } catch (e) {
+          debugPrint('🔔 Push notification registration failed: $e');
+        }
+      }
 
       // Refresh permission state provider
       ref.read(permissionStateProvider.notifier).refresh();
@@ -189,6 +206,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final router = ref.read(goRouterProvider);
     final locale = ref.watch(localeControllerProvider);
+
+    intl.Intl.defaultLocale = locale.languageCode;
 
     return ScreenUtilInit(
       designSize: const Size(360, 640),

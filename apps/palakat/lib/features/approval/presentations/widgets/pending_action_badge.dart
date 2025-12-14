@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/extensions.dart';
 
 /// A badge widget that displays the count of pending approvals requiring user action.
 /// Displayed prominently at the top of the approval screen.
@@ -11,6 +12,8 @@ class PendingActionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     if (count == 0) {
       return Container(
         padding: EdgeInsets.all(BaseSize.w16),
@@ -40,7 +43,7 @@ class PendingActionBadge extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'All caught up!',
+                    l10n.approval_allCaughtUpTitle,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.green.shade700,
@@ -48,7 +51,7 @@ class PendingActionBadge extends StatelessWidget {
                   ),
                   Gap.h4,
                   Text(
-                    'No pending approvals requiring your action',
+                    l10n.approval_allCaughtUpSubtitle,
                     style: BaseTypography.bodySmall.copyWith(
                       color: BaseColor.green.shade600,
                     ),
@@ -102,7 +105,7 @@ class PendingActionBadge extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pending Your Action',
+                  l10n.approval_sectionPendingYourAction,
                   style: BaseTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -110,9 +113,7 @@ class PendingActionBadge extends StatelessWidget {
                 ),
                 Gap.h4,
                 Text(
-                  count == 1
-                      ? '1 approval waiting for your review'
-                      : '$count approvals waiting for your review',
+                  l10n.approval_pendingReviewCount(count),
                   style: BaseTypography.bodySmall.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),

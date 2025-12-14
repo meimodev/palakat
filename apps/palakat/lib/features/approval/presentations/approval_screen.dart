@@ -11,6 +11,7 @@ import 'package:palakat/features/approval/presentations/widgets/approval_confirm
 import 'package:palakat/features/approval/presentations/widgets/pending_action_badge.dart';
 import 'package:palakat/features/approval/presentations/widgets/status_filter_chips.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 
 class ApprovalScreen extends ConsumerStatefulWidget {
@@ -53,6 +54,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   Widget build(BuildContext context) {
     final controller = ref.read(approvalControllerProvider.notifier);
     final state = ref.watch(approvalControllerProvider);
+    final l10n = context.l10n;
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -67,7 +69,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const ScreenTitleWidget.titleOnly(title: "Approvals"),
+                  ScreenTitleWidget.titleOnly(title: l10n.approval_title),
                   Gap.h16,
                   // Pending action summary badge
                   PendingActionBadge(count: state.pendingMyAction.length),
@@ -86,7 +88,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   Gap.h16,
                   // Date range filter
                   DateRangePresetInput(
-                    label: 'Filter by date',
+                    label: l10n.approval_filterByDate,
                     start: state.filterStartDate,
                     end: state.filterEndDate,
                     onChanged: (s, e) {
@@ -127,7 +129,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
                   child: Center(
                     child: Text(
-                      'No more approvals',
+                      l10n.approval_noMoreApprovals,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.secondaryText,
                       ),
@@ -162,7 +164,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
     if (state.errorMessage != null) {
       return SliverToBoxAdapter(
-        child: _buildErrorState(state.errorMessage!, controller),
+        child: _buildErrorState(context, state.errorMessage!, controller),
       );
     }
 
@@ -187,7 +189,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sections.add(
         _buildSection(
           context,
-          'Pending Your Action',
+          context.l10n.approval_sectionPendingYourAction,
           state.pendingMyAction,
           state,
           controller,
@@ -202,7 +204,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sections.add(
         _buildSection(
           context,
-          'Pending Others',
+          context.l10n.approval_sectionPendingOthers,
           state.pendingOthers,
           state,
           controller,
@@ -217,7 +219,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sections.add(
         _buildSection(
           context,
-          'Approved',
+          context.l10n.status_approved,
           state.approved,
           state,
           controller,
@@ -232,7 +234,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sections.add(
         _buildSection(
           context,
-          'Rejected',
+          context.l10n.status_rejected,
           state.rejected,
           state,
           controller,
@@ -243,7 +245,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     }
 
     if (sections.isEmpty) {
-      return SliverToBoxAdapter(child: _buildEmptyState());
+      return SliverToBoxAdapter(child: _buildEmptyState(context));
     }
 
     return SliverList(delegate: SliverChildListDelegate(sections));
@@ -326,7 +328,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ApprovalController controller,
   ) {
     if (activities.isEmpty) {
-      return SliverToBoxAdapter(child: _buildEmptyState());
+      return SliverToBoxAdapter(child: _buildEmptyState(context));
     }
 
     return SliverList(
@@ -389,7 +391,9 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             setState(() => _processingActivityId = null);
             messenger.showSnackBar(
               SnackBar(
-                content: Text('Approved: ${activity.title}'),
+                content: Text(
+                  context.l10n.approval_snackbarApproved(activity.title),
+                ),
                 backgroundColor: BaseColor.green.shade600,
               ),
             );
@@ -414,7 +418,9 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             setState(() => _processingActivityId = null);
             messenger.showSnackBar(
               SnackBar(
-                content: Text('Rejected: ${activity.title}'),
+                content: Text(
+                  context.l10n.approval_snackbarRejected(activity.title),
+                ),
                 backgroundColor: BaseColor.red.shade500,
               ),
             );
@@ -457,7 +463,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     }).toList();
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(BaseSize.w24),
       decoration: BoxDecoration(
@@ -475,7 +481,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ),
           Gap.h12,
           Text(
-            "No approvals found",
+            context.l10n.approval_emptyTitle,
             textAlign: TextAlign.center,
             style: BaseTypography.titleMedium.copyWith(
               color: BaseColor.secondaryText,
@@ -484,7 +490,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ),
           Gap.h4,
           Text(
-            "Try adjusting your filters",
+            context.l10n.approval_emptySubtitle,
             textAlign: TextAlign.center,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.secondaryText,
@@ -495,7 +501,11 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     );
   }
 
-  Widget _buildErrorState(String message, ApprovalController controller) {
+  Widget _buildErrorState(
+    BuildContext context,
+    String message,
+    ApprovalController controller,
+  ) {
     return Container(
       padding: EdgeInsets.all(BaseSize.w24),
       decoration: BoxDecoration(
@@ -513,7 +523,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ),
           Gap.h12,
           Text(
-            "Something went wrong",
+            context.l10n.approval_errorTitle,
             textAlign: TextAlign.center,
             style: BaseTypography.titleMedium.copyWith(
               color: BaseColor.red.shade700,
@@ -530,7 +540,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ),
           Gap.h16,
           ButtonWidget.primary(
-            text: 'Retry',
+            text: context.l10n.btn_retry,
             onTap: () => controller.fetchData(),
             buttonSize: ButtonSize.small,
           ),

@@ -122,12 +122,45 @@ Future<void> registerInterests(...) async {
 
 ```dart
 // In clearAllState():
+_tokenRefreshSubscription?.cancel();         // Cancel token refresh listener
+_foregroundCallback = null;                  // Clear stored callback
 await PusherBeams.instance.clearAllState();  // Clear SDK state
 await PusherBeams.instance.stop();           // Stop SDK
 await FirebaseMessaging.instance.deleteToken(); // Delete FCM token
 ```
 
 **Why:** The FCM token must be deleted to ensure a fresh token is obtained on re-sign-in. Without this, the old token may be invalid.
+
+### 7. FCM Token Refresh Handling (CRITICAL)
+
+```dart
+// In PusherBeamsMobileService:
+StreamSubscription<String>? _tokenRefreshSubscription;
+void Function(Map<Object?, Object?> notification)? _foregroundCallback;
+
+void _setupTokenRefreshListener(String instanceId) {
+  _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh.listen(
+    (newToken) async {
+      // Stop and restart Pusher Beams to re-register with new token
+      await PusherBeams.instance.stop();
+      await PusherBeams.instance.start(instanceId);
+      
+      // Re-register the foreground callback after SDK restart
+      _registerForegroundCallback();
+    },
+  );
+}
+```
+
+**Why:** FCM tokens can be refreshed by Firebase periodically or after certain events. When this happens:
+1. Pusher Beams needs to be restarted to pick up the new token
+2. The foreground notification callback must be re-registered after SDK restart
+3. Without this handling, notifications will stop working after token refresh (typically after a few minutes to hours)
+
+**Symptoms of missing token refresh handling:**
+- Notifications work initially after sign-in
+- Notifications stop working after some minutes/hours
+- No errors in logs (silent failure)
 
 ## Provider Dependencies
 
@@ -161,6 +194,7 @@ NotificationDisplayService? notificationDisplayServiceSync(Ref ref) {
 | Notifications stop after re-sign-in | Service not reset on sign-out | Ensure `_service = null` in `unregisterAllInterests` |
 | Duplicate registrations | Missing registration flags | Check `_hasRegisteredInterests` before registering |
 | Provider disposed error | Controller not `keepAlive` | Use `@Riverpod(keepAlive: true)` |
+| Notifications stop after few minutes | FCM token refresh not handled | Ensure `_setupTokenRefreshListener` is called and `_foregroundCallback` is re-registered after SDK restart |
 
 ## File References
 

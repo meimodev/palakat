@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 import 'package:palakat_shared/core/widgets/pagination_bar.dart';
 import 'package:shimmer/shimmer.dart';
@@ -418,6 +419,7 @@ class _ErrorPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
@@ -438,7 +440,7 @@ class _ErrorPlaceholder extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.btn_retry),
             ),
           ],
         ],
@@ -448,14 +450,17 @@ class _ErrorPlaceholder extends StatelessWidget {
 }
 
 class _EmptyPlaceholder extends StatelessWidget {
+  const _EmptyPlaceholder();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       alignment: Alignment.center,
       child: Text(
-        'No records found',
+        l10n.noData_results,
         style: theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w500,
@@ -549,7 +554,9 @@ class _BuiltInFiltersBar extends StatefulWidget {
 }
 
 class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
-  late final Debouncer _debouncer = Debouncer(delay: const Duration(milliseconds: 400));
+  late final Debouncer _debouncer = Debouncer(
+    delay: const Duration(milliseconds: 400),
+  );
   TextEditingController? _internalSearchController;
 
   TextEditingController get _searchController {
@@ -560,7 +567,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
   void initState() {
     super.initState();
     // Create internal controller only if none provided
-    if (widget.config.searchController == null && widget.config.searchHint != null) {
+    if (widget.config.searchController == null &&
+        widget.config.searchHint != null) {
       _internalSearchController = TextEditingController();
     }
   }
@@ -581,6 +589,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final children = <Widget>[];
     // Search field
     if (widget.config.searchHint != null) {
@@ -596,7 +605,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
                       ? IconButton(
                           icon: const Icon(Icons.clear, size: 20),
                           onPressed: _clearSearch,
-                          tooltip: 'Clear search',
+                          tooltip: l10n.tooltip_clearSearch,
                         )
                       : null,
                   hintText: widget.config.searchHint,
@@ -605,7 +614,9 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
                 controller: _searchController,
                 onChanged: widget.config.onSearchChanged == null
                     ? null
-                    : (value) => _debouncer(() => widget.config.onSearchChanged!(value)),
+                    : (value) => _debouncer(
+                        () => widget.config.onSearchChanged!(value),
+                      ),
               );
             },
           ),
@@ -627,18 +638,26 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
         IntrinsicWidth(
           child: DropdownButtonFormField<DateRangePreset>(
             value: widget.config.dateRangePreset ?? DateRangePreset.allTime,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              labelText: 'Generated Date',
-              prefixIcon: Icon(Icons.date_range, size: 18),
-            ),
-            items: DateRangePreset.values.map(
-              (preset) => DropdownMenuItem<DateRangePreset>(
-                value: preset,
-                child: Text(preset.displayName, overflow: TextOverflow.ellipsis),
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
               ),
-            ).toList(),
+              labelText: l10n.lbl_dateRange,
+              prefixIcon: const Icon(Icons.date_range, size: 18),
+            ),
+            items: DateRangePreset.values
+                .map(
+                  (preset) => DropdownMenuItem<DateRangePreset>(
+                    value: preset,
+                    child: Text(
+                      preset.displayName,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
             onChanged: (preset) async {
               if (preset == null) return;
 
@@ -650,7 +669,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
                   lastDate: DateTime(2100),
                   initialDateRange: widget.config.customDateRange,
                 );
-                if (picked != null && widget.config.onCustomDateRangeSelected != null) {
+                if (picked != null &&
+                    widget.config.onCustomDateRangeSelected != null) {
                   widget.config.onCustomDateRangeSelected!(picked);
                 }
                 widget.config.onDateRangePresetChanged!(preset);
@@ -665,7 +685,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     }
 
     // Generic dropdown
-    if (widget.config.dropdownOptions != null && widget.config.dropdownOptions!.isNotEmpty) {
+    if (widget.config.dropdownOptions != null &&
+        widget.config.dropdownOptions!.isNotEmpty) {
       addSpacer();
       children.add(
         IntrinsicWidth(
@@ -678,7 +699,12 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
             items: [
               DropdownMenuItem<String?>(
                 value: null,
-                child: Text('All ${widget.config.dropdownLabel ?? "Items"}', overflow: TextOverflow.ellipsis),
+                child: Text(
+                  l10n.filter_allWithLabel(
+                    widget.config.dropdownLabel ?? l10n.filter_items,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               ...widget.config.dropdownOptions!.entries.map(
                 (entry) => DropdownMenuItem<String?>(
@@ -694,7 +720,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     }
 
     // Position dropdown
-    if (widget.config.positionOptions != null && widget.config.positionOptions!.isNotEmpty) {
+    if (widget.config.positionOptions != null &&
+        widget.config.positionOptions!.isNotEmpty) {
       addSpacer();
       children.add(
         IntrinsicWidth(
@@ -705,9 +732,12 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             items: [
-              const DropdownMenuItem<MemberPosition?>(
+              DropdownMenuItem<MemberPosition?>(
                 value: null,
-                child: Text('All Positions', overflow: TextOverflow.ellipsis),
+                child: Text(
+                  l10n.filter_allPositions,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               ...widget.config.positionOptions!.map(
                 (p) => DropdownMenuItem<MemberPosition?>(
@@ -723,7 +753,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     }
 
     // Action button
-    if (widget.config.onActionPressed != null && widget.config.actionLabel != null) {
+    if (widget.config.onActionPressed != null &&
+        widget.config.actionLabel != null) {
       addSpacer();
       children.add(
         FilledButton.icon(

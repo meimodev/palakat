@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 import 'core/layout/app_scaffold.dart';
 import 'core/navigation/page_transitions.dart';
@@ -47,8 +49,10 @@ class PalakatAdminApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeControllerProvider);
 
+    intl.Intl.defaultLocale = locale.languageCode;
+
     return MaterialApp.router(
-      title: 'Palakat Admin',
+      onGenerateTitle: (context) => context.l10n.appTitle_admin,
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,

@@ -5,6 +5,7 @@ import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/models.dart' as cm show Column;
 import 'package:palakat_admin/features/church/church.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class ChurchScreen extends ConsumerStatefulWidget {
   const ChurchScreen({super.key});
@@ -19,6 +20,8 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
   ChurchState get state => ref.watch(churchControllerProvider);
 
+  get l10n => context.l10n;
+
   void _openEditDrawer(Church church) {
     DrawerUtils.showDrawer(
       context: context,
@@ -32,18 +35,16 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Church updated successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_updated,
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : 'Failed to update church';
+            final msg = e is AppError ? e.userMessage : l10n.msg_updateFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Update failed',
+              title: l10n.msg_updateFailed,
               message: msg,
               statusCode: code,
             );
@@ -71,18 +72,16 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Location updated successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_updated,
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : 'Failed to update location';
+            final msg = e is AppError ? e.userMessage : l10n.msg_updateFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Update failed',
+              title: l10n.msg_updateFailed,
               message: msg,
               statusCode: code,
             );
@@ -103,24 +102,21 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           try {
             await churchController.saveColumn(updatedColumn);
             if (!mounted) return;
-            final churchId =
-                state.church.value?.id ?? updatedColumn.churchId;
+            final churchId = state.church.value?.id ?? updatedColumn.churchId;
             churchController.fetchColumns(churchId);
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Column saved successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_updated,
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : 'Failed to save column';
+            final msg = e is AppError ? e.userMessage : l10n.msg_saveFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Save failed',
+              title: l10n.msg_saveFailed,
               message: msg,
               statusCode: code,
             );
@@ -131,25 +127,24 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
               .deleteColumn(column.id!)
               .then((_) async {
                 if (!mounted) return;
-                final churchId =
-                    state.church.value?.id ?? column.churchId;
+                final churchId = state.church.value?.id ?? column.churchId;
                 churchController.fetchColumns(churchId);
                 if (!mounted) return;
                 AppSnackbars.showSuccess(
                   context,
-                  title: 'Deleted',
-                  message: 'Column deleted successfully',
+                  title: l10n.msg_deleted,
+                  message: l10n.msg_deleted,
                 );
               })
               .catchError((e) {
                 if (!mounted) return;
                 final msg = e is AppError
                     ? e.userMessage
-                    : 'Failed to delete column';
+                    : l10n.msg_deleteFailed;
                 final code = e is AppError ? e.statusCode : null;
                 AppSnackbars.showError(
                   context,
-                  title: 'Delete failed',
+                  title: l10n.msg_deleteFailed,
                   message: msg,
                   statusCode: code,
                 );
@@ -173,18 +168,16 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Column created successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_created,
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : 'Failed to create column';
+            final msg = e is AppError ? e.userMessage : l10n.msg_createFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Create failed',
+              title: l10n.msg_createFailed,
               message: msg,
               statusCode: code,
             );
@@ -209,18 +202,16 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Position saved successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_updated,
             );
           } catch (e) {
             if (!mounted) return;
-            final msg = e is AppError
-                ? e.userMessage
-                : 'Failed to save position';
+            final msg = e is AppError ? e.userMessage : l10n.msg_saveFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Save failed',
+              title: l10n.msg_saveFailed,
               message: msg,
               statusCode: code,
             );
@@ -237,18 +228,16 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
               if (!mounted) return;
               AppSnackbars.showSuccess(
                 context,
-                title: 'Deleted',
-                message: 'Position deleted successfully',
+                title: l10n.msg_deleted,
+                message: l10n.msg_deleted,
               );
             } catch (e) {
               if (!mounted) return;
-              final msg = e is AppError
-                  ? e.userMessage
-                  : 'Failed to delete position';
+              final msg = e is AppError ? e.userMessage : l10n.msg_deleteFailed;
               final code = e is AppError ? e.statusCode : null;
               AppSnackbars.showError(
                 context,
-                title: 'Delete failed',
+                title: l10n.msg_deleteFailed,
                 message: msg,
                 statusCode: code,
               );
@@ -273,18 +262,18 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Position created successfully',
+              title: l10n.msg_saved,
+              message: l10n.msg_created,
             );
           } catch (e) {
             if (!mounted) return;
             final msg = e is AppError
                 ? e.userMessage
-                : 'Failed to create position';
+                : l10n.msg_createFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Create failed',
+              title: l10n.msg_createFailed,
               message: msg,
               statusCode: code,
             );
@@ -298,15 +287,19 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Material(
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Church Profile', style: theme.textTheme.headlineMedium),
             Text(
-              'Manage your church\'s public information and columns.',
+              l10n.admin_church_title,
+              style: theme.textTheme.headlineMedium,
+            ),
+            Text(
+              l10n.admin_church_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -348,7 +341,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Failed to load this section.',
+            context.l10n.error_loadingData,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.error,
             ),
@@ -357,7 +350,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(context.l10n.btn_retry),
           ),
         ],
       ),
@@ -368,16 +361,15 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     final infoAsync = state.church;
 
     return ExpandableSurfaceCard(
-      title: 'Basic Information',
-      subtitle:
-          'Update the details for your church. This information is visible to members.',
+      title: l10n.card_basicInfo_title,
+      subtitle: l10n.card_basicInfo_subtitle,
       initiallyExpanded: true,
       trailing: ElevatedButton.icon(
         onPressed: infoAsync.hasValue
             ? () => _openEditDrawer(infoAsync.value!)
             : null,
         icon: const Icon(Icons.edit),
-        label: const Text('Edit'),
+        label: Text(l10n.btn_edit),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,
@@ -424,26 +416,26 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            _buildInfoRow('Church Name', church.name, theme),
+            _buildInfoRow(l10n.lbl_churchName, church.name, theme),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildInfoRow(
-                    'Phone Number',
+                    l10n.lbl_phone,
                     church.phoneNumber ?? '-',
                     theme,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildInfoRow('Email', church.email ?? '-', theme),
+                  child: _buildInfoRow(l10n.lbl_email, church.email ?? '-', theme),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             _buildInfoRow(
-              'About the Church',
+              l10n.lbl_descriptionOptional,
               church.description ?? '-',
               theme,
               maxLines: 3,
@@ -485,15 +477,15 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     final locationAsync = state.location;
 
     return ExpandableSurfaceCard(
-      title: 'Location',
-      subtitle: 'Update address and coordinates for your church location.',
+      title: l10n.card_location_title,
+      subtitle: l10n.card_location_subtitle,
       initiallyExpanded: true,
       trailing: ElevatedButton.icon(
         onPressed: (state.church.hasValue && locationAsync.hasValue)
             ? () => _openLocationEditDrawer(state.church.value!)
             : null,
         icon: const Icon(Icons.edit_location_alt),
-        label: const Text('Edit Location'),
+        label: Text(l10n.btn_edit),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,
@@ -541,22 +533,22 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            _buildInfoRow('Address', location.name, theme),
+            _buildInfoRow(l10n.lbl_address, location.name, theme),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildInfoRow(
-                    'Latitude',
-                    location.latitude.toString(),
+                    l10n.lbl_latitude,
+                    location.latitude?.toString() ?? '-',
                     theme,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildInfoRow(
-                    'Longitude',
-                    location.longitude.toString(),
+                    l10n.lbl_longitude,
+                    location.longitude?.toString() ?? '-',
                     theme,
                   ),
                 ),
@@ -573,15 +565,13 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     final columnsAsync = state.columns;
 
     return ExpandableSurfaceCard(
-      title: 'Column Management',
+      title: l10n.card_columnManagement_title,
       initiallyExpanded: true,
-      subtitle: columnsAsync.hasValue
-          ? 'Manage your church columns. Total columns: ${columnsAsync.value!.length}'
-          : 'Manage your church columns.',
+      subtitle: l10n.card_columnManagement_subtitle,
       trailing: ElevatedButton.icon(
         onPressed: () => _openAddColumnDrawer(state.church.value!.id!),
         icon: const Icon(Icons.add),
-        label: const Text('Add Column'),
+        label: Text(l10n.btn_add),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,
@@ -681,15 +671,13 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     final positionsAsync = state.positions;
 
     return ExpandableSurfaceCard(
-      title: 'Position Management',
+      title: l10n.card_positionManagement_title,
       initiallyExpanded: true,
-      subtitle: positionsAsync.hasValue
-          ? 'Manage member positions. Total positions: ${positionsAsync.value!.length}'
-          : 'Manage member positions.',
+      subtitle: l10n.card_positionManagement_subtitle,
       trailing: ElevatedButton.icon(
         onPressed: _openAddPositionDrawer,
         icon: const Icon(Icons.add),
-        label: const Text('Add Position'),
+        label: Text(l10n.btn_add),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,

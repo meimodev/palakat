@@ -20,7 +20,7 @@ class _AppScaffoldState extends State<AppScaffold> {
     return Scaffold(
       appBar: isSmall
           ? AppBar(
-              title: Text(context.l10n.appTitle),
+              title: Text(context.l10n.appTitle_admin),
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
@@ -257,8 +257,8 @@ class _AvatarMenu extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.btn_signOut),
-        content: Text('Are you sure you want to sign out?'),
+        title: Text(l10n.dlg_signOut_title),
+        content: Text(l10n.dlg_signOut_content),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -289,6 +289,7 @@ class _AppFooter extends StatelessWidget {
     final color = Theme.of(
       context,
     ).colorScheme.onSurface.withValues(alpha: 0.6);
+    final l10n = context.l10n;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -298,9 +299,7 @@ class _AppFooter extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
-            '© '
-            '$year'
-            ' Palakat. All rights reserved.',
+            l10n.footer_copyright(year),
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: color),

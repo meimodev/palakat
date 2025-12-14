@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 /// Widget for displaying member name with status badges in table cells
 /// Shows name, column, and badges for baptized, sidi, and app linked status
@@ -44,7 +45,7 @@ class MemberNameCell extends StatelessWidget {
                     icon: Icons.water_drop,
                     color: Colors.blue.shade600,
                     backgroundColor: Colors.blue.shade50,
-                    tooltip: 'Baptized',
+                    tooltip: context.l10n.tooltip_baptized,
                   ),
                 if (isSidi)
                   Padding(
@@ -53,7 +54,7 @@ class MemberNameCell extends StatelessWidget {
                       icon: Icons.emoji_people,
                       color: Colors.green.shade600,
                       backgroundColor: Colors.green.shade50,
-                      tooltip: 'Sidi',
+                      tooltip: context.l10n.tooltip_sidi,
                     ),
                   ),
                 if (isLinked)
@@ -63,7 +64,7 @@ class MemberNameCell extends StatelessWidget {
                       icon: Icons.phone_android,
                       color: Colors.purple.shade600,
                       backgroundColor: Colors.purple.shade50,
-                      tooltip: 'App Linked',
+                      tooltip: context.l10n.tooltip_appLinked,
                     ),
                   ),
               ],

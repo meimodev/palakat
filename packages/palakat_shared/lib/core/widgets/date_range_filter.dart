@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 class DateRangeFilter extends StatelessWidget {
   final DateTimeRange? value;
@@ -17,8 +18,11 @@ class DateRangeFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    final resolvedLabel = label == 'Date range' ? l10n.lbl_dateRange : label;
     final text = value == null
-        ? label
+        ? resolvedLabel
         : '${DateFormat('y-MM-dd').format(value!.start)} - ${DateFormat('y-MM-dd').format(value!.end)}';
 
     return Row(
@@ -27,7 +31,12 @@ class DateRangeFilter extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: () async {
             final now = DateTime.now();
-            final initial = value ?? DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+            final initial =
+                value ??
+                DateTimeRange(
+                  start: now.subtract(const Duration(days: 7)),
+                  end: now,
+                );
             final picked = await showDateRangePicker(
               context: context,
               firstDate: DateTime(2000, 1, 1),
@@ -41,23 +50,35 @@ class DateRangeFilter extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         PopupMenuButton<_Preset>(
-          tooltip: 'Quick ranges',
+          tooltip: l10n.dateRangeFilter_quickRangesTooltip,
           onSelected: (p) {
             final range = _computePreset(p);
             onChanged(range);
           },
-          itemBuilder: (context) => const [
-            PopupMenuItem(value: _Preset.thisWeek, child: Text('This week')),
-            PopupMenuItem(value: _Preset.lastWeek, child: Text('Last week')),
-            PopupMenuItem(value: _Preset.thisMonth, child: Text('This month')),
-            PopupMenuItem(value: _Preset.lastMonth, child: Text('Last month')),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: _Preset.thisWeek,
+              child: Text(l10n.dateRangeFilter_thisWeek),
+            ),
+            PopupMenuItem(
+              value: _Preset.lastWeek,
+              child: Text(l10n.dateRangeFilter_lastWeek),
+            ),
+            PopupMenuItem(
+              value: _Preset.thisMonth,
+              child: Text(l10n.dateRangeFilter_thisMonth),
+            ),
+            PopupMenuItem(
+              value: _Preset.lastMonth,
+              child: Text(l10n.dateRangeFilter_lastMonth),
+            ),
           ],
           icon: const Icon(Icons.expand_more),
         ),
         if (value != null) ...[
           const SizedBox(width: 4),
           IconButton(
-            tooltip: 'Clear date range',
+            tooltip: l10n.dateRangeFilter_clearTooltip,
             onPressed: onClear,
             icon: const Icon(Icons.clear),
           ),
@@ -76,12 +97,20 @@ DateTimeRange _computePreset(_Preset preset) {
   switch (preset) {
     case _Preset.thisWeek:
       final weekday = now.weekday; // Mon=1...Sun=7
-      start = DateTime(now.year, now.month, now.day).subtract(Duration(days: weekday - 1));
+      start = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: weekday - 1));
       end = start.add(const Duration(days: 6));
       break;
     case _Preset.lastWeek:
       final weekday = now.weekday;
-      final thisWeekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: weekday - 1));
+      final thisWeekStart = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: weekday - 1));
       start = thisWeekStart.subtract(const Duration(days: 7));
       end = thisWeekStart.subtract(const Duration(days: 1));
       break;

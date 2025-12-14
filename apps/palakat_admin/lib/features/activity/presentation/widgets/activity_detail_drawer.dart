@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class ActivityDetailDrawer extends ConsumerStatefulWidget {
   final int activityId;
@@ -60,12 +56,13 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SideDrawer(
-      title: 'Activity Details',
-      subtitle: 'View detailed information about this activity',
+      title: l10n.drawer_activityDetails_title,
+      subtitle: l10n.drawer_activityDetails_subtitle,
       onClose: widget.onClose,
       isLoading: _isLoading,
-      loadingMessage: 'Fetching activity details...',
+      loadingMessage: l10n.loading_activities,
       errorMessage: _errorMessage,
       onRetry: _fetchActivity,
       content: _activity == null
@@ -75,36 +72,36 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
               children: [
                 // Basic Information
                 InfoSection(
-                  title: 'Basic Information',
+                  title: l10n.section_basicInformation,
                   children: [
                     InfoRow(
-                      label: 'ID',
+                      label: l10n.lbl_activityId,
                       value: "# ${_activity!.id?.toString() ?? '-'}",
                     ),
-                    InfoRow(label: 'Title', value: _activity!.title),
+                    InfoRow(label: l10n.lbl_title, value: _activity!.title),
                     InfoRow(
-                      label: 'Designated Date & Time',
+                      label: l10n.lbl_activityDateTime,
                       value: _activity!.date.toDateTimeString(),
                     ),
                     InfoRow(
-                      label: 'Type',
+                      label: l10n.lbl_type,
                       value: _activity!.activityType.displayName,
                       valueWidget: ActivityTypeChip(
                         type: _activity!.activityType,
                       ),
                     ),
                     InfoRow(
-                      label: 'Description',
+                      label: l10n.lbl_description,
                       value: _activity!.description ?? '-',
                     ),
                     if (_activity!.note != null)
-                      InfoRow(label: ' Notes', value: _activity!.note!),
+                      InfoRow(label: l10n.lbl_notes, value: _activity!.note!),
                   ],
                 ),
 
                 const SizedBox(height: 24),
                 InfoSection(
-                  title: 'Approval Status',
+                  title: l10n.section_approval,
                   children: [
                     Builder(
                       builder: (context) {
@@ -136,7 +133,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Text(
-                        'Supervisor',
+                        l10n.tbl_supervisor,
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
@@ -218,7 +215,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                 // Approvers
                 if (_activity!.approvers.isNotEmpty)
                   InfoSection(
-                    title: 'Approvers',
+                    title: l10n.tbl_approvers,
                     children: [
                       ApproversStackDisplay(
                         approvers: _activity!.approvers,
@@ -229,10 +226,10 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                   )
                 else
                   InfoSection(
-                    title: 'Approvers',
+                    title: l10n.tbl_approvers,
                     children: [
                       InfoRow(
-                        label: 'Approvers',
+                        label: l10n.tbl_approvers,
                         value: 'No approvers assigned',
                       ),
                     ],
@@ -241,17 +238,22 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                 if (_activity!.location != null) ...[
                   const SizedBox(height: 24),
                   InfoSection(
-                    title: 'Location',
+                    title: l10n.section_locationDetails,
                     children: [
                       InfoRow(
-                        label: 'Location Name',
-                        value: _activity!.location?.name ?? 'Not specified',
-                      ),
-                      InfoRow(
-                        label: 'Position',
+                        label: l10n.lbl_name,
                         value:
-                            "${_activity!.location?.latitude.toString()} - ${_activity!.location?.longitude.toString()}",
+                            _activity!.location?.name.trim().isNotEmpty == true
+                            ? _activity!.location!.name
+                            : 'Not specified',
                       ),
+                      if (_activity!.location?.latitude != null &&
+                          _activity!.location?.longitude != null)
+                        InfoRow(
+                          label: 'Position',
+                          value:
+                              "${_activity!.location!.latitude} - ${_activity!.location!.longitude}",
+                        ),
                     ],
                   ),
                 ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/extensions.dart';
 
 class ApprovalStatusPill extends StatelessWidget {
   const ApprovalStatusPill({super.key, required this.status});
@@ -20,21 +21,22 @@ class ApprovalStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final color = _statusColor(status);
     IconData icon;
     String label;
     switch (status) {
       case ApprovalStatus.approved:
         icon = AppIcons.successSolid;
-        label = 'Approved';
+        label = l10n.status_approved;
         break;
       case ApprovalStatus.rejected:
         icon = AppIcons.cancel;
-        label = 'Rejected';
+        label = l10n.status_rejected;
         break;
       case ApprovalStatus.unconfirmed:
         icon = AppIcons.pending;
-        label = 'Pending';
+        label = l10n.status_pending;
     }
     return Container(
       padding: EdgeInsets.symmetric(

@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_controller.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_state.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
@@ -27,6 +28,7 @@ class ActivityDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(activityDetailControllerProvider(activityId));
+    final l10n = context.l10n;
 
     if (state.isLoading) {
       return ScaffoldWidget(
@@ -35,7 +37,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ScreenTitleWidget.primary(
-                title: 'Memuat...',
+                title: l10n.loading_activities,
                 leadIcon: AppIcons.back,
                 leadIconColor: Colors.black,
                 onPressedLeadIcon: context.pop,
@@ -86,7 +88,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                         activityDetailControllerProvider(activityId).notifier,
                       )
                       .fetchActivity(),
-                  child: const Text('Coba Lagi'),
+                  child: Text(l10n.btn_retry),
                 ),
               ],
             ),
@@ -100,7 +102,7 @@ class ActivityDetailScreen extends ConsumerWidget {
       return ScaffoldWidget(
         child: Center(
           child: Text(
-            'Aktivitas tidak ditemukan',
+            l10n.msg_activityNotFound,
             style: BaseTypography.bodyMedium,
           ),
         ),
@@ -145,13 +147,13 @@ class ActivityDetailScreen extends ConsumerWidget {
                 children: [
                   _buildActivityTypeIndicator(activity),
                   Gap.h12,
-                  _buildBasicInfoSection(activity),
+                  _buildBasicInfoSection(context, activity),
                   if (activity.note != null && activity.note!.isNotEmpty) ...[
                     Gap.h16,
-                    _buildNoteSection(activity),
+                    _buildNoteSection(context, activity),
                   ],
                   Gap.h16,
-                  _buildScheduleSection(activity),
+                  _buildScheduleSection(context, activity),
                   if (activity.location != null) ...[
                     Gap.h16,
                     _buildLocationSection(activity),
@@ -162,10 +164,10 @@ class ActivityDetailScreen extends ConsumerWidget {
                   ],
                   if (activity.approvers.isNotEmpty) ...[
                     Gap.h16,
-                    _buildApproversSection(activity, state),
+                    _buildApproversSection(context, activity, state),
                   ],
                   Gap.h16,
-                  _buildSupervisorSection(activity),
+                  _buildSupervisorSection(context, activity),
                   Gap.h24,
                 ],
               ),
@@ -184,6 +186,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     ActivityDetailState state,
   ) {
     final isLoading = state.isApprovalLoading;
+    final activityTitle = state.activity?.title ?? '';
     final controller = ref.read(
       activityDetailControllerProvider(activityId).notifier,
     );
@@ -197,13 +200,6 @@ class ActivityDetailScreen extends ConsumerWidget {
             width: 1,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
       ),
       padding: EdgeInsets.symmetric(
         vertical: BaseSize.h12,
@@ -211,60 +207,26 @@ class ActivityDetailScreen extends ConsumerWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            // Self-approval indicator badge
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w12,
-                vertical: BaseSize.h6,
-              ),
-              margin: EdgeInsets.only(bottom: BaseSize.h8),
-              decoration: BoxDecoration(
-                color: BaseColor.blue[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: BaseColor.blue[200]!),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FaIcon(
-                    AppIcons.personPin,
-                    size: BaseSize.w16,
-                    color: BaseColor.blue[700],
-                  ),
-                  Gap.w6,
-                  Text(
-                    'Anda juga sebagai approver',
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.blue[700],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+            Expanded(
+              child: _buildRejectButton(
+                context,
+                ref,
+                controller,
+                isLoading,
+                activityTitle,
               ),
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildRejectButton(
-                    context,
-                    ref,
-                    controller,
-                    isLoading,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: _buildApproveButton(
-                    context,
-                    ref,
-                    controller,
-                    isLoading,
-                  ),
-                ),
-              ],
+            Gap.w12,
+            Expanded(
+              child: _buildApproveButton(
+                context,
+                ref,
+                controller,
+                isLoading,
+                activityTitle,
+              ),
             ),
           ],
         ),
@@ -278,64 +240,32 @@ class ActivityDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     ActivityDetailController controller,
     bool isLoading,
+    String activityTitle,
   ) {
-    return OutlinedButton.icon(
-      onPressed: isLoading
-          ? null
-          : () async {
-              final confirmed = await _showConfirmationDialog(
-                context,
-                title: 'Tolak Aktivitas?',
-                message: 'Apakah Anda yakin ingin menolak aktivitas ini?',
-                confirmText: 'Tolak',
-                isDestructive: true,
-              );
-              if (confirmed == true) {
-                final success = await controller.rejectSelfApproval();
-                if (context.mounted && success) {
-                  // Invalidate operations controller to refresh supervised activities list
-                  ref.invalidate(operationsControllerProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Aktivitas berhasil ditolak'),
-                      backgroundColor: BaseColor.red[600],
-                    ),
-                  );
-                }
-              }
-            },
-      icon: isLoading
-          ? SizedBox(
-              width: BaseSize.w16,
-              height: BaseSize.w16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: BaseColor.red[500],
-              ),
-            )
-          : FaIcon(
-              AppIcons.close,
-              size: BaseSize.w18,
-              color: BaseColor.red[500],
+    return _buildActionButton(
+      text: context.l10n.btn_reject,
+      icon: AppIcons.close,
+      color: BaseColor.red.shade500,
+      isLoading: isLoading,
+      onTap: () async {
+        final confirmed = await _showConfirmationDialog(
+          context,
+          isApprove: false,
+          activityTitle: activityTitle,
+        );
+        if (confirmed != true || !context.mounted) return;
+
+        final success = await controller.rejectSelfApproval();
+        if (context.mounted && success) {
+          ref.invalidate(operationsControllerProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.msg_activityRejected),
+              backgroundColor: BaseColor.red[600],
             ),
-      label: Text(
-        'Tolak',
-        style: BaseTypography.titleMedium.copyWith(
-          color: isLoading ? BaseColor.neutral[400] : BaseColor.red[500],
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: BaseColor.red[500],
-        side: BorderSide(
-          color: isLoading ? BaseColor.neutral[300]! : BaseColor.red[500]!,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h12,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
+          );
+        }
+      },
     );
   }
 
@@ -345,60 +275,81 @@ class ActivityDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     ActivityDetailController controller,
     bool isLoading,
+    String activityTitle,
   ) {
-    return ElevatedButton.icon(
-      onPressed: isLoading
-          ? null
-          : () async {
-              final confirmed = await _showConfirmationDialog(
-                context,
-                title: 'Setujui Aktivitas?',
-                message: 'Apakah Anda yakin ingin menyetujui aktivitas ini?',
-                confirmText: 'Setujui',
-                isDestructive: false,
-              );
-              if (confirmed == true) {
-                final success = await controller.approveSelfApproval();
-                if (context.mounted && success) {
-                  // Invalidate operations controller to refresh supervised activities list
-                  ref.invalidate(operationsControllerProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Aktivitas berhasil disetujui'),
-                      backgroundColor: BaseColor.green[600],
+    return _buildActionButton(
+      text: context.l10n.btn_approve,
+      icon: AppIcons.approve,
+      color: BaseColor.green.shade600,
+      isLoading: isLoading,
+      onTap: () async {
+        final confirmed = await _showConfirmationDialog(
+          context,
+          isApprove: true,
+          activityTitle: activityTitle,
+        );
+        if (confirmed != true || !context.mounted) return;
+
+        final success = await controller.approveSelfApproval();
+        if (context.mounted && success) {
+          ref.invalidate(operationsControllerProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.msg_activityApproved),
+              backgroundColor: BaseColor.green[600],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required IconData icon,
+    required Color color,
+    required bool isLoading,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        onTap: isLoading ? null : onTap,
+        overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: BaseSize.w24,
+            vertical: BaseSize.h8,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: color),
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          ),
+          child: isLoading
+              ? Center(
+                  child: SizedBox(
+                    height: BaseSize.h18,
+                    width: BaseSize.h18,
+                    child: CircularProgressIndicator(color: color),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(icon, size: BaseSize.w18, color: color),
+                    Gap.w8,
+                    Text(
+                      text,
+                      style: BaseTypography.labelSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
                     ),
-                  );
-                }
-              }
-            },
-      icon: isLoading
-          ? SizedBox(
-              width: BaseSize.w16,
-              height: BaseSize.w16,
-              child: const CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : FaIcon(AppIcons.check, size: BaseSize.w18, color: Colors.white),
-      label: Text(
-        'Setujui',
-        style: BaseTypography.titleMedium.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
+                  ],
+                ),
         ),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isLoading
-            ? BaseColor.neutral[300]
-            : BaseColor.green[600],
-        foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h12,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 0,
       ),
     );
   }
@@ -406,39 +357,13 @@ class ActivityDetailScreen extends ConsumerWidget {
   /// Shows a confirmation dialog for approval actions.
   Future<bool?> _showConfirmationDialog(
     BuildContext context, {
-    required String title,
-    required String message,
-    required String confirmText,
-    required bool isDestructive,
+    required bool isApprove,
+    required String activityTitle,
   }) {
-    return showDialog<bool>(
+    return showApprovalConfirmationBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Batal',
-              style: TextStyle(color: BaseColor.neutral[600]),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              confirmText,
-              style: TextStyle(
-                color: isDestructive
-                    ? BaseColor.red[600]
-                    : BaseColor.green[600],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
+      isApprove: isApprove,
+      activityTitle: activityTitle,
     );
   }
 
@@ -480,7 +405,7 @@ class ActivityDetailScreen extends ConsumerWidget {
       case ActivityType.service:
         return _TypeConfig(
           icon: AppIcons.church,
-          label: 'Ibadah',
+          label: activity.activityType.displayName,
           backgroundColor: BaseColor.primary[50]!,
           borderColor: BaseColor.primary[200]!,
           iconColor: BaseColor.primary[700]!,
@@ -489,7 +414,7 @@ class ActivityDetailScreen extends ConsumerWidget {
       case ActivityType.event:
         return _TypeConfig(
           icon: AppIcons.event,
-          label: 'Kegiatan',
+          label: activity.activityType.displayName,
           backgroundColor: BaseColor.blue[50]!,
           borderColor: BaseColor.blue[200]!,
           iconColor: BaseColor.blue[700]!,
@@ -498,7 +423,7 @@ class ActivityDetailScreen extends ConsumerWidget {
       case ActivityType.announcement:
         return _TypeConfig(
           icon: AppIcons.announcement,
-          label: 'Pengumuman',
+          label: activity.activityType.displayName,
           backgroundColor: BaseColor.yellow[50]!,
           borderColor: BaseColor.yellow[200]!,
           iconColor: BaseColor.yellow[700]!,
@@ -586,11 +511,11 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupervisorSection(Activity activity) {
+  Widget _buildSupervisorSection(BuildContext context, Activity activity) {
     final supervisor = activity.supervisor;
     final positions = supervisor.membershipPositions;
     return _buildSectionCard(
-      title: 'Penanggung Jawab',
+      title: context.l10n.section_personInCharge,
       icon: AppIcons.person,
       iconBgColor: BaseColor.teal[50],
       iconColor: BaseColor.teal[600],
@@ -606,7 +531,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                supervisor.account?.name ?? 'Tidak diketahui',
+                supervisor.account?.name ?? context.l10n.lbl_unknown,
                 style: BaseTypography.titleMedium.copyWith(
                   color: BaseColor.teal[800],
                   fontWeight: FontWeight.w600,
@@ -666,7 +591,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBasicInfoSection(Activity activity) {
+  Widget _buildBasicInfoSection(BuildContext context, Activity activity) {
     final hasBipra = activity.bipra != null;
     final hasDescription =
         activity.description != null && activity.description!.isNotEmpty;
@@ -678,9 +603,9 @@ class ActivityDetailScreen extends ConsumerWidget {
     return _buildSectionCard(
       title: activity.title,
       icon: AppIcons.info,
-      subtitle: 'Detail kegiatan',
+      subtitle: context.l10n.drawer_activityDetails_title,
       children: [
-        if (hasBipra) _buildBipraInfo(activity),
+        if (hasBipra) _buildBipraInfo(context, activity),
         if (hasBipra && hasDescription) Gap.h12,
         if (hasDescription)
           Text(
@@ -694,7 +619,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBipraInfo(Activity activity) {
+  Widget _buildBipraInfo(BuildContext context, Activity activity) {
     final bipra = activity.bipra!;
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
@@ -731,7 +656,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Target Audience',
+                  context.l10n.lbl_targetAudience,
                   style: BaseTypography.labelSmall.copyWith(
                     color: BaseColor.blue[600],
                   ),
@@ -752,20 +677,20 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleSection(Activity activity) {
+  Widget _buildScheduleSection(BuildContext context, Activity activity) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildDateTimeCard(activity),
+        _buildDateTimeCard(context, activity),
         if (activity.reminder != null) ...[
           Gap.h12,
-          _buildReminderInfo(activity),
+          _buildReminderInfo(context, activity),
         ],
       ],
     );
   }
 
-  Widget _buildDateTimeCard(Activity activity) {
+  Widget _buildDateTimeCard(BuildContext context, Activity activity) {
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
       decoration: BoxDecoration(
@@ -782,7 +707,7 @@ class ActivityDetailScreen extends ConsumerWidget {
           Expanded(
             child: _buildDateTimeItem(
               icon: AppIcons.calendar,
-              label: 'Tanggal',
+              label: context.l10n.lbl_date,
               value: activity.date.ddMmmmYyyy,
               subValue: activity.date.EEEEddMMMyyyyShort.split(',').first,
               color: BaseColor.blue,
@@ -796,9 +721,9 @@ class ActivityDetailScreen extends ConsumerWidget {
           Expanded(
             child: _buildDateTimeItem(
               icon: AppIcons.time,
-              label: 'Waktu',
+              label: context.l10n.lbl_time,
               value: activity.date.HHmm,
-              subValue: _getTimePeriod(activity.date),
+              subValue: _getTimePeriod(context, activity.date),
               color: BaseColor.primary,
             ),
           ),
@@ -841,13 +766,14 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  String _getTimePeriod(DateTime date) {
-    if (date.hour < 12) return 'Pagi';
-    if (date.hour < 17) return 'Siang';
-    return 'Malam';
+  String _getTimePeriod(BuildContext context, DateTime date) {
+    final l10n = context.l10n;
+    if (date.hour < 12) return l10n.timePeriod_morning;
+    if (date.hour < 17) return l10n.timePeriod_afternoon;
+    return l10n.timePeriod_evening;
   }
 
-  Widget _buildReminderInfo(Activity activity) {
+  Widget _buildReminderInfo(BuildContext context, Activity activity) {
     final reminder = activity.reminder!;
     final reminderDate = _calculateReminderDate(activity);
 
@@ -878,7 +804,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pengingat',
+                  context.l10n.lbl_reminder,
                   style: BaseTypography.labelSmall.copyWith(
                     color: BaseColor.yellow[700],
                     fontWeight: FontWeight.w600,
@@ -894,7 +820,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 ),
                 Gap.h4,
                 Text(
-                  'Akan diingatkan pada $reminderDate',
+                  context.l10n.msg_willBeRemindedAt(reminderDate),
                   style: BaseTypography.bodySmall.copyWith(
                     color: BaseColor.yellow[600],
                   ),
@@ -925,9 +851,19 @@ class ActivityDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildLocationSection(Activity activity) {
-    final location = activity.location!;
+    final location = activity.location;
+    final hasCoordinates =
+        location?.latitude != null && location?.longitude != null;
+    final displayName = (location?.name.trim().isNotEmpty ?? false)
+        ? location!.name
+        : hasCoordinates
+        ? '${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
+        : '-';
+
     return GestureDetector(
-      onTap: () => _openGoogleMaps(location.latitude, location.longitude),
+      onTap: hasCoordinates
+          ? () => _openGoogleMaps(location!.latitude!, location.longitude!)
+          : null,
       child: Container(
         padding: EdgeInsets.all(BaseSize.w12),
         decoration: BoxDecoration(
@@ -955,39 +891,42 @@ class ActivityDetailScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    location.name,
+                    displayName,
                     style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.primary[800],
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Gap.h4,
-                  Row(
-                    children: [
-                      FaIcon(
-                        AppIcons.coordinates,
-                        size: BaseSize.w12,
-                        color: BaseColor.primary[500],
-                      ),
-                      Gap.w4,
-                      Expanded(
-                        child: Text(
-                          '${location.latitude.toStringAsFixed(5)}, ${location.longitude.toStringAsFixed(5)}',
-                          style: BaseTypography.bodySmall.copyWith(
-                            color: BaseColor.primary[600],
+                  if (hasCoordinates) ...[
+                    Gap.h4,
+                    Row(
+                      children: [
+                        FaIcon(
+                          AppIcons.coordinates,
+                          size: BaseSize.w12,
+                          color: BaseColor.primary[500],
+                        ),
+                        Gap.w4,
+                        Expanded(
+                          child: Text(
+                            '${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}',
+                            style: BaseTypography.bodySmall.copyWith(
+                              color: BaseColor.primary[600],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            FaIcon(
-              AppIcons.openExternal,
-              size: BaseSize.w18,
-              color: BaseColor.primary[400],
-            ),
+            if (hasCoordinates)
+              FaIcon(
+                AppIcons.openExternal,
+                size: BaseSize.w18,
+                color: BaseColor.primary[400],
+              ),
           ],
         ),
       ),
@@ -1086,7 +1025,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nomor Akun',
+                        context.l10n.lbl_accountNumber,
                         style: BaseTypography.labelSmall.copyWith(
                           color: BaseColor.neutral[500],
                         ),
@@ -1127,7 +1066,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     return '${isNegative ? '-' : ''}Rp $formatted';
   }
 
-  Widget _buildNoteSection(Activity activity) {
+  Widget _buildNoteSection(BuildContext context, Activity activity) {
     return Container(
       decoration: BoxDecoration(
         color: BaseColor.yellow[50],
@@ -1162,7 +1101,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 ),
                 Gap.w8,
                 Text(
-                  'Catatan',
+                  context.l10n.lbl_note,
                   style: BaseTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w700,
                     color: BaseColor.yellow[800],
@@ -1188,13 +1127,17 @@ class ActivityDetailScreen extends ConsumerWidget {
 
   /// Builds the approvers section with visual indicator for self-approval.
   /// Requirements: 8.5
-  Widget _buildApproversSection(Activity activity, ActivityDetailState state) {
+  Widget _buildApproversSection(
+    BuildContext context,
+    Activity activity,
+    ActivityDetailState state,
+  ) {
     final supervisorApproverRecord = state.supervisorApproverRecord;
 
     return _buildSectionCard(
-      title: 'Status Persetujuan',
+      title: context.l10n.section_approvalStatus,
       icon: AppIcons.verified,
-      subtitle: '${activity.approvers.length} approver(s)',
+      subtitle: context.l10n.msg_approverCount(activity.approvers.length),
       iconBgColor: BaseColor.green[50],
       iconColor: BaseColor.green[600],
       children: activity.approvers
@@ -1202,6 +1145,7 @@ class ActivityDetailScreen extends ConsumerWidget {
             (approver) => Padding(
               padding: EdgeInsets.only(bottom: BaseSize.h8),
               child: _buildApproverItem(
+                context,
                 approver,
                 isSupervisorApprover:
                     supervisorApproverRecord?.id == approver.id,
@@ -1215,6 +1159,7 @@ class ActivityDetailScreen extends ConsumerWidget {
   /// Builds an individual approver item with optional highlight for supervisor.
   /// Requirements: 8.5
   Widget _buildApproverItem(
+    BuildContext context,
     Approver approver, {
     bool isSupervisorApprover = false,
   }) {
@@ -1250,7 +1195,8 @@ class ActivityDetailScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        approver.membership?.account?.name ?? 'Tidak diketahui',
+                        approver.membership?.account?.name ??
+                            context.l10n.lbl_unknown,
                         style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.black,
                           fontWeight: FontWeight.w500,
@@ -1279,7 +1225,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                             ),
                             Gap.w4,
                             Text(
-                              'Anda',
+                              context.l10n.lbl_you,
                               style: BaseTypography.labelSmall.copyWith(
                                 color: BaseColor.blue[700],
                                 fontWeight: FontWeight.w600,
@@ -1329,7 +1275,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     Icon(statusIcon, size: BaseSize.w14, color: statusColor),
                     Gap.w4,
                     Text(
-                      _getApprovalStatusText(approver.status),
+                      _getApprovalStatusTextLocalized(context, approver.status),
                       style: BaseTypography.labelSmall.copyWith(
                         color: statusColor,
                         fontWeight: FontWeight.w600,
@@ -1376,14 +1322,18 @@ class ActivityDetailScreen extends ConsumerWidget {
     }
   }
 
-  String _getApprovalStatusText(ApprovalStatus status) {
+  String _getApprovalStatusTextLocalized(
+    BuildContext context,
+    ApprovalStatus status,
+  ) {
+    final l10n = context.l10n;
     switch (status) {
       case ApprovalStatus.approved:
-        return 'Disetujui';
+        return l10n.status_approved;
       case ApprovalStatus.rejected:
-        return 'Ditolak';
+        return l10n.status_rejected;
       case ApprovalStatus.unconfirmed:
-        return 'Menunggu';
+        return l10n.status_pending;
     }
   }
 }

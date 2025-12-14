@@ -566,7 +566,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"supervisorId\": 1,\n    \"bipra\": \"PKB\",\n    \"title\": \"Sunday Service\",\n    \"description\": \"Weekly Sunday worship service\",\n    \"locationName\": \"Main Hall\",\n    \"locationLatitude\": -6.2088,\n    \"locationLongitude\": 106.8456,\n    \"date\": \"2025-12-07T09:00:00.000Z\",\n    \"activityType\": \"SERVICE\",\n    \"reminder\": \"ONE_HOUR\"\n}"
+              "raw": "{\n    \"supervisorId\": 1,\n    \"bipra\": \"PKB\",\n    \"title\": \"Sunday Service\",\n    \"description\": \"Weekly Sunday worship service\",\n    \"location\": {\n        \"name\": \"Main Hall\",\n        \"latitude\": -6.2088,\n        \"longitude\": 106.8456\n    },\n    \"date\": \"2025-12-07T09:00:00.000Z\",\n    \"activityType\": \"SERVICE\",\n    \"reminder\": \"ONE_HOUR\"\n}"
             },
             "url": "{{baseUrl}}/activity"
           }

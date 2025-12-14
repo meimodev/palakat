@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
+import 'package:palakat_shared/extensions.dart';
 
 /// A horizontal row of filter chips for filtering approvals by status.
 /// Options: All, Pending My Action, Pending Others, Approved, Rejected
@@ -24,18 +25,20 @@ class StatusFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           _FilterChip(
-            label: 'All',
+            label: l10n.approval_filterAll,
             isSelected: selectedFilter == ApprovalFilterStatus.all,
             onTap: () => onFilterChanged(ApprovalFilterStatus.all),
           ),
           Gap.w8,
           _FilterChip(
-            label: 'My Action',
+            label: l10n.approval_filterMyAction,
             count: pendingMyActionCount,
             isSelected: selectedFilter == ApprovalFilterStatus.pendingMyAction,
             onTap: () => onFilterChanged(ApprovalFilterStatus.pendingMyAction),
@@ -43,7 +46,7 @@ class StatusFilterChips extends StatelessWidget {
           ),
           Gap.w8,
           _FilterChip(
-            label: 'Pending Others',
+            label: l10n.approval_sectionPendingOthers,
             count: pendingOthersCount,
             isSelected: selectedFilter == ApprovalFilterStatus.pendingOthers,
             onTap: () => onFilterChanged(ApprovalFilterStatus.pendingOthers),
@@ -51,7 +54,7 @@ class StatusFilterChips extends StatelessWidget {
           ),
           Gap.w8,
           _FilterChip(
-            label: 'Approved',
+            label: l10n.status_approved,
             count: approvedCount,
             isSelected: selectedFilter == ApprovalFilterStatus.approved,
             onTap: () => onFilterChanged(ApprovalFilterStatus.approved),
@@ -59,7 +62,7 @@ class StatusFilterChips extends StatelessWidget {
           ),
           Gap.w8,
           _FilterChip(
-            label: 'Rejected',
+            label: l10n.status_rejected,
             count: rejectedCount,
             isSelected: selectedFilter == ApprovalFilterStatus.rejected,
             onTap: () => onFilterChanged(ApprovalFilterStatus.rejected),

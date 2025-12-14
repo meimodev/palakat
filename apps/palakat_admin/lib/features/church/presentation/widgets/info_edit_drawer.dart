@@ -4,6 +4,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/validation.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class InfoEditDrawer extends ConsumerStatefulWidget {
   final Church church;
@@ -62,7 +63,7 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to load church details';
+        _errorMessage = context.l10n.error_loadingChurch;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -102,7 +103,7 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to save changes';
+        _errorMessage = context.l10n.msg_saveFailed;
       });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -112,13 +113,14 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SideDrawer(
-      title: 'Edit Church Information',
-      subtitle: 'Update your church details',
+      title: l10n.drawer_editChurchInfo_title,
+      subtitle: l10n.drawer_editChurchInfo_subtitle,
       onClose: widget.onClose,
       isLoading: _saving || _loading,
-      loadingMessage: _loading ? 'Loading church details...' : 'Saving changes...',
+      loadingMessage: _loading ? l10n.loading_church : l10n.loading_saving,
       errorMessage: _errorMessage,
       onRetry: _loading ? _fetchLatestChurch : null,
       content: Form(
@@ -128,15 +130,15 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
           children: [
             // Basic Information Section
             InfoSection(
-              title: 'Basic Information',
+              title: l10n.section_basicInformation,
               titleSpacing: 16,
               children: [
                 LabeledField(
-                  label: 'Church Name',
+                  label: l10n.lbl_churchName,
                   child: TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      hintText: 'Enter church name',
+                      hintText: l10n.hint_enterChurchName,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -149,13 +151,13 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Phone Number (Optional)',
+                  label: l10n.lbl_phoneNumberOptional,
                   child: TextFormField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     maxLength: 13,
                     decoration: InputDecoration(
-                      hintText: 'Enter phone number',
+                      hintText: l10n.hint_enterPhoneNumber,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -169,12 +171,12 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                 const SizedBox(height: 16),
 
                 LabeledField(
-                  label: 'Email (Optional)',
+                  label: l10n.lbl_emailOptional,
                   child: TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      hintText: 'Enter email address',
+                      hintText: l10n.hint_enterEmailAddress,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -186,12 +188,12 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                 ),
                 const SizedBox(height: 16),
                 LabeledField(
-                  label: 'Description (Optional)',
+                  label: l10n.lbl_descriptionOptional,
                   child: TextFormField(
                     controller: _descriptionController,
                     maxLines: 4,
                     decoration: InputDecoration(
-                      hintText: 'Describe your church (visible to members)',
+                      hintText: l10n.hint_describeYourChurch,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -216,7 +218,7 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.onPrimary,
             ),
-            child: const Text('Save Changes'),
+            child: Text(l10n.btn_saveChanges),
           ),
         ],
       ),

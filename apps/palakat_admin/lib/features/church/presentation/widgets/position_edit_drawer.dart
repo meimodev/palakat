@@ -5,6 +5,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/validation.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/church/church.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class PositionEditDrawer extends ConsumerStatefulWidget {
   final int? positionId;
@@ -70,7 +71,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load members for this position';
+        _errorMessage = context.l10n.err_loadFailed;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -79,6 +80,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
+      final l10n = context.l10n;
       final position = MemberPosition(
         id: widget.positionId,
         churchId: _positionDetail?.churchId ?? widget.churchId,
@@ -92,25 +94,24 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
 
       AppSnackbars.showSuccess(
         context,
-        title: 'Saved',
-        message: 'Position ${adding ? 'added' : 'updated'} successfully',
+        title: l10n.msg_saved,
+        message: adding ? l10n.msg_created : l10n.msg_updated,
       );
     }
   }
 
   void _deletePosition() {
     if (widget.onDelete != null) {
+      final l10n = context.l10n;
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Position'),
-          content: const Text(
-            'Are you sure you want to delete this position? This action cannot be undone.',
-          ),
+          title: Text(l10n.dlg_deletePosition_title),
+          content: Text(l10n.dlg_deletePosition_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -126,7 +127,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                 } catch (e) {
                   if (!mounted) return;
                   setState(() {
-                    _errorMessage = 'Failed to delete position';
+                    _errorMessage = context.l10n.msg_deleteFailed;
                   });
                 } finally {
                   if (mounted) setState(() => _deleting = false);
@@ -135,7 +136,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Delete'),
+              child: Text(l10n.btn_delete),
             ),
           ],
         ),
@@ -146,17 +147,18 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SideDrawer(
-      title: adding ? 'Add Position' : 'Edit Position',
+      title: adding
+          ? l10n.drawer_addPosition_title
+          : l10n.drawer_editPosition_title,
       subtitle: adding
-          ? 'Create a new position'
-          : 'Update position information',
+          ? l10n.drawer_addPosition_subtitle
+          : l10n.drawer_editPosition_subtitle,
       onClose: widget.onClose,
       isLoading: (!adding && _loading) || _deleting,
-      loadingMessage: _deleting
-          ? 'Deleting position...'
-          : 'Loading position details...',
+      loadingMessage: _deleting ? l10n.loading_deleting : l10n.loading_data,
       errorMessage: !adding ? _errorMessage : null,
       onRetry: !adding && !_deleting ? _fetchPositionAndMembers : null,
       content: Form(
@@ -165,12 +167,12 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InfoSection(
-              title: 'Position Information',
+              title: l10n.section_positionInformation,
               titleSpacing: 16,
               children: [
                 if (_positionDetail != null) ...[
                   LabeledField(
-                    label: 'Position ID',
+                    label: l10n.lbl_positionId,
                     child: Text(
                       "# ${_positionDetail!.id}",
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -181,11 +183,11 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                   const SizedBox(height: 16),
                 ],
                 LabeledField(
-                  label: 'Position Name',
+                  label: l10n.lbl_positionName,
                   child: TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      hintText: 'Enter position name',
+                      hintText: l10n.hint_enterPositionName,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -204,7 +206,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
 
             if (!adding) ...[
               InfoSection(
-                title: 'Member in this Position',
+                title: l10n.section_memberInThisPosition,
                 titleSpacing: 16,
                 children: [
                   if ((_positionDetail?.positions ?? []).isEmpty)
@@ -229,7 +231,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'No members assigned to this position',
+                              l10n.noData_members,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                                 fontStyle: FontStyle.italic,
@@ -354,7 +356,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                   foregroundColor: Colors.red,
                   side: BorderSide(color: Colors.red),
                 ),
-                child: const Text('Delete'),
+                child: Text(l10n.btn_delete),
               ),
             ),
             const SizedBox(width: 12),
@@ -366,7 +368,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(adding ? 'Create' : 'Save'),
+              child: Text(adding ? l10n.btn_create : l10n.btn_save),
             ),
           ),
         ],

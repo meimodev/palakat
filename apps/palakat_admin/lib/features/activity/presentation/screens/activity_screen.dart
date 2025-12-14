@@ -6,6 +6,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key});
@@ -29,6 +30,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final ActivityScreenState state = ref.watch(activityControllerProvider);
     final ActivityController controller = ref.watch(
@@ -40,7 +42,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Activity', style: theme.textTheme.headlineMedium),
+            Text(l10n.admin_activity_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
               'Monitor and manage all church activity.',
@@ -50,8 +52,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ),
             const SizedBox(height: 16),
             SurfaceCard(
-              title: 'Activity Directory',
-              subtitle: 'A record of all church activity and events.',
+              title: l10n.card_activityList_title,
+              subtitle: l10n.card_activityList_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -85,8 +87,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint:
-                          'Search by title, description, or supervisor name ...',
+                      searchHint: l10n.hint_searchByTitleDescription,
                       onSearchChanged: controller.onChangedSearch,
                       dateRangePreset: state.dateRangePreset,
                       customDateRange: state.customDateRange,
@@ -94,7 +95,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           controller.onChangedDateRangePreset,
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
-                      dropdownLabel: 'Type',
+                      dropdownLabel: l10n.lbl_type,
                       dropdownOptions: {
                         ActivityType.service.name:
                             ActivityType.service.displayName,
@@ -132,10 +133,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   }
 
   /// Builds the table column configuration for the activities table
-  static List<AppTableColumn<Activity>> _buildTableColumns() {
+  List<AppTableColumn<Activity>> _buildTableColumns() {
+    final l10n = context.l10n;
     return [
       AppTableColumn<Activity>(
-        title: 'Title',
+        title: l10n.tbl_title,
         flex: 3,
         cellBuilder: (ctx, activity) {
           final theme = Theme.of(ctx);
@@ -165,14 +167,14 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         },
       ),
       AppTableColumn<Activity>(
-        title: 'Type',
+        title: l10n.tbl_type,
         flex: 2,
         cellBuilder: (ctx, activity) {
           return ActivityTypeChip(type: activity.activityType);
         },
       ),
       AppTableColumn<Activity>(
-        title: 'Request Date',
+        title: l10n.tbl_requestDate,
         flex: 2,
         cellBuilder: (ctx, activity) {
           final theme = Theme.of(ctx);
@@ -188,7 +190,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         },
       ),
       AppTableColumn<Activity>(
-        title: 'Supervisor',
+        title: l10n.tbl_supervisor,
         flex: 2,
         cellBuilder: (ctx, activity) {
           final theme = Theme.of(ctx);
@@ -201,7 +203,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         },
       ),
       AppTableColumn<Activity>(
-        title: 'Approval',
+        title: l10n.tbl_approval,
         flex: 2,
         cellBuilder: (ctx, activity) {
           return CompactStatusChip.forApproval(
@@ -211,7 +213,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         },
       ),
       AppTableColumn<Activity>(
-        title: 'Approvers',
+        title: l10n.tbl_approvers,
         flex: 3,
         cellBuilder: (ctx, activity) {
           return ApproversWrapDisplay(

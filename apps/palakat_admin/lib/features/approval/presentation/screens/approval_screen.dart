@@ -4,6 +4,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import '../state/approval_controller.dart';
 import '../state/approval_screen_state.dart';
 import '../widgets/approval_edit_drawer.dart';
@@ -24,16 +25,17 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Material(
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Approvals', style: theme.textTheme.headlineMedium),
+            Text(l10n.admin_approval_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Configure approval routing rules and requirements.',
+              l10n.card_approvalRules_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -55,14 +57,14 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final positions = positionsAsync.value?.data ?? [];
 
     return SurfaceCard(
-      title: 'Approval Rules',
-      subtitle: 'Configure approval routing rules and requirements',
+      title: context.l10n.card_approvalRules_title,
+      subtitle: context.l10n.card_approvalRules_subtitle,
       trailing: ElevatedButton.icon(
         onPressed: rulesAsync.hasValue && positionsAsync.hasValue
             ? () => _showAddRuleDialog(context)
             : null,
         icon: const Icon(Icons.add),
-        label: const Text('Add Rule'),
+        label: Text(context.l10n.btn_addRule),
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,
@@ -75,7 +77,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         errorText: rulesAsync.hasError ? rulesAsync.error.toString() : null,
         onRetry: controller.refresh,
         filtersConfig: AppTableFiltersConfig(
-          searchHint: 'Search approval rules...',
+          searchHint: context.l10n.hint_searchApprovalRules,
           onSearchChanged: controller.onChangedSearch,
           positionOptions: positions,
           positionValue:
@@ -88,8 +90,11 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           onPositionChanged: (position) {
             controller.onChangedPositionFilter(position?.id);
           },
-          dropdownLabel: 'Status',
-          dropdownOptions: const {'active': 'Active', 'inactive': 'Inactive'},
+          dropdownLabel: context.l10n.tbl_status,
+          dropdownOptions: {
+            'active': context.l10n.lbl_active,
+            'inactive': context.l10n.status_inactive,
+          },
           dropdownValue: state.activeOnly == null
               ? null
               : (state.activeOnly! ? 'active' : 'inactive'),
@@ -121,7 +126,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   List<AppTableColumn<ApprovalRule>> _buildTableColumns(BuildContext context) {
     return [
       AppTableColumn<ApprovalRule>(
-        title: 'Rule Name',
+        title: context.l10n.tbl_ruleName,
         flex: 3,
         cellBuilder: (ctx, rule) {
           final theme = Theme.of(ctx);
@@ -151,7 +156,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         },
       ),
       AppTableColumn<ApprovalRule>(
-        title: 'Filters',
+        title: context.l10n.tbl_filters,
         flex: 2,
         cellBuilder: (ctx, rule) {
           final theme = Theme.of(ctx);
@@ -162,7 +167,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
           if (!hasFilters) {
             return Text(
-              'No filters',
+              ctx.l10n.lbl_noFilters,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 fontStyle: FontStyle.italic,
@@ -232,7 +237,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         },
       ),
       AppTableColumn<ApprovalRule>(
-        title: 'Positions',
+        title: context.l10n.tbl_positions,
         flex: 2,
         cellBuilder: (ctx, rule) {
           final theme = Theme.of(ctx);
@@ -253,13 +258,13 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         },
       ),
       AppTableColumn<ApprovalRule>(
-        title: 'Status',
+        title: context.l10n.tbl_status,
         flex: 1,
         cellBuilder: (ctx, rule) {
           final theme = Theme.of(ctx);
           return Chip(
             label: Text(
-              rule.active ? 'Active' : 'Inactive',
+              rule.active ? ctx.l10n.lbl_active : ctx.l10n.status_inactive,
               style: theme.textTheme.labelSmall,
             ),
             backgroundColor: rule.active
@@ -284,18 +289,18 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Created',
-              message: 'Approval rule created successfully',
+              title: context.l10n.msg_created,
+              message: context.l10n.msg_approvalRuleCreated,
             );
           } catch (e) {
             if (!mounted) return;
             final msg = e is AppError
                 ? e.userMessage
-                : 'Failed to create approval rule';
+                : context.l10n.msg_createApprovalRuleFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Create failed',
+              title: context.l10n.msg_createFailed,
               message: msg,
               statusCode: code,
             );
@@ -318,18 +323,18 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Saved',
-              message: 'Approval rule updated successfully',
+              title: context.l10n.msg_updated,
+              message: context.l10n.msg_approvalRuleUpdated,
             );
           } catch (e) {
             if (!mounted) return;
             final msg = e is AppError
                 ? e.userMessage
-                : 'Failed to update approval rule';
+                : context.l10n.msg_updateApprovalRuleFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Update failed',
+              title: context.l10n.msg_updateFailed,
               message: msg,
               statusCode: code,
             );
@@ -341,18 +346,18 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,
-              title: 'Deleted',
-              message: 'Approval rule deleted successfully',
+              title: context.l10n.msg_deleted,
+              message: context.l10n.msg_approvalRuleDeleted,
             );
           } catch (e) {
             if (!mounted) return;
             final msg = e is AppError
                 ? e.userMessage
-                : 'Failed to delete approval rule';
+                : context.l10n.msg_deleteApprovalRuleFailed;
             final code = e is AppError ? e.statusCode : null;
             AppSnackbars.showError(
               context,
-              title: 'Delete failed',
+              title: context.l10n.msg_deleteFailed,
               message: msg,
               statusCode: code,
             );

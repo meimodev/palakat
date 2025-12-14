@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/constants.dart';
+import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
@@ -42,6 +43,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final ReportScreenState state = ref.watch(reportControllerProvider);
     final ReportController controller = ref.watch(
@@ -53,10 +55,13 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Reports', style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.card_reportList_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
-              'Generate and view comprehensive report data across all modules.',
+              l10n.card_reportList_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -65,46 +70,46 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
             // Generate Report Cards
             SurfaceCard(
-              title: 'Generate Report',
+              title: l10n.drawer_generateReport_title,
               // subtitle: 'Create custom report for different modules.',
               child: Wrap(
                 spacing: 16,
                 runSpacing: 16,
                 children: [
                   _GenerateCard(
-                    title: 'Incoming Document',
+                    title: l10n.reportType_incomingDocument,
                     icon: Icons.mail_outline,
                     color: Colors.blue,
                     onGenerate: () => _showGenerateDrawer(
-                      'Incoming Document Report',
-                      'Generate a report for documents received.',
+                      l10n.reportTitle_incomingDocument,
+                      l10n.reportDesc_incomingDocument,
                     ),
                   ),
                   _GenerateCard(
-                    title: 'Congregation',
+                    title: l10n.reportType_congregation,
                     icon: Icons.groups_outlined,
                     color: Colors.purple,
                     onGenerate: () => _showGenerateDrawer(
-                      'Congregation Report',
-                      'Generate a report on the congregation.',
+                      l10n.reportTitle_congregation,
+                      l10n.reportDesc_congregation,
                     ),
                   ),
                   _GenerateCard(
-                    title: 'Services',
+                    title: l10n.reportType_services,
                     icon: Icons.church_outlined,
                     color: Colors.green,
                     onGenerate: () => _showGenerateDrawer(
-                      'Services Report',
-                      'Generate a report of all services.',
+                      l10n.reportTitle_services,
+                      l10n.reportDesc_services,
                     ),
                   ),
                   _GenerateCard(
-                    title: 'Activity',
+                    title: l10n.reportType_activity,
                     icon: Icons.local_activity_outlined,
                     color: Colors.orange,
                     onGenerate: () => _showGenerateDrawer(
-                      'Activity Report',
-                      'Generate a report of all activities.',
+                      l10n.reportTitle_activity,
+                      l10n.reportDesc_activity,
                     ),
                   ),
                 ],
@@ -115,7 +120,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
             // Report History
             SurfaceCard(
-              title: 'Report History',
+              title: l10n.card_reportHistory_title,
               // subtitle: 'View and manage previously generated reports.',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -149,7 +154,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search by report name...',
+                      searchHint: l10n.hint_searchByReportName,
                       onSearchChanged: controller.onChangedSearch,
                       dateRangePreset: state.dateRangePreset,
                       customDateRange: state.customDateRange,
@@ -157,8 +162,11 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                           controller.onChangedDateRangePreset,
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
-                      dropdownLabel: 'By',
-                      dropdownOptions: {'manual': 'Manual', 'system': 'System'},
+                      dropdownLabel: l10n.tbl_by,
+                      dropdownOptions: {
+                        'manual': l10n.opt_manual,
+                        'system': l10n.opt_system,
+                      },
                       dropdownValue: state.generatedByFilter?.name,
                       onDropdownChanged: (value) {
                         final generatedBy = value == null
@@ -182,9 +190,10 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
   /// Builds the table column configuration for the report table
   List<AppTableColumn<Report>> _buildTableColumns(BuildContext context) {
+    final l10n = context.l10n;
     return [
       AppTableColumn<Report>(
-        title: 'Report Name',
+        title: l10n.tbl_reportName,
         flex: 3,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
@@ -197,10 +206,11 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         },
       ),
       AppTableColumn<Report>(
-        title: 'By',
+        title: l10n.tbl_by,
         flex: 1,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
+          final l10n = ctx.l10n;
           final isManual = report.generatedBy == GeneratedBy.manual;
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -211,7 +221,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              isManual ? 'Manual' : 'System',
+              isManual ? l10n.opt_manual : l10n.opt_system,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: isManual
                     ? theme.colorScheme.onPrimaryContainer
@@ -223,19 +233,19 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         },
       ),
       AppTableColumn<Report>(
-        title: 'On',
+        title: l10n.tbl_on,
         flex: 2,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
           if (report.createdAt == null) {
-            return Text('-', style: theme.textTheme.bodyMedium);
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
           final date = report.createdAt!.toCustomFormat("EEEE, dd MMMM yyyy");
           return Text(date, style: theme.textTheme.bodyMedium);
         },
       ),
       AppTableColumn<Report>(
-        title: 'File',
+        title: l10n.tbl_file,
         flex: 2,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
@@ -269,6 +279,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         flex: 1,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
+          final l10n = ctx.l10n;
           return IconButton(
             onPressed: () async {
               if (report.id != null) {
@@ -277,16 +288,16 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                   // ignore: use_build_context_synchronously
                   AppSnackbars.showError(
                     ctx,
-                    title: 'Invalid URL',
-                    message: 'Cannot open the report file.',
+                    title: l10n.msg_invalidUrl,
+                    message: l10n.msg_cannotOpenReportFile,
                   );
                   return;
                 }
                 // ignore: use_build_context_synchronously
                 AppSnackbars.showSuccess(
                   ctx,
-                  title: 'Opening',
-                  message: 'Opening ${report.name}...',
+                  title: l10n.msg_opening,
+                  message: l10n.msg_openingReport(report.name),
                 );
                 try {
                   await launchUrl(url);
@@ -297,7 +308,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             },
             icon: const Icon(Icons.download),
             color: theme.colorScheme.primary,
-            tooltip: 'Download Report',
+            tooltip: l10n.tooltip_downloadReport,
           );
         },
       ),

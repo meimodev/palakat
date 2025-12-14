@@ -5,6 +5,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/member/member.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class MemberScreen extends ConsumerStatefulWidget {
   const MemberScreen({super.key});
@@ -28,10 +29,10 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
           if (!mounted) return;
           AppSnackbars.showSuccess(
             context,
-            title: isEditing ? 'Saved' : 'Created',
+            title: isEditing ? context.l10n.msg_saved : context.l10n.msg_created,
             message: isEditing 
-                ? 'Member saved successfully'
-                : 'Member created successfully',
+                ? context.l10n.msg_saved
+                : context.l10n.msg_created,
           );
         },
         onDelete: isEditing
@@ -43,8 +44,8 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                       if (!mounted) return;
                       AppSnackbars.showSuccess(
                         context,
-                        title: 'Deleted',
-                        message: 'Member deleted successfully',
+                        title: context.l10n.msg_deleted,
+                        message: context.l10n.msg_deleted,
                       );
                     })
                     .catchError((e) {
@@ -75,7 +76,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
     
     AppSnackbars.showError(
       context,
-      title: '${operation.toUpperCase()} failed',
+      title: operation == 'delete' ? context.l10n.msg_deleteFailed : context.l10n.msg_saveFailed,
       message: msg,
       statusCode: code,
     );
@@ -95,18 +96,18 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Member', style: theme.textTheme.headlineMedium),
+            Text(context.l10n.admin_member_title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Manage church member and their information.',
+              context.l10n.card_memberDirectory_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
             SurfaceCard(
-              title: 'Member Directory',
-              subtitle: 'A record of all church members.',
+              title: context.l10n.card_memberDirectory_title,
+              subtitle: context.l10n.card_memberDirectory_subtitle,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -116,7 +117,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                     runSpacing: 16,
                     children: [
                       QuickStatCard(
-                        label: 'Total Member',
+                        label: context.l10n.dashboard_totalMembers,
                         value: state.counts.value?.total.toString() ?? "",
                         icon: Icons.groups_outlined,
                         iconColor: Colors.orange.shade700,
@@ -124,7 +125,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                         isLoading: state.counts.isLoading,
                       ),
                       QuickStatCard(
-                        label: 'App Claimed',
+                        label: context.l10n.tooltip_appLinked,
                         value: state.counts.value?.claimed.toString() ?? "",
                         icon: Icons.phone_android_outlined,
                         iconColor: Colors.purple.shade600,
@@ -132,7 +133,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                         isLoading: state.counts.isLoading,
                       ),
                       QuickStatCard(
-                        label: 'Baptized',
+                        label: context.l10n.lbl_baptized,
                         value: state.counts.value?.baptized.toString() ?? "",
                         icon: Icons.water_drop_outlined,
                         iconColor: Colors.blue.shade600,
@@ -140,7 +141,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                         isLoading: state.counts.isLoading,
                       ),
                       QuickStatCard(
-                        label: 'Sidi',
+                        label: context.l10n.lbl_sidi,
                         value: state.counts.value?.sidi.toString() ?? "",
                         icon: Icons.emoji_people_outlined,
                         iconColor: Colors.green.shade600,
@@ -179,19 +180,19 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                       );
                     }.call(),
                     filtersConfig: AppTableFiltersConfig(
-                      searchHint: 'Search name / column / position ...',
+                      searchHint: context.l10n.hint_searchNameColumnPosition,
                       onSearchChanged: controller.onChangedSearch,
                       positionOptions: state.positions.value,
                       positionValue: state.selectedPosition,
                       onPositionChanged: controller.onChangedPosition,
-                      actionLabel: 'New Member',
+                      actionLabel: context.l10n.drawer_addMember_title,
                       actionIcon: Icons.add,
                       onActionPressed: () => _showMemberDrawer(),
                     ),
                     onRowTap: (account) async {
                       _showMemberDrawer(accountId: account.id);
                     },
-                    columns: _buildTableColumns(),
+                    columns: _buildTableColumns(context),
                   ),
                 ],
               ),
@@ -203,15 +204,15 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
   }
 
   /// Builds the table column configuration for the members table
-  static List<AppTableColumn<Account>> _buildTableColumns() {
+  static List<AppTableColumn<Account>> _buildTableColumns(BuildContext ctx) {
     return [
       AppTableColumn<Account>(
-        title: 'Name',
+        title: ctx.l10n.tbl_name,
         flex: 4,
         cellBuilder: (ctx, account) => MemberNameCell(account: account),
       ),
       AppTableColumn<Account>(
-        title: 'Phone',
+        title: ctx.l10n.tbl_phone,
         flex: 3,
         cellBuilder: (ctx, account) {
           final theme = Theme.of(ctx);
@@ -224,7 +225,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         },
       ),
       AppTableColumn<Account>(
-        title: 'Birth',
+        title: ctx.l10n.tbl_birth,
         flex: 2,
         cellBuilder: (ctx, account) {
           final theme = Theme.of(ctx);
@@ -253,7 +254,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         },
       ),
       AppTableColumn<Account>(
-        title: 'BIPRA',
+        title: ctx.l10n.tbl_bipra,
         flex: 2,
         cellBuilder: (ctx, account) {
           final theme = Theme.of(ctx);
@@ -268,7 +269,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         },
       ),
       AppTableColumn<Account>(
-        title: 'Positions',
+        title: ctx.l10n.tbl_positions,
         flex: 3,
         cellBuilder: (ctx, account) {
           final positions = (account.membership?.membershipPositions ?? [])

@@ -2,6 +2,7 @@
   "@@locale": "en",
 
   "appTitle": "Palakat",
+  "appTitle_admin": "Palakat Admin",
   "nav_dashboard": "Dashboard",
   "nav_members": "Members",
   "nav_activity": "Activity",
@@ -20,6 +21,84 @@
   "nav_songs": "Songs",
   "nav_operations": "Ops",
 
+  "approval_title": "Approvals",
+  "approval_filterAll": "All",
+  "approval_filterMyAction": "My Action",
+  "approval_filterByDate": "Filter by date",
+  "approval_noMoreApprovals": "No more approvals",
+  "approval_sectionPendingYourAction": "Pending Your Action",
+  "approval_sectionPendingOthers": "Pending Others",
+  "approval_allCaughtUpTitle": "All caught up!",
+  "approval_allCaughtUpSubtitle": "No pending approvals requiring your action",
+  "approval_pendingReviewCount": "{count, plural, =1{1 approval waiting for your review} other{{count} approvals waiting for your review}}",
+  "@approval_pendingReviewCount": {
+    "description": "Text describing how many approvals are waiting for review",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "approval_emptyTitle": "No approvals found",
+  "approval_emptySubtitle": "Try adjusting your filters",
+  "approval_errorTitle": "Something went wrong",
+  "approval_confirmApproveTitle": "Approve Activity?",
+  "approval_confirmRejectTitle": "Reject Activity?",
+  "approval_confirmApproveDescription": "Are you sure you want to approve this activity? This action cannot be undone.",
+  "approval_confirmRejectDescription": "Are you sure you want to reject this activity? This action cannot be undone.",
+
+  "activityType_service": "Service",
+  "@activityType_service": {
+    "description": "Label for activity type SERVICE"
+  },
+  "activityType_event": "Event",
+  "@activityType_event": {
+    "description": "Label for activity type EVENT"
+  },
+  "activityType_announcement": "Announcement",
+  "@activityType_announcement": {
+    "description": "Label for activity type ANNOUNCEMENT"
+  },
+
+  "approval_snackbarApproved": "Approved: {activityTitle}",
+  "@approval_snackbarApproved": {
+    "description": "Snackbar text shown after approving an activity",
+    "placeholders": {
+      "activityTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "approval_snackbarRejected": "Rejected: {activityTitle}",
+  "@approval_snackbarRejected": {
+    "description": "Snackbar text shown after rejecting an activity",
+    "placeholders": {
+      "activityTitle": {
+        "type": "String"
+      }
+    }
+  },
+
+  "admin_billing_title": "Billing Management",
+  "admin_billing_subtitle": "Manage church billing, payments, and view payment history.",
+  "admin_approval_title": "Approvals",
+  "admin_account_title": "Account",
+  "admin_account_subtitle": "Manage your account information and settings",
+  "admin_activity_title": "Activity",
+  "admin_revenue_title": "Revenue",
+  "admin_revenue_subtitle": "Track and manage all revenue sources.",
+  "admin_member_title": "Member",
+  "admin_financial_title": "Financial Account Numbers",
+  "admin_financial_subtitle": "Manage financial account numbers for your church.",
+  "admin_documentSettings_title": "Document Settings",
+  "admin_documentSettings_subtitle": "Manage document identity numbers and view recent approvals.",
+  "admin_documentIdentityNumber_title": "Document Identity Number",
+  "admin_documentIdentityNumber_subtitle": "Current template used for new documents.",
+  "admin_documentDirectory_title": "Document Directory",
+  "admin_documentDirectory_subtitle": "A record of all approved church documents.",
+  "admin_church_title": "Church Profile",
+  "admin_church_subtitle": "Manage your church's public information and columns.",
+
   "btn_continue": "Continue",
   "btn_cancel": "Cancel",
   "btn_save": "Save",
@@ -36,6 +115,20 @@
   "btn_close": "Close",
   "btn_confirm": "Confirm",
   "btn_back": "Back",
+  "btn_addAccountNumber": "Add Account Number",
+  "btn_generateReport": "Generate Report",
+  "btn_recordPayment": "Record Payment",
+  "btn_exportReceipt": "Export Receipt",
+  "btn_approve": "Approve",
+  "btn_reject": "Reject",
+  "btn_export": "Export",
+  "btn_remove": "Remove",
+  "btn_create": "Create",
+  "btn_update": "Update",
+  "btn_addRule": "Add Rule",
+  "btn_viewAll": "View All",
+  "btn_saveChanges": "Save Changes",
+  "btn_updatePassword": "Update Password",
 
   "lbl_email": "Email",
   "lbl_phone": "Phone Number",
@@ -48,6 +141,7 @@
   "lbl_description": "Description",
   "lbl_amount": "Amount",
   "lbl_search": "Search",
+  "lbl_generationType": "Generation Type",
   "lbl_selectChurch": "Select Church",
   "lbl_selectColumn": "Select Column",
   "lbl_searchChurches": "Search churches...",
@@ -60,6 +154,19 @@
   "lbl_noResultsFor": "No results found for \"{query}\"",
   "lbl_noAccountNumbers": "No account numbers available",
   "lbl_churchNotAvailable": "Church information not available",
+  "lbl_template": "Template",
+  "lbl_na": "N/A",
+  "lbl_unknown": "Unknown",
+  "lbl_you": "You",
+  "lbl_reminder": "Reminder",
+  "lbl_targetAudience": "Target Audience",
+  "timePeriod_morning": "Morning",
+  "timePeriod_afternoon": "Afternoon",
+  "timePeriod_evening": "Evening",
+  "reminder_tenMinutes": "10 minutes before",
+  "reminder_thirtyMinutes": "30 minutes before",
+  "reminder_oneHour": "1 hour before",
+  "reminder_twoHour": "2 hours before",
 
   "status_approved": "Approved",
   "status_pending": "Pending",
@@ -118,5 +225,736 @@
   "settings_title": "Settings",
   "settings_accountSettings": "Account Settings",
   "settings_membershipSettings": "Membership Settings",
-  "settings_noMembership": "No membership available"
+  "settings_noMembership": "No membership available",
+
+  "card_overdueBills_title": "Overdue Bills",
+  "card_overdueBills_subtitle": "Bills that require urgent attention",
+  "card_paymentHistory_title": "Payment History",
+  "card_paymentHistory_subtitle": "View all payment transactions and history.",
+  "card_billingItems_title": "Billing Items",
+  "card_billingItems_subtitle": "Manage church billing and payment records.",
+  "card_billingItems_subtitleWithTotal": "Manage church billing and payment records. Total items: {total}",
+  "@card_billingItems_subtitleWithTotal": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "card_approvalRules_title": "Approval Rules",
+  "card_approvalRules_subtitle": "Configure approval routing rules and requirements",
+  "card_memberDirectory_title": "Member Directory",
+  "card_memberDirectory_subtitle": "A record of all church members.",
+  "card_accountNumbers_title": "Account Numbers",
+  "card_accountNumbers_subtitle": "List of all financial account numbers for your church.",
+  "card_basicInfo_title": "Basic Information",
+  "card_basicInfo_subtitle": "Church details and contact information",
+  "card_location_title": "Location",
+  "card_location_subtitle": "Church address and geographical information",
+  "card_columnManagement_title": "Column Management",
+  "card_columnManagement_subtitle": "Manage church organizational columns",
+  "card_positionManagement_title": "Position Management",
+  "card_positionManagement_subtitle": "Manage church leadership positions",
+  "card_revenueRecords_title": "Revenue Records",
+  "card_revenueRecords_subtitle": "Track and manage church revenue.",
+  "card_revenueLog_title": "Revenue Log",
+  "card_revenueLog_subtitle": "A record of all logged revenue.",
+  "card_expenseRecords_title": "Expense Records",
+  "card_expenseRecords_subtitle": "Track and manage church expenses.",
+  "card_activityList_title": "Activity List",
+  "card_activityList_subtitle": "View all church activities and events.",
+  "card_documentList_title": "Documents",
+  "card_documentList_subtitle": "Manage church documents and files.",
+  "card_reportList_title": "Reports",
+  "card_reportList_subtitle": "Generate and view church reports.",
+  "card_reportHistory_title": "Report History",
+  "card_paymentInfo_title": "Payment Information",
+  "card_paymentInfo_subtitle": "Details about payment methods and accounts",
+  "card_recentActivity_title": "Recent Activity",
+  "card_recentActivity_subtitle": "Latest church activities and events",
+  "card_statistics_title": "Statistics",
+  "card_statistics_subtitle": "Church performance metrics and analytics",
+  "card_overview_title": "Overview",
+  "card_overview_subtitle": "Summary of key church information",
+  "card_accountSettings_title": "Account Settings",
+  "card_accountSettings_subtitle": "Manage your personal account preferences",
+  "card_churchInfo_title": "Church Information",
+  "card_churchInfo_subtitle": "Basic church details and settings",
+  "card_financialSummary_title": "Financial Summary",
+  "card_financialSummary_subtitle": "Overview of church financial status",
+  "card_accountInfo_title": "Account Information",
+  "card_accountInfo_subtitle": "Manage your profile and personal information",
+  "card_securitySettings_title": "Security Settings",
+  "card_securitySettings_subtitle": "Manage your account security",
+  "card_languageSettings_title": "Language Settings",
+  "card_languageSettings_subtitle": "Choose your preferred language",
+  "card_accountActions_title": "Account Actions",
+  "card_accountActions_subtitle": "Manage your account session",
+
+  "drawer_addMember_title": "Add Member",
+  "drawer_addMember_subtitle": "Create a new member",
+  "drawer_editMember_title": "Edit Member",
+  "drawer_editMember_subtitle": "Update member information",
+  "drawer_addApprovalRule_title": "Add Approval Rule",
+  "drawer_addApprovalRule_subtitle": "Create a new approval rule",
+  "drawer_editApprovalRule_title": "Edit Approval Rule",
+  "drawer_editApprovalRule_subtitle": "Update approval rule information",
+  "drawer_activityDetails_title": "Activity Details",
+  "drawer_activityDetails_subtitle": "View detailed information about this activity",
+  "drawer_revenueDetails_title": "Revenue Details",
+  "drawer_revenueDetails_subtitle": "View detailed information about this revenue entry",
+  "drawer_expenseDetails_title": "Expense Details",
+  "drawer_expenseDetails_subtitle": "View detailed information about this expense entry",
+  "drawer_editChurchInfo_title": "Edit Church Information",
+  "drawer_editChurchInfo_subtitle": "Update your church details",
+  "drawer_editLocation_title": "Edit Location",
+  "drawer_editLocation_subtitle": "Update address and coordinates for your church",
+  "drawer_addColumn_title": "Add Column",
+  "drawer_addColumn_subtitle": "Create a new column",
+  "drawer_editColumn_title": "Edit Column",
+  "drawer_editColumn_subtitle": "Update column information",
+  "drawer_addPosition_title": "Add Position",
+  "drawer_addPosition_subtitle": "Create a new position",
+  "drawer_editPosition_title": "Edit Position",
+  "drawer_editPosition_subtitle": "Update position information",
+  "drawer_addAccountNumber_title": "Add Account Number",
+  "drawer_addAccountNumber_subtitle": "Create a new financial account number",
+  "drawer_editAccountNumber_title": "Edit Account Number",
+  "drawer_editAccountNumber_subtitle": "Update the account number details",
+  "drawer_generateReport_title": "Generate Report",
+  "drawer_generateReport_subtitle": "Configure the newly generate report",
+  "drawer_editDocumentId_title": "Edit Document Identity Number",
+  "drawer_editDocumentId_subtitle": "Update the template used for new documents",
+  "drawer_paymentHistory_title": "Payment History",
+  "drawer_paymentHistory_subtitle": "Complete payment transaction history",
+  "drawer_billingDetails_title": "Billing Details",
+  "drawer_editAccountInfo_title": "Edit Account Information",
+  "drawer_editAccountInfo_subtitle": "Update your profile details",
+  "drawer_changePassword_title": "Change Password",
+  "drawer_changePassword_subtitle": "Keep your account secure with a strong password",
+
+  "lbl_ruleId": "Rule ID",
+  "lbl_ruleName": "Rule Name",
+  "lbl_ruleDescription": "Description (Optional)",
+  "lbl_activityType": "Activity Type (Optional)",
+  "lbl_financialType": "Financial Type (Optional)",
+  "lbl_financialAccountNumber": "Financial Account Number *",
+  "lbl_positions": "Positions",
+  "lbl_memberId": "Member ID",
+  "lbl_maritalStatus": "Marital Status",
+  "lbl_gender": "Gender",
+  "lbl_dateOfBirth": "Date of Birth",
+  "lbl_churchName": "Church Name",
+  "lbl_churchAddress": "Church Address",
+  "@lbl_churchAddress": {
+    "description": "Label for church address field"
+  },
+  "lbl_contactPerson": "Contact Person",
+  "@lbl_contactPerson": {
+    "description": "Label for contact person field"
+  },
+  "lbl_phoneNumberOptional": "Phone Number (Optional)",
+  "lbl_emailOptional": "Email (Optional)",
+  "lbl_descriptionOptional": "Description (Optional)",
+  "lbl_address": "Address",
+  "lbl_latitude": "Latitude",
+  "lbl_longitude": "Longitude",
+  "lbl_accountNumber": "Account Number",
+  "lbl_type": "Type",
+  "lbl_columnId": "Column ID",
+  "lbl_columnName": "Column Name",
+  "lbl_positionId": "Position ID",
+  "lbl_positionName": "Position Name",
+  "lbl_reportType": "Report Type",
+  "lbl_dateRange": "Date Range",
+  "lbl_allTime": "All Time",
+  "lbl_revenueId": "Revenue ID",
+  "lbl_expenseId": "Expense ID",
+  "lbl_activityId": "Activity ID",
+  "lbl_title": "Title",
+  "lbl_activityDateTime": "Activity Date & Time",
+  "lbl_note": "Note",
+  "lbl_activity": "Activity",
+  "lbl_approveOn": "Approve On",
+  "lbl_requestedAt": "Requested At",
+  "lbl_createdAt": "Created At",
+  "lbl_updatedAt": "Updated At",
+  "lbl_method": "Method",
+  "lbl_transactionId": "Transaction ID",
+  "lbl_notes": "Notes",
+  "lbl_paidDate": "Paid Date",
+  "lbl_payments": "Payments",
+  "lbl_bill": "Bill",
+  "lbl_optional": "(Optional)",
+  "lbl_active": "Active",
+  "lbl_baptized": "Baptized",
+  "lbl_sidi": "SIDI",
+  "lbl_noFilters": "No filters",
+  "lbl_adminUser": "Admin User",
+  "lbl_fullName": "Full Name",
+  "lbl_position": "Position",
+  "lbl_currentPassword": "Current Password",
+  "lbl_newPassword": "New Password",
+  "lbl_confirmNewPassword": "Confirm New Password",
+  "lbl_changePassword": "Change Password",
+  "lbl_changePasswordDesc": "Update your password regularly for security",
+  "lbl_signOutDesc": "Sign out from your current session",
+  "desc_ruleActive": "This rule is currently active",
+  "desc_ruleInactive": "This rule is inactive and will not be enforced",
+  "desc_activityTypeFilter": "When set, this rule only applies to activities of the selected type.",
+  "desc_financialFilter": "When set, this rule only applies to activities with matching financial data.",
+
+  "section_basicInformation": "Basic Information",
+  "section_ruleInformation": "Rule Information",
+  "section_status": "Status",
+  "section_activityTypeFilter": "Activity Type Filter",
+  "section_financialFilter": "Financial Filter",
+  "section_requiredApprovers": "Required Approvers",
+  "section_activityInformation": "Activity Information",
+  "section_approval": "Approval",
+  "section_approvalStatus": "Approval Status",
+  "section_personInCharge": "Person In Charge",
+  "section_schedule": "Schedule",
+  "section_financialRecord": "Financial Record",
+  "section_announcementDetails": "Announcement Details",
+  "section_timestamps": "Timestamps",
+  "section_locationDetails": "Location Details",
+  "section_reportDetails": "Report Details",
+  "section_paymentInformation": "Payment Information",
+  "section_positionInformation": "Position Information",
+  "section_memberInThisPosition": "Member in this Position",
+  "section_registeredMembers": "Registered Members ({count})",
+  "@section_registeredMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "publish_basicInfoSubtitle": "Title and target audience",
+  "publish_hintEnterActivityTitle": "Enter activity title",
+  "publish_targetAudienceBipra": "Target Audience (BIPRA)",
+  "publish_selectTargetGroup": "Select target group",
+  "publish_targetGroup": "Target Group",
+  "publish_locationSubtitle": "Where will this take place?",
+  "publish_hintLocationExample": "e.g., Church Hall, Host Name",
+  "publish_lblLocationName": "Location Name",
+  "publish_pinOnMapOptional": "Pin on Map (optional)",
+  "publish_tapToSelectLocationOptional": "Tap to select location on map (optional)",
+  "publish_locationSelected": "Location Selected",
+  "publish_scheduleSubtitle": "When will this happen?",
+  "publish_hintAdditionalNotes": "Any other details attendees should know",
+  "publish_eventSchedule": "Event Schedule",
+  "publish_reminderSubtitle": "When to notify attendees",
+  "publish_announcementDetailsSubtitle": "Content and attachments",
+  "publish_hintAnnouncement": "Write your announcement here...",
+  "publish_uploadFile": "Upload File",
+  "publish_supportedFileTypes": "JPG, PNG, PDF, DOC, DOCX",
+  "publish_fillAllRequiredFields": "Please fill all required fields",
+  "publish_financialRecordSubtitle": "Optional: Attach revenue or expense",
+  "publish_addFinancialRecord": "Add Financial Record",
+  "publish_removeFinancialRecordTitle": "Remove Financial Record?",
+  "publish_removeFinancialRecordContent": "Are you sure you want to remove this financial record? This action cannot be undone.",
+
+  "churchRequest_title": "Request Church Registration",
+  "@churchRequest_title": {
+    "description": "Title for church registration request bottom sheet"
+  },
+  "churchRequest_description": "Fill in the details below to request registration for your church. We'll review and add it to our system.",
+  "@churchRequest_description": {
+    "description": "Description text for church registration request bottom sheet"
+  },
+  "churchRequest_requesterInformation": "Requester Information",
+  "@churchRequest_requesterInformation": {
+    "description": "Section title for requester information"
+  },
+  "churchRequest_churchInformation": "Church Information",
+  "@churchRequest_churchInformation": {
+    "description": "Section title for church information"
+  },
+  "churchRequest_hintEnterContactPersonName": "Enter contact person name",
+  "@churchRequest_hintEnterContactPersonName": {
+    "description": "Hint for contact person name input"
+  },
+  "churchRequest_hintPhoneExample": "0812-3456-7890",
+  "@churchRequest_hintPhoneExample": {
+    "description": "Hint/example for phone number input"
+  },
+  "churchRequest_submitting": "Submitting...",
+  "@churchRequest_submitting": {
+    "description": "Button text while submitting church request"
+  },
+  "churchRequest_submitRequest": "Submit Request",
+  "@churchRequest_submitRequest": {
+    "description": "Submit button text for church request"
+  },
+  "churchRequest_fixErrorsBeforeSubmitting": "Please fix the errors above before submitting",
+  "@churchRequest_fixErrorsBeforeSubmitting": {
+    "description": "Error message shown when validation fails before submitting"
+  },
+  "churchRequest_fillAllRequiredFieldsCorrectly": "Please fill in all required fields correctly",
+  "@churchRequest_fillAllRequiredFieldsCorrectly": {
+    "description": "Error message shown when form state validation fails"
+  },
+  "churchRequest_submittedSuccessfully": "Church registration request submitted successfully!",
+  "@churchRequest_submittedSuccessfully": {
+    "description": "Success message when church request is submitted"
+  },
+  "churchRequest_validation_completeAddress": "Please enter a complete address",
+  "@churchRequest_validation_completeAddress": {
+    "description": "Validation message when address is too short"
+  },
+  "churchRequest_validation_phoneMinDigits": "Phone number must be at least {min} digits",
+  "@churchRequest_validation_phoneMinDigits": {
+    "description": "Validation message when phone number is too short",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "churchRequest_validation_phoneMaxDigits": "Phone number must not exceed {max} digits",
+  "@churchRequest_validation_phoneMaxDigits": {
+    "description": "Validation message when phone number is too long",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "churchRequest_validation_phoneMustStartWithZero": "Phone number must start with 0",
+  "@churchRequest_validation_phoneMustStartWithZero": {
+    "description": "Validation message when phone number does not start with 0"
+  },
+  "churchRequest_errorWithDetail": "Error: {error}",
+  "@churchRequest_errorWithDetail": {
+    "description": "Error message with detail for church request",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "hint_enterChurchName": "Enter church name",
+  "hint_enterPhoneNumber": "Enter phone number",
+  "hint_enterEmailAddress": "Enter email address",
+  "hint_describeYourChurch": "Describe your church (visible to members)",
+  "hint_enterChurchAddress": "Enter church address",
+  "hint_latitudeExample": "e.g. -6.1754",
+  "hint_longitudeExample": "e.g. 106.8272",
+  "hint_enterAccountNumber": "Enter account number",
+  "hint_enterDescription": "Enter description",
+  "hint_enterColumnName": "Enter column name",
+  "hint_enterPositionName": "Enter position name",
+  "hint_enterMemberName": "Enter member name",
+  "hint_enterFullName": "Enter your full name",
+  "hint_enterYourPhoneNumber": "Enter your phone number",
+  "hint_enterYourPosition": "Enter your position",
+  "hint_enterCurrentPassword": "Enter current password",
+  "hint_enterNewPassword": "Enter new password",
+  "hint_reEnterNewPassword": "Re-enter new password",
+  "hint_documentIdExample": "e.g., DOC-2024-001",
+  "hint_approvalRuleExample": "e.g. Financial Transactions",
+  "hint_describeApprovalRule": "Describe when this approval is required",
+  "hint_allActivityTypes": "All activity types",
+  "hint_noFinancialFilter": "No financial filter",
+  "hint_selectPositionsToApprove": "Select positions to approve...",
+  "hint_signInCredentials": "e.g. name@company.com or 1234-5678-9012",
+  "hint_searchApprovalRules": "Search approval rules...",
+  "hint_searchBillingItems": "Search billing items...",
+  "hint_searchByAccountNumber": "Search by account number, activity title...",
+  "hint_searchByReportName": "Search by report name...",
+  "hint_searchNameColumnPosition": "Search name / column / position ...",
+  "hint_searchByTitleDescription": "Search by title, description, or supervisor name ...",
+  "hint_searchAccountNumberDescription": "Search by account number or description...",
+
+  "dlg_selectPosition_title": "Select Position",
+  "hint_searchPositions": "Search by position name",
+
+  "tbl_billId": "Bill ID",
+  "tbl_description": "Description",
+  "tbl_amount": "Amount",
+  "tbl_dueDate": "Due Date",
+  "tbl_status": "Status",
+  "tbl_paymentId": "Payment ID",
+  "tbl_accountId": "Account ID",
+  "tbl_method": "Method",
+  "tbl_date": "Date",
+  "tbl_accountNumber": "Account Number",
+  "tbl_activity": "Activity",
+  "tbl_requestDate": "Request Date",
+  "tbl_approvalDate": "Approval Date",
+  "tbl_paymentMethod": "Payment Method",
+  "tbl_title": "Title",
+  "tbl_type": "Type",
+  "tbl_supervisor": "Supervisor",
+  "tbl_approval": "Approval",
+  "tbl_approvers": "Approvers",
+  "tbl_name": "Name",
+  "tbl_phone": "Phone",
+  "tbl_birth": "Birth",
+  "tbl_bipra": "BIPRA",
+  "tbl_positions": "Positions",
+  "tbl_ruleName": "Rule Name",
+  "tbl_filters": "Filters",
+  "tbl_documentName": "Document Name",
+  "tbl_createdDate": "Created Date",
+  "tbl_reportName": "Report Name",
+  "tbl_by": "By",
+  "tbl_on": "On",
+  "tbl_file": "File",
+
+  "opt_manual": "Manual",
+  "opt_system": "System",
+
+  "reportType_incomingDocument": "Incoming Document",
+  "reportTitle_incomingDocument": "Incoming Document Report",
+  "reportDesc_incomingDocument": "Generate a report for documents received.",
+  "reportType_congregation": "Congregation",
+  "reportTitle_congregation": "Congregation Report",
+  "reportDesc_congregation": "Generate a report on the congregation.",
+  "reportType_services": "Services",
+  "reportTitle_services": "Services Report",
+  "reportDesc_services": "Generate a report of all services.",
+  "reportType_activity": "Activity",
+  "reportTitle_activity": "Activity Report",
+  "reportDesc_activity": "Generate a report of all activities.",
+  "tbl_linkedApprovalRule": "Linked Approval Rule",
+
+  "dlg_deleteRule_title": "Delete Rule",
+  "dlg_deleteRule_content": "Are you sure you want to delete this approval rule?",
+  "dlg_deleteMember_title": "Delete Member",
+  "dlg_deleteMember_content": "Are you sure you want to delete this member? This action cannot be undone.",
+  "dlg_deletePosition_title": "Delete Position",
+  "dlg_deletePosition_content": "Are you sure you want to delete this position? This action cannot be undone.",
+  "dlg_deleteColumn_title": "Delete Column",
+  "dlg_deleteColumn_content": "Are you sure you want to delete this column? This action cannot be undone.",
+  "dlg_signOut_title": "Sign Out",
+  "dlg_signOut_content": "Are you sure you want to sign out?",
+  "dlg_recordPayment_title": "Record Payment",
+  "dlg_confirmAction_title": "Confirm Action",
+  "dlg_confirmDelete_title": "Confirm Delete",
+
+  "filter_allStatus": "All Status",
+  "filter_allActivityTypes": "All activity types",
+  "filter_noFinancialFilter": "No financial filter",
+  "filter_paymentMethod": "Payment Method",
+
+  "filter_items": "Items",
+  "filter_allPositions": "All Positions",
+  "filter_allWithLabel": "All {label}",
+  "@filter_allWithLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tooltip_clearSearch": "Clear search",
+  "msg_tryDifferentSearchTerm": "Try a different search term",
+
+  "pagination_showingRows": "Showing {showing} of {total} rows",
+  "@pagination_showingRows": {
+    "placeholders": {
+      "showing": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pagination_rowsPerPage": "Rows per page",
+  "pagination_page": "Page",
+  "pagination_ofPageCount": "of {pageCount}",
+  "@pagination_ofPageCount": {
+    "placeholders": {
+      "pageCount": {
+        "type": "int"
+      }
+    }
+  },
+  "pagination_previous": "Previous",
+  "pagination_next": "Next",
+
+  "dateRangeFilter_quickRangesTooltip": "Quick ranges",
+  "dateRangeFilter_thisWeek": "This week",
+  "dateRangeFilter_lastWeek": "Last week",
+  "dateRangeFilter_thisMonth": "This month",
+  "dateRangeFilter_lastMonth": "Last month",
+  "dateRangeFilter_clearTooltip": "Clear date range",
+
+  "msg_saved": "Saved successfully",
+  "msg_created": "Created successfully",
+  "msg_updated": "Updated successfully",
+  "msg_deleted": "Deleted successfully",
+  "msg_approvalRuleCreated": "Approval rule created successfully",
+  "msg_approvalRuleUpdated": "Approval rule updated successfully",
+  "msg_approvalRuleDeleted": "Approval rule deleted successfully",
+  "msg_recordedPayment": "Payment recorded successfully",
+  "msg_templateUpdated": "Template updated successfully",
+  "msg_documentTemplateWarning": "Changing the identity number template may cause certain numbers to be skipped.",
+  "msg_reportGenerated": "Report generated successfully",
+  "msg_signedOut": "Signed out successfully",
+  "msg_passwordChanged": "Password changed successfully",
+  "msg_accountUpdated": "Account information updated successfully",
+  "msg_activityNotFound": "Activity not found",
+  "msg_activityApproved": "Activity approved successfully",
+  "msg_activityRejected": "Activity rejected successfully",
+  "msg_generatedOn": "Generated on {date}",
+  "@msg_generatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_noGenerationDate": "No generation date",
+  "msg_exportComingSoon": "Export functionality coming soon",
+  "msg_downloadReportToViewDetails": "To view the full report details, please download the file.",
+  "msg_willBeRemindedAt": "Will be reminded at {reminderDate}",
+  "@msg_willBeRemindedAt": {
+    "placeholders": {
+      "reminderDate": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_approverCount": "{count} approver(s)",
+  "@msg_approverCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msg_opening": "Opening...",
+  "msg_openingReport": "Opening {reportName}...",
+  "@msg_openingReport": {
+    "placeholders": {
+      "reportName": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_cannotOpenReportFile": "Cannot open the report file.",
+  "msg_reportGenerationMayTakeAWhile": "Generating report might take a while, depending on the data requested.",
+  "msg_saveFailed": "Failed to save",
+  "msg_createFailed": "Failed to create",
+  "msg_updateFailed": "Failed to update",
+  "msg_deleteFailed": "Failed to delete",
+  "msg_createApprovalRuleFailed": "Failed to create approval rule",
+  "msg_updateApprovalRuleFailed": "Failed to update approval rule",
+  "msg_deleteApprovalRuleFailed": "Failed to delete approval rule",
+  "msg_recordPaymentFailed": "Failed to record payment",
+  "msg_generateReportFailed": "Failed to generate report",
+  "msg_invalidPassword": "Password must be at least 6 characters",
+  "msg_passwordMismatch": "Passwords do not match",
+  "msg_invalidUrl": "Invalid URL provided",
+  "msg_operationFailed": "Operation failed",
+  "msg_serverError": "Server Error",
+  "msg_badRequest": "Bad Request",
+  "msg_unauthorized": "Unauthorized",
+  "msg_forbidden": "Forbidden",
+  "msg_notFound": "Not Found",
+  "msg_conflict": "Conflict",
+  "msg_validationError": "Validation Error",
+  "msg_tooManyRequests": "Too Many Requests",
+  "msg_error": "Error",
+  "msg_checkInput": "Check your input",
+  "msg_signInAgain": "Please sign in again",
+  "msg_insufficientPermissions": "Insufficient permissions",
+  "msg_resourceNotFound": "Resource not found",
+  "msg_stateConflict": "State conflict",
+  "msg_validationFailed": "Validation failed",
+  "msg_slowDown": "Slow down",
+  "msg_tryAgainLater": "Please try again later",
+
+  "validation_required": "This field is required",
+  "validation_requiredField": "This field is required",
+  "validation_invalidEmail": "Please enter a valid email address",
+  "validation_invalidPhone": "Please enter a valid phone number",
+  "validation_invalidUrl": "Please enter a valid URL",
+  "validation_invalidNumber": "Please enter a valid number",
+  "validation_invalidDate": "Please enter a valid date",
+  "validation_minLength": "Must be at least {min} characters",
+  "@validation_minLength": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_maxLength": "Must be no more than {max} characters",
+  "@validation_maxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_passwordTooShort": "Password must be at least 6 characters",
+  "validation_passwordTooWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+  "validation_passwordMismatch": "Passwords do not match",
+  "validation_confirmPassword": "Please confirm your password",
+  "validation_currentPasswordRequired": "Current password is required",
+  "validation_newPasswordRequired": "New password is required",
+  "validation_invalidAmount": "Please enter a valid amount",
+  "validation_amountTooLow": "Amount must be greater than 0",
+  "validation_amountTooHigh": "Amount exceeds maximum limit",
+  "validation_invalidAccountNumber": "Please enter a valid account number",
+  "validation_accountNumberExists": "This account number already exists",
+  "validation_nameRequired": "Name is required",
+  "validation_titleRequired": "Title is required",
+  "validation_descriptionRequired": "Description is required",
+  "validation_addressRequired": "Address is required",
+  "validation_phoneRequired": "Phone number is required",
+  "validation_emailRequired": "Email address is required",
+  "validation_dateRequired": "Date is required",
+  "validation_timeRequired": "Time is required",
+  "validation_selectionRequired": "Please make a selection",
+  "validation_churchRequired": "Please select a church",
+  "validation_columnRequired": "Please select a column",
+  "validation_positionRequired": "Please select a position",
+  "validation_activityTypeRequired": "Please select an activity type",
+  "validation_financialTypeRequired": "Please select a financial type",
+  "validation_approverRequired": "At least one approver is required",
+  "validation_ruleNameRequired": "Rule name is required",
+  "validation_positionsRequired": "At least one position must be selected",
+  "validation_financialAccountRequired": "Financial account number is required when financial type is selected",
+  "validation_duplicateEntry": "This entry already exists",
+  "validation_invalidFormat": "Invalid format",
+  "validation_futureDate": "Date must be in the future",
+  "validation_pastDate": "Date must be in the past",
+  "validation_invalidRange": "Invalid date range",
+  "validation_startDateAfterEnd": "Start date must be before end date",
+  "validation_coordinatesRequired": "Coordinates are required",
+  "validation_invalidLatitude": "Latitude must be between -90 and 90",
+  "validation_invalidLongitude": "Longitude must be between -180 and 180",
+
+  "loading_data": "Loading data...",
+  "loading_members": "Loading members...",
+  "loading_activities": "Loading activities...",
+  "loading_revenue": "Loading revenue...",
+  "loading_expenses": "Loading expenses...",
+  "loading_reports": "Loading reports...",
+  "loading_documents": "Loading documents...",
+  "loading_approvals": "Loading approvals...",
+  "loading_billing": "Loading billing...",
+  "loading_financial": "Loading financial data...",
+  "loading_church": "Loading church information...",
+  "loading_account": "Loading account information...",
+  "loading_please_wait": "Please wait...",
+  "loading_saving": "Saving...",
+  "loading_deleting": "Deleting...",
+
+  "error_loadingData": "Failed to load data",
+  "error_loadingMembers": "Failed to load members",
+  "error_loadingActivities": "Failed to load activities",
+  "error_loadingRevenue": "Failed to load revenue",
+  "error_loadingExpenses": "Failed to load expenses",
+  "error_loadingReports": "Failed to load reports",
+  "error_loadingDocuments": "Failed to load documents",
+  "error_loadingApprovals": "Failed to load approvals",
+  "error_loadingBilling": "Failed to load billing",
+  "error_loadingFinancial": "Failed to load financial data",
+  "error_loadingChurch": "Failed to load church information",
+  "error_loadingAccount": "Failed to load account information",
+  "error_connectionFailed": "Connection failed. Please check your internet connection.",
+  "error_timeout": "Request timed out. Please try again.",
+  "error_unexpectedError": "An unexpected error occurred",
+
+  "noData_available": "No data available",
+  "noData_members": "No members found",
+  "noData_activities": "No activities found",
+  "noData_revenue": "No revenue records found",
+  "noData_expenses": "No expense records found",
+  "noData_reports": "No reports found",
+  "noData_documents": "No documents found",
+  "noData_approvals": "No approval rules found",
+  "noData_billing": "No billing items found",
+  "noData_financial": "No financial account numbers found",
+  "noData_church": "No church information available",
+  "noData_results": "No results found",
+  "noData_matchingCriteria": "No data matches your search criteria",
+  "noData_positions": "No positions available",
+  "noData_activityLink": "Not linked to any activity",
+
+  "tooltip_refresh": "Refresh",
+  "tooltip_viewActivityDetails": "View Activity Details",
+  "tooltip_downloadReport": "Download Report",
+  "tooltip_baptized": "Baptized",
+  "tooltip_sidi": "SIDI",
+  "tooltip_appLinked": "App Linked",
+
+  "footer_copyright": "© {year} Palakat. All rights reserved.",
+  "@footer_copyright": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+
+  "time_justNow": "Just now",
+  "time_minutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@time_minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "time_hoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@time_hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "time_daysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@time_daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "stat_changeFromLastMonth": "+{change} from last month",
+  "@stat_changeFromLastMonth": {
+    "description": "Stat card change text showing increase from last month",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "stat_changePercentFromLastMonth": "+{change}% from last month",
+  "@stat_changePercentFromLastMonth": {
+    "description": "Stat card change text showing percentage increase from last month",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+
+  "dashboard_recentActivitiesCount": "{count} recent activities",
+  "@dashboard_recentActivitiesCount": {
+    "description": "Text showing count of recent activities",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboard_recentActivitiesEmpty": "Recent transactions and member updates will be shown here.",
+  "@dashboard_recentActivitiesEmpty": {
+    "description": "Empty state text for recent activities section"
+  }
 }

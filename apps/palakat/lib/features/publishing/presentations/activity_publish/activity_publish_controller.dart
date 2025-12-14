@@ -23,7 +23,6 @@ class ActivityPublishController extends _$ActivityPublishController {
     if (state.type == ActivityType.service ||
         state.type == ActivityType.event) {
       final locationError = validateLocation(state.location);
-      final pinpointError = validatePinpointLocation(state.pinpointLocation);
       final dateError = validateDate(state.date);
       final timeError = validateTime(state.time);
       final reminderError = validateReminder(state.reminder);
@@ -33,7 +32,6 @@ class ActivityPublishController extends _$ActivityPublishController {
 
       final isValid =
           locationError == null &&
-          pinpointError == null &&
           dateError == null &&
           timeError == null &&
           reminderError == null &&
@@ -43,7 +41,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
       state = state.copyWith(
         errorLocation: locationError,
-        errorPinpointLocation: pinpointError,
+        errorPinpointLocation: null,
         errorDate: dateError,
         errorTime: timeError,
         errorReminder: reminderError,
@@ -83,9 +81,6 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   String? validatePinpointLocation(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Pinpoint location is required';
-    }
     return null;
   }
 
@@ -159,7 +154,6 @@ class ActivityPublishController extends _$ActivityPublishController {
         validateReminder(state.reminder) == null &&
         validateNote(state.note) == null &&
         validateTitle(state.title) == null &&
-        validatePinpointLocation(state.pinpointLocation) == null &&
         validateBipra(state.bipra) == null;
   }
 
@@ -240,7 +234,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         bipra: bipra,
         title: state.title ?? '',
         description: state.description,
-        locationName: location?.name ?? state.location,
+        locationName: state.location,
         locationLatitude: location?.latitude,
         locationLongitude: location?.longitude,
         date: activityDate,
@@ -322,9 +316,13 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onSelectedMapLocation(Location? location) {
     if (location == null) return;
+    final hasCoordinates =
+        location.latitude != null && location.longitude != null;
     final displayName = location.name.isNotEmpty
         ? location.name
-        : '${location.latitude.toStringAsFixed(5)}, ${location.longitude.toStringAsFixed(5)}';
+        : hasCoordinates
+        ? '${location.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
+        : '-';
     state = state.copyWith(
       selectedMapLocation: location,
       pinpointLocation: displayName,
@@ -431,7 +429,6 @@ class ActivityPublishController extends _$ActivityPublishController {
     return validateTitle(state.title) == null &&
         validateBipra(state.bipra) == null &&
         validateLocation(state.location) == null &&
-        validatePinpointLocation(state.pinpointLocation) == null &&
         validateDate(state.date) == null &&
         validateTime(state.time) == null &&
         validateReminder(state.reminder) == null;

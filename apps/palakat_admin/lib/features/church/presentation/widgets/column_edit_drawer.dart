@@ -72,7 +72,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
     } catch (e) {
       // Surface error inline but keep drawer open
       setState(() {
-        _errorMessage = 'Failed to load column details';
+        _errorMessage = context.l10n.err_loadFailed;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -101,7 +101,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to save column';
+        _errorMessage = context.l10n.msg_saveFailed;
       });
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -110,17 +110,16 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
 
   void _deleteColumn() {
     if (widget.onDelete != null) {
+      final l10n = context.l10n;
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Column'),
-          content: const Text(
-            'Are you sure you want to delete this column? This action cannot be undone.',
-          ),
+          title: Text(l10n.dlg_deleteColumn_title),
+          content: Text(l10n.dlg_deleteColumn_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -137,7 +136,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                   // Surface error inline; parent shows snackbar too
                   if (!mounted) return;
                   setState(() {
-                    _errorMessage = 'Failed to delete column';
+                    _errorMessage = context.l10n.msg_deleteFailed;
                   });
                 } finally {
                   if (mounted) setState(() => _deleting = false);
@@ -146,7 +145,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Delete'),
+              child: Text(l10n.btn_delete),
             ),
           ],
         ),
@@ -157,22 +156,26 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SideDrawer(
-      title: widget.columnId == null ? 'Add Column' : 'Edit Column',
+      title: widget.columnId == null
+          ? l10n.drawer_addColumn_title
+          : l10n.drawer_editColumn_title,
       subtitle: widget.columnId == null
-          ? 'Create a new column'
-          : 'Update column information',
+          ? l10n.drawer_addColumn_subtitle
+          : l10n.drawer_editColumn_subtitle,
       onClose: widget.onClose,
       isLoading: (widget.columnId != null && _loading) || _deleting || _saving,
       loadingMessage: _deleting
-          ? 'Deleting column...'
+          ? l10n.loading_deleting
           : _saving
-              ? 'Saving column...'
-              : 'Loading column details...',
+          ? l10n.loading_saving
+          : l10n.loading_data,
       errorMessage: _errorMessage,
-      onRetry:
-          widget.columnId != null && !_deleting ? _fetchColumnAndMemberships : null,
+      onRetry: widget.columnId != null && !_deleting
+          ? _fetchColumnAndMemberships
+          : null,
       content: Form(
         key: _formKey,
         child: Column(
@@ -180,13 +183,13 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
           children: [
             // Basic Information Section
             InfoSection(
-              title: 'Basic Information',
+              title: l10n.section_basicInformation,
               titleSpacing: 16,
               children: [
                 // Show ID field only when editing existing column
                 if (_columnDetail != null) ...[
                   LabeledField(
-                    label: 'Column ID',
+                    label: l10n.lbl_columnId,
                     child: Text(
                       "# ${_columnDetail!.id}",
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -197,12 +200,12 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                   const SizedBox(height: 16),
                 ],
                 LabeledField(
-                  label: 'Column Name',
+                  label: l10n.lbl_columnName,
                   child: TextFormField(
                     controller: _nameController,
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      hintText: 'Enter column name',
+                      hintText: l10n.hint_enterColumnName,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -210,8 +213,8 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                       fillColor: theme.colorScheme.surface,
                     ),
                     maxLength: 20,
-                    validator: (value) =>
-                        ChurchValidators.columnName().asFormFieldValidator(value),
+                    validator: (value) => ChurchValidators.columnName()
+                        .asFormFieldValidator(value),
                   ),
                 ),
               ],
@@ -222,12 +225,12 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
             // Memberships listing (read-only)
             if (_columnDetail != null)
               InfoSection(
-                title: 'Registered Members (${_memberships.length})',
+                title: l10n.section_registeredMembers(_memberships.length),
                 titleSpacing: 16,
                 children: [
                   if (_memberships.isEmpty)
                     Text(
-                      'No members register in this column.',
+                      l10n.noData_members,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -274,7 +277,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                   foregroundColor: theme.colorScheme.error,
                   side: BorderSide(color: theme.colorScheme.error),
                 ),
-                child: const Text('Delete'),
+                child: Text(l10n.btn_delete),
               ),
             ),
             const SizedBox(width: 12),
@@ -286,7 +289,9 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,
               ),
-              child: Text(widget.columnId == null ? 'Create' : 'Save'),
+              child: Text(
+                widget.columnId == null ? l10n.btn_create : l10n.btn_save,
+              ),
             ),
           ),
         ],
