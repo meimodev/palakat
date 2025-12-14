@@ -28,42 +28,64 @@ class ApproverCardCompact extends ConsumerWidget {
     final lastUpdate = approver.updatedAt ?? approver.createdAt ?? fallbackDate;
     final statusIcon = status.icon;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(statusIcon, size: 16, color: statusColor),
-          const SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final iconOnly =
+            constraints.maxWidth.isFinite &&
+            constraints.maxWidth > 0 &&
+            constraints.maxWidth < 72;
+
+        final double maxTextWidth = constraints.maxWidth.isFinite
+            ? (constraints.maxWidth - (16 + 6 + 16)).clamp(0, 180).toDouble()
+            : 180.0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                approverName,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (lastUpdate != null) ...[
-                const SizedBox(height: 1),
-                Text(
-                  lastUpdate.toCustomFormat("MMM dd, yyyy"),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+              Icon(statusIcon, size: 16, color: statusColor),
+              if (!iconOnly) ...[
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxTextWidth),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        approverName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (lastUpdate != null) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          lastUpdate.toCustomFormat("MMM dd, yyyy"),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

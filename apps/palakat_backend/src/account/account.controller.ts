@@ -35,6 +35,11 @@ export class AccountController {
     return this.accountService.count(query);
   }
 
+  @Get('counts')
+  async counts(@Query() query: AccountCountQueryDto) {
+    return this.accountService.count(query);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     // Try to parse as number for accountId, otherwise treat as phone

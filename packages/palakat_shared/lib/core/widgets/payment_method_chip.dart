@@ -22,35 +22,50 @@ class PaymentMethodChip extends StatelessWidget {
     final icon = method.icon;
     final color = method.color;
 
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: iconSize,
-            color: color,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final iconOnly =
+            constraints.maxWidth.isFinite &&
+            constraints.maxWidth > 0 &&
+            constraints.maxWidth < 80;
+
+        final double maxLabelWidth = constraints.maxWidth.isFinite
+            ? (constraints.maxWidth - (iconSize + 8 + padding.horizontal))
+                  .clamp(0, 180)
+                  .toDouble()
+            : 180.0;
+
+        return Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
           ),
-          const SizedBox(width: 8),
-          Text(
-            method.displayName,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-              fontSize: fontSize,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: iconSize, color: color),
+              if (!iconOnly) ...[
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxLabelWidth),
+                  child: Text(
+                    method.displayName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                      fontSize: fontSize,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

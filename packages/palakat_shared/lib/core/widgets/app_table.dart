@@ -280,9 +280,16 @@ class _HeaderLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
-        Text(title, style: textStyle),
+        Flexible(
+          child: Text(
+            title,
+            style: textStyle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         if (isActive) ...[
           const SizedBox(width: 4),
           Icon(ascending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
@@ -635,8 +642,10 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     if (widget.config.onDateRangePresetChanged != null) {
       addSpacer();
       children.add(
-        IntrinsicWidth(
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 240),
           child: DropdownButtonFormField<DateRangePreset>(
+            isExpanded: true,
             value: widget.config.dateRangePreset ?? DateRangePreset.allTime,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -689,8 +698,10 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
         widget.config.dropdownOptions!.isNotEmpty) {
       addSpacer();
       children.add(
-        IntrinsicWidth(
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
           child: DropdownButtonFormField<String?>(
+            isExpanded: true,
             value: widget.config.dropdownValue,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -724,8 +735,10 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
         widget.config.positionOptions!.isNotEmpty) {
       addSpacer();
       children.add(
-        IntrinsicWidth(
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
           child: DropdownButtonFormField<MemberPosition?>(
+            isExpanded: true,
             value: widget.config.positionValue,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),

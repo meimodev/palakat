@@ -6,12 +6,14 @@ class CompactStatusChip extends StatelessWidget {
   final String label;
   final Color background;
   final Color foreground;
+  final IconData icon;
 
   const CompactStatusChip({
     super.key,
     required this.label,
     required this.background,
     required this.foreground,
+    required this.icon,
   });
 
   /// Creates a CompactStatusChip for the given approval status with localized label.
@@ -21,59 +23,81 @@ class CompactStatusChip extends StatelessWidget {
     ApprovalStatus status,
   ) {
     final l10n = context.l10n;
-    final (bg, fg, label) = switch (status) {
+    final (bg, fg, label, icon) = switch (status) {
       ApprovalStatus.unconfirmed => (
         Colors.orange.shade50,
         Colors.orange.shade700,
         l10n.status_unconfirmed.toUpperCase(),
+        Icons.pending,
       ),
       ApprovalStatus.approved => (
         Colors.green.shade50,
         Colors.green.shade700,
         l10n.status_approved.toUpperCase(),
+        Icons.check_circle,
       ),
       ApprovalStatus.rejected => (
         Colors.red.shade50,
         Colors.red.shade700,
         l10n.status_rejected.toUpperCase(),
+        Icons.cancel,
       ),
     };
-    return CompactStatusChip(label: label, background: bg, foreground: fg);
+    return CompactStatusChip(
+      label: label,
+      background: bg,
+      foreground: fg,
+      icon: icon,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: foreground.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            switch (label.toUpperCase()) {
-              "UNCONFIRMED" || "BELUM DIKONFIRMASI" => Icons.pending,
-              "APPROVED" || "DISETUJUI" => Icons.check_circle,
-              "REJECTED" || "DITOLAK" => Icons.cancel,
-              _ => Icons.help_outline,
-            },
-            color: foreground,
-            size: 14,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final iconOnly =
+            constraints.maxWidth.isFinite &&
+            constraints.maxWidth > 0 &&
+            constraints.maxWidth < 80;
+
+        final double maxLabelWidth = constraints.maxWidth.isFinite
+            ? (constraints.maxWidth - (14 + 6 + 16)).clamp(0, 140).toDouble()
+            : 140.0;
+
+        return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: iconOnly ? 6 : 8,
+            vertical: 4,
           ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: foreground,
-              fontWeight: FontWeight.w500,
-              fontSize: 12,
-            ),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: foreground.withValues(alpha: 0.2)),
           ),
-        ],
-      ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: foreground, size: 14),
+              if (!iconOnly) ...[
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxLabelWidth),
+                  child: Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: foreground,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }
