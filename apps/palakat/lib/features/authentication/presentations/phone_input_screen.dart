@@ -21,19 +21,22 @@ class PhoneInputScreen extends ConsumerWidget {
   const PhoneInputScreen({super.key});
 
   /// Determines if retry button should be shown based on error message
-  bool _shouldShowRetry(String errorMessage) {
-    final lowerError = errorMessage.toLowerCase();
-    return lowerError.contains('network') ||
-        lowerError.contains('server') ||
-        lowerError.contains('connect') ||
-        lowerError.contains('timeout') ||
-        lowerError.contains('timed out') ||
-        lowerError.contains('unavailable') ||
-        lowerError.contains('failed');
+  bool _shouldShowRetry(BuildContext context, String errorMessage) {
+    final l10n = context.l10n;
+    final nonRetryableMessages = <String>{
+      l10n.validation_phoneRequired,
+      l10n.validation_invalidPhone,
+      l10n.churchRequest_validation_phoneMustStartWithZero,
+      l10n.churchRequest_validation_phoneMinDigits(12),
+      l10n.churchRequest_validation_phoneMaxDigits(13),
+    };
+
+    return !nonRetryableMessages.contains(errorMessage);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     // Optimize state watching - only watch specific fields that affect UI
     final controller = ref.read(authenticationControllerProvider.notifier);
 
@@ -45,10 +48,7 @@ class PhoneInputScreen extends ConsumerWidget {
       // Navigate to OTP verification screen when showOtpScreen becomes true
       if (next.showOtpScreen && (previous?.showOtpScreen != true)) {
         // Announce for screen readers
-        SemanticsService.announce(
-          'Verification code sent to your phone. Please enter the code.',
-          TextDirection.ltr,
-        );
+        SemanticsService.announce(l10n.auth_otpSent, TextDirection.ltr);
         context.goNamed(AppRoute.otpVerification);
       }
 
@@ -56,7 +56,7 @@ class PhoneInputScreen extends ConsumerWidget {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         SemanticsService.announce(
-          'Error: ${next.errorMessage}',
+          '${l10n.err_error}: ${next.errorMessage}',
           TextDirection.ltr,
         );
       }
@@ -154,7 +154,7 @@ class PhoneInputScreen extends ConsumerWidget {
                               child: InputWidget.text(
                                 currentInputValue: phoneNumber,
                                 onChanged: controller.onPhoneNumberChanged,
-                                hint: '0812-3456-7890',
+                                hint: l10n.churchRequest_hintPhoneExample,
                                 label: context.l10n.lbl_phone,
                                 textInputType: TextInputType.phone,
                                 inputFormatters: [
@@ -180,7 +180,7 @@ class PhoneInputScreen extends ConsumerWidget {
                             Gap.h12,
                             AuthErrorDisplay(
                               message: errorMessage,
-                              onRetry: _shouldShowRetry(errorMessage)
+                              onRetry: _shouldShowRetry(context, errorMessage)
                                   ? controller.sendOtp
                                   : null,
                             ),

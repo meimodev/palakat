@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 
 import 'widgets.dart';
@@ -43,7 +44,8 @@ class _ActivityWidgetState extends State<ActivityWidget> {
         SegmentTitleWidget(
           onPressedViewAll: widget.onPressedViewAll,
           count: activities.length,
-          title: 'Activities this week',
+          title:
+              '${context.l10n.lbl_activity} - ${context.l10n.dateRangeFilter_thisWeek}',
           leadingIcon: AppIcons.calendar,
           leadingBg: BaseColor.blue[50],
           leadingFg: BaseColor.blue[700],

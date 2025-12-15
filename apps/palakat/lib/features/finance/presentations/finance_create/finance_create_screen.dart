@@ -7,6 +7,7 @@ import 'package:palakat/features/finance/presentations/finance_create/finance_cr
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_state.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 
@@ -78,13 +79,12 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
   }
 
   Widget _buildHeader(FinanceCreateState state) {
-    final title = widget.financeType == FinanceType.revenue
-        ? 'Create Revenue'
-        : 'Create Expense';
+    final l10n = context.l10n;
+    final title = '${l10n.btn_create} ${widget.financeType.displayName}';
 
     return ScreenTitleWidget.titleSecondary(
       title: title,
-      subTitle: 'Fill in the financial details',
+      subTitle: l10n.approvalDetail_financialData_title,
     );
   }
 
@@ -207,15 +207,15 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     FinanceCreateState state,
     FinanceCreateController controller,
   ) {
+    final l10n = context.l10n;
     return _buildSectionCard(
-      title: 'Financial Details',
+      title: l10n.section_financialRecord,
       icon: AppIcons.wallet,
-      subtitle: 'Amount and payment information',
       children: [
         // Amount input with Rupiah formatting
         CurrencyInputWidget(
-          label: 'Amount',
-          hint: 'Enter amount',
+          label: l10n.lbl_amount,
+          hint: l10n.lbl_amount,
           currentValue: state.amount,
           errorText: state.errorAmount,
           onChanged: controller.onChangedAmount,
@@ -226,7 +226,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
         // Filters by financeType to show only revenue or expense accounts
         AccountNumberPicker(
           financeType: widget.financeType,
-          label: 'Account Number',
+          label: l10n.lbl_accountNumber,
           selectedAccount: state.selectedFinancialAccountNumber,
           errorText: state.errorAccountNumber,
           onSelected: controller.onSelectedFinancialAccountNumber,
@@ -234,7 +234,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
         Gap.h16,
         // Payment method picker
         PaymentMethodPicker(
-          label: 'Payment Method',
+          label: l10n.tbl_paymentMethod,
           selectedMethod: state.paymentMethod,
           errorText: state.errorPaymentMethod,
           onSelected: controller.onSelectedPaymentMethod,
@@ -247,10 +247,10 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     FinanceCreateState state,
     FinanceCreateController controller,
   ) {
+    final l10n = context.l10n;
     return _buildSectionCard(
-      title: 'Activity',
+      title: l10n.tbl_activity,
       icon: AppIcons.event,
-      subtitle: 'Link to an existing activity',
       children: [
         ActivityPickerWidget(
           selectedActivity: state.selectedActivity,
@@ -267,12 +267,13 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     FinanceCreateState state,
     FinanceCreateController controller,
   ) {
+    final l10n = context.l10n;
     // Clear button text that indicates the action
     // In embedded mode: "Add Revenue" or "Add Expense" to indicate attaching to activity
     // In standalone mode: "Create Revenue" or "Create Expense"
     final buttonText = widget.isStandalone
-        ? 'Create ${widget.financeType.displayName}'
-        : 'Add ${widget.financeType.displayName}';
+        ? '${l10n.btn_create} ${widget.financeType.displayName}'
+        : '${l10n.btn_add} ${widget.financeType.displayName}';
 
     return Container(
       padding: EdgeInsets.only(
@@ -301,7 +302,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
             // Requirements: 4.4
             if (!widget.isStandalone) ...[
               Text(
-                'This will attach the financial record to your activity',
+                l10n.publish_financialRecordSubtitle,
                 style: BaseTypography.bodySmall.copyWith(
                   color: BaseColor.neutral60,
                 ),
@@ -323,6 +324,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
   }
 
   Future<void> _handleSubmit(FinanceCreateController controller) async {
+    final l10n = context.l10n;
     if (widget.isStandalone) {
       // Standalone mode: create via API
       final success = await controller.submit();
@@ -332,9 +334,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
         // Invalidate operations controller to refresh supervised activities list
         ref.invalidate(operationsControllerProvider);
         context.pop();
-        _showSnackBar(
-          '${widget.financeType.displayName} created successfully!',
-        );
+        _showSnackBar(l10n.msg_created);
       } else {
         final state = ref.read(
           financeCreateControllerProvider(
@@ -343,7 +343,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
             widget.initialData,
           ),
         );
-        _showSnackBar(state.errorMessage ?? 'Please fill all required fields');
+        _showSnackBar(state.errorMessage ?? l10n.publish_fillAllRequiredFields);
       }
     } else {
       // Embedded mode: validate and return data
@@ -355,7 +355,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
       if (financeData != null) {
         context.pop(financeData);
       } else {
-        _showSnackBar('Please fill all required fields');
+        _showSnackBar(l10n.publish_fillAllRequiredFields);
       }
     }
   }

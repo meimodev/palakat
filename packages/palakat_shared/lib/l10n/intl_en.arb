@@ -19,7 +19,92 @@
   "nav_section_administration": "Administration",
   "nav_home": "Home",
   "nav_songs": "Songs",
+  "songBook_title": "Song Book",
+  "songBook_categoriesTitle": "Song Categories",
+  "songBook_searchHint": "Search song title or number",
+  "songBook_emptyTitle": "No songs found",
+  "songBook_emptySubtitle": "Try searching with different keywords",
+  "map_selectLocationTitle": "Select Location",
+  "map_confirmLocation": "Confirm Location",
+  "map_locationAccessError": "Unable to access location. Please check location permissions.",
+  "songDetail_errorLoadingSong": "Error loading song",
+  "supervisedActivities_title": "Supervised Activities",
+  "supervisedActivities_subtitle": "Activities you are responsible for",
+  "filter_activityType_label": "Activity Type",
+  "filter_activityType_hint": "Select activity type",
+  "filter_activityType_allTitle": "All types",
+  "filter_activityType_allSubtitle": "Showing all activity types",
+  "filter_activityType_allSheetSubtitle": "Show all activity types",
+  "activityType_service_desc": "Church services and worship",
+  "activityType_event_desc": "Events and gatherings",
+  "activityType_announcement_desc": "Announcements and notices",
+  "filters_applied": "Filters applied",
+  "btn_clearAll": "Clear all",
+  "btn_clearFilters": "Clear filters",
+  "supervisedActivities_emptyFilteredTitle": "No activities match your filters",
+  "supervisedActivities_emptyFilteredSubtitle": "Try adjusting your filters to see more results",
+  "supervisedActivities_emptyTitle": "No supervised activities",
+  "supervisedActivities_emptySubtitle": "Activities you supervise will appear here",
+  "notificationSettings_title": "Notification Settings",
+  "notificationSettings_permissionStatus_title": "Permission Status",
+  "notificationSettings_permissionEnabled": "Enabled",
+  "notificationSettings_permissionDisabled": "Disabled",
+  "notificationSettings_permissionEnabledDesc": "You will receive notifications for activities, approvals, and announcements.",
+  "notificationSettings_permissionDisabledDesc": "Enable notifications to stay updated on activities, approvals, and important announcements.",
+  "notificationSettings_enableNotifications": "Enable Notifications",
+  "notificationPermission_rationale_title": "Stay Updated",
+  "notificationPermission_rationale_benefit_activities": "Get notified about new activities and events",
+  "notificationPermission_rationale_benefit_approvals": "Receive approval requests that need your attention",
+  "notificationPermission_rationale_benefit_announcements": "Don't miss important church announcements",
+  "notificationPermission_btn_notNow": "Not Now",
+  "notificationPermission_consequence_title": "You'll Miss Out On",
+  "notificationPermission_consequence_item_activities": "Activity notifications and event updates",
+  "notificationPermission_consequence_item_approvals": "Approval requests that need your action",
+  "notificationPermission_consequence_item_announcements": "Important church announcements and updates",
+  "notificationPermission_btn_enableInSettings": "Enable in Settings",
+  "notificationPermission_btn_continueWithoutNotifications": "Continue Without Notifications",
+  "notificationSettings_errorLoadingPermissionStatus": "Error loading permission status",
+  "notificationSettings_errorLoadingSettings": "Error loading settings: {error}",
+  "@notificationSettings_errorLoadingSettings": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationSettings_preferences_title": "Notification Preferences",
+  "notificationSettings_preferences_subtitle": "Choose which types of notifications you want to receive",
+  "notificationSettings_channel_activityUpdates_title": "Activity Updates",
+  "notificationSettings_channel_activityUpdates_subtitle": "Notifications about church activities and events",
+  "notificationSettings_channel_approvalRequests_title": "Approval Requests",
+  "notificationSettings_channel_approvalRequests_subtitle": "Notifications requiring your approval",
+  "notificationSettings_channel_generalAnnouncements_title": "General Announcements",
+  "notificationSettings_channel_generalAnnouncements_subtitle": "General church announcements and updates",
+  "notificationSettings_soundVibration_title": "Sound & Vibration",
+  "notificationSettings_sound_title": "Sound",
+  "notificationSettings_sound_subtitle": "Play sound when notifications arrive",
+  "notificationSettings_vibration_title": "Vibration",
+  "notificationSettings_vibration_subtitle": "Vibrate when notifications arrive",
   "nav_operations": "Ops",
+
+  "operations_title": "Operations",
+  "operations_noPositionsSubtitle": "You don't have any operational positions yet",
+  "operationsCategory_publishing": "Publishing",
+  "operationsCategory_financial": "Financial",
+  "operationsCategory_reports": "Reports",
+  "operationsItem_publish_service_title": "Publish Service",
+  "operationsItem_publish_service_desc": "Create and publish church service activities",
+  "operationsItem_publish_event_title": "Publish Event",
+  "operationsItem_publish_event_desc": "Create and publish church events",
+  "operationsItem_publish_announcement_title": "Publish Announcement",
+  "operationsItem_publish_announcement_desc": "Create and publish announcements",
+  "operationsItem_add_income_title": "Add Revenue",
+  "operationsItem_add_income_desc": "Record church income and offerings",
+  "operationsItem_add_expense_title": "Add Expense",
+  "operationsItem_add_expense_desc": "Record church expenses",
+  "operationsItem_generate_report_title": "Generate Report",
+  "operationsItem_generate_report_desc": "Create activity and financial reports",
+  "operations_noOperationsAvailable": "No operations available",
 
   "approval_title": "Approvals",
   "approval_filterAll": "All",
@@ -46,6 +131,17 @@
   "approval_confirmRejectTitle": "Reject Activity?",
   "approval_confirmApproveDescription": "Are you sure you want to approve this activity? This action cannot be undone.",
   "approval_confirmRejectDescription": "Are you sure you want to reject this activity? This action cannot be undone.",
+
+  "approvalDetail_title": "Approval Details",
+  "approvalDetail_notFound": "Approval not found. It may have been removed or is unavailable.",
+  "approvalDetail_waitingOthers": "Waiting on other approver to either accept or reject this approval",
+  "approvalDetail_activitySummary_title": "Activity Summary",
+  "approvalDetail_financialData_title": "Financial Data",
+  "approvalDetail_viewOnMapTooltip": "View on Map",
+  "approvalDetail_viewActivityDetails_title": "View Activity Details",
+  "approvalDetail_viewActivityDetails_subtitle": "See full activity information",
+  "approvalDetail_accountDescription_label": "Account Description",
+  "lbl_coordinates": "Coordinates",
 
   "activityType_service": "Service",
   "@activityType_service": {
@@ -142,6 +238,8 @@
   "lbl_city": "City",
   "lbl_state": "State",
   "lbl_zipCode": "Zip Code",
+  "lbl_date": "Date",
+  "lbl_time": "Time",
   "lbl_description": "Description",
   "lbl_amount": "Amount",
   "lbl_search": "Search",
@@ -257,7 +355,77 @@
   "settings_title": "Settings",
   "settings_accountSettings": "Account Settings",
   "settings_membershipSettings": "Membership Settings",
+  "membership_title": "Membership",
+  "@membership_title": {
+    "description": "Title for membership screen"
+  },
+  "membership_churchMembership_title": "Church Membership",
+  "@membership_churchMembership_title": {
+    "description": "Card title for church membership section"
+  },
+  "membership_churchNotRegisteredInfo": "If your church is not registered in our system, you won't be able to find it in the list below.",
+  "@membership_churchNotRegisteredInfo": {
+    "description": "Info message shown when church is not in the list"
+  },
+  "membership_notBaptized": "Not baptized",
+  "@membership_notBaptized": {
+    "description": "Option label when member is not baptized"
+  },
+  "membership_notSidi": "Not SIDI",
+  "@membership_notSidi": {
+    "description": "Option label when member is not SIDI"
+  },
+  "membership_churchRequestAcceptedOn": "Your church registration request for '{churchName}' was accepted on {date}. We'll notify you once it's processed.",
+  "@membership_churchRequestAcceptedOn": {
+    "description": "Message shown when church registration request is accepted and waiting for review",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membership_churchRequestProcessing": "Your church registration request for '{churchName}' is being processed.",
+  "@membership_churchRequestProcessing": {
+    "description": "Message shown when church registration request is being processed",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      }
+    }
+  },
+  "membership_churchRequestCompleted": "Thanks to you, '{churchName}' can now be selected from the list below.",
+  "@membership_churchRequestCompleted": {
+    "description": "Message shown when church registration request has been completed",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      }
+    }
+  },
   "settings_noMembership": "No membership available",
+  "settings_versionUnknown": "Version unknown",
+  "settings_version": "Version {version}",
+  "@settings_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_versionWithBuild": "Version {version} (Build {buildNumber})",
+  "@settings_versionWithBuild": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
+    }
+  },
 
   "card_overdueBills_title": "Overdue Bills",
   "card_overdueBills_subtitle": "Bills that require urgent attention",
@@ -374,7 +542,26 @@
   "lbl_positions": "Positions",
   "lbl_memberId": "Member ID",
   "lbl_maritalStatus": "Marital Status",
+  "maritalStatus_single": "Single",
+  "maritalStatus_married": "Married",
   "lbl_gender": "Gender",
+  "gender_male": "Male",
+  "gender_female": "Female",
+  "account_personalInformation_title": "Personal Information",
+  "account_phoneLabel_locked": "Phone number (cannot be changed)",
+  "account_phoneLabel_active": "Active phone to receive authentication message",
+  "account_fullNameLabel": "Name without degree for your church membership",
+  "account_emailLabel_optional": "Optional email for notifications and communication",
+  "account_bipraHint": "Used to determine your BIPRA membership",
+  "account_claim_title": "Claim Account",
+  "account_claimedSubtitle_locked": "Account is claimed and cannot be unclaimed",
+  "account_claimedSubtitle_unlocked": "Claimed account can only be modified by the owner, not the church",
+  "account_claimConfirm_title": "Claim Account?",
+  "account_claimConfirm_message": "Once the account is claimed, it cannot be unclaimed. Proceed?",
+  "auth_cancelRegistration_title": "Cancel Registration?",
+  "auth_cancelRegistration_message": "Your registration progress will be lost. Are you sure you want to go back?",
+  "btn_stay": "Stay",
+  "btn_goBack": "Go Back",
   "lbl_dateOfBirth": "Date of Birth",
   "lbl_churchName": "Church Name",
   "lbl_churchAddress": "Church Address",
@@ -489,10 +676,33 @@
   "publish_removeFinancialRecordTitle": "Remove Financial Record?",
   "publish_removeFinancialRecordContent": "Are you sure you want to remove this financial record? This action cannot be undone.",
   "publish_publishedNotice": "Published activities can only be managed on mobile app by the corresponding supervisor.",
+  "publish_publishedByYou": "Published By You",
+  "publish_noPublishedActivities": "No published activities",
+  "publish_noPublishedActivitiesSubtitle": "Start publishing activities to see them here",
 
   "churchRequest_title": "Request Church Registration",
   "@churchRequest_title": {
     "description": "Title for church registration request bottom sheet"
+  },
+  "churchRequest_status_onReview": "On Review",
+  "@churchRequest_status_onReview": {
+    "description": "Status label when church registration request is under review"
+  },
+  "churchRequest_status_onProgress": "On Progress",
+  "@churchRequest_status_onProgress": {
+    "description": "Status label when church registration request is being processed"
+  },
+  "churchRequest_statusMessage_onReview": "Your request is under review and will be processed soon.",
+  "@churchRequest_statusMessage_onReview": {
+    "description": "Short status message when church registration request is under review"
+  },
+  "churchRequest_statusMessage_onProgress": "Your request is being processed.",
+  "@churchRequest_statusMessage_onProgress": {
+    "description": "Short status message when church registration request is being processed"
+  },
+  "churchRequest_statusMessage_completed": "Your church has been registered! You can now select it when editing membership data.",
+  "@churchRequest_statusMessage_completed": {
+    "description": "Short status message when church registration request is completed"
   },
   "churchRequest_description": "Fill in the details below to request registration for your church. We'll review and add it to our system.",
   "@churchRequest_description": {
@@ -578,6 +788,10 @@
   "hint_latitudeExample": "e.g. -6.1754",
   "hint_longitudeExample": "e.g. 106.8272",
   "hint_enterAccountNumber": "Enter account number",
+  "hint_selectActivity": "Select an activity",
+  "@hint_selectActivity": {
+    "description": "Hint/placeholder for selecting an activity"
+  },
   "hint_enterDescription": "Enter description",
   "hint_enterColumnName": "Enter column name",
   "hint_enterPositionName": "Enter position name",
@@ -650,6 +864,18 @@
   "inventoryCondition_notApplicable": "N/A",
   "paymentMethod_cash": "Cash",
   "paymentMethod_cashless": "Cashless",
+  "paymentMethod_cash_desc": "Physical currency",
+  "@paymentMethod_cash_desc": {
+    "description": "Payment method description for cash"
+  },
+  "paymentMethod_cashless_desc": "Digital payment",
+  "@paymentMethod_cashless_desc": {
+    "description": "Payment method description for cashless"
+  },
+  "lbl_selected": "Selected",
+  "@lbl_selected": {
+    "description": "Label indicating an option is selected"
+  },
   "billingType_subscription": "Subscription",
   "billingType_oneTime": "One-time",
   "billingType_recurring": "Recurring",
@@ -684,6 +910,10 @@
   "dlg_signOut_title": "Sign Out",
   "dlg_signOut_content": "Are you sure you want to sign out?",
   "dlg_recordPayment_title": "Record Payment",
+  "dlg_selectFinanceType_title": "Select Finance Type",
+  "@dlg_selectFinanceType_title": {
+    "description": "Title for selecting finance type dialog"
+  },
   "dlg_confirmAction_title": "Confirm Action",
   "dlg_confirmDelete_title": "Confirm Delete",
 

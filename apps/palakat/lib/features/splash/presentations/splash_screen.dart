@@ -5,6 +5,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -34,7 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     return ScaffoldWidget(
       child: Center(
-        child: Text("Splash Screen", style: BaseTypography.headlineSmall),
+        child: Text(context.l10n.appTitle, style: BaseTypography.headlineSmall),
       ),
     );
   }

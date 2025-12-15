@@ -8,6 +8,7 @@ import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Operations screen displaying user's positions and available operations.
 /// Uses category-based organization with progressive disclosure.
@@ -18,6 +19,7 @@ class OperationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final controller = ref.read(operationsControllerProvider.notifier);
     final state = ref.watch(operationsControllerProvider);
 
@@ -26,7 +28,7 @@ class OperationsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const ScreenTitleWidget.titleOnly(title: "Operations"),
+            ScreenTitleWidget.titleOnly(title: l10n.operations_title),
             Gap.h16,
             LoadingWrapper(
               loading: state.loadingScreen,
@@ -57,6 +59,8 @@ class OperationsScreen extends ConsumerWidget {
     dynamic state,
     OperationsController controller,
   ) {
+    final l10n = context.l10n;
+
     // Empty state when no operations available (Requirement 2.5)
     if (state.membership == null ||
         state.membership!.membershipPositions.isEmpty) {
@@ -68,7 +72,7 @@ class OperationsScreen extends ConsumerWidget {
       children: [
         PositionSummaryCard(
           membership: state.membership!,
-          accountName: state.accountName ?? 'Member',
+          accountName: state.accountName ?? l10n.admin_member_title,
           onTap: () => _handleMembershipTap(context, state.membership!),
         ),
         Gap.h16,
@@ -146,6 +150,8 @@ class OperationsScreen extends ConsumerWidget {
 class _EmptyStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       // 8px grid spacing - 24px = 3 * 8px (Requirement 3.4)
       padding: EdgeInsets.all(BaseSize.w24),
@@ -164,7 +170,7 @@ class _EmptyStateWidget extends StatelessWidget {
           ),
           Gap.h12,
           Text(
-            "No positions available",
+            l10n.noData_positions,
             textAlign: TextAlign.center,
             style: BaseTypography.titleMedium.copyWith(
               color: BaseColor.textSecondary,
@@ -173,7 +179,7 @@ class _EmptyStateWidget extends StatelessWidget {
           ),
           Gap.h4,
           Text(
-            "You don't have any operational positions yet",
+            l10n.operations_noPositionsSubtitle,
             textAlign: TextAlign.center,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.textSecondary,

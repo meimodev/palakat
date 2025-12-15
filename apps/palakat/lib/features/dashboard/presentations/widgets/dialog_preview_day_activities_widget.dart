@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 Future<void> showDialogPreviewDayActivitiesWidget({
@@ -32,9 +33,9 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          "There are no events / service, for this day \n-_-",
+          context.l10n.noData_activities,
           textAlign: TextAlign.center,
         ),
       );
@@ -44,13 +45,9 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: BaseSize.customHeight(300),
-          ),
+          constraints: BoxConstraints(maxHeight: BaseSize.customHeight(300)),
           child: ListView.separated(
-            padding: EdgeInsets.symmetric(
-              horizontal: BaseSize.w12,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
             separatorBuilder: (_, _) => Gap.h12,
             itemCount: data.length,
             physics: const BouncingScrollPhysics(),

@@ -74,10 +74,95 @@
   "@nav_songs": {
     "description": "Navigation label for songs"
   },
+  "songBook_title": "Buku Lagu",
+  "songBook_categoriesTitle": "Kategori Lagu",
+  "songBook_searchHint": "Cari judul atau nomor lagu",
+  "songBook_emptyTitle": "Tidak ada lagu ditemukan",
+  "songBook_emptySubtitle": "Coba cari dengan kata kunci lain",
+  "map_selectLocationTitle": "Pilih Lokasi",
+  "map_confirmLocation": "Konfirmasi Lokasi",
+  "map_locationAccessError": "Tidak dapat mengakses lokasi. Periksa izin lokasi.",
+  "songDetail_errorLoadingSong": "Gagal memuat lagu",
+  "supervisedActivities_title": "Kegiatan yang Diawasi",
+  "supervisedActivities_subtitle": "Kegiatan yang Anda tanggung jawabkan",
+  "filter_activityType_label": "Jenis Kegiatan",
+  "filter_activityType_hint": "Pilih jenis kegiatan",
+  "filter_activityType_allTitle": "Semua jenis",
+  "filter_activityType_allSubtitle": "Menampilkan semua jenis kegiatan",
+  "filter_activityType_allSheetSubtitle": "Tampilkan semua jenis kegiatan",
+  "activityType_service_desc": "Ibadah dan kebaktian",
+  "activityType_event_desc": "Acara dan pertemuan",
+  "activityType_announcement_desc": "Pengumuman dan informasi",
+  "filters_applied": "Filter diterapkan",
+  "btn_clearAll": "Hapus semua",
+  "btn_clearFilters": "Hapus filter",
+  "supervisedActivities_emptyFilteredTitle": "Tidak ada kegiatan yang sesuai dengan filter Anda",
+  "supervisedActivities_emptyFilteredSubtitle": "Coba sesuaikan filter Anda untuk melihat lebih banyak hasil",
+  "supervisedActivities_emptyTitle": "Tidak ada kegiatan yang diawasi",
+  "supervisedActivities_emptySubtitle": "Kegiatan yang Anda awasi akan muncul di sini",
+  "notificationSettings_title": "Pengaturan Notifikasi",
+  "notificationSettings_permissionStatus_title": "Status Izin",
+  "notificationSettings_permissionEnabled": "Aktif",
+  "notificationSettings_permissionDisabled": "Nonaktif",
+  "notificationSettings_permissionEnabledDesc": "Anda akan menerima notifikasi untuk kegiatan, persetujuan, dan pengumuman.",
+  "notificationSettings_permissionDisabledDesc": "Aktifkan notifikasi untuk tetap mendapatkan pembaruan tentang kegiatan, persetujuan, dan pengumuman penting.",
+  "notificationSettings_enableNotifications": "Aktifkan Notifikasi",
+  "notificationPermission_rationale_title": "Tetap Terhubung",
+  "notificationPermission_rationale_benefit_activities": "Dapatkan notifikasi tentang kegiatan dan acara baru",
+  "notificationPermission_rationale_benefit_approvals": "Terima permintaan persetujuan yang memerlukan perhatian Anda",
+  "notificationPermission_rationale_benefit_announcements": "Jangan lewatkan pengumuman penting gereja",
+  "notificationPermission_btn_notNow": "Nanti Saja",
+  "notificationPermission_consequence_title": "Anda Akan Melewatkan",
+  "notificationPermission_consequence_item_activities": "Notifikasi kegiatan dan pembaruan acara",
+  "notificationPermission_consequence_item_approvals": "Permintaan persetujuan yang memerlukan tindakan Anda",
+  "notificationPermission_consequence_item_announcements": "Pengumuman penting gereja dan pembaruan",
+  "notificationPermission_btn_enableInSettings": "Aktifkan di Pengaturan",
+  "notificationPermission_btn_continueWithoutNotifications": "Lanjut Tanpa Notifikasi",
+  "notificationSettings_errorLoadingPermissionStatus": "Gagal memuat status izin",
+  "notificationSettings_errorLoadingSettings": "Gagal memuat pengaturan: {error}",
+  "@notificationSettings_errorLoadingSettings": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationSettings_preferences_title": "Preferensi Notifikasi",
+  "notificationSettings_preferences_subtitle": "Pilih jenis notifikasi yang ingin Anda terima",
+  "notificationSettings_channel_activityUpdates_title": "Pembaruan Kegiatan",
+  "notificationSettings_channel_activityUpdates_subtitle": "Notifikasi tentang kegiatan dan acara gereja",
+  "notificationSettings_channel_approvalRequests_title": "Permintaan Persetujuan",
+  "notificationSettings_channel_approvalRequests_subtitle": "Notifikasi yang memerlukan persetujuan Anda",
+  "notificationSettings_channel_generalAnnouncements_title": "Pengumuman Umum",
+  "notificationSettings_channel_generalAnnouncements_subtitle": "Pengumuman dan pembaruan gereja",
+  "notificationSettings_soundVibration_title": "Suara & Getaran",
+  "notificationSettings_sound_title": "Suara",
+  "notificationSettings_sound_subtitle": "Putar suara saat notifikasi masuk",
+  "notificationSettings_vibration_title": "Getaran",
+  "notificationSettings_vibration_subtitle": "Bergetar saat notifikasi masuk",
   "nav_operations": "Ops",
   "@nav_operations": {
     "description": "Navigation label for operations"
   },
+
+  "operations_title": "Operasi",
+  "operations_noPositionsSubtitle": "Anda belum memiliki posisi operasional",
+  "operationsCategory_publishing": "Publikasi",
+  "operationsCategory_financial": "Keuangan",
+  "operationsCategory_reports": "Laporan",
+  "operationsItem_publish_service_title": "Publikasikan Ibadah",
+  "operationsItem_publish_service_desc": "Buat dan publikasikan kegiatan ibadah gereja",
+  "operationsItem_publish_event_title": "Publikasikan Acara",
+  "operationsItem_publish_event_desc": "Buat dan publikasikan acara gereja",
+  "operationsItem_publish_announcement_title": "Publikasikan Pengumuman",
+  "operationsItem_publish_announcement_desc": "Buat dan publikasikan pengumuman",
+  "operationsItem_add_income_title": "Tambah Pendapatan",
+  "operationsItem_add_income_desc": "Catat pendapatan gereja dan persembahan",
+  "operationsItem_add_expense_title": "Tambah Pengeluaran",
+  "operationsItem_add_expense_desc": "Catat pengeluaran gereja",
+  "operationsItem_generate_report_title": "Buat Laporan",
+  "operationsItem_generate_report_desc": "Buat laporan kegiatan dan keuangan",
+  "operations_noOperationsAvailable": "Tidak ada operasi tersedia",
 
   "approval_title": "Persetujuan",
   "@approval_title": {
@@ -146,12 +231,23 @@
   },
   "approval_confirmApproveDescription": "Apakah Anda yakin ingin menyetujui kegiatan ini? Tindakan ini tidak dapat dibatalkan.",
   "@approval_confirmApproveDescription": {
-    "description": "Confirmation description for approving an activity"
+    "description": "Confirmation description for approving activity"
   },
   "approval_confirmRejectDescription": "Apakah Anda yakin ingin menolak kegiatan ini? Tindakan ini tidak dapat dibatalkan.",
   "@approval_confirmRejectDescription": {
-    "description": "Confirmation description for rejecting an activity"
+    "description": "Confirmation description for rejecting activity"
   },
+
+  "approvalDetail_title": "Detail Persetujuan",
+  "approvalDetail_notFound": "Persetujuan tidak ditemukan. Mungkin sudah dihapus atau tidak tersedia.",
+  "approvalDetail_waitingOthers": "Menunggu approver lain untuk menyetujui atau menolak persetujuan ini",
+  "approvalDetail_activitySummary_title": "Ringkasan Kegiatan",
+  "approvalDetail_financialData_title": "Data Keuangan",
+  "approvalDetail_viewOnMapTooltip": "Lihat di Peta",
+  "approvalDetail_viewActivityDetails_title": "Lihat Detail Kegiatan",
+  "approvalDetail_viewActivityDetails_subtitle": "Lihat informasi kegiatan secara lengkap",
+  "approvalDetail_accountDescription_label": "Deskripsi Akun",
+  "lbl_coordinates": "Koordinat",
 
   "activityType_service": "Ibadah",
   "@activityType_service": {
@@ -806,9 +902,83 @@
   "@settings_membershipSettings": {
     "description": "Membership settings menu item"
   },
+  "membership_title": "Keanggotaan",
+  "@membership_title": {
+    "description": "Title for membership screen"
+  },
+  "membership_churchMembership_title": "Keanggotaan Gereja",
+  "@membership_churchMembership_title": {
+    "description": "Card title for church membership section"
+  },
+  "membership_churchNotRegisteredInfo": "Jika gereja Anda belum terdaftar di sistem kami, Anda tidak akan dapat menemukannya di daftar di bawah ini.",
+  "@membership_churchNotRegisteredInfo": {
+    "description": "Info message shown when church is not in the list"
+  },
+  "membership_notBaptized": "Belum dibaptis",
+  "@membership_notBaptized": {
+    "description": "Option label when member is not baptized"
+  },
+  "membership_notSidi": "Belum SIDI",
+  "@membership_notSidi": {
+    "description": "Option label when member is not SIDI"
+  },
+  "membership_churchRequestAcceptedOn": "Permohonan pendaftaran gereja Anda untuk '{churchName}' telah diterima pada {date}. Kami akan memberi tahu Anda setelah diproses.",
+  "@membership_churchRequestAcceptedOn": {
+    "description": "Message shown when church registration request is accepted and waiting for review",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membership_churchRequestProcessing": "Permohonan pendaftaran gereja Anda untuk '{churchName}' sedang diproses.",
+  "@membership_churchRequestProcessing": {
+    "description": "Message shown when church registration request is being processed",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      }
+    }
+  },
+  "membership_churchRequestCompleted": "Terima kasih, '{churchName}' sekarang dapat dipilih dari daftar di bawah ini.",
+  "@membership_churchRequestCompleted": {
+    "description": "Message shown when church registration request has been completed",
+    "placeholders": {
+      "churchName": {
+        "type": "String"
+      }
+    }
+  },
   "settings_noMembership": "Tidak ada keanggotaan tersedia",
   "@settings_noMembership": {
     "description": "Message when user has no membership"
+  },
+
+  "settings_versionUnknown": "Versi tidak diketahui",
+  "@settings_versionUnknown": {
+    "description": "Shown when app version/build is not available"
+  },
+  "settings_version": "Versi {version}",
+  "@settings_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_versionWithBuild": "Versi {version} (Build {buildNumber})",
+  "@settings_versionWithBuild": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
+    }
   },
 
   "card_overdueBills_title": "Tagihan Terlambat",
@@ -1242,10 +1412,29 @@
   "@lbl_maritalStatus": {
     "description": "Label for marital status field"
   },
+  "maritalStatus_single": "Lajang",
+  "maritalStatus_married": "Menikah",
   "lbl_gender": "Jenis Kelamin",
   "@lbl_gender": {
     "description": "Label for gender field"
   },
+  "gender_male": "Laki-laki",
+  "gender_female": "Perempuan",
+  "account_personalInformation_title": "Informasi Pribadi",
+  "account_phoneLabel_locked": "Nomor telepon (tidak dapat diubah)",
+  "account_phoneLabel_active": "Nomor telepon aktif untuk menerima pesan autentikasi",
+  "account_fullNameLabel": "Nama tanpa gelar untuk keanggotaan gereja",
+  "account_emailLabel_optional": "Email opsional untuk notifikasi dan komunikasi",
+  "account_bipraHint": "Digunakan untuk menentukan keanggotaan BIPRA",
+  "account_claim_title": "Klaim Akun",
+  "account_claimedSubtitle_locked": "Akun sudah diklaim dan tidak dapat dibatalkan",
+  "account_claimedSubtitle_unlocked": "Akun yang diklaim hanya dapat diubah oleh pemilik, bukan gereja",
+  "account_claimConfirm_title": "Klaim Akun?",
+  "account_claimConfirm_message": "Setelah akun diklaim, tidak dapat dibatalkan. Lanjutkan?",
+  "auth_cancelRegistration_title": "Batalkan Pendaftaran?",
+  "auth_cancelRegistration_message": "Progres pendaftaran Anda akan hilang. Yakin ingin kembali?",
+  "btn_stay": "Tetap",
+  "btn_goBack": "Kembali",
   "lbl_dateOfBirth": "Tanggal Lahir",
   "@lbl_dateOfBirth": {
     "description": "Label for date of birth field"
@@ -1635,7 +1824,7 @@
   },
   "publish_addFinancialRecord": "Tambah Catatan Keuangan",
   "@publish_addFinancialRecord": {
-    "description": "Add financial record button label"
+    "description": "Button text for adding financial record"
   },
   "publish_removeFinancialRecordTitle": "Hapus Catatan Keuangan?",
   "@publish_removeFinancialRecordTitle": {
@@ -1645,17 +1834,48 @@
   "@publish_removeFinancialRecordContent": {
     "description": "Confirm remove financial record content"
   },
-
+  "publish_publishedByYou": "Dipublikasikan oleh Anda",
+  "@publish_publishedByYou": {
+    "description": "Label for published by you"
+  },
+  "publish_noPublishedActivities": "Tidak ada kegiatan yang dipublikasikan",
+  "@publish_noPublishedActivities": {
+    "description": "Label for no published activities"
+  },
+  "publish_noPublishedActivitiesSubtitle": "Mulai publikasikan kegiatan untuk melihatnya di sini",
+  "@publish_noPublishedActivitiesSubtitle": {
+    "description": "Subtitle for no published activities"
+  },
   "publish_publishedNotice": "Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.",
   "@publish_publishedNotice": {
     "description": "Informational notice about published activities being manageable only on mobile"
   },
 
-  "churchRequest_title": "Permohonan Pendaftaran Gereja",
+  "churchRequest_title": "Ajukan Pendaftaran Gereja",
   "@churchRequest_title": {
     "description": "Title for church registration request bottom sheet"
   },
-  "churchRequest_description": "Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem kami.",
+  "churchRequest_status_onReview": "Dalam Tinjauan",
+  "@churchRequest_status_onReview": {
+    "description": "Status label when church registration request is under review"
+  },
+  "churchRequest_status_onProgress": "Sedang Diproses",
+  "@churchRequest_status_onProgress": {
+    "description": "Status label when church registration request is being processed"
+  },
+  "churchRequest_statusMessage_onReview": "Permintaan Anda sedang ditinjau dan akan segera diproses.",
+  "@churchRequest_statusMessage_onReview": {
+    "description": "Short status message when church registration request is under review"
+  },
+  "churchRequest_statusMessage_onProgress": "Permintaan Anda sedang diproses.",
+  "@churchRequest_statusMessage_onProgress": {
+    "description": "Short status message when church registration request is being processed"
+  },
+  "churchRequest_statusMessage_completed": "Gereja Anda telah terdaftar! Anda sekarang dapat memilihnya saat mengubah data keanggotaan.",
+  "@churchRequest_statusMessage_completed": {
+    "description": "Short status message when church registration request is completed"
+  },
+  "churchRequest_description": "Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem.",
   "@churchRequest_description": {
     "description": "Description text for church registration request bottom sheet"
   },
@@ -1762,6 +1982,10 @@
   "hint_enterAccountNumber": "Masukkan nomor akun",
   "@hint_enterAccountNumber": {
     "description": "Hint for account number field"
+  },
+  "hint_selectActivity": "Pilih kegiatan",
+  "@hint_selectActivity": {
+    "description": "Hint/placeholder for selecting an activity"
   },
   "hint_enterDescription": "Masukkan deskripsi",
   "@hint_enterDescription": {
@@ -1912,6 +2136,10 @@
   "dlg_recordPayment_title": "Catat Pembayaran",
   "@dlg_recordPayment_title": {
     "description": "Title for record payment dialog"
+  },
+  "dlg_selectFinanceType_title": "Pilih Jenis Keuangan",
+  "@dlg_selectFinanceType_title": {
+    "description": "Title for selecting finance type dialog"
   },
   "dlg_confirmAction_title": "Konfirmasi Tindakan",
   "@dlg_confirmAction_title": {
@@ -2090,6 +2318,18 @@
   "paymentMethod_cashless": "Non-tunai",
   "@paymentMethod_cashless": {
     "description": "Payment method label for cashless"
+  },
+  "paymentMethod_cash_desc": "Uang tunai",
+  "@paymentMethod_cash_desc": {
+    "description": "Payment method description for cash"
+  },
+  "paymentMethod_cashless_desc": "Pembayaran digital",
+  "@paymentMethod_cashless_desc": {
+    "description": "Payment method description for cashless"
+  },
+  "lbl_selected": "Dipilih",
+  "@lbl_selected": {
+    "description": "Label indicating an option is selected"
   },
   "billingType_subscription": "Langganan",
   "@billingType_subscription": {

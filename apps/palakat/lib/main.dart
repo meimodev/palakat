@@ -66,11 +66,16 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  ProviderSubscription<Locale>? _localeSubscription;
+
   @override
   void initState() {
     super.initState();
 
-    ref.listen(localeControllerProvider, (prev, next) {
+    _localeSubscription = ref.listenManual(localeControllerProvider, (
+      prev,
+      next,
+    ) {
       intl.Intl.defaultLocale = next.languageCode;
       unawaited(Jiffy.setLocale(next.languageCode));
     });
@@ -91,6 +96,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _localeSubscription?.close();
     super.dispose();
   }
 
@@ -209,6 +215,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     intl.Intl.defaultLocale = locale.languageCode;
 
+    final l10n = lookupAppLocalizations(locale);
+
     return ScreenUtilInit(
       designSize: const Size(360, 640),
       ensureScreenSize: true,
@@ -219,7 +227,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         routerDelegate: router.routerDelegate,
         routeInformationParser: router.routeInformationParser,
         routeInformationProvider: router.routeInformationProvider,
-        title: "PALAKAT",
+        title: l10n.appTitle,
         theme: BaseTheme.appTheme,
         // Localization configuration - Requirements: 1.1, 1.4
         locale: locale,

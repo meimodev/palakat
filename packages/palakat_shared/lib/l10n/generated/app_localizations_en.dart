@@ -63,7 +63,273 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_songs => 'Songs';
 
   @override
+  String get songBook_title => 'Song Book';
+
+  @override
+  String get songBook_categoriesTitle => 'Song Categories';
+
+  @override
+  String get songBook_searchHint => 'Search song title or number';
+
+  @override
+  String get songBook_emptyTitle => 'No songs found';
+
+  @override
+  String get songBook_emptySubtitle => 'Try searching with different keywords';
+
+  @override
+  String get map_selectLocationTitle => 'Select Location';
+
+  @override
+  String get map_confirmLocation => 'Confirm Location';
+
+  @override
+  String get map_locationAccessError =>
+      'Unable to access location. Please check location permissions.';
+
+  @override
+  String get songDetail_errorLoadingSong => 'Error loading song';
+
+  @override
+  String get supervisedActivities_title => 'Supervised Activities';
+
+  @override
+  String get supervisedActivities_subtitle =>
+      'Activities you are responsible for';
+
+  @override
+  String get filter_activityType_label => 'Activity Type';
+
+  @override
+  String get filter_activityType_hint => 'Select activity type';
+
+  @override
+  String get filter_activityType_allTitle => 'All types';
+
+  @override
+  String get filter_activityType_allSubtitle => 'Showing all activity types';
+
+  @override
+  String get filter_activityType_allSheetSubtitle => 'Show all activity types';
+
+  @override
+  String get activityType_service_desc => 'Church services and worship';
+
+  @override
+  String get activityType_event_desc => 'Events and gatherings';
+
+  @override
+  String get activityType_announcement_desc => 'Announcements and notices';
+
+  @override
+  String get filters_applied => 'Filters applied';
+
+  @override
+  String get btn_clearAll => 'Clear all';
+
+  @override
+  String get btn_clearFilters => 'Clear filters';
+
+  @override
+  String get supervisedActivities_emptyFilteredTitle =>
+      'No activities match your filters';
+
+  @override
+  String get supervisedActivities_emptyFilteredSubtitle =>
+      'Try adjusting your filters to see more results';
+
+  @override
+  String get supervisedActivities_emptyTitle => 'No supervised activities';
+
+  @override
+  String get supervisedActivities_emptySubtitle =>
+      'Activities you supervise will appear here';
+
+  @override
+  String get notificationSettings_title => 'Notification Settings';
+
+  @override
+  String get notificationSettings_permissionStatus_title => 'Permission Status';
+
+  @override
+  String get notificationSettings_permissionEnabled => 'Enabled';
+
+  @override
+  String get notificationSettings_permissionDisabled => 'Disabled';
+
+  @override
+  String get notificationSettings_permissionEnabledDesc =>
+      'You will receive notifications for activities, approvals, and announcements.';
+
+  @override
+  String get notificationSettings_permissionDisabledDesc =>
+      'Enable notifications to stay updated on activities, approvals, and important announcements.';
+
+  @override
+  String get notificationSettings_enableNotifications => 'Enable Notifications';
+
+  @override
+  String get notificationPermission_rationale_title => 'Stay Updated';
+
+  @override
+  String get notificationPermission_rationale_benefit_activities =>
+      'Get notified about new activities and events';
+
+  @override
+  String get notificationPermission_rationale_benefit_approvals =>
+      'Receive approval requests that need your attention';
+
+  @override
+  String get notificationPermission_rationale_benefit_announcements =>
+      'Don\'t miss important church announcements';
+
+  @override
+  String get notificationPermission_btn_notNow => 'Not Now';
+
+  @override
+  String get notificationPermission_consequence_title => 'You\'ll Miss Out On';
+
+  @override
+  String get notificationPermission_consequence_item_activities =>
+      'Activity notifications and event updates';
+
+  @override
+  String get notificationPermission_consequence_item_approvals =>
+      'Approval requests that need your action';
+
+  @override
+  String get notificationPermission_consequence_item_announcements =>
+      'Important church announcements and updates';
+
+  @override
+  String get notificationPermission_btn_enableInSettings =>
+      'Enable in Settings';
+
+  @override
+  String get notificationPermission_btn_continueWithoutNotifications =>
+      'Continue Without Notifications';
+
+  @override
+  String get notificationSettings_errorLoadingPermissionStatus =>
+      'Error loading permission status';
+
+  @override
+  String notificationSettings_errorLoadingSettings(String error) {
+    return 'Error loading settings: $error';
+  }
+
+  @override
+  String get notificationSettings_preferences_title =>
+      'Notification Preferences';
+
+  @override
+  String get notificationSettings_preferences_subtitle =>
+      'Choose which types of notifications you want to receive';
+
+  @override
+  String get notificationSettings_channel_activityUpdates_title =>
+      'Activity Updates';
+
+  @override
+  String get notificationSettings_channel_activityUpdates_subtitle =>
+      'Notifications about church activities and events';
+
+  @override
+  String get notificationSettings_channel_approvalRequests_title =>
+      'Approval Requests';
+
+  @override
+  String get notificationSettings_channel_approvalRequests_subtitle =>
+      'Notifications requiring your approval';
+
+  @override
+  String get notificationSettings_channel_generalAnnouncements_title =>
+      'General Announcements';
+
+  @override
+  String get notificationSettings_channel_generalAnnouncements_subtitle =>
+      'General church announcements and updates';
+
+  @override
+  String get notificationSettings_soundVibration_title => 'Sound & Vibration';
+
+  @override
+  String get notificationSettings_sound_title => 'Sound';
+
+  @override
+  String get notificationSettings_sound_subtitle =>
+      'Play sound when notifications arrive';
+
+  @override
+  String get notificationSettings_vibration_title => 'Vibration';
+
+  @override
+  String get notificationSettings_vibration_subtitle =>
+      'Vibrate when notifications arrive';
+
+  @override
   String get nav_operations => 'Ops';
+
+  @override
+  String get operations_title => 'Operations';
+
+  @override
+  String get operations_noPositionsSubtitle =>
+      'You don\'t have any operational positions yet';
+
+  @override
+  String get operationsCategory_publishing => 'Publishing';
+
+  @override
+  String get operationsCategory_financial => 'Financial';
+
+  @override
+  String get operationsCategory_reports => 'Reports';
+
+  @override
+  String get operationsItem_publish_service_title => 'Publish Service';
+
+  @override
+  String get operationsItem_publish_service_desc =>
+      'Create and publish church service activities';
+
+  @override
+  String get operationsItem_publish_event_title => 'Publish Event';
+
+  @override
+  String get operationsItem_publish_event_desc =>
+      'Create and publish church events';
+
+  @override
+  String get operationsItem_publish_announcement_title =>
+      'Publish Announcement';
+
+  @override
+  String get operationsItem_publish_announcement_desc =>
+      'Create and publish announcements';
+
+  @override
+  String get operationsItem_add_income_title => 'Add Revenue';
+
+  @override
+  String get operationsItem_add_income_desc =>
+      'Record church income and offerings';
+
+  @override
+  String get operationsItem_add_expense_title => 'Add Expense';
+
+  @override
+  String get operationsItem_add_expense_desc => 'Record church expenses';
+
+  @override
+  String get operationsItem_generate_report_title => 'Generate Report';
+
+  @override
+  String get operationsItem_generate_report_desc =>
+      'Create activity and financial reports';
+
+  @override
+  String get operations_noOperationsAvailable => 'No operations available';
 
   @override
   String get approval_title => 'Approvals';
@@ -126,6 +392,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get approval_confirmRejectDescription =>
       'Are you sure you want to reject this activity? This action cannot be undone.';
+
+  @override
+  String get approvalDetail_title => 'Approval Details';
+
+  @override
+  String get approvalDetail_notFound =>
+      'Approval not found. It may have been removed or is unavailable.';
+
+  @override
+  String get approvalDetail_waitingOthers =>
+      'Waiting on other approver to either accept or reject this approval';
+
+  @override
+  String get approvalDetail_activitySummary_title => 'Activity Summary';
+
+  @override
+  String get approvalDetail_financialData_title => 'Financial Data';
+
+  @override
+  String get approvalDetail_viewOnMapTooltip => 'View on Map';
+
+  @override
+  String get approvalDetail_viewActivityDetails_title =>
+      'View Activity Details';
+
+  @override
+  String get approvalDetail_viewActivityDetails_subtitle =>
+      'See full activity information';
+
+  @override
+  String get approvalDetail_accountDescription_label => 'Account Description';
+
+  @override
+  String get lbl_coordinates => 'Coordinates';
 
   @override
   String get activityType_service => 'Service';
@@ -337,6 +637,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_zipCode => 'Zip Code';
+
+  @override
+  String get lbl_date => 'Date';
+
+  @override
+  String get lbl_time => 'Time';
 
   @override
   String get lbl_description => 'Description';
@@ -640,7 +946,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_membershipSettings => 'Membership Settings';
 
   @override
+  String get membership_title => 'Membership';
+
+  @override
+  String get membership_churchMembership_title => 'Church Membership';
+
+  @override
+  String get membership_churchNotRegisteredInfo =>
+      'If your church is not registered in our system, you won\'t be able to find it in the list below.';
+
+  @override
+  String get membership_notBaptized => 'Not baptized';
+
+  @override
+  String get membership_notSidi => 'Not SIDI';
+
+  @override
+  String membership_churchRequestAcceptedOn(String churchName, String date) {
+    return 'Your church registration request for \'$churchName\' was accepted on $date. We\'ll notify you once it\'s processed.';
+  }
+
+  @override
+  String membership_churchRequestProcessing(String churchName) {
+    return 'Your church registration request for \'$churchName\' is being processed.';
+  }
+
+  @override
+  String membership_churchRequestCompleted(String churchName) {
+    return 'Thanks to you, \'$churchName\' can now be selected from the list below.';
+  }
+
+  @override
   String get settings_noMembership => 'No membership available';
+
+  @override
+  String get settings_versionUnknown => 'Version unknown';
+
+  @override
+  String settings_version(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String settings_versionWithBuild(String version, String buildNumber) {
+    return 'Version $version (Build $buildNumber)';
+  }
 
   @override
   String get card_overdueBills_title => 'Overdue Bills';
@@ -991,7 +1341,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_maritalStatus => 'Marital Status';
 
   @override
+  String get maritalStatus_single => 'Single';
+
+  @override
+  String get maritalStatus_married => 'Married';
+
+  @override
   String get lbl_gender => 'Gender';
+
+  @override
+  String get gender_male => 'Male';
+
+  @override
+  String get gender_female => 'Female';
+
+  @override
+  String get account_personalInformation_title => 'Personal Information';
+
+  @override
+  String get account_phoneLabel_locked => 'Phone number (cannot be changed)';
+
+  @override
+  String get account_phoneLabel_active =>
+      'Active phone to receive authentication message';
+
+  @override
+  String get account_fullNameLabel =>
+      'Name without degree for your church membership';
+
+  @override
+  String get account_emailLabel_optional =>
+      'Optional email for notifications and communication';
+
+  @override
+  String get account_bipraHint => 'Used to determine your BIPRA membership';
+
+  @override
+  String get account_claim_title => 'Claim Account';
+
+  @override
+  String get account_claimedSubtitle_locked =>
+      'Account is claimed and cannot be unclaimed';
+
+  @override
+  String get account_claimedSubtitle_unlocked =>
+      'Claimed account can only be modified by the owner, not the church';
+
+  @override
+  String get account_claimConfirm_title => 'Claim Account?';
+
+  @override
+  String get account_claimConfirm_message =>
+      'Once the account is claimed, it cannot be unclaimed. Proceed?';
+
+  @override
+  String get auth_cancelRegistration_title => 'Cancel Registration?';
+
+  @override
+  String get auth_cancelRegistration_message =>
+      'Your registration progress will be lost. Are you sure you want to go back?';
+
+  @override
+  String get btn_stay => 'Stay';
+
+  @override
+  String get btn_goBack => 'Go Back';
 
   @override
   String get lbl_dateOfBirth => 'Date of Birth';
@@ -1299,7 +1713,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'Published activities can only be managed on mobile app by the corresponding supervisor.';
 
   @override
+  String get publish_publishedByYou => 'Published By You';
+
+  @override
+  String get publish_noPublishedActivities => 'No published activities';
+
+  @override
+  String get publish_noPublishedActivitiesSubtitle =>
+      'Start publishing activities to see them here';
+
+  @override
   String get churchRequest_title => 'Request Church Registration';
+
+  @override
+  String get churchRequest_status_onReview => 'On Review';
+
+  @override
+  String get churchRequest_status_onProgress => 'On Progress';
+
+  @override
+  String get churchRequest_statusMessage_onReview =>
+      'Your request is under review and will be processed soon.';
+
+  @override
+  String get churchRequest_statusMessage_onProgress =>
+      'Your request is being processed.';
+
+  @override
+  String get churchRequest_statusMessage_completed =>
+      'Your church has been registered! You can now select it when editing membership data.';
 
   @override
   String get churchRequest_description =>
@@ -1383,6 +1825,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hint_enterAccountNumber => 'Enter account number';
+
+  @override
+  String get hint_selectActivity => 'Select an activity';
 
   @override
   String get hint_enterDescription => 'Enter description';
@@ -1595,6 +2040,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentMethod_cashless => 'Cashless';
 
   @override
+  String get paymentMethod_cash_desc => 'Physical currency';
+
+  @override
+  String get paymentMethod_cashless_desc => 'Digital payment';
+
+  @override
+  String get lbl_selected => 'Selected';
+
+  @override
   String get billingType_subscription => 'Subscription';
 
   @override
@@ -1695,6 +2149,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dlg_recordPayment_title => 'Record Payment';
+
+  @override
+  String get dlg_selectFinanceType_title => 'Select Finance Type';
 
   @override
   String get dlg_confirmAction_title => 'Confirm Action';

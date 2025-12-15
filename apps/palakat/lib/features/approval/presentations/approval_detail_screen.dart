@@ -35,6 +35,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final controller = ref.read(
       approvalDetailControllerProvider(activityId: activityId).notifier,
     );
@@ -96,7 +97,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               Gap.w8,
               Expanded(
                 child: Text(
-                  "Approval Details",
+                  l10n.approvalDetail_title,
                   style: BaseTypography.headlineSmall.copyWith(
                     fontWeight: FontWeight.bold,
                     color: BaseColor.primaryText,
@@ -123,10 +124,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               ],
             ),
             child: activity == null
-                ? const InfoBoxWidget(
-                    message:
-                        'Approval not found. It may have been removed or is unavailable.',
-                  )
+                ? InfoBoxWidget(message: l10n.approvalDetail_notFound)
                 : _buildActivityDetails(context, ref, activity),
           ),
         ],
@@ -140,6 +138,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Activity activity,
   ) {
+    final l10n = context.l10n;
     final overall = _getOverallStatus(activity.approvers);
     final bool isMinePending = activity.approvers.any(
       (ap) =>
@@ -151,18 +150,18 @@ class ApprovalDetailScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Section 1: Header with activity title and type badge (Req 4.1)
-        _buildHeaderSection(activity),
+        _buildHeaderSection(context, activity),
         Gap.h12,
         // Section 2: Approval section with approvers and status badges (Req 4.2)
-        _buildApproversCard(activity),
+        _buildApproversCard(context, activity),
         Gap.h12,
         // Section 3: Activity summary - supervisor, date, description (Req 4.3)
-        _buildActivitySummaryCard(activity),
+        _buildActivitySummaryCard(context, activity),
         // Section 4: Financial section when hasRevenue or hasExpense is true (Req 4.4)
         // **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
         if (activity.hasRevenue == true || activity.hasExpense == true) ...[
           Gap.h12,
-          _buildFinancialCard(activity),
+          _buildFinancialCard(context, activity),
         ],
         if (activity.location != null) ...[
           Gap.h12,
@@ -170,7 +169,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
         ],
         if (activity.note?.trim().isNotEmpty ?? false) ...[
           Gap.h12,
-          _buildNoteCard(activity),
+          _buildNoteCard(context, activity),
         ],
         if (overall == ApprovalStatus.unconfirmed &&
             activity.approvers.any(
@@ -179,10 +178,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   ap.membership?.id == currentMembershipId,
             )) ...[
           Gap.h12,
-          const InfoBoxWidget(
-            message:
-                'Waiting on other approver to either accept or reject this approval',
-          ),
+          InfoBoxWidget(message: l10n.approvalDetail_waitingOthers),
         ],
         Gap.h12,
         if (overall == ApprovalStatus.unconfirmed) ...[
@@ -221,6 +217,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
     bool isLoading,
     String activityTitle,
   ) {
+    final l10n = context.l10n;
     final controller = ref.read(
       approvalDetailControllerProvider(activityId: activityId).notifier,
     );
@@ -247,7 +244,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             Expanded(
               child: _buildActionButton(
                 key: const Key('reject_button'),
-                text: 'Reject',
+                text: l10n.btn_reject,
                 icon: AppIcons.close,
                 color: BaseColor.red.shade500,
                 isLoading: isLoading,
@@ -271,7 +268,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             Expanded(
               child: _buildActionButton(
                 key: const Key('approve_button'),
-                text: 'Approve',
+                text: l10n.btn_approve,
                 icon: AppIcons.approve,
                 color: BaseColor.green.shade600,
                 isLoading: isLoading,
@@ -352,7 +349,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   /// Builds the header section with activity title and type badge
   /// Requirements: 4.1
-  Widget _buildHeaderSection(Activity activity) {
+  Widget _buildHeaderSection(BuildContext context, Activity activity) {
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
@@ -402,7 +399,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                       ),
                       Gap.h4,
                       Text(
-                        '#${activity.id}',
+                        '${context.l10n.lbl_activityId}: #${activity.id}',
                         style: BaseTypography.bodySmall.copyWith(
                           color: BaseColor.secondaryText,
                         ),
@@ -428,7 +425,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   /// Builds the approvers card with prominent status badges
   /// Requirements: 4.2
-  Widget _buildApproversCard(Activity activity) {
+  Widget _buildApproversCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
@@ -467,7 +465,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    'Approvers',
+                    l10n.tbl_approvers,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -498,7 +496,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: activity.approvers.map((ap) {
-                final name = ap.membership?.account?.name ?? 'Unknown';
+                final name = ap.membership?.account?.name ?? l10n.lbl_unknown;
                 // Check if this approver is the current user by membershipId
                 final approverMembershipId =
                     ap.membershipId ?? ap.membership?.id;
@@ -525,7 +523,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   /// Builds the activity summary card with supervisor, date, and description
   /// Requirements: 4.3
-  Widget _buildActivitySummaryCard(Activity activity) {
+  Widget _buildActivitySummaryCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
@@ -564,7 +563,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    'Activity Summary',
+                    l10n.approvalDetail_activitySummary_title,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -578,15 +577,15 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.person,
               iconColor: BaseColor.blue.shade600,
-              label: 'Supervisor',
-              value: activity.supervisor.account?.name ?? 'Unknown',
+              label: l10n.tbl_supervisor,
+              value: activity.supervisor.account?.name ?? l10n.lbl_unknown,
             ),
             Gap.h12,
             // Date info
             _buildInfoRow(
               icon: AppIcons.time,
               iconColor: BaseColor.yellow.shade600,
-              label: 'Date',
+              label: l10n.lbl_date,
               value: (() {
                 final dt = activity.date;
                 return "${dt.EEEEddMMMyyyy} ${dt.HHmm}";
@@ -597,7 +596,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.createdAt,
               iconColor: BaseColor.neutral60,
-              label: 'Created',
+              label: l10n.lbl_createdAt,
               value: (() {
                 final dt = activity.createdAt;
                 return "${dt.EEEEddMMMyyyy} ${dt.HHmm} • ${dt.toFromNow}";
@@ -608,7 +607,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               _buildInfoRow(
                 icon: AppIcons.description,
                 iconColor: BaseColor.teal.shade600,
-                label: 'Description',
+                label: l10n.lbl_description,
                 value: activity.description!,
               ),
             ],
@@ -621,10 +620,13 @@ class ApprovalDetailScreen extends ConsumerWidget {
   /// Builds the financial data card showing revenue/expense details
   /// Requirements: 4.4
   /// **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
-  Widget _buildFinancialCard(Activity activity) {
+  Widget _buildFinancialCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
     final isRevenue = activity.hasRevenue == true;
     final financeData = isRevenue ? activity.revenue : activity.expense;
-    final financeType = isRevenue ? 'Revenue' : 'Expense';
+    final financeType = isRevenue
+        ? l10n.financeType_revenue
+        : l10n.financeType_expense;
     final baseColor = isRevenue ? BaseColor.green : BaseColor.red;
 
     return Material(
@@ -666,7 +668,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    'Financial Data',
+                    l10n.approvalDetail_financialData_title,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -698,7 +700,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.money,
               iconColor: baseColor.shade600,
-              label: 'Amount',
+              label: l10n.lbl_amount,
               value: financeData?.amount != null
                   ? formatRupiah(financeData!.amount!)
                   : '-',
@@ -708,7 +710,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.bankAccount,
               iconColor: BaseColor.blue.shade600,
-              label: 'Account Number',
+              label: l10n.lbl_accountNumber,
               value:
                   financeData?.financialAccountNumber?.accountNumber ??
                   financeData?.accountNumber ??
@@ -719,7 +721,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               _buildInfoRow(
                 icon: AppIcons.description,
                 iconColor: BaseColor.neutral60,
-                label: 'Account Description',
+                label: l10n.approvalDetail_accountDescription_label,
                 value: financeData!.financialAccountNumber!.description!,
               ),
             ],
@@ -728,8 +730,19 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.payment,
               iconColor: BaseColor.teal.shade600,
-              label: 'Payment Method',
-              value: financeData?.paymentMethod?.toCamelCase ?? '-',
+              label: l10n.tbl_paymentMethod,
+              value: (() {
+                final method = financeData?.paymentMethod;
+                if (method == null || method.isEmpty) return '-';
+                switch (method) {
+                  case 'CASH':
+                    return l10n.paymentMethod_cash;
+                  case 'CASHLESS':
+                    return l10n.paymentMethod_cashless;
+                  default:
+                    return method.toCamelCase;
+                }
+              })(),
             ),
           ],
         ),
@@ -738,6 +751,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildLocationCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
     final location = activity.location;
     final hasCoordinates =
         location?.latitude != null && location?.longitude != null;
@@ -785,7 +799,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    'Location',
+                    l10n.card_location_title,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -794,7 +808,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 ),
                 if (location != null)
                   IconButton(
-                    tooltip: 'View on Map',
+                    tooltip: l10n.approvalDetail_viewOnMapTooltip,
                     onPressed: () {
                       context.pushNamed(
                         AppRoute.publishingMap,
@@ -824,7 +838,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             _buildInfoRow(
               icon: AppIcons.location,
               iconColor: BaseColor.red.shade500,
-              label: 'Address',
+              label: l10n.lbl_address,
               value: displayName,
             ),
             if (hasCoordinates) ...[
@@ -832,7 +846,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               _buildInfoRow(
                 icon: AppIcons.coordinates,
                 iconColor: BaseColor.blue.shade500,
-                label: 'Coordinates',
+                label: l10n.lbl_coordinates,
                 value:
                     "${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}",
               ),
@@ -843,7 +857,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNoteCard(Activity activity) {
+  Widget _buildNoteCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
     return Material(
       clipBehavior: Clip.hardEdge,
       color: BaseColor.cardBackground1,
@@ -882,7 +897,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    'Note',
+                    l10n.lbl_note,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -981,7 +996,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
           FaIcon(iconData, size: BaseSize.w14, color: baseColor),
           Gap.w6,
           Text(
-            type.name.toCamelCase,
+            type.displayName,
             style: BaseTypography.labelMedium.copyWith(
               color: baseColor,
               fontWeight: FontWeight.w600,
@@ -1021,6 +1036,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
     BuildContext context,
     Activity activity,
   ) {
+    final l10n = context.l10n;
     return Material(
       key: const Key('view_activity_details_button'),
       clipBehavior: Clip.hardEdge,
@@ -1071,7 +1087,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'View Activity Details',
+                      l10n.approvalDetail_viewActivityDetails_title,
                       style: BaseTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: BaseColor.blue[700],
@@ -1079,7 +1095,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     ),
                     Gap.h4,
                     Text(
-                      'See full activity information',
+                      l10n.approvalDetail_viewActivityDetails_subtitle,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.secondaryText,
                       ),

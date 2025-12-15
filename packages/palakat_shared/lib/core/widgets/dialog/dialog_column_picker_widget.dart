@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import '../../theme/theme.dart';
 import '../../models/column.dart' as model;
 import '../card/card_column.dart';
@@ -27,9 +28,10 @@ Future<model.Column?> showDialogColumnPickerWidget({
   VoidCallback? onPopBottomSheet,
   Widget? closeIcon,
 }) {
+  final l10n = context.l10n;
   return showDialogCustomWidget<model.Column?>(
     context: context,
-    title: "Select Column",
+    title: l10n.lbl_selectColumn,
     scrollControlled: false,
     closeIcon: closeIcon,
     content: Expanded(
@@ -108,12 +110,14 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     if (widget.churchId == null) {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w24),
           child: Text(
-            'Please select a church first',
+            l10n.lbl_selectChurchFirst,
             style: BaseTypography.bodyMedium.toSecondary,
             textAlign: TextAlign.center,
           ),
@@ -133,7 +137,7 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Search columns...',
+              hintText: l10n.lbl_searchColumns,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -162,7 +166,7 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
               : _columns.isEmpty
               ? Center(
                   child: Text(
-                    'No columns found',
+                    l10n.lbl_noColumnsFound,
                     style: BaseTypography.bodyMedium.toSecondary,
                   ),
                 )

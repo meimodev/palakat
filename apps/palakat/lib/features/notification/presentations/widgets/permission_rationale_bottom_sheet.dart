@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Shows a permission rationale bottom sheet explaining notification benefits
 ///
@@ -67,7 +68,7 @@ class _PermissionRationaleContent extends StatelessWidget {
             Gap.h24,
             // Title
             Text(
-              'Stay Updated',
+              context.l10n.notificationPermission_rationale_title,
               style: BaseTypography.headlineSmall.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BaseColor.black,
@@ -78,17 +79,23 @@ class _PermissionRationaleContent extends StatelessWidget {
             // Benefits list
             _BenefitItem(
               icon: FontAwesomeIcons.calendarCheck,
-              text: 'Get notified about new activities and events',
+              text: context
+                  .l10n
+                  .notificationPermission_rationale_benefit_activities,
             ),
             Gap.h12,
             _BenefitItem(
               icon: FontAwesomeIcons.clipboardCheck,
-              text: 'Receive approval requests that need your attention',
+              text: context
+                  .l10n
+                  .notificationPermission_rationale_benefit_approvals,
             ),
             Gap.h12,
             _BenefitItem(
               icon: FontAwesomeIcons.bullhorn,
-              text: 'Don\'t miss important church announcements',
+              text: context
+                  .l10n
+                  .notificationPermission_rationale_benefit_announcements,
             ),
             Gap.h24,
             // Allow Notifications button (primary)
@@ -104,7 +111,7 @@ class _PermissionRationaleContent extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Allow Notifications',
+                context.l10n.notificationSettings_enableNotifications,
                 style: BaseTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.white,
@@ -122,7 +129,7 @@ class _PermissionRationaleContent extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Not Now',
+                context.l10n.notificationPermission_btn_notNow,
                 style: BaseTypography.titleLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   color: BaseColor.secondaryText,

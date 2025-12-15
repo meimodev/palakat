@@ -14,7 +14,7 @@ class AppSidebar extends ConsumerWidget {
     // TODO: Implement auth controller in consuming app
     // final auth = ref.watch(authControllerProvider).asData?.value;
     // final account = auth?.account;
-    final displayName = 'Admin User'; // account?.name ?? 'Admin User';
+    final displayName = l10n.lbl_adminUser; // account?.name ?? 'Admin User';
 
     // final church = ref
     //     .read(authControllerProvider)
@@ -52,7 +52,7 @@ class AppSidebar extends ConsumerWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Palakat Admin',
+                      l10n.appTitle_admin,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],

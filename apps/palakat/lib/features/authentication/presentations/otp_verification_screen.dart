@@ -21,16 +21,14 @@ class OtpVerificationScreen extends ConsumerWidget {
   const OtpVerificationScreen({super.key});
 
   /// Determines if retry button should be shown based on error message
-  bool _shouldShowRetry(String errorMessage) {
-    final lowerError = errorMessage.toLowerCase();
-    return lowerError.contains('network') ||
-        lowerError.contains('server') ||
-        lowerError.contains('connect') ||
-        lowerError.contains('timeout') ||
-        lowerError.contains('timed out') ||
-        lowerError.contains('unavailable') ||
-        lowerError.contains('failed') ||
-        lowerError.contains('error occurred');
+  bool _shouldShowRetry(BuildContext context, String errorMessage) {
+    final l10n = context.l10n;
+    final nonRetryableMessages = <String>{
+      l10n.validation_requiredField,
+      l10n.validation_invalidFormat,
+    };
+
+    return !nonRetryableMessages.contains(errorMessage);
   }
 
   /// Check for 7-day permission re-request on sign-in
@@ -56,6 +54,7 @@ class OtpVerificationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     // Optimize state watching - only watch specific fields
     final controller = ref.read(authenticationControllerProvider.notifier);
 
@@ -73,14 +72,17 @@ class OtpVerificationScreen extends ConsumerWidget {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         SemanticsService.announce(
-          'Error: ${next.errorMessage}',
+          '${l10n.err_error}: ${next.errorMessage}',
           TextDirection.ltr,
         );
       }
 
       // Announce verification success
       if (next.showSuccessFeedback && (previous?.showSuccessFeedback != true)) {
-        SemanticsService.announce('Verification successful', TextDirection.ltr);
+        SemanticsService.announce(
+          l10n.auth_verificationSuccessful,
+          TextDirection.ltr,
+        );
       }
     });
 
@@ -139,8 +141,8 @@ class OtpVerificationScreen extends ConsumerWidget {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Semantics(
-                    label: 'Back button',
-                    hint: 'Go back to phone number input',
+                    label: l10n.btn_back,
+                    hint: l10n.btn_goBack,
                     button: true,
                     child: IconButton(
                       onPressed: () {
@@ -248,9 +250,9 @@ class OtpVerificationScreen extends ConsumerWidget {
                                     // might be null (no back-reference from backend)
                                     await pusherBeamsController
                                         .registerInterests(
-                                      membership,
-                                      account: account,
-                                    );
+                                          membership,
+                                          account: account,
+                                        );
                                   }
                                 } catch (e) {
                                   debugPrint(
@@ -306,7 +308,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                             Gap.h12,
                             AuthErrorDisplay(
                               message: errorMessage,
-                              onRetry: _shouldShowRetry(errorMessage)
+                              onRetry: _shouldShowRetry(context, errorMessage)
                                   ? () {
                                       // Clear error and retry verification if OTP is complete
                                       controller.clearError();
@@ -396,9 +398,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                         )
                       : (isVerifyingOtp || isValidatingAccount)
                       ? ButtonWidget.primary(
-                          text: isValidatingAccount
-                              ? "Validating..."
-                              : "Verifying...",
+                          text: l10n.loading_please_wait,
                           isLoading: true,
                           onTap: () {},
                         )
@@ -487,8 +487,8 @@ class _OtpInputState extends State<_OtpInput> {
     );
 
     return Semantics(
-      label: 'OTP verification code input',
-      hint: 'Enter the 6-digit verification code sent to your phone',
+      label: context.l10n.auth_verifyOtp,
+      hint: context.l10n.auth_enterCode,
       textField: true,
       enabled: widget.enabled,
       child: Opacity(
@@ -530,12 +530,13 @@ class _TimerAndResendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (!canResendOtp) ...[
           Semantics(
-            label: 'Resend code available in ${formatTime(remainingSeconds)}',
+            label: l10n.auth_resendIn(remainingSeconds),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -555,7 +556,7 @@ class _TimerAndResendButton extends StatelessWidget {
         ] else ...[
           if (isLoading)
             Semantics(
-              label: 'Resending verification code',
+              label: l10n.loading_please_wait,
               child: SizedBox(
                 width: BaseSize.w16,
                 height: BaseSize.w16,

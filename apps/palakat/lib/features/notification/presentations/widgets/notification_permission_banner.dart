@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'permission_rationale_bottom_sheet.dart';
 
@@ -76,7 +77,7 @@ class _NotificationPermissionBannerState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Enable Notifications',
+                      context.l10n.notificationSettings_enableNotifications,
                       style: BaseTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: BaseColor.primaryText,
@@ -84,7 +85,7 @@ class _NotificationPermissionBannerState
                     ),
                     Gap.h4,
                     Text(
-                      'Stay updated with activities and approvals',
+                      context.l10n.notificationSettings_permissionEnabledDesc,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.secondaryText,
                       ),
@@ -109,7 +110,7 @@ class _NotificationPermissionBannerState
                   ),
                 ),
                 child: Text(
-                  'Enable',
+                  context.l10n.notificationSettings_enableNotifications,
                   style: BaseTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     color: BaseColor.white,

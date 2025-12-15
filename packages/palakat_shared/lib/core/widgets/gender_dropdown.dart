@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Extension to get display name for Gender enum
 extension GenderExtension on Gender {
-  String get displayName {
+  String l10n(BuildContext context) {
+    final l10n = context.l10n;
     switch (this) {
       case Gender.male:
-        return 'Male';
+        return l10n.gender_male;
       case Gender.female:
-        return 'Female';
+        return l10n.gender_female;
     }
   }
 }
@@ -33,9 +35,7 @@ class GenderDropdown extends StatelessWidget {
     return DropdownButtonFormField<Gender>(
       value: value,
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,
         fillColor: !enabled
             ? theme.colorScheme.surfaceContainerHighest
@@ -44,7 +44,7 @@ class GenderDropdown extends StatelessWidget {
       items: Gender.values.map((gender) {
         return DropdownMenuItem<Gender>(
           value: gender,
-          child: Text(gender.displayName),
+          child: Text(gender.l10n(context)),
         );
       }).toList(),
       onChanged: enabled ? onChanged : null,

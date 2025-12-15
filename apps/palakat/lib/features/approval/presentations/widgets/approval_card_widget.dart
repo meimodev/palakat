@@ -141,7 +141,8 @@ class ApprovalCardWidget extends StatelessWidget {
                   Gap.w8,
                   Expanded(
                     child: Text(
-                      approval.supervisor.account?.name ?? "",
+                      approval.supervisor.account?.name ??
+                          context.l10n.lbl_unknown,
                       style: BaseTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w500,
                       ),

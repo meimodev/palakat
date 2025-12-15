@@ -9,6 +9,7 @@ import 'package:palakat/features/notification/presentations/notification_setting
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/models/notification_settings.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Notification settings screen
 ///
@@ -21,6 +22,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final settingsAsync = ref.watch(notificationSettingsControllerProvider);
     final permissionStateAsync = ref.watch(permissionStateProvider);
 
@@ -30,7 +32,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: "Notification Settings",
+            title: l10n.notificationSettings_title,
             leadIcon: AppIcons.back,
             leadIconColor: BaseColor.black,
             onPressedLeadIcon: () => context.pop(),
@@ -49,7 +51,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => Center(
               child: Text(
-                'Error loading settings: $error',
+                l10n.notificationSettings_errorLoadingSettings(
+                  error.toString(),
+                ),
                 style: BaseTypography.bodyMedium.toSecondary,
               ),
             ),
@@ -64,6 +68,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     AsyncValue<PermissionStateModel> permissionStateAsync,
   ) {
+    final l10n = context.l10n;
     return Material(
       color: BaseColor.cardBackground1,
       elevation: 1,
@@ -94,7 +99,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    "Permission Status",
+                    l10n.notificationSettings_permissionStatus_title,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -125,7 +130,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                         ),
                         Gap.w8,
                         Text(
-                          isGranted ? "Enabled" : "Disabled",
+                          isGranted
+                              ? l10n.notificationSettings_permissionEnabled
+                              : l10n.notificationSettings_permissionDisabled,
                           style: BaseTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BaseColor.black,
@@ -136,14 +143,14 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     Gap.h8,
                     Text(
                       isGranted
-                          ? "You will receive notifications for activities, approvals, and announcements."
-                          : "Enable notifications to stay updated on activities, approvals, and important announcements.",
+                          ? l10n.notificationSettings_permissionEnabledDesc
+                          : l10n.notificationSettings_permissionDisabledDesc,
                       style: BaseTypography.bodySmall.toSecondary,
                     ),
                     if (!isGranted) ...[
                       Gap.h16,
                       ButtonWidget.primary(
-                        text: "Enable Notifications",
+                        text: l10n.notificationSettings_enableNotifications,
                         onTap: () async {
                           final controller = ref.read(
                             permissionStateProvider.notifier,
@@ -157,7 +164,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Text(
-                'Error loading permission status',
+                l10n.notificationSettings_errorLoadingPermissionStatus,
                 style: BaseTypography.bodySmall.toSecondary,
               ),
             ),
@@ -172,6 +179,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     NotificationSettingsModel settings,
   ) {
+    final l10n = context.l10n;
     final controller = ref.read(
       notificationSettingsControllerProvider.notifier,
     );
@@ -206,7 +214,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    "Notification Preferences",
+                    l10n.notificationSettings_preferences_title,
                     style: BaseTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.black,
@@ -217,28 +225,32 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h16,
             Text(
-              "Choose which types of notifications you want to receive",
+              l10n.notificationSettings_preferences_subtitle,
               style: BaseTypography.bodySmall.toSecondary,
             ),
             Gap.h16,
             // Channel preferences
             _buildToggleTile(
-              title: "Activity Updates",
-              subtitle: "Notifications about church activities and events",
+              title: l10n.notificationSettings_channel_activityUpdates_title,
+              subtitle:
+                  l10n.notificationSettings_channel_activityUpdates_subtitle,
               value: settings.activityUpdatesEnabled,
               onChanged: (value) => controller.updateActivityUpdates(value),
             ),
             Gap.h12,
             _buildToggleTile(
-              title: "Approval Requests",
-              subtitle: "Notifications requiring your approval",
+              title: l10n.notificationSettings_channel_approvalRequests_title,
+              subtitle:
+                  l10n.notificationSettings_channel_approvalRequests_subtitle,
               value: settings.approvalRequestsEnabled,
               onChanged: (value) => controller.updateApprovalRequests(value),
             ),
             Gap.h12,
             _buildToggleTile(
-              title: "General Announcements",
-              subtitle: "General church announcements and updates",
+              title:
+                  l10n.notificationSettings_channel_generalAnnouncements_title,
+              subtitle: l10n
+                  .notificationSettings_channel_generalAnnouncements_subtitle,
               value: settings.generalAnnouncementsEnabled,
               onChanged: (value) =>
                   controller.updateGeneralAnnouncements(value),
@@ -247,7 +259,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             Divider(color: BaseColor.neutral30),
             Gap.h16,
             Text(
-              "Sound & Vibration",
+              l10n.notificationSettings_soundVibration_title,
               style: BaseTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: BaseColor.black,
@@ -255,15 +267,15 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h12,
             _buildToggleTile(
-              title: "Sound",
-              subtitle: "Play sound when notifications arrive",
+              title: l10n.notificationSettings_sound_title,
+              subtitle: l10n.notificationSettings_sound_subtitle,
               value: settings.soundEnabled,
               onChanged: (value) => controller.updateSound(value),
             ),
             Gap.h12,
             _buildToggleTile(
-              title: "Vibration",
-              subtitle: "Vibrate when notifications arrive",
+              title: l10n.notificationSettings_vibration_title,
+              subtitle: l10n.notificationSettings_vibration_subtitle,
               value: settings.vibrationEnabled,
               onChanged: (value) => controller.updateVibration(value),
             ),

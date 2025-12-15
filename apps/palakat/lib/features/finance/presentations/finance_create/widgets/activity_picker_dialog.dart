@@ -10,6 +10,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_controller.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_state.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Shows a dialog for selecting an activity from the user's supervised activities.
 /// Activities are paginated with infinite scrolling and sorted by date descending.
@@ -17,7 +18,7 @@ import 'package:palakat_shared/core/models/activity.dart';
 Future<Activity?> showActivityPickerDialog({required BuildContext context}) {
   return showDialogCustomWidget<Activity?>(
     context: context,
-    title: 'Select Activity',
+    title: context.l10n.lbl_activity,
     scrollControlled: false,
     content: const Expanded(child: _ActivityPickerDialogContent()),
   );
@@ -74,6 +75,7 @@ class _ActivityPickerDialogContentState
   Widget build(BuildContext context) {
     final state = ref.watch(activityPickerControllerProvider);
     final controller = ref.read(activityPickerControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return Column(
       children: [
@@ -87,7 +89,7 @@ class _ActivityPickerDialogContentState
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Search activities...',
+              hintText: l10n.hint_searchByTitleDescription,
               prefixIcon: FaIcon(AppIcons.search, size: BaseSize.w20),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -138,7 +140,7 @@ class _ActivityPickerDialogContentState
             Gap.h16,
             TextButton(
               onPressed: () => controller.fetchActivities(refresh: true),
-              child: const Text('Retry'),
+              child: Text(context.l10n.btn_retry),
             ),
           ],
         ),
@@ -158,8 +160,8 @@ class _ActivityPickerDialogContentState
             Gap.h12,
             Text(
               state.searchQuery.isNotEmpty
-                  ? 'No activities found for "${state.searchQuery}"'
-                  : 'No activities found',
+                  ? context.l10n.lbl_noResultsFor(state.searchQuery)
+                  : context.l10n.noData_results,
               style: BaseTypography.bodyMedium.toSecondary,
               textAlign: TextAlign.center,
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class ChurchRequestStatusCardWidget extends StatelessWidget {
   final ChurchRequest churchRequest;
@@ -9,7 +10,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusInfo = _getStatusInfo(churchRequest.status);
+    final statusInfo = _getStatusInfo(context, churchRequest.status);
 
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
@@ -43,7 +44,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        "Church Registration Request",
+                        context.l10n.churchRequest_title,
                         style: BaseTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                           color: BaseColor.black,
@@ -89,12 +90,12 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
     );
   }
 
-  _StatusInfo _getStatusInfo(RequestStatus status) {
+  _StatusInfo _getStatusInfo(BuildContext context, RequestStatus status) {
     switch (status) {
       case RequestStatus.todo:
         return _StatusInfo(
-          statusLabel: 'On Review',
-          message: 'Your request is on us and soon will be acted upon.',
+          statusLabel: context.l10n.churchRequest_status_onReview,
+          message: context.l10n.churchRequest_statusMessage_onReview,
           icon: AppIcons.schedule,
           iconColor: BaseColor.yellow[700]!,
           iconBackgroundColor: BaseColor.yellow[50]!,
@@ -105,8 +106,8 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
         );
       case RequestStatus.doing:
         return _StatusInfo(
-          statusLabel: 'On Progress',
-          message: 'YAY! Your request is being processed.',
+          statusLabel: context.l10n.churchRequest_status_onProgress,
+          message: context.l10n.churchRequest_statusMessage_onProgress,
           icon: AppIcons.sync,
           iconColor: BaseColor.blue[700]!,
           iconBackgroundColor: BaseColor.blue[50]!,
@@ -117,9 +118,8 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
         );
       case RequestStatus.done:
         return _StatusInfo(
-          statusLabel: 'Completed',
-          message:
-              'Your church has been registered! You can now select it in when editing membership data.',
+          statusLabel: context.l10n.status_completed,
+          message: context.l10n.churchRequest_statusMessage_completed,
           icon: AppIcons.success,
           iconColor: BaseColor.green[700]!,
           iconBackgroundColor: BaseColor.green[50]!,

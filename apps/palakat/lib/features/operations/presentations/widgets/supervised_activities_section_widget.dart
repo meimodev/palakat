@@ -3,6 +3,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
 import 'package:palakat/features/operations/presentations/widgets/supervised_activity_item_widget.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/widgets.dart';
 
 /// Section widget displaying supervised activities on the Operations screen.
@@ -117,7 +118,7 @@ class _SectionHeader extends StatelessWidget {
       children: [
         // Section title
         Text(
-          'Supervised Activities',
+          context.l10n.supervisedActivities_title,
           style: BaseTypography.titleLarge.copyWith(
             fontWeight: FontWeight.bold,
             color: BaseColor.textPrimary,
@@ -140,7 +141,7 @@ class _SectionHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'See All',
+                  context.l10n.btn_viewAll,
                   style: BaseTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                     color: BaseColor.primary[700],
@@ -244,7 +245,7 @@ class _ErrorState extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Failed to load activities',
+                        context.l10n.error_loadingActivities,
                         style: BaseTypography.titleMedium.copyWith(
                           fontWeight: FontWeight.w600,
                           color: BaseColor.red[900],
@@ -266,7 +267,7 @@ class _ErrorState extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onRetry,
               icon: Icon(AppIcons.refresh, size: BaseSize.w14),
-              label: const Text('Retry'),
+              label: Text(context.l10n.btn_retry),
               style: OutlinedButton.styleFrom(
                 foregroundColor: BaseColor.red[700],
                 side: BorderSide(color: BaseColor.red[300]!, width: 1),

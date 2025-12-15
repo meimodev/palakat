@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class ReportCardWidget extends StatelessWidget {
   final Report report;
@@ -74,7 +76,10 @@ class ReportCardWidget extends StatelessWidget {
                           ),
                           Gap.h4,
                           Text(
-                            _getGenerationTypeLabel(report.generatedBy),
+                            _getGenerationTypeLabel(
+                              context,
+                              report.generatedBy,
+                            ),
                             style: BaseTypography.bodySmall.copyWith(
                               color: _getGenerationTypeColor(
                                 report.generatedBy,
@@ -107,7 +112,7 @@ class ReportCardWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Delete',
+                                context.l10n.btn_delete,
                                 style: TextStyle(color: BaseColor.error),
                               ),
                             ],
@@ -127,7 +132,7 @@ class ReportCardWidget extends StatelessWidget {
 
                 // File info
                 Text(
-                  'File: ${_getFileName(report.file.url)}',
+                  '${context.l10n.tbl_file}: ${_getFileName(context, report.file.url)}',
                   style: BaseTypography.bodySmall.copyWith(
                     color: BaseColor.neutral60,
                   ),
@@ -148,7 +153,7 @@ class ReportCardWidget extends StatelessWidget {
                       ),
                       Gap.w4,
                       Text(
-                        'Generated on ${_formatDate(report.createdAt!)}',
+                        '${context.l10n.tbl_on} ${_formatDate(context, report.createdAt!)}',
                         style: BaseTypography.bodySmall.copyWith(
                           color: BaseColor.neutral60,
                         ),
@@ -181,41 +186,27 @@ class ReportCardWidget extends StatelessWidget {
     }
   }
 
-  String _getGenerationTypeLabel(GeneratedBy type) {
+  String _getGenerationTypeLabel(BuildContext context, GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return 'Manual Report';
+        return context.l10n.opt_manual;
       case GeneratedBy.system:
-        return 'System Generated';
+        return context.l10n.opt_system;
     }
   }
 
-  String _getFileName(String url) {
+  String _getFileName(BuildContext context, String url) {
     try {
       final uri = Uri.parse(url);
       final segments = uri.pathSegments;
-      return segments.isNotEmpty ? segments.last : 'Unknown';
+      return segments.isNotEmpty ? segments.last : context.l10n.lbl_na;
     } catch (e) {
-      return 'Unknown';
+      return context.l10n.lbl_na;
     }
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  String _formatDate(BuildContext context, DateTime date) {
+    final locale = Localizations.localeOf(context).toString();
+    return intl.DateFormat.yMMMd(locale).format(date);
   }
 }

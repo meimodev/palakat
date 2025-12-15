@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
 /// A widget for selecting payment method (CASH or CASHLESS).
 /// Displays options as selectable cards with visual feedback.
@@ -87,7 +90,8 @@ class _PaymentMethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _getMethodConfig();
+    final l10n = context.l10n;
+    final config = _getMethodConfig(l10n);
 
     return GestureDetector(
       onTap: onTap,
@@ -172,7 +176,7 @@ class _PaymentMethodCard extends StatelessWidget {
                     ),
                     Gap.w4,
                     Text(
-                      'Selected',
+                      l10n.lbl_selected,
                       style: BaseTypography.bodySmall.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -188,13 +192,13 @@ class _PaymentMethodCard extends StatelessWidget {
     );
   }
 
-  _PaymentMethodConfig _getMethodConfig() {
+  _PaymentMethodConfig _getMethodConfig(AppLocalizations l10n) {
     switch (method) {
       case PaymentMethod.cash:
         return _PaymentMethodConfig(
           icon: AppIcons.cash,
-          label: 'Cash',
-          description: 'Physical currency',
+          label: l10n.paymentMethod_cash,
+          description: l10n.paymentMethod_cash_desc,
           selectedBgColor: BaseColor.teal[50]!,
           selectedBorderColor: BaseColor.teal[500]!,
           iconBgColor: BaseColor.teal[100]!,
@@ -204,8 +208,8 @@ class _PaymentMethodCard extends StatelessWidget {
       case PaymentMethod.cashless:
         return _PaymentMethodConfig(
           icon: AppIcons.payment,
-          label: 'Cashless',
-          description: 'Digital payment',
+          label: l10n.paymentMethod_cashless,
+          description: l10n.paymentMethod_cashless_desc,
           selectedBgColor: BaseColor.blue[50]!,
           selectedBorderColor: BaseColor.blue[500]!,
           iconBgColor: BaseColor.blue[100]!,
@@ -240,12 +244,21 @@ class _PaymentMethodConfig {
 
 /// Extension to get display name for PaymentMethod enum.
 extension PaymentMethodExtension on PaymentMethod {
+  AppLocalizations _l10n() {
+    final localeName = intl.Intl.getCurrentLocale();
+    final languageCode = localeName.split(RegExp('[_-]')).first;
+    return lookupAppLocalizations(
+      Locale(languageCode.isEmpty ? 'en' : languageCode),
+    );
+  }
+
   String get displayName {
+    final l10n = _l10n();
     switch (this) {
       case PaymentMethod.cash:
-        return 'Cash';
+        return l10n.paymentMethod_cash;
       case PaymentMethod.cashless:
-        return 'Cashless';
+        return l10n.paymentMethod_cashless;
     }
   }
 }

@@ -7,6 +7,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/supervised_activities_list_controller.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/supervised_activities_list_state.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/widgets/supervised_activity_list_item_widget.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Screen displaying all supervised activities with filtering capabilities.
 /// Shows paginated list of activities with filters for activity type and date range.
@@ -54,6 +55,7 @@ class _SupervisedActivitiesListScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final state = ref.watch(supervisedActivitiesListControllerProvider);
     final controller = ref.read(
       supervisedActivitiesListControllerProvider.notifier,
@@ -65,9 +67,9 @@ class _SupervisedActivitiesListScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Gap.h32,
-          const ScreenTitleWidget.titleSecondary(
-            title: "Supervised Activities",
-            subTitle: "Activities you are responsible for",
+          ScreenTitleWidget.titleSecondary(
+            title: l10n.supervisedActivities_title,
+            subTitle: l10n.supervisedActivities_subtitle,
           ),
           Gap.h16,
           Padding(
@@ -188,6 +190,7 @@ class _FilterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -197,7 +200,7 @@ class _FilterSection extends StatelessWidget {
         ),
         Gap.h12,
         DateRangePresetInput(
-          label: 'Filter by date',
+          label: l10n.approval_filterByDate,
           start: filterStartDate,
           end: filterEndDate,
           onChanged: onDateRangeChanged,
@@ -223,13 +226,15 @@ class _ActivityTypeFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return InputWidget<ActivityType?>.dropdown(
-      label: 'Activity Type',
-      hint: 'Select activity type',
+      label: l10n.filter_activityType_label,
+      hint: l10n.filter_activityType_hint,
       currentInputValue: currentValue,
       options: [null, ...ActivityType.values],
-      optionLabel: (type) => type?.displayName ?? 'All types',
-      customDisplayBuilder: (type) => _buildCustomDisplay(type),
+      optionLabel: (type) =>
+          type?.displayName ?? l10n.filter_activityType_allTitle,
+      customDisplayBuilder: (type) => _buildCustomDisplay(context, type),
       onChanged: onChanged,
       onPressedWithResult: () async {
         return await _showActivityTypeBottomSheet(context);
@@ -237,7 +242,8 @@ class _ActivityTypeFilter extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomDisplay(ActivityType? type) {
+  Widget _buildCustomDisplay(BuildContext context, ActivityType? type) {
+    final l10n = context.l10n;
     if (type == null) {
       return Row(
         children: [
@@ -262,14 +268,14 @@ class _ActivityTypeFilter extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'All types',
+                  l10n.filter_activityType_allTitle,
                   style: BaseTypography.titleMedium.copyWith(
                     color: BaseColor.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  'Showing all activity types',
+                  l10n.filter_activityType_allSubtitle,
                   style: BaseTypography.labelSmall.copyWith(
                     color: BaseColor.textSecondary,
                   ),
@@ -311,7 +317,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                 ),
               ),
               Text(
-                _getActivityDescription(type),
+                _getActivityDescription(context, type),
                 style: BaseTypography.labelSmall.copyWith(
                   color: BaseColor.textSecondary,
                 ),
@@ -326,6 +332,7 @@ class _ActivityTypeFilter extends StatelessWidget {
   Future<ActivityType?> _showActivityTypeBottomSheet(
     BuildContext context,
   ) async {
+    final l10n = context.l10n;
     return showModalBottomSheet<ActivityType?>(
       context: context,
       useSafeArea: true,
@@ -357,9 +364,9 @@ class _ActivityTypeFilter extends StatelessWidget {
                     color: BaseColor.neutral[600],
                   ),
                 ),
-                title: const Text('All types'),
+                title: Text(l10n.filter_activityType_allTitle),
                 subtitle: Text(
-                  'Show all activity types',
+                  l10n.filter_activityType_allSheetSubtitle,
                   style: BaseTypography.bodySmall.toSecondary,
                 ),
                 trailing: currentValue == null
@@ -385,7 +392,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                   ),
                   title: Text(type.displayName),
                   subtitle: Text(
-                    _getActivityDescription(type),
+                    _getActivityDescription(context, type),
                     style: BaseTypography.bodySmall.toSecondary,
                   ),
                   trailing: currentValue == type
@@ -423,14 +430,15 @@ class _ActivityTypeFilter extends StatelessWidget {
     }
   }
 
-  String _getActivityDescription(ActivityType type) {
+  String _getActivityDescription(BuildContext context, ActivityType type) {
+    final l10n = context.l10n;
     switch (type) {
       case ActivityType.service:
-        return 'Church services and worship';
+        return l10n.activityType_service_desc;
       case ActivityType.event:
-        return 'Events and gatherings';
+        return l10n.activityType_event_desc;
       case ActivityType.announcement:
-        return 'Announcements and notices';
+        return l10n.activityType_announcement_desc;
     }
   }
 }
@@ -443,6 +451,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: BaseSize.w12,
@@ -463,7 +472,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
           Gap.w8,
           Expanded(
             child: Text(
-              'Filters applied',
+              l10n.filters_applied,
               style: BaseTypography.bodySmall.copyWith(
                 color: BaseColor.primary[700],
                 fontWeight: FontWeight.w500,
@@ -482,7 +491,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              'Clear all',
+              l10n.btn_clearAll,
               style: BaseTypography.bodySmall.copyWith(
                 color: BaseColor.primary[700],
                 fontWeight: FontWeight.w600,
@@ -507,6 +516,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Container(
         padding: EdgeInsets.all(BaseSize.w24),
@@ -529,8 +539,8 @@ class _EmptyState extends StatelessWidget {
             Gap.h12,
             Text(
               hasActiveFilters
-                  ? 'No activities match your filters'
-                  : 'No supervised activities',
+                  ? l10n.supervisedActivities_emptyFilteredTitle
+                  : l10n.supervisedActivities_emptyTitle,
               textAlign: TextAlign.center,
               style: BaseTypography.titleMedium.copyWith(
                 color: BaseColor.secondaryText,
@@ -540,8 +550,8 @@ class _EmptyState extends StatelessWidget {
             Gap.h4,
             Text(
               hasActiveFilters
-                  ? 'Try adjusting your filters to see more results'
-                  : 'Activities you supervise will appear here',
+                  ? l10n.supervisedActivities_emptyFilteredSubtitle
+                  : l10n.supervisedActivities_emptySubtitle,
               textAlign: TextAlign.center,
               style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.secondaryText,
@@ -552,7 +562,7 @@ class _EmptyState extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onClearFilters,
                 icon: Icon(AppIcons.clear, size: BaseSize.w14),
-                label: const Text('Clear filters'),
+                label: Text(l10n.btn_clearFilters),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: BaseColor.primary[700],
                   side: BorderSide(color: BaseColor.primary[300]!, width: 1),

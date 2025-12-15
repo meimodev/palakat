@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({
@@ -119,11 +120,12 @@ class _MapScreenState extends State<MapScreen> {
     if (position != null) {
       await _animateToLocation(position.latitude, position.longitude);
     } else {
+      final l10n = context.l10n;
       // Show error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tidak dapat mengakses lokasi. Periksa izin lokasi.'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.map_locationAccessError),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -249,6 +251,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildTopBar() {
+    final l10n = context.l10n;
+
     return Positioned(
       left: 0,
       right: 0,
@@ -290,7 +294,9 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
                   child: Text(
-                    _isPinPointMode ? 'Pilih Lokasi' : 'Lokasi',
+                    _isPinPointMode
+                        ? l10n.map_selectLocationTitle
+                        : l10n.card_location_title,
                     style: BaseTypography.titleMedium.toBold.copyWith(
                       color: BaseColor.neutral90,
                     ),
@@ -363,6 +369,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildBottomCard() {
+    final l10n = context.l10n;
+
     return Positioned(
       left: 0,
       right: 0,
@@ -428,7 +436,7 @@ class _MapScreenState extends State<MapScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Lokasi Terpilih',
+                              l10n.publish_locationSelected,
                               style: BaseTypography.labelSmall.copyWith(
                                 color: BaseColor.neutral60,
                               ),
@@ -450,7 +458,7 @@ class _MapScreenState extends State<MapScreen> {
                   Gap.h20,
                   // Confirm button
                   ButtonWidget.primary(
-                    text: 'Konfirmasi Lokasi',
+                    text: l10n.map_confirmLocation,
                     onTap: _confirmLocation,
                     isLoading: _isMapMoving,
                   ),

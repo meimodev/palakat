@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
 import 'package:palakat/features/song_book/presentations/widgets/song_item_card_widget.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 /// Collapsible category card that groups songs by hymnal type.
@@ -137,7 +138,7 @@ class _CategoryEmptyState extends StatelessWidget {
           Gap.w12,
           Expanded(
             child: Text(
-              'No songs available in this category',
+              context.l10n.songBook_emptyTitle,
               style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.textSecondary,
               ),

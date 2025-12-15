@@ -4,6 +4,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'widgets.dart';
 
@@ -25,7 +26,7 @@ class AnnouncementWidget extends StatelessWidget {
         SegmentTitleWidget(
           onPressedViewAll: onPressedViewAll,
           count: announcements.length,
-          title: 'Announcements',
+          title: context.l10n.activityType_announcement,
           leadingIcon: AppIcons.announcement,
           leadingBg: BaseColor.yellow[50],
           leadingFg: BaseColor.yellow[700],

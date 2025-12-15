@@ -7,6 +7,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/membership/widgets/church_request_bottom_sheet.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/models/models.dart' as model;
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
 class MembershipScreen extends ConsumerStatefulWidget {
@@ -56,7 +57,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: "Membership",
+            title: context.l10n.membership_title,
             leadIcon: AppIcons.back,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,
@@ -94,7 +95,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                       Gap.w12,
                       Expanded(
                         child: Text(
-                          "Church Membership",
+                          context.l10n.membership_churchMembership_title,
                           style: BaseTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.bold,
                             color: BaseColor.black,
@@ -107,8 +108,8 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                   _buildChurchRequestInfo(state, context),
                   Gap.h12,
                   InputWidget<model.Church>.dropdown(
-                    label: "identify your church",
-                    hint: "Church",
+                    label: context.l10n.lbl_selectChurch,
+                    hint: context.l10n.lbl_selectChurch,
                     currentInputValue: state.church,
                     errorText: state.errorChurch,
                     endIcon: Icon(AppIcons.chevronDown, size: 20),
@@ -119,10 +120,10 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                   ),
                   Gap.h12,
                   InputWidget<model.Column>.dropdown(
-                    label: "identify your column",
+                    label: context.l10n.lbl_selectColumn,
                     hint: state.church == null
-                        ? "Select church first"
-                        : "Column",
+                        ? context.l10n.lbl_selectChurchFirst
+                        : context.l10n.lbl_selectColumn,
                     currentInputValue: state.column,
                     errorText: state.errorColumn,
                     endIcon: Icon(AppIcons.chevronDown, size: 20),
@@ -139,19 +140,22 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                   InputWidget<bool>.binaryOption(
                     currentInputValue: state.baptize,
                     options: const [true, false],
-                    label: "Baptize status",
+                    label: context.l10n.lbl_baptized,
                     onChanged: controller.onChangedBaptize,
-                    optionLabel: (bool option) =>
-                        option ? "BAPTIZE" : "NOT BAPTIZE",
+                    optionLabel: (bool option) => option
+                        ? context.l10n.lbl_baptized
+                        : context.l10n.membership_notBaptized,
                     errorText: state.errorBaptize,
                   ),
                   Gap.h12,
                   InputWidget<bool>.binaryOption(
                     currentInputValue: state.sidi,
                     options: const [true, false],
-                    label: "Sidi status",
+                    label: context.l10n.lbl_sidi,
                     onChanged: controller.onChangedSidi,
-                    optionLabel: (bool option) => option ? "SIDI" : "NOT SIDI",
+                    optionLabel: (bool option) => option
+                        ? context.l10n.lbl_sidi
+                        : context.l10n.membership_notSidi,
                     errorText: state.errorSidi,
                   ),
                 ],
@@ -160,7 +164,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
           ),
           Gap.h16,
           ButtonWidget.primary(
-            text: "Submit",
+            text: context.l10n.btn_submit,
             onTap: () async {
               final result = await controller.submit();
               if (context.mounted) {
@@ -192,9 +196,8 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
     // No church request exists - show the default info box
     if (churchRequest == null) {
       return InfoBoxWithActionWidget(
-        message:
-            "If your church is not registered in our system, you won't be able to find it in the list below.",
-        actionText: "Request Church Registration",
+        message: context.l10n.membership_churchNotRegisteredInfo,
+        actionText: context.l10n.churchRequest_title,
         onActionPressed: () {
           context.pop(); // Close membership screen
           _showChurchRequestBottomSheet(context);
@@ -205,19 +208,24 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
     // Church request exists - show status-based info
     switch (churchRequest.status) {
       case RequestStatus.todo:
+        final date = churchRequest.createdAt?.EddMMMyyyy ?? context.l10n.lbl_na;
         return InfoBoxWidget(
-          message:
-              "Your church registration request for '${churchRequest.churchName}' is been accepted on ${churchRequest.createdAt?.EddMMMyyyy}, We'll notify you once it's processed.",
+          message: context.l10n.membership_churchRequestAcceptedOn(
+            churchRequest.churchName,
+            date,
+          ),
         );
       case RequestStatus.doing:
         return InfoBoxWidget(
-          message:
-              "YAY! Your church registration request for '${churchRequest.churchName}' is being processed.",
+          message: context.l10n.membership_churchRequestProcessing(
+            churchRequest.churchName,
+          ),
         );
       case RequestStatus.done:
         return InfoBoxWidget(
-          message:
-              "Thanks to you, '${churchRequest.churchName}' now can be selected from the list below. Enjoy  ",
+          message: context.l10n.membership_churchRequestCompleted(
+            churchRequest.churchName,
+          ),
         );
     }
   }

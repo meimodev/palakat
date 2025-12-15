@@ -1,11 +1,22 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/models.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'account_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class AccountController extends _$AccountController {
@@ -49,6 +60,7 @@ class AccountController extends _$AccountController {
     state = state.copyWith(isFetchingAccount: true, errorMessage: null);
 
     try {
+      final l10n = _l10n();
       final membershipRepo = ref.read(membershipRepositoryProvider);
 
       final result = await membershipRepo.fetchAccount(accountId: accountId);
@@ -58,7 +70,7 @@ class AccountController extends _$AccountController {
         onFailure: (failure) {
           state = state.copyWith(
             isFetchingAccount: false,
-            errorMessage: 'Failed to load account: ${failure.message}',
+            errorMessage: '${l10n.error_loadingAccount}: ${failure.message}',
           );
           return;
         },
@@ -73,9 +85,10 @@ class AccountController extends _$AccountController {
 
       state = state.copyWith(isFetchingAccount: false);
     } catch (e) {
+      final l10n = _l10n();
       state = state.copyWith(
         isFetchingAccount: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage: '${l10n.error_unexpectedError}: ${e.toString()}',
       );
     }
   }
@@ -101,56 +114,63 @@ class AccountController extends _$AccountController {
         isPhoneVerified: true,
       );
     } catch (e) {
+      final l10n = _l10n();
       // If parsing fails, log detailed error
       state = state.copyWith(
-        errorMessage: 'Failed to load account data: ${e.toString()}',
+        errorMessage: '${l10n.error_loadingAccount}: ${e.toString()}',
       );
     }
   }
 
   String? validateTextPhone(String? value) {
+    final l10n = _l10n();
     if (value == null || value.isEmpty) {
-      return 'Phone Number is required';
+      return l10n.validation_phoneRequired;
     }
     return null;
   }
 
   String? validateTextName(String? value) {
+    final l10n = _l10n();
     if (value == null || value.isEmpty) {
-      return 'Full Name is required';
+      return l10n.validation_nameRequired;
     }
     return null;
   }
 
   String? validateEmail(String? value) {
+    final l10n = _l10n();
     if (value == null || value.isEmpty) {
       return null; // Email is optional
     }
     // Basic email validation
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email address';
+      return l10n.validation_invalidEmail;
     }
     return null;
   }
 
   String? validateDOB(DateTime? value) {
+    final l10n = _l10n();
     if (value == null) {
-      return 'Date Of Birth is required';
+      return l10n.validation_dateRequired;
     }
     return null;
   }
 
   String? validateGender(Gender? value) {
+    final l10n = _l10n();
     if (value == null) {
-      return 'Gender is required';
+      return l10n.validation_selectionRequired;
     }
     return null;
   }
 
   String? validateMaritalStatus(MaritalStatus? value) {
+    final l10n = _l10n();
     if (value == null) {
-      return 'Marital Status is required';
+      return l10n.validation_selectionRequired;
     }
     return null;
   }
@@ -241,7 +261,8 @@ class AccountController extends _$AccountController {
 
     // Must have an existing account to update
     if (state.account == null || state.account!.id == null) {
-      state = state.copyWith(errorMessage: 'No account to update');
+      final l10n = _l10n();
+      state = state.copyWith(errorMessage: l10n.err_noData);
       return null;
     }
 
@@ -271,9 +292,10 @@ class AccountController extends _$AccountController {
       final updatedAccount = updateResult.when(
         onSuccess: (acc) => acc,
         onFailure: (failure) {
+          final l10n = _l10n();
           state = state.copyWith(
             isRegistering: false,
-            errorMessage: 'Failed to update account: ${failure.message}',
+            errorMessage: '${l10n.msg_updateFailed}: ${failure.message}',
           );
           return;
         },
@@ -303,9 +325,10 @@ class AccountController extends _$AccountController {
 
       return updatedAccount;
     } catch (e) {
+      final l10n = _l10n();
       state = state.copyWith(
         isRegistering: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage: '${l10n.error_unexpectedError}: ${e.toString()}',
       );
       return null;
     }
@@ -330,9 +353,10 @@ class AccountController extends _$AccountController {
       final phoneToUse = state.verifiedPhone ?? state.phone;
 
       if (phoneToUse == null || phoneToUse.isEmpty) {
+        final l10n = _l10n();
         state = state.copyWith(
           isRegistering: false,
-          errorMessage: 'Phone number is required',
+          errorMessage: l10n.validation_phoneRequired,
         );
         return null;
       }
@@ -361,9 +385,10 @@ class AccountController extends _$AccountController {
       final account = createResult.when(
         onSuccess: (acc) => acc,
         onFailure: (failure) {
+          final l10n = _l10n();
           state = state.copyWith(
             isRegistering: false,
-            errorMessage: 'Failed to register: ${failure.message}',
+            errorMessage: '${l10n.msg_createFailed}: ${failure.message}',
           );
           return;
         },
@@ -379,10 +404,10 @@ class AccountController extends _$AccountController {
       final authResponse = validateResult.when(
         onSuccess: (auth) => auth,
         onFailure: (failure) {
+          final l10n = _l10n();
           state = state.copyWith(
             isRegistering: false,
-            errorMessage:
-                'Registration successful but failed to sign in: ${failure.message}',
+            errorMessage: '${l10n.err_somethingWentWrong}: ${failure.message}',
           );
           return;
         },
@@ -403,9 +428,10 @@ class AccountController extends _$AccountController {
 
       return authResponse;
     } catch (e) {
+      final l10n = _l10n();
       state = state.copyWith(
         isRegistering: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage: '${l10n.error_unexpectedError}: ${e.toString()}',
       );
       return null;
     }

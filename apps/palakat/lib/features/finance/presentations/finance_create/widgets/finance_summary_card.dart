@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/currency_input_widget.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 
 /// Displays attached finance summary in ActivityPublishScreen.
@@ -50,7 +51,7 @@ class FinanceSummaryCard extends StatelessWidget {
           // Divider with accent color
           Divider(height: 1, color: _accentColor.withValues(alpha: 0.2)),
           // Content with amount, account number, payment method
-          _buildContent(),
+          _buildContent(context),
         ],
       ),
     );
@@ -89,7 +90,8 @@ class FinanceSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final l10n = context.l10n;
     // Format amount with negative sign for expense
     final formattedAmount = _isExpense
         ? '- ${formatRupiah(financeData.amount)}'
@@ -104,7 +106,7 @@ class FinanceSummaryCard extends StatelessWidget {
           _InfoRow(
             icon: _isExpense ? AppIcons.expense : AppIcons.revenue,
             iconColor: _accentColor,
-            label: 'Amount',
+            label: l10n.lbl_amount,
             value: formattedAmount,
             valueStyle: BaseTypography.titleMedium.copyWith(
               color: _accentColor,
@@ -115,7 +117,7 @@ class FinanceSummaryCard extends StatelessWidget {
           // Account number with description
           _InfoRow(
             icon: AppIcons.bankAccount,
-            label: 'Account Number',
+            label: l10n.lbl_accountNumber,
             value: financeData.accountNumber,
             subtitle: financeData.accountDescription,
           ),
@@ -125,8 +127,11 @@ class FinanceSummaryCard extends StatelessWidget {
             icon: financeData.paymentMethod == PaymentMethod.cash
                 ? AppIcons.cash
                 : AppIcons.payment,
-            label: 'Payment Method',
-            value: _getPaymentMethodDisplayName(financeData.paymentMethod),
+            label: l10n.tbl_paymentMethod,
+            value: _getPaymentMethodDisplayName(
+              context,
+              financeData.paymentMethod,
+            ),
           ),
         ],
       ),
@@ -134,12 +139,16 @@ class FinanceSummaryCard extends StatelessWidget {
   }
 
   /// Returns the display name for a payment method.
-  String _getPaymentMethodDisplayName(PaymentMethod method) {
+  String _getPaymentMethodDisplayName(
+    BuildContext context,
+    PaymentMethod method,
+  ) {
+    final l10n = context.l10n;
     switch (method) {
       case PaymentMethod.cash:
-        return 'Cash';
+        return l10n.paymentMethod_cash;
       case PaymentMethod.cashless:
-        return 'Cashless';
+        return l10n.paymentMethod_cashless;
     }
   }
 }

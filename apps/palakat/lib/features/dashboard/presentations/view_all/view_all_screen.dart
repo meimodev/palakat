@@ -6,6 +6,7 @@ import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 class ViewAllScreen extends ConsumerWidget {
@@ -20,7 +21,8 @@ class ViewAllScreen extends ConsumerWidget {
       child: Column(
         children: [
           ScreenTitleWidget.primary(
-            title: "Activity This Week",
+            title:
+                '${context.l10n.lbl_activity} - ${context.l10n.dateRangeFilter_thisWeek}',
             leadIcon: AppIcons.back,
             leadIconColor: Colors.black,
             onPressedLeadIcon: context.pop,

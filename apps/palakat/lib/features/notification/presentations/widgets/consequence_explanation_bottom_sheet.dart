@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Shows a consequence explanation bottom sheet when user denies permissions
 ///
@@ -67,7 +68,7 @@ class _ConsequenceExplanationContent extends StatelessWidget {
             Gap.h24,
             // Title
             Text(
-              'You\'ll Miss Out On',
+              context.l10n.notificationPermission_consequence_title,
               style: BaseTypography.headlineSmall.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BaseColor.black,
@@ -78,17 +79,23 @@ class _ConsequenceExplanationContent extends StatelessWidget {
             // Consequences list
             _ConsequenceItem(
               icon: FontAwesomeIcons.calendarXmark,
-              text: 'Activity notifications and event updates',
+              text: context
+                  .l10n
+                  .notificationPermission_consequence_item_activities,
             ),
             Gap.h12,
             _ConsequenceItem(
               icon: FontAwesomeIcons.clipboardQuestion,
-              text: 'Approval requests that need your action',
+              text: context
+                  .l10n
+                  .notificationPermission_consequence_item_approvals,
             ),
             Gap.h12,
             _ConsequenceItem(
               icon: FontAwesomeIcons.bellSlash,
-              text: 'Important church announcements and updates',
+              text: context
+                  .l10n
+                  .notificationPermission_consequence_item_announcements,
             ),
             Gap.h24,
             // Enable in Settings button (primary)
@@ -104,7 +111,7 @@ class _ConsequenceExplanationContent extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Enable in Settings',
+                context.l10n.notificationPermission_btn_enableInSettings,
                 style: BaseTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.white,
@@ -122,7 +129,9 @@ class _ConsequenceExplanationContent extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Continue Without Notifications',
+                context
+                    .l10n
+                    .notificationPermission_btn_continueWithoutNotifications,
                 style: BaseTypography.titleLarge.copyWith(
                   fontWeight: FontWeight.w600,
                   color: BaseColor.secondaryText,

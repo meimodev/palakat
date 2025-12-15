@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/widgets/operation_item_card_widget.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Collapsible category card that groups related operations.
 /// Uses ExpansionTile pattern with custom styling.
@@ -50,7 +51,7 @@ class OperationCategoryCard extends StatelessWidget {
 
           // Operation items - only visible when expanded
           AnimatedCrossFade(
-            firstChild: _buildOperationsList(category.operations),
+            firstChild: _buildOperationsList(context, category.operations),
             secondChild: const SizedBox.shrink(),
             crossFadeState: category.isExpanded
                 ? CrossFadeState.showFirst
@@ -62,12 +63,16 @@ class OperationCategoryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildOperationsList(List<OperationItem> operations) {
+  Widget _buildOperationsList(
+    BuildContext context,
+    List<OperationItem> operations,
+  ) {
+    final l10n = context.l10n;
     if (operations.isEmpty) {
       return Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Text(
-          'No operations available',
+          l10n.operations_noOperationsAvailable,
           style: BaseTypography.bodyMedium.copyWith(
             color: BaseColor.textSecondary,
           ),
@@ -96,6 +101,20 @@ class OperationCategoryCard extends StatelessWidget {
             .toList(),
       ),
     );
+  }
+}
+
+String _categoryTitle(BuildContext context, OperationCategory category) {
+  final l10n = context.l10n;
+  switch (category.id) {
+    case 'publishing':
+      return l10n.operationsCategory_publishing;
+    case 'financial':
+      return l10n.operationsCategory_financial;
+    case 'reports':
+      return l10n.operationsCategory_reports;
+    default:
+      return category.title;
   }
 }
 
@@ -137,7 +156,7 @@ class _CategoryHeader extends StatelessWidget {
               // Category title
               Expanded(
                 child: Text(
-                  category.title,
+                  _categoryTitle(context, category),
                   style: BaseTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w600,
                     color: BaseColor.textPrimary,

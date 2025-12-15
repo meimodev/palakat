@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
 /// Widget displaying a single supervised activity item.
@@ -24,13 +25,13 @@ class SupervisedActivityItemWidget extends StatelessWidget {
   final VoidCallback onTap;
 
   /// Determines the overall approval status based on all approvers
-  _ApprovalStatusInfo get _approvalStatus {
+  _ApprovalStatusInfo _approvalStatus(BuildContext context) {
     final approvers = activity.approvers;
 
     if (approvers.isEmpty) {
       return _ApprovalStatusInfo(
         color: BaseColor.neutral[400]!,
-        label: 'No approvers',
+        label: context.l10n.msg_noApproversAssigned,
       );
     }
 
@@ -39,7 +40,10 @@ class SupervisedActivityItemWidget extends StatelessWidget {
       (a) => a.status == ApprovalStatus.rejected,
     );
     if (hasRejected) {
-      return _ApprovalStatusInfo(color: BaseColor.red[500]!, label: 'Rejected');
+      return _ApprovalStatusInfo(
+        color: BaseColor.red[500]!,
+        label: context.l10n.status_rejected,
+      );
     }
 
     // Check if all approved
@@ -49,17 +53,20 @@ class SupervisedActivityItemWidget extends StatelessWidget {
     if (allApproved) {
       return _ApprovalStatusInfo(
         color: BaseColor.green[500]!,
-        label: 'Approved',
+        label: context.l10n.status_approved,
       );
     }
 
     // Otherwise pending
-    return _ApprovalStatusInfo(color: BaseColor.yellow[600]!, label: 'Pending');
+    return _ApprovalStatusInfo(
+      color: BaseColor.yellow[600]!,
+      label: context.l10n.status_pending,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final statusInfo = _approvalStatus;
+    final statusInfo = _approvalStatus(context);
 
     return Material(
       color: BaseColor.white,

@@ -10,6 +10,7 @@ import 'package:palakat/features/account/presentations/account/account_controlle
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/widgets.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
@@ -49,6 +50,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final controller = ref.read(accountControllerProvider.notifier);
     final state = ref.watch(accountControllerProvider);
 
@@ -77,7 +79,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ScreenTitleWidget.primary(
-              title: "Account",
+              title: l10n.nav_account,
               leadIcon: AppIcons.back,
               leadIconColor: BaseColor.black,
               onPressedLeadIcon: () async {
@@ -125,7 +127,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         Gap.w12,
                         Expanded(
                           child: Text(
-                            "Personal Information",
+                            l10n.account_personalInformation_title,
                             style: BaseTypography.titleMedium.copyWith(
                               fontWeight: FontWeight.bold,
                               color: BaseColor.black,
@@ -144,11 +146,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             state.isPhoneVerified || state.account != null,
                         child: InputWidget.text(
                           key: ValueKey('phone_${state.phone}'),
-                          hint: "0812-3456-7890",
+                          hint: l10n.churchRequest_hintPhoneExample,
                           label:
                               (state.isPhoneVerified || state.account != null)
-                              ? "Phone number (cannot be changed)"
-                              : "Active phone to receive authentication message",
+                              ? l10n.account_phoneLabel_locked
+                              : l10n.account_phoneLabel_active,
                           currentInputValue: state.phone,
                           textInputType: TextInputType.phone,
                           inputFormatters: [
@@ -164,8 +166,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     Gap.h12,
                     InputWidget.text(
                       key: ValueKey('name_${state.name}'),
-                      hint: "Full Name",
-                      label: "name without degree for your church membership",
+                      hint: l10n.hint_enterFullName,
+                      label: l10n.account_fullNameLabel,
                       currentInputValue: state.name,
                       errorText: state.errorName,
                       onChanged: controller.onChangedTextName,
@@ -173,9 +175,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     Gap.h12,
                     InputWidget.text(
                       key: ValueKey('email_${state.email}'),
-                      hint: "Email Address",
-                      label:
-                          "optional email for notifications and communication",
+                      hint: l10n.hint_enterEmailAddress,
+                      label: l10n.account_emailLabel_optional,
                       currentInputValue: state.email,
                       textInputType: TextInputType.emailAddress,
                       errorText: state.errorEmail,
@@ -184,8 +185,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     Gap.h12,
                     InputWidget<DateTime>.dropdown(
                       key: ValueKey('dob_${state.dob}'),
-                      label: "use to determine your BIPRA membership",
-                      hint: "Date Of Birth",
+                      label: l10n.account_bipraHint,
+                      hint: l10n.lbl_dateOfBirth,
                       currentInputValue: state.dob,
                       errorText: state.errorDob,
                       endIcon: FaIcon(AppIcons.calendar, size: 20),
@@ -197,23 +198,28 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     Gap.h12,
                     InputWidget<Gender>.binaryOption(
                       key: ValueKey('gender_${state.gender}'),
-                      label: "use to determine your BIPRA membership",
+                      label: l10n.account_bipraHint,
                       currentInputValue: state.gender,
                       options: Gender.values,
                       onChanged: controller.onChangedGender,
                       errorText: state.errorGender,
-                      optionLabel: (Gender option) => option.name.toUpperCase(),
+                      optionLabel: (Gender option) => switch (option) {
+                        Gender.male => l10n.gender_male,
+                        Gender.female => l10n.gender_female,
+                      },
                     ),
                     Gap.h12,
                     InputWidget<MaritalStatus>.binaryOption(
                       key: ValueKey('maritalStatus_${state.maritalStatus}'),
-                      label: "use to determine your BIPRA membership",
+                      label: l10n.account_bipraHint,
                       currentInputValue: state.maritalStatus,
                       options: MaritalStatus.values,
                       onChanged: controller.onChangedMaritalStatus,
                       errorText: state.errorMarried,
-                      optionLabel: (MaritalStatus option) =>
-                          option.name.toUpperCase(),
+                      optionLabel: (MaritalStatus option) => switch (option) {
+                        MaritalStatus.single => l10n.maritalStatus_single,
+                        MaritalStatus.married => l10n.maritalStatus_married,
+                      },
                     ),
                     Gap.h16,
                     // Claimed checkbox
@@ -242,7 +248,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                                 }
                               },
                         title: Text(
-                          "Claim Account",
+                          l10n.account_claim_title,
                           style: BaseTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BaseColor.black,
@@ -250,8 +256,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         ),
                         subtitle: Text(
                           state.claimed
-                              ? "Account is claimed and cannot be unclaimed"
-                              : "Claimed account can only be modified by the owner, not the church",
+                              ? l10n.account_claimedSubtitle_locked
+                              : l10n.account_claimedSubtitle_unlocked,
                           style: BaseTypography.bodySmall.toSecondary,
                         ),
                         activeColor: BaseColor.primary[700],
@@ -271,7 +277,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             const NotificationPermissionBanner(),
             Gap.h16,
             ButtonWidget.primary(
-              text: state.account != null ? "Update Account" : "Submit",
+              text: state.account != null ? l10n.btn_update : l10n.btn_submit,
               isLoading: state.isRegistering,
               onTap: () async {
                 // Check if we're updating an existing account
@@ -283,12 +289,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       // Show error message from state
                       showSnackBar(
                         context,
-                        state.errorMessage ?? "Update failed",
+                        state.errorMessage ?? l10n.err_somethingWentWrong,
                       );
                       return;
                     }
                     // Update successful
-                    showSnackBar(context, "Account updated successfully");
+                    showSnackBar(context, l10n.msg_accountUpdated);
 
                     // Navigate to membership screen if membershipId exists
                     if (updatedAccount.membership?.id != null) {
@@ -314,7 +320,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       // Show error message from state
                       showSnackBar(
                         context,
-                        state.errorMessage ?? "Registration failed",
+                        state.errorMessage ?? l10n.err_somethingWentWrong,
                       );
                       return;
                     }
@@ -337,7 +343,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   final success = await controller.submit();
                   if (context.mounted) {
                     if (!success) {
-                      showSnackBar(context, "Please Fill All the field");
+                      showSnackBar(context, l10n.publish_fillAllRequiredFields);
                       controller.publish();
                       return;
                     }
@@ -354,6 +360,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   /// Show confirmation dialog when back button is pressed from signin flow
   Future<bool?> _showBackConfirmation(BuildContext context) {
+    final l10n = context.l10n;
     return showModalBottomSheet<bool>(
       context: context,
       backgroundColor: BaseColor.transparent,
@@ -397,7 +404,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
             Gap.h16,
             Text(
-              "Cancel Registration?",
+              l10n.auth_cancelRegistration_title,
               style: BaseTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BaseColor.black,
@@ -406,7 +413,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
             Gap.h12,
             Text(
-              "Your registration progress will be lost. Are you sure you want to go back?",
+              l10n.auth_cancelRegistration_message,
               style: BaseTypography.bodyMedium.toSecondary,
               textAlign: TextAlign.center,
             ),
@@ -424,7 +431,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     child: Text(
-                      "Stay",
+                      l10n.btn_stay,
                       style: BaseTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BaseColor.secondaryText,
@@ -446,7 +453,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     child: Text(
-                      "Go Back",
+                      l10n.btn_goBack,
                       style: BaseTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BaseColor.white,
@@ -465,6 +472,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   /// Show confirmation bottom sheet for claiming account
   Future<bool?> _showClaimConfirmation(BuildContext context) {
+    final l10n = context.l10n;
     return showModalBottomSheet<bool>(
       context: context,
       backgroundColor: BaseColor.transparent,
@@ -511,7 +519,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Gap.h16,
             // Title
             Text(
-              "Claim Account?",
+              l10n.account_claimConfirm_title,
               style: BaseTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BaseColor.black,
@@ -521,7 +529,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Gap.h12,
             // Message
             Text(
-              "Once account is claimed, then cannot be unclaimed. Proceed?",
+              l10n.account_claimConfirm_message,
               style: BaseTypography.bodyMedium.toSecondary,
               textAlign: TextAlign.center,
             ),
@@ -540,7 +548,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     child: Text(
-                      "Cancel",
+                      l10n.btn_cancel,
                       style: BaseTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BaseColor.secondaryText,
@@ -562,7 +570,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     child: Text(
-                      "Proceed",
+                      l10n.btn_confirm,
                       style: BaseTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BaseColor.white,

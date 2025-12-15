@@ -8,6 +8,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/settings/presentations/settings_controller.dart';
 import 'package:palakat/features/settings/presentations/widgets/widgets.dart';
 import 'package:palakat_shared/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Settings screen displaying configurable app settings and user preferences.
 ///
@@ -24,6 +25,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final state = ref.watch(settingsControllerProvider);
     final hasMembership = state.membership != null;
 
@@ -34,7 +36,7 @@ class SettingsScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: "Settings",
+            title: l10n.settings_title,
             leadIcon: AppIcons.back,
             leadIconColor: BaseColor.black,
             onPressedLeadIcon: () => context.pop(),
@@ -86,7 +88,7 @@ class SettingsScreen extends ConsumerWidget {
             icon: AppIcons.person,
             iconBackgroundColor: BaseColor.primary[100]!,
             iconColor: BaseColor.primary[700]!,
-            title: "Account Settings",
+            title: l10n.settings_accountSettings,
             onTap: () {
               // Navigate to AccountScreen with accountId - Requirements: 2.2, 2.3
               final accountId = state.account?.id;
@@ -108,8 +110,8 @@ class SettingsScreen extends ConsumerWidget {
             iconColor: hasMembership
                 ? BaseColor.primary[700]!
                 : BaseColor.neutral50,
-            title: "Membership Settings",
-            subtitle: hasMembership ? null : "No membership found",
+            title: l10n.settings_membershipSettings,
+            subtitle: hasMembership ? null : l10n.settings_noMembership,
             enabled: hasMembership,
             onTap: hasMembership
                 ? () {
@@ -130,13 +132,13 @@ class SettingsScreen extends ConsumerWidget {
             icon: FontAwesomeIcons.language,
             iconBackgroundColor: BaseColor.primary[100]!,
             iconColor: BaseColor.primary[700]!,
-            title: "Language",
+            title: l10n.card_languageSettings_title,
             child: const LanguageSelector(),
           ),
           Gap.h32,
           // Sign Out Button - Requirements: 5.1
           ButtonWidget.primary(
-            text: "Sign Out",
+            text: l10n.btn_signOut,
             color: BaseColor.red[600] ?? BaseColor.red,
             onTap: () => showSignOutConfirmationBottomSheet(context, ref),
           ),
@@ -144,7 +146,7 @@ class SettingsScreen extends ConsumerWidget {
           // Version Info - Requirements: 6.1, 6.2
           Center(
             child: Text(
-              _formatVersion(state.appVersion, state.buildNumber),
+              _formatVersion(context, state.appVersion, state.buildNumber),
               style: BaseTypography.bodySmall.toSecondary,
             ),
           ),
@@ -156,14 +158,19 @@ class SettingsScreen extends ConsumerWidget {
 
   /// Formats version string as "Version X.Y.Z (Build N)"
   /// Requirements: 6.2
-  String _formatVersion(String version, String buildNumber) {
+  String _formatVersion(
+    BuildContext context,
+    String version,
+    String buildNumber,
+  ) {
+    final l10n = context.l10n;
     if (version.isEmpty && buildNumber.isEmpty) {
-      return "Version unknown";
+      return l10n.settings_versionUnknown;
     }
     if (buildNumber.isEmpty) {
-      return "Version $version";
+      return l10n.settings_version(version);
     }
-    return "Version $version (Build $buildNumber)";
+    return l10n.settings_versionWithBuild(version, buildNumber);
   }
 }
 

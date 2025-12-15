@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 /// Membership positions card widget using the monochromatic teal color system.
@@ -59,7 +60,7 @@ class MembershipPositionsCardWidget extends StatelessWidget {
                 Gap.w12,
                 Expanded(
                   child: Text(
-                    "Your Positions",
+                    context.l10n.tbl_positions,
                     style: BaseTypography.titleLarge.copyWith(
                       fontWeight: FontWeight.bold,
                       color: BaseColor.textPrimary,

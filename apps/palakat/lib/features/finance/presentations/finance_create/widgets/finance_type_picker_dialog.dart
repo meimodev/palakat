@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 
 /// Shows a dialog for selecting finance type (Revenue or Expense).
@@ -13,7 +14,7 @@ Future<FinanceType?> showFinanceTypePickerDialog({
 }) {
   return showDialogCustomWidget<FinanceType?>(
     context: context,
-    title: 'Select Finance Type',
+    title: context.l10n.dlg_selectFinanceType_title,
     content: const _FinanceTypePickerContent(),
   );
 }
@@ -51,7 +52,7 @@ class _FinanceTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _getConfig();
+    final config = _getConfig(context);
 
     return InkWell(
       onTap: onTap,
@@ -115,11 +116,12 @@ class _FinanceTypeCard extends StatelessWidget {
     );
   }
 
-  _FinanceTypeConfig _getConfig() {
+  _FinanceTypeConfig _getConfig(BuildContext context) {
+    final l10n = context.l10n;
     switch (financeType) {
       case FinanceType.revenue:
         return _FinanceTypeConfig(
-          description: 'Record income from church activities',
+          description: l10n.operationsItem_add_income_desc,
           backgroundColor: BaseColor.teal[50]!,
           borderColor: BaseColor.teal[200]!,
           iconBackgroundColor: BaseColor.teal[100]!,
@@ -130,7 +132,7 @@ class _FinanceTypeCard extends StatelessWidget {
         );
       case FinanceType.expense:
         return _FinanceTypeConfig(
-          description: 'Record expenditure for church activities',
+          description: l10n.operationsItem_add_expense_desc,
           backgroundColor: BaseColor.red[50]!,
           borderColor: BaseColor.red[200]!,
           iconBackgroundColor: BaseColor.red[100]!,

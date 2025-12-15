@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Individual operation card with icon, title, and description.
 /// Provides visual feedback on interaction and supports disabled state.
@@ -27,6 +28,9 @@ class OperationItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = _operationTitle(context, operation);
+    final description = _operationDescription(context, operation);
+
     return Opacity(
       opacity: operation.isEnabled ? 1.0 : disabledOpacity,
       child: Material(
@@ -46,7 +50,7 @@ class OperationItemCard extends StatelessWidget {
           highlightColor: BaseColor.primary.withValues(alpha: 0.05),
           child: Tooltip(
             // Tooltip on long-press (Requirement 5.2)
-            message: operation.description,
+            message: description,
             preferBelow: true,
             child: Padding(
               padding: EdgeInsets.all(BaseSize.w12),
@@ -61,8 +65,8 @@ class OperationItemCard extends StatelessWidget {
                   // Title and description
                   Expanded(
                     child: _OperationContent(
-                      title: operation.title,
-                      description: operation.description,
+                      title: title,
+                      description: description,
                       isEnabled: operation.isEnabled,
                     ),
                   ),
@@ -82,6 +86,46 @@ class OperationItemCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+String _operationTitle(BuildContext context, OperationItem operation) {
+  final l10n = context.l10n;
+  switch (operation.id) {
+    case 'publish_service':
+      return l10n.operationsItem_publish_service_title;
+    case 'publish_event':
+      return l10n.operationsItem_publish_event_title;
+    case 'publish_announcement':
+      return l10n.operationsItem_publish_announcement_title;
+    case 'add_income':
+      return l10n.operationsItem_add_income_title;
+    case 'add_expense':
+      return l10n.operationsItem_add_expense_title;
+    case 'generate_report':
+      return l10n.operationsItem_generate_report_title;
+    default:
+      return operation.title;
+  }
+}
+
+String _operationDescription(BuildContext context, OperationItem operation) {
+  final l10n = context.l10n;
+  switch (operation.id) {
+    case 'publish_service':
+      return l10n.operationsItem_publish_service_desc;
+    case 'publish_event':
+      return l10n.operationsItem_publish_event_desc;
+    case 'publish_announcement':
+      return l10n.operationsItem_publish_announcement_desc;
+    case 'add_income':
+      return l10n.operationsItem_add_income_desc;
+    case 'add_expense':
+      return l10n.operationsItem_add_expense_desc;
+    case 'generate_report':
+      return l10n.operationsItem_generate_report_desc;
+    default:
+      return operation.description;
   }
 }
 

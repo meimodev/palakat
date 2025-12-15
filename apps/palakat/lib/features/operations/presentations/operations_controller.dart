@@ -1,15 +1,26 @@
 import 'package:palakat/core/constants/app_icons.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/operation_models.dart';
 import 'operations_state.dart';
 
 part 'operations_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class OperationsController extends _$OperationsController {
@@ -111,6 +122,7 @@ class OperationsController extends _$OperationsController {
   /// Categories: Publishing, Financial, Reports
   /// _Requirements: 4.1, 4.2, 4.3_
   List<OperationCategory> _buildCategories(Membership? membership) {
+    final l10n = _l10n();
     final positions = membership?.membershipPositions ?? [];
     final hasPositions = positions.isNotEmpty;
 
@@ -118,8 +130,8 @@ class OperationsController extends _$OperationsController {
     final publishingOperations = <OperationItem>[
       OperationItem(
         id: 'publish_service',
-        title: 'Publish Service',
-        description: 'Create and publish church service activities',
+        title: l10n.operationsItem_publish_service_title,
+        description: l10n.operationsItem_publish_service_desc,
         icon: AppIcons.handshake,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.service},
@@ -127,8 +139,8 @@ class OperationsController extends _$OperationsController {
       ),
       OperationItem(
         id: 'publish_event',
-        title: 'Publish Event',
-        description: 'Create and publish church events',
+        title: l10n.operationsItem_publish_event_title,
+        description: l10n.operationsItem_publish_event_desc,
         icon: AppIcons.event,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.event},
@@ -136,8 +148,8 @@ class OperationsController extends _$OperationsController {
       ),
       OperationItem(
         id: 'publish_announcement',
-        title: 'Publish Announcement',
-        description: 'Create and publish announcements',
+        title: l10n.operationsItem_publish_announcement_title,
+        description: l10n.operationsItem_publish_announcement_desc,
         icon: AppIcons.announcement,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.announcement},
@@ -150,8 +162,8 @@ class OperationsController extends _$OperationsController {
     final financialOperations = <OperationItem>[
       OperationItem(
         id: 'add_income',
-        title: 'Add Revenue',
-        description: 'Record church income and offerings',
+        title: l10n.operationsItem_add_income_title,
+        description: l10n.operationsItem_add_income_desc,
         icon: AppIcons.revenue,
         routeName: AppRoute.financeCreate,
         routeParams: {
@@ -162,8 +174,8 @@ class OperationsController extends _$OperationsController {
       ),
       OperationItem(
         id: 'add_expense',
-        title: 'Add Expense',
-        description: 'Record church expenses',
+        title: l10n.operationsItem_add_expense_title,
+        description: l10n.operationsItem_add_expense_desc,
         icon: AppIcons.expense,
         routeName: AppRoute.financeCreate,
         routeParams: {
@@ -178,8 +190,8 @@ class OperationsController extends _$OperationsController {
     final reportsOperations = <OperationItem>[
       OperationItem(
         id: 'generate_report',
-        title: 'Generate Report',
-        description: 'Create activity and financial reports',
+        title: l10n.operationsItem_generate_report_title,
+        description: l10n.operationsItem_generate_report_desc,
         icon: AppIcons.assessment,
         routeName:
             AppRoute.operations, // Placeholder - update when route exists
@@ -190,19 +202,19 @@ class OperationsController extends _$OperationsController {
     return [
       OperationCategory(
         id: 'publishing',
-        title: 'Publishing',
+        title: l10n.operationsCategory_publishing,
         icon: AppIcons.publish,
         operations: publishingOperations,
       ),
       OperationCategory(
         id: 'financial',
-        title: 'Financial',
+        title: l10n.operationsCategory_financial,
         icon: AppIcons.wallet,
         operations: financialOperations,
       ),
       OperationCategory(
         id: 'reports',
-        title: 'Reports',
+        title: l10n.operationsCategory_reports,
         icon: AppIcons.barChart,
         operations: reportsOperations,
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
 class OperationSegmentCardWidget extends StatelessWidget {
@@ -34,7 +35,7 @@ class OperationSegmentCardWidget extends StatelessWidget {
             Gap.w12,
             Expanded(
               child: Text(
-                "Operations",
+                context.l10n.operations_title,
                 style: BaseTypography.titleLarge.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.black,
@@ -47,8 +48,8 @@ class OperationSegmentCardWidget extends StatelessWidget {
         Gap.h12,
         // Operation buttons
         ReportButtonWidget(
-          title: "Add Income",
-          description: "Generate detailed income and donation reports",
+          title: context.l10n.operationsItem_add_income_title,
+          description: context.l10n.operationsItem_add_income_desc,
           icon: AppIcons.revenue,
           type: ReportButtonType.primary, // Teal for income
           isLoading: false,
@@ -56,8 +57,8 @@ class OperationSegmentCardWidget extends StatelessWidget {
         ),
         Gap.h12,
         ReportButtonWidget(
-          title: "Add Expense",
-          description: "Generate expense and spending reports",
+          title: context.l10n.operationsItem_add_expense_title,
+          description: context.l10n.operationsItem_add_expense_desc,
           icon: AppIcons.expense,
           type: ReportButtonType.error, // Red for expense
           isLoading: false,
@@ -65,8 +66,8 @@ class OperationSegmentCardWidget extends StatelessWidget {
         ),
         Gap.h12,
         ReportButtonWidget(
-          title: "Add Report",
-          description: "Generate inventory and asset reports",
+          title: context.l10n.operationsItem_generate_report_title,
+          description: context.l10n.operationsItem_generate_report_desc,
           icon: AppIcons.inventory,
           type: ReportButtonType.info, // Info teal for reports
           isLoading: false,

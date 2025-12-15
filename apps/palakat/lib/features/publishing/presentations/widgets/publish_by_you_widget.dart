@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 class PublishByYouWidget extends StatelessWidget {
   const PublishByYouWidget({
@@ -17,13 +18,15 @@ class PublishByYouWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SegmentTitleWidget(
           onPressedViewAll: onPressedViewAll,
           count: data.length,
-          title: 'Published By You',
+          title: l10n.publish_publishedByYou,
           leadingIcon: AppIcons.person,
           leadingBg: BaseColor.teal[50],
           leadingFg: BaseColor.teal[700],
@@ -47,7 +50,7 @@ class PublishByYouWidget extends StatelessWidget {
                 ),
                 Gap.h12,
                 Text(
-                  "No published activities",
+                  l10n.publish_noPublishedActivities,
                   textAlign: TextAlign.center,
                   style: BaseTypography.titleMedium.copyWith(
                     color: BaseColor.secondaryText,
@@ -56,7 +59,7 @@ class PublishByYouWidget extends StatelessWidget {
                 ),
                 Gap.h4,
                 Text(
-                  "Start publishing activities to see them here",
+                  l10n.publish_noPublishedActivitiesSubtitle,
                   textAlign: TextAlign.center,
                   style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.secondaryText,

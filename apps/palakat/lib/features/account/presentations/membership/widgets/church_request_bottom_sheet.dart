@@ -292,19 +292,14 @@ class _ChurchRequestBottomSheetState
         SizedBox(
           width: BaseSize.w80,
           child: Text(
-            label,
+            '$label:',
             style: BaseTypography.bodySmall.copyWith(
               color: BaseColor.neutral[600],
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        Text(
-          ": ",
-          style: BaseTypography.bodySmall.copyWith(
-            color: BaseColor.neutral[600],
-          ),
-        ),
+        const SizedBox(width: 4),
         Expanded(
           child: Text(
             value,

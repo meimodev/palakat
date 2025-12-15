@@ -1,15 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/authentication/data/firebase_auth_repository.dart';
 import 'package:palakat/features/authentication/data/utils/phone_number_formatter.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'authentication_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class AuthenticationController extends _$AuthenticationController {
@@ -47,8 +57,9 @@ class AuthenticationController extends _$AuthenticationController {
   /// Validates the phone number format
   /// Phone must start with 0 and be 12-13 digits total
   bool validatePhoneNumber() {
+    final l10n = _l10n();
     if (state.phoneNumber.isEmpty) {
-      state = state.copyWith(errorMessage: "Please enter phone number");
+      state = state.copyWith(errorMessage: l10n.validation_phoneRequired);
       return false;
     }
 
@@ -57,29 +68,29 @@ class AuthenticationController extends _$AuthenticationController {
 
     // Check if phone contains only digits
     if (cleanPhone.isEmpty) {
-      state = state.copyWith(
-        errorMessage: "Phone number must contain only digits",
-      );
+      state = state.copyWith(errorMessage: l10n.validation_invalidPhone);
       return false;
     }
 
     // Must start with 0
     if (!cleanPhone.startsWith('0')) {
-      state = state.copyWith(errorMessage: "Phone number must start with 0");
+      state = state.copyWith(
+        errorMessage: l10n.churchRequest_validation_phoneMustStartWithZero,
+      );
       return false;
     }
 
     // Check length: 12-13 digits
     if (cleanPhone.length < 12) {
       state = state.copyWith(
-        errorMessage: "Phone number must be at least 12 digits",
+        errorMessage: l10n.churchRequest_validation_phoneMinDigits(12),
       );
       return false;
     }
 
     if (cleanPhone.length > 13) {
       state = state.copyWith(
-        errorMessage: "Phone number must be at most 13 digits",
+        errorMessage: l10n.churchRequest_validation_phoneMaxDigits(13),
       );
       return false;
     }
@@ -87,7 +98,7 @@ class AuthenticationController extends _$AuthenticationController {
     // Additional validation: check for invalid patterns
     // (e.g., all zeros, all same digit)
     if (RegExp(r'^0+$').hasMatch(cleanPhone)) {
-      state = state.copyWith(errorMessage: "Please enter a valid phone number");
+      state = state.copyWith(errorMessage: l10n.validation_invalidPhone);
       return false;
     }
 
@@ -95,9 +106,7 @@ class AuthenticationController extends _$AuthenticationController {
     if (cleanPhone.length >= 8) {
       final firstDigit = cleanPhone[0];
       if (cleanPhone.split('').every((d) => d == firstDigit)) {
-        state = state.copyWith(
-          errorMessage: "Please enter a valid phone number",
-        );
+        state = state.copyWith(errorMessage: l10n.validation_invalidPhone);
         return false;
       }
     }
@@ -139,17 +148,17 @@ class AuthenticationController extends _$AuthenticationController {
           onVerificationFailed: (failure) {
             // Handle verification failure with specific error messages
             String errorMessage = failure.message;
+            final l10n = _l10n();
 
             // Provide more context for specific error types
             if (failure.code == 429) {
-              errorMessage =
-                  'Too many attempts. Please wait a few minutes before trying again';
+              errorMessage = l10n.msg_tryAgainLater;
             } else if (failure.code == 503 || failure.code == 408) {
-              errorMessage =
-                  'Network error. Please check your connection and try again';
+              errorMessage = failure.code == 408
+                  ? l10n.error_timeout
+                  : l10n.err_networkError;
             } else if (failure.code == 400) {
-              errorMessage =
-                  'Invalid phone number format. Please check and try again';
+              errorMessage = l10n.err_invalidPhone;
             }
 
             state = state.copyWith(
@@ -161,10 +170,10 @@ class AuthenticationController extends _$AuthenticationController {
         Future.delayed(const Duration(seconds: 90)).then((_) {
           // Timeout after 90 seconds (30 seconds more than Firebase timeout)
           if (state.isSendingOtp) {
+            final l10n = _l10n();
             state = state.copyWith(
               isSendingOtp: false,
-              errorMessage:
-                  'Request timed out. Please check your connection and try again',
+              errorMessage: l10n.error_timeout,
             );
           }
         }),
@@ -174,13 +183,14 @@ class AuthenticationController extends _$AuthenticationController {
       return true;
     } catch (e) {
       // Handle unexpected errors
-      String errorMessage = 'Failed to send OTP. Please try again';
+      final l10n = _l10n();
+      String errorMessage = l10n.err_somethingWentWrong;
 
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
-        errorMessage = 'Network error. Please check your connection';
+        errorMessage = l10n.err_networkError;
       } else if (e.toString().contains('timeout')) {
-        errorMessage = 'Request timed out. Please try again';
+        errorMessage = l10n.error_timeout;
       }
 
       state = state.copyWith(isSendingOtp: false, errorMessage: errorMessage);
@@ -242,8 +252,9 @@ class AuthenticationController extends _$AuthenticationController {
   }
 
   void showOtpVerification() {
+    final l10n = _l10n();
     if (state.phoneNumber.isEmpty) {
-      state = state.copyWith(errorMessage: "Please fill phone number");
+      state = state.copyWith(errorMessage: l10n.validation_phoneRequired);
       return;
     }
 
@@ -321,14 +332,15 @@ class AuthenticationController extends _$AuthenticationController {
           onVerificationFailed: (failure) {
             // Handle resend failure with specific error messages
             String errorMessage = failure.message;
+            final l10n = _l10n();
 
             // Provide more context for specific error types
             if (failure.code == 429) {
-              errorMessage =
-                  'Too many resend attempts. Please wait before trying again';
+              errorMessage = l10n.msg_tryAgainLater;
             } else if (failure.code == 503 || failure.code == 408) {
-              errorMessage =
-                  'Network error. Please check your connection and try again';
+              errorMessage = failure.code == 408
+                  ? l10n.error_timeout
+                  : l10n.err_networkError;
             }
 
             state = state.copyWith(
@@ -340,23 +352,24 @@ class AuthenticationController extends _$AuthenticationController {
         Future.delayed(const Duration(seconds: 90)).then((_) {
           // Timeout after 90 seconds
           if (state.isSendingOtp) {
+            final l10n = _l10n();
             state = state.copyWith(
               isSendingOtp: false,
-              errorMessage:
-                  'Request timed out. Please check your connection and try again',
+              errorMessage: l10n.error_timeout,
             );
           }
         }),
       ]);
     } catch (e) {
       // Handle unexpected errors
-      String errorMessage = 'Failed to resend OTP. Please try again';
+      final l10n = _l10n();
+      String errorMessage = l10n.err_somethingWentWrong;
 
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
-        errorMessage = 'Network error. Please check your connection';
+        errorMessage = l10n.err_networkError;
       } else if (e.toString().contains('timeout')) {
-        errorMessage = 'Request timed out. Please try again';
+        errorMessage = l10n.error_timeout;
       }
 
       state = state.copyWith(isSendingOtp: false, errorMessage: errorMessage);
@@ -376,8 +389,9 @@ class AuthenticationController extends _$AuthenticationController {
 
   /// Validates that OTP is 6 digits
   bool validateOtp() {
+    final l10n = _l10n();
     if (state.otp.isEmpty) {
-      state = state.copyWith(errorMessage: "Please enter verification code");
+      state = state.copyWith(errorMessage: l10n.validation_requiredField);
       return false;
     }
 
@@ -385,26 +399,18 @@ class AuthenticationController extends _$AuthenticationController {
     final cleanOtp = state.otp.replaceAll(RegExp(r'\D'), '');
 
     if (cleanOtp.length < AppConstants.otpLength) {
-      state = state.copyWith(
-        errorMessage:
-            "Please enter complete ${AppConstants.otpLength}-digit verification code",
-      );
+      state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
       return false;
     }
 
     if (cleanOtp.length > AppConstants.otpLength) {
-      state = state.copyWith(
-        errorMessage:
-            "Verification code must be ${AppConstants.otpLength} digits",
-      );
+      state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
       return false;
     }
 
     // Check if OTP contains only digits
     if (!RegExp(r'^\d+$').hasMatch(cleanOtp)) {
-      state = state.copyWith(
-        errorMessage: "Verification code must contain only numbers",
-      );
+      state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
       return false;
     }
 
@@ -422,9 +428,8 @@ class AuthenticationController extends _$AuthenticationController {
 
     // Check if we have a verification ID from Firebase
     if (state.verificationId == null) {
-      state = state.copyWith(
-        errorMessage: "Verification session expired. Please request a new code",
-      );
+      final l10n = _l10n();
+      state = state.copyWith(errorMessage: l10n.err_somethingWentWrong);
       return;
     }
 
@@ -444,21 +449,23 @@ class AuthenticationController extends _$AuthenticationController {
         Future.delayed(const Duration(seconds: 30)).then((_) {
           // Timeout after 30 seconds
           if (state.isVerifyingOtp) {
+            final l10n = _l10n();
             state = state.copyWith(
               isVerifyingOtp: false,
               loading: false,
-              errorMessage: 'Verification timed out. Please try again',
+              errorMessage: l10n.error_timeout,
             );
           }
         }),
       ]);
     } catch (e) {
       // Handle unexpected errors
-      String errorMessage = 'Verification failed. Please try again';
+      final l10n = _l10n();
+      String errorMessage = l10n.err_somethingWentWrong;
 
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
-        errorMessage = 'Network error. Please check your connection';
+        errorMessage = l10n.err_networkError;
       }
 
       state = state.copyWith(
@@ -492,17 +499,17 @@ class AuthenticationController extends _$AuthenticationController {
       onFailure: (failure) {
         // Firebase verification failed with specific error handling
         String errorMessage = failure.message;
+        final l10n = _l10n();
 
         // Provide more context for specific error types
         if (failure.code == 401) {
-          errorMessage =
-              'Invalid verification code. Please check and try again';
+          errorMessage = l10n.validation_invalidFormat;
         } else if (failure.code == 408) {
-          errorMessage = 'Verification code expired. Please request a new one';
+          errorMessage = l10n.error_timeout;
         } else if (failure.code == 429) {
-          errorMessage = 'Too many attempts. Please wait before trying again';
+          errorMessage = l10n.msg_tryAgainLater;
         } else if (failure.code == 503) {
-          errorMessage = 'Network error. Please check your connection';
+          errorMessage = l10n.err_networkError;
         }
 
         state = state.copyWith(
@@ -541,22 +548,24 @@ class AuthenticationController extends _$AuthenticationController {
         Future.delayed(const Duration(seconds: 30)).then((_) {
           // Timeout after 30 seconds
           if (state.isValidatingAccount) {
+            final l10n = _l10n();
             state = state.copyWith(
               isVerifyingOtp: false,
               isValidatingAccount: false,
               loading: false,
-              errorMessage: 'Server connection timed out. Please try again',
+              errorMessage: l10n.error_timeout,
             );
           }
         }),
       ]);
     } catch (e) {
       // Handle unexpected errors during backend validation
-      String errorMessage = 'Failed to validate account. Please try again';
+      final l10n = _l10n();
+      String errorMessage = l10n.err_somethingWentWrong;
 
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
-        errorMessage = 'Network error. Please check your connection';
+        errorMessage = l10n.err_networkError;
       }
 
       state = state.copyWith(
@@ -631,26 +640,24 @@ class AuthenticationController extends _$AuthenticationController {
 
         // Handle specific backend error codes
         String errorMessage = failure.message;
+        final l10n = _l10n();
 
         if (failure.code == 500) {
-          errorMessage = 'Server error occurred. Please try again in a moment';
+          errorMessage = l10n.err_serverError;
         } else if (failure.code == 503) {
-          errorMessage =
-              'Server is temporarily unavailable. Please try again later';
+          errorMessage = l10n.err_serverError;
         } else if (failure.code == 408 || failure.code == 504) {
-          errorMessage =
-              'Server connection timed out. Please check your connection';
+          errorMessage = l10n.error_timeout;
         } else if (failure.message.contains('network') ||
             failure.message.contains('connection')) {
-          errorMessage =
-              'Cannot connect to server. Please check your internet connection';
+          errorMessage = l10n.error_connectionFailed;
         }
 
         // Other backend errors - show error message with retry option
         state = state.copyWith(
           isVerifyingOtp: false,
           isValidatingAccount: false,
-          loading: false, // Legacy field
+          loading: false,
           errorMessage: errorMessage,
           account: null,
           user: null, // Legacy field

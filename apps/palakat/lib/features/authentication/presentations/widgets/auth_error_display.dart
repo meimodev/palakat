@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 /// Error display widget for authentication screens
 ///
@@ -85,7 +86,7 @@ class AuthErrorDisplay extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      "Retry",
+                      context.l10n.btn_retry,
                       style: BaseTypography.bodySmall.copyWith(
                         color: BaseColor.red[700],
                         fontWeight: FontWeight.w600,

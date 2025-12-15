@@ -4,6 +4,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_dialog.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// Widget for selecting an activity in standalone finance creation mode.
 /// Displays placeholder when no activity selected, or activity info when selected.
@@ -50,7 +51,7 @@ class ActivityPickerWidget extends StatelessWidget {
             ),
             child: hasActivity
                 ? _buildSelectedActivityInfo()
-                : _buildEmptyPlaceholder(),
+                : _buildEmptyPlaceholder(context),
           ),
         ),
         if (hasError)
@@ -66,7 +67,7 @@ class ActivityPickerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyPlaceholder() {
+  Widget _buildEmptyPlaceholder(BuildContext context) {
     return Row(
       children: [
         Container(
@@ -84,7 +85,7 @@ class ActivityPickerWidget extends StatelessWidget {
         Gap.w12,
         Expanded(
           child: Text(
-            'Select an activity',
+            context.l10n.hint_selectActivity,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.neutral[500],
             ),

@@ -63,7 +63,275 @@ class AppLocalizationsId extends AppLocalizations {
   String get nav_songs => 'Lagu';
 
   @override
+  String get songBook_title => 'Buku Lagu';
+
+  @override
+  String get songBook_categoriesTitle => 'Kategori Lagu';
+
+  @override
+  String get songBook_searchHint => 'Cari judul atau nomor lagu';
+
+  @override
+  String get songBook_emptyTitle => 'Tidak ada lagu ditemukan';
+
+  @override
+  String get songBook_emptySubtitle => 'Coba cari dengan kata kunci lain';
+
+  @override
+  String get map_selectLocationTitle => 'Pilih Lokasi';
+
+  @override
+  String get map_confirmLocation => 'Konfirmasi Lokasi';
+
+  @override
+  String get map_locationAccessError =>
+      'Tidak dapat mengakses lokasi. Periksa izin lokasi.';
+
+  @override
+  String get songDetail_errorLoadingSong => 'Gagal memuat lagu';
+
+  @override
+  String get supervisedActivities_title => 'Kegiatan yang Diawasi';
+
+  @override
+  String get supervisedActivities_subtitle =>
+      'Kegiatan yang Anda tanggung jawabkan';
+
+  @override
+  String get filter_activityType_label => 'Jenis Kegiatan';
+
+  @override
+  String get filter_activityType_hint => 'Pilih jenis kegiatan';
+
+  @override
+  String get filter_activityType_allTitle => 'Semua jenis';
+
+  @override
+  String get filter_activityType_allSubtitle =>
+      'Menampilkan semua jenis kegiatan';
+
+  @override
+  String get filter_activityType_allSheetSubtitle =>
+      'Tampilkan semua jenis kegiatan';
+
+  @override
+  String get activityType_service_desc => 'Ibadah dan kebaktian';
+
+  @override
+  String get activityType_event_desc => 'Acara dan pertemuan';
+
+  @override
+  String get activityType_announcement_desc => 'Pengumuman dan informasi';
+
+  @override
+  String get filters_applied => 'Filter diterapkan';
+
+  @override
+  String get btn_clearAll => 'Hapus semua';
+
+  @override
+  String get btn_clearFilters => 'Hapus filter';
+
+  @override
+  String get supervisedActivities_emptyFilteredTitle =>
+      'Tidak ada kegiatan yang sesuai dengan filter Anda';
+
+  @override
+  String get supervisedActivities_emptyFilteredSubtitle =>
+      'Coba sesuaikan filter Anda untuk melihat lebih banyak hasil';
+
+  @override
+  String get supervisedActivities_emptyTitle =>
+      'Tidak ada kegiatan yang diawasi';
+
+  @override
+  String get supervisedActivities_emptySubtitle =>
+      'Kegiatan yang Anda awasi akan muncul di sini';
+
+  @override
+  String get notificationSettings_title => 'Pengaturan Notifikasi';
+
+  @override
+  String get notificationSettings_permissionStatus_title => 'Status Izin';
+
+  @override
+  String get notificationSettings_permissionEnabled => 'Aktif';
+
+  @override
+  String get notificationSettings_permissionDisabled => 'Nonaktif';
+
+  @override
+  String get notificationSettings_permissionEnabledDesc =>
+      'Anda akan menerima notifikasi untuk kegiatan, persetujuan, dan pengumuman.';
+
+  @override
+  String get notificationSettings_permissionDisabledDesc =>
+      'Aktifkan notifikasi untuk tetap mendapatkan pembaruan tentang kegiatan, persetujuan, dan pengumuman penting.';
+
+  @override
+  String get notificationSettings_enableNotifications => 'Aktifkan Notifikasi';
+
+  @override
+  String get notificationPermission_rationale_title => 'Tetap Terhubung';
+
+  @override
+  String get notificationPermission_rationale_benefit_activities =>
+      'Dapatkan notifikasi tentang kegiatan dan acara baru';
+
+  @override
+  String get notificationPermission_rationale_benefit_approvals =>
+      'Terima permintaan persetujuan yang memerlukan perhatian Anda';
+
+  @override
+  String get notificationPermission_rationale_benefit_announcements =>
+      'Jangan lewatkan pengumuman penting gereja';
+
+  @override
+  String get notificationPermission_btn_notNow => 'Nanti Saja';
+
+  @override
+  String get notificationPermission_consequence_title => 'Anda Akan Melewatkan';
+
+  @override
+  String get notificationPermission_consequence_item_activities =>
+      'Notifikasi kegiatan dan pembaruan acara';
+
+  @override
+  String get notificationPermission_consequence_item_approvals =>
+      'Permintaan persetujuan yang memerlukan tindakan Anda';
+
+  @override
+  String get notificationPermission_consequence_item_announcements =>
+      'Pengumuman penting gereja dan pembaruan';
+
+  @override
+  String get notificationPermission_btn_enableInSettings =>
+      'Aktifkan di Pengaturan';
+
+  @override
+  String get notificationPermission_btn_continueWithoutNotifications =>
+      'Lanjut Tanpa Notifikasi';
+
+  @override
+  String get notificationSettings_errorLoadingPermissionStatus =>
+      'Gagal memuat status izin';
+
+  @override
+  String notificationSettings_errorLoadingSettings(String error) {
+    return 'Gagal memuat pengaturan: $error';
+  }
+
+  @override
+  String get notificationSettings_preferences_title => 'Preferensi Notifikasi';
+
+  @override
+  String get notificationSettings_preferences_subtitle =>
+      'Pilih jenis notifikasi yang ingin Anda terima';
+
+  @override
+  String get notificationSettings_channel_activityUpdates_title =>
+      'Pembaruan Kegiatan';
+
+  @override
+  String get notificationSettings_channel_activityUpdates_subtitle =>
+      'Notifikasi tentang kegiatan dan acara gereja';
+
+  @override
+  String get notificationSettings_channel_approvalRequests_title =>
+      'Permintaan Persetujuan';
+
+  @override
+  String get notificationSettings_channel_approvalRequests_subtitle =>
+      'Notifikasi yang memerlukan persetujuan Anda';
+
+  @override
+  String get notificationSettings_channel_generalAnnouncements_title =>
+      'Pengumuman Umum';
+
+  @override
+  String get notificationSettings_channel_generalAnnouncements_subtitle =>
+      'Pengumuman dan pembaruan gereja';
+
+  @override
+  String get notificationSettings_soundVibration_title => 'Suara & Getaran';
+
+  @override
+  String get notificationSettings_sound_title => 'Suara';
+
+  @override
+  String get notificationSettings_sound_subtitle =>
+      'Putar suara saat notifikasi masuk';
+
+  @override
+  String get notificationSettings_vibration_title => 'Getaran';
+
+  @override
+  String get notificationSettings_vibration_subtitle =>
+      'Bergetar saat notifikasi masuk';
+
+  @override
   String get nav_operations => 'Ops';
+
+  @override
+  String get operations_title => 'Operasi';
+
+  @override
+  String get operations_noPositionsSubtitle =>
+      'Anda belum memiliki posisi operasional';
+
+  @override
+  String get operationsCategory_publishing => 'Publikasi';
+
+  @override
+  String get operationsCategory_financial => 'Keuangan';
+
+  @override
+  String get operationsCategory_reports => 'Laporan';
+
+  @override
+  String get operationsItem_publish_service_title => 'Publikasikan Ibadah';
+
+  @override
+  String get operationsItem_publish_service_desc =>
+      'Buat dan publikasikan kegiatan ibadah gereja';
+
+  @override
+  String get operationsItem_publish_event_title => 'Publikasikan Acara';
+
+  @override
+  String get operationsItem_publish_event_desc =>
+      'Buat dan publikasikan acara gereja';
+
+  @override
+  String get operationsItem_publish_announcement_title =>
+      'Publikasikan Pengumuman';
+
+  @override
+  String get operationsItem_publish_announcement_desc =>
+      'Buat dan publikasikan pengumuman';
+
+  @override
+  String get operationsItem_add_income_title => 'Tambah Pendapatan';
+
+  @override
+  String get operationsItem_add_income_desc =>
+      'Catat pendapatan gereja dan persembahan';
+
+  @override
+  String get operationsItem_add_expense_title => 'Tambah Pengeluaran';
+
+  @override
+  String get operationsItem_add_expense_desc => 'Catat pengeluaran gereja';
+
+  @override
+  String get operationsItem_generate_report_title => 'Buat Laporan';
+
+  @override
+  String get operationsItem_generate_report_desc =>
+      'Buat laporan kegiatan dan keuangan';
+
+  @override
+  String get operations_noOperationsAvailable => 'Tidak ada operasi tersedia';
 
   @override
   String get approval_title => 'Persetujuan';
@@ -126,6 +394,40 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get approval_confirmRejectDescription =>
       'Apakah Anda yakin ingin menolak kegiatan ini? Tindakan ini tidak dapat dibatalkan.';
+
+  @override
+  String get approvalDetail_title => 'Detail Persetujuan';
+
+  @override
+  String get approvalDetail_notFound =>
+      'Persetujuan tidak ditemukan. Mungkin sudah dihapus atau tidak tersedia.';
+
+  @override
+  String get approvalDetail_waitingOthers =>
+      'Menunggu approver lain untuk menyetujui atau menolak persetujuan ini';
+
+  @override
+  String get approvalDetail_activitySummary_title => 'Ringkasan Kegiatan';
+
+  @override
+  String get approvalDetail_financialData_title => 'Data Keuangan';
+
+  @override
+  String get approvalDetail_viewOnMapTooltip => 'Lihat di Peta';
+
+  @override
+  String get approvalDetail_viewActivityDetails_title =>
+      'Lihat Detail Kegiatan';
+
+  @override
+  String get approvalDetail_viewActivityDetails_subtitle =>
+      'Lihat informasi kegiatan secara lengkap';
+
+  @override
+  String get approvalDetail_accountDescription_label => 'Deskripsi Akun';
+
+  @override
+  String get lbl_coordinates => 'Koordinat';
 
   @override
   String get activityType_service => 'Ibadah';
@@ -338,6 +640,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_zipCode => 'Kode Pos';
+
+  @override
+  String get lbl_date => 'Tanggal';
+
+  @override
+  String get lbl_time => 'Waktu';
 
   @override
   String get lbl_description => 'Deskripsi';
@@ -641,7 +949,51 @@ class AppLocalizationsId extends AppLocalizations {
   String get settings_membershipSettings => 'Pengaturan Keanggotaan';
 
   @override
+  String get membership_title => 'Keanggotaan';
+
+  @override
+  String get membership_churchMembership_title => 'Keanggotaan Gereja';
+
+  @override
+  String get membership_churchNotRegisteredInfo =>
+      'Jika gereja Anda belum terdaftar di sistem kami, Anda tidak akan dapat menemukannya di daftar di bawah ini.';
+
+  @override
+  String get membership_notBaptized => 'Belum dibaptis';
+
+  @override
+  String get membership_notSidi => 'Belum SIDI';
+
+  @override
+  String membership_churchRequestAcceptedOn(String churchName, String date) {
+    return 'Permohonan pendaftaran gereja Anda untuk \'$churchName\' telah diterima pada $date. Kami akan memberi tahu Anda setelah diproses.';
+  }
+
+  @override
+  String membership_churchRequestProcessing(String churchName) {
+    return 'Permohonan pendaftaran gereja Anda untuk \'$churchName\' sedang diproses.';
+  }
+
+  @override
+  String membership_churchRequestCompleted(String churchName) {
+    return 'Terima kasih, \'$churchName\' sekarang dapat dipilih dari daftar di bawah ini.';
+  }
+
+  @override
   String get settings_noMembership => 'Tidak ada keanggotaan tersedia';
+
+  @override
+  String get settings_versionUnknown => 'Versi tidak diketahui';
+
+  @override
+  String settings_version(String version) {
+    return 'Versi $version';
+  }
+
+  @override
+  String settings_versionWithBuild(String version, String buildNumber) {
+    return 'Versi $version (Build $buildNumber)';
+  }
 
   @override
   String get card_overdueBills_title => 'Tagihan Terlambat';
@@ -990,7 +1342,72 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_maritalStatus => 'Status Pernikahan';
 
   @override
+  String get maritalStatus_single => 'Lajang';
+
+  @override
+  String get maritalStatus_married => 'Menikah';
+
+  @override
   String get lbl_gender => 'Jenis Kelamin';
+
+  @override
+  String get gender_male => 'Laki-laki';
+
+  @override
+  String get gender_female => 'Perempuan';
+
+  @override
+  String get account_personalInformation_title => 'Informasi Pribadi';
+
+  @override
+  String get account_phoneLabel_locked => 'Nomor telepon (tidak dapat diubah)';
+
+  @override
+  String get account_phoneLabel_active =>
+      'Nomor telepon aktif untuk menerima pesan autentikasi';
+
+  @override
+  String get account_fullNameLabel =>
+      'Nama tanpa gelar untuk keanggotaan gereja';
+
+  @override
+  String get account_emailLabel_optional =>
+      'Email opsional untuk notifikasi dan komunikasi';
+
+  @override
+  String get account_bipraHint =>
+      'Digunakan untuk menentukan keanggotaan BIPRA';
+
+  @override
+  String get account_claim_title => 'Klaim Akun';
+
+  @override
+  String get account_claimedSubtitle_locked =>
+      'Akun sudah diklaim dan tidak dapat dibatalkan';
+
+  @override
+  String get account_claimedSubtitle_unlocked =>
+      'Akun yang diklaim hanya dapat diubah oleh pemilik, bukan gereja';
+
+  @override
+  String get account_claimConfirm_title => 'Klaim Akun?';
+
+  @override
+  String get account_claimConfirm_message =>
+      'Setelah akun diklaim, tidak dapat dibatalkan. Lanjutkan?';
+
+  @override
+  String get auth_cancelRegistration_title => 'Batalkan Pendaftaran?';
+
+  @override
+  String get auth_cancelRegistration_message =>
+      'Progres pendaftaran Anda akan hilang. Yakin ingin kembali?';
+
+  @override
+  String get btn_stay => 'Tetap';
+
+  @override
+  String get btn_goBack => 'Kembali';
 
   @override
   String get lbl_dateOfBirth => 'Tanggal Lahir';
@@ -1300,11 +1717,40 @@ class AppLocalizationsId extends AppLocalizations {
       'Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.';
 
   @override
-  String get churchRequest_title => 'Permohonan Pendaftaran Gereja';
+  String get publish_publishedByYou => 'Dipublikasikan oleh Anda';
+
+  @override
+  String get publish_noPublishedActivities =>
+      'Tidak ada kegiatan yang dipublikasikan';
+
+  @override
+  String get publish_noPublishedActivitiesSubtitle =>
+      'Mulai publikasikan kegiatan untuk melihatnya di sini';
+
+  @override
+  String get churchRequest_title => 'Ajukan Pendaftaran Gereja';
+
+  @override
+  String get churchRequest_status_onReview => 'Dalam Tinjauan';
+
+  @override
+  String get churchRequest_status_onProgress => 'Sedang Diproses';
+
+  @override
+  String get churchRequest_statusMessage_onReview =>
+      'Permintaan Anda sedang ditinjau dan akan segera diproses.';
+
+  @override
+  String get churchRequest_statusMessage_onProgress =>
+      'Permintaan Anda sedang diproses.';
+
+  @override
+  String get churchRequest_statusMessage_completed =>
+      'Gereja Anda telah terdaftar! Anda sekarang dapat memilihnya saat mengubah data keanggotaan.';
 
   @override
   String get churchRequest_description =>
-      'Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem kami.';
+      'Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem.';
 
   @override
   String get churchRequest_requesterInformation => 'Informasi Pemohon';
@@ -1384,6 +1830,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get hint_enterAccountNumber => 'Masukkan nomor akun';
+
+  @override
+  String get hint_selectActivity => 'Pilih kegiatan';
 
   @override
   String get hint_enterDescription => 'Masukkan deskripsi';
@@ -1596,6 +2045,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get paymentMethod_cashless => 'Non-tunai';
 
   @override
+  String get paymentMethod_cash_desc => 'Uang tunai';
+
+  @override
+  String get paymentMethod_cashless_desc => 'Pembayaran digital';
+
+  @override
+  String get lbl_selected => 'Dipilih';
+
+  @override
   String get billingType_subscription => 'Langganan';
 
   @override
@@ -1695,6 +2153,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dlg_recordPayment_title => 'Catat Pembayaran';
+
+  @override
+  String get dlg_selectFinanceType_title => 'Pilih Jenis Keuangan';
 
   @override
   String get dlg_confirmAction_title => 'Konfirmasi Tindakan';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
 /// Widget displaying a single activity item in the supervised activities list.
@@ -235,7 +236,7 @@ class _ApprovalStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = _getOverallStatus();
-    final statusInfo = _getStatusInfo(status);
+    final statusInfo = _getStatusInfo(context, status);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -293,23 +294,23 @@ class _ApprovalStatusBadge extends StatelessWidget {
     return ApprovalStatus.unconfirmed;
   }
 
-  _StatusInfo _getStatusInfo(ApprovalStatus status) {
+  _StatusInfo _getStatusInfo(BuildContext context, ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
         return _StatusInfo(
-          label: 'Approved',
+          label: context.l10n.status_approved,
           color: BaseColor.green[700]!,
           icon: AppIcons.success,
         );
       case ApprovalStatus.rejected:
         return _StatusInfo(
-          label: 'Rejected',
+          label: context.l10n.status_rejected,
           color: BaseColor.red[700]!,
           icon: AppIcons.cancel,
         );
       case ApprovalStatus.unconfirmed:
         return _StatusInfo(
-          label: 'Pending',
+          label: context.l10n.status_pending,
           color: BaseColor.yellow[700]!,
           icon: AppIcons.schedule,
         );

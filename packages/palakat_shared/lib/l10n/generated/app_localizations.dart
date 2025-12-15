@@ -206,11 +206,473 @@ abstract class AppLocalizations {
   /// **'Songs'**
   String get nav_songs;
 
+  /// No description provided for @songBook_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Song Book'**
+  String get songBook_title;
+
+  /// No description provided for @songBook_categoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Song Categories'**
+  String get songBook_categoriesTitle;
+
+  /// No description provided for @songBook_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search song title or number'**
+  String get songBook_searchHint;
+
+  /// No description provided for @songBook_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No songs found'**
+  String get songBook_emptyTitle;
+
+  /// No description provided for @songBook_emptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching with different keywords'**
+  String get songBook_emptySubtitle;
+
+  /// No description provided for @map_selectLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get map_selectLocationTitle;
+
+  /// No description provided for @map_confirmLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Location'**
+  String get map_confirmLocation;
+
+  /// No description provided for @map_locationAccessError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to access location. Please check location permissions.'**
+  String get map_locationAccessError;
+
+  /// No description provided for @songDetail_errorLoadingSong.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading song'**
+  String get songDetail_errorLoadingSong;
+
+  /// No description provided for @supervisedActivities_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervised Activities'**
+  String get supervisedActivities_title;
+
+  /// No description provided for @supervisedActivities_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities you are responsible for'**
+  String get supervisedActivities_subtitle;
+
+  /// No description provided for @filter_activityType_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Type'**
+  String get filter_activityType_label;
+
+  /// No description provided for @filter_activityType_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select activity type'**
+  String get filter_activityType_hint;
+
+  /// No description provided for @filter_activityType_allTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get filter_activityType_allTitle;
+
+  /// No description provided for @filter_activityType_allSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing all activity types'**
+  String get filter_activityType_allSubtitle;
+
+  /// No description provided for @filter_activityType_allSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all activity types'**
+  String get filter_activityType_allSheetSubtitle;
+
+  /// No description provided for @activityType_service_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Church services and worship'**
+  String get activityType_service_desc;
+
+  /// No description provided for @activityType_event_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Events and gatherings'**
+  String get activityType_event_desc;
+
+  /// No description provided for @activityType_announcement_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements and notices'**
+  String get activityType_announcement_desc;
+
+  /// No description provided for @filters_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters applied'**
+  String get filters_applied;
+
+  /// No description provided for @btn_clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get btn_clearAll;
+
+  /// No description provided for @btn_clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get btn_clearFilters;
+
+  /// No description provided for @supervisedActivities_emptyFilteredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities match your filters'**
+  String get supervisedActivities_emptyFilteredTitle;
+
+  /// No description provided for @supervisedActivities_emptyFilteredSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your filters to see more results'**
+  String get supervisedActivities_emptyFilteredSubtitle;
+
+  /// No description provided for @supervisedActivities_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No supervised activities'**
+  String get supervisedActivities_emptyTitle;
+
+  /// No description provided for @supervisedActivities_emptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities you supervise will appear here'**
+  String get supervisedActivities_emptySubtitle;
+
+  /// No description provided for @notificationSettings_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get notificationSettings_title;
+
+  /// No description provided for @notificationSettings_permissionStatus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission Status'**
+  String get notificationSettings_permissionStatus_title;
+
+  /// No description provided for @notificationSettings_permissionEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get notificationSettings_permissionEnabled;
+
+  /// No description provided for @notificationSettings_permissionDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get notificationSettings_permissionDisabled;
+
+  /// No description provided for @notificationSettings_permissionEnabledDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive notifications for activities, approvals, and announcements.'**
+  String get notificationSettings_permissionEnabledDesc;
+
+  /// No description provided for @notificationSettings_permissionDisabledDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications to stay updated on activities, approvals, and important announcements.'**
+  String get notificationSettings_permissionDisabledDesc;
+
+  /// No description provided for @notificationSettings_enableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get notificationSettings_enableNotifications;
+
+  /// No description provided for @notificationPermission_rationale_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Updated'**
+  String get notificationPermission_rationale_title;
+
+  /// No description provided for @notificationPermission_rationale_benefit_activities.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified about new activities and events'**
+  String get notificationPermission_rationale_benefit_activities;
+
+  /// No description provided for @notificationPermission_rationale_benefit_approvals.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive approval requests that need your attention'**
+  String get notificationPermission_rationale_benefit_approvals;
+
+  /// No description provided for @notificationPermission_rationale_benefit_announcements.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t miss important church announcements'**
+  String get notificationPermission_rationale_benefit_announcements;
+
+  /// No description provided for @notificationPermission_btn_notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Now'**
+  String get notificationPermission_btn_notNow;
+
+  /// No description provided for @notificationPermission_consequence_title.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll Miss Out On'**
+  String get notificationPermission_consequence_title;
+
+  /// No description provided for @notificationPermission_consequence_item_activities.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity notifications and event updates'**
+  String get notificationPermission_consequence_item_activities;
+
+  /// No description provided for @notificationPermission_consequence_item_approvals.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval requests that need your action'**
+  String get notificationPermission_consequence_item_approvals;
+
+  /// No description provided for @notificationPermission_consequence_item_announcements.
+  ///
+  /// In en, this message translates to:
+  /// **'Important church announcements and updates'**
+  String get notificationPermission_consequence_item_announcements;
+
+  /// No description provided for @notificationPermission_btn_enableInSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable in Settings'**
+  String get notificationPermission_btn_enableInSettings;
+
+  /// No description provided for @notificationPermission_btn_continueWithoutNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Without Notifications'**
+  String get notificationPermission_btn_continueWithoutNotifications;
+
+  /// No description provided for @notificationSettings_errorLoadingPermissionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading permission status'**
+  String get notificationSettings_errorLoadingPermissionStatus;
+
+  /// No description provided for @notificationSettings_errorLoadingSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading settings: {error}'**
+  String notificationSettings_errorLoadingSettings(String error);
+
+  /// No description provided for @notificationSettings_preferences_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Preferences'**
+  String get notificationSettings_preferences_title;
+
+  /// No description provided for @notificationSettings_preferences_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which types of notifications you want to receive'**
+  String get notificationSettings_preferences_subtitle;
+
+  /// No description provided for @notificationSettings_channel_activityUpdates_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Updates'**
+  String get notificationSettings_channel_activityUpdates_title;
+
+  /// No description provided for @notificationSettings_channel_activityUpdates_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications about church activities and events'**
+  String get notificationSettings_channel_activityUpdates_subtitle;
+
+  /// No description provided for @notificationSettings_channel_approvalRequests_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Requests'**
+  String get notificationSettings_channel_approvalRequests_title;
+
+  /// No description provided for @notificationSettings_channel_approvalRequests_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications requiring your approval'**
+  String get notificationSettings_channel_approvalRequests_subtitle;
+
+  /// No description provided for @notificationSettings_channel_generalAnnouncements_title.
+  ///
+  /// In en, this message translates to:
+  /// **'General Announcements'**
+  String get notificationSettings_channel_generalAnnouncements_title;
+
+  /// No description provided for @notificationSettings_channel_generalAnnouncements_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'General church announcements and updates'**
+  String get notificationSettings_channel_generalAnnouncements_subtitle;
+
+  /// No description provided for @notificationSettings_soundVibration_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound & Vibration'**
+  String get notificationSettings_soundVibration_title;
+
+  /// No description provided for @notificationSettings_sound_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get notificationSettings_sound_title;
+
+  /// No description provided for @notificationSettings_sound_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play sound when notifications arrive'**
+  String get notificationSettings_sound_subtitle;
+
+  /// No description provided for @notificationSettings_vibration_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get notificationSettings_vibration_title;
+
+  /// No description provided for @notificationSettings_vibration_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate when notifications arrive'**
+  String get notificationSettings_vibration_subtitle;
+
   /// No description provided for @nav_operations.
   ///
   /// In en, this message translates to:
   /// **'Ops'**
   String get nav_operations;
+
+  /// No description provided for @operations_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get operations_title;
+
+  /// No description provided for @operations_noPositionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any operational positions yet'**
+  String get operations_noPositionsSubtitle;
+
+  /// No description provided for @operationsCategory_publishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing'**
+  String get operationsCategory_publishing;
+
+  /// No description provided for @operationsCategory_financial.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial'**
+  String get operationsCategory_financial;
+
+  /// No description provided for @operationsCategory_reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get operationsCategory_reports;
+
+  /// No description provided for @operationsItem_publish_service_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Service'**
+  String get operationsItem_publish_service_title;
+
+  /// No description provided for @operationsItem_publish_service_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and publish church service activities'**
+  String get operationsItem_publish_service_desc;
+
+  /// No description provided for @operationsItem_publish_event_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Event'**
+  String get operationsItem_publish_event_title;
+
+  /// No description provided for @operationsItem_publish_event_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and publish church events'**
+  String get operationsItem_publish_event_desc;
+
+  /// No description provided for @operationsItem_publish_announcement_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Announcement'**
+  String get operationsItem_publish_announcement_title;
+
+  /// No description provided for @operationsItem_publish_announcement_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and publish announcements'**
+  String get operationsItem_publish_announcement_desc;
+
+  /// No description provided for @operationsItem_add_income_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Revenue'**
+  String get operationsItem_add_income_title;
+
+  /// No description provided for @operationsItem_add_income_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record church income and offerings'**
+  String get operationsItem_add_income_desc;
+
+  /// No description provided for @operationsItem_add_expense_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Expense'**
+  String get operationsItem_add_expense_title;
+
+  /// No description provided for @operationsItem_add_expense_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record church expenses'**
+  String get operationsItem_add_expense_desc;
+
+  /// No description provided for @operationsItem_generate_report_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Report'**
+  String get operationsItem_generate_report_title;
+
+  /// No description provided for @operationsItem_generate_report_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create activity and financial reports'**
+  String get operationsItem_generate_report_desc;
+
+  /// No description provided for @operations_noOperationsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations available'**
+  String get operations_noOperationsAvailable;
 
   /// No description provided for @approval_title.
   ///
@@ -313,6 +775,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to reject this activity? This action cannot be undone.'**
   String get approval_confirmRejectDescription;
+
+  /// No description provided for @approvalDetail_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Details'**
+  String get approvalDetail_title;
+
+  /// No description provided for @approvalDetail_notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval not found. It may have been removed or is unavailable.'**
+  String get approvalDetail_notFound;
+
+  /// No description provided for @approvalDetail_waitingOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting on other approver to either accept or reject this approval'**
+  String get approvalDetail_waitingOthers;
+
+  /// No description provided for @approvalDetail_activitySummary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Summary'**
+  String get approvalDetail_activitySummary_title;
+
+  /// No description provided for @approvalDetail_financialData_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Data'**
+  String get approvalDetail_financialData_title;
+
+  /// No description provided for @approvalDetail_viewOnMapTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'View on Map'**
+  String get approvalDetail_viewOnMapTooltip;
+
+  /// No description provided for @approvalDetail_viewActivityDetails_title.
+  ///
+  /// In en, this message translates to:
+  /// **'View Activity Details'**
+  String get approvalDetail_viewActivityDetails_title;
+
+  /// No description provided for @approvalDetail_viewActivityDetails_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See full activity information'**
+  String get approvalDetail_viewActivityDetails_subtitle;
+
+  /// No description provided for @approvalDetail_accountDescription_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Description'**
+  String get approvalDetail_accountDescription_label;
+
+  /// No description provided for @lbl_coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get lbl_coordinates;
 
   /// Label for activity type SERVICE
   ///
@@ -709,6 +1231,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Zip Code'**
   String get lbl_zipCode;
+
+  /// No description provided for @lbl_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get lbl_date;
+
+  /// No description provided for @lbl_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get lbl_time;
 
   /// No description provided for @lbl_description.
   ///
@@ -1256,11 +1790,77 @@ abstract class AppLocalizations {
   /// **'Membership Settings'**
   String get settings_membershipSettings;
 
+  /// Title for membership screen
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get membership_title;
+
+  /// Card title for church membership section
+  ///
+  /// In en, this message translates to:
+  /// **'Church Membership'**
+  String get membership_churchMembership_title;
+
+  /// Info message shown when church is not in the list
+  ///
+  /// In en, this message translates to:
+  /// **'If your church is not registered in our system, you won\'t be able to find it in the list below.'**
+  String get membership_churchNotRegisteredInfo;
+
+  /// Option label when member is not baptized
+  ///
+  /// In en, this message translates to:
+  /// **'Not baptized'**
+  String get membership_notBaptized;
+
+  /// Option label when member is not SIDI
+  ///
+  /// In en, this message translates to:
+  /// **'Not SIDI'**
+  String get membership_notSidi;
+
+  /// Message shown when church registration request is accepted and waiting for review
+  ///
+  /// In en, this message translates to:
+  /// **'Your church registration request for \'{churchName}\' was accepted on {date}. We\'ll notify you once it\'s processed.'**
+  String membership_churchRequestAcceptedOn(String churchName, String date);
+
+  /// Message shown when church registration request is being processed
+  ///
+  /// In en, this message translates to:
+  /// **'Your church registration request for \'{churchName}\' is being processed.'**
+  String membership_churchRequestProcessing(String churchName);
+
+  /// Message shown when church registration request has been completed
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks to you, \'{churchName}\' can now be selected from the list below.'**
+  String membership_churchRequestCompleted(String churchName);
+
   /// No description provided for @settings_noMembership.
   ///
   /// In en, this message translates to:
   /// **'No membership available'**
   String get settings_noMembership;
+
+  /// No description provided for @settings_versionUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Version unknown'**
+  String get settings_versionUnknown;
+
+  /// No description provided for @settings_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settings_version(String version);
+
+  /// No description provided for @settings_versionWithBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} (Build {buildNumber})'**
+  String settings_versionWithBuild(String version, String buildNumber);
 
   /// No description provided for @card_overdueBills_title.
   ///
@@ -1898,11 +2498,125 @@ abstract class AppLocalizations {
   /// **'Marital Status'**
   String get lbl_maritalStatus;
 
+  /// No description provided for @maritalStatus_single.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get maritalStatus_single;
+
+  /// No description provided for @maritalStatus_married.
+  ///
+  /// In en, this message translates to:
+  /// **'Married'**
+  String get maritalStatus_married;
+
   /// No description provided for @lbl_gender.
   ///
   /// In en, this message translates to:
   /// **'Gender'**
   String get lbl_gender;
+
+  /// No description provided for @gender_male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get gender_male;
+
+  /// No description provided for @gender_female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get gender_female;
+
+  /// No description provided for @account_personalInformation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get account_personalInformation_title;
+
+  /// No description provided for @account_phoneLabel_locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number (cannot be changed)'**
+  String get account_phoneLabel_locked;
+
+  /// No description provided for @account_phoneLabel_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active phone to receive authentication message'**
+  String get account_phoneLabel_active;
+
+  /// No description provided for @account_fullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name without degree for your church membership'**
+  String get account_fullNameLabel;
+
+  /// No description provided for @account_emailLabel_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional email for notifications and communication'**
+  String get account_emailLabel_optional;
+
+  /// No description provided for @account_bipraHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used to determine your BIPRA membership'**
+  String get account_bipraHint;
+
+  /// No description provided for @account_claim_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Account'**
+  String get account_claim_title;
+
+  /// No description provided for @account_claimedSubtitle_locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Account is claimed and cannot be unclaimed'**
+  String get account_claimedSubtitle_locked;
+
+  /// No description provided for @account_claimedSubtitle_unlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed account can only be modified by the owner, not the church'**
+  String get account_claimedSubtitle_unlocked;
+
+  /// No description provided for @account_claimConfirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Account?'**
+  String get account_claimConfirm_title;
+
+  /// No description provided for @account_claimConfirm_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Once the account is claimed, it cannot be unclaimed. Proceed?'**
+  String get account_claimConfirm_message;
+
+  /// No description provided for @auth_cancelRegistration_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Registration?'**
+  String get auth_cancelRegistration_title;
+
+  /// No description provided for @auth_cancelRegistration_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your registration progress will be lost. Are you sure you want to go back?'**
+  String get auth_cancelRegistration_message;
+
+  /// No description provided for @btn_stay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get btn_stay;
+
+  /// No description provided for @btn_goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get btn_goBack;
 
   /// No description provided for @lbl_dateOfBirth.
   ///
@@ -2492,11 +3206,59 @@ abstract class AppLocalizations {
   /// **'Published activities can only be managed on mobile app by the corresponding supervisor.'**
   String get publish_publishedNotice;
 
+  /// No description provided for @publish_publishedByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Published By You'**
+  String get publish_publishedByYou;
+
+  /// No description provided for @publish_noPublishedActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'No published activities'**
+  String get publish_noPublishedActivities;
+
+  /// No description provided for @publish_noPublishedActivitiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start publishing activities to see them here'**
+  String get publish_noPublishedActivitiesSubtitle;
+
   /// Title for church registration request bottom sheet
   ///
   /// In en, this message translates to:
   /// **'Request Church Registration'**
   String get churchRequest_title;
+
+  /// Status label when church registration request is under review
+  ///
+  /// In en, this message translates to:
+  /// **'On Review'**
+  String get churchRequest_status_onReview;
+
+  /// Status label when church registration request is being processed
+  ///
+  /// In en, this message translates to:
+  /// **'On Progress'**
+  String get churchRequest_status_onProgress;
+
+  /// Short status message when church registration request is under review
+  ///
+  /// In en, this message translates to:
+  /// **'Your request is under review and will be processed soon.'**
+  String get churchRequest_statusMessage_onReview;
+
+  /// Short status message when church registration request is being processed
+  ///
+  /// In en, this message translates to:
+  /// **'Your request is being processed.'**
+  String get churchRequest_statusMessage_onProgress;
+
+  /// Short status message when church registration request is completed
+  ///
+  /// In en, this message translates to:
+  /// **'Your church has been registered! You can now select it when editing membership data.'**
+  String get churchRequest_statusMessage_completed;
 
   /// Description text for church registration request bottom sheet
   ///
@@ -2635,6 +3397,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter account number'**
   String get hint_enterAccountNumber;
+
+  /// Hint/placeholder for selecting an activity
+  ///
+  /// In en, this message translates to:
+  /// **'Select an activity'**
+  String get hint_selectActivity;
 
   /// No description provided for @hint_enterDescription.
   ///
@@ -3044,6 +3812,24 @@ abstract class AppLocalizations {
   /// **'Cashless'**
   String get paymentMethod_cashless;
 
+  /// Payment method description for cash
+  ///
+  /// In en, this message translates to:
+  /// **'Physical currency'**
+  String get paymentMethod_cash_desc;
+
+  /// Payment method description for cashless
+  ///
+  /// In en, this message translates to:
+  /// **'Digital payment'**
+  String get paymentMethod_cashless_desc;
+
+  /// Label indicating an option is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get lbl_selected;
+
   /// No description provided for @billingType_subscription.
   ///
   /// In en, this message translates to:
@@ -3235,6 +4021,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record Payment'**
   String get dlg_recordPayment_title;
+
+  /// Title for selecting finance type dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Select Finance Type'**
+  String get dlg_selectFinanceType_title;
 
   /// No description provided for @dlg_confirmAction_title.
   ///

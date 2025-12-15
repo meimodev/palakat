@@ -9,6 +9,7 @@ import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'widgets/widgets.dart';
 
@@ -48,6 +49,8 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
     SongBookController controller,
     SongBookState state,
   ) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -71,7 +74,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
             Gap.w12,
             Expanded(
               child: Text(
-                "Song Categories",
+                l10n.songBook_categoriesTitle,
                 style: BaseTypography.titleLarge.copyWith(
                   fontWeight: FontWeight.bold,
                   color: BaseColor.textPrimary,
@@ -139,6 +142,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final controller = ref.read(songBookControllerProvider.notifier);
     final state = ref.watch(songBookControllerProvider);
 
@@ -150,13 +154,13 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget.titleOnly(title: "Song Book"),
+          ScreenTitleWidget.titleOnly(title: l10n.songBook_title),
           // 16px = 2 * 8px grid spacing (Requirement 2.4)
           Gap.h16,
           // Search input field (Requirement 3.1, 3.5)
           InputWidget.text(
             controller: _searchController,
-            hint: "Search song title or number",
+            hint: l10n.songBook_searchHint,
             endIcon: FaIcon(
               AppIcons.search,
               size: 20,
@@ -301,6 +305,8 @@ class _EmptySearchStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       // 24px = 3 * 8px grid spacing (Requirement 2.4)
       padding: EdgeInsets.all(BaseSize.w24),
@@ -330,7 +336,7 @@ class _EmptySearchStateWidget extends StatelessWidget {
           // 12px spacing
           Gap.h12,
           Text(
-            "No songs found",
+            l10n.songBook_emptyTitle,
             textAlign: TextAlign.center,
             style: BaseTypography.titleMedium.copyWith(
               color: BaseColor.textSecondary,
@@ -339,7 +345,7 @@ class _EmptySearchStateWidget extends StatelessWidget {
           ),
           Gap.h4,
           Text(
-            "Try searching with different keywords",
+            l10n.songBook_emptySubtitle,
             textAlign: TextAlign.center,
             style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.textSecondary,

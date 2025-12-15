@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'song_detail_controller.dart';
 
@@ -13,6 +14,7 @@ class SongDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final state = ref.watch(songDetailControllerProvider(song));
 
     return ScaffoldWidget(
@@ -145,7 +147,7 @@ class SongDetailScreen extends ConsumerWidget {
                         ),
                         Gap.h12,
                         Text(
-                          'Error loading song',
+                          l10n.songDetail_errorLoadingSong,
                           textAlign: TextAlign.center,
                           style: BaseTypography.titleMedium.copyWith(
                             color: BaseColor.secondaryText,
