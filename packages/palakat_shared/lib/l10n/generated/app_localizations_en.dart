@@ -1648,6 +1648,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_targetGroup => 'Target Group';
 
   @override
+  String get publish_publishToColumnOnly_title => 'Publish to my column only';
+
+  @override
+  String get publish_publishToColumnOnly_subtitle =>
+      'Only members in your column will see this activity';
+
+  @override
+  String get publish_publishToColumnOnly_subtitleNoColumn =>
+      'You are not assigned to a column';
+
+  @override
+  String get lbl_general => 'General';
+
+  @override
+  String get btn_clear => 'Clear';
+
+  @override
   String get publish_locationSubtitle => 'Where will this take place?';
 
   @override

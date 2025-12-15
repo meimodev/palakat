@@ -237,7 +237,6 @@ extension ActivityTypeExtension on ActivityType {
       case ActivityType.service:
       case ActivityType.event:
         return [
-          FormFieldType.bipra,
           FormFieldType.title,
           FormFieldType.location,
           FormFieldType.pinpointLocation,
@@ -247,7 +246,6 @@ extension ActivityTypeExtension on ActivityType {
         ];
       case ActivityType.announcement:
         return [
-          FormFieldType.bipra,
           FormFieldType.title,
           FormFieldType.description,
           FormFieldType.file,

@@ -1,6 +1,7 @@
 import { ActivityType, Bipra, PaymentMethod, Reminder } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
@@ -46,8 +47,13 @@ export class CreateActivityDto {
   @IsInt()
   supervisorId: number;
 
+  @IsOptional()
+  @IsBoolean()
+  publishToColumnOnly?: boolean;
+
+  @IsOptional()
   @IsEnum(Bipra)
-  bipra: Bipra;
+  bipra?: Bipra;
 
   @IsString()
   title: string;

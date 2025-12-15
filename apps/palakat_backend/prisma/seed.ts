@@ -504,7 +504,11 @@ function generateAccountData(index: number, gender?: Gender) {
   };
 }
 
-function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
+function generateActivityData(
+  type: ActivityType,
+  bipra: Bipra | null,
+  index: number,
+) {
   const title = randomElement(ACTIVITY_TITLES[type]);
   const monthStart = getStartOfMonth();
   const today = getCurrentDay();
@@ -525,10 +529,14 @@ function generateActivityData(type: ActivityType, bipra: Bipra, index: number) {
   };
 }
 
-// Generate all activity variations (3 types × 5 bipras = 15)
-function getAllActivityVariations(): { type: ActivityType; bipra: Bipra }[] {
-  const variations: { type: ActivityType; bipra: Bipra }[] = [];
+// Generate all activity variations (3 types × (1 general + 5 bipras) = 18)
+function getAllActivityVariations(): {
+  type: ActivityType;
+  bipra: Bipra | null;
+}[] {
+  const variations: { type: ActivityType; bipra: Bipra | null }[] = [];
   for (const activityType of ACTIVITY_TYPES) {
+    variations.push({ type: activityType, bipra: null });
     for (const bipra of BIPRA_VALUES) {
       variations.push({ type: activityType, bipra });
     }
@@ -1268,7 +1276,7 @@ async function createActivityWithConnectedModels(
   supervisorId: number,
   churchId: number,
   activityType: ActivityType,
-  bipra: Bipra,
+  bipra: Bipra | null,
   index: number,
   financialAccounts: FinancialAccountWithType[],
   financialType: ActivityFinancialType,
@@ -1288,11 +1296,19 @@ async function createActivityWithConnectedModels(
     locationId = location.id;
   }
 
-  const activity = await prisma.activity.create({
+  const supervisorMembership = await prisma.membership.findUnique({
+    where: { id: supervisorId },
+    select: { columnId: true },
+  });
+  const shouldBeColumnOnly =
+    supervisorMembership?.columnId != null && randomBoolean(0.35);
+
+  const activity = await (prisma as any).activity.create({
     data: {
       ...activityData,
       supervisorId,
       locationId,
+      columnId: shouldBeColumnOnly ? supervisorMembership!.columnId : null,
     },
   });
 

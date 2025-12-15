@@ -39,6 +39,7 @@ model Column {
   churchId    Int?
   church      Church?      @relation(fields: [churchId], references: [id], onDelete: SetNull)
   memberships Membership[]
+  activities  Activity[]
 
   @@unique([churchId, name])
 }
@@ -123,7 +124,8 @@ model ApprovalRule {
 model Activity {
   id            Int            @id @default(autoincrement())
   supervisorId  Int
-  bipra         Bipra
+  columnId      Int?
+  bipra         Bipra?
   title         String
   description   String?
   locationId    Int?
@@ -134,6 +136,7 @@ model Activity {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   supervisor    Membership     @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
+  column        Column?        @relation(fields: [columnId], references: [id], onDelete: SetNull)
   approvers     Approver[]
   location      Location?      @relation(fields: [locationId], references: [id])
   revenue       Revenue?
@@ -143,6 +146,7 @@ model Activity {
   @@index([date])
   @@index([supervisorId])
   @@index([supervisorId, date])
+  @@index([columnId])
   @@index([activityType])
   @@index([bipra])
 }

@@ -66,6 +66,7 @@ class InterestBuilder {
     final interests = <String>[
       globalInterest,
       church(churchId),
+      churchBipra(churchId, 'GENERAL'),
       churchBipra(churchId, bipra),
       membership(membershipId),
     ];

@@ -17,6 +17,19 @@ class ActivityPublishController extends _$ActivityPublishController {
     return ActivityPublishState(type: activityType);
   }
 
+  void onChangedPublishToColumnOnly(bool value) {
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membership =
+        localStorage.currentMembership ??
+        localStorage.currentAuth?.account.membership;
+    final hasColumn = membership?.column?.id != null;
+    if (value && !hasColumn) {
+      state = state.copyWith(publishToColumnOnly: false);
+      return;
+    }
+    state = state.copyWith(publishToColumnOnly: value);
+  }
+
   Future<void> validateForm() async {
     state = state.copyWith(loading: true);
 
@@ -28,7 +41,6 @@ class ActivityPublishController extends _$ActivityPublishController {
       final reminderError = validateReminder(state.reminder);
       // final noteError = validateNote(state.note);
       final titleError = validateTitle(state.title);
-      final bipraError = validateBipra(state.bipra);
 
       final isValid =
           locationError == null &&
@@ -36,8 +48,7 @@ class ActivityPublishController extends _$ActivityPublishController {
           timeError == null &&
           reminderError == null &&
           // noteError == null &&
-          titleError == null &&
-          bipraError == null;
+          titleError == null;
 
       state = state.copyWith(
         errorLocation: locationError,
@@ -47,7 +58,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         errorReminder: reminderError,
         // errorNote: noteError,
         errorTitle: titleError,
-        errorBipra: bipraError,
+        errorBipra: null,
         isFormValid: isValid,
       );
     }
@@ -55,16 +66,14 @@ class ActivityPublishController extends _$ActivityPublishController {
     if (state.type == ActivityType.announcement) {
       final titleError = validateTitle(state.title);
       final descriptionError = validateDescription(state.description);
-      final bipraError = validateBipra(state.bipra);
 
       // File is optional for announcements, so we don't validate it
-      final isValid =
-          titleError == null && descriptionError == null && bipraError == null;
+      final isValid = titleError == null && descriptionError == null;
 
       state = state.copyWith(
         errorTitle: titleError,
         errorDescription: descriptionError,
-        errorBipra: bipraError,
+        errorBipra: null,
         isFormValid: isValid,
       );
     }
@@ -134,17 +143,13 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   String? validateBipra(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Must be selected';
-    }
     return null;
   }
 
   bool validateAnnouncement() {
     return validateTitle(state.title) == null &&
         validateDescription(state.description) == null &&
-        validateFile(state.file) == null &&
-        validateBipra(state.bipra) == null;
+        validateFile(state.file) == null;
   }
 
   bool validateService() {
@@ -153,8 +158,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         validateTime(state.time) == null &&
         validateReminder(state.reminder) == null &&
         validateNote(state.note) == null &&
-        validateTitle(state.title) == null &&
-        validateBipra(state.bipra) == null;
+        validateTitle(state.title) == null;
   }
 
   /// Submits the activity creation form.
@@ -188,13 +192,6 @@ class ActivityPublishController extends _$ActivityPublishController {
       // Step 4: Build CreateActivityRequest from state
       // Use selectedBipra directly instead of parsing from string
       final bipra = state.selectedBipra;
-      if (bipra == null) {
-        state = state.copyWith(
-          loading: false,
-          errorMessage: 'Invalid Bipra selection.',
-        );
-        return false;
-      }
 
       // Combine selectedDate and selectedTime into a single DateTime
       DateTime? activityDate;
@@ -231,6 +228,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
       final request = CreateActivityRequest(
         supervisorId: membership.id!,
+        publishToColumnOnly: state.publishToColumnOnly,
         bipra: bipra,
         title: state.title ?? '',
         description: state.description,
@@ -289,10 +287,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   void onSelectedBipra(Bipra? bipra) {
-    if (bipra == null) return;
     state = state.copyWith(
       selectedBipra: bipra,
-      bipra: bipra.name,
+      bipra: bipra?.name,
       errorBipra: null,
     );
     _updateFormValidity();
@@ -427,7 +424,6 @@ class ActivityPublishController extends _$ActivityPublishController {
   /// Requirements: 5.5
   bool _isServiceEventFormValid() {
     return validateTitle(state.title) == null &&
-        validateBipra(state.bipra) == null &&
         validateLocation(state.location) == null &&
         validateDate(state.date) == null &&
         validateTime(state.time) == null &&
@@ -438,7 +434,6 @@ class ActivityPublishController extends _$ActivityPublishController {
   /// Requirements: 5.6
   bool _isAnnouncementFormValid() {
     return validateTitle(state.title) == null &&
-        validateBipra(state.bipra) == null &&
         validateDescription(state.description) == null;
   }
 

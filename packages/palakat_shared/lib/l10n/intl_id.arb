@@ -1755,6 +1755,11 @@
     "description": "Placeholder for selecting target group"
   },
   "publish_targetGroup": "Kelompok Target",
+  "publish_publishToColumnOnly_title": "Publikasikan hanya ke kolom saya",
+  "publish_publishToColumnOnly_subtitle": "Hanya anggota di kolom Anda yang akan melihat kegiatan ini",
+  "publish_publishToColumnOnly_subtitleNoColumn": "Anda belum terdaftar di kolom",
+  "lbl_general": "Umum",
+  "btn_clear": "Hapus",
   "@publish_targetGroup": {
     "description": "Label for target group"
   },

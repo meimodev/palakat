@@ -9,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApproverService } from './approver.service';
 import { PrismaService } from '../prisma.service';
+import { NotificationService } from '../notification/notification.service';
 import { ApprovalStatus } from '@prisma/client';
 
 describe('ApproverService', () => {
@@ -58,11 +59,16 @@ describe('ApproverService', () => {
     $transaction: jest.fn(),
   };
 
+  const mockNotificationService = {
+    notifyApprovalStatusChanged: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ApproverService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: NotificationService, useValue: mockNotificationService },
       ],
     }).compile();
 

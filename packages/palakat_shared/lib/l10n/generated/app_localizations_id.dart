@@ -1650,6 +1650,24 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_targetGroup => 'Kelompok Target';
 
   @override
+  String get publish_publishToColumnOnly_title =>
+      'Publikasikan hanya ke kolom saya';
+
+  @override
+  String get publish_publishToColumnOnly_subtitle =>
+      'Hanya anggota di kolom Anda yang akan melihat kegiatan ini';
+
+  @override
+  String get publish_publishToColumnOnly_subtitleNoColumn =>
+      'Anda belum terdaftar di kolom';
+
+  @override
+  String get lbl_general => 'Umum';
+
+  @override
+  String get btn_clear => 'Hapus';
+
+  @override
   String get publish_locationSubtitle => 'Di mana kegiatan ini berlangsung?';
 
   @override

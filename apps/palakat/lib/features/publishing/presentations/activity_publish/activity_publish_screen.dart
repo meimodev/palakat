@@ -247,7 +247,47 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         Gap.h12,
         _buildBipraPicker(state, controller, context),
+        Gap.h12,
+        _buildPublishToColumnOnlyToggle(state, controller, context),
       ],
+    );
+  }
+
+  Widget _buildPublishToColumnOnlyToggle(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+    BuildContext context,
+  ) {
+    final hasColumn =
+        state.authorColumn != null && state.authorColumn!.isNotEmpty;
+    return Material(
+      color: BaseColor.primary[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: BaseColor.primary[200] ?? BaseColor.neutral40),
+      ),
+      child: SwitchListTile(
+        value: hasColumn ? state.publishToColumnOnly : false,
+        onChanged: hasColumn ? controller.onChangedPublishToColumnOnly : null,
+        title: Text(
+          context.l10n.publish_publishToColumnOnly_title,
+          style: BaseTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+            color: BaseColor.black,
+          ),
+        ),
+        subtitle: Text(
+          hasColumn
+              ? context.l10n.publish_publishToColumnOnly_subtitle
+              : context.l10n.publish_publishToColumnOnly_subtitleNoColumn,
+          style: BaseTypography.bodySmall.toSecondary,
+        ),
+        activeColor: BaseColor.primary[700],
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w16,
+          vertical: BaseSize.h8,
+        ),
+      ),
     );
   }
 
@@ -263,7 +303,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          context.l10n.publish_targetAudienceBipra,
+          '${context.l10n.publish_targetAudienceBipra} ${context.l10n.lbl_optional}',
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -272,7 +312,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         Gap.h6,
         GestureDetector(
           onTap: () async {
-            final res = await showDialogBipraPickerWidget(context: context);
+            final res = await showDialogBipraPickerWidget(
+              context: context,
+              title: context.l10n.publish_selectTargetGroup,
+            );
             if (res != null) {
               controller.onSelectedBipra(res);
             }
@@ -291,7 +334,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               ),
             ),
             child: hasBipra
-                ? _buildSelectedBipraInfo(state.selectedBipra!)
+                ? _buildSelectedBipraInfo(state.selectedBipra!, controller)
                 : _buildEmptyBipraPlaceholder(),
           ),
         ),
@@ -325,11 +368,24 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         Gap.w12,
         Expanded(
-          child: Text(
-            context.l10n.publish_selectTargetGroup,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.neutral[500],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.lbl_general,
+                style: BaseTypography.bodyMedium.copyWith(
+                  color: BaseColor.neutral[800],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Gap.h4,
+              Text(
+                context.l10n.publish_targetGroup,
+                style: BaseTypography.bodySmall.copyWith(
+                  color: BaseColor.neutral[500],
+                ),
+              ),
+            ],
           ),
         ),
         FaIcon(
@@ -341,7 +397,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     );
   }
 
-  Widget _buildSelectedBipraInfo(Bipra bipra) {
+  Widget _buildSelectedBipraInfo(
+    Bipra bipra,
+    ActivityPublishController controller,
+  ) {
     return Row(
       children: [
         Container(
@@ -396,7 +455,28 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ],
           ),
         ),
-        FaIcon(AppIcons.edit, size: BaseSize.w18, color: BaseColor.teal[600]),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Tooltip(
+              message: context.l10n.btn_clear,
+              child: GestureDetector(
+                onTap: () => controller.onSelectedBipra(null),
+                child: FaIcon(
+                  AppIcons.clear,
+                  size: BaseSize.w18,
+                  color: BaseColor.teal[600],
+                ),
+              ),
+            ),
+            Gap.w12,
+            FaIcon(
+              AppIcons.edit,
+              size: BaseSize.w18,
+              color: BaseColor.teal[600],
+            ),
+          ],
+        ),
       ],
     );
   }

@@ -10,12 +10,13 @@ import 'dialog_custom_widget.dart';
 /// Returns the selected [Bipra] or null if cancelled.
 Future<Bipra?> showDialogBipraPickerWidget({
   required BuildContext context,
+  required String title,
   VoidCallback? onPopBottomSheet,
   Widget? closeIcon,
 }) {
   return showDialogCustomWidget<Bipra?>(
     context: context,
-    title: "Select BIPRA",
+    title: title,
     closeIcon: closeIcon,
     content: _DialogBipraPickerWidget(
       onPressedBipraCard: (Bipra bipra) {

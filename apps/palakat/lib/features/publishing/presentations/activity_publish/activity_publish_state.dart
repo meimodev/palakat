@@ -11,6 +11,7 @@ abstract class ActivityPublishState with _$ActivityPublishState {
   const factory ActivityPublishState({
     required ActivityType type,
     // Form fields
+    @Default(false) bool publishToColumnOnly,
     String? bipra,
     Bipra? selectedBipra,
     String? title,

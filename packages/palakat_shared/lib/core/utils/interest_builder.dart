@@ -55,6 +55,7 @@ class InterestBuilder {
       globalInterest,
       globalInterestDebug,
       church(churchId),
+      churchBipra(churchId, 'GENERAL'),
       churchBipra(churchId, bipra),
       membership(membershipId),
     ];

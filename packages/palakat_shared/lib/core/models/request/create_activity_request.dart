@@ -36,8 +36,10 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
     /// The membership ID of the supervisor creating the activity
     required int supervisorId,
 
+    bool? publishToColumnOnly,
+
     /// The target demographic group for the activity
-    required Bipra bipra,
+    Bipra? bipra,
 
     /// The title of the activity
     required String title,

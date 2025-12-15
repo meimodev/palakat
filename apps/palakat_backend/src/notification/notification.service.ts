@@ -16,9 +16,10 @@ import { NotificationType } from '@prisma/client';
 export interface ActivityWithRelations {
   id: number;
   title: string;
-  bipra: string;
+  bipra: string | null;
   activityType: string;
   date: Date | null;
+  columnId?: number | null;
   supervisorId: number;
   supervisor: {
     id: number;
@@ -49,7 +50,7 @@ export interface ApproverWithRelations {
   activity: {
     id: number;
     title: string;
-    bipra: string;
+    bipra: string | null;
     activityType: string;
     supervisorId: number;
     supervisor: {
@@ -150,11 +151,21 @@ export class NotificationService {
         dateStr = dateObj.toLocaleDateString();
       }
 
-      // 1. Send BIPRA group notification
-      const bipraInterest = this.pusherBeams.formatBipraInterest(
-        churchId,
-        bipra,
-      );
+      // 1. Send target-audience notification
+      // If no BIPRA is specified, treat it as GENERAL
+      const audienceInterest =
+        activity.columnId != null
+          ? bipra
+            ? this.pusherBeams.formatColumnBipraInterest(
+                churchId,
+                activity.columnId,
+                bipra,
+              )
+            : this.pusherBeams.formatColumnInterest(churchId, activity.columnId)
+          : this.pusherBeams.formatBipraInterest(
+              churchId,
+              (bipra ?? 'GENERAL').toUpperCase(),
+            );
       const bipraTitle = `New Activity: ${activity.title}`;
       const bipraBody = `${activity.activityType} - ${dateStr}`;
 
@@ -164,14 +175,14 @@ export class NotificationService {
           title: bipraTitle,
           body: bipraBody,
           type: NotificationType.ACTIVITY_CREATED,
-          recipient: bipraInterest,
+          recipient: audienceInterest,
           activityId: activity.id,
           isRead: false,
         },
       });
 
       // Send push notification to BIPRA group
-      await this.pusherBeams.publishToInterests([bipraInterest], {
+      await this.pusherBeams.publishToInterests([audienceInterest], {
         title: bipraTitle,
         body: bipraBody,
         deepLink: `/activities/${activity.id}`,
@@ -182,7 +193,7 @@ export class NotificationService {
       });
 
       this.logger.log(
-        `BIPRA notification sent for activity ${activity.id} to ${bipraInterest}`,
+        `BIPRA notification sent for activity ${activity.id} to ${audienceInterest}`,
       );
 
       // 2. Send individual notifications to each approver

@@ -3086,6 +3086,36 @@ abstract class AppLocalizations {
   /// **'Target Group'**
   String get publish_targetGroup;
 
+  /// No description provided for @publish_publishToColumnOnly_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish to my column only'**
+  String get publish_publishToColumnOnly_title;
+
+  /// No description provided for @publish_publishToColumnOnly_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only members in your column will see this activity'**
+  String get publish_publishToColumnOnly_subtitle;
+
+  /// No description provided for @publish_publishToColumnOnly_subtitleNoColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not assigned to a column'**
+  String get publish_publishToColumnOnly_subtitleNoColumn;
+
+  /// No description provided for @lbl_general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get lbl_general;
+
+  /// No description provided for @btn_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get btn_clear;
+
   /// No description provided for @publish_locationSubtitle.
   ///
   /// In en, this message translates to:

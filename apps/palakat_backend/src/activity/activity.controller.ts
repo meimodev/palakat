@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
@@ -22,8 +23,8 @@ export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Get()
-  async findAll(@Query() query: ActivityListQueryDto) {
-    return this.activitiesService.findAll(query);
+  async findAll(@Query() query: ActivityListQueryDto, @Req() req: any) {
+    return this.activitiesService.findAll(query, req.user);
   }
 
   @Get(':id')

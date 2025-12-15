@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
 import { CreateActivityDto } from './dto/create-activity.dto';
@@ -26,7 +32,7 @@ export class ActivitiesService {
     private notificationService: NotificationService,
   ) {}
 
-  async findAll(query: ActivityListQueryDto) {
+  async findAll(query: ActivityListQueryDto, user?: any) {
     const {
       membershipId,
       churchId,
@@ -43,6 +49,45 @@ export class ActivitiesService {
       hasRevenue,
     } = query;
 
+    const isClientToken = Boolean(user?.clientId);
+    let requesterMembership: {
+      id: number;
+      churchId: number;
+      columnId: number | null;
+    } | null = null;
+
+    if (!isClientToken) {
+      const userId = user?.userId;
+      if (!userId) {
+        throw new BadRequestException('Invalid user');
+      }
+
+      requesterMembership = await (this.prisma as any).membership.findUnique({
+        where: { accountId: userId },
+        select: {
+          id: true,
+          churchId: true,
+          columnId: true,
+        },
+      });
+
+      if (!requesterMembership) {
+        throw new BadRequestException(
+          'User does not have a membership. Cannot access activities.',
+        );
+      }
+
+      if (
+        churchId !== undefined &&
+        churchId !== null &&
+        churchId !== requesterMembership.churchId
+      ) {
+        throw new ForbiddenException(
+          'You are not authorized to access activities for this church',
+        );
+      }
+    }
+
     const where: any = {};
 
     // Only filter by membershipId if provided
@@ -51,17 +96,25 @@ export class ActivitiesService {
     }
 
     // Only filter by churchId or columnId if provided
-    if (
-      (churchId !== undefined && churchId !== null) ||
-      (columnId !== undefined && columnId !== null)
-    ) {
-      where.supervisor = {};
-      if (churchId !== undefined && churchId !== null) {
-        where.supervisor.churchId = churchId;
+    const effectiveChurchId =
+      churchId ?? (!isClientToken ? requesterMembership?.churchId : undefined);
+    if (effectiveChurchId !== undefined && effectiveChurchId !== null) {
+      where.supervisor = {
+        ...(where.supervisor ?? {}),
+        churchId: effectiveChurchId,
+      };
+    }
+
+    if (columnId !== undefined && columnId !== null) {
+      where.columnId = columnId;
+    }
+
+    if (!isClientToken && requesterMembership) {
+      const allowedAudience: any[] = [{ columnId: null }];
+      if (requesterMembership.columnId !== null) {
+        allowedAudience.push({ columnId: requesterMembership.columnId });
       }
-      if (columnId !== undefined && columnId !== null) {
-        where.supervisor.columnId = columnId;
-      }
+      where.AND = [...(where.AND ?? []), { OR: allowedAudience }];
     }
 
     if (startDate || endDate) {
@@ -291,6 +344,7 @@ export class ActivitiesService {
       supervisorId,
       reminder,
       finance,
+      publishToColumnOnly,
       ...activityData
     } = createActivityDto;
 
@@ -300,6 +354,7 @@ export class ActivitiesService {
       select: {
         id: true,
         churchId: true,
+        columnId: true,
       },
     });
 
@@ -323,6 +378,15 @@ export class ActivitiesService {
       },
       reminder: reminder ?? null,
     };
+
+    if (publishToColumnOnly === true) {
+      if (!membership.columnId) {
+        throw new BadRequestException(
+          'Cannot publish to column only: supervisor is not assigned to a column',
+        );
+      }
+      createData.columnId = membership.columnId;
+    }
 
     const locationName = locationDto?.name;
     const locationLatitude = locationDto?.latitude;
@@ -512,6 +576,7 @@ export class ActivitiesService {
         bipra: activity.bipra,
         activityType: activity.activityType,
         date: activity.date,
+        columnId: activity.columnId ?? null,
         supervisorId: activity.supervisorId,
         supervisor: {
           id: activity.supervisor.id,
@@ -549,6 +614,7 @@ export class ActivitiesService {
     const {
       location: locationDto,
       supervisorId,
+      publishToColumnOnly,
       ...updateData
     } = updateActivityDto;
 
@@ -564,6 +630,39 @@ export class ActivitiesService {
       data.supervisor = {
         connect: { id: supervisorId },
       };
+    }
+
+    if (publishToColumnOnly !== undefined) {
+      const effectiveSupervisorId =
+        supervisorId ??
+        (
+          await (this.prisma as any).activity.findUnique({
+            where: { id },
+            select: { supervisorId: true },
+          })
+        )?.supervisorId;
+
+      if (!effectiveSupervisorId) {
+        throw new NotFoundException(`Activity with ID ${id} not found`);
+      }
+
+      if (publishToColumnOnly === false) {
+        data.columnId = null;
+      } else {
+        const supervisorMembership = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { id: effectiveSupervisorId },
+          select: { columnId: true },
+        });
+
+        if (!supervisorMembership?.columnId) {
+          throw new BadRequestException(
+            'Cannot publish to column only: supervisor is not assigned to a column',
+          );
+        }
+        data.columnId = supervisorMembership.columnId;
+      }
     }
 
     if ((updateActivityDto as any).location === null) {
