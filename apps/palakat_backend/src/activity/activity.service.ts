@@ -205,6 +205,7 @@ export class ActivitiesService {
               id: true,
             },
           },
+          file: true,
         },
       }),
     ]);
@@ -308,6 +309,7 @@ export class ActivitiesService {
             },
           },
         },
+        file: true,
       },
     });
 
@@ -338,46 +340,112 @@ export class ActivitiesService {
 
   async create(
     createActivityDto: CreateActivityDto,
+    user?: any,
   ): Promise<{ message: string; data: any }> {
     const {
       location: locationDto,
-      supervisorId,
+      supervisorId: supervisorIdFromDto,
       reminder,
       finance,
       publishToColumnOnly,
+      fileId,
       ...activityData
     } = createActivityDto;
 
-    // Validate that the membership exists and get church ID
-    const membership = await (this.prisma as any).membership.findUnique({
-      where: { id: supervisorId },
-      select: {
-        id: true,
-        churchId: true,
-        columnId: true,
-      },
-    });
+    const isClientToken = Boolean(user?.clientId);
+    let effectiveSupervisorId: number | undefined;
+    let membership: {
+      id: number;
+      churchId: number | null;
+      columnId: number | null;
+    } | null = null;
+
+    if (!isClientToken) {
+      const userId = user?.userId;
+      if (!userId) {
+        throw new BadRequestException('Invalid user');
+      }
+
+      membership = await (this.prisma as any).membership.findUnique({
+        where: { accountId: userId },
+        select: {
+          id: true,
+          churchId: true,
+          columnId: true,
+        },
+      });
+
+      if (!membership) {
+        throw new BadRequestException(
+          'User does not have a membership. Cannot create activity.',
+        );
+      }
+
+      effectiveSupervisorId = membership.id;
+    } else {
+      if (supervisorIdFromDto == null) {
+        throw new BadRequestException('supervisorId is required');
+      }
+      effectiveSupervisorId = supervisorIdFromDto;
+    }
+
+    if (!membership) {
+      // Validate that the membership exists and get church ID
+      membership = await (this.prisma as any).membership.findUnique({
+        where: { id: effectiveSupervisorId },
+        select: {
+          id: true,
+          churchId: true,
+          columnId: true,
+        },
+      });
+    }
 
     if (!membership) {
       throw new NotFoundException(
-        `Membership with ID ${supervisorId} not found`,
+        `Membership with ID ${effectiveSupervisorId} not found`,
       );
     }
 
     if (!membership.churchId) {
       throw new NotFoundException(
-        `Membership with ID ${supervisorId} is not associated with a church`,
+        `Membership with ID ${effectiveSupervisorId} is not associated with a church`,
       );
+    }
+
+    if (fileId !== undefined && fileId !== null) {
+      if (activityData.activityType !== 'ANNOUNCEMENT') {
+        throw new BadRequestException(
+          'fileId is only supported for announcements',
+        );
+      }
+
+      const file = await (this.prisma as any).fileManager.findUnique({
+        where: { id: fileId },
+        select: { id: true, churchId: true },
+      });
+
+      if (!file) {
+        throw new NotFoundException('File not found');
+      }
+
+      if (file.churchId !== membership.churchId) {
+        throw new BadRequestException('Invalid church context');
+      }
     }
 
     // Build the activity create data
     const createData: any = {
       ...activityData,
       supervisor: {
-        connect: { id: supervisorId },
+        connect: { id: effectiveSupervisorId },
       },
       reminder: reminder ?? null,
     };
+
+    if (fileId !== undefined && fileId !== null) {
+      createData.file = { connect: { id: fileId } };
+    }
 
     if (publishToColumnOnly === true) {
       if (!membership.columnId) {
@@ -385,7 +453,11 @@ export class ActivitiesService {
           'Cannot publish to column only: supervisor is not assigned to a column',
         );
       }
-      createData.columnId = membership.columnId;
+      createData.column = {
+        connect: {
+          id: membership.columnId,
+        },
+      };
     }
 
     const locationName = locationDto?.name;
@@ -419,7 +491,7 @@ export class ActivitiesService {
     const approverResolution = await this.approverResolver.resolveApprovers({
       churchId: membership.churchId,
       activityType: activityData.activityType,
-      supervisorId: supervisorId,
+      supervisorId: effectiveSupervisorId,
       financialAccountNumberId: finance?.financialAccountNumberId,
       financialType: finance?.type as 'REVENUE' | 'EXPENSE' | undefined,
     });
@@ -527,6 +599,7 @@ export class ActivitiesService {
                 paymentMethod: true,
               },
             },
+            file: true,
           },
         });
       },
@@ -615,6 +688,7 @@ export class ActivitiesService {
       location: locationDto,
       supervisorId,
       publishToColumnOnly,
+      fileId,
       ...updateData
     } = updateActivityDto;
 
@@ -624,6 +698,35 @@ export class ActivitiesService {
 
     // Build the update data
     const data: any = { ...updateData };
+
+    if ((updateActivityDto as any).fileId === null) {
+      data.file = { disconnect: true };
+    } else if (fileId !== undefined && fileId !== null) {
+      const file = await (this.prisma as any).fileManager.findUnique({
+        where: { id: fileId },
+        select: { id: true, churchId: true },
+      });
+
+      if (!file) {
+        throw new NotFoundException('File not found');
+      }
+
+      const activity = await (this.prisma as any).activity.findUnique({
+        where: { id },
+        select: { supervisor: { select: { churchId: true } } },
+      });
+
+      const activityChurchId = activity?.supervisor?.churchId;
+      if (!activityChurchId) {
+        throw new NotFoundException(`Activity with ID ${id} not found`);
+      }
+
+      if (file.churchId !== activityChurchId) {
+        throw new BadRequestException('Invalid church context');
+      }
+
+      data.file = { connect: { id: fileId } };
+    }
 
     // Handle supervisor update if provided
     if (supervisorId !== undefined) {
@@ -740,6 +843,7 @@ export class ActivitiesService {
         },
         location: true,
         approvers: true,
+        file: true,
       },
     });
     return {

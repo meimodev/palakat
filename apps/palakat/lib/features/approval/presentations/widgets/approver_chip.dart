@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_status_badge.dart';
-import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
 /// A widget that displays an approver's name and status in a clean list format.

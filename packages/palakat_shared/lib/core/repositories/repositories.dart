@@ -10,6 +10,7 @@ export 'church_repository.dart';
 export 'church_request_repository.dart';
 export 'document_repository.dart';
 export 'expense_repository.dart';
+export 'file_manager_repository.dart';
 export 'financial_account_repository.dart';
 export 'membership_repository.dart';
 export 'report_repository.dart';

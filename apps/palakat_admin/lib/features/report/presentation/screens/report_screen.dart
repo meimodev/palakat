@@ -17,7 +17,11 @@ class ReportScreen extends ConsumerStatefulWidget {
 
 class _ReportScreenState extends ConsumerState<ReportScreen> {
   /// Shows report generation drawer
-  void _showGenerateDrawer(String reportTitle, String description) {
+  void _showGenerateDrawer(
+    String reportType,
+    String reportTitle,
+    String description,
+  ) {
     DrawerUtils.showDrawer(
       context: context,
       drawer: ReportGenerateDrawer(
@@ -34,6 +38,13 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             //   message: 'Your report is being generated.',
             // );
             // ref.read(reportControllerProvider.notifier).refresh();
+
+            final controller = ref.read(reportControllerProvider.notifier);
+            await controller.generateReport({
+              'type': reportType,
+              if (range != null) 'startDate': range.start.toIso8601String(),
+              if (range != null) 'endDate': range.end.toIso8601String(),
+            });
           }
         },
       ),
@@ -81,6 +92,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     icon: Icons.mail_outline,
                     color: Colors.blue,
                     onGenerate: () => _showGenerateDrawer(
+                      'INCOMING_DOCUMENT',
                       l10n.reportTitle_incomingDocument,
                       l10n.reportDesc_incomingDocument,
                     ),
@@ -90,6 +102,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     icon: Icons.groups_outlined,
                     color: Colors.purple,
                     onGenerate: () => _showGenerateDrawer(
+                      'CONGREGATION',
                       l10n.reportTitle_congregation,
                       l10n.reportDesc_congregation,
                     ),
@@ -99,6 +112,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     icon: Icons.church_outlined,
                     color: Colors.green,
                     onGenerate: () => _showGenerateDrawer(
+                      'SERVICES',
                       l10n.reportTitle_services,
                       l10n.reportDesc_services,
                     ),
@@ -108,6 +122,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     icon: Icons.local_activity_outlined,
                     color: Colors.orange,
                     onGenerate: () => _showGenerateDrawer(
+                      'ACTIVITY',
                       l10n.reportTitle_activity,
                       l10n.reportDesc_activity,
                     ),
@@ -249,12 +264,15 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         flex: 2,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
+          final fileName =
+              report.file.originalName ??
+              (report.file.path?.split('/').last ?? ctx.l10n.lbl_na);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                report.file.url.split('/').last,
+                fileName,
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -285,9 +303,11 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
           return IconButton(
             onPressed: () async {
               if (report.id != null) {
-                final url = Uri.tryParse(report.file.url);
+                final controller = ref.read(reportControllerProvider.notifier);
+                final resolved = await controller.downloadReport(report.id!);
+                if (!ctx.mounted) return;
+                final url = resolved != null ? Uri.tryParse(resolved) : null;
                 if (url == null) {
-                  // ignore: use_build_context_synchronously
                   AppSnackbars.showError(
                     ctx,
                     title: l10n.msg_invalidUrl,
@@ -295,7 +315,6 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                   );
                   return;
                 }
-                // ignore: use_build_context_synchronously
                 AppSnackbars.showSuccess(
                   ctx,
                   title: l10n.msg_opening,

@@ -5,15 +5,16 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { FileService } from './file.service';
-import { Prisma } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { FileListQueryDto } from './dto/file-list.dto';
+import { FileFinalizeDto } from './dto/file-finalize.dto';
+import { Request } from 'express';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('file-manager')
@@ -30,21 +31,21 @@ export class FileController {
     return this.fileService.findOne(id);
   }
 
+  @Post('finalize')
+  async finalize(@Body() dto: FileFinalizeDto, @Req() req: Request) {
+    return this.fileService.finalize(dto, (req as any).user);
+  }
+
+  @Get(':id/resolve-download-url')
+  async resolveDownloadUrl(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
+  ) {
+    return this.fileService.resolveDownloadUrl(id, (req as any).user);
+  }
+
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.fileService.remove(id);
-  }
-
-  @Post()
-  async create(@Body() createFileDto: Prisma.FileManagerCreateInput) {
-    return this.fileService.create(createFileDto);
-  }
-
-  @Patch(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateFileDto: Prisma.FileManagerUpdateInput,
-  ) {
-    return this.fileService.update(id, updateFileDto);
   }
 }

@@ -77,7 +77,7 @@ describe('Auth (e2e)', () => {
       .send({ identifier: 'e2e_user1@example.com', password })
       .expect(201);
 
-    expect(res.body?.data?.accessToken).toBeDefined();
+    expect(res.body?.data?.tokens?.accessToken).toBeDefined();
     expect(res.body?.data?.account?.email).toBe('e2e_user1@example.com');
   });
 
@@ -87,7 +87,7 @@ describe('Auth (e2e)', () => {
       .send({ identifier: '081200000002', password })
       .expect(201);
 
-    expect(res.body?.data?.accessToken).toBeDefined();
+    expect(res.body?.data?.tokens?.accessToken).toBeDefined();
     expect(res.body?.data?.account?.phone).toBe('081200000002');
   });
 
@@ -104,7 +104,7 @@ describe('Auth (e2e)', () => {
       .send({ identifier: 'e2e_user1@example.com', password })
       .expect(201);
 
-    const oldRefresh = signin.body?.data?.refreshToken as string;
+    const oldRefresh = signin.body?.data?.tokens?.refreshToken as string;
     expect(oldRefresh).toBeDefined();
 
     const refreshRes = await request(app.getHttpServer())
@@ -125,8 +125,8 @@ describe('Auth (e2e)', () => {
       .send({ identifier: 'e2e_user1@example.com', password })
       .expect(201);
 
-    const accessToken = signin.body?.data?.accessToken as string;
-    const refreshToken = signin.body?.data?.refreshToken as string;
+    const accessToken = signin.body?.data?.tokens?.accessToken as string;
+    const refreshToken = signin.body?.data?.tokens?.refreshToken as string;
 
     await request(app.getHttpServer())
       .post('/auth/sign-out')

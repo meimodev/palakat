@@ -132,7 +132,7 @@ class ReportCardWidget extends StatelessWidget {
 
                 // File info
                 Text(
-                  '${context.l10n.tbl_file}: ${_getFileName(context, report.file.url)}',
+                  '${context.l10n.tbl_file}: ${_getFileName(context, report.file)}',
                   style: BaseTypography.bodySmall.copyWith(
                     color: BaseColor.neutral60,
                   ),
@@ -195,14 +195,19 @@ class ReportCardWidget extends StatelessWidget {
     }
   }
 
-  String _getFileName(BuildContext context, String url) {
-    try {
-      final uri = Uri.parse(url);
-      final segments = uri.pathSegments;
-      return segments.isNotEmpty ? segments.last : context.l10n.lbl_na;
-    } catch (e) {
-      return context.l10n.lbl_na;
+  String _getFileName(BuildContext context, FileManager file) {
+    final originalName = file.originalName;
+    if (originalName != null && originalName.trim().isNotEmpty) {
+      return originalName;
     }
+
+    final path = file.path;
+    if (path != null && path.trim().isNotEmpty) {
+      final segments = path.split('/');
+      return segments.isNotEmpty ? segments.last : context.l10n.lbl_na;
+    }
+
+    return context.l10n.lbl_na;
   }
 
   String _formatDate(BuildContext context, DateTime date) {

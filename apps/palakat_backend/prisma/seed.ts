@@ -1670,42 +1670,73 @@ async function seedSongs() {
   return songs;
 }
 
-async function seedFiles() {
+function contentTypeFromExtension(extension: string): string {
+  switch (extension.toLowerCase()) {
+    case 'pdf':
+      return 'application/pdf';
+    case 'doc':
+      return 'application/msword';
+    case 'docx':
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    case 'xlsx':
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+async function seedFiles(churches: ChurchWithColumns[]) {
   console.log('📁 Creating files...');
 
-  const files = [];
+  const filesByChurch: Record<number, any[]> = {};
   const fileExtensions = ['pdf', 'docx', 'xlsx', 'png', 'jpg'];
-  const baseUrls = [
-    'https://storage.example.com/files/',
-    'https://cdn.example.com/documents/',
-    'https://assets.example.com/uploads/',
-  ];
 
-  const totalFiles =
-    CONFIG.mainAccountPhones.length * (CONFIG.reportsPerChurch + 2);
+  const bucket = process.env.FIREBASE_STORAGE_BUCKET ?? 'seed-bucket';
 
-  for (let i = 0; i < totalFiles; i++) {
-    const extension = randomElement(fileExtensions);
-    const baseUrl = randomElement(baseUrls);
-    const sizeInKB = parseFloat((seededRandom() * 5000 + 100).toFixed(2));
+  for (const church of churches) {
+    const totalFilesForChurch =
+      CONFIG.reportsPerChurch + CONFIG.documentsPerChurch + 10;
+    filesByChurch[church.id] = [];
 
-    const file = await prisma.fileManager.create({
-      data: {
-        sizeInKB,
-        url: `${baseUrl}file-${i}.${extension}`,
-      },
-    });
+    for (let i = 0; i < totalFilesForChurch; i++) {
+      const extension = randomElement(fileExtensions);
+      const contentType = contentTypeFromExtension(extension);
+      const sizeInKB = parseFloat((seededRandom() * 5000 + 100).toFixed(2));
+      const originalName = `seed-file-${church.id}-${i}.${extension}`;
+      const path = `churches/${church.id}/seed/${originalName}`;
 
-    files.push(file);
+      const file = await prisma.fileManager.create({
+        data: {
+          provider: 'FIREBASE_STORAGE' as any,
+          bucket,
+          path,
+          sizeInKB,
+          contentType,
+          originalName,
+          churchId: church.id,
+        } as any,
+      });
+
+      filesByChurch[church.id].push(file);
+    }
   }
 
-  console.log(`✅ Created ${files.length} files`);
-  return files;
+  const total = Object.values(filesByChurch).reduce(
+    (acc, list) => acc + list.length,
+    0,
+  );
+  console.log(`✅ Created ${total} files`);
+  return filesByChurch;
 }
 
 async function seedReports(
   churches: ChurchWithColumns[],
-  files: { id: number }[],
+  filesByChurch: Record<number, { id: number }[]>,
 ) {
   console.log('📊 Creating reports...');
 
@@ -1717,27 +1748,31 @@ async function seedReports(
     'Laporan Kolom',
     'Laporan Tahunan',
   ];
-  let fileIndex = 0;
+  for (const church of churches) {
+    const pool = filesByChurch[church.id] ?? [];
+    for (let i = 0; i < CONFIG.reportsPerChurch; i++) {
+      const reportType = randomElement(reportTypes);
+      const generatedBy = GENERATED_BY_VALUES[i % GENERATED_BY_VALUES.length];
+      const year = 2024 - Math.floor(seededRandom() * 3);
+      const month = Math.floor(seededRandom() * 12) + 1;
+      const file = pool.shift();
+      if (!file) {
+        throw new Error(
+          `Not enough files to seed reports for church ${church.id}`,
+        );
+      }
 
-  for (let i = 0; i < churches.length * CONFIG.reportsPerChurch; i++) {
-    const churchIndex = Math.floor(i / CONFIG.reportsPerChurch);
-    const church = churches[churchIndex];
-    const reportType = randomElement(reportTypes);
-    const generatedBy = GENERATED_BY_VALUES[i % GENERATED_BY_VALUES.length];
-    const year = 2024 - Math.floor(seededRandom() * 3);
-    const month = Math.floor(seededRandom() * 12) + 1;
+      const report = await prisma.report.create({
+        data: {
+          name: `${reportType} ${church.name} ${year}-${String(month).padStart(2, '0')}`,
+          generatedBy,
+          churchId: church.id,
+          fileId: file.id,
+        },
+      });
 
-    const report = await prisma.report.create({
-      data: {
-        name: `${reportType} ${church.name} ${year}-${String(month).padStart(2, '0')}`,
-        generatedBy,
-        churchId: church.id,
-        fileId: files[fileIndex].id,
-      },
-    });
-
-    reports.push(report);
-    fileIndex++;
+      reports.push(report);
+    }
   }
 
   console.log(`✅ Created ${reports.length} reports`);
@@ -1746,12 +1781,11 @@ async function seedReports(
 
 async function seedDocuments(
   churches: ChurchWithColumns[],
-  files: { id: number }[],
+  filesByChurch: Record<number, { id: number }[]>,
 ) {
   console.log('📄 Creating documents...');
 
   const documents = [];
-  let fileIndex = churches.length * CONFIG.reportsPerChurch;
 
   const documentTypes = [
     'Surat Keterangan Baptis',
@@ -1762,30 +1796,70 @@ async function seedDocuments(
     'Surat Pengantar',
   ];
 
-  for (let i = 0; i < churches.length * CONFIG.documentsPerChurch; i++) {
-    const churchIndex = Math.floor(i / CONFIG.documentsPerChurch);
-    const church = churches[churchIndex];
-    const docIndex = i % CONFIG.documentsPerChurch;
+  let globalIndex = 0;
+  for (const church of churches) {
+    const pool = filesByChurch[church.id] ?? [];
 
-    const hasFile = docIndex !== 2;
-    const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(i).padStart(4, '0')}`;
-    const documentType = randomElement(documentTypes);
+    for (let i = 0; i < CONFIG.documentsPerChurch; i++) {
+      const hasFile = i !== 2;
+      const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(globalIndex).padStart(4, '0')}`;
+      const documentType = randomElement(documentTypes);
+      const file = hasFile ? pool.shift() : null;
 
-    const document = await prisma.document.create({
-      data: {
-        name: `${documentType} - ${church.name}`,
-        accountNumber,
-        churchId: church.id,
-        fileId: hasFile && files[fileIndex] ? files[fileIndex].id : null,
-      },
-    });
+      const document = await prisma.document.create({
+        data: {
+          name: `${documentType} - ${church.name}`,
+          accountNumber,
+          churchId: church.id,
+          fileId: file ? file.id : null,
+        },
+      });
 
-    documents.push(document);
-    if (hasFile) fileIndex++;
+      documents.push(document);
+      globalIndex++;
+    }
   }
 
   console.log(`✅ Created ${documents.length} documents`);
   return documents;
+}
+
+async function seedAnnouncementAttachments(
+  churches: ChurchWithColumns[],
+  filesByChurch: Record<number, { id: number }[]>,
+) {
+  console.log('📎 Attaching files to some announcement activities...');
+
+  let attached = 0;
+  for (const church of churches) {
+    const pool = filesByChurch[church.id] ?? [];
+    const maxAttach = Math.min(3, pool.length);
+    if (maxAttach === 0) continue;
+
+    const announcements = await prisma.activity.findMany({
+      where: {
+        activityType: ActivityType.ANNOUNCEMENT,
+        fileId: null,
+        supervisor: {
+          churchId: church.id,
+        },
+      },
+      take: maxAttach,
+      orderBy: { id: 'asc' },
+    } as any);
+
+    for (const activity of announcements) {
+      const file = pool.shift();
+      if (!file) break;
+      await prisma.activity.update({
+        where: { id: activity.id },
+        data: { fileId: file.id },
+      } as any);
+      attached++;
+    }
+  }
+
+  console.log(`✅ Attached files to ${attached} announcement activities`);
 }
 
 async function seedExtraAccountsWithoutMembership(passwordHash: string) {
@@ -2012,9 +2086,10 @@ async function main() {
     await seedSongs();
 
     // Create files, reports, and documents
-    const files = await seedFiles();
-    await seedReports(mainChurches, files);
-    await seedDocuments(mainChurches, files);
+    const filesByChurch = await seedFiles(mainChurches);
+    await seedReports(mainChurches, filesByChurch);
+    await seedDocuments(mainChurches, filesByChurch);
+    await seedAnnouncementAttachments(mainChurches, filesByChurch);
 
     // Create extra accounts without membership and church requests
     const accountsWithoutMembership =

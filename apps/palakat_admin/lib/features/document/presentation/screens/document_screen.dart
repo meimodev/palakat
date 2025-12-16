@@ -7,6 +7,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DocumentScreen extends ConsumerWidget {
   const DocumentScreen({super.key});
@@ -123,7 +124,7 @@ class DocumentScreen extends ConsumerWidget {
                         ? state.documents.error.toString()
                         : null,
                     onRetry: () => controller.refresh(),
-                    columns: _buildTableColumns(context),
+                    columns: _buildTableColumns(context, ref),
                   ),
                 ],
               ),
@@ -137,6 +138,7 @@ class DocumentScreen extends ConsumerWidget {
   /// Builds the table column configuration for the documents table
   static List<AppTableColumn<Document>> _buildTableColumns(
     BuildContext context,
+    WidgetRef ref,
   ) {
     final l10n = context.l10n;
     return [
@@ -177,6 +179,86 @@ class DocumentScreen extends ConsumerWidget {
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
+          );
+        },
+      ),
+      AppTableColumn<Document>(
+        title: l10n.tbl_file,
+        flex: 2,
+        cellBuilder: (ctx, document) {
+          final theme = Theme.of(ctx);
+          final file = document.file;
+          if (file == null) {
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodySmall);
+          }
+          final fileName =
+              file.originalName ??
+              (file.path?.split('/').last ?? ctx.l10n.lbl_na);
+          return Text(
+            fileName,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+        },
+      ),
+      AppTableColumn<Document>(
+        title: '',
+        flex: 1,
+        cellBuilder: (ctx, document) {
+          final theme = Theme.of(ctx);
+          final l10n = ctx.l10n;
+          final fileId = document.fileId;
+          if (fileId == null) {
+            return const SizedBox.shrink();
+          }
+          return IconButton(
+            onPressed: () async {
+              final fileRepo = ref.read(fileManagerRepositoryProvider);
+              final result = await fileRepo.resolveDownloadUrl(fileId: fileId);
+              if (!ctx.mounted) return;
+
+              String? resolved;
+              result.when(
+                onSuccess: (url) {
+                  resolved = url;
+                },
+                onFailure: (failure) {
+                  AppSnackbars.showError(
+                    ctx,
+                    title: l10n.msg_invalidUrl,
+                    message: failure.message,
+                  );
+                },
+              );
+              if (resolved == null) return;
+
+              final uri = Uri.tryParse(resolved!);
+              if (uri == null) {
+                AppSnackbars.showError(
+                  ctx,
+                  title: l10n.msg_invalidUrl,
+                  message: l10n.msg_cannotOpenReportFile,
+                );
+                return;
+              }
+
+              AppSnackbars.showSuccess(
+                ctx,
+                title: l10n.msg_opening,
+                message: l10n.msg_openingReport(document.name),
+              );
+              try {
+                await launchUrl(uri);
+              } catch (_) {
+                // ignore
+              }
+            },
+            icon: const Icon(Icons.download),
+            color: theme.colorScheme.primary,
+            tooltip: l10n.tooltip_downloadReport,
           );
         },
       ),

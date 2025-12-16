@@ -25,6 +25,7 @@ model Church {
   expenses                Expense[]
   reports                 Report[]
   documents               Document[]
+  files                   FileManager[]
   approvalRules           ApprovalRule[]
   financialAccountNumbers FinancialAccountNumber[]
 
@@ -131,6 +132,7 @@ model Activity {
   locationId    Int?
   date          DateTime?
   note          String?
+  fileId        Int?           @unique
   activityType  ActivityType
   reminder      Reminder?
   createdAt     DateTime       @default(now())
@@ -139,6 +141,7 @@ model Activity {
   column        Column?        @relation(fields: [columnId], references: [id], onDelete: SetNull)
   approvers     Approver[]
   location      Location?      @relation(fields: [locationId], references: [id])
+  file          FileManager?    @relation(fields: [fileId], references: [id])
   revenue       Revenue?
   expense       Expense?
   notifications Notification[]
@@ -307,14 +310,29 @@ enum GeneratedBy {
   SYSTEM
 }
 
+enum FileProvider {
+  FIREBASE_STORAGE
+}
+
 model FileManager {
   id        Int       @id @default(autoincrement())
+  provider  FileProvider @default(FIREBASE_STORAGE)
+  bucket    String
+  path      String
   sizeInKB  Float
-  url       String
+  contentType   String?
+  originalName  String?
+  churchId  Int
+  church    Church    @relation(fields: [churchId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   report    Report?
   document  Document?
+  activity  Activity?
+
+  @@unique([bucket, path])
+  @@index([churchId])
+  @@index([provider])
 }
 
 model Report {

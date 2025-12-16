@@ -9,9 +9,7 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/account/account_controller.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
-import 'package:palakat_shared/core/extension/date_time_extension.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
-import 'package:palakat_shared/widgets.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
   final String? verifiedPhone;

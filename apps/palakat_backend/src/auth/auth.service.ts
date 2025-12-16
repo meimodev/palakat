@@ -8,13 +8,83 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma.service';
+import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly firebaseAdmin: FirebaseAdminService,
   ) {}
+
+  private normalizeIndonesianPhone(phone: string): string {
+    let normalizedPhone = phone.trim();
+    normalizedPhone = normalizedPhone.replace(/[\s\-()]/g, '');
+    if (normalizedPhone.startsWith('+62')) {
+      normalizedPhone = '0' + normalizedPhone.substring(3);
+    } else if (
+      normalizedPhone.startsWith('62') &&
+      normalizedPhone.length > 11
+    ) {
+      normalizedPhone = '0' + normalizedPhone.substring(2);
+    }
+    return normalizedPhone;
+  }
+
+  async syncClaims(firebaseIdToken: string) {
+    if (!firebaseIdToken || firebaseIdToken.trim().length === 0) {
+      throw new BadRequestException('Firebase ID token is required');
+    }
+
+    const decoded = await this.firebaseAdmin
+      .auth()
+      .verifyIdToken(firebaseIdToken);
+    const uid = decoded.uid;
+    const phoneNumber = (decoded as any).phone_number as string | undefined;
+    if (!phoneNumber) {
+      throw new BadRequestException(
+        'Firebase token does not contain phone_number',
+      );
+    }
+
+    const normalizedPhone = this.normalizeIndonesianPhone(phoneNumber);
+    const account: any = await this.prisma.account.findUnique({
+      where: { phone: normalizedPhone },
+      include: {
+        membership: {
+          select: { id: true, churchId: true },
+        },
+      },
+    } as any);
+
+    if (!account) {
+      throw new UnauthorizedException('Account not found');
+    }
+
+    const membership = account.membership;
+    if (!membership?.id || !membership?.churchId) {
+      throw new BadRequestException(
+        'Account does not have an active membership',
+      );
+    }
+
+    const claims = {
+      accountId: account.id,
+      membershipId: membership.id,
+      churchId: membership.churchId,
+    };
+
+    await this.firebaseAdmin.auth().setCustomUserClaims(uid, claims);
+
+    return {
+      message: 'OK',
+      data: {
+        uid,
+        claims,
+      },
+    };
+  }
 
   async generateClientToken(payload: { clientId: string }) {
     const token = this.jwtService.sign(payload);
@@ -199,7 +269,15 @@ export class AuthService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    const accessToken = this.jwtService.sign({ sub: accountId, typ: 'user' });
+    const accessToken = this.jwtService.sign(
+      {
+        sub: accountId,
+        typ: 'user',
+      },
+      {
+        jwtid: randomBytes(16).toString('hex'),
+      } as any,
+    );
     const refreshToken = this.jwtService.sign(
       { sub: accountId, typ: 'refresh', jti: randomBytes(16).toString('hex') },
       { expiresIn: '7d' },
@@ -217,6 +295,7 @@ export class AuthService {
         id: true,
         refreshTokenHash: true,
         refreshTokenExpiresAt: true,
+        refreshTokenJti: true,
         isActive: true,
       } as any,
     } as any);
@@ -229,6 +308,18 @@ export class AuthService {
     }
     if (account.refreshTokenExpiresAt < new Date()) {
       throw new UnauthorizedException('Refresh expired');
+    }
+
+    const decodedProvided: any = this.jwtService.decode(refreshToken);
+    const providedJti =
+      decodedProvided && typeof decodedProvided === 'object'
+        ? (decodedProvided as any).jti
+        : null;
+
+    if (account.refreshTokenJti) {
+      if (!providedJti || providedJti !== account.refreshTokenJti) {
+        throw new UnauthorizedException('Invalid refresh');
+      }
     }
 
     const valid = await bcrypt.compare(refreshToken, account.refreshTokenHash);

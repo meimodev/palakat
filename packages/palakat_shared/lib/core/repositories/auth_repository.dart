@@ -140,6 +140,28 @@ class AuthRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }
+
+  Future<Result<void, Failure>> syncClaims({
+    required String firebaseIdToken,
+  }) async {
+    try {
+      if (firebaseIdToken.trim().isEmpty) {
+        return Result.failure(Failure('Firebase ID token is required'));
+      }
+
+      await _dio.post(
+        Endpoints.syncClaims,
+        options: Options(headers: {'Authorization': 'Bearer $firebaseIdToken'}),
+      );
+      return Result.success(null);
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to sync claims');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to sync claims', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
 }
 
 @riverpod

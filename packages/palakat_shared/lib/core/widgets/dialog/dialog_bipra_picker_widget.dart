@@ -11,6 +11,7 @@ import 'dialog_custom_widget.dart';
 Future<Bipra?> showDialogBipraPickerWidget({
   required BuildContext context,
   required String title,
+  String? columnName,
   VoidCallback? onPopBottomSheet,
   Widget? closeIcon,
 }) {
@@ -19,6 +20,7 @@ Future<Bipra?> showDialogBipraPickerWidget({
     title: title,
     closeIcon: closeIcon,
     content: _DialogBipraPickerWidget(
+      columnName: columnName,
       onPressedBipraCard: (Bipra bipra) {
         context.pop(bipra);
       },
@@ -27,9 +29,13 @@ Future<Bipra?> showDialogBipraPickerWidget({
 }
 
 class _DialogBipraPickerWidget extends StatelessWidget {
-  const _DialogBipraPickerWidget({required this.onPressedBipraCard});
+  const _DialogBipraPickerWidget({
+    required this.onPressedBipraCard,
+    this.columnName,
+  });
 
   final void Function(Bipra bipra) onPressedBipraCard;
+  final String? columnName;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +46,11 @@ class _DialogBipraPickerWidget extends StatelessWidget {
           Padding(padding: EdgeInsets.symmetric(vertical: BaseSize.h6)),
       itemBuilder: (BuildContext context, int index) {
         final e = Bipra.values[index];
-        return CardBipra(bipra: e, onPressed: () => onPressedBipraCard(e));
+        return CardBipra(
+          bipra: e,
+          columnName: columnName,
+          onPressed: () => onPressedBipraCard(e),
+        );
       },
     );
   }

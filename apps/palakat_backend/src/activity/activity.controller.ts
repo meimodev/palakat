@@ -38,8 +38,8 @@ export class ActivitiesController {
   }
 
   @Post()
-  async create(@Body() createActivityDto: CreateActivityDto) {
-    return this.activitiesService.create(createActivityDto);
+  async create(@Body() createActivityDto: CreateActivityDto, @Req() req: any) {
+    return this.activitiesService.create(createActivityDto, req.user);
   }
 
   @Patch(':id')

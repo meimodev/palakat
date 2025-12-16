@@ -155,10 +155,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
               if (report.church != null)
                 _buildInfoRow(l10n.nav_church, report.church!.name),
               if (report.church != null) Gap.h12,
-              _buildInfoRow(
-                l10n.tbl_file,
-                _getFileName(context, report.file.url),
-              ),
+              _buildInfoRow(l10n.tbl_file, _getFileName(context, report.file)),
               Gap.h12,
               if (report.createdAt != null)
                 _buildInfoRow(
@@ -237,14 +234,19 @@ class ReportDetailBottomSheet extends StatelessWidget {
     }
   }
 
-  String _getFileName(BuildContext context, String url) {
-    try {
-      final uri = Uri.parse(url);
-      final segments = uri.pathSegments;
-      return segments.isNotEmpty ? segments.last : context.l10n.lbl_unknown;
-    } catch (e) {
-      return context.l10n.lbl_unknown;
+  String _getFileName(BuildContext context, FileManager file) {
+    final originalName = file.originalName;
+    if (originalName != null && originalName.trim().isNotEmpty) {
+      return originalName;
     }
+
+    final path = file.path;
+    if (path != null && path.trim().isNotEmpty) {
+      final segments = path.split('/');
+      return segments.isNotEmpty ? segments.last : context.l10n.lbl_unknown;
+    }
+
+    return context.l10n.lbl_unknown;
   }
 
   String _formatDate(BuildContext context, DateTime date) {

@@ -1,9 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcryptjs';
-import { PrismaService } from 'nestjs-prisma';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
+import { PrismaService } from '../../src/prisma.service';
 
 describe('Authentication Security (e2e)', () => {
   let app: INestApplication;
@@ -12,6 +12,16 @@ describe('Authentication Security (e2e)', () => {
   let testChurchId: number;
   let testLocationId: number;
   let testMembershipId: number;
+
+  const unique = Date.now().toString().slice(-8);
+  const testUserPhone = `08${unique}10`;
+  const lockoutUserPhone = `08${unique}11`;
+  const inactiveUserPhone = `08${unique}12`;
+  const unclaimedUserPhone = `08${unique}13`;
+  const testUserEmail = `test_${unique}@example.com`;
+  const lockoutUserEmail = `lockout_${unique}@example.com`;
+  const inactiveUserEmail = `inactive_${unique}@example.com`;
+  const unclaimedUserEmail = `unclaimed_${unique}@example.com`;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -45,8 +55,8 @@ describe('Authentication Security (e2e)', () => {
     const account = await prisma.account.create({
       data: {
         name: 'Test User',
-        phone: '081234567890',
-        email: 'test@example.com',
+        phone: testUserPhone,
+        email: testUserEmail,
         passwordHash: await bcrypt.hash('TestPassword123!', 10),
         gender: 'MALE',
         maritalStatus: 'SINGLE',
@@ -106,7 +116,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567890',
+          identifier: testUserPhone,
           password: 'WrongPassword',
         })
         .expect(401);
@@ -123,8 +133,8 @@ describe('Authentication Security (e2e)', () => {
       const account = await prisma.account.create({
         data: {
           name: 'Lockout Test User',
-          phone: '081234567891',
-          email: 'lockout@example.com',
+          phone: lockoutUserPhone,
+          email: lockoutUserEmail,
           passwordHash: await bcrypt.hash('CorrectPassword123!', 10),
           gender: 'MALE',
           maritalStatus: 'SINGLE',
@@ -157,7 +167,7 @@ describe('Authentication Security (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567891',
+          identifier: lockoutUserPhone,
           password: 'WrongPassword',
         })
         .expect(401);
@@ -174,7 +184,7 @@ describe('Authentication Security (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567891',
+          identifier: lockoutUserPhone,
           password: 'WrongPassword',
         })
         .expect(401);
@@ -193,7 +203,7 @@ describe('Authentication Security (e2e)', () => {
         await request(app.getHttpServer())
           .post('/auth/sign-in')
           .send({
-            identifier: '081234567891',
+            identifier: lockoutUserPhone,
             password: 'WrongPassword',
           })
           .expect(401);
@@ -223,7 +233,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567891',
+          identifier: lockoutUserPhone,
           password: 'CorrectPassword123!',
         })
         .expect(403);
@@ -237,7 +247,7 @@ describe('Authentication Security (e2e)', () => {
         await request(app.getHttpServer())
           .post('/auth/sign-in')
           .send({
-            identifier: '081234567891',
+            identifier: lockoutUserPhone,
             password: 'WrongPassword',
           })
           .expect(401);
@@ -253,7 +263,7 @@ describe('Authentication Security (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567891',
+          identifier: lockoutUserPhone,
           password: 'CorrectPassword123!',
         })
         .expect(201);
@@ -277,7 +287,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567890',
+          identifier: testUserPhone,
           password: 'TestPassword123!',
         })
         .expect(201);
@@ -311,7 +321,7 @@ describe('Authentication Security (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken })
-        .expect(400);
+        .expect(401);
     });
 
     it('should store hashed refresh token in database', async () => {
@@ -356,7 +366,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567890',
+          identifier: testUserPhone,
           password: 'TestPassword123!',
         })
         .expect(201);
@@ -434,7 +444,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567890',
+          identifier: testUserPhone,
           password: 'TestPassword123!',
         })
         .expect(201);
@@ -446,7 +456,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567890',
+          identifier: testUserPhone,
           password: 'TestPassword123!',
         })
         .expect(201);
@@ -461,8 +471,8 @@ describe('Authentication Security (e2e)', () => {
       const inactiveAccount = await prisma.account.create({
         data: {
           name: 'Inactive User',
-          phone: '081234567892',
-          email: 'inactive@example.com',
+          phone: inactiveUserPhone,
+          email: inactiveUserEmail,
           passwordHash: await bcrypt.hash('Password123!', 10),
           gender: 'MALE',
           maritalStatus: 'SINGLE',
@@ -475,7 +485,7 @@ describe('Authentication Security (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567892',
+          identifier: inactiveUserPhone,
           password: 'Password123!',
         })
         .expect(403);
@@ -491,8 +501,8 @@ describe('Authentication Security (e2e)', () => {
       const unclaimedAccount = await prisma.account.create({
         data: {
           name: 'Unclaimed User',
-          phone: '081234567893',
-          email: 'unclaimed@example.com',
+          phone: unclaimedUserPhone,
+          email: unclaimedUserEmail,
           gender: 'MALE',
           maritalStatus: 'SINGLE',
           dob: new Date('1990-01-01'),
@@ -504,7 +514,7 @@ describe('Authentication Security (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081234567893',
+          identifier: unclaimedUserPhone,
           password: 'AnyPassword',
         })
         .expect(401);

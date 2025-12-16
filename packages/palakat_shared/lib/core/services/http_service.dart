@@ -144,9 +144,11 @@ class HttpService {
         },
         onRequest: (options, handler) {
           // Add authentication headers if needed
-          final token = _accessTokenProvider?.call();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          if (!options.headers.containsKey('Authorization')) {
+            final token = _accessTokenProvider?.call();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
 
           handler.next(options);

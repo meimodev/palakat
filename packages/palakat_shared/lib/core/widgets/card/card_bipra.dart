@@ -3,10 +3,16 @@ import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/theme.dart';
 
 class CardBipra extends StatelessWidget {
-  const CardBipra({super.key, required this.bipra, required this.onPressed});
+  const CardBipra({
+    super.key,
+    required this.bipra,
+    required this.onPressed,
+    this.columnName,
+  });
 
   final Bipra bipra;
   final VoidCallback onPressed;
+  final String? columnName;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +65,9 @@ class CardBipra extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      bipra.name,
+                      (columnName != null && columnName!.isNotEmpty)
+                          ? '${bipra.name} (${columnName!})'
+                          : bipra.name,
                       style: BaseTypography.titleLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: BaseColor.black,

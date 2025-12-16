@@ -14,7 +14,6 @@ import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
-import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 

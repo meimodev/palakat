@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/constants.dart';
@@ -7,6 +10,7 @@ import 'package:palakat_shared/models.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'activity_publish_controller.g.dart';
 
@@ -14,7 +18,11 @@ part 'activity_publish_controller.g.dart';
 class ActivityPublishController extends _$ActivityPublishController {
   @override
   ActivityPublishState build(ActivityType activityType) {
-    return ActivityPublishState(type: activityType);
+    return ActivityPublishState(
+      type: activityType,
+      selectedReminder: Reminder.thirtyMinutes,
+      reminder: Reminder.thirtyMinutes.name,
+    );
   }
 
   void onChangedPublishToColumnOnly(bool value) {
@@ -189,6 +197,95 @@ class ActivityPublishController extends _$ActivityPublishController {
         return false;
       }
 
+      int? fileId;
+      if (state.type == ActivityType.announcement && state.fileBytes != null) {
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        if (firebaseUser == null) {
+          state = state.copyWith(
+            loading: false,
+            errorMessage: 'Session expired. Please sign in again.',
+          );
+          return false;
+        }
+
+        final churchId = membership.church?.id;
+        if (churchId == null) {
+          state = state.copyWith(
+            loading: false,
+            errorMessage: 'Invalid church context',
+          );
+          return false;
+        }
+
+        final firebaseIdToken = await firebaseUser.getIdToken();
+        if (firebaseIdToken == null || firebaseIdToken.trim().isEmpty) {
+          state = state.copyWith(
+            loading: false,
+            errorMessage: 'Session expired. Please sign in again.',
+          );
+          return false;
+        }
+
+        final authRepo = ref.read(authRepositoryProvider);
+        final syncResult = await authRepo.syncClaims(
+          firebaseIdToken: firebaseIdToken,
+        );
+        bool syncOk = true;
+        syncResult.when(
+          onSuccess: (_) {
+            syncOk = true;
+          },
+          onFailure: (failure) {
+            syncOk = false;
+            state = state.copyWith(
+              loading: false,
+              errorMessage: failure.message,
+            );
+          },
+        );
+        if (!syncOk) {
+          return false;
+        }
+
+        await firebaseUser.getIdToken(true);
+
+        final originalName = state.file ?? 'attachment';
+        final uuid = const Uuid().v4();
+        final objectName = '${uuid}_$originalName';
+        final path = 'churches/$churchId/announcements/$objectName';
+
+        final metadata = SettableMetadata(contentType: state.fileContentType);
+        await FirebaseStorage.instance
+            .ref(path)
+            .putData(state.fileBytes!, metadata);
+
+        final sizeInKB =
+            (state.fileSizeBytes ?? state.fileBytes!.length) / 1024;
+        final fileRepo = ref.read(fileManagerRepositoryProvider);
+        final finalizeResult = await fileRepo.finalize(
+          churchId: churchId,
+          path: path,
+          sizeInKB: double.parse(sizeInKB.toStringAsFixed(2)),
+          contentType: state.fileContentType,
+          originalName: originalName,
+        );
+
+        finalizeResult.when(
+          onSuccess: (file) {
+            fileId = file.id;
+          },
+          onFailure: (failure) {
+            state = state.copyWith(
+              loading: false,
+              errorMessage: failure.message,
+            );
+          },
+        );
+        if (fileId == null) {
+          return false;
+        }
+      }
+
       // Step 4: Build CreateActivityRequest from state
       // Use selectedBipra directly instead of parsing from string
       final bipra = state.selectedBipra;
@@ -237,6 +334,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         locationLongitude: location?.longitude,
         date: activityDate,
         note: state.note,
+        fileId: fileId,
         activityType: state.type,
         reminder: state.selectedReminder,
         finance: finance,
@@ -375,15 +473,46 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   /// Sets the selected file with both name and path.
   /// Requirements: 5.21
-  void onSelectedFile({required String fileName, String? filePath}) {
-    state = state.copyWith(file: fileName, filePath: filePath, errorFile: null);
+  void onSelectedFile({
+    required String fileName,
+    String? filePath,
+    Uint8List? fileBytes,
+    int? fileSizeBytes,
+  }) {
+    state = state.copyWith(
+      file: fileName,
+      filePath: filePath,
+      fileBytes: fileBytes,
+      fileSizeBytes: fileSizeBytes,
+      fileContentType: _contentTypeFromName(fileName),
+      errorFile: null,
+    );
     _updateFormValidity();
   }
 
   /// Clears the selected file.
   void clearSelectedFile() {
-    state = state.copyWith(file: null, filePath: null, errorFile: null);
+    state = state.copyWith(
+      file: null,
+      filePath: null,
+      fileBytes: null,
+      fileSizeBytes: null,
+      fileContentType: null,
+      errorFile: null,
+    );
     _updateFormValidity();
+  }
+
+  String _contentTypeFromName(String name) {
+    final lower = name.toLowerCase();
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    if (lower.endsWith('.doc')) return 'application/msword';
+    if (lower.endsWith('.docx')) {
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    }
+    return 'application/octet-stream';
   }
 
   void onChangedReminder(String value) {

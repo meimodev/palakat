@@ -43,7 +43,7 @@ class ViewAllController extends _$ViewAllController {
         ),
         date: now.add(Duration(days: r % 5)),
         note: '${l10n.lbl_note} $index',
-        fileUrl: '',
+        fileId: null,
         createdAt: now,
         updatedAt: now,
         supervisor: supervisor,

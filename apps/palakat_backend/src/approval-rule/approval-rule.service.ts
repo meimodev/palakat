@@ -176,10 +176,14 @@ export class ApprovalRuleService {
     const {
       churchId,
       positionIds,
+      positions,
       financialAccountNumberId,
       financialType,
       ...rest
     } = createApprovalRuleDto;
+
+    const normalizedPositionIds =
+      positionIds ?? (positions ? positions.map((p) => p.id) : undefined);
 
     // Validate financial type requires account number
     this.validateFinancialTypeRequiresAccount(
@@ -210,8 +214,12 @@ export class ApprovalRuleService {
       name: ruleName,
       financialType,
       church: { connect: { id: churchId } },
-      ...(positionIds && positionIds.length > 0
-        ? { positions: { connect: positionIds.map((id) => ({ id })) } }
+      ...(normalizedPositionIds && normalizedPositionIds.length > 0
+        ? {
+            positions: {
+              connect: normalizedPositionIds.map((id) => ({ id })),
+            },
+          }
         : {}),
       ...(financialAccountNumberId
         ? {
@@ -258,10 +266,14 @@ export class ApprovalRuleService {
     const {
       churchId,
       positionIds,
+      positions,
       financialAccountNumberId,
       financialType,
       ...rest
     } = updateApprovalRuleDto;
+
+    const normalizedPositionIds =
+      positionIds ?? (positions ? positions.map((p) => p.id) : undefined);
 
     // Get the current rule to check existing values for validation
     const currentRule = await this.prismaService.approvalRule.findUnique({
@@ -317,8 +329,12 @@ export class ApprovalRuleService {
       ...(churchId !== undefined
         ? { church: { connect: { id: churchId } } }
         : {}),
-      ...(positionIds !== undefined
-        ? { positions: { set: positionIds.map((id) => ({ id })) } }
+      ...(normalizedPositionIds !== undefined
+        ? {
+            positions: {
+              set: normalizedPositionIds.map((id) => ({ id })),
+            },
+          }
         : {}),
       ...(financialAccountNumberId !== undefined
         ? financialAccountNumberId === null

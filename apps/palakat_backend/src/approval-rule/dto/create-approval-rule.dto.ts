@@ -8,7 +8,15 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
+
+class ApprovalRulePositionDto {
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  id: number;
+}
 
 export class CreateApprovalRuleDto {
   @IsString()
@@ -45,4 +53,10 @@ export class CreateApprovalRuleDto {
   @IsArray()
   @IsInt({ each: true })
   positionIds?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ApprovalRulePositionDto)
+  positions?: ApprovalRulePositionDto[];
 }

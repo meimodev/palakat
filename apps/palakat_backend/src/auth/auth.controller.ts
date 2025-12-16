@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Post,
   Query,
   Req,
@@ -22,6 +23,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
   ) {}
+
+  @Post('sync-claims')
+  async syncClaims(@Headers('authorization') authorization?: string) {
+    const token = authorization?.startsWith('Bearer ')
+      ? authorization.substring('Bearer '.length)
+      : undefined;
+    if (!token) {
+      throw new BadRequestException('Firebase ID token is required');
+    }
+    return this.authService.syncClaims(token);
+  }
 
   @Get('signing')
   @UseGuards(AuthGuard('client-signing'))

@@ -44,8 +44,9 @@ export class CreateActivityLocationDto {
 }
 
 export class CreateActivityDto {
+  @IsOptional()
   @IsInt()
-  supervisorId: number;
+  supervisorId?: number;
 
   @IsOptional()
   @IsBoolean()
@@ -74,6 +75,10 @@ export class CreateActivityDto {
   @IsOptional()
   @IsString()
   note?: string;
+
+  @IsOptional()
+  @IsInt()
+  fileId?: number;
 
   @IsEnum(ActivityType)
   activityType: ActivityType;

@@ -260,6 +260,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     final hasColumn =
         state.authorColumn != null && state.authorColumn!.isNotEmpty;
+    final columnName = state.authorColumn;
     return Material(
       color: BaseColor.primary[50],
       shape: RoundedRectangleBorder(
@@ -278,7 +279,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         subtitle: Text(
           hasColumn
-              ? context.l10n.publish_publishToColumnOnly_subtitle
+              ? '${context.l10n.publish_publishToColumnOnly_subtitle} (${columnName!})'
               : context.l10n.publish_publishToColumnOnly_subtitleNoColumn,
           style: BaseTypography.bodySmall.toSecondary,
         ),
@@ -298,12 +299,19 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   ) {
     final hasBipra = state.selectedBipra != null;
     final hasError = state.errorBipra != null && state.errorBipra!.isNotEmpty;
+    final shouldShowColumnContext =
+        state.publishToColumnOnly &&
+        state.authorColumn != null &&
+        state.authorColumn!.isNotEmpty;
+    final columnContext = shouldShowColumnContext
+        ? ' (${state.authorColumn!})'
+        : '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '${context.l10n.publish_targetAudienceBipra} ${context.l10n.lbl_optional}',
+          '${context.l10n.publish_targetAudienceBipra}$columnContext ${context.l10n.lbl_optional}',
           style: BaseTypography.titleMedium.copyWith(
             color: BaseColor.neutral[800],
             fontWeight: FontWeight.w500,
@@ -315,6 +323,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             final res = await showDialogBipraPickerWidget(
               context: context,
               title: context.l10n.publish_selectTargetGroup,
+              columnName: shouldShowColumnContext ? state.authorColumn : null,
             );
             if (res != null) {
               controller.onSelectedBipra(res);
@@ -489,7 +498,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return _buildSectionCard(
       title: context.l10n.card_location_title,
       icon: AppIcons.locationOnOutlined,
-      subtitle: context.l10n.publish_locationSubtitle,
+      // subtitle: context.l10n.publish_locationSubtitle,
       children: [
         InputWidget<String>.text(
           hint: context.l10n.publish_hintLocationExample,
@@ -676,7 +685,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return _buildSectionCard(
       title: context.l10n.section_schedule,
       icon: AppIcons.scheduleOutlined,
-      subtitle: context.l10n.publish_scheduleSubtitle,
+      // subtitle: context.l10n.publish_scheduleSubtitle,
       children: [
         _buildDateTimePickers(state, controller, context),
         Gap.h12,
@@ -710,35 +719,12 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         border: Border.all(color: BaseColor.blue[100]!),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              FaIcon(
-                AppIcons.eventAvailable,
-                size: BaseSize.w16,
-                color: BaseColor.blue[700],
-              ),
-              Gap.w6,
-              Text(
-                context.l10n.publish_eventSchedule,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.blue[700],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          Gap.h12,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildDatePicker(state, controller, context)),
-              Gap.w12,
-              Expanded(child: _buildTimePicker(state, controller, context)),
-            ],
-          ),
+          Expanded(child: _buildDatePicker(state, controller, context)),
+          Gap.w12,
+          Expanded(child: _buildTimePicker(state, controller, context)),
         ],
       ),
     );
@@ -1345,10 +1331,16 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+      withData: true,
     );
     if (result != null && result.files.isNotEmpty) {
       final file = result.files.first;
-      controller.onSelectedFile(fileName: file.name, filePath: file.path);
+      controller.onSelectedFile(
+        fileName: file.name,
+        filePath: file.path,
+        fileBytes: file.bytes,
+        fileSizeBytes: file.size,
+      );
     }
   }
 

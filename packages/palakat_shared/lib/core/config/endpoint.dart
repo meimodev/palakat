@@ -4,6 +4,7 @@ class Endpoints {
   static const String signIn = '/auth/sign-in';
   static const String refresh = '/auth/refresh';
   static const String signOut = '/auth/sign-out';
+  static const String syncClaims = '/auth/sync-claims';
 
   static const String churches = '/church';
   static String church({required int churchId}) => '/church/$churchId';
@@ -35,10 +36,17 @@ class Endpoints {
   // Report
   static const String reports = '/report';
   static String report(String reportId) => '/report/$reportId';
+  static const String generateReport = '/report/generate';
 
   // Document
   static const String documents = '/document';
   static String document(String documentId) => '/document/$documentId';
+
+  // File Manager
+  static const String fileManager = '/file-manager';
+  static const String fileFinalize = '/file-manager/finalize';
+  static String fileManagerResolveDownloadUrl(String fileId) =>
+      '/file-manager/$fileId/resolve-download-url';
 
   //Approval Rule
   static const String approvalRules = '/approval-rule';

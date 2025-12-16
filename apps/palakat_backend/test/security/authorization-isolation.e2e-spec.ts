@@ -1,13 +1,21 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcryptjs';
-import { PrismaService } from 'nestjs-prisma';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
+import { PrismaService } from '../../src/prisma.service';
 
 describe('Authorization and Data Isolation (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+
+  const unique = Date.now().toString().slice(-8);
+  const church1User1Phone = `08${unique}01`;
+  const church1User2Phone = `08${unique}02`;
+  const church2User1Phone = `08${unique}03`;
+  const church1User1Email = `church1user1_${unique}@example.com`;
+  const church1User2Email = `church1user2_${unique}@example.com`;
+  const church2User1Email = `church2user1_${unique}@example.com`;
 
   // Church 1 data
   let church1Id: number;
@@ -61,8 +69,8 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church1Acc1 = await prisma.account.create({
       data: {
         name: 'Church 1 User 1',
-        phone: '081111111111',
-        email: 'church1user1@example.com',
+        phone: church1User1Phone,
+        email: church1User1Email,
         passwordHash: await bcrypt.hash('Password123!', 10),
         gender: 'MALE',
         maritalStatus: 'SINGLE',
@@ -85,8 +93,8 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church1Acc2 = await prisma.account.create({
       data: {
         name: 'Church 1 User 2',
-        phone: '081111111112',
-        email: 'church1user2@example.com',
+        phone: church1User2Phone,
+        email: church1User2Email,
         passwordHash: await bcrypt.hash('Password123!', 10),
         gender: 'FEMALE',
         maritalStatus: 'MARRIED',
@@ -127,8 +135,8 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church2Acc1 = await prisma.account.create({
       data: {
         name: 'Church 2 User 1',
-        phone: '082222222221',
-        email: 'church2user1@example.com',
+        phone: church2User1Phone,
+        email: church2User1Email,
         passwordHash: await bcrypt.hash('Password123!', 10),
         gender: 'MALE',
         maritalStatus: 'SINGLE',
@@ -151,7 +159,7 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church1Response1 = await request(app.getHttpServer())
       .post('/auth/sign-in')
       .send({
-        identifier: '081111111111',
+        identifier: church1User1Phone,
         password: 'Password123!',
       });
     church1Token1 = church1Response1.body.data.tokens.accessToken;
@@ -159,7 +167,7 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church1Response2 = await request(app.getHttpServer())
       .post('/auth/sign-in')
       .send({
-        identifier: '081111111112',
+        identifier: church1User2Phone,
         password: 'Password123!',
       });
     church1Token2 = church1Response2.body.data.tokens.accessToken;
@@ -167,7 +175,7 @@ describe('Authorization and Data Isolation (e2e)', () => {
     const church2Response1 = await request(app.getHttpServer())
       .post('/auth/sign-in')
       .send({
-        identifier: '082222222221',
+        identifier: church2User1Phone,
         password: 'Password123!',
       });
     church2Token1 = church2Response1.body.data.tokens.accessToken;
@@ -198,39 +206,64 @@ describe('Authorization and Data Isolation (e2e)', () => {
 
   afterAll(async () => {
     // Cleanup in reverse order of dependencies
-    await prisma.activity.deleteMany({
-      where: {
-        id: { in: [church1Activity1Id, church2Activity1Id] },
-      },
-    });
-
-    await prisma.membership.deleteMany({
-      where: {
-        id: {
-          in: [
-            church1Membership1Id,
-            church1Membership2Id,
-            church2Membership1Id,
-          ],
+    const activityIds = [church1Activity1Id, church2Activity1Id].filter(
+      (v): v is number => typeof v === 'number',
+    );
+    if (activityIds.length > 0) {
+      await prisma.activity.deleteMany({
+        where: {
+          id: { in: activityIds },
         },
-      },
-    });
+      });
+    }
 
-    await prisma.account.deleteMany({
-      where: {
-        id: {
-          in: [church1Account1Id, church1Account2Id, church2Account1Id],
+    const membershipIds = [
+      church1Membership1Id,
+      church1Membership2Id,
+      church2Membership1Id,
+    ].filter((v): v is number => typeof v === 'number');
+    if (membershipIds.length > 0) {
+      await prisma.membership.deleteMany({
+        where: {
+          id: {
+            in: membershipIds,
+          },
         },
-      },
-    });
+      });
+    }
 
-    await prisma.church.deleteMany({
-      where: { id: { in: [church1Id, church2Id] } },
-    });
+    const accountIds = [
+      church1Account1Id,
+      church1Account2Id,
+      church2Account1Id,
+    ].filter((v): v is number => typeof v === 'number');
+    if (accountIds.length > 0) {
+      await prisma.account.deleteMany({
+        where: {
+          id: {
+            in: accountIds,
+          },
+        },
+      });
+    }
 
-    await prisma.location.deleteMany({
-      where: { id: { in: [church1LocationId, church2LocationId] } },
-    });
+    const churchIds = [church1Id, church2Id].filter(
+      (v): v is number => typeof v === 'number',
+    );
+    if (churchIds.length > 0) {
+      await prisma.church.deleteMany({
+        where: { id: { in: churchIds } },
+      });
+    }
+
+    const locationIds = [church1LocationId, church2LocationId].filter(
+      (v): v is number => typeof v === 'number',
+    );
+    if (locationIds.length > 0) {
+      await prisma.location.deleteMany({
+        where: { id: { in: locationIds } },
+      });
+    }
 
     await app.close();
   });
@@ -373,9 +406,14 @@ describe('Authorization and Data Isolation (e2e)', () => {
     });
 
     afterAll(async () => {
-      await prisma.revenue.deleteMany({
-        where: { id: { in: [church1RevenueId, church2RevenueId] } },
-      });
+      const revenueIds = [church1RevenueId, church2RevenueId].filter(
+        (v): v is number => typeof v === 'number',
+      );
+      if (revenueIds.length > 0) {
+        await prisma.revenue.deleteMany({
+          where: { id: { in: revenueIds } },
+        });
+      }
     });
 
     it('should filter revenues by church', async () => {
@@ -476,7 +514,7 @@ describe('Authorization and Data Isolation (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/auth/sign-in')
         .send({
-          identifier: '081111111111',
+          identifier: church1User1Phone,
           password: 'Password123!',
         })
         .expect(201);

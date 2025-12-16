@@ -376,6 +376,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       onApprove: () async {
         if (currentUserApproverId != null && activity.id != null) {
           // Capture messenger before async gap
+          final l10n = context.l10n;
           final messenger = ScaffoldMessenger.of(context);
           // Show confirmation bottom sheet
           final confirmed = await showApprovalConfirmationBottomSheet(
@@ -391,9 +392,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             setState(() => _processingActivityId = null);
             messenger.showSnackBar(
               SnackBar(
-                content: Text(
-                  context.l10n.approval_snackbarApproved(activity.title),
-                ),
+                content: Text(l10n.approval_snackbarApproved(activity.title)),
                 backgroundColor: BaseColor.green.shade600,
               ),
             );
@@ -403,6 +402,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       onReject: () async {
         if (currentUserApproverId != null && activity.id != null) {
           // Capture messenger before async gap
+          final l10n = context.l10n;
           final messenger = ScaffoldMessenger.of(context);
           // Show confirmation bottom sheet
           final confirmed = await showApprovalConfirmationBottomSheet(
@@ -418,9 +418,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             setState(() => _processingActivityId = null);
             messenger.showSnackBar(
               SnackBar(
-                content: Text(
-                  context.l10n.approval_snackbarRejected(activity.title),
-                ),
+                content: Text(l10n.approval_snackbarRejected(activity.title)),
                 backgroundColor: BaseColor.red.shade500,
               ),
             );

@@ -10,6 +10,7 @@ import 'package:palakat/features/dashboard/presentations/activity_detail/activit
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ActivityDetailScreen extends ConsumerWidget {
@@ -147,25 +148,17 @@ class ActivityDetailScreen extends ConsumerWidget {
                 children: [
                   _buildActivityTypeIndicator(activity),
                   Gap.h12,
-                  _buildBasicInfoSection(context, activity),
-                  if (activity.note != null && activity.note!.isNotEmpty) ...[
-                    Gap.h16,
-                    _buildNoteSection(context, activity),
-                  ],
+                  _buildBasicInfoSection(context, ref, activity),
+                  Gap.h16,
+                  _buildNoteSection(context, activity),
                   Gap.h16,
                   _buildScheduleSection(context, activity),
-                  if (activity.location != null) ...[
-                    Gap.h16,
-                    _buildLocationSection(activity),
-                  ],
-                  if (activity.financeType != null) ...[
-                    Gap.h16,
-                    _buildFinanceSection(context, activity),
-                  ],
-                  if (activity.approvers.isNotEmpty) ...[
-                    Gap.h16,
-                    _buildApproversSection(context, activity, state),
-                  ],
+                  Gap.h16,
+                  _buildLocationSection(context, activity),
+                  Gap.h16,
+                  _buildFinanceSection(context, activity),
+                  Gap.h16,
+                  _buildApproversSection(context, activity, state),
                   Gap.h16,
                   _buildSupervisorSection(context, activity),
                   Gap.h24,
@@ -591,31 +584,174 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBasicInfoSection(BuildContext context, Activity activity) {
+  Widget _buildBasicInfoSection(
+    BuildContext context,
+    WidgetRef ref,
+    Activity activity,
+  ) {
+    final l10n = context.l10n;
     final hasBipra = activity.bipra != null;
-    final hasDescription =
-        activity.description != null && activity.description!.isNotEmpty;
+    final hasFile = activity.fileId != null;
 
-    if (!hasBipra && !hasDescription) {
-      return const SizedBox.shrink();
-    }
+    final fileName =
+        activity.file?.originalName ??
+        (activity.file?.path?.split('/').last ?? l10n.lbl_na);
+
+    final activityIdText = activity.id != null
+        ? '#${activity.id}'
+        : l10n.lbl_na;
+
+    final createdAtText =
+        '${activity.createdAt.EEEEddMMMyyyy} ${activity.createdAt.HHmm} • ${activity.createdAt.toFromNow}';
+    final updatedAtText = activity.updatedAt != null
+        ? '${activity.updatedAt!.EEEEddMMMyyyy} ${activity.updatedAt!.HHmm} • ${activity.updatedAt!.toFromNow}'
+        : l10n.lbl_na;
 
     return _buildSectionCard(
-      title: activity.title,
+      title: l10n.section_basicInformation,
       icon: AppIcons.info,
-      subtitle: context.l10n.drawer_activityDetails_title,
+      subtitle: activity.title,
       children: [
-        if (hasBipra) _buildBipraInfo(context, activity),
-        if (hasBipra && hasDescription) Gap.h12,
-        if (hasDescription)
-          Text(
-            activity.description!,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.textPrimary,
-              height: 1.5,
-            ),
+        _buildInfoRow(
+          icon: AppIcons.info,
+          iconColor: BaseColor.blue[600],
+          label: l10n.lbl_activityId,
+          value: activityIdText,
+        ),
+        Gap.h12,
+        _buildInfoRow(
+          icon: AppIcons.createdAt,
+          iconColor: BaseColor.neutral[600],
+          label: l10n.lbl_createdAt,
+          value: createdAtText,
+        ),
+        Gap.h12,
+        _buildInfoRow(
+          icon: AppIcons.schedule,
+          iconColor: BaseColor.neutral[600],
+          label: l10n.lbl_updatedAt,
+          value: updatedAtText,
+        ),
+        Gap.h12,
+        _buildInfoRow(
+          icon: AppIcons.document,
+          iconColor: BaseColor.primary[600],
+          label: l10n.tbl_file,
+          value: hasFile ? fileName : l10n.lbl_na,
+          onTap: hasFile
+              ? () async {
+                  final repo = ref.read(fileManagerRepositoryProvider);
+                  final result = await repo.resolveDownloadUrl(
+                    fileId: activity.fileId!,
+                  );
+                  result.when(
+                    onSuccess: (url) => _openUrl(url),
+                    onFailure: (failure) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(failure.message)));
+                    },
+                  );
+                }
+              : null,
+        ),
+        Gap.h12,
+        if (hasBipra)
+          _buildBipraInfo(context, activity)
+        else
+          _buildInfoRow(
+            icon: AppIcons.info,
+            iconColor: BaseColor.blue[600],
+            label: l10n.lbl_targetAudience,
+            value: l10n.lbl_notSpecified,
           ),
+        Gap.h12,
+        _buildInfoRow(
+          icon: AppIcons.description,
+          iconColor: BaseColor.teal[600],
+          label: l10n.lbl_description,
+          value:
+              (activity.description != null &&
+                  activity.description!.trim().isNotEmpty)
+              ? activity.description!.trim()
+              : l10n.lbl_notSpecified,
+        ),
       ],
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? iconColor,
+    VoidCallback? onTap,
+  }) {
+    final effectiveIconColor = iconColor ?? BaseColor.neutral[600];
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: BaseSize.h4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: BaseSize.w32,
+                height: BaseSize.w32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color:
+                      effectiveIconColor?.withValues(alpha: 0.1) ??
+                      BaseColor.neutral[100],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                ),
+                child: FaIcon(
+                  icon,
+                  size: BaseSize.w16,
+                  color: effectiveIconColor ?? BaseColor.neutral[600],
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.neutral[500],
+                      ),
+                    ),
+                    Gap.h4,
+                    Text(
+                      value,
+                      style: BaseTypography.bodyMedium.copyWith(
+                        color: BaseColor.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null) ...[
+                Gap.w8,
+                Padding(
+                  padding: EdgeInsets.only(top: BaseSize.h4),
+                  child: FaIcon(
+                    AppIcons.openExternal,
+                    size: BaseSize.w16,
+                    color: BaseColor.neutral[400],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -682,10 +818,8 @@ class ActivityDetailScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildDateTimeCard(context, activity),
-        if (activity.reminder != null) ...[
-          Gap.h12,
-          _buildReminderInfo(context, activity),
-        ],
+        Gap.h12,
+        _buildReminderInfo(context, activity),
       ],
     );
   }
@@ -774,8 +908,58 @@ class ActivityDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildReminderInfo(BuildContext context, Activity activity) {
-    final reminder = activity.reminder!;
-    final reminderDate = _calculateReminderDate(activity);
+    final reminder = activity.reminder;
+    if (reminder == null) {
+      return Container(
+        padding: EdgeInsets.all(BaseSize.w12),
+        decoration: BoxDecoration(
+          color: BaseColor.neutral[50],
+          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+          border: Border.all(color: BaseColor.neutral[200]!),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.neutral[100],
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: FaIcon(
+                AppIcons.notificationActive,
+                size: BaseSize.w20,
+                color: BaseColor.neutral[600],
+              ),
+            ),
+            Gap.w12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.lbl_reminder,
+                    style: BaseTypography.labelSmall.copyWith(
+                      color: BaseColor.neutral[600],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    context.l10n.lbl_na,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.neutral[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final reminderDate = _calculateReminderDate(activity, reminder);
 
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
@@ -833,8 +1017,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
   }
 
-  String _calculateReminderDate(Activity activity) {
-    final reminder = activity.reminder!;
+  String _calculateReminderDate(Activity activity, Reminder reminder) {
     Duration offset;
     switch (reminder) {
       case Reminder.tenMinutes:
@@ -850,15 +1033,17 @@ class ActivityDetailScreen extends ConsumerWidget {
     return '${reminderDateTime.ddMmmmYyyy} ${reminderDateTime.HHmm}';
   }
 
-  Widget _buildLocationSection(Activity activity) {
+  Widget _buildLocationSection(BuildContext context, Activity activity) {
     final location = activity.location;
     final hasCoordinates =
         location?.latitude != null && location?.longitude != null;
-    final displayName = (location?.name.trim().isNotEmpty ?? false)
+    final hasName = (location?.name.trim().isNotEmpty ?? false);
+    final isAvailable = location != null && (hasName || hasCoordinates);
+    final displayName = hasName
         ? location!.name
         : hasCoordinates
         ? '${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
-        : '-';
+        : context.l10n.lbl_notSpecified;
 
     return GestureDetector(
       onTap: hasCoordinates
@@ -892,10 +1077,15 @@ class ActivityDetailScreen extends ConsumerWidget {
                 children: [
                   Text(
                     displayName,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.primary[800],
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: isAvailable
+                        ? BaseTypography.bodyMedium.copyWith(
+                            color: BaseColor.primary[800],
+                            fontWeight: FontWeight.w600,
+                          )
+                        : BaseTypography.bodyMedium.copyWith(
+                            color: BaseColor.neutral[600],
+                            fontStyle: FontStyle.italic,
+                          ),
                   ),
                   if (hasCoordinates) ...[
                     Gap.h4,
@@ -942,8 +1132,66 @@ class ActivityDetailScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _openUrl(String urlString) async {
+    final uri = Uri.tryParse(urlString);
+    if (uri == null) return;
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   Widget _buildFinanceSection(BuildContext context, Activity activity) {
-    final financeType = activity.financeType!;
+    final financeType = activity.financeType;
+    if (financeType == null) {
+      return Container(
+        padding: EdgeInsets.all(BaseSize.w12),
+        decoration: BoxDecoration(
+          color: BaseColor.neutral[50],
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          border: Border.all(color: BaseColor.neutral[200]!),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(BaseSize.w8),
+              decoration: BoxDecoration(
+                color: BaseColor.neutral[100],
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+              child: Icon(
+                AppIcons.wallet,
+                size: BaseSize.w20,
+                color: BaseColor.neutral[600],
+              ),
+            ),
+            Gap.w12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.section_financialRecord,
+                    style: BaseTypography.labelSmall.copyWith(
+                      color: BaseColor.neutral[600],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    context.l10n.lbl_na,
+                    style: BaseTypography.titleLarge.copyWith(
+                      color: BaseColor.neutral[700],
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final financeData = activity.financeData;
     final isRevenue = financeType == FinanceType.revenue;
     final color = isRevenue ? BaseColor.green : BaseColor.red;
@@ -1067,6 +1315,8 @@ class ActivityDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildNoteSection(BuildContext context, Activity activity) {
+    final note = activity.note?.trim();
+    final hasNote = note != null && note.isNotEmpty;
     return Container(
       decoration: BoxDecoration(
         color: BaseColor.yellow[50],
@@ -1113,11 +1363,17 @@ class ActivityDetailScreen extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.all(BaseSize.w12),
             child: Text(
-              activity.note!,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.yellow[900],
-                height: 1.5,
-              ),
+              hasNote ? note : context.l10n.lbl_na,
+              style: hasNote
+                  ? BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.yellow[900],
+                      height: 1.5,
+                    )
+                  : BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.neutral[600],
+                      height: 1.5,
+                      fontStyle: FontStyle.italic,
+                    ),
             ),
           ),
         ],
@@ -1133,6 +1389,26 @@ class ActivityDetailScreen extends ConsumerWidget {
     ActivityDetailState state,
   ) {
     final supervisorApproverRecord = state.supervisorApproverRecord;
+
+    if (activity.approvers.isEmpty) {
+      return _buildSectionCard(
+        title: context.l10n.section_approvalStatus,
+        icon: AppIcons.verified,
+        subtitle: context.l10n.msg_noApproversAssigned,
+        iconBgColor: BaseColor.green[50],
+        iconColor: BaseColor.green[600],
+        children: [
+          Text(
+            context.l10n.msg_noApproversAssigned,
+            style: BaseTypography.bodyMedium.copyWith(
+              color: BaseColor.neutral[600],
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
 
     return _buildSectionCard(
       title: context.l10n.section_approvalStatus,

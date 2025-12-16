@@ -68,18 +68,22 @@ class ReportRepository {
     }
   }
 
-  Future<Result<Report, Failure>> generateReport({required Map<String, dynamic> data}) async {
+  Future<Result<Report, Failure>> generateReport({
+    required Map<String, dynamic> data,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
       final response = await http.post<Map<String, dynamic>>(
-        Endpoints.reports,
+        Endpoints.generateReport,
         data: data,
       );
 
       final body = response.data;
       final Map<String, dynamic> json = body?['data'] ?? {};
       if (json.isEmpty) {
-        return Result.failure(Failure('Invalid generate report response payload'));
+        return Result.failure(
+          Failure('Invalid generate report response payload'),
+        );
       }
       return Result.success(Report.fromJson(json));
     } on DioException catch (e) {
@@ -105,13 +109,38 @@ class ReportRepository {
     }
   }
 
-  Future<Result<String, Failure>> downloadReport({required int reportId}) async {
+  Future<Result<String, Failure>> downloadReport({
+    required int reportId,
+  }) async {
     try {
       final http = _ref.read(httpServiceProvider);
-      final response = await http.get<String>(
-        '${Endpoints.report(reportId.toString())}/download',
+      final reportResponse = await http.get<Map<String, dynamic>>(
+        Endpoints.report(reportId.toString()),
       );
-      return Result.success(response.data ?? '');
+
+      final reportBody = reportResponse.data;
+      final Map<String, dynamic> reportJson = reportBody?['data'] ?? {};
+      if (reportJson.isEmpty) {
+        return Result.failure(Failure('Invalid report response payload'));
+      }
+
+      final report = Report.fromJson(reportJson);
+      final fileId = report.fileId;
+
+      final resolveResponse = await http.get<Map<String, dynamic>>(
+        Endpoints.fileManagerResolveDownloadUrl(fileId.toString()),
+      );
+
+      final resolveBody = resolveResponse.data ?? {};
+      final resolveData = resolveBody['data'];
+      if (resolveData is! Map<String, dynamic>) {
+        return Result.failure(Failure('Invalid resolve download url payload'));
+      }
+      final url = resolveData['url'];
+      if (url is! String || url.trim().isEmpty) {
+        return Result.failure(Failure('Invalid resolve download url response'));
+      }
+      return Result.success(url);
     } on DioException catch (e) {
       final error = ErrorMapper.fromDio(e, 'Failed to download report');
       return Result.failure(Failure(error.message, error.statusCode));
