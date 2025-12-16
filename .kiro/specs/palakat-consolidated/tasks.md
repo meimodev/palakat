@@ -19,6 +19,7 @@ This consolidated implementation plan combines all previous specs into a single 
 - Notification module with Pusher Beams integration
 - Approver module with full CRUD operations
 - All API endpoints for members, activities, approvals, finances, songs, documents, reports
+- Property tests: setup, generators, activity, approval, financial, notification tests
 
 **Shared Package (packages/palakat_shared)**:
 - All models with Freezed/JSON serialization
@@ -29,13 +30,14 @@ This consolidated implementation plan combines all previous specs into a single 
 - InterestBuilder utility for notification interests
 - All widgets consolidated from mobile and admin apps
 - Theme configuration and color system
+- PaymentMethod with localized displayName extension
 
 **Mobile App (apps/palakat)**:
 - Firebase Phone Authentication flow
 - Home, Dashboard, Operations screens
 - Activity creation with finance attachment
 - Approval workflow with status updates
-- Song book browsing and search
+- Song book browsing and search (with backend integration)
 - Church request submission
 - Push notification registration/unregistration
 - Permission flow with rationale bottom sheets
@@ -44,6 +46,7 @@ This consolidated implementation plan combines all previous specs into a single 
 - Supervised activities section
 - Settings screen with account/membership navigation
 - Sign out flow with confirmation dialog
+- Property tests: settings (Properties 1-6, 8), song book, approval, notification
 
 **Admin Panel (apps/palakat_admin)**:
 - Authentication flow
@@ -51,108 +54,166 @@ This consolidated implementation plan combines all previous specs into a single 
 - Activity management with filtering
 - Approval rule configuration (activity type, financial type, positions)
 - Financial account number management
-- Revenue and expense tracking
+- Revenue and expense tracking (with localized PaymentMethod)
 - Document and report management
 - Push notification registration
 - Multi-language support (COMPLETE)
 - Dashboard with statistics
+- Church management with columns and positions (COMPLETE)
 - All screens fully localized with Indonesian/English support
+
+**Property Tests (COMPLETED)**:
+- ✅ Property 1: ARB Key Parity (`packages/palakat_shared/test/l10n/arb_parity_test.dart`)
+- ✅ Property 4: Settings Navigation from Dashboard
+- ✅ Property 5: Sign Out Confirmation Display
+- ✅ Property 6: Sign Out Cleanup Execution
+- ✅ Property 8: Version Format Display
+- ✅ Property 17: Notification Channel Assignment
 
 ---
 
 ## REMAINING Tasks
 
-### 1. Admin Panel Localization - Final Tasks
+### 1. Admin Panel Localization - Property Tests
 
-- [ ] 1.1 Write property test for ARB key parity
-  - **Property 1: ARB Key Parity**
-  - **Validates: Requirements 19.1**
-
-- [ ] 1.2 Write property test for time pluralization
+- [ ] 1.1 Write property test for time pluralization
   - **Property 2: Time Pluralization Correctness**
-  - **Validates: Requirements 18.1, 18.3**
+  - **Validates: Requirements 1.3, 7.2**
+  - Test that pluralized time strings use correct plural forms based on value and locale
+  - Create test file: `packages/palakat_shared/test/l10n/time_pluralization_property_test.dart`
 
-- [ ] 1.3 Write property test for time unit selection
+- [ ] 1.2 Write property test for time unit selection
   - **Property 3: Time Unit Selection**
-  - **Validates: Requirements 18.1**
+  - **Validates: Requirements 1.3**
+  - Test that time durations select appropriate units (seconds → minutes → hours → days)
+  - Add to: `packages/palakat_shared/test/l10n/time_pluralization_property_test.dart`
 
-- [ ] 1.4 Update remaining screens with hardcoded strings
-  - [ ] 1.4.1 Update `activity_screen.dart` to use localized strings
-    - Replace hardcoded subtitle "Monitor and manage all church activity." with localized string
-  - [ ] 1.4.2 Update `expense_screen.dart` to use localized strings
-    - Replace hardcoded dropdown options 'Cash', 'Cashless' with localized strings
-    - Add missing page title and subtitle using localized strings
-  - [ ] 1.4.3 Verify all other screens are fully localized
+### 2. Settings Screen - Final Property Test
 
-- [ ] 1.5 Add missing localization keys to ARB files
-  - [ ] 1.5.1 Add missing payment method localization keys to `intl_en.arb`
-    - Add keys: `paymentMethod_cash`, `paymentMethod_cashless`
-  - [ ] 1.5.2 Add missing activity subtitle key to `intl_en.arb`
-    - Add key: `admin_activity_subtitle` with value "Monitor and manage all church activity."
-  - [ ] 1.5.3 Add missing expense screen keys to `intl_en.arb`
-    - Add keys: `admin_expense_title`, `admin_expense_subtitle`
-  - [ ] 1.5.4 Copy all new keys to `intl_id.arb` with Indonesian translations
-
-- [ ] 1.6 Regenerate localization files after adding new keys
-  - Run `melos run build:runner` to regenerate `app_localizations.dart` files
-  - Verify no errors in generated code
-
-### 2. Song Book Backend Integration (Mobile)
-
-- [ ] 2.1 Wire SongBookController to SongRepository for search
-- [ ] 2.2 Implement song detail fetching with complete data
-- [ ] 2.3 Add loading shimmer and error states
+- [ ] 2.1 Write property test for sign out navigation
+  - **Property 7: Sign Out Navigation**
+  - **Validates: Requirements 5.6**
+  - Test that successful sign out navigates to home screen
+  - Add to: `apps/palakat/test/features/settings/presentations/settings_property_test.dart`
 
 ### 3. Admin Panel Song Management
 
 - [ ] 3.1 Implement song list UI with data table and filtering
+  - Create `apps/palakat_admin/lib/features/song/presentation/screens/song_screen.dart`
+  - Add data table with columns: ID, Title, Book, Index
+  - Add filter by book type (NKB, NNBT, KJ, DSL)
+  - Add search functionality
+  - _Requirements: 3.1_
+
 - [ ] 3.2 Implement song form UI with dynamic parts
+  - Create `apps/palakat_admin/lib/features/song/presentation/widgets/song_form_drawer.dart`
+  - Form fields: title, subtitle, book, index
+  - Dynamic list for song parts (verse, chorus, bridge, etc.)
+  - Add/remove part functionality
+  - _Requirements: 3.2_
+
 - [ ] 3.3 Implement song state management with Riverpod
+  - Create `apps/palakat_admin/lib/features/song/application/song_controller.dart`
+  - CRUD operations via SongRepository
+  - Filtering and search state
+  - Loading and error states
+  - _Requirements: 3.3_
 
-### 4. Admin Panel Church Management Enhancement
+- [ ] 3.4 Write unit tests for song management
+  - Test song controller state transitions
+  - Test form validation
+  - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 4.1 Implement church list UI with data table
-- [ ] 4.2 Implement church form UI with location input
-- [ ] 4.3 Implement column management within church detail
+### 4. Backend Property-Based Tests
 
-### 5. Settings Screen - Final Tasks
+- [ ] 4.1 Write property test for authentication token lifecycle
+  - **Property 9: Authentication Token Lifecycle**
+  - **Validates: Requirements 6.1**
+  - Test JWT generation and validation
+  - Add to: `apps/palakat_backend/test/property/auth-token.property.spec.ts`
 
-- [ ] 5.1 Write property test - Sign out confirmation
-  - **Property 5: Sign out confirmation display**
-  - Test confirmation dialog appears on sign out tap
+- [ ] 4.2 Write property test for account lockout enforcement
+  - **Property 10: Account Lockout Enforcement**
+  - **Validates: Requirements 6.2**
+  - Test failed login attempt tracking and lockout
+  - Add to: `apps/palakat_backend/test/property/account-lockout.property.spec.ts`
 
-- [ ] 5.2 Write property test - Sign out navigation
-  - **Property 7: Sign out navigation**
-  - Test navigation to home after successful sign out
+- [ ] 4.3 Write property test for multi-church data isolation (CRITICAL)
+  - **Property 11: Multi-Church Data Isolation**
+  - **Validates: Requirements 6.3**
+  - Test that queries from Church A never return Church B data
+  - Add to: `apps/palakat_backend/test/property/multi-church-isolation.property.spec.ts`
 
-### 6. Property-Based Tests (Backend)
+- [ ] 4.4 Write property test for pagination correctness
+  - **Property 12: Pagination Correctness**
+  - **Validates: Requirements 6.4**
+  - Test page boundaries and data ordering
+  - Add to: `apps/palakat_backend/test/property/pagination.property.spec.ts`
 
-- [ ] 6.1 Authentication token lifecycle tests
-- [ ] 6.2 Account lockout enforcement tests
-- [ ] 6.3 Multi-church data isolation tests (CRITICAL)
-- [ ] 6.4 Pagination correctness tests
-- [ ] 6.5 Timestamp management tests
+- [ ] 4.5 Write property test for timestamp management
+  - **Property 13: Timestamp Management**
+  - **Validates: Requirements 6.5**
+  - Test UTC storage and consistent formatting
+  - Add to: `apps/palakat_backend/test/property/timestamp.property.spec.ts`
 
-### 7. Property-Based Tests (Frontend)
+### 5. Frontend Property-Based Tests
 
-- [ ] 7.1 Locale round-trip consistency
-- [ ] 7.2 Date/number formatting locale awareness
-- [ ] 7.3 Permission state persistence
-- [ ] 7.4 Notification channel assignment
+- [ ] 5.1 Write property test for locale round-trip consistency
+  - **Property 14: Locale Round-Trip Consistency**
+  - **Validates: Requirements 7.3**
+  - Test locale change L1 → L2 → L1 preserves state
+  - Add to: `packages/palakat_shared/test/l10n/locale_roundtrip_property_test.dart`
 
-### 8. Performance Optimization
+- [ ] 5.2 Write property test for date/number formatting locale awareness
+  - **Property 15: Date/Number Formatting Locale Awareness**
+  - **Validates: Requirements 7.4**
+  - Test formatted strings respect locale settings
+  - Add to: `packages/palakat_shared/test/core/utils/formatting_property_test.dart`
 
-- [ ] 8.1 Review and optimize Prisma queries
-- [ ] 8.2 Verify database indexes
-- [ ] 8.3 Implement lazy loading for activity lists
-- [ ] 8.4 Optimize image loading with caching
+- [ ] 5.3 Write property test for permission state persistence
+  - **Property 16: Permission State Persistence**
+  - **Validates: Requirements 7.5**
+  - Test permission state persists across app restarts
+  - Add to: `apps/palakat/test/features/notification/presentations/permission_persistence_property_test.dart`
 
-### 9. Final Testing Checkpoint
+### 6. Performance Optimization
 
-- [ ] 9.1 Run all property-based tests
-- [ ] 9.2 Run all unit tests
-- [ ] 9.3 Run integration tests
-- [ ] 9.4 Test on physical devices (Android/iOS)
+- [ ] 6.1 Review and optimize Prisma queries
+  - Analyze slow queries using Prisma query logging
+  - Add appropriate `select` and `include` clauses
+  - _Requirements: 8.3_
+
+- [ ] 6.2 Verify database indexes
+  - Review schema for missing indexes on frequently queried columns
+  - Add indexes for foreign keys and filter columns
+  - _Requirements: 8.3_
+
+- [ ] 6.3 Implement lazy loading for activity lists
+  - Add pagination to activity list screens
+  - Implement infinite scroll or load more button
+  - _Requirements: 8.1_
+
+- [ ] 6.4 Optimize image loading with caching
+  - Configure cached_network_image for all image widgets
+  - Set appropriate cache duration and size limits
+  - _Requirements: 8.2_
+
+### 7. Checkpoint - Ensure All Tests Pass
+
+- [ ] 7.1 Run all property-based tests
+  - Run `melos run test` for Flutter tests
+  - Run `pnpm run test:property` for backend tests
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 7.2 Run all unit tests
+  - Run `melos run test` for Flutter tests
+  - Run `pnpm run test` for backend tests
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 7.3 Run integration tests
+  - Run `pnpm run test:e2e` for backend e2e tests
+  - Test on physical devices (Android/iOS)
+  - _Requirements: All_
 
 ---
 
@@ -170,13 +231,7 @@ All admin panel screens have been fully localized with Indonesian/English suppor
 - ✅ Updated core layout, navigation, and authentication screens
 - ✅ Fixed import conflicts with Column widget
 - ✅ Regenerated localization files successfully
-
-**Key Localization Features:**
-- Complete Indonesian/English translation coverage
-- ICU pluralization for time-relative strings
-- Proper form validation messages
-- Localized tooltips, buttons, and dialog content
-- Responsive layout with localized text
+- ✅ PaymentMethod enum has localized displayName extension
 
 ### Settings Screen Implementation (COMPLETE)
 
@@ -187,14 +242,25 @@ All admin panel screens have been fully localized with Indonesian/English suppor
 - ✅ Version info display (app version and build number)
 - ✅ Push notification cleanup on sign out
 - ✅ Navigation from dashboard settings button
-- ✅ Property-based tests for core functionality
+- ✅ Property-based tests for core functionality (Properties 1-6, 8)
 
-**Settings Screen Components:**
-- Account settings navigation (when account exists)
-- Membership settings navigation (when membership exists)
-- Language selector (moved from AccountScreen)
-- Sign out confirmation with proper cleanup
-- Version display with format "Version X.Y.Z (Build N)"
+### Church Management (COMPLETE)
+
+**Completed Church Features:**
+- ✅ Church information display and editing
+- ✅ Location management with coordinates
+- ✅ Column management (create, edit, delete)
+- ✅ Position management (create, edit, delete)
+- ✅ All screens fully localized
+
+### Song Book Backend Integration (COMPLETE)
+
+**Completed Song Book Features:**
+- ✅ SongBookController with SongRepository integration
+- ✅ Song search via backend API
+- ✅ Category-based filtering
+- ✅ Loading and error states
+- ✅ Property tests for song book controller
 
 ### Push Notification System (COMPLETE)
 
@@ -206,12 +272,6 @@ All admin panel screens have been fully localized with Indonesian/English suppor
 - ✅ Proper cleanup on sign-out and re-initialization on sign-in
 - ✅ FCM token refresh handling (CRITICAL for reliability)
 
-**Push Notification Architecture:**
-- `PusherBeamsController` (keepAlive Riverpod controller)
-- `PusherBeamsMobileService` (low-level SDK wrapper)
-- `InAppNotificationService` (in-app banners)
-- `NotificationDisplayService` (system notifications)
-
 ---
 
 ## Notes
@@ -220,7 +280,7 @@ All admin panel screens have been fully localized with Indonesian/English suppor
 - Shared package has comprehensive models, services, and widgets
 - Mobile app has core features implemented including settings
 - Admin panel is fully localized and functional
-- Key remaining: Song backend integration, church management UI, property tests
+- Key remaining: Song management UI, property tests, performance optimization
 - Push notification system fully implemented with Pusher Beams
 - Multi-language support fully implemented (Indonesian/English)
 - Permission flow implemented with rationale and consequence dialogs
@@ -232,7 +292,7 @@ This spec consolidates and replaces:
 - `.kiro/specs/palakat-complete/` - Complete system implementation status
 - `.kiro/specs/settings-screen/` - Settings screen with navigation and sign out
 
-All requirements, design elements, and tasks from these specs have been merged into this comprehensive document. The individual spec folders can now be deleted after this consolidation is complete.
+All requirements, design elements, and tasks from these specs have been merged into this comprehensive document.
 
 ---
 
