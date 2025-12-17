@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { DocumentListQueryDto } from './dto/document-list.dto';
 

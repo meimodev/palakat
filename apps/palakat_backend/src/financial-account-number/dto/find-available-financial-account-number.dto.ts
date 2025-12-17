@@ -1,4 +1,4 @@
-import { FinancialType } from '@prisma/client';
+import { FinancialType } from '../../generated/prisma/client';
 import { IsEnum, IsInt, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 

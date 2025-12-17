@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AccountListQueryDto } from './dto/account-list.dto';
 import { AccountCountQueryDto } from './dto/account-count.dto';
 @Injectable()

@@ -11,7 +11,7 @@
  */
 
 import * as fc from 'fast-check';
-import { NotificationType } from '@prisma/client';
+import { NotificationType } from '../../src/generated/prisma/client';
 import { TEST_CONFIG } from './utils/test-helpers';
 import {
   notificationTitleArb,

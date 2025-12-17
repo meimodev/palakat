@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ColumnService } from './column.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ColumnListQueryDto } from './dto/column-list.dto';
 

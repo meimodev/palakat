@@ -1,4 +1,4 @@
-import { ApprovalStatus } from '@prisma/client';
+import { ApprovalStatus } from '../../generated/prisma/client';
 import { IsEnum } from 'class-validator';
 
 export class UpdateApproverDto {

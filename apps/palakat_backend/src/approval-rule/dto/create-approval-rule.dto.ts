@@ -1,4 +1,4 @@
-import { ActivityType, FinancialType } from '@prisma/client';
+import { ActivityType, FinancialType } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,

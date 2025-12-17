@@ -1,4 +1,4 @@
-import { Gender, MaritalStatus } from '@prisma/client';
+import { Gender, MaritalStatus } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,

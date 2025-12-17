@@ -10,8 +10,14 @@
  */
 
 import * as fc from 'fast-check';
-import { PrismaClient, NotificationType } from '@prisma/client';
-import { TEST_CONFIG } from './utils/test-helpers';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  PrismaClient,
+  NotificationType,
+} from '../../src/generated/prisma/client';
+import { TEST_CONFIG, getDatabasePostgresUrl } from './utils/test-helpers';
 import {
   notificationTitleArb,
   notificationBodyArb,
@@ -21,10 +27,16 @@ import {
 
 describe('Notification Persistence Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
   const createdNotificationIds: number[] = [];
 
   beforeAll(async () => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
     await prisma.$connect();
   });
 
@@ -36,6 +48,7 @@ describe('Notification Persistence Property Tests', () => {
       });
     }
     await prisma.$disconnect();
+    await pool.end();
   });
 
   /**

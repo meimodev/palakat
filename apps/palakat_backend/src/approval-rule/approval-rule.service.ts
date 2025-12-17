@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { FinancialType, Prisma } from '@prisma/client';
+import { FinancialType, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ApprovalRuleListQueryDto } from './dto/approval-rule-list.dto';
 import { CreateApprovalRuleDto } from './dto/create-approval-rule.dto';

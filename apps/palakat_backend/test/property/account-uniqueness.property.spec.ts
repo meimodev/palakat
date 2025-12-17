@@ -8,21 +8,31 @@
  * for phone numbers and email addresses across all accounts.
  */
 
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import { PrismaClient } from '../../src/generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as fc from 'fast-check';
 import * as generators from './generators';
-import { TEST_CONFIG } from './utils/test-helpers';
+import { TEST_CONFIG, getDatabasePostgresUrl } from './utils/test-helpers';
 
 describe('Account Uniqueness Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
 
   beforeAll(() => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
   });
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
 
   beforeEach(async () => {

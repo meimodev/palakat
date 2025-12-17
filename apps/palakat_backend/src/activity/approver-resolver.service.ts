@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ActivityType, FinancialType } from '@prisma/client';
+import { ActivityType, FinancialType } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 
 /**

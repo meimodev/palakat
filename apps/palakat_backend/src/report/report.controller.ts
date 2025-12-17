@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ReportListQueryDto } from './dto/report-list.dto';
 import { ReportGenerateDto } from './dto/report-generate.dto';

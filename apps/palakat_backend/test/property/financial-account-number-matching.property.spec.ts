@@ -11,7 +11,14 @@
  *   with that financial type
  */
 
-import { ActivityType, FinancialType, PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  ActivityType,
+  FinancialType,
+  PrismaClient,
+} from '../../src/generated/prisma/client';
 import * as fc from 'fast-check';
 import * as generators from './generators';
 import {
@@ -19,6 +26,7 @@ import {
   createTestAccount,
   createTestChurch,
   createTestMembership,
+  getDatabasePostgresUrl,
   generateTestId,
 } from './utils/test-helpers';
 import { ApproverResolverService } from '../../src/activity/approver-resolver.service';
@@ -26,17 +34,24 @@ import { PrismaService } from '../../src/prisma.service';
 
 describe('Financial Account Number Matching Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
   let prismaService: PrismaService;
   let approverResolverService: ApproverResolverService;
 
   beforeAll(() => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
     prismaService = prisma as unknown as PrismaService;
     approverResolverService = new ApproverResolverService(prismaService);
   });
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
 
   beforeEach(async () => {

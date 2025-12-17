@@ -1,4 +1,4 @@
-import { NotificationType } from '@prisma/client';
+import { NotificationType } from '../../generated/prisma/client';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 /**

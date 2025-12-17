@@ -1,3 +1,6 @@
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import {
   ActivityType,
   ApprovalStatus,
@@ -10,11 +13,21 @@ import {
   PaymentMethod,
   PrismaClient,
   Reminder,
-} from '@prisma/client';
+} from '../src/generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as process from 'node:process';
 
-const prisma = new PrismaClient();
+const connectionString =
+  process.env.DATABASE_POSTGRES_URL &&
+  !process.env.DATABASE_POSTGRES_URL.includes('${')
+    ? process.env.DATABASE_POSTGRES_URL
+    : `postgresql://${process.env.POSTGRES_USER || 'root'}:${process.env.POSTGRES_PASSWORD || 'password'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'database'}`;
+
+const pool = new Pool({
+  connectionString,
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 // ============================================================================
 // SEEDED RANDOM NUMBER GENERATOR
@@ -2113,4 +2126,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

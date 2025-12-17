@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { MembershipPositionService } from './membership-position.service';
 import { MembershipPositionListQueryDto } from './dto/membership-position-list.dto';

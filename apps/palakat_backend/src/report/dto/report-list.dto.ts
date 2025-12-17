@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';
-import { GeneratedBy } from '@prisma/client';
+import { GeneratedBy } from '../../generated/prisma/client';
 
 export class ReportListQueryDto extends PaginationQueryDto {
   @IsOptional()

@@ -1,4 +1,4 @@
-import { ApprovalStatus } from '@prisma/client';
+import { ApprovalStatus } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';

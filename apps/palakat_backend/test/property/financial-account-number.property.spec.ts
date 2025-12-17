@@ -7,9 +7,16 @@
  * FinancialAccountNumber CRUD operations.
  */
 
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import { PrismaClient } from '../../src/generated/prisma/client';
 import * as fc from 'fast-check';
-import { TEST_CONFIG, generateTestId } from './utils/test-helpers';
+import {
+  TEST_CONFIG,
+  generateTestId,
+  getDatabasePostgresUrl,
+} from './utils/test-helpers';
 
 // Generator for valid account numbers (6-20 digit strings)
 const financialAccountNumberArb = fc
@@ -23,11 +30,17 @@ const descriptionArb = fc.option(fc.string({ minLength: 1, maxLength: 200 }), {
 
 describe('Financial Account Number Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
   let testChurchId: number;
   const testPrefix = 'test_fan_prop_';
 
   beforeAll(async () => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
 
     // Create a test church for the property tests
     const testLocation = await prisma.location.create({
@@ -68,6 +81,7 @@ describe('Financial Account Number Property Tests', () => {
     }
 
     await prisma.$disconnect();
+    await pool.end();
   });
 
   afterEach(async () => {

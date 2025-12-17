@@ -8,7 +8,7 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { Controller, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { SongPartService } from './song-part.service';

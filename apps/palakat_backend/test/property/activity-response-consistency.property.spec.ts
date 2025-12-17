@@ -5,13 +5,17 @@
  * **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
  */
 
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import { PrismaClient } from '../../src/generated/prisma/client';
 import * as fc from 'fast-check';
 import {
   TEST_CONFIG,
   createTestAccount,
   createTestChurch,
   createTestMembership,
+  getDatabasePostgresUrl,
   generateTestId,
 } from './utils/test-helpers';
 import { ActivitiesService } from '../../src/activity/activity.service';
@@ -21,6 +25,7 @@ import { NotificationService } from '../../src/notification/notification.service
 
 describe('Activity Response Consistency Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
   let prismaService: PrismaService;
   let activitiesService: ActivitiesService;
   let approverResolverService: ApproverResolverService;
@@ -31,7 +36,12 @@ describe('Activity Response Consistency Property Tests', () => {
   const TEST_PREFIX = 'test_prop_arc_';
 
   beforeAll(async () => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
     prismaService = prisma as unknown as PrismaService;
     approverResolverService = new ApproverResolverService(prismaService);
     // Create a mock NotificationService that does nothing
@@ -48,6 +58,7 @@ describe('Activity Response Consistency Property Tests', () => {
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
 
   beforeEach(async () => {

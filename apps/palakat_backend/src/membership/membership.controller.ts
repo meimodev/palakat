@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { MembershipListQueryDto } from './dto/membership-list.dto';
 

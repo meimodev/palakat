@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { ActivityType } from '@prisma/client';
+import { ActivityType } from '../../generated/prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,

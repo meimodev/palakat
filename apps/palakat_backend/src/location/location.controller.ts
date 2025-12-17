@@ -10,7 +10,7 @@ import {
   Controller,
   UseGuards,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { LocationService } from './location.service';
 import { LocationListQueryDto } from './dto/location-list.dto';

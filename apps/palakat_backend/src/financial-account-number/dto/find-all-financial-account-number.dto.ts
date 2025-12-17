@@ -1,4 +1,4 @@
-import { FinancialType } from '@prisma/client';
+import { FinancialType } from '../../generated/prisma/client';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';

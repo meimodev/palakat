@@ -2,12 +2,31 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaClient, Gender, MaritalStatus } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  PrismaClient,
+  Gender,
+  MaritalStatus,
+} from '../src/generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
-  const prisma = new PrismaClient();
+
+  const connectionString =
+    process.env.DATABASE_POSTGRES_URL &&
+    !process.env.DATABASE_POSTGRES_URL.includes('${')
+      ? process.env.DATABASE_POSTGRES_URL
+      : `postgresql://${process.env.POSTGRES_USER || 'root'}:${process.env.POSTGRES_PASSWORD || 'password'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'database'}`;
+
+  const pool = new Pool({
+    connectionString,
+    allowExitOnIdle: true,
+  });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
 
   const password = 'Password123!';
   let passwordHash: string;
@@ -69,6 +88,7 @@ describe('Auth (e2e)', () => {
   afterAll(async () => {
     await app.close();
     await prisma.$disconnect();
+    await pool.end();
   });
 
   it('POST /auth/sign-in with email identifier succeeds', async () => {

@@ -1,4 +1,4 @@
-import { ActivityType, Bipra, PaymentMethod, Reminder } from '@prisma/client';
+import { ActivityType, Bipra, PaymentMethod, Reminder } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,

@@ -355,6 +355,13 @@ setup_database() {
 
     cd "$BACKEND_DIR"
 
+    # Load environment variables for Prisma commands
+    if [ -f "$BACKEND_DIR/.env" ]; then
+        set -a
+        source "$BACKEND_DIR/.env"
+        set +a
+    fi
+
     # Check if pnpm is installed
     if ! command -v pnpm &> /dev/null; then
         print_error "pnpm is not installed"
@@ -362,8 +369,21 @@ setup_database() {
         exit 1
     fi
 
-    # Install dependencies if node_modules doesn't exist
+    # Install dependencies if node_modules doesn't exist or Prisma is outdated
+    NEEDS_INSTALL=false
+
     if [ ! -d "node_modules" ]; then
+        NEEDS_INSTALL=true
+    else
+        INSTALLED_PRISMA_VERSION=$(node -p "require('./node_modules/prisma/package.json').version" 2>/dev/null || echo "")
+        INSTALLED_PRISMA_MAJOR=${INSTALLED_PRISMA_VERSION%%.*}
+
+        if [ -z "$INSTALLED_PRISMA_VERSION" ] || [ -z "$INSTALLED_PRISMA_MAJOR" ] || [ "$INSTALLED_PRISMA_MAJOR" -lt 7 ]; then
+            NEEDS_INSTALL=true
+        fi
+    fi
+
+    if [ "$NEEDS_INSTALL" = true ]; then
         print_info "Installing dependencies (including Prisma 7)..."
         pnpm install
     fi

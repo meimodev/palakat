@@ -1,6 +1,6 @@
 import { Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
-import { Prisma } from '@prisma/client';
+import { Prisma } from './generated/prisma/client';
 
 @Catch()
 export class PrismaExceptionFilter extends BaseExceptionFilter {

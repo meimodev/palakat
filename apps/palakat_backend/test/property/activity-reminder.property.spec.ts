@@ -7,14 +7,23 @@
  * feature, including persistence, validation, and retrieval of reminder values.
  */
 
-import { ActivityType, Bipra, PrismaClient, Reminder } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  ActivityType,
+  Bipra,
+  PrismaClient,
+  Reminder,
+} from '../../src/generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as fc from 'fast-check';
 import * as generators from './generators';
-import { TEST_CONFIG } from './utils/test-helpers';
+import { TEST_CONFIG, getDatabasePostgresUrl } from './utils/test-helpers';
 
 describe('Activity Reminder Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
   let testChurchId: number;
   let testMembershipId: number;
   let testAccountId: number;
@@ -23,7 +32,12 @@ describe('Activity Reminder Property Tests', () => {
   const TEST_PREFIX = 'test_reminder_';
 
   beforeAll(async () => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
 
     // Create test location
     const location = await prisma.location.create({
@@ -89,6 +103,7 @@ describe('Activity Reminder Property Tests', () => {
       where: { id: testLocationId },
     });
     await prisma.$disconnect();
+    await pool.end();
   });
 
   afterEach(async () => {

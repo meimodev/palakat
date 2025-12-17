@@ -1,4 +1,4 @@
-import { FinancialType } from '@prisma/client';
+import { FinancialType } from '../../generated/prisma/client';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateFinancialAccountNumberDto {

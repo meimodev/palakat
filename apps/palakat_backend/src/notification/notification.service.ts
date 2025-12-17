@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationListQueryDto } from './dto/notification-list.dto';
 import { PusherBeamsService } from './pusher-beams.service';
-import { NotificationType } from '@prisma/client';
+import { NotificationType } from '../generated/prisma/client';
 
 /**
  * Interface representing an activity with relations needed for notifications

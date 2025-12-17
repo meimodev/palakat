@@ -10,7 +10,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApproverService } from './approver.service';
 import { PrismaService } from '../prisma.service';
 import { NotificationService } from '../notification/notification.service';
-import { ApprovalStatus } from '@prisma/client';
+import { ApprovalStatus } from '../generated/prisma/client';
 
 describe('ApproverService', () => {
   let service: ApproverService;

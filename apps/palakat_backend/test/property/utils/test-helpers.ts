@@ -5,8 +5,30 @@
  * test data in property-based tests.
  */
 
-import { Gender, MaritalStatus, PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  Gender,
+  MaritalStatus,
+  PrismaClient,
+} from '../../../src/generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
+
+export function getDatabasePostgresUrl(): string {
+  const raw = process.env.DATABASE_POSTGRES_URL;
+  if (raw && !raw.includes('${')) {
+    return raw;
+  }
+
+  const host = process.env.POSTGRES_HOST || 'localhost';
+  const port = process.env.POSTGRES_PORT || '5432';
+  const user = process.env.POSTGRES_USER || 'root';
+  const password = process.env.POSTGRES_PASSWORD || 'password';
+  const db = process.env.POSTGRES_DB || 'database';
+
+  return `postgresql://${user}:${password}@${host}:${port}/${db}`;
+}
 
 // Default test configuration
 export const TEST_CONFIG = {
@@ -24,7 +46,12 @@ export const TEST_CONFIG = {
  * Creates a test Prisma client instance
  */
 export function createTestPrismaClient(): PrismaClient {
-  return new PrismaClient();
+  const pool = new Pool({
+    connectionString: getDatabasePostgresUrl(),
+    allowExitOnIdle: true,
+  });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
 }
 
 /**

@@ -14,7 +14,7 @@ import {
   // Delete,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AccountListQueryDto } from './dto/account-list.dto';

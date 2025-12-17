@@ -8,7 +8,14 @@
  * based on active approval rules matching the activity type and BIPRA.
  */
 
-import { ActivityType, Bipra, PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+import {
+  ActivityType,
+  Bipra,
+  PrismaClient,
+} from '../../src/generated/prisma/client';
 import * as fc from 'fast-check';
 import * as generators from './generators';
 import {
@@ -16,18 +23,26 @@ import {
   createTestAccount,
   createTestChurch,
   createTestMembership,
+  getDatabasePostgresUrl,
   generateTestId,
 } from './utils/test-helpers';
 
 describe('Automatic Approver Assignment Property Tests', () => {
   let prisma: PrismaClient;
+  let pool: Pool;
 
   beforeAll(() => {
-    prisma = new PrismaClient();
+    pool = new Pool({
+      connectionString: getDatabasePostgresUrl(),
+      allowExitOnIdle: true,
+    });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter });
   });
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
 
   beforeEach(async () => {

@@ -11,7 +11,7 @@
  */
 
 import * as fc from 'fast-check';
-import { NotificationType, ApprovalStatus } from '@prisma/client';
+import { NotificationType, ApprovalStatus } from '../../src/generated/prisma/client';
 import { TEST_CONFIG } from './utils/test-helpers';
 import {
   bipraArb,
