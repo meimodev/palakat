@@ -100,6 +100,8 @@ model Account {
   updatedAt             DateTime       @updatedAt
   membership            Membership?
   churchRequest         ChurchRequest?
+  articles              Article[]
+  articleLikes          ArticleLike[]
 }
 
 model ApprovalRule {
@@ -306,6 +308,17 @@ enum NotificationType {
   APPROVAL_REJECTED
 }
 
+enum ArticleType {
+  PREACHING_MATERIAL
+  GAME_INSTRUCTION
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum GeneratedBy {
   MANUAL
   SYSTEM
@@ -419,4 +432,38 @@ model Notification {
   @@index([type])
   @@index([activityId])
   @@index([createdAt])
+}
+
+model Article {
+  id            Int           @id @default(autoincrement())
+  type          ArticleType
+  status        ArticleStatus @default(DRAFT)
+  title         String
+  slug          String        @unique
+  excerpt       String?
+  content       String
+  coverImageUrl String?
+  publishedAt   DateTime?
+  likesCount    Int           @default(0)
+  authorId      Int?
+  author        Account?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  likes         ArticleLike[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([type])
+}
+
+model ArticleLike {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  accountId Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, accountId])
+  @@index([articleId])
+  @@index([accountId])
 }

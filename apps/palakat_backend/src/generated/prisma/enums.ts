@@ -109,6 +109,23 @@ export const NotificationType = {
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
 
 
+export const ArticleType = {
+  PREACHING_MATERIAL: 'PREACHING_MATERIAL',
+  GAME_INSTRUCTION: 'GAME_INSTRUCTION'
+} as const
+
+export type ArticleType = (typeof ArticleType)[keyof typeof ArticleType]
+
+
+export const ArticleStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ArticleStatus = (typeof ArticleStatus)[keyof typeof ArticleStatus]
+
+
 export const GeneratedBy = {
   MANUAL: 'MANUAL',
   SYSTEM: 'SYSTEM'

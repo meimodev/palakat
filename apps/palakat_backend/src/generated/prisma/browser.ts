@@ -112,3 +112,13 @@ export type FinancialAccountNumber = Prisma.FinancialAccountNumberModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model Article
+ * 
+ */
+export type Article = Prisma.ArticleModel
+/**
+ * Model ArticleLike
+ * 
+ */
+export type ArticleLike = Prisma.ArticleLikeModel

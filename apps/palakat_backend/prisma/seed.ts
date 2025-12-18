@@ -566,6 +566,8 @@ async function cleanDatabase() {
   // Use type assertion to handle Prisma client types that may not be regenerated yet
   const p = prisma as any;
   await prisma.$transaction([
+    p.articleLike.deleteMany(),
+    p.article.deleteMany(),
     prisma.approver.deleteMany(),
     prisma.revenue.deleteMany(),
     prisma.expense.deleteMany(),
@@ -586,6 +588,70 @@ async function cleanDatabase() {
     prisma.location.deleteMany(),
   ]);
   console.log('✅ Database cleaned');
+}
+
+async function seedArticles() {
+  const p = prisma as any;
+
+  const now = new Date();
+  const items: any[] = [
+    {
+      type: 'PREACHING_MATERIAL',
+      status: 'PUBLISHED',
+      title: 'Renungan: Mengampuni Seperti Kristus',
+      slug: 'renungan-mengampuni-seperti-kristus',
+      excerpt:
+        'Bahan khotbah singkat tentang pengampunan dalam kehidupan sehari-hari.',
+      content:
+        '# Mengampuni Seperti Kristus\n\n## Pokok\n- Mengampuni bukan berarti melupakan\n- Mengampuni adalah ketaatan\n\n## Aplikasi\nTuliskan satu langkah nyata minggu ini.',
+      publishedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+    },
+    {
+      type: 'PREACHING_MATERIAL',
+      status: 'PUBLISHED',
+      title: 'Renungan: Berjalan Dalam Iman',
+      slug: 'renungan-berjalan-dalam-iman',
+      excerpt: 'Ringkasan bahan untuk memandu kelompok kecil.',
+      content:
+        '# Berjalan Dalam Iman\n\nBacaan: Ibrani 11\n\n- Apa itu iman?\n- Mengapa iman penting?\n\n## Diskusi\n1. Apa tantanganmu saat ini?',
+      publishedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+    },
+    {
+      type: 'GAME_INSTRUCTION',
+      status: 'PUBLISHED',
+      title: 'Instruksi Game: Tebak Ayat',
+      slug: 'instruksi-game-tebak-ayat',
+      excerpt: 'Cara bermain game tebak ayat untuk kelompok pemuda.',
+      content:
+        '# Tebak Ayat\n\n## Tujuan\nMengenal firman melalui permainan.\n\n## Aturan\n1. Moderator membacakan potongan ayat\n2. Peserta menebak kitab/pasal/ayat\n3. Skor 10 poin untuk jawaban tepat',
+      publishedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+    },
+    {
+      type: 'GAME_INSTRUCTION',
+      status: 'DRAFT',
+      title: 'Instruksi Game: Bible Bingo',
+      slug: 'instruksi-game-bible-bingo',
+      excerpt: 'Draft panduan Bible Bingo.',
+      content:
+        '# Bible Bingo\n\nDraft panduan. Lengkapi aturan dan contoh kartu.',
+      publishedAt: null,
+    },
+  ];
+
+  for (const item of items) {
+    await p.article.create({
+      data: {
+        type: item.type,
+        status: item.status,
+        title: item.title,
+        slug: item.slug,
+        excerpt: item.excerpt,
+        content: item.content,
+        coverImageUrl: null,
+        publishedAt: item.publishedAt,
+      },
+    });
+  }
 }
 
 async function seedMainAccounts(passwordHash: string) {
@@ -2097,6 +2163,8 @@ async function main() {
 
     // Create songs
     await seedSongs();
+
+    await seedArticles();
 
     // Create files, reports, and documents
     const filesByChurch = await seedFiles(mainChurches);
