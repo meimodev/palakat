@@ -11,6 +11,7 @@ export class FirebaseAdminService {
 
   constructor() {
     this.testMode = process.env.NODE_ENV === 'test';
+    const isProduction = process.env.NODE_ENV === 'production';
     const existing = getApps()?.[0];
     if (existing) {
       this.app = existing;
@@ -23,7 +24,7 @@ export class FirebaseAdminService {
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
     if (!projectId || !clientEmail || !privateKey) {
-      if (this.testMode) {
+      if (this.testMode || !isProduction) {
         this.configured = false;
         return;
       }
@@ -42,6 +43,10 @@ export class FirebaseAdminService {
     });
 
     this.configured = true;
+  }
+
+  isConfigured(): boolean {
+    return this.configured;
   }
 
   auth(): Auth {

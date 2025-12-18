@@ -16,6 +16,7 @@ import { PrismaExceptionFilter } from './exception.filter';
 import { ExpenseModule } from './expense/expense.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { FileModule } from './file/file.module';
+import { ArticleModule } from './article/article.module';
 import { FinancialAccountNumberModule } from './financial-account-number/financial-account-number.module';
 import { LocationModule } from './location/location.module';
 import { MembershipPositionModule } from './membership-position/membership-position.module';
@@ -48,6 +49,7 @@ import { SongModule } from './song/song.module';
     FileModule,
     ReportModule,
     DocumentModule,
+    ArticleModule,
     ApprovalRuleModule,
     ChurchRequestModule,
     FinancialAccountNumberModule,
