@@ -6,6 +6,10 @@ class Endpoints {
   static const String signOut = '/auth/sign-out';
   static const String syncClaims = '/auth/sync-claims';
 
+  static const String articles = '/articles';
+  static String article(int articleId) => '/articles/$articleId';
+  static String articleLike(int articleId) => '/articles/$articleId/like';
+
   static const String churches = '/church';
   static String church({required int churchId}) => '/church/$churchId';
 

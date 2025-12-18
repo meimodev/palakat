@@ -6,3 +6,4 @@ export 'operations_routing.dart';
 export 'settings_routing.dart';
 export 'song_routing.dart';
 export 'approval_routing.dart';
+export 'articles_routing.dart';

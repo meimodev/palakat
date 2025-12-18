@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations_en.dart';
 // import 'package:palakat/core/routing/app_routing.dart';
 // import 'package:palakat/core/widgets/widgets.dart';
 
@@ -11,7 +12,8 @@ extension XBuildContext on BuildContext {
   /// Usage: `context.l10n.appTitle`
   ///
   /// Requirements: 3.1
-  AppLocalizations get l10n => AppLocalizations.of(this)!;
+  AppLocalizations get l10n =>
+      AppLocalizations.of(this) ?? AppLocalizationsEn();
   // void navigateToHome(WidgetRef ref) {
   //   goNamed(AppRoute.home);
   //   ref.read(bottomNavBarProvider.notifier).navigateToHome();

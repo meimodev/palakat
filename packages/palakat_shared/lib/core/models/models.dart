@@ -4,6 +4,7 @@ library;
 // Domain models
 export 'account.dart';
 export 'activity.dart';
+export 'article.dart';
 // Generic models
 export 'app_error.dart';
 export 'approval_rule.dart';

@@ -47,6 +47,13 @@ export 'publishing/presentations/widgets/widgets.dart';
 export 'song_book/presentations/song_book_controller.dart';
 export 'song_book/presentations/song_book_screen.dart';
 export 'song_book/presentations/song_book_state.dart';
+// Articles
+export 'articles/presentations/articles_list/articles_list_controller.dart';
+export 'articles/presentations/articles_list/articles_list_screen.dart';
+export 'articles/presentations/articles_list/articles_list_state.dart';
+export 'articles/presentations/article_detail/article_detail_controller.dart';
+export 'articles/presentations/article_detail/article_detail_screen.dart';
+export 'articles/presentations/article_detail/article_detail_state.dart';
 //Settings
 export 'settings/presentations/settings_controller.dart';
 export 'settings/presentations/settings_screen.dart';

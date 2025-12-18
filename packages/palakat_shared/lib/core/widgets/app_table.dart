@@ -567,7 +567,8 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
   TextEditingController? _internalSearchController;
 
   TextEditingController get _searchController {
-    return widget.config.searchController ?? _internalSearchController!;
+    return widget.config.searchController ??
+        (_internalSearchController ??= TextEditingController());
   }
 
   @override
@@ -577,6 +578,24 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     if (widget.config.searchController == null &&
         widget.config.searchHint != null) {
       _internalSearchController = TextEditingController();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _BuiltInFiltersBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final shouldUseInternal =
+        widget.config.searchController == null &&
+        widget.config.searchHint != null;
+
+    if (shouldUseInternal && _internalSearchController == null) {
+      _internalSearchController = TextEditingController();
+    }
+
+    if (!shouldUseInternal && _internalSearchController != null) {
+      _internalSearchController?.dispose();
+      _internalSearchController = null;
     }
   }
 

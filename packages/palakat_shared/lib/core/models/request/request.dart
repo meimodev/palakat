@@ -4,6 +4,7 @@ export 'create_revenue_request.dart';
 export 'get_fetch_accounts_count_request.dart';
 export 'get_fetch_accounts_request.dart';
 export 'get_fetch_activity_request.dart';
+export 'get_fetch_articles_request.dart';
 export 'get_fetch_approval_rules_request.dart';
 export 'get_fetch_churches_request.dart';
 export 'get_fetch_columns_request.dart';

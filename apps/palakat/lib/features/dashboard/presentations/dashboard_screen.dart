@@ -35,22 +35,41 @@ class DashboardScreen extends ConsumerWidget {
                   letterSpacing: -0.5,
                 ),
               ),
-              if (state.account != null)
-                IconButton(
-                  onPressed: () => context.pushNamed(AppRoute.settings),
-                  icon: FaIcon(
-                    AppIcons.settings,
-                    size: BaseSize.w24,
-                    color: BaseColor.primary[600],
-                  ),
-                  tooltip: context.l10n.settings_title,
-                  style: IconButton.styleFrom(
-                    backgroundColor: BaseColor.primary[50],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pushNamed(AppRoute.articles),
+                    icon: FaIcon(
+                      AppIcons.article,
+                      size: BaseSize.w24,
+                      color: BaseColor.primary[600],
+                    ),
+                    tooltip: 'Articles',
+                    style: IconButton.styleFrom(
+                      backgroundColor: BaseColor.primary[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                ),
+                  if (state.account != null)
+                    IconButton(
+                      onPressed: () => context.pushNamed(AppRoute.settings),
+                      icon: FaIcon(
+                        AppIcons.settings,
+                        size: BaseSize.w24,
+                        color: BaseColor.primary[600],
+                      ),
+                      tooltip: context.l10n.settings_title,
+                      style: IconButton.styleFrom(
+                        backgroundColor: BaseColor.primary[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
           // Notification permission banner - Requirements: 6.2, 6.3

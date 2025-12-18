@@ -34,6 +34,22 @@ enum ActivityType {
   announcement,
 }
 
+enum ArticleType {
+  @JsonValue('PREACHING_MATERIAL')
+  preachingMaterial,
+  @JsonValue('GAME_INSTRUCTION')
+  gameInstruction,
+}
+
+enum ArticleStatus {
+  @JsonValue('DRAFT')
+  draft,
+  @JsonValue('PUBLISHED')
+  published,
+  @JsonValue('ARCHIVED')
+  archived,
+}
+
 @JsonEnum(valueField: 'abv')
 enum Bipra {
   elder("Lanjut Usia", "ELD"),

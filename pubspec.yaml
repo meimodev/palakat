@@ -8,6 +8,7 @@ environment:
 workspace:
   - apps/palakat
   - apps/palakat_admin
+  - apps/palakat_super_admin
   - packages/palakat_shared
 
 dev_dependencies:

@@ -50,6 +50,10 @@ class AppRoute {
   // approvals
   static const String approvals = 'approvals';
   static const String approvalDetail = 'approval-detail';
+
+  // articles
+  static const String articles = 'articles';
+  static const String articleDetail = 'article-detail';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -71,6 +75,7 @@ GoRouter goRouter(Ref ref) {
       ),
       authenticationRouting,
       dashboardRouting,
+      articlesRouting,
       songRouting,
       operationsRouting,
       approvalRouting,

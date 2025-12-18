@@ -2,6 +2,7 @@
 library;
 
 export 'activity_repository.dart';
+export 'article_repository.dart';
 export 'approval_repository.dart';
 export 'approver_repository.dart';
 export 'auth_repository.dart';

@@ -294,7 +294,9 @@ wait_for_postgres() {
 
     # Source the .env file to get database credentials
     if [ -f "$BACKEND_DIR/.env" ]; then
-        export $(cat "$BACKEND_DIR/.env" | grep -v '^#' | xargs)
+        set -a
+        source "$BACKEND_DIR/.env"
+        set +a
     fi
 
     POSTGRES_HOST=${POSTGRES_HOST:-localhost}

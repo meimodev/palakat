@@ -1,8 +1,7 @@
 name: palakat_monorepo
 
 packages:
-  - apps/palakat/**
-  - apps/palakat_admin/**
+  - apps/*
   - packages/*
 
 scripts:
