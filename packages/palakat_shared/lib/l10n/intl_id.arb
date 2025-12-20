@@ -74,11 +74,39 @@
   "@nav_songs": {
     "description": "Navigation label for songs"
   },
+  "nav_articles": "Artikel",
+  "@nav_articles": {
+    "description": "Navigation label for articles"
+  },
   "songBook_title": "Buku Lagu",
   "songBook_categoriesTitle": "Kategori Lagu",
   "songBook_searchHint": "Cari judul atau nomor lagu",
   "songBook_emptyTitle": "Tidak ada lagu ditemukan",
   "songBook_emptySubtitle": "Coba cari dengan kata kunci lain",
+  "articles_title": "Artikel",
+  "@articles_title": {
+    "description": "Title for articles list screen"
+  },
+  "article_titleFallback": "Artikel",
+  "@article_titleFallback": {
+    "description": "Fallback title for article detail when article title is not available"
+  },
+  "article_likesCount": "{count, plural, =0{0 suka} =1{1 suka} other{{count} suka}}",
+  "@article_likesCount": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "articleType_preachingMaterial": "Bahan Khotbah",
+  "@articleType_preachingMaterial": {
+    "description": "Label for ArticleType.preachingMaterial"
+  },
+  "articleType_gameInstruction": "Petunjuk Permainan",
+  "@articleType_gameInstruction": {
+    "description": "Label for ArticleType.gameInstruction"
+  },
   "map_selectLocationTitle": "Pilih Lokasi",
   "map_confirmLocation": "Konfirmasi Lokasi",
   "map_locationAccessError": "Tidak dapat mengakses lokasi. Periksa izin lokasi.",
@@ -806,7 +834,7 @@
   },
   "auth_resendIn": "Kirim ulang dalam {seconds} detik",
 
-  "dashboard_title": "Dasbor",
+  "dashboard_title": "Beranda",
   "@dashboard_title": {
     "description": "Dashboard title"
   },
@@ -2832,6 +2860,14 @@
   "msg_signInAgain": "Silakan masuk kembali",
   "@msg_signInAgain": {
     "description": "Error hint for unauthorized"
+  },
+  "unauthorized_signInRequired_title": "Perlu masuk",
+  "@unauthorized_signInRequired_title": {
+    "description": "Title for bottom sheet shown when a feature requires the user to sign in"
+  },
+  "unauthorized_signInRequired_message": "Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.",
+  "@unauthorized_signInRequired_message": {
+    "description": "Message for bottom sheet shown when a feature requires the user to sign in"
   },
   "msg_insufficientPermissions": "Izin tidak mencukupi",
   "@msg_insufficientPermissions": {

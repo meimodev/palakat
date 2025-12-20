@@ -907,12 +907,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/song?page=1&limit=10&book=NKB",
+              "raw": "{{baseUrl}}/public/songs?page=1&pageSize=10&book=NKB",
               "host": ["{{baseUrl}}"],
-              "path": ["song"],
+              "path": ["public", "songs"],
               "query": [
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
+                { "key": "pageSize", "value": "10" },
                 { "key": "book", "value": "NKB" }
               ]
             }
@@ -923,7 +923,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/song/1"
+            "url": "{{baseUrl}}/public/songs/1"
           }
         },
         {
@@ -935,7 +935,7 @@
               "mode": "raw",
               "raw": "{\n    \"title\": \"Sample Hymn\",\n    \"index\": 1,\n    \"book\": \"NKB\",\n    \"link\": \"https://example.com/song/1\"\n}"
             },
-            "url": "{{baseUrl}}/song"
+            "url": "{{baseUrl}}/admin/songs"
           }
         },
         {
@@ -947,7 +947,7 @@
               "mode": "raw",
               "raw": "{\n    \"title\": \"Updated Hymn Title\"\n}"
             },
-            "url": "{{baseUrl}}/song/1"
+            "url": "{{baseUrl}}/admin/songs/1"
           }
         },
         {
@@ -955,7 +955,7 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": "{{baseUrl}}/song/1"
+            "url": "{{baseUrl}}/admin/songs/1"
           }
         }
       ]
@@ -969,13 +969,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/song-part?songId=1&page=1&limit=10",
+              "raw": "{{baseUrl}}/admin/song-parts?songId=1&page=1&pageSize=10",
               "host": ["{{baseUrl}}"],
-              "path": ["song-part"],
+              "path": ["admin", "song-parts"],
               "query": [
                 { "key": "songId", "value": "1" },
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" }
+                { "key": "pageSize", "value": "10" }
               ]
             }
           }
@@ -985,7 +985,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/song-part/1"
+            "url": "{{baseUrl}}/admin/song-parts/1"
           }
         },
         {
@@ -997,7 +997,7 @@
               "mode": "raw",
               "raw": "{\n    \"index\": 1,\n    \"name\": \"Verse 1\",\n    \"content\": \"First verse lyrics here...\",\n    \"song\": {\n        \"connect\": { \"id\": 1 }\n    }\n}"
             },
-            "url": "{{baseUrl}}/song-part"
+            "url": "{{baseUrl}}/admin/song-parts"
           }
         },
         {
@@ -1009,7 +1009,7 @@
               "mode": "raw",
               "raw": "{\n    \"content\": \"Updated verse lyrics...\"\n}"
             },
-            "url": "{{baseUrl}}/song-part/1"
+            "url": "{{baseUrl}}/admin/song-parts/1"
           }
         },
         {
@@ -1017,7 +1017,7 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": "{{baseUrl}}/song-part/1"
+            "url": "{{baseUrl}}/admin/song-parts/1"
           }
         }
       ]

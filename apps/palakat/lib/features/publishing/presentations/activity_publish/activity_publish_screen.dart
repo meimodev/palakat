@@ -1564,6 +1564,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   }
 
   void _showSnackBar(String message) {
+    if (message.trim().isEmpty) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );

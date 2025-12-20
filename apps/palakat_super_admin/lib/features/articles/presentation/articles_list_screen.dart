@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 import '../application/articles_controller.dart';
 import '../data/article_model.dart';
+
+String _formatDate(DateTime? value) {
+  if (value == null) return '-';
+  return DateFormat('d MMM yyyy').format(value.toLocal());
+}
 
 class _ArticleTypeOption {
   const _ArticleTypeOption({
@@ -61,7 +67,7 @@ class ArticlesListScreen extends ConsumerWidget {
     final asyncItems = state.items;
     final items = asyncItems.asData?.value;
 
-    return Column(
+    final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text('Articles', style: Theme.of(context).textTheme.headlineMedium),
@@ -166,7 +172,7 @@ class ArticlesListScreen extends ConsumerWidget {
                 title: 'Published',
                 flex: 2,
                 cellBuilder: (context, row) => Text(
-                  row.publishedAt?.toIso8601String() ?? '-',
+                  _formatDate(row.publishedAt),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -175,7 +181,7 @@ class ArticlesListScreen extends ConsumerWidget {
                 title: 'Updated',
                 flex: 2,
                 cellBuilder: (context, row) => Text(
-                  row.updatedAt?.toIso8601String() ?? '-',
+                  _formatDate(row.updatedAt),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -191,6 +197,15 @@ class ArticlesListScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.hasBoundedHeight) {
+          return SingleChildScrollView(child: content);
+        }
+        return content;
+      },
     );
   }
 }

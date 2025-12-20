@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -78,10 +77,6 @@ export class ArticleAdminController {
 
   @Delete(':id')
   async archive(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    const user = req.user;
-    if (!user?.clientId) {
-      throw new BadRequestException('Client token required');
-    }
-    return this.articleService.archive(id, user);
+    return this.articleService.archive(id, req.user);
   }
 }

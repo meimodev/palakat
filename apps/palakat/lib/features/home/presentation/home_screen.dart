@@ -107,6 +107,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     final controller = ref.read(homeControllerProvider.notifier);
     final state = ref.watch(homeControllerProvider);
+    final localStorage = ref.watch(localStorageServiceProvider);
+    final hasAuth = localStorage.currentAuth?.account != null;
+
+    final allowedIndices = hasAuth ? const [0, 1, 2, 3, 4] : const [0, 1, 4];
+    if (!allowedIndices.contains(state.selectedBottomNavIndex)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.navigateTo(0);
+      });
+    }
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -154,6 +163,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   SongBookScreen(),
                   OperationsScreen(),
                   ApprovalScreen(),
+                  ArticlesListScreen(),
                 ],
               ),
             ),

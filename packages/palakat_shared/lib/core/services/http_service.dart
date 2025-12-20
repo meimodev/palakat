@@ -87,12 +87,19 @@ class HttpService {
           // 401 handling with refresh
           final status = error.response?.statusCode ?? 0;
           final isUnauthorized = status == 401;
+          final unauthorizedAlreadyHandled =
+              error.requestOptions.extra['__unauthorized_handled__'] == true;
           final alreadyRetried =
               error.requestOptions.extra['__retried__'] == true;
           // Determine if the failing request is the sign-in route; if so, do NOT attempt refresh
           final requestPath = error.requestOptions.path;
           final isSignInRoute = requestPath.endsWith(Endpoints.signIn);
+          final authHeader = error.requestOptions.headers['Authorization'];
+          final hadAuthHeader = authHeader is String
+              ? authHeader.trim().isNotEmpty
+              : false;
           if (isUnauthorized &&
+              hadAuthHeader &&
               !alreadyRetried &&
               _refreshTokens != null &&
               !isSignInRoute) {
@@ -136,10 +143,43 @@ class HttpService {
               );
               _isRefreshing = false;
               _refreshWaiters.clear();
+              error.requestOptions.extra['__unauthorized_handled__'] = true;
+              dev.log(
+                '401 -> onUnauthorized (refresh failed) path=${error.requestOptions.path}',
+                name: 'HttpService',
+              );
               await _onUnauthorized?.call();
             }
           }
+
+          if (isUnauthorized &&
+              !isSignInRoute &&
+              _onUnauthorized != null &&
+              !unauthorizedAlreadyHandled) {
+            error.requestOptions.extra['__unauthorized_handled__'] = true;
+            dev.log(
+              '401 -> onUnauthorized path=${error.requestOptions.path}',
+              name: 'HttpService',
+            );
+            await _onUnauthorized.call();
+          }
+
           // Continue with the error
+          if (isUnauthorized &&
+              !isSignInRoute &&
+              error.requestOptions.extra['__unauthorized_handled__'] == true) {
+            handler.next(
+              DioException(
+                requestOptions: error.requestOptions,
+                response: error.response,
+                type: error.type,
+                error: error.error,
+                stackTrace: error.stackTrace,
+                message: '',
+              ),
+            );
+            return;
+          }
           handler.next(error);
         },
         onRequest: (options, handler) {
@@ -153,8 +193,36 @@ class HttpService {
 
           handler.next(options);
         },
-        onResponse: (response, handler) {
-          handler.next(response);
+        onResponse: (response, handler) async {
+          final status = response.statusCode ?? 0;
+          final isUnauthorized = status == 401;
+          if (!isUnauthorized) {
+            handler.next(response);
+            return;
+          }
+
+          final requestPath = response.requestOptions.path;
+          final isSignInRoute = requestPath.endsWith(Endpoints.signIn);
+          final alreadyHandled =
+              response.requestOptions.extra['__unauthorized_handled__'] == true;
+
+          if (!isSignInRoute && _onUnauthorized != null && !alreadyHandled) {
+            response.requestOptions.extra['__unauthorized_handled__'] = true;
+            dev.log(
+              '401 -> onUnauthorized (onResponse) path=$requestPath',
+              name: 'HttpService',
+            );
+            await _onUnauthorized.call();
+          }
+
+          handler.reject(
+            DioException(
+              requestOptions: response.requestOptions,
+              response: response,
+              type: DioExceptionType.badResponse,
+              message: '',
+            ),
+          );
         },
       ),
     );

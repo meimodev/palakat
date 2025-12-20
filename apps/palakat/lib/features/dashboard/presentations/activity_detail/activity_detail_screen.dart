@@ -647,9 +647,13 @@ class ActivityDetailScreen extends ConsumerWidget {
                   result.when(
                     onSuccess: (url) => _openUrl(url),
                     onFailure: (failure) {
+                      final msg = failure.message.trim();
+                      if (msg.isEmpty) {
+                        return;
+                      }
                       ScaffoldMessenger.of(
                         context,
-                      ).showSnackBar(SnackBar(content: Text(failure.message)));
+                      ).showSnackBar(SnackBar(content: Text(msg)));
                     },
                   );
                 }

@@ -23,7 +23,7 @@ class BottomNavBar extends ConsumerWidget {
 
     // Define visible indices: [0: Home, 1: Songs, 2: Ops, 3: Approval]
     // Without auth: only show Home and Songs
-    final visibleIndices = hasAuth ? [0, 1, 2, 3] : [0, 1];
+    final visibleIndices = hasAuth ? [0, 1, 2, 3, 4] : [0, 1, 4];
 
     // Map currentIndex to visual position in the filtered list
     final selectedVisualIndex = visibleIndices.indexOf(currentIndex);
@@ -125,6 +125,10 @@ class BottomNavBar extends ConsumerWidget {
       3: _DestinationData(
         icon: AppIcons.reader,
         label: context.l10n.nav_approval,
+      ),
+      4: _DestinationData(
+        icon: AppIcons.article,
+        label: context.l10n.nav_articles,
       ),
     };
 

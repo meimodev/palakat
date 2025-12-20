@@ -2076,6 +2076,7 @@ export const AccountScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   passwordHash: 'passwordHash',
+  role: 'role',
   isActive: 'isActive',
   claimed: 'claimed',
   failedLoginAttempts: 'failedLoginAttempts',
@@ -2256,6 +2257,10 @@ export const ChurchRequestScalarFieldEnum = {
   contactPerson: 'contactPerson',
   contactPhone: 'contactPhone',
   status: 'status',
+  decisionNote: 'decisionNote',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  approvedChurchId: 'approvedChurchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   requesterId: 'requesterId'
@@ -2397,6 +2402,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'AccountRole'
+ */
+export type EnumAccountRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccountRole'>
+    
+
+
+/**
+ * Reference to a field of type 'AccountRole[]'
+ */
+export type ListEnumAccountRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccountRole[]'>
     
 
 

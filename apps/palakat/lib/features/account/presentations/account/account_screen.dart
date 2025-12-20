@@ -586,6 +586,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   void showSnackBar(BuildContext context, String msg) {
+    if (msg.trim().isEmpty) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }

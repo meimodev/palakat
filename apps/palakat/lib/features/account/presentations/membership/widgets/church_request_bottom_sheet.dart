@@ -7,12 +7,15 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
+import 'package:palakat_shared/core/models/church_request.dart';
 import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 
 class ChurchRequestBottomSheet extends ConsumerStatefulWidget {
-  const ChurchRequestBottomSheet({super.key});
+  const ChurchRequestBottomSheet({super.key, this.initialRequest});
+
+  final ChurchRequest? initialRequest;
 
   @override
   ConsumerState<ChurchRequestBottomSheet> createState() =>
@@ -35,6 +38,18 @@ class _ChurchRequestBottomSheetState
   String? _addressError;
   String? _contactPersonError;
   String? _phoneError;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialRequest;
+    if (initial != null) {
+      _churchNameController.text = initial.churchName;
+      _addressController.text = initial.churchAddress;
+      _contactPersonController.text = initial.contactPerson;
+      _phoneController.text = initial.contactPhone;
+    }
+  }
 
   @override
   void dispose() {

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,7 +7,8 @@ import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/palakat_shared.dart'
+    hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
 
 import 'widgets/widgets.dart';
 
@@ -25,16 +24,6 @@ class SongBookScreen extends ConsumerStatefulWidget {
 }
 
 class _SongBookScreenState extends ConsumerState<SongBookScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounceTimer;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _debounceTimer?.cancel();
-    super.dispose();
-  }
-
   /// Navigate to song detail screen
   void _navigateToSongDetail(dynamic song) {
     context.pushNamed(
@@ -158,24 +147,17 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
           // 16px = 2 * 8px grid spacing (Requirement 2.4)
           Gap.h16,
           // Search input field (Requirement 3.1, 3.5)
-          InputWidget.text(
-            controller: _searchController,
+          SearchField(
             hint: l10n.songBook_searchHint,
-            endIcon: FaIcon(
+            onSearch: (query) => controller.searchSongs(query),
+            debounceMilliseconds: 500,
+            isLoading: state.isLoading && state.isSearching,
+            prefixIcon: FaIcon(
               AppIcons.search,
               size: 20,
               color: BaseColor.primary,
             ),
-            borderColor: BaseColor.primary,
-            onChanged: (String? query) {
-              // Cancel previous timer to implement debouncing (Requirement 3.2)
-              _debounceTimer?.cancel();
-
-              // Debounce search API calls by 500ms to avoid excessive requests
-              _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-                controller.searchSongs(query ?? '');
-              });
-            },
+            borderRadius: 8,
           ),
           // 16px = 2 * 8px grid spacing (Requirement 2.4)
           Gap.h16,

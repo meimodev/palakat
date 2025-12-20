@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RefreshDto } from './dto/refresh.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { SuperAdminSignInDto } from './dto/super-admin-sign-in.dto';
 import { ValidatedClient } from './strategies/client.strategy';
 
 @Controller('auth')
@@ -73,6 +74,11 @@ export class AuthController {
   @Post('sign-in')
   async signIn(@Body() dto: SignInDto) {
     return this.authService.signIn(dto);
+  }
+
+  @Post('super-admin/sign-in')
+  async superAdminSignIn(@Body() dto: SuperAdminSignInDto) {
+    return this.authService.superAdminSignIn(dto);
   }
 
   @Post('refresh')

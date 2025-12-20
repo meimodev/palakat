@@ -14,7 +14,6 @@ class BillingScreen extends ConsumerStatefulWidget {
 
 class _BillingScreenState extends ConsumerState<BillingScreen> {
   late final TextEditingController _searchController;
-  late final Debouncer _searchDebouncer;
 
   BillingController get controller =>
       ref.read(billingControllerProvider.notifier);
@@ -24,21 +23,12 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 300));
-    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _searchDebouncer.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged() {
-    _searchDebouncer(() {
-      controller.updateSearchQuery(_searchController.text);
-    });
   }
 
   @override
@@ -252,13 +242,11 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: TextField(
+                    child: SearchField(
                       controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: l10n.hint_searchBillingItems,
-                        prefixIcon: const Icon(Icons.search),
-                        border: const OutlineInputBorder(),
-                      ),
+                      hint: l10n.hint_searchBillingItems,
+                      debounceMilliseconds: 300,
+                      onSearch: controller.updateSearchQuery,
                     ),
                   ),
                   const SizedBox(width: 8),

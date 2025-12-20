@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/column.dart' as model;
+import 'package:palakat_shared/core/widgets/search_field.dart';
 import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
 import 'package:palakat_shared/core/widgets/card/card_column.dart';
 
@@ -46,7 +45,6 @@ class _DialogColumnPickerWidget extends ConsumerStatefulWidget {
 class _DialogColumnPickerWidgetState
     extends ConsumerState<_DialogColumnPickerWidget> {
   final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
   List<model.Column> _columns = [];
   bool _isLoading = false;
   String _searchQuery = '';
@@ -62,7 +60,6 @@ class _DialogColumnPickerWidgetState
   @override
   void dispose() {
     _searchController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -86,14 +83,8 @@ class _DialogColumnPickerWidgetState
   }
 
   void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      // Hide keyboard after debounce
-      FocusScope.of(context).unfocus();
-      setState(() => _searchQuery = query);
-      _fetchColumns();
-    });
+    setState(() => _searchQuery = query);
+    _fetchColumns();
   }
 
   @override
@@ -119,29 +110,15 @@ class _DialogColumnPickerWidgetState
             horizontal: BaseSize.w16,
             vertical: BaseSize.h8,
           ),
-          child: TextField(
+          child: SearchField(
             controller: _searchController,
-            onChanged: _onSearchChanged,
-            decoration: InputDecoration(
-              hintText: context.l10n.lbl_searchColumns,
-              prefixIcon: FaIcon(AppIcons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: FaIcon(AppIcons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        _onSearchChanged('');
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w16,
-                vertical: BaseSize.h12,
-              ),
-            ),
+            hint: context.l10n.lbl_searchColumns,
+            debounceMilliseconds: 500,
+            unfocusOnSearch: true,
+            prefixIcon: FaIcon(AppIcons.search),
+            clearIcon: FaIcon(AppIcons.clear),
+            onSearch: _onSearchChanged,
+            onChanged: null,
           ),
         ),
         Gap.h8,

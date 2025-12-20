@@ -128,6 +128,22 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
           badgeBackgroundColor: BaseColor.green[100]!,
           badgeTextColor: BaseColor.green[700]!,
         );
+      case RequestStatus.rejected:
+        final note = churchRequest.decisionNote?.trim();
+        final msg = (note == null || note.isEmpty)
+            ? context.l10n.status_rejected
+            : '${context.l10n.status_rejected} (${context.l10n.lbl_note}: $note)';
+        return _StatusInfo(
+          statusLabel: context.l10n.status_rejected,
+          message: msg,
+          icon: AppIcons.error,
+          iconColor: BaseColor.red[700]!,
+          iconBackgroundColor: BaseColor.red[50]!,
+          backgroundColor: BaseColor.red[50]!,
+          borderColor: BaseColor.red[200]!,
+          badgeBackgroundColor: BaseColor.red[100]!,
+          badgeTextColor: BaseColor.red[700]!,
+        );
     }
   }
 }

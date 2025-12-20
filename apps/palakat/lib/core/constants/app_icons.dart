@@ -303,6 +303,12 @@ abstract class AppIcons {
   /// Article/document with text
   static const IconData article = FontAwesomeIcons.newspaper;
 
+  /// Preaching material/sermon
+  static const IconData preachingMaterial = FontAwesomeIcons.bookBible;
+
+  /// Game instruction/puzzle
+  static const IconData gameInstruction = FontAwesomeIcons.puzzlePiece;
+
   /// Upload file
   static const IconData uploadFile = FontAwesomeIcons.fileArrowUp;
 

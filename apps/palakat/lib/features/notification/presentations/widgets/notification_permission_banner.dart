@@ -39,10 +39,6 @@ class _NotificationPermissionBannerState
         }
 
         return Container(
-          margin: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16,
-            vertical: BaseSize.h12,
-          ),
           padding: EdgeInsets.all(BaseSize.w16),
           decoration: BoxDecoration(
             color: BaseColor.primary3.withValues(alpha: 0.1),
@@ -54,7 +50,6 @@ class _NotificationPermissionBannerState
           ),
           child: Row(
             children: [
-              // Icon
               Container(
                 width: BaseSize.w40,
                 height: BaseSize.w40,
@@ -69,56 +64,61 @@ class _NotificationPermissionBannerState
                   color: BaseColor.primary3,
                 ),
               ),
-              Gap.w12,
-              // Text
+              Gap.w8,
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      context.l10n.notificationSettings_enableNotifications,
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: BaseColor.primaryText,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          context.l10n.notificationSettings_enableNotifications,
+                          style: BaseTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: BaseColor.primaryText,
+                          ),
+                        ),
+                        Gap.h4,
+                        Text(
+                          context
+                              .l10n
+                              .notificationSettings_permissionEnabledDesc,
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: BaseColor.secondaryText,
+                          ),
+                        ),
+                      ],
                     ),
-                    Gap.h4,
-                    Text(
-                      context.l10n.notificationSettings_permissionEnabledDesc,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.secondaryText,
+                    Gap.h6,
+                    ElevatedButton(
+                      onPressed: () => _handleEnableNotifications(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: BaseColor.primary3,
+                        foregroundColor: BaseColor.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: BaseSize.w16,
+                          vertical: BaseSize.h8,
+                        ),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusSm,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        context.l10n.notificationSettings_enableNotifications,
+                        style: BaseTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: BaseColor.white,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              Gap.w12,
-              // Enable button
-              ElevatedButton(
-                onPressed: () => _handleEnableNotifications(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: BaseColor.primary3,
-                  foregroundColor: BaseColor.white,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w16,
-                    vertical: BaseSize.h8,
-                  ),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  ),
-                ),
-                child: Text(
-                  context.l10n.notificationSettings_enableNotifications,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: BaseColor.white,
-                  ),
-                ),
-              ),
-              Gap.w8,
-              // Dismiss button
+
               IconButton(
                 onPressed: _handleDismiss,
                 icon: FaIcon(

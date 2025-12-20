@@ -206,6 +206,8 @@ abstract class AppLocalizations {
   /// **'Songs'**
   String get nav_songs;
 
+  String get nav_articles;
+
   /// No description provided for @songBook_title.
   ///
   /// In en, this message translates to:
@@ -235,6 +237,16 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try searching with different keywords'**
   String get songBook_emptySubtitle;
+
+  String get articles_title;
+
+  String get article_titleFallback;
+
+  String article_likesCount(num count);
+
+  String get articleType_preachingMaterial;
+
+  String get articleType_gameInstruction;
 
   /// No description provided for @map_selectLocationTitle.
   ///
@@ -4573,6 +4585,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please sign in again'**
   String get msg_signInAgain;
+
+  /// No description provided for @unauthorized_signInRequired_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get unauthorized_signInRequired_title;
+
+  /// No description provided for @unauthorized_signInRequired_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is available for signed-in users. Please sign in to continue.'**
+  String get unauthorized_signInRequired_message;
 
   /// No description provided for @msg_insufficientPermissions.
   ///

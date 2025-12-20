@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { SongController } from './song.controller';
 import { SongService } from './song.service';
+import { SongAdminController } from './song-admin.controller';
+import { SongPublicController } from './song-public.controller';
 
 @Module({
-  controllers: [SongController],
+  controllers: [SongPublicController, SongAdminController],
   providers: [SongService],
 })
 export class SongModule {}

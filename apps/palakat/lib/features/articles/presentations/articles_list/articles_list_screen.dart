@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,8 +6,8 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/articles/presentations/articles_list/articles_list_controller.dart';
-import 'package:palakat_shared/core/extension/extension.dart';
-import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/palakat_shared.dart'
+    hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
 
 class ArticlesListScreen extends ConsumerStatefulWidget {
   const ArticlesListScreen({super.key});
@@ -19,9 +17,7 @@ class ArticlesListScreen extends ConsumerStatefulWidget {
 }
 
 class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
-  final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  Timer? _debounce;
 
   @override
   void initState() {
@@ -31,9 +27,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     _scrollController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -44,14 +38,6 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
     if (currentScroll >= (maxScroll * 0.9)) {
       ref.read(articlesListControllerProvider.notifier).loadMore();
     }
-  }
-
-  void _onSearchChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      FocusScope.of(context).unfocus();
-      ref.read(articlesListControllerProvider.notifier).setSearch(value);
-    });
   }
 
   @override
@@ -71,19 +57,16 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
           ),
           Gap.h16,
           _SearchAndFilterBar(
-            searchController: _searchController,
             filterType: state.filterType,
-            onSearchChanged: _onSearchChanged,
-            onClearSearch: () {
-              _searchController.clear();
-              controller.setSearch('');
+            onSearchChanged: (value) {
+              FocusScope.of(context).unfocus();
+              controller.setSearch(value);
             },
+            onClearSearch: () => controller.setSearch(''),
             onTypeChanged: controller.setTypeFilter,
-            onClearFilters: () {
-              _searchController.clear();
-              controller.clearFilters();
-            },
+            onClearFilters: controller.clearFilters,
             hasActiveFilters: state.hasActiveFilters,
+            isLoading: state.isLoading,
           ),
           Gap.h16,
           Expanded(
@@ -170,22 +153,22 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
 
 class _SearchAndFilterBar extends StatelessWidget {
   const _SearchAndFilterBar({
-    required this.searchController,
     required this.filterType,
     required this.onSearchChanged,
     required this.onClearSearch,
     required this.onTypeChanged,
     required this.onClearFilters,
     required this.hasActiveFilters,
+    required this.isLoading,
   });
 
-  final TextEditingController searchController;
   final ArticleType? filterType;
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onClearSearch;
   final void Function(ArticleType?) onTypeChanged;
   final VoidCallback onClearFilters;
   final bool hasActiveFilters;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -207,31 +190,17 @@ class _SearchAndFilterBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ValueListenableBuilder<TextEditingValue>(
-            valueListenable: searchController,
-            builder: (context, value, _) {
-              return TextField(
-                controller: searchController,
-                onChanged: onSearchChanged,
-                decoration: InputDecoration(
-                  hintText: l10n.lbl_search,
-                  prefixIcon: const FaIcon(AppIcons.search),
-                  suffixIcon: value.text.isNotEmpty
-                      ? IconButton(
-                          icon: const FaIcon(AppIcons.clear),
-                          onPressed: onClearSearch,
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w16,
-                    vertical: BaseSize.h12,
-                  ),
-                ),
-              );
-            },
+          SearchField(
+            hint: l10n.lbl_search,
+            onSearch: onSearchChanged,
+            debounceMilliseconds: 500,
+            isLoading: isLoading,
+            prefixIcon: FaIcon(
+              AppIcons.search,
+              size: 18,
+              color: BaseColor.secondaryText,
+            ),
+            borderRadius: BaseSize.radiusMd,
           ),
           Gap.h12,
           InputWidget<ArticleType?>.dropdown(
@@ -301,6 +270,17 @@ class _ArticleListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    IconData iconForArticleType(ArticleType? type) {
+      switch (type) {
+        case ArticleType.preachingMaterial:
+          return AppIcons.preachingMaterial;
+        case ArticleType.gameInstruction:
+          return AppIcons.gameInstruction;
+        case null:
+          return AppIcons.article;
+      }
+    }
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -334,7 +314,7 @@ class _ArticleListItem extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
-                  AppIcons.article,
+                  iconForArticleType(article.type),
                   size: BaseSize.w20,
                   color: BaseColor.teal[600],
                 ),

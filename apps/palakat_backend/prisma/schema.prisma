@@ -29,6 +29,7 @@ model Church {
   files                   FileManager[]
   approvalRules           ApprovalRule[]
   financialAccountNumbers FinancialAccountNumber[]
+  churchRequestsApproved  ChurchRequest[]           @relation("ChurchRequestApprovedChurch")
 
   @@index([name])
 }
@@ -86,6 +87,7 @@ model Account {
   phone                 String         @unique
   email                 String?        @unique
   passwordHash          String?
+  role                  AccountRole    @default(USER)
   isActive              Boolean        @default(true)
   claimed               Boolean        @default(false)
   failedLoginAttempts   Int            @default(0)
@@ -99,7 +101,8 @@ model Account {
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
   membership            Membership?
-  churchRequest         ChurchRequest?
+  churchRequest         ChurchRequest?  @relation("ChurchRequestRequester")
+  reviewedChurchRequests ChurchRequest[] @relation("ChurchRequestReviewedBy")
   articles              Article[]
   articleLikes          ArticleLike[]
 }
@@ -221,12 +224,14 @@ model Approver {
 model Song {
   id        Int        @id @default(autoincrement())
   title     String
-  index     Int        @unique
+  index     Int
   book      Book
   link      String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   parts     SongPart[]
+
+  @@unique([book, index])
 }
 
 model SongPart {
@@ -244,6 +249,11 @@ model SongPart {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum AccountRole {
+  USER
+  SUPER_ADMIN
 }
 
 enum Bipra {
@@ -277,6 +287,7 @@ enum RequestStatus {
   TODO
   DOING
   DONE
+  REJECTED
 }
 
 enum MaritalStatus {
@@ -306,6 +317,8 @@ enum NotificationType {
   APPROVAL_REQUIRED
   APPROVAL_CONFIRMED
   APPROVAL_REJECTED
+  CHURCH_REQUEST_APPROVED
+  CHURCH_REQUEST_REJECTED
 }
 
 enum ArticleType {
@@ -386,10 +399,16 @@ model ChurchRequest {
   contactPerson String
   contactPhone  String
   status        RequestStatus @default(TODO)
+  decisionNote  String?
+  reviewedAt    DateTime?
+  reviewedById  Int?
+  reviewedBy    Account?      @relation("ChurchRequestReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  approvedChurchId Int?
+  approvedChurch   Church?    @relation("ChurchRequestApprovedChurch", fields: [approvedChurchId], references: [id], onDelete: SetNull)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   requesterId   Int           @unique
-  requester     Account       @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  requester     Account       @relation("ChurchRequestRequester", fields: [requesterId], references: [id], onDelete: Cascade)
 
   @@index([requesterId])
   @@index([createdAt])

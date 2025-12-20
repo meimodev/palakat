@@ -18,6 +18,8 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  dio: ^5.9.0
+
   flutter_screenutil: ^5.9.3
   flutter_datetime_picker: ^1.5.1
   flutter_svg: ^2.2.1

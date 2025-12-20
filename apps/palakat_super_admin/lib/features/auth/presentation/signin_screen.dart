@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
@@ -12,15 +13,77 @@ class SignInScreen extends ConsumerStatefulWidget {
   ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
+class _PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final oldDigits = oldValue.text.replaceAll(RegExp(r'\D'), '');
+    final newDigits = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    final limitedDigits = newDigits.length > 13
+        ? newDigits.substring(0, 13)
+        : newDigits;
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < limitedDigits.length; i++) {
+      if (i > 0 && i % 4 == 0) {
+        buffer.write('-');
+      }
+      buffer.write(limitedDigits[i]);
+    }
+
+    final formattedText = buffer.toString();
+
+    final oldCursorPosition = oldValue.selection.baseOffset;
+    final digitsBeforeCursor = oldValue.text
+        .substring(0, oldCursorPosition)
+        .replaceAll(RegExp(r'\D'), '')
+        .length;
+
+    int targetDigitPosition = digitsBeforeCursor;
+    if (newDigits.length > oldDigits.length) {
+      targetDigitPosition =
+          digitsBeforeCursor + (newDigits.length - oldDigits.length);
+    } else if (newDigits.length < oldDigits.length) {
+      targetDigitPosition =
+          digitsBeforeCursor - (oldDigits.length - newDigits.length);
+    }
+
+    targetDigitPosition = targetDigitPosition.clamp(0, limitedDigits.length);
+
+    int newOffset = 0;
+    int digitCount = 0;
+    for (
+      int i = 0;
+      i < formattedText.length && digitCount < targetDigitPosition;
+      i++
+    ) {
+      if (formattedText[i] != '-') {
+        digitCount++;
+      }
+      newOffset = i + 1;
+    }
+
+    newOffset = newOffset.clamp(0, formattedText.length);
+
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: newOffset),
+    );
+  }
+}
+
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscure = true;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -35,7 +98,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       await ref
           .read(superAdminAuthControllerProvider.notifier)
           .signIn(
-            username: _usernameController.text,
+            phone: _phoneController.text,
             password: _passwordController.text,
           );
     }
@@ -86,14 +149,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
-                        controller: _usernameController,
+                        controller: _phoneController,
                         decoration: const InputDecoration(
-                          labelText: 'Super Admin Username',
+                          labelText: 'Super Admin Phone',
                         ),
                         enabled: !isLoading,
                         textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          _PhoneInputFormatter(),
+                        ],
                         validator: (v) => Validators.required(
-                          'Username is required',
+                          'Phone is required',
                         ).asFormFieldValidator(v),
                       ),
                       const SizedBox(height: 12),

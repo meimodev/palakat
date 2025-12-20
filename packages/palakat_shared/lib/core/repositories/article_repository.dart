@@ -39,6 +39,10 @@ class ArticleRepository {
       );
       return Result.success(result);
     } on DioException catch (e) {
+      final handled = Failure.fromException(e);
+      if (handled.code == 401 && handled.message.trim().isEmpty) {
+        return Result.failure(handled);
+      }
       final error = ErrorMapper.fromDio(e, 'Failed to fetch articles');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
@@ -63,6 +67,10 @@ class ArticleRepository {
       }
       return Result.success(Article.fromJson(json));
     } on DioException catch (e) {
+      final handled = Failure.fromException(e);
+      if (handled.code == 401 && handled.message.trim().isEmpty) {
+        return Result.failure(handled);
+      }
       final error = ErrorMapper.fromDio(e, 'Failed to fetch article');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
@@ -87,6 +95,10 @@ class ArticleRepository {
       }
       return Result.success(ArticleLikeResult.fromJson(json));
     } on DioException catch (e) {
+      final handled = Failure.fromException(e);
+      if (handled.code == 401 && handled.message.trim().isEmpty) {
+        return Result.failure(handled);
+      }
       final error = ErrorMapper.fromDio(e, 'Failed to like article');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
@@ -111,6 +123,10 @@ class ArticleRepository {
       }
       return Result.success(ArticleLikeResult.fromJson(json));
     } on DioException catch (e) {
+      final handled = Failure.fromException(e);
+      if (handled.code == 401 && handled.message.trim().isEmpty) {
+        return Result.failure(handled);
+      }
       final error = ErrorMapper.fromDio(e, 'Failed to unlike article');
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {

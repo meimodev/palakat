@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/widgets/search_field.dart';
 import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
 import 'package:palakat_shared/core/widgets/card/card_church.dart';
 
@@ -43,7 +42,6 @@ class _DialogChurchPickerWidget extends ConsumerStatefulWidget {
 class _DialogChurchPickerWidgetState
     extends ConsumerState<_DialogChurchPickerWidget> {
   final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
   List<Church> _churches = [];
   bool _isLoading = false;
   String _searchQuery = '';
@@ -57,7 +55,6 @@ class _DialogChurchPickerWidgetState
   @override
   void dispose() {
     _searchController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -76,14 +73,8 @@ class _DialogChurchPickerWidgetState
   }
 
   void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      // Hide keyboard after debounce
-      FocusScope.of(context).unfocus();
-      setState(() => _searchQuery = query);
-      _fetchChurches();
-    });
+    setState(() => _searchQuery = query);
+    _fetchChurches();
   }
 
   @override
@@ -96,29 +87,15 @@ class _DialogChurchPickerWidgetState
             horizontal: BaseSize.w16,
             vertical: BaseSize.h8,
           ),
-          child: TextField(
+          child: SearchField(
             controller: _searchController,
-            onChanged: _onSearchChanged,
-            decoration: InputDecoration(
-              hintText: context.l10n.lbl_searchChurches,
-              prefixIcon: FaIcon(AppIcons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: FaIcon(AppIcons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        _onSearchChanged('');
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w16,
-                vertical: BaseSize.h12,
-              ),
-            ),
+            hint: context.l10n.lbl_searchChurches,
+            debounceMilliseconds: 500,
+            unfocusOnSearch: true,
+            prefixIcon: FaIcon(AppIcons.search),
+            clearIcon: FaIcon(AppIcons.clear),
+            onSearch: _onSearchChanged,
+            onChanged: null,
           ),
         ),
         Gap.h8,

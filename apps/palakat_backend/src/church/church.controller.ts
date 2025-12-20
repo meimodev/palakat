@@ -14,6 +14,8 @@ import { ChurchService } from './church.service';
 import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ChurchListQueryDto } from './dto/church-list.dto';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('church')
@@ -31,11 +33,15 @@ export class ChurchController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('SUPER_ADMIN')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.churchService.remove(id);
   }
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles('SUPER_ADMIN')
   async create(@Body() createchurchDto: Prisma.ChurchCreateInput) {
     return this.churchService.create(createchurchDto);
   }

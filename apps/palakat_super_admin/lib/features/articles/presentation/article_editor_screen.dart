@@ -291,7 +291,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
     final status = _loaded?.status;
     final theme = Theme.of(context);
 
-    return Column(
+    final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
@@ -454,6 +454,15 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
           const LinearProgressIndicator(),
         ],
       ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.hasBoundedHeight) {
+          return SingleChildScrollView(child: content);
+        }
+        return content;
+      },
     );
   }
 }

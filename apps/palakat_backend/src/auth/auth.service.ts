@@ -9,6 +9,7 @@ import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma.service';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
+import { AccountRole } from '../generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,36 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly firebaseAdmin: FirebaseAdminService,
   ) {}
+
+  private async issueTokensWithRole(
+    accountId: number,
+    role: AccountRole,
+    aud: string,
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    refreshTokenExpiresAt: Date;
+  }> {
+    const accessToken = this.jwtService.sign(
+      {
+        sub: accountId,
+        typ: 'user',
+        role,
+        aud,
+      },
+      {
+        jwtid: randomBytes(16).toString('hex'),
+      } as any,
+    );
+    const refreshToken = this.jwtService.sign(
+      { sub: accountId, typ: 'refresh', jti: randomBytes(16).toString('hex') },
+      { expiresIn: '7d' },
+    );
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    );
+    return { accessToken, refreshToken, refreshTokenExpiresAt };
+  }
 
   private normalizeIndonesianPhone(phone: string): string {
     let normalizedPhone = phone.trim();
@@ -112,6 +143,7 @@ export class AuthService {
         claimed: true,
         createdAt: true,
         updatedAt: true,
+        role: true,
         membership: {
           include: {
             column: true,
@@ -128,7 +160,7 @@ export class AuthService {
 
     // Generate both access and refresh tokens
     const { accessToken, refreshToken, refreshTokenExpiresAt } =
-      await this.issueTokens(account.id);
+      await this.issueTokensWithRole(account.id, account.role, 'user');
 
     // Store refresh token in database
     const decoded: any = this.jwtService.decode(refreshToken);
@@ -230,7 +262,11 @@ export class AuthService {
     } as any);
 
     const { accessToken, refreshToken, refreshTokenExpiresAt } =
-      await this.issueTokens(account.id);
+      await this.issueTokensWithRole(
+        account.id,
+        account.role ?? AccountRole.USER,
+        'user',
+      );
 
     const decoded: any = this.jwtService.decode(refreshToken);
     await this.prisma.account.update({
@@ -269,23 +305,115 @@ export class AuthService {
     refreshToken: string;
     refreshTokenExpiresAt: Date;
   }> {
-    const accessToken = this.jwtService.sign(
-      {
-        sub: accountId,
-        typ: 'user',
-      },
-      {
-        jwtid: randomBytes(16).toString('hex'),
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: { role: true },
+    });
+    return this.issueTokensWithRole(
+      accountId,
+      account?.role ?? AccountRole.USER,
+      'user',
+    );
+  }
+
+  async superAdminSignIn(payload: { phone: string; password: string }) {
+    const { phone, password } = payload;
+
+    if (!phone || phone.trim().length === 0) {
+      throw new BadRequestException('Phone number is required');
+    }
+    if (!password || password.trim().length === 0) {
+      throw new BadRequestException('Password is required');
+    }
+
+    const normalizedPhone = this.normalizeIndonesianPhone(phone);
+
+    const account: any = await this.prisma.account.findFirst({
+      where: { phone: normalizedPhone },
+      select: {
+        id: true,
+        phone: true,
+        passwordHash: true,
+        isActive: true,
+        lockUntil: true,
+        role: true,
+        failedLoginAttempts: true,
       } as any,
+    } as any);
+
+    if (!account) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (account.role !== AccountRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Super admin account required');
+    }
+
+    if (!account.isActive) {
+      throw new ForbiddenException('Account is inactive');
+    }
+
+    if (account.lockUntil && account.lockUntil > new Date()) {
+      throw new ForbiddenException('Account is locked. Try again later');
+    }
+
+    if (!account.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      account.passwordHash,
     );
-    const refreshToken = this.jwtService.sign(
-      { sub: accountId, typ: 'refresh', jti: randomBytes(16).toString('hex') },
-      { expiresIn: '7d' },
-    );
-    const refreshTokenExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    );
-    return { accessToken, refreshToken, refreshTokenExpiresAt };
+
+    const MAX_ATTEMPTS = 5;
+    const LOCK_MINUTES = 5;
+
+    if (!passwordMatches) {
+      const newAttempts = (account.failedLoginAttempts ?? 0) + 1;
+      const shouldLock = newAttempts >= MAX_ATTEMPTS;
+
+      await this.prisma.account.update({
+        where: { id: account.id },
+        data: {
+          failedLoginAttempts: shouldLock ? 0 : newAttempts,
+          lockUntil: shouldLock
+            ? new Date(Date.now() + LOCK_MINUTES * 60 * 1000)
+            : null,
+        } as any,
+      } as any);
+
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    await this.prisma.account.update({
+      where: { id: account.id },
+      data: { failedLoginAttempts: 0, lockUntil: null } as any,
+    } as any);
+
+    const { accessToken, refreshToken, refreshTokenExpiresAt } =
+      await this.issueTokensWithRole(account.id, account.role, 'super-admin');
+
+    const decoded: any = this.jwtService.decode(refreshToken);
+    await this.prisma.account.update({
+      where: { id: account.id },
+      data: {
+        refreshTokenHash: await bcrypt.hash(refreshToken, 12),
+        refreshTokenExpiresAt,
+        refreshTokenJti:
+          decoded && typeof decoded === 'object' ? (decoded as any).jti : null,
+      } as any,
+    } as any);
+
+    return {
+      message: 'OK',
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+      },
+    };
   }
 
   async refreshToken(accountId: number, refreshToken: string) {

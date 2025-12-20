@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 
+import 'searchable_dialog_picker.dart';
+
 /// A reusable widget for selecting member positions with a dropdown + chips pattern.
 ///
 /// Displays a dropdown to add positions and shows selected positions as removable chips.
@@ -239,7 +241,7 @@ class _PositionSelectorState extends State<PositionSelector> {
 /// Searchable dropdown dialog for member positions.
 ///
 /// Provides a search input field that filters positions by name (case-insensitive).
-class _SearchablePositionDropdown extends StatefulWidget {
+class _SearchablePositionDropdown extends StatelessWidget {
   const _SearchablePositionDropdown({
     required this.positions,
     required this.buttonWidth,
@@ -249,192 +251,19 @@ class _SearchablePositionDropdown extends StatefulWidget {
   final double buttonWidth;
 
   @override
-  State<_SearchablePositionDropdown> createState() =>
-      _SearchablePositionDropdownState();
-}
-
-class _SearchablePositionDropdownState
-    extends State<_SearchablePositionDropdown> {
-  late TextEditingController _searchController;
-  late List<MemberPosition> _filteredPositions;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-    _filteredPositions = widget.positions;
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  /// Filters positions based on the search query.
-  ///
-  /// Search strategy: Filter by position name match (case-insensitive)
-  List<MemberPosition> _filterPositions(String query) {
-    if (query.isEmpty) {
-      return widget.positions;
-    }
-
-    final lowerQuery = query.toLowerCase();
-
-    return widget.positions.where((position) {
-      final name = position.name.toLowerCase();
-      return name.contains(lowerQuery);
-    }).toList();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _filteredPositions = _filterPositions(query);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final screenSize = MediaQuery.of(context).size;
     final l10n = context.l10n;
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: widget.buttonWidth.clamp(300, 500),
-          maxHeight: screenSize.height * 0.6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with title
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                l10n.dlg_selectPosition_title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            // Search input field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: l10n.hint_searchPositions,
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearchChanged('');
-                          },
-                        )
-                      : null,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: theme.colorScheme.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: theme.colorScheme.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: theme.colorScheme.primary,
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Divider
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            // Scrollable list of positions
-            Flexible(
-              child: _filteredPositions.isEmpty
-                  ? _buildEmptyState(context)
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _filteredPositions.length,
-                      itemBuilder: (context, index) {
-                        final position = _filteredPositions[index];
-
-                        return ListTile(
-                          onTap: () => Navigator.of(context).pop(position),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 4,
-                          ),
-                          title: Text(
-                            position.name,
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                        );
-                      },
-                    ),
-            ),
-            // Cancel button
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.btn_cancel),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.search_off,
-            size: 48,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.noData_positions,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.msg_tryDifferentSearchTerm,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
+    return SearchableDialogPicker<MemberPosition>(
+      title: l10n.dlg_selectPosition_title,
+      searchHint: l10n.hint_searchPositions,
+      items: positions,
+      itemBuilder: (position) => Text(position.name),
+      onFilter: (position, query) =>
+          position.name.toLowerCase().contains(query),
+      emptyStateMessage: l10n.noData_matchingCriteria,
+      maxWidth: buttonWidth.clamp(300, 500),
+      maxHeightFactor: 0.6,
     );
   }
 }

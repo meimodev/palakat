@@ -6,28 +6,10 @@ import { Prisma } from '../generated/prisma/client';
 export class SongService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createSongDto: Prisma.SongCreateInput) {
-    await this.prisma.song.create({
-      data: createSongDto,
-    });
-    return {
-      message: 'OK',
-      data: createSongDto,
-    };
-  }
-
-  async findAll(query: SongListQueryDto) {
-    const {
-      search,
-      skip,
-      take,
-      sortBy = 'id',
-      sortOrder = 'desc',
-    } = query ?? ({} as any);
-
+  private buildWhere(search?: string): Prisma.SongWhereInput {
     const where: Prisma.SongWhereInput = {};
 
-    if (search) {
+    if (search && search.trim().length > 0) {
       where.OR = [
         {
           title: {
@@ -48,6 +30,35 @@ export class SongService {
       ];
     }
 
+    return where;
+  }
+
+  async create(createSongDto: Prisma.SongCreateInput, _user?: any) {
+    const created = await this.prisma.song.create({
+      data: createSongDto,
+      include: {
+        parts: {
+          orderBy: { index: 'asc' },
+        },
+      },
+    });
+    return {
+      message: 'OK',
+      data: created,
+    };
+  }
+
+  async findAllPublic(query: SongListQueryDto) {
+    const {
+      search,
+      skip,
+      take,
+      sortBy = 'id',
+      sortOrder = 'desc',
+    } = query ?? ({} as any);
+
+    const where = this.buildWhere(search);
+
     const [total, songs] = await this.prisma.$transaction([
       this.prisma.song.count({ where }),
       this.prisma.song.findMany({
@@ -55,8 +66,12 @@ export class SongService {
         take,
         skip,
         orderBy: { [sortBy]: sortOrder },
-        include: {
-          parts: true,
+        select: {
+          id: true,
+          title: true,
+          index: true,
+          book: true,
+          link: true,
         },
       }),
     ]);
@@ -68,11 +83,18 @@ export class SongService {
     } as any;
   }
 
-  async findOne(id: number) {
+  async findAllAdmin(query: SongListQueryDto, _user?: any) {
+    // For now keep admin list the same as public summary list
+    return this.findAllPublic(query);
+  }
+
+  async findOnePublic(id: number) {
     const song = await this.prisma.song.findUniqueOrThrow({
-      where: { id: id },
+      where: { id },
       include: {
-        parts: true,
+        parts: {
+          orderBy: { index: 'asc' },
+        },
       },
     });
 
@@ -82,18 +104,27 @@ export class SongService {
     };
   }
 
-  async update(id: number, updateSongDto: Prisma.SongUpdateInput) {
-    await this.prisma.song.update({
+  async findOneAdmin(id: number, _user?: any) {
+    return this.findOnePublic(id);
+  }
+
+  async update(id: number, updateSongDto: Prisma.SongUpdateInput, _user?: any) {
+    const updated = await this.prisma.song.update({
       where: { id: id },
       data: updateSongDto,
+      include: {
+        parts: {
+          orderBy: { index: 'asc' },
+        },
+      },
     });
     return {
       message: 'OK',
-      data: updateSongDto,
+      data: updated,
     };
   }
 
-  async delete(id: number) {
+  async delete(id: number, _user?: any) {
     await this.prisma.song.delete({
       where: { id: id },
     });

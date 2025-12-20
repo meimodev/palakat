@@ -63,6 +63,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_songs => 'Songs';
 
   @override
+  String get nav_articles => 'Articles';
+
+  @override
   String get songBook_title => 'Song Book';
 
   @override
@@ -76,6 +79,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get songBook_emptySubtitle => 'Try searching with different keywords';
+
+  @override
+  String get articles_title => 'Articles';
+
+  @override
+  String get article_titleFallback => 'Article';
+
+  @override
+  String article_likesCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count likes',
+      one: '1 like',
+      zero: '0 likes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get articleType_preachingMaterial => 'Preaching Material';
+
+  @override
+  String get articleType_gameInstruction => 'Game Instruction';
 
   @override
   String get map_selectLocationTitle => 'Select Location';
@@ -2452,6 +2479,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_signInAgain => 'Please sign in again';
+
+  @override
+  String get unauthorized_signInRequired_title => 'Sign in required';
+
+  @override
+  String get unauthorized_signInRequired_message =>
+      'This feature is available for signed-in users. Please sign in to continue.';
 
   @override
   String get msg_insufficientPermissions => 'Insufficient permissions';

@@ -60,11 +60,8 @@ class ChurchRequestRepository {
   fetchChurchRequests({required PaginationRequestWrapper request}) async {
     try {
       final response = await _httpService.get(
-        '/church-request',
-        queryParameters: {
-          'skip': (request.page - 1) * request.pageSize,
-          'take': request.pageSize,
-        },
+        '/admin/church-requests',
+        queryParameters: {'page': request.page, 'pageSize': request.pageSize},
       );
 
       final data = response.data ?? {};

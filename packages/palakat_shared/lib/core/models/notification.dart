@@ -13,6 +13,10 @@ enum NotificationType {
   approvalConfirmed,
   @JsonValue('APPROVAL_REJECTED')
   approvalRejected,
+  @JsonValue('CHURCH_REQUEST_APPROVED')
+  churchRequestApproved,
+  @JsonValue('CHURCH_REQUEST_REJECTED')
+  churchRequestRejected,
 }
 
 /// Notification model representing push notifications in the system

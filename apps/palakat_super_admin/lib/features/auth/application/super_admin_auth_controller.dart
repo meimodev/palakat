@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
+import 'package:palakat_shared/core/config/endpoint.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
@@ -102,64 +102,43 @@ class SuperAdminAuthController extends AsyncNotifier<String?> {
     return ref.read(superAdminAuthStorageProvider).accessToken;
   }
 
-  Future<void> signIn({
-    required String username,
-    required String password,
-  }) async {
+  Future<void> signIn({required String phone, required String password}) async {
     state = const AsyncLoading();
     try {
       final dio = ref.read(superAdminDioProvider);
       final storage = ref.read(superAdminAuthStorageProvider);
 
-      final trimmedUsername = username.trim();
+      final trimmedPhone = phone.trim();
       final trimmedPassword = password.trim();
 
-      if (trimmedUsername.isEmpty || trimmedPassword.isEmpty) {
-        throw StateError('Username and password are required');
+      if (trimmedPhone.isEmpty || trimmedPassword.isEmpty) {
+        throw StateError('Phone and password are required');
       }
 
-      final allowedUsername = dotenv.env['SUPER_ADMIN_USERNAME']?.trim() ?? '';
-      final allowedPassword = dotenv.env['SUPER_ADMIN_PASSWORD']?.trim() ?? '';
-
-      if (allowedUsername.isEmpty || allowedPassword.isEmpty) {
-        throw StateError(
-          'Missing required env var: SUPER_ADMIN_USERNAME, SUPER_ADMIN_PASSWORD',
-        );
-      }
-
-      if (trimmedUsername != allowedUsername ||
-          trimmedPassword != allowedPassword) {
-        throw StateError('Invalid username/password');
-      }
-
-      final clientUsername = dotenv.env['APP_CLIENT_USERNAME']?.trim() ?? '';
-      final clientPassword = dotenv.env['APP_CLIENT_PASSWORD']?.trim() ?? '';
-
-      if (clientUsername.isEmpty || clientPassword.isEmpty) {
-        throw StateError(
-          'Missing required env var: APP_CLIENT_USERNAME, APP_CLIENT_PASSWORD',
-        );
-      }
-
-      final res = await dio.get<Map<String, dynamic>>(
-        'auth/signing',
-        options: Options(
-          headers: {'x-username': clientUsername, 'x-password': clientPassword},
-        ),
+      final res = await dio.post<Map<String, dynamic>>(
+        Endpoints.superAdminSignIn,
+        data: {'phone': trimmedPhone, 'password': trimmedPassword},
       );
 
       final body = res.data ?? const {};
-      final token = body['data'] as String?;
-      if (token == null || token.trim().isEmpty) {
-        throw StateError('Invalid signing response');
+      final data = (body['data'] as Map<String, dynamic>?) ?? const {};
+      final tokens = (data['tokens'] as Map<String, dynamic>?) ?? const {};
+      final accessToken =
+          (tokens['accessToken'] ?? tokens['access_token']) as String?;
+      if (accessToken == null || accessToken.trim().isEmpty) {
+        throw StateError('Invalid super admin sign-in response');
       }
 
-      await storage.saveAccessToken(token);
-      state = AsyncData(token);
+      await storage.saveAccessToken(accessToken);
+      state = AsyncData(accessToken);
     } on DioException catch (e, st) {
       final status = e.response?.statusCode;
       if (status == 401) {
-        state = AsyncError(StateError('Failed to authenticate client'), st);
+        state = AsyncError(StateError('Invalid phone/password'), st);
+        return;
+      }
+      if (status == 403) {
+        state = AsyncError(StateError('Super admin account required'), st);
         return;
       }
       state = AsyncError(e, st);

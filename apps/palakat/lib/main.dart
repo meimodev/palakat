@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/routing/app_routing.dart';
@@ -13,6 +16,9 @@ import 'package:palakat/core/services/notification_display_service_provider.dart
 import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
+import 'package:palakat_shared/core/config/app_config.dart';
+import 'package:palakat_shared/core/config/endpoint.dart';
+import 'package:palakat_shared/core/models/auth_tokens.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
@@ -25,6 +31,218 @@ Map<String, dynamic>? _coldStartNotificationData;
 
 // Global flag to track if app is initialized
 bool _isAppInitialized = false;
+
+bool _isUnauthorizedSheetVisible = false;
+
+Future<void> _handleUnauthorized() async {
+  if (_isUnauthorizedSheetVisible) return;
+  _isUnauthorizedSheetVisible = true;
+
+  try {
+    void scheduleShowSheet(int remainingAttempts) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          final context =
+              navigatorKey.currentState?.context ??
+              navigatorKey.currentState?.overlay?.context ??
+              navigatorKey.currentContext;
+          if (context == null) {
+            if (remainingAttempts <= 0) {
+              _isUnauthorizedSheetVisible = false;
+              return;
+            }
+            scheduleShowSheet(remainingAttempts - 1);
+            return;
+          }
+
+          final l10n = lookupAppLocalizations(Localizations.localeOf(context));
+          final router = GoRouter.of(context);
+          final currentUri = router.routerDelegate.currentConfiguration.uri;
+          final returnTo = currentUri.path.startsWith('/authentication')
+              ? null
+              : currentUri.toString();
+
+          showModalBottomSheet<void>(
+            context: context,
+            useRootNavigator: true,
+            isScrollControlled: true,
+            isDismissible: true,
+            enableDrag: true,
+            backgroundColor: BaseColor.transparent,
+            builder: (context) {
+              return _UnauthorizedBottomSheetContent(
+                title: l10n.unauthorized_signInRequired_title,
+                message: l10n.unauthorized_signInRequired_message,
+                cancelLabel: l10n.btn_cancel,
+                confirmLabel: l10n.btn_signIn,
+                onCancel: () =>
+                    Navigator.of(context, rootNavigator: true).pop(),
+                onConfirm: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  if (returnTo == null || returnTo.isEmpty) {
+                    router.go('/authentication');
+                    return;
+                  }
+                  router.go(
+                    '/authentication?returnTo=${Uri.encodeComponent(returnTo)}',
+                  );
+                },
+              );
+            },
+          ).whenComplete(() {
+            _isUnauthorizedSheetVisible = false;
+          });
+        } catch (_) {
+          if (remainingAttempts <= 0) {
+            _isUnauthorizedSheetVisible = false;
+            return;
+          }
+          scheduleShowSheet(remainingAttempts - 1);
+        }
+      });
+    }
+
+    scheduleShowSheet(10);
+  } catch (_) {
+    _isUnauthorizedSheetVisible = false;
+  }
+}
+
+class _UnauthorizedBottomSheetContent extends StatelessWidget {
+  final String title;
+  final String message;
+  final String cancelLabel;
+  final String confirmLabel;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+
+  const _UnauthorizedBottomSheetContent({
+    required this.title,
+    required this.message,
+    required this.cancelLabel,
+    required this.confirmLabel,
+    required this.onCancel,
+    required this.onConfirm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding =
+        MediaQuery.of(context).viewPadding.bottom +
+        MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: BaseColor.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(BaseSize.radiusLg),
+          topRight: Radius.circular(BaseSize.radiusLg),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        left: BaseSize.w24,
+        right: BaseSize.w24,
+        top: BaseSize.w24,
+        bottom: BaseSize.w24 + bottomPadding,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Container(
+              width: BaseSize.w40,
+              height: BaseSize.h4,
+              decoration: BoxDecoration(
+                color: BaseColor.neutral30,
+                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              ),
+            ),
+          ),
+          Gap.h16,
+          Center(
+            child: Container(
+              width: BaseSize.w56,
+              height: BaseSize.w56,
+              decoration: BoxDecoration(
+                color: BaseColor.teal[50],
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: FaIcon(
+                AppIcons.security,
+                size: BaseSize.w28,
+                color: BaseColor.teal[700],
+              ),
+            ),
+          ),
+          Gap.h16,
+          Text(
+            title,
+            style: BaseTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.bold,
+              color: BaseColor.black,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Gap.h12,
+          Text(
+            message,
+            style: BaseTypography.bodyMedium.toSecondary,
+            textAlign: TextAlign.center,
+          ),
+          Gap.h24,
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onCancel,
+                  style: OutlinedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                    side: BorderSide(color: BaseColor.neutral40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    ),
+                  ),
+                  child: Text(
+                    cancelLabel,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: BaseColor.secondaryText,
+                    ),
+                  ),
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: onConfirm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BaseColor.teal[600],
+                    foregroundColor: BaseColor.white,
+                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    ),
+                  ),
+                  child: Text(
+                    confirmLabel,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: BaseColor.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Gap.h8,
+        ],
+      ),
+    );
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +272,71 @@ void main() async {
     }
   });
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        httpServiceProvider.overrideWith((ref) {
+          final config = ref.watch(appConfigProvider);
+          final localStorage = ref.watch(localStorageServiceProvider);
+          final headers = <String, String>{};
+
+          return HttpService(
+            baseUrl: config.apiBaseUrl,
+            connectTimeout: const Duration(seconds: 10),
+            receiveTimeout: const Duration(seconds: 20),
+            sendTimeout: const Duration(seconds: 20),
+            extraHeaders: headers.isEmpty ? null : headers,
+            accessTokenProvider: () => localStorage.accessToken ?? '',
+            refreshTokens: () async {
+              final refreshToken = localStorage.refreshToken;
+              if (refreshToken == null || refreshToken.isEmpty) {
+                throw StateError('No refresh token available');
+              }
+
+              final dio = Dio(
+                BaseOptions(
+                  baseUrl: config.apiBaseUrl,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    if (headers.isNotEmpty) ...headers,
+                  },
+                ),
+              );
+
+              final res = await dio.post<Map<String, dynamic>>(
+                Endpoints.refresh,
+                data: {'refresh_token': refreshToken},
+              );
+
+              final data = res.data ?? const {};
+              final tokens = AuthTokens.fromJson(data['data']);
+              await localStorage.saveTokens(tokens);
+            },
+            onUnauthorized: () async {
+              // Show the unauthorized sheet ASAP. Cleanup must never block UI.
+              unawaited(_handleUnauthorized());
+
+              // Best-effort cleanup in the background.
+              unawaited(() async {
+                try {
+                  final pusherBeamsController = ref.read(
+                    pusherBeamsControllerProvider.notifier,
+                  );
+                  await pusherBeamsController.unregisterAllInterests();
+                } catch (_) {}
+              }());
+
+              try {
+                await localStorage.clearAllUserData();
+              } catch (_) {}
+            },
+          );
+        }),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {

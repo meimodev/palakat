@@ -37,21 +37,6 @@ class DashboardScreen extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () => context.pushNamed(AppRoute.articles),
-                    icon: FaIcon(
-                      AppIcons.article,
-                      size: BaseSize.w24,
-                      color: BaseColor.primary[600],
-                    ),
-                    tooltip: 'Articles',
-                    style: IconButton.styleFrom(
-                      backgroundColor: BaseColor.primary[50],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
                   if (state.account != null)
                     IconButton(
                       onPressed: () => context.pushNamed(AppRoute.settings),
@@ -73,6 +58,7 @@ class DashboardScreen extends ConsumerWidget {
             ],
           ),
           // Notification permission banner - Requirements: 6.2, 6.3
+          Gap.h16,
           const NotificationPermissionBanner(),
           if (state.account != null && state.churchRequest != null)
             LoadingWrapper(

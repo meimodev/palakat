@@ -63,6 +63,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get nav_songs => 'Lagu';
 
   @override
+  String get nav_articles => 'Artikel';
+
+  @override
   String get songBook_title => 'Buku Lagu';
 
   @override
@@ -76,6 +79,30 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get songBook_emptySubtitle => 'Coba cari dengan kata kunci lain';
+
+  @override
+  String get articles_title => 'Artikel';
+
+  @override
+  String get article_titleFallback => 'Artikel';
+
+  @override
+  String article_likesCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count suka',
+      one: '1 suka',
+      zero: '0 suka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get articleType_preachingMaterial => 'Bahan Khotbah';
+
+  @override
+  String get articleType_gameInstruction => 'Petunjuk Permainan';
 
   @override
   String get map_selectLocationTitle => 'Pilih Lokasi';
@@ -2460,6 +2487,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_signInAgain => 'Silakan masuk kembali';
+
+  @override
+  String get unauthorized_signInRequired_title => 'Perlu masuk';
+
+  @override
+  String get unauthorized_signInRequired_message =>
+      'Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.';
 
   @override
   String get msg_insufficientPermissions => 'Izin tidak mencukupi';

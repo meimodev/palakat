@@ -3,6 +3,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 import '../models/finance_type.dart';
 import '../models/financial_account_number.dart';
+import 'searchable_dialog_picker.dart';
 import 'divider_widget.dart';
 
 /// A theme-aware picker widget for selecting financial account numbers.
@@ -314,7 +315,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
 /// Provides a search input field that filters accounts by:
 /// 1. Description match (case-insensitive) - primary
 /// 2. Account number match (case-insensitive) - fallback when no description matches
-class _SearchableAccountDropdown extends StatefulWidget {
+class _SearchableAccountDropdown extends StatelessWidget {
   const _SearchableAccountDropdown({
     required this.accounts,
     required this.selectedAccount,
@@ -328,233 +329,39 @@ class _SearchableAccountDropdown extends StatefulWidget {
   final double buttonWidth;
 
   @override
-  State<_SearchableAccountDropdown> createState() =>
-      _SearchableAccountDropdownState();
-}
-
-class _SearchableAccountDropdownState
-    extends State<_SearchableAccountDropdown> {
-  late TextEditingController _searchController;
-  late List<FinancialAccountNumber> _filteredAccounts;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-    _filteredAccounts = widget.accounts;
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  /// Filters accounts based on the search query.
-  ///
-  /// Search strategy:
-  /// 1. First, filter by description match (case-insensitive)
-  /// 2. If no description matches, fallback to account number match
-  List<FinancialAccountNumber> _filterAccounts(String query) {
-    if (query.isEmpty) {
-      return widget.accounts;
-    }
-
-    final lowerQuery = query.toLowerCase();
-
-    // First, try to filter by description
-    final descriptionMatches = widget.accounts.where((account) {
-      final description = account.description?.toLowerCase() ?? '';
-      return description.contains(lowerQuery);
-    }).toList();
-
-    // If we have description matches, return them
-    if (descriptionMatches.isNotEmpty) {
-      return descriptionMatches;
-    }
-
-    // Fallback: filter by account number
-    return widget.accounts.where((account) {
-      final accountNumber = account.accountNumber.toLowerCase();
-      return accountNumber.contains(lowerQuery);
-    }).toList();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _filteredAccounts = _filterAccounts(query);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final screenSize = MediaQuery.of(context).size;
     final l10n = context.l10n;
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: widget.buttonWidth.clamp(300, 500),
-          maxHeight: screenSize.height * 0.6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with title
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                l10n.lbl_selectAccount(widget.financeTypeLabel),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            // Search input field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: l10n.lbl_searchAccountNumber,
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearchChanged('');
-                          },
-                        )
-                      : null,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: theme.colorScheme.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: theme.colorScheme.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: theme.colorScheme.primary,
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Divider
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            // Scrollable list of accounts
-            Flexible(
-              child: _filteredAccounts.isEmpty
-                  ? _buildEmptyState(context)
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _filteredAccounts.length,
-                      itemBuilder: (context, index) {
-                        final account = _filteredAccounts[index];
-                        final isSelected =
-                            widget.selectedAccount?.id == account.id;
-
-                        return _AccountListTile(
-                          account: account,
-                          isSelected: isSelected,
-                          onTap: () => Navigator.of(context).pop(account),
-                        );
-                      },
-                    ),
-            ),
-            // Cancel button
-            Divider(height: 1, color: theme.colorScheme.outlineVariant),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.btn_cancel),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    return SearchableDialogPicker<FinancialAccountNumber>(
+      title: l10n.lbl_selectAccount(financeTypeLabel),
+      searchHint: l10n.lbl_searchAccountNumber,
+      items: accounts,
+      selectedItem: selectedAccount,
+      itemBuilder: (account) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 48,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
           Text(
-            l10n.noData_financial,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            account.accountNumber,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.msg_tryDifferentSearchTerm,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          if (account.description != null && account.description!.isNotEmpty)
+            Text(
+              account.description!,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
-          ),
         ],
       ),
-    );
-  }
-}
+      onFilter: (account, query) {
+        // First, try to filter by description
+        final description = account.description?.toLowerCase() ?? '';
+        if (description.contains(query)) return true;
 
-/// List tile for displaying a financial account in the dropdown.
-class _AccountListTile extends StatelessWidget {
-  const _AccountListTile({
-    required this.account,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final FinancialAccountNumber account;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return ListTile(
-      onTap: onTap,
-      selected: isSelected,
-      selectedTileColor: theme.colorScheme.primaryContainer.withValues(
-        alpha: 0.3,
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      title: _FinancialAccountDisplay(account: account),
-      trailing: isSelected
-          ? Icon(Icons.check, color: theme.colorScheme.primary, size: 20)
-          : null,
+        // Fallback: filter by account number
+        return account.accountNumber.toLowerCase().contains(query);
+      },
+      emptyStateMessage: l10n.noData_matchingCriteria,
+      maxWidth: buttonWidth.clamp(300, 500),
+      maxHeightFactor: 0.6,
     );
   }
 }

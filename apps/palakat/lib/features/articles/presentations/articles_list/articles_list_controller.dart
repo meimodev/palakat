@@ -65,6 +65,10 @@ class ArticlesListController extends _$ArticlesListController {
         );
       },
       onFailure: (failure) {
+        if (failure.code == 401 || failure.message.trim().isEmpty) {
+          state = state.copyWith(isLoading: false, errorMessage: null);
+          return;
+        }
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
     );

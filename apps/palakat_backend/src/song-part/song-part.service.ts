@@ -7,18 +7,18 @@ import { SongPartListQueryDto } from './dto/song-part-list.dto';
 export class SongPartService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: Prisma.SongPartCreateInput) {
-    const SongPart = await this.prisma.songPart.create({
+  async create(dto: Prisma.SongPartCreateInput, _user?: any) {
+    const songPart = await this.prisma.songPart.create({
       data: dto,
     });
 
     return {
       message: 'OK',
-      data: SongPart,
+      data: songPart,
     };
   }
 
-  async findAll(query: SongPartListQueryDto) {
+  async findAll(query: SongPartListQueryDto, _user?: any) {
     const {
       songId,
       skip,
@@ -48,7 +48,7 @@ export class SongPartService {
     } as any;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, _user?: any) {
     const Songpart = await this.prisma.songPart.findUniqueOrThrow({
       where: { id },
     });
@@ -58,18 +58,22 @@ export class SongPartService {
     };
   }
 
-  async update(id: number, updateSongPartDto: Prisma.SongPartUpdateInput) {
-    await this.prisma.songPart.update({
+  async update(
+    id: number,
+    updateSongPartDto: Prisma.SongPartUpdateInput,
+    _user?: any,
+  ) {
+    const updated = await this.prisma.songPart.update({
       where: { id },
       data: updateSongPartDto,
     });
     return {
       message: 'OK',
-      data: updateSongPartDto,
+      data: updated,
     };
   }
 
-  async delete(id: number) {
+  async delete(id: number, _user?: any) {
     await this.prisma.songPart.delete({
       where: { id },
     });

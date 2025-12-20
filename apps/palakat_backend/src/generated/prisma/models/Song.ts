@@ -252,17 +252,18 @@ export type SongOrderByWithRelationInput = {
 
 export type SongWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  index?: number
+  book_index?: Prisma.SongBookIndexCompoundUniqueInput
   AND?: Prisma.SongWhereInput | Prisma.SongWhereInput[]
   OR?: Prisma.SongWhereInput[]
   NOT?: Prisma.SongWhereInput | Prisma.SongWhereInput[]
   title?: Prisma.StringFilter<"Song"> | string
+  index?: Prisma.IntFilter<"Song"> | number
   book?: Prisma.EnumBookFilter<"Song"> | $Enums.Book
   link?: Prisma.StringFilter<"Song"> | string
   createdAt?: Prisma.DateTimeFilter<"Song"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Song"> | Date | string
   parts?: Prisma.SongPartListRelationFilter
-}, "id" | "index">
+}, "id" | "book_index">
 
 export type SongOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -361,6 +362,11 @@ export type SongUncheckedUpdateManyInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SongBookIndexCompoundUniqueInput = {
+  book: $Enums.Book
+  index: number
 }
 
 export type SongCountOrderByAggregateInput = {

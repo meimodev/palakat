@@ -4,7 +4,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 import 'package:palakat_shared/core/widgets/pagination_bar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:palakat_shared/core/utils/debouncer.dart';
+import 'package:palakat_shared/core/widgets/search_field.dart';
 
 /// Generic, reusable data table for consistent tables across the app.
 ///
@@ -561,9 +561,6 @@ class _BuiltInFiltersBar extends StatefulWidget {
 }
 
 class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
-  late final Debouncer _debouncer = Debouncer(
-    delay: const Duration(milliseconds: 400),
-  );
   TextEditingController? _internalSearchController;
 
   TextEditingController get _searchController {
@@ -602,15 +599,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
   @override
   void dispose() {
     _internalSearchController?.dispose();
-    _debouncer.dispose();
     super.dispose();
-  }
-
-  void _clearSearch() {
-    _searchController.clear();
-    if (widget.config.onSearchChanged != null) {
-      widget.config.onSearchChanged!('');
-    }
   }
 
   @override
@@ -621,30 +610,11 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     if (widget.config.searchHint != null) {
       children.add(
         Expanded(
-          child: ValueListenableBuilder<TextEditingValue>(
-            valueListenable: _searchController,
-            builder: (context, value, child) {
-              return TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: value.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
-                          onPressed: _clearSearch,
-                          tooltip: l10n.tooltip_clearSearch,
-                        )
-                      : null,
-                  hintText: widget.config.searchHint,
-                  border: const OutlineInputBorder(),
-                ),
-                controller: _searchController,
-                onChanged: widget.config.onSearchChanged == null
-                    ? null
-                    : (value) => _debouncer(
-                        () => widget.config.onSearchChanged!(value),
-                      ),
-              );
-            },
+          child: SearchField(
+            controller: _searchController,
+            hint: widget.config.searchHint,
+            debounceMilliseconds: 400,
+            onSearch: widget.config.onSearchChanged,
           ),
         ),
       );

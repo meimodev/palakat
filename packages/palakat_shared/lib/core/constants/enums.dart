@@ -96,6 +96,8 @@ enum RequestStatus {
   doing,
   @JsonValue('DONE')
   done,
+  @JsonValue('REJECTED')
+  rejected,
 }
 
 // ===== Centralized reusable enums =====

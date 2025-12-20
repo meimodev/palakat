@@ -21,10 +21,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any): Promise<any> {
     if (payload?.clientId) {
-      return { clientId: payload.clientId, source: 'jwt-strategy' };
+      return {
+        clientId: payload.clientId,
+        source: 'jwt-strategy',
+      };
     }
     if (payload?.sub) {
-      return { userId: payload.sub, source: 'jwt-strategy' };
+      return {
+        userId: payload.sub,
+        role: payload?.role,
+        aud: payload?.aud,
+        source: 'jwt-strategy',
+      };
     }
     throw new UnauthorizedException('Invalid JWT payload');
   }

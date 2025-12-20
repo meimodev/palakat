@@ -17,6 +17,14 @@ export const Gender = {
 export type Gender = (typeof Gender)[keyof typeof Gender]
 
 
+export const AccountRole = {
+  USER: 'USER',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+} as const
+
+export type AccountRole = (typeof AccountRole)[keyof typeof AccountRole]
+
+
 export const Bipra = {
   PKB: 'PKB',
   WKI: 'WKI',
@@ -59,7 +67,8 @@ export type ApprovalStatus = (typeof ApprovalStatus)[keyof typeof ApprovalStatus
 export const RequestStatus = {
   TODO: 'TODO',
   DOING: 'DOING',
-  DONE: 'DONE'
+  DONE: 'DONE',
+  REJECTED: 'REJECTED'
 } as const
 
 export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus]
@@ -103,7 +112,9 @@ export const NotificationType = {
   ACTIVITY_CREATED: 'ACTIVITY_CREATED',
   APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
   APPROVAL_CONFIRMED: 'APPROVAL_CONFIRMED',
-  APPROVAL_REJECTED: 'APPROVAL_REJECTED'
+  APPROVAL_REJECTED: 'APPROVAL_REJECTED',
+  CHURCH_REQUEST_APPROVED: 'CHURCH_REQUEST_APPROVED',
+  CHURCH_REQUEST_REJECTED: 'CHURCH_REQUEST_REJECTED'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

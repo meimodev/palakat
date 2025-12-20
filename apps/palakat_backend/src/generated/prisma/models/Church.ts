@@ -263,6 +263,7 @@ export type ChurchWhereInput = {
   files?: Prisma.FileManagerListRelationFilter
   approvalRules?: Prisma.ApprovalRuleListRelationFilter
   financialAccountNumbers?: Prisma.FinancialAccountNumberListRelationFilter
+  churchRequestsApproved?: Prisma.ChurchRequestListRelationFilter
 }
 
 export type ChurchOrderByWithRelationInput = {
@@ -286,6 +287,7 @@ export type ChurchOrderByWithRelationInput = {
   files?: Prisma.FileManagerOrderByRelationAggregateInput
   approvalRules?: Prisma.ApprovalRuleOrderByRelationAggregateInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberOrderByRelationAggregateInput
+  churchRequestsApproved?: Prisma.ChurchRequestOrderByRelationAggregateInput
 }
 
 export type ChurchWhereUniqueInput = Prisma.AtLeast<{
@@ -312,6 +314,7 @@ export type ChurchWhereUniqueInput = Prisma.AtLeast<{
   files?: Prisma.FileManagerListRelationFilter
   approvalRules?: Prisma.ApprovalRuleListRelationFilter
   financialAccountNumbers?: Prisma.FinancialAccountNumberListRelationFilter
+  churchRequestsApproved?: Prisma.ChurchRequestListRelationFilter
 }, "id" | "locationId">
 
 export type ChurchOrderByWithAggregationInput = {
@@ -365,6 +368,7 @@ export type ChurchCreateInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateInput = {
@@ -387,6 +391,7 @@ export type ChurchUncheckedCreateInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUpdateInput = {
@@ -408,6 +413,7 @@ export type ChurchUpdateInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateInput = {
@@ -430,6 +436,7 @@ export type ChurchUncheckedUpdateInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateManyInput = {
@@ -706,6 +713,22 @@ export type ChurchUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchUpdateToOneWithWhereWithoutDocumentsInput, Prisma.ChurchUpdateWithoutDocumentsInput>, Prisma.ChurchUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type ChurchCreateNestedOneWithoutChurchRequestsApprovedInput = {
+  create?: Prisma.XOR<Prisma.ChurchCreateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedCreateWithoutChurchRequestsApprovedInput>
+  connectOrCreate?: Prisma.ChurchCreateOrConnectWithoutChurchRequestsApprovedInput
+  connect?: Prisma.ChurchWhereUniqueInput
+}
+
+export type ChurchUpdateOneWithoutChurchRequestsApprovedNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchCreateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedCreateWithoutChurchRequestsApprovedInput>
+  connectOrCreate?: Prisma.ChurchCreateOrConnectWithoutChurchRequestsApprovedInput
+  upsert?: Prisma.ChurchUpsertWithoutChurchRequestsApprovedInput
+  disconnect?: Prisma.ChurchWhereInput | boolean
+  delete?: Prisma.ChurchWhereInput | boolean
+  connect?: Prisma.ChurchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchUpdateToOneWithWhereWithoutChurchRequestsApprovedInput, Prisma.ChurchUpdateWithoutChurchRequestsApprovedInput>, Prisma.ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput>
+}
+
 export type ChurchCreateNestedOneWithoutFinancialAccountNumbersInput = {
   create?: Prisma.XOR<Prisma.ChurchCreateWithoutFinancialAccountNumbersInput, Prisma.ChurchUncheckedCreateWithoutFinancialAccountNumbersInput>
   connectOrCreate?: Prisma.ChurchCreateOrConnectWithoutFinancialAccountNumbersInput
@@ -738,6 +761,7 @@ export type ChurchCreateWithoutColumnsInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutColumnsInput = {
@@ -759,6 +783,7 @@ export type ChurchUncheckedCreateWithoutColumnsInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutColumnsInput = {
@@ -795,6 +820,7 @@ export type ChurchUpdateWithoutColumnsInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutColumnsInput = {
@@ -816,6 +842,7 @@ export type ChurchUncheckedUpdateWithoutColumnsInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutMembershipsInput = {
@@ -836,6 +863,7 @@ export type ChurchCreateWithoutMembershipsInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutMembershipsInput = {
@@ -857,6 +885,7 @@ export type ChurchUncheckedCreateWithoutMembershipsInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutMembershipsInput = {
@@ -893,6 +922,7 @@ export type ChurchUpdateWithoutMembershipsInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutMembershipsInput = {
@@ -914,6 +944,7 @@ export type ChurchUncheckedUpdateWithoutMembershipsInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutMembershipPositionsInput = {
@@ -934,6 +965,7 @@ export type ChurchCreateWithoutMembershipPositionsInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutMembershipPositionsInput = {
@@ -955,6 +987,7 @@ export type ChurchUncheckedCreateWithoutMembershipPositionsInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutMembershipPositionsInput = {
@@ -991,6 +1024,7 @@ export type ChurchUpdateWithoutMembershipPositionsInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutMembershipPositionsInput = {
@@ -1012,6 +1046,7 @@ export type ChurchUncheckedUpdateWithoutMembershipPositionsInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutApprovalRulesInput = {
@@ -1032,6 +1067,7 @@ export type ChurchCreateWithoutApprovalRulesInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutChurchInput
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutApprovalRulesInput = {
@@ -1053,6 +1089,7 @@ export type ChurchUncheckedCreateWithoutApprovalRulesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutChurchInput
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutApprovalRulesInput = {
@@ -1089,6 +1126,7 @@ export type ChurchUpdateWithoutApprovalRulesInput = {
   documents?: Prisma.DocumentUpdateManyWithoutChurchNestedInput
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutApprovalRulesInput = {
@@ -1110,6 +1148,7 @@ export type ChurchUncheckedUpdateWithoutApprovalRulesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutChurchNestedInput
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutRevenuesInput = {
@@ -1130,6 +1169,7 @@ export type ChurchCreateWithoutRevenuesInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutRevenuesInput = {
@@ -1151,6 +1191,7 @@ export type ChurchUncheckedCreateWithoutRevenuesInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutRevenuesInput = {
@@ -1187,6 +1228,7 @@ export type ChurchUpdateWithoutRevenuesInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutRevenuesInput = {
@@ -1208,6 +1250,7 @@ export type ChurchUncheckedUpdateWithoutRevenuesInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutExpensesInput = {
@@ -1228,6 +1271,7 @@ export type ChurchCreateWithoutExpensesInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutExpensesInput = {
@@ -1249,6 +1293,7 @@ export type ChurchUncheckedCreateWithoutExpensesInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutExpensesInput = {
@@ -1285,6 +1330,7 @@ export type ChurchUpdateWithoutExpensesInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutExpensesInput = {
@@ -1306,6 +1352,7 @@ export type ChurchUncheckedUpdateWithoutExpensesInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutLocationInput = {
@@ -1326,6 +1373,7 @@ export type ChurchCreateWithoutLocationInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutLocationInput = {
@@ -1347,6 +1395,7 @@ export type ChurchUncheckedCreateWithoutLocationInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutLocationInput = {
@@ -1383,6 +1432,7 @@ export type ChurchUpdateWithoutLocationInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutLocationInput = {
@@ -1404,6 +1454,7 @@ export type ChurchUncheckedUpdateWithoutLocationInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutFilesInput = {
@@ -1424,6 +1475,7 @@ export type ChurchCreateWithoutFilesInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutFilesInput = {
@@ -1445,6 +1497,7 @@ export type ChurchUncheckedCreateWithoutFilesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutFilesInput = {
@@ -1481,6 +1534,7 @@ export type ChurchUpdateWithoutFilesInput = {
   documents?: Prisma.DocumentUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutFilesInput = {
@@ -1502,6 +1556,7 @@ export type ChurchUncheckedUpdateWithoutFilesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutReportsInput = {
@@ -1522,6 +1577,7 @@ export type ChurchCreateWithoutReportsInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutReportsInput = {
@@ -1543,6 +1599,7 @@ export type ChurchUncheckedCreateWithoutReportsInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutReportsInput = {
@@ -1579,6 +1636,7 @@ export type ChurchUpdateWithoutReportsInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutReportsInput = {
@@ -1600,6 +1658,7 @@ export type ChurchUncheckedUpdateWithoutReportsInput = {
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchCreateWithoutDocumentsInput = {
@@ -1620,6 +1679,7 @@ export type ChurchCreateWithoutDocumentsInput = {
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutDocumentsInput = {
@@ -1641,6 +1701,7 @@ export type ChurchUncheckedCreateWithoutDocumentsInput = {
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutDocumentsInput = {
@@ -1677,6 +1738,7 @@ export type ChurchUpdateWithoutDocumentsInput = {
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutDocumentsInput = {
@@ -1695,6 +1757,109 @@ export type ChurchUncheckedUpdateWithoutDocumentsInput = {
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutChurchNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutChurchNestedInput
+  files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
+  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
+}
+
+export type ChurchCreateWithoutChurchRequestsApprovedInput = {
+  name: string
+  phoneNumber?: string | null
+  email?: string | null
+  description?: string | null
+  documentAccountNumber?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location: Prisma.LocationCreateNestedOneWithoutChurchInput
+  columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
+  membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutChurchInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutChurchInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutChurchInput
+  reports?: Prisma.ReportCreateNestedManyWithoutChurchInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutChurchInput
+  files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
+  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+}
+
+export type ChurchUncheckedCreateWithoutChurchRequestsApprovedInput = {
+  id?: number
+  name: string
+  phoneNumber?: string | null
+  email?: string | null
+  description?: string | null
+  documentAccountNumber?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  locationId: number
+  columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutChurchInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutChurchInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutChurchInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutChurchInput
+  files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
+  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+}
+
+export type ChurchCreateOrConnectWithoutChurchRequestsApprovedInput = {
+  where: Prisma.ChurchWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChurchCreateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedCreateWithoutChurchRequestsApprovedInput>
+}
+
+export type ChurchUpsertWithoutChurchRequestsApprovedInput = {
+  update: Prisma.XOR<Prisma.ChurchUpdateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput>
+  create: Prisma.XOR<Prisma.ChurchCreateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedCreateWithoutChurchRequestsApprovedInput>
+  where?: Prisma.ChurchWhereInput
+}
+
+export type ChurchUpdateToOneWithWhereWithoutChurchRequestsApprovedInput = {
+  where?: Prisma.ChurchWhereInput
+  data: Prisma.XOR<Prisma.ChurchUpdateWithoutChurchRequestsApprovedInput, Prisma.ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput>
+}
+
+export type ChurchUpdateWithoutChurchRequestsApprovedInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
+  columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
+  membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutChurchNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutChurchNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutChurchNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutChurchNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutChurchNestedInput
+  files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
+  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+}
+
+export type ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutChurchNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutChurchNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutChurchNestedInput
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
   financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
@@ -1718,6 +1883,7 @@ export type ChurchCreateWithoutFinancialAccountNumbersInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutChurchInput
   files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchUncheckedCreateWithoutFinancialAccountNumbersInput = {
@@ -1739,6 +1905,7 @@ export type ChurchUncheckedCreateWithoutFinancialAccountNumbersInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutChurchInput
   files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
   approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
 }
 
 export type ChurchCreateOrConnectWithoutFinancialAccountNumbersInput = {
@@ -1775,6 +1942,7 @@ export type ChurchUpdateWithoutFinancialAccountNumbersInput = {
   documents?: Prisma.DocumentUpdateManyWithoutChurchNestedInput
   files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
 }
 
 export type ChurchUncheckedUpdateWithoutFinancialAccountNumbersInput = {
@@ -1796,6 +1964,7 @@ export type ChurchUncheckedUpdateWithoutFinancialAccountNumbersInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutChurchNestedInput
   files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
   approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
 }
 
 
@@ -1814,6 +1983,7 @@ export type ChurchCountOutputType = {
   files: number
   approvalRules: number
   financialAccountNumbers: number
+  churchRequestsApproved: number
 }
 
 export type ChurchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1827,6 +1997,7 @@ export type ChurchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   files?: boolean | ChurchCountOutputTypeCountFilesArgs
   approvalRules?: boolean | ChurchCountOutputTypeCountApprovalRulesArgs
   financialAccountNumbers?: boolean | ChurchCountOutputTypeCountFinancialAccountNumbersArgs
+  churchRequestsApproved?: boolean | ChurchCountOutputTypeCountChurchRequestsApprovedArgs
 }
 
 /**
@@ -1909,6 +2080,13 @@ export type ChurchCountOutputTypeCountFinancialAccountNumbersArgs<ExtArgs extend
   where?: Prisma.FinancialAccountNumberWhereInput
 }
 
+/**
+ * ChurchCountOutputType without action
+ */
+export type ChurchCountOutputTypeCountChurchRequestsApprovedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChurchRequestWhereInput
+}
+
 
 export type ChurchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1931,6 +2109,7 @@ export type ChurchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   files?: boolean | Prisma.Church$filesArgs<ExtArgs>
   approvalRules?: boolean | Prisma.Church$approvalRulesArgs<ExtArgs>
   financialAccountNumbers?: boolean | Prisma.Church$financialAccountNumbersArgs<ExtArgs>
+  churchRequestsApproved?: boolean | Prisma.Church$churchRequestsApprovedArgs<ExtArgs>
   _count?: boolean | Prisma.ChurchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["church"]>
 
@@ -1985,6 +2164,7 @@ export type ChurchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   files?: boolean | Prisma.Church$filesArgs<ExtArgs>
   approvalRules?: boolean | Prisma.Church$approvalRulesArgs<ExtArgs>
   financialAccountNumbers?: boolean | Prisma.Church$financialAccountNumbersArgs<ExtArgs>
+  churchRequestsApproved?: boolean | Prisma.Church$churchRequestsApprovedArgs<ExtArgs>
   _count?: boolean | Prisma.ChurchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ChurchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2008,6 +2188,7 @@ export type $ChurchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     files: Prisma.$FileManagerPayload<ExtArgs>[]
     approvalRules: Prisma.$ApprovalRulePayload<ExtArgs>[]
     financialAccountNumbers: Prisma.$FinancialAccountNumberPayload<ExtArgs>[]
+    churchRequestsApproved: Prisma.$ChurchRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2424,6 +2605,7 @@ export interface Prisma__ChurchClient<T, Null = never, ExtArgs extends runtime.T
   files<T extends Prisma.Church$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FileManagerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvalRules<T extends Prisma.Church$approvalRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$approvalRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financialAccountNumbers<T extends Prisma.Church$financialAccountNumbersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$financialAccountNumbersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinancialAccountNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  churchRequestsApproved<T extends Prisma.Church$churchRequestsApprovedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$churchRequestsApprovedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChurchRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3095,6 +3277,30 @@ export type Church$financialAccountNumbersArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.FinancialAccountNumberScalarFieldEnum | Prisma.FinancialAccountNumberScalarFieldEnum[]
+}
+
+/**
+ * Church.churchRequestsApproved
+ */
+export type Church$churchRequestsApprovedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChurchRequest
+   */
+  select?: Prisma.ChurchRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChurchRequest
+   */
+  omit?: Prisma.ChurchRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChurchRequestInclude<ExtArgs> | null
+  where?: Prisma.ChurchRequestWhereInput
+  orderBy?: Prisma.ChurchRequestOrderByWithRelationInput | Prisma.ChurchRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ChurchRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChurchRequestScalarFieldEnum | Prisma.ChurchRequestScalarFieldEnum[]
 }
 
 /**

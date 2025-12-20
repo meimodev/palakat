@@ -65,6 +65,8 @@ class NotificationChannels {
       case 'ACTIVITY_CREATED':
       case 'APPROVAL_CONFIRMED':
       case 'APPROVAL_REJECTED':
+      case 'CHURCH_REQUEST_APPROVED':
+      case 'CHURCH_REQUEST_REJECTED':
         return activityUpdates.id;
       default:
         return generalAnnouncements.id;

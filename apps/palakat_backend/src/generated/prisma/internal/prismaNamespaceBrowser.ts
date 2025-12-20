@@ -149,6 +149,7 @@ export const AccountScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   passwordHash: 'passwordHash',
+  role: 'role',
   isActive: 'isActive',
   claimed: 'claimed',
   failedLoginAttempts: 'failedLoginAttempts',
@@ -329,6 +330,10 @@ export const ChurchRequestScalarFieldEnum = {
   contactPerson: 'contactPerson',
   contactPhone: 'contactPhone',
   status: 'status',
+  decisionNote: 'decisionNote',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  approvedChurchId: 'approvedChurchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   requesterId: 'requesterId'

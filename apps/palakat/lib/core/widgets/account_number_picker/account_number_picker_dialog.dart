@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,6 +9,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/widgets/search_field.dart';
 
 /// Shows the account number picker dialog
 /// [financeType] filters accounts by type (revenue or expense)
@@ -52,7 +51,6 @@ class _AccountNumberPickerDialogContentState
 
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  Timer? _debounce;
   List<FinancialAccountNumber> _accounts = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -72,7 +70,6 @@ class _AccountNumberPickerDialogContentState
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -176,14 +173,8 @@ class _AccountNumberPickerDialogContentState
   }
 
   void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      // Hide keyboard after debounce
-      FocusScope.of(context).unfocus();
-      setState(() => _searchQuery = query);
-      _fetchAccounts();
-    });
+    setState(() => _searchQuery = query);
+    _fetchAccounts();
   }
 
   @override
@@ -196,29 +187,15 @@ class _AccountNumberPickerDialogContentState
             horizontal: BaseSize.w16,
             vertical: BaseSize.h8,
           ),
-          child: TextField(
+          child: SearchField(
             controller: _searchController,
-            onChanged: _onSearchChanged,
-            decoration: InputDecoration(
-              hintText: context.l10n.lbl_searchAccountNumber,
-              prefixIcon: FaIcon(AppIcons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: FaIcon(AppIcons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        _onSearchChanged('');
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w16,
-                vertical: BaseSize.h12,
-              ),
-            ),
+            hint: context.l10n.lbl_searchAccountNumber,
+            debounceMilliseconds: 500,
+            unfocusOnSearch: true,
+            prefixIcon: FaIcon(AppIcons.search),
+            clearIcon: FaIcon(AppIcons.clear),
+            onSearch: _onSearchChanged,
+            onChanged: null,
           ),
         ),
         Gap.h8,

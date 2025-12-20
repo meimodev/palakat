@@ -53,11 +53,18 @@ class Failure implements Exception {
 
   factory Failure.fromException(Object exception) {
     if (exception is DioException) {
+      final statusCode = exception.response?.statusCode;
+      final unauthorizedHandled =
+          statusCode == 401 &&
+          exception.requestOptions.extra['__unauthorized_handled__'] == true;
+      if (unauthorizedHandled) {
+        return Failure('', statusCode);
+      }
       return Failure(
         exception.response?.data?['message']?.toString() ??
             exception.message ??
             'A network error occurred',
-        exception.response?.statusCode,
+        statusCode,
       );
     } else if (exception is Exception) {
       return Failure(exception.toString());

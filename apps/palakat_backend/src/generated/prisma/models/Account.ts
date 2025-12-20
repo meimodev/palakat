@@ -42,6 +42,7 @@ export type AccountMinAggregateOutputType = {
   phone: string | null
   email: string | null
   passwordHash: string | null
+  role: $Enums.AccountRole | null
   isActive: boolean | null
   claimed: boolean | null
   failedLoginAttempts: number | null
@@ -62,6 +63,7 @@ export type AccountMaxAggregateOutputType = {
   phone: string | null
   email: string | null
   passwordHash: string | null
+  role: $Enums.AccountRole | null
   isActive: boolean | null
   claimed: boolean | null
   failedLoginAttempts: number | null
@@ -82,6 +84,7 @@ export type AccountCountAggregateOutputType = {
   phone: number
   email: number
   passwordHash: number
+  role: number
   isActive: number
   claimed: number
   failedLoginAttempts: number
@@ -114,6 +117,7 @@ export type AccountMinAggregateInputType = {
   phone?: true
   email?: true
   passwordHash?: true
+  role?: true
   isActive?: true
   claimed?: true
   failedLoginAttempts?: true
@@ -134,6 +138,7 @@ export type AccountMaxAggregateInputType = {
   phone?: true
   email?: true
   passwordHash?: true
+  role?: true
   isActive?: true
   claimed?: true
   failedLoginAttempts?: true
@@ -154,6 +159,7 @@ export type AccountCountAggregateInputType = {
   phone?: true
   email?: true
   passwordHash?: true
+  role?: true
   isActive?: true
   claimed?: true
   failedLoginAttempts?: true
@@ -261,6 +267,7 @@ export type AccountGroupByOutputType = {
   phone: string
   email: string | null
   passwordHash: string | null
+  role: $Enums.AccountRole
   isActive: boolean
   claimed: boolean
   failedLoginAttempts: number
@@ -304,6 +311,7 @@ export type AccountWhereInput = {
   phone?: Prisma.StringFilter<"Account"> | string
   email?: Prisma.StringNullableFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
+  role?: Prisma.EnumAccountRoleFilter<"Account"> | $Enums.AccountRole
   isActive?: Prisma.BoolFilter<"Account"> | boolean
   claimed?: Prisma.BoolFilter<"Account"> | boolean
   failedLoginAttempts?: Prisma.IntFilter<"Account"> | number
@@ -318,6 +326,7 @@ export type AccountWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   churchRequest?: Prisma.XOR<Prisma.ChurchRequestNullableScalarRelationFilter, Prisma.ChurchRequestWhereInput> | null
+  reviewedChurchRequests?: Prisma.ChurchRequestListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
   articleLikes?: Prisma.ArticleLikeListRelationFilter
 }
@@ -328,6 +337,7 @@ export type AccountOrderByWithRelationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   claimed?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
@@ -342,6 +352,7 @@ export type AccountOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   membership?: Prisma.MembershipOrderByWithRelationInput
   churchRequest?: Prisma.ChurchRequestOrderByWithRelationInput
+  reviewedChurchRequests?: Prisma.ChurchRequestOrderByRelationAggregateInput
   articles?: Prisma.ArticleOrderByRelationAggregateInput
   articleLikes?: Prisma.ArticleLikeOrderByRelationAggregateInput
 }
@@ -355,6 +366,7 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   name?: Prisma.StringFilter<"Account"> | string
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
+  role?: Prisma.EnumAccountRoleFilter<"Account"> | $Enums.AccountRole
   isActive?: Prisma.BoolFilter<"Account"> | boolean
   claimed?: Prisma.BoolFilter<"Account"> | boolean
   failedLoginAttempts?: Prisma.IntFilter<"Account"> | number
@@ -369,6 +381,7 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   churchRequest?: Prisma.XOR<Prisma.ChurchRequestNullableScalarRelationFilter, Prisma.ChurchRequestWhereInput> | null
+  reviewedChurchRequests?: Prisma.ChurchRequestListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
   articleLikes?: Prisma.ArticleLikeListRelationFilter
 }, "id" | "phone" | "email">
@@ -379,6 +392,7 @@ export type AccountOrderByWithAggregationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   claimed?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
@@ -407,6 +421,7 @@ export type AccountScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringWithAggregatesFilter<"Account"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
+  role?: Prisma.EnumAccountRoleWithAggregatesFilter<"Account"> | $Enums.AccountRole
   isActive?: Prisma.BoolWithAggregatesFilter<"Account"> | boolean
   claimed?: Prisma.BoolWithAggregatesFilter<"Account"> | boolean
   failedLoginAttempts?: Prisma.IntWithAggregatesFilter<"Account"> | number
@@ -426,6 +441,7 @@ export type AccountCreateInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -440,6 +456,7 @@ export type AccountCreateInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
 }
@@ -450,6 +467,7 @@ export type AccountUncheckedCreateInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -464,6 +482,7 @@ export type AccountUncheckedCreateInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
 }
@@ -473,6 +492,7 @@ export type AccountUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -487,6 +507,7 @@ export type AccountUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
 }
@@ -497,6 +518,7 @@ export type AccountUncheckedUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -511,6 +533,7 @@ export type AccountUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
 }
@@ -521,6 +544,7 @@ export type AccountCreateManyInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -540,6 +564,7 @@ export type AccountUpdateManyMutationInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -560,6 +585,7 @@ export type AccountUncheckedUpdateManyInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -585,6 +611,7 @@ export type AccountCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   claimed?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
@@ -610,6 +637,7 @@ export type AccountMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   claimed?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
@@ -630,6 +658,7 @@ export type AccountMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   claimed?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
@@ -668,6 +697,10 @@ export type AccountUpdateOneRequiredWithoutMembershipNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutMembershipInput, Prisma.AccountUpdateWithoutMembershipInput>, Prisma.AccountUncheckedUpdateWithoutMembershipInput>
 }
 
+export type EnumAccountRoleFieldUpdateOperationsInput = {
+  set?: $Enums.AccountRole
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -680,10 +713,26 @@ export type EnumMaritalStatusFieldUpdateOperationsInput = {
   set?: $Enums.MaritalStatus
 }
 
+export type AccountCreateNestedOneWithoutReviewedChurchRequestsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedCreateWithoutReviewedChurchRequestsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReviewedChurchRequestsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
 export type AccountCreateNestedOneWithoutChurchRequestInput = {
   create?: Prisma.XOR<Prisma.AccountCreateWithoutChurchRequestInput, Prisma.AccountUncheckedCreateWithoutChurchRequestInput>
   connectOrCreate?: Prisma.AccountCreateOrConnectWithoutChurchRequestInput
   connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneWithoutReviewedChurchRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedCreateWithoutReviewedChurchRequestsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReviewedChurchRequestsInput
+  upsert?: Prisma.AccountUpsertWithoutReviewedChurchRequestsInput
+  disconnect?: Prisma.AccountWhereInput | boolean
+  delete?: Prisma.AccountWhereInput | boolean
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutReviewedChurchRequestsInput, Prisma.AccountUpdateWithoutReviewedChurchRequestsInput>, Prisma.AccountUncheckedUpdateWithoutReviewedChurchRequestsInput>
 }
 
 export type AccountUpdateOneRequiredWithoutChurchRequestNestedInput = {
@@ -729,6 +778,7 @@ export type AccountCreateWithoutMembershipInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -742,6 +792,7 @@ export type AccountCreateWithoutMembershipInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
 }
@@ -752,6 +803,7 @@ export type AccountUncheckedCreateWithoutMembershipInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -765,6 +817,7 @@ export type AccountUncheckedCreateWithoutMembershipInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
 }
@@ -790,6 +843,7 @@ export type AccountUpdateWithoutMembershipInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -803,6 +857,7 @@ export type AccountUpdateWithoutMembershipInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
 }
@@ -813,6 +868,7 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -826,15 +882,17 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
 }
 
-export type AccountCreateWithoutChurchRequestInput = {
+export type AccountCreateWithoutReviewedChurchRequestsInput = {
   name: string
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -848,16 +906,18 @@ export type AccountCreateWithoutChurchRequestInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
 }
 
-export type AccountUncheckedCreateWithoutChurchRequestInput = {
+export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
   id?: number
   name: string
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -871,6 +931,61 @@ export type AccountUncheckedCreateWithoutChurchRequestInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutReviewedChurchRequestsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedCreateWithoutReviewedChurchRequestsInput>
+}
+
+export type AccountCreateWithoutChurchRequestInput = {
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutChurchRequestInput = {
+  id?: number
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
 }
@@ -878,6 +993,66 @@ export type AccountUncheckedCreateWithoutChurchRequestInput = {
 export type AccountCreateOrConnectWithoutChurchRequestInput = {
   where: Prisma.AccountWhereUniqueInput
   create: Prisma.XOR<Prisma.AccountCreateWithoutChurchRequestInput, Prisma.AccountUncheckedCreateWithoutChurchRequestInput>
+}
+
+export type AccountUpsertWithoutReviewedChurchRequestsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedUpdateWithoutReviewedChurchRequestsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedCreateWithoutReviewedChurchRequestsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutReviewedChurchRequestsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutReviewedChurchRequestsInput, Prisma.AccountUncheckedUpdateWithoutReviewedChurchRequestsInput>
+}
+
+export type AccountUpdateWithoutReviewedChurchRequestsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountUpsertWithoutChurchRequestInput = {
@@ -896,6 +1071,7 @@ export type AccountUpdateWithoutChurchRequestInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -909,6 +1085,7 @@ export type AccountUpdateWithoutChurchRequestInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
 }
@@ -919,6 +1096,7 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -932,6 +1110,7 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
 }
@@ -941,6 +1120,7 @@ export type AccountCreateWithoutArticlesInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -955,6 +1135,7 @@ export type AccountCreateWithoutArticlesInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
 }
 
@@ -964,6 +1145,7 @@ export type AccountUncheckedCreateWithoutArticlesInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -978,6 +1160,7 @@ export type AccountUncheckedCreateWithoutArticlesInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
 }
 
@@ -1002,6 +1185,7 @@ export type AccountUpdateWithoutArticlesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1016,6 +1200,7 @@ export type AccountUpdateWithoutArticlesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
 }
 
@@ -1025,6 +1210,7 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1039,6 +1225,7 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
 }
 
@@ -1047,6 +1234,7 @@ export type AccountCreateWithoutArticleLikesInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -1061,6 +1249,7 @@ export type AccountCreateWithoutArticleLikesInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
 }
 
@@ -1070,6 +1259,7 @@ export type AccountUncheckedCreateWithoutArticleLikesInput = {
   phone: string
   email?: string | null
   passwordHash?: string | null
+  role?: $Enums.AccountRole
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: number
@@ -1084,6 +1274,7 @@ export type AccountUncheckedCreateWithoutArticleLikesInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
 }
 
@@ -1108,6 +1299,7 @@ export type AccountUpdateWithoutArticleLikesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1122,6 +1314,7 @@ export type AccountUpdateWithoutArticleLikesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
 }
 
@@ -1131,6 +1324,7 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1145,6 +1339,7 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
@@ -1154,11 +1349,13 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
  */
 
 export type AccountCountOutputType = {
+  reviewedChurchRequests: number
   articles: number
   articleLikes: number
 }
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reviewedChurchRequests?: boolean | AccountCountOutputTypeCountReviewedChurchRequestsArgs
   articles?: boolean | AccountCountOutputTypeCountArticlesArgs
   articleLikes?: boolean | AccountCountOutputTypeCountArticleLikesArgs
 }
@@ -1171,6 +1368,13 @@ export type AccountCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the AccountCountOutputType
    */
   select?: Prisma.AccountCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountReviewedChurchRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChurchRequestWhereInput
 }
 
 /**
@@ -1194,6 +1398,7 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
+  role?: boolean
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: boolean
@@ -1208,6 +1413,7 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   membership?: boolean | Prisma.Account$membershipArgs<ExtArgs>
   churchRequest?: boolean | Prisma.Account$churchRequestArgs<ExtArgs>
+  reviewedChurchRequests?: boolean | Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>
   articles?: boolean | Prisma.Account$articlesArgs<ExtArgs>
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
@@ -1219,6 +1425,7 @@ export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
+  role?: boolean
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: boolean
@@ -1239,6 +1446,7 @@ export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
+  role?: boolean
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: boolean
@@ -1259,6 +1467,7 @@ export type AccountSelectScalar = {
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
+  role?: boolean
   isActive?: boolean
   claimed?: boolean
   failedLoginAttempts?: boolean
@@ -1273,10 +1482,11 @@ export type AccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "passwordHash" | "isActive" | "claimed" | "failedLoginAttempts" | "lockUntil" | "refreshTokenHash" | "refreshTokenExpiresAt" | "refreshTokenJti" | "gender" | "maritalStatus" | "dob" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
+export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "passwordHash" | "role" | "isActive" | "claimed" | "failedLoginAttempts" | "lockUntil" | "refreshTokenHash" | "refreshTokenExpiresAt" | "refreshTokenJti" | "gender" | "maritalStatus" | "dob" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
 export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   membership?: boolean | Prisma.Account$membershipArgs<ExtArgs>
   churchRequest?: boolean | Prisma.Account$churchRequestArgs<ExtArgs>
+  reviewedChurchRequests?: boolean | Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>
   articles?: boolean | Prisma.Account$articlesArgs<ExtArgs>
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
@@ -1289,6 +1499,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     membership: Prisma.$MembershipPayload<ExtArgs> | null
     churchRequest: Prisma.$ChurchRequestPayload<ExtArgs> | null
+    reviewedChurchRequests: Prisma.$ChurchRequestPayload<ExtArgs>[]
     articles: Prisma.$ArticlePayload<ExtArgs>[]
     articleLikes: Prisma.$ArticleLikePayload<ExtArgs>[]
   }
@@ -1298,6 +1509,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     phone: string
     email: string | null
     passwordHash: string | null
+    role: $Enums.AccountRole
     isActive: boolean
     claimed: boolean
     failedLoginAttempts: number
@@ -1706,6 +1918,7 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   membership<T extends Prisma.Account$membershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$membershipArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   churchRequest<T extends Prisma.Account$churchRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$churchRequestArgs<ExtArgs>>): Prisma.Prisma__ChurchRequestClient<runtime.Types.Result.GetResult<Prisma.$ChurchRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reviewedChurchRequests<T extends Prisma.Account$reviewedChurchRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChurchRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   articles<T extends Prisma.Account$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   articleLikes<T extends Prisma.Account$articleLikesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$articleLikesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticleLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1742,6 +1955,7 @@ export interface AccountFieldRefs {
   readonly phone: Prisma.FieldRef<"Account", 'String'>
   readonly email: Prisma.FieldRef<"Account", 'String'>
   readonly passwordHash: Prisma.FieldRef<"Account", 'String'>
+  readonly role: Prisma.FieldRef<"Account", 'AccountRole'>
   readonly isActive: Prisma.FieldRef<"Account", 'Boolean'>
   readonly claimed: Prisma.FieldRef<"Account", 'Boolean'>
   readonly failedLoginAttempts: Prisma.FieldRef<"Account", 'Int'>
@@ -2177,6 +2391,30 @@ export type Account$churchRequestArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.ChurchRequestInclude<ExtArgs> | null
   where?: Prisma.ChurchRequestWhereInput
+}
+
+/**
+ * Account.reviewedChurchRequests
+ */
+export type Account$reviewedChurchRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChurchRequest
+   */
+  select?: Prisma.ChurchRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChurchRequest
+   */
+  omit?: Prisma.ChurchRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChurchRequestInclude<ExtArgs> | null
+  where?: Prisma.ChurchRequestWhereInput
+  orderBy?: Prisma.ChurchRequestOrderByWithRelationInput | Prisma.ChurchRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ChurchRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChurchRequestScalarFieldEnum | Prisma.ChurchRequestScalarFieldEnum[]
 }
 
 /**

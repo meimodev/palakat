@@ -18,7 +18,9 @@ import 'package:pinput/pinput.dart';
 /// This screen allows users to enter the 6-digit OTP code sent via SMS.
 /// It includes a countdown timer and resend functionality.
 class OtpVerificationScreen extends ConsumerWidget {
-  const OtpVerificationScreen({super.key});
+  final String? returnTo;
+
+  const OtpVerificationScreen({super.key, this.returnTo});
 
   /// Determines if retry button should be shown based on error message
   bool _shouldShowRetry(BuildContext context, String errorMessage) {
@@ -57,6 +59,7 @@ class OtpVerificationScreen extends ConsumerWidget {
     final l10n = context.l10n;
     // Optimize state watching - only watch specific fields
     final controller = ref.read(authenticationControllerProvider.notifier);
+    final rt = returnTo;
 
     // Listen for state changes to handle navigation
     ref.listen<AuthenticationState>(authenticationControllerProvider, (
@@ -115,296 +118,316 @@ class OtpVerificationScreen extends ConsumerWidget {
       authenticationControllerProvider.select((s) => s.showSuccessFeedback),
     );
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: BaseColor.white,
-        body: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOut,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 20 * (1 - value)),
-                  child: child,
-                ),
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Back button
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Semantics(
-                    label: l10n.btn_back,
-                    hint: l10n.btn_goBack,
-                    button: true,
-                    child: IconButton(
-                      onPressed: () {
-                        // Cancel timer and reset state
-                        controller.goBackToPhoneInput();
-                        // Navigation will be handled by the listener
-                      },
-                      icon: FaIcon(
-                        AppIcons.back,
-                        color: BaseColor.black,
-                        size: BaseSize.w24,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        controller.goBackToPhoneInput();
+      },
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: BaseColor.white,
+          body: Padding(
+            padding: EdgeInsets.all(BaseSize.w12),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: child,
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Back button
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Semantics(
+                      label: l10n.btn_back,
+                      hint: l10n.btn_goBack,
+                      button: true,
+                      child: IconButton(
+                        onPressed: () {
+                          // Cancel timer and reset state
+                          controller.goBackToPhoneInput();
+                          // Navigation will be handled by the listener
+                        },
+                        icon: FaIcon(
+                          AppIcons.back,
+                          color: BaseColor.black,
+                          size: BaseSize.w24,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
                     ),
                   ),
-                ),
-                const Spacer(),
+                  const Spacer(),
 
-                // OTP Verification Card
-                Material(
-                  color: BaseColor.cardBackground1,
-                  elevation: 1,
-                  shadowColor: Colors.black.withValues(alpha: 0.05),
-                  surfaceTintColor: BaseColor.teal[50],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(BaseSize.w16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Header with icon and title
-                        Row(
-                          children: [
-                            Container(
-                              width: BaseSize.w32,
-                              height: BaseSize.w32,
-                              decoration: BoxDecoration(
-                                color: BaseColor.teal[100],
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: FaIcon(
-                                AppIcons.security,
-                                size: BaseSize.w16,
-                                color: BaseColor.teal[700],
-                              ),
-                            ),
-                            Gap.w12,
-                            Expanded(
-                              child: Text(
-                                context.l10n.auth_verifyOtp,
-                                style: BaseTypography.titleMedium.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: BaseColor.black,
+                  // OTP Verification Card
+                  Material(
+                    color: BaseColor.cardBackground1,
+                    elevation: 1,
+                    shadowColor: Colors.black.withValues(alpha: 0.05),
+                    surfaceTintColor: BaseColor.teal[50],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(BaseSize.w16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Header with icon and title
+                          Row(
+                            children: [
+                              Container(
+                                width: BaseSize.w32,
+                                height: BaseSize.w32,
+                                decoration: BoxDecoration(
+                                  color: BaseColor.teal[100],
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: FaIcon(
+                                  AppIcons.security,
+                                  size: BaseSize.w16,
+                                  color: BaseColor.teal[700],
                                 ),
                               ),
+                              Gap.w12,
+                              Expanded(
+                                child: Text(
+                                  context.l10n.auth_verifyOtp,
+                                  style: BaseTypography.titleMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: BaseColor.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Gap.h16,
+
+                          // Masked phone number display
+                          Text(
+                            context.l10n.auth_enterCode,
+                            style: BaseTypography.bodyMedium.toSecondary,
+                            textAlign: TextAlign.center,
+                          ),
+                          Gap.h6,
+                          Text(
+                            PhoneNumberFormatter.format(
+                              fullPhoneNumber,
+                              convertPlusToZero: true,
                             ),
-                          ],
-                        ),
-                        Gap.h16,
-
-                        // Masked phone number display
-                        Text(
-                          context.l10n.auth_enterCode,
-                          style: BaseTypography.bodyMedium.toSecondary,
-                          textAlign: TextAlign.center,
-                        ),
-                        Gap.h6,
-                        Text(
-                          PhoneNumberFormatter.format(
-                            fullPhoneNumber,
-                            convertPlusToZero: true,
+                            style: BaseTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: BaseColor.black,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          style: BaseTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: BaseColor.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Gap.h16,
+                          Gap.h16,
 
-                        // Pinput OTP input
-                        _OtpInput(
-                          enabled: !isVerifyingOtp && !isValidatingAccount,
-                          onChanged: controller.onOtpChanged,
-                          onCompleted: (otp) {
-                            // Auto-submit when 6 digits entered
-                            controller.verifyOtp(
-                              onAlreadyRegistered: (account) async {
-                                // Check for 7-day permission re-request (Requirement 6.1)
-                                await _checkPermissionReRequest(ref, context);
+                          // Pinput OTP input
+                          _OtpInput(
+                            enabled: !isVerifyingOtp && !isValidatingAccount,
+                            onChanged: controller.onOtpChanged,
+                            onCompleted: (otp) {
+                              // Auto-submit when 6 digits entered
+                              controller.verifyOtp(
+                                onAlreadyRegistered: (account) async {
+                                  // Check for 7-day permission re-request (Requirement 6.1)
+                                  await _checkPermissionReRequest(ref, context);
 
-                                // Register push notifications after successful sign-in
-                                try {
-                                  final membership = account.membership;
-                                  if (membership != null &&
-                                      membership.id != null) {
-                                    final pusherBeamsController = ref.read(
-                                      pusherBeamsControllerProvider.notifier,
-                                    );
-                                    // Pass account explicitly since membership.account
-                                    // might be null (no back-reference from backend)
-                                    await pusherBeamsController
-                                        .registerInterests(
-                                          membership,
-                                          account: account,
-                                        );
-                                  }
-                                } catch (e) {
-                                  debugPrint(
-                                    '🔔 Push notification registration failed: $e',
-                                  );
-                                }
-                                // Navigate to home screen for existing users
-                                if (context.mounted) {
-                                  context.goNamed(AppRoute.home);
-                                }
-                              },
-                              onNotRegistered: () {
-                                // Navigate to registration for new users
-                                // Pass verified phone to registration screen
-                                final verifiedPhone = fullPhoneNumber.isNotEmpty
-                                    ? fullPhoneNumber
-                                    : ref.read(
-                                        authenticationControllerProvider.select(
-                                          (s) => s.phoneNumber,
-                                        ),
+                                  // Register push notifications after successful sign-in
+                                  try {
+                                    final membership = account.membership;
+                                    if (membership != null &&
+                                        membership.id != null) {
+                                      final pusherBeamsController = ref.read(
+                                        pusherBeamsControllerProvider.notifier,
                                       );
-                                context.pushNamed(
-                                  AppRoute.account,
-                                  extra: {'verifiedPhone': verifiedPhone},
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Gap.h16,
+                                      // Pass account explicitly since membership.account
+                                      // might be null (no back-reference from backend)
+                                      await pusherBeamsController
+                                          .registerInterests(
+                                            membership,
+                                            account: account,
+                                          );
+                                    }
+                                  } catch (e) {
+                                    debugPrint(
+                                      '🔔 Push notification registration failed: $e',
+                                    );
+                                  }
+                                  // Navigate to home screen for existing users
+                                  if (context.mounted) {
+                                    if (rt != null && rt.isNotEmpty) {
+                                      context.go(rt);
+                                    } else {
+                                      context.goNamed(AppRoute.home);
+                                    }
+                                  }
+                                },
+                                onNotRegistered: () {
+                                  // Navigate to registration for new users
+                                  // Pass verified phone to registration screen
+                                  final verifiedPhone =
+                                      fullPhoneNumber.isNotEmpty
+                                      ? fullPhoneNumber
+                                      : ref.read(
+                                          authenticationControllerProvider
+                                              .select((s) => s.phoneNumber),
+                                        );
+                                  context.pushNamed(
+                                    AppRoute.account,
+                                    extra: {'verifiedPhone': verifiedPhone},
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          Gap.h16,
 
-                        // Timer and resend button
-                        _TimerAndResendButton(
-                          remainingSeconds: remainingSeconds,
-                          canResendOtp: canResendOtp,
-                          isLoading: isSendingOtp,
-                          onResend: controller.resendOtp,
-                          formatTime: controller.formatTime,
-                          resendCodeLabel: context.l10n.btn_resendCode,
-                        ),
-                      ],
+                          // Timer and resend button
+                          _TimerAndResendButton(
+                            remainingSeconds: remainingSeconds,
+                            canResendOtp: canResendOtp,
+                            isLoading: isSendingOtp,
+                            onResend: controller.resendOtp,
+                            formatTime: controller.formatTime,
+                            resendCodeLabel: context.l10n.btn_resendCode,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // Error Display below card with animation
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: errorMessage != null
-                      ? Column(
-                          children: [
-                            Gap.h12,
-                            AuthErrorDisplay(
-                              message: errorMessage,
-                              onRetry: _shouldShowRetry(context, errorMessage)
-                                  ? () {
-                                      // Clear error and retry verification if OTP is complete
-                                      controller.clearError();
-                                      if (otp.length ==
-                                          AppConstants.otpLength) {
-                                        controller.verifyOtp(
-                                          onAlreadyRegistered: (account) async {
-                                            // Check for 7-day permission re-request (Requirement 6.1)
-                                            await _checkPermissionReRequest(
-                                              ref,
-                                              context,
-                                            );
-
-                                            // Register push notifications after successful sign-in
-                                            try {
-                                              // Use membership from account directly
-                                              final membership =
-                                                  account.membership;
-                                              if (membership != null &&
-                                                  membership.id != null) {
-                                                final pusherBeamsController =
-                                                    ref.read(
-                                                      pusherBeamsControllerProvider
-                                                          .notifier,
-                                                    );
-                                                // Pass account explicitly
-                                                await pusherBeamsController
-                                                    .registerInterests(
-                                                      membership,
-                                                      account: account,
-                                                    );
-                                              }
-                                            } catch (e) {
-                                              debugPrint(
-                                                '🔔 Push notification registration failed: $e',
+                  // Error Display below card with animation
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: errorMessage != null
+                        ? Column(
+                            children: [
+                              Gap.h12,
+                              AuthErrorDisplay(
+                                message: errorMessage,
+                                onRetry: _shouldShowRetry(context, errorMessage)
+                                    ? () {
+                                        // Clear error and retry verification if OTP is complete
+                                        controller.clearError();
+                                        if (otp.length ==
+                                            AppConstants.otpLength) {
+                                          controller.verifyOtp(
+                                            onAlreadyRegistered: (account) async {
+                                              // Check for 7-day permission re-request (Requirement 6.1)
+                                              await _checkPermissionReRequest(
+                                                ref,
+                                                context,
                                               );
-                                            }
-                                            if (context.mounted) {
-                                              context.goNamed(AppRoute.home);
-                                            }
-                                          },
-                                          onNotRegistered: () {
-                                            final verifiedPhone =
-                                                fullPhoneNumber.isNotEmpty
-                                                ? fullPhoneNumber
-                                                : ref.read(
-                                                    authenticationControllerProvider
-                                                        .select(
-                                                          (s) => s.phoneNumber,
-                                                        ),
+
+                                              // Register push notifications after successful sign-in
+                                              try {
+                                                // Use membership from account directly
+                                                final membership =
+                                                    account.membership;
+                                                if (membership != null &&
+                                                    membership.id != null) {
+                                                  final pusherBeamsController =
+                                                      ref.read(
+                                                        pusherBeamsControllerProvider
+                                                            .notifier,
+                                                      );
+                                                  // Pass account explicitly
+                                                  await pusherBeamsController
+                                                      .registerInterests(
+                                                        membership,
+                                                        account: account,
+                                                      );
+                                                }
+                                              } catch (e) {
+                                                debugPrint(
+                                                  '🔔 Push notification registration failed: $e',
+                                                );
+                                              }
+                                              if (context.mounted) {
+                                                if (rt != null &&
+                                                    rt.isNotEmpty) {
+                                                  context.go(rt);
+                                                } else {
+                                                  context.goNamed(
+                                                    AppRoute.home,
                                                   );
-                                            context.pushNamed(
-                                              AppRoute.account,
-                                              extra: {
-                                                'verifiedPhone': verifiedPhone,
-                                              },
-                                            );
-                                          },
-                                        );
-                                      } else {
-                                        // If OTP is not complete, suggest resending
-                                        controller.resendOtp();
+                                                }
+                                              }
+                                            },
+                                            onNotRegistered: () {
+                                              final verifiedPhone =
+                                                  fullPhoneNumber.isNotEmpty
+                                                  ? fullPhoneNumber
+                                                  : ref.read(
+                                                      authenticationControllerProvider
+                                                          .select(
+                                                            (s) =>
+                                                                s.phoneNumber,
+                                                          ),
+                                                    );
+                                              context.pushNamed(
+                                                AppRoute.account,
+                                                extra: {
+                                                  'verifiedPhone':
+                                                      verifiedPhone,
+                                                },
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          // If OTP is not complete, suggest resending
+                                          controller.resendOtp();
+                                        }
                                       }
-                                    }
-                                  : null,
-                            ),
-                          ],
-                        )
-                      : const SizedBox.shrink(),
-                ),
+                                    : null,
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
+                  ),
 
-                Gap.h16,
+                  Gap.h16,
 
-                // Success feedback or verify button with animation
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: ScaleTransition(scale: animation, child: child),
-                    );
-                  },
-                  child: showSuccessFeedback
-                      ? _SuccessFeedback(
-                          successLabel:
-                              context.l10n.auth_verificationSuccessful,
-                        )
-                      : (isVerifyingOtp || isValidatingAccount)
-                      ? ButtonWidget.primary(
-                          text: l10n.loading_please_wait,
-                          isLoading: true,
-                          onTap: () {},
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ],
+                  // Success feedback or verify button with animation
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(scale: animation, child: child),
+                      );
+                    },
+                    child: showSuccessFeedback
+                        ? _SuccessFeedback(
+                            successLabel:
+                                context.l10n.auth_verificationSuccessful,
+                          )
+                        : (isVerifyingOtp || isValidatingAccount)
+                        ? ButtonWidget.primary(
+                            text: l10n.loading_please_wait,
+                            isLoading: true,
+                            onTap: () {},
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -227,14 +227,35 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
             churchRequest.churchName,
           ),
         );
+      case RequestStatus.rejected:
+        final note = churchRequest.decisionNote?.trim();
+        final msg = (note == null || note.isEmpty)
+            ? context.l10n.status_rejected
+            : '${context.l10n.status_rejected} (${context.l10n.lbl_note}: $note)';
+        return InfoBoxWithActionWidget(
+          message: msg,
+          actionText: context.l10n.churchRequest_submitRequest,
+          onActionPressed: () {
+            _showChurchRequestBottomSheet(
+              context,
+              initialRequest: churchRequest,
+            );
+          },
+        );
     }
   }
 
   void showSnackBar(BuildContext context, String msg) {
+    if (msg.trim().isEmpty) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  void _showChurchRequestBottomSheet(BuildContext context) {
+  void _showChurchRequestBottomSheet(
+    BuildContext context, {
+    model.ChurchRequest? initialRequest,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -245,7 +266,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
         ),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.85,
-          child: const ChurchRequestBottomSheet(),
+          child: ChurchRequestBottomSheet(initialRequest: initialRequest),
         ),
       ),
     );

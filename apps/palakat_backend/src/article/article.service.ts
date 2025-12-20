@@ -5,7 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ArticleStatus, ArticleType, Prisma } from '../generated/prisma/client';
+import {
+  AccountRole,
+  ArticleStatus,
+  ArticleType,
+  Prisma,
+} from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 import { ArticleListQueryDto } from './dto/article-list.dto';
@@ -20,9 +25,11 @@ export class ArticleService {
     private readonly firebaseAdmin: FirebaseAdminService,
   ) {}
 
-  private assertClient(user?: any) {
-    if (!user?.clientId) {
-      throw new ForbiddenException('Client token required');
+  private assertAdmin(user?: any) {
+    const isClient = !!user?.clientId;
+    const isSuperAdmin = user?.role === AccountRole.SUPER_ADMIN;
+    if (!isClient && !isSuperAdmin) {
+      throw new ForbiddenException('Super admin token required');
     }
   }
 
@@ -259,7 +266,7 @@ export class ArticleService {
   }
 
   async findAllAdmin(query: AdminArticleListQueryDto, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const {
       search,
@@ -321,7 +328,7 @@ export class ArticleService {
   }
 
   async findOneAdmin(id: number, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const article = await this.prisma.article.findUnique({
       where: { id },
@@ -352,7 +359,7 @@ export class ArticleService {
   }
 
   async create(dto: CreateArticleDto, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const desiredSlug = dto.slug?.trim().length ? dto.slug.trim() : dto.title;
     const slug = await this.ensureUniqueSlug(desiredSlug);
@@ -391,7 +398,7 @@ export class ArticleService {
   }
 
   async update(id: number, dto: UpdateArticleDto, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const existing = await this.prisma.article.findUnique({
       where: { id },
@@ -446,7 +453,7 @@ export class ArticleService {
   }
 
   async publish(id: number, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const updated = await this.prisma.article.update({
       where: { id },
@@ -464,7 +471,7 @@ export class ArticleService {
   }
 
   async unpublish(id: number, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const updated = await this.prisma.article.update({
       where: { id },
@@ -482,7 +489,7 @@ export class ArticleService {
   }
 
   async archive(id: number, user?: any) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     const updated = await this.prisma.article.update({
       where: { id },
@@ -509,7 +516,7 @@ export class ArticleService {
     },
     user?: any,
   ) {
-    this.assertClient(user);
+    this.assertAdmin(user);
 
     if (!this.firebaseAdmin.isConfigured()) {
       throw new BadRequestException('Firebase Storage is not configured');

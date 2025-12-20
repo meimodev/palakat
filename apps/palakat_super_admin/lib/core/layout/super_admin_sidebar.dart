@@ -67,11 +67,32 @@ class SuperAdminSidebar extends ConsumerWidget {
                   padding: const EdgeInsets.all(8),
                   children: [
                     _NavItem(
+                      icon: Icons.church_outlined,
+                      label: 'Church Requests',
+                      selected: route.startsWith('/church-requests'),
+                      onTap: () => context.go('/church-requests'),
+                      color: Colors.deepOrange,
+                    ),
+                    _NavItem(
+                      icon: Icons.apartment_outlined,
+                      label: 'Churches',
+                      selected: route.startsWith('/churches'),
+                      onTap: () => context.go('/churches'),
+                      color: Colors.blueGrey,
+                    ),
+                    _NavItem(
                       icon: Icons.article_outlined,
                       label: 'Articles',
                       selected: route.startsWith('/articles'),
                       onTap: () => context.go('/articles'),
                       color: Colors.indigo,
+                    ),
+                    _NavItem(
+                      icon: Icons.library_music_outlined,
+                      label: 'Songs',
+                      selected: route.startsWith('/songs'),
+                      onTap: () => context.go('/songs'),
+                      color: Colors.teal,
                     ),
                   ],
                 ),

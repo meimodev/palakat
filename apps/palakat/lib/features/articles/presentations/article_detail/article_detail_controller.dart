@@ -25,6 +25,10 @@ class ArticleDetailController extends _$ArticleDetailController {
         state = state.copyWith(isLoading: false, article: article);
       },
       onFailure: (failure) {
+        if (failure.code == 401 || failure.message.trim().isEmpty) {
+          state = state.copyWith(isLoading: false, errorMessage: null);
+          return;
+        }
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
     );
@@ -57,6 +61,10 @@ class ArticleDetailController extends _$ArticleDetailController {
         );
       },
       onFailure: (failure) {
+        if (failure.code == 401 || failure.message.trim().isEmpty) {
+          state = state.copyWith(isLikeLoading: false, errorMessage: null);
+          return;
+        }
         state = state.copyWith(
           isLikeLoading: false,
           errorMessage: failure.message,

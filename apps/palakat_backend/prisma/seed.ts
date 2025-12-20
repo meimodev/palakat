@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import {
   ActivityType,
   ApprovalStatus,
+  AccountRole,
   Bipra,
   Book,
   FinancialType,
@@ -668,6 +669,8 @@ async function seedMainAccounts(passwordHash: string) {
         phone,
         name: `Main User ${i + 1}`,
         email: `mainuser${i + 1}@example.com`,
+        role:
+          phone === '081111111111' ? AccountRole.SUPER_ADMIN : AccountRole.USER,
         passwordHash,
         claimed: true,
         isActive: true,
@@ -678,6 +681,34 @@ async function seedMainAccounts(passwordHash: string) {
 
   console.log(`✅ Created ${mainAccounts.length} main accounts`);
   return mainAccounts;
+}
+
+async function seedSuperAdminAccount(passwordHash: string) {
+  console.log('🛡️ Creating super admin account...');
+
+  const phone = '081000000000';
+  const email = 'superadmin@example.com';
+
+  const account = await prisma.account.create({
+    data: {
+      ...generateAccountData(9999, Gender.MALE),
+      name: 'Super Admin',
+      phone,
+      email,
+      role: AccountRole.SUPER_ADMIN,
+      passwordHash,
+      claimed: true,
+      isActive: true,
+      failedLoginAttempts: 0,
+      lockUntil: null,
+    },
+  });
+
+  console.log('✅ Super admin created');
+  console.log(`   Phone: ${phone}`);
+  console.log(`   Password: ${CONFIG.defaultPassword}`);
+  console.log(`   Email (unused): ${email}`);
+  return account;
 }
 
 async function seedMainChurches(): Promise<ChurchWithColumns[]> {
@@ -2126,6 +2157,8 @@ async function main() {
     await cleanDatabase();
 
     const passwordHash = await bcrypt.hash(CONFIG.defaultPassword, 12);
+
+    await seedSuperAdminAccount(passwordHash);
 
     // Create main accounts and their churches
     const mainAccounts = await seedMainAccounts(passwordHash);

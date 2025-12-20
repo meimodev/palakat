@@ -28,11 +28,15 @@ export type AggregateChurchRequest = {
 
 export type ChurchRequestAvgAggregateOutputType = {
   id: number | null
+  reviewedById: number | null
+  approvedChurchId: number | null
   requesterId: number | null
 }
 
 export type ChurchRequestSumAggregateOutputType = {
   id: number | null
+  reviewedById: number | null
+  approvedChurchId: number | null
   requesterId: number | null
 }
 
@@ -43,6 +47,10 @@ export type ChurchRequestMinAggregateOutputType = {
   contactPerson: string | null
   contactPhone: string | null
   status: $Enums.RequestStatus | null
+  decisionNote: string | null
+  reviewedAt: Date | null
+  reviewedById: number | null
+  approvedChurchId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   requesterId: number | null
@@ -55,6 +63,10 @@ export type ChurchRequestMaxAggregateOutputType = {
   contactPerson: string | null
   contactPhone: string | null
   status: $Enums.RequestStatus | null
+  decisionNote: string | null
+  reviewedAt: Date | null
+  reviewedById: number | null
+  approvedChurchId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   requesterId: number | null
@@ -67,6 +79,10 @@ export type ChurchRequestCountAggregateOutputType = {
   contactPerson: number
   contactPhone: number
   status: number
+  decisionNote: number
+  reviewedAt: number
+  reviewedById: number
+  approvedChurchId: number
   createdAt: number
   updatedAt: number
   requesterId: number
@@ -76,11 +92,15 @@ export type ChurchRequestCountAggregateOutputType = {
 
 export type ChurchRequestAvgAggregateInputType = {
   id?: true
+  reviewedById?: true
+  approvedChurchId?: true
   requesterId?: true
 }
 
 export type ChurchRequestSumAggregateInputType = {
   id?: true
+  reviewedById?: true
+  approvedChurchId?: true
   requesterId?: true
 }
 
@@ -91,6 +111,10 @@ export type ChurchRequestMinAggregateInputType = {
   contactPerson?: true
   contactPhone?: true
   status?: true
+  decisionNote?: true
+  reviewedAt?: true
+  reviewedById?: true
+  approvedChurchId?: true
   createdAt?: true
   updatedAt?: true
   requesterId?: true
@@ -103,6 +127,10 @@ export type ChurchRequestMaxAggregateInputType = {
   contactPerson?: true
   contactPhone?: true
   status?: true
+  decisionNote?: true
+  reviewedAt?: true
+  reviewedById?: true
+  approvedChurchId?: true
   createdAt?: true
   updatedAt?: true
   requesterId?: true
@@ -115,6 +143,10 @@ export type ChurchRequestCountAggregateInputType = {
   contactPerson?: true
   contactPhone?: true
   status?: true
+  decisionNote?: true
+  reviewedAt?: true
+  reviewedById?: true
+  approvedChurchId?: true
   createdAt?: true
   updatedAt?: true
   requesterId?: true
@@ -214,6 +246,10 @@ export type ChurchRequestGroupByOutputType = {
   contactPerson: string
   contactPhone: string
   status: $Enums.RequestStatus
+  decisionNote: string | null
+  reviewedAt: Date | null
+  reviewedById: number | null
+  approvedChurchId: number | null
   createdAt: Date
   updatedAt: Date
   requesterId: number
@@ -249,9 +285,15 @@ export type ChurchRequestWhereInput = {
   contactPerson?: Prisma.StringFilter<"ChurchRequest"> | string
   contactPhone?: Prisma.StringFilter<"ChurchRequest"> | string
   status?: Prisma.EnumRequestStatusFilter<"ChurchRequest"> | $Enums.RequestStatus
+  decisionNote?: Prisma.StringNullableFilter<"ChurchRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"ChurchRequest"> | Date | string | null
+  reviewedById?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
+  approvedChurchId?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
   requesterId?: Prisma.IntFilter<"ChurchRequest"> | number
+  reviewedBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  approvedChurch?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   requester?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
 }
 
@@ -262,9 +304,15 @@ export type ChurchRequestOrderByWithRelationInput = {
   contactPerson?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
+  reviewedBy?: Prisma.AccountOrderByWithRelationInput
+  approvedChurch?: Prisma.ChurchOrderByWithRelationInput
   requester?: Prisma.AccountOrderByWithRelationInput
 }
 
@@ -279,8 +327,14 @@ export type ChurchRequestWhereUniqueInput = Prisma.AtLeast<{
   contactPerson?: Prisma.StringFilter<"ChurchRequest"> | string
   contactPhone?: Prisma.StringFilter<"ChurchRequest"> | string
   status?: Prisma.EnumRequestStatusFilter<"ChurchRequest"> | $Enums.RequestStatus
+  decisionNote?: Prisma.StringNullableFilter<"ChurchRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"ChurchRequest"> | Date | string | null
+  reviewedById?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
+  approvedChurchId?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
+  reviewedBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  approvedChurch?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   requester?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
 }, "id" | "requesterId">
 
@@ -291,6 +345,10 @@ export type ChurchRequestOrderByWithAggregationInput = {
   contactPerson?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  decisionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
@@ -311,6 +369,10 @@ export type ChurchRequestScalarWhereWithAggregatesInput = {
   contactPerson?: Prisma.StringWithAggregatesFilter<"ChurchRequest"> | string
   contactPhone?: Prisma.StringWithAggregatesFilter<"ChurchRequest"> | string
   status?: Prisma.EnumRequestStatusWithAggregatesFilter<"ChurchRequest"> | $Enums.RequestStatus
+  decisionNote?: Prisma.StringNullableWithAggregatesFilter<"ChurchRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ChurchRequest"> | Date | string | null
+  reviewedById?: Prisma.IntNullableWithAggregatesFilter<"ChurchRequest"> | number | null
+  approvedChurchId?: Prisma.IntNullableWithAggregatesFilter<"ChurchRequest"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ChurchRequest"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ChurchRequest"> | Date | string
   requesterId?: Prisma.IntWithAggregatesFilter<"ChurchRequest"> | number
@@ -322,8 +384,12 @@ export type ChurchRequestCreateInput = {
   contactPerson: string
   contactPhone: string
   status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reviewedBy?: Prisma.AccountCreateNestedOneWithoutReviewedChurchRequestsInput
+  approvedChurch?: Prisma.ChurchCreateNestedOneWithoutChurchRequestsApprovedInput
   requester: Prisma.AccountCreateNestedOneWithoutChurchRequestInput
 }
 
@@ -334,6 +400,10 @@ export type ChurchRequestUncheckedCreateInput = {
   contactPerson: string
   contactPhone: string
   status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  reviewedById?: number | null
+  approvedChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requesterId: number
@@ -345,8 +415,12 @@ export type ChurchRequestUpdateInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewedBy?: Prisma.AccountUpdateOneWithoutReviewedChurchRequestsNestedInput
+  approvedChurch?: Prisma.ChurchUpdateOneWithoutChurchRequestsApprovedNestedInput
   requester?: Prisma.AccountUpdateOneRequiredWithoutChurchRequestNestedInput
 }
 
@@ -357,6 +431,10 @@ export type ChurchRequestUncheckedUpdateInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requesterId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -369,6 +447,10 @@ export type ChurchRequestCreateManyInput = {
   contactPerson: string
   contactPhone: string
   status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  reviewedById?: number | null
+  approvedChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requesterId: number
@@ -380,6 +462,8 @@ export type ChurchRequestUpdateManyMutationInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -391,9 +475,23 @@ export type ChurchRequestUncheckedUpdateManyInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requesterId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ChurchRequestListRelationFilter = {
+  every?: Prisma.ChurchRequestWhereInput
+  some?: Prisma.ChurchRequestWhereInput
+  none?: Prisma.ChurchRequestWhereInput
+}
+
+export type ChurchRequestOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ChurchRequestNullableScalarRelationFilter = {
@@ -408,6 +506,10 @@ export type ChurchRequestCountOrderByAggregateInput = {
   contactPerson?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  decisionNote?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
@@ -415,6 +517,8 @@ export type ChurchRequestCountOrderByAggregateInput = {
 
 export type ChurchRequestAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
 }
 
@@ -425,6 +529,10 @@ export type ChurchRequestMaxOrderByAggregateInput = {
   contactPerson?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  decisionNote?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
@@ -437,6 +545,10 @@ export type ChurchRequestMinOrderByAggregateInput = {
   contactPerson?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  decisionNote?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
@@ -444,7 +556,51 @@ export type ChurchRequestMinOrderByAggregateInput = {
 
 export type ChurchRequestSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  approvedChurchId?: Prisma.SortOrder
   requesterId?: Prisma.SortOrder
+}
+
+export type ChurchRequestCreateNestedManyWithoutApprovedChurchInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput> | Prisma.ChurchRequestCreateWithoutApprovedChurchInput[] | Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput | Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput[]
+  createMany?: Prisma.ChurchRequestCreateManyApprovedChurchInputEnvelope
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+}
+
+export type ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput> | Prisma.ChurchRequestCreateWithoutApprovedChurchInput[] | Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput | Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput[]
+  createMany?: Prisma.ChurchRequestCreateManyApprovedChurchInputEnvelope
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+}
+
+export type ChurchRequestUpdateManyWithoutApprovedChurchNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput> | Prisma.ChurchRequestCreateWithoutApprovedChurchInput[] | Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput | Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput[]
+  upsert?: Prisma.ChurchRequestUpsertWithWhereUniqueWithoutApprovedChurchInput | Prisma.ChurchRequestUpsertWithWhereUniqueWithoutApprovedChurchInput[]
+  createMany?: Prisma.ChurchRequestCreateManyApprovedChurchInputEnvelope
+  set?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  disconnect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  delete?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  update?: Prisma.ChurchRequestUpdateWithWhereUniqueWithoutApprovedChurchInput | Prisma.ChurchRequestUpdateWithWhereUniqueWithoutApprovedChurchInput[]
+  updateMany?: Prisma.ChurchRequestUpdateManyWithWhereWithoutApprovedChurchInput | Prisma.ChurchRequestUpdateManyWithWhereWithoutApprovedChurchInput[]
+  deleteMany?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
+}
+
+export type ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput> | Prisma.ChurchRequestCreateWithoutApprovedChurchInput[] | Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput | Prisma.ChurchRequestCreateOrConnectWithoutApprovedChurchInput[]
+  upsert?: Prisma.ChurchRequestUpsertWithWhereUniqueWithoutApprovedChurchInput | Prisma.ChurchRequestUpsertWithWhereUniqueWithoutApprovedChurchInput[]
+  createMany?: Prisma.ChurchRequestCreateManyApprovedChurchInputEnvelope
+  set?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  disconnect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  delete?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  update?: Prisma.ChurchRequestUpdateWithWhereUniqueWithoutApprovedChurchInput | Prisma.ChurchRequestUpdateWithWhereUniqueWithoutApprovedChurchInput[]
+  updateMany?: Prisma.ChurchRequestUpdateManyWithWhereWithoutApprovedChurchInput | Prisma.ChurchRequestUpdateManyWithWhereWithoutApprovedChurchInput[]
+  deleteMany?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
 }
 
 export type ChurchRequestCreateNestedOneWithoutRequesterInput = {
@@ -453,10 +609,24 @@ export type ChurchRequestCreateNestedOneWithoutRequesterInput = {
   connect?: Prisma.ChurchRequestWhereUniqueInput
 }
 
+export type ChurchRequestCreateNestedManyWithoutReviewedByInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput> | Prisma.ChurchRequestCreateWithoutReviewedByInput[] | Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput | Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput[]
+  createMany?: Prisma.ChurchRequestCreateManyReviewedByInputEnvelope
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+}
+
 export type ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput = {
   create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutRequesterInput, Prisma.ChurchRequestUncheckedCreateWithoutRequesterInput>
   connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutRequesterInput
   connect?: Prisma.ChurchRequestWhereUniqueInput
+}
+
+export type ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput> | Prisma.ChurchRequestCreateWithoutReviewedByInput[] | Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput | Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput[]
+  createMany?: Prisma.ChurchRequestCreateManyReviewedByInputEnvelope
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
 }
 
 export type ChurchRequestUpdateOneWithoutRequesterNestedInput = {
@@ -469,6 +639,20 @@ export type ChurchRequestUpdateOneWithoutRequesterNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchRequestUpdateToOneWithWhereWithoutRequesterInput, Prisma.ChurchRequestUpdateWithoutRequesterInput>, Prisma.ChurchRequestUncheckedUpdateWithoutRequesterInput>
 }
 
+export type ChurchRequestUpdateManyWithoutReviewedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput> | Prisma.ChurchRequestCreateWithoutReviewedByInput[] | Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput | Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput[]
+  upsert?: Prisma.ChurchRequestUpsertWithWhereUniqueWithoutReviewedByInput | Prisma.ChurchRequestUpsertWithWhereUniqueWithoutReviewedByInput[]
+  createMany?: Prisma.ChurchRequestCreateManyReviewedByInputEnvelope
+  set?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  disconnect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  delete?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  update?: Prisma.ChurchRequestUpdateWithWhereUniqueWithoutReviewedByInput | Prisma.ChurchRequestUpdateWithWhereUniqueWithoutReviewedByInput[]
+  updateMany?: Prisma.ChurchRequestUpdateManyWithWhereWithoutReviewedByInput | Prisma.ChurchRequestUpdateManyWithWhereWithoutReviewedByInput[]
+  deleteMany?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
+}
+
 export type ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput = {
   create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutRequesterInput, Prisma.ChurchRequestUncheckedCreateWithoutRequesterInput>
   connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutRequesterInput
@@ -479,8 +663,96 @@ export type ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchRequestUpdateToOneWithWhereWithoutRequesterInput, Prisma.ChurchRequestUpdateWithoutRequesterInput>, Prisma.ChurchRequestUncheckedUpdateWithoutRequesterInput>
 }
 
+export type ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput> | Prisma.ChurchRequestCreateWithoutReviewedByInput[] | Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput[]
+  connectOrCreate?: Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput | Prisma.ChurchRequestCreateOrConnectWithoutReviewedByInput[]
+  upsert?: Prisma.ChurchRequestUpsertWithWhereUniqueWithoutReviewedByInput | Prisma.ChurchRequestUpsertWithWhereUniqueWithoutReviewedByInput[]
+  createMany?: Prisma.ChurchRequestCreateManyReviewedByInputEnvelope
+  set?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  disconnect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  delete?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  connect?: Prisma.ChurchRequestWhereUniqueInput | Prisma.ChurchRequestWhereUniqueInput[]
+  update?: Prisma.ChurchRequestUpdateWithWhereUniqueWithoutReviewedByInput | Prisma.ChurchRequestUpdateWithWhereUniqueWithoutReviewedByInput[]
+  updateMany?: Prisma.ChurchRequestUpdateManyWithWhereWithoutReviewedByInput | Prisma.ChurchRequestUpdateManyWithWhereWithoutReviewedByInput[]
+  deleteMany?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
+}
+
 export type EnumRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.RequestStatus
+}
+
+export type ChurchRequestCreateWithoutApprovedChurchInput = {
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  reviewedBy?: Prisma.AccountCreateNestedOneWithoutReviewedChurchRequestsInput
+  requester: Prisma.AccountCreateNestedOneWithoutChurchRequestInput
+}
+
+export type ChurchRequestUncheckedCreateWithoutApprovedChurchInput = {
+  id?: number
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  reviewedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requesterId: number
+}
+
+export type ChurchRequestCreateOrConnectWithoutApprovedChurchInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput>
+}
+
+export type ChurchRequestCreateManyApprovedChurchInputEnvelope = {
+  data: Prisma.ChurchRequestCreateManyApprovedChurchInput | Prisma.ChurchRequestCreateManyApprovedChurchInput[]
+  skipDuplicates?: boolean
+}
+
+export type ChurchRequestUpsertWithWhereUniqueWithoutApprovedChurchInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.ChurchRequestUpdateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedUpdateWithoutApprovedChurchInput>
+  create: Prisma.XOR<Prisma.ChurchRequestCreateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedCreateWithoutApprovedChurchInput>
+}
+
+export type ChurchRequestUpdateWithWhereUniqueWithoutApprovedChurchInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.ChurchRequestUpdateWithoutApprovedChurchInput, Prisma.ChurchRequestUncheckedUpdateWithoutApprovedChurchInput>
+}
+
+export type ChurchRequestUpdateManyWithWhereWithoutApprovedChurchInput = {
+  where: Prisma.ChurchRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.ChurchRequestUpdateManyMutationInput, Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchInput>
+}
+
+export type ChurchRequestScalarWhereInput = {
+  AND?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
+  OR?: Prisma.ChurchRequestScalarWhereInput[]
+  NOT?: Prisma.ChurchRequestScalarWhereInput | Prisma.ChurchRequestScalarWhereInput[]
+  id?: Prisma.IntFilter<"ChurchRequest"> | number
+  churchName?: Prisma.StringFilter<"ChurchRequest"> | string
+  churchAddress?: Prisma.StringFilter<"ChurchRequest"> | string
+  contactPerson?: Prisma.StringFilter<"ChurchRequest"> | string
+  contactPhone?: Prisma.StringFilter<"ChurchRequest"> | string
+  status?: Prisma.EnumRequestStatusFilter<"ChurchRequest"> | $Enums.RequestStatus
+  decisionNote?: Prisma.StringNullableFilter<"ChurchRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"ChurchRequest"> | Date | string | null
+  reviewedById?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
+  approvedChurchId?: Prisma.IntNullableFilter<"ChurchRequest"> | number | null
+  createdAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ChurchRequest"> | Date | string
+  requesterId?: Prisma.IntFilter<"ChurchRequest"> | number
 }
 
 export type ChurchRequestCreateWithoutRequesterInput = {
@@ -489,8 +761,12 @@ export type ChurchRequestCreateWithoutRequesterInput = {
   contactPerson: string
   contactPhone: string
   status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reviewedBy?: Prisma.AccountCreateNestedOneWithoutReviewedChurchRequestsInput
+  approvedChurch?: Prisma.ChurchCreateNestedOneWithoutChurchRequestsApprovedInput
 }
 
 export type ChurchRequestUncheckedCreateWithoutRequesterInput = {
@@ -500,6 +776,10 @@ export type ChurchRequestUncheckedCreateWithoutRequesterInput = {
   contactPerson: string
   contactPhone: string
   status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  reviewedById?: number | null
+  approvedChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -507,6 +787,45 @@ export type ChurchRequestUncheckedCreateWithoutRequesterInput = {
 export type ChurchRequestCreateOrConnectWithoutRequesterInput = {
   where: Prisma.ChurchRequestWhereUniqueInput
   create: Prisma.XOR<Prisma.ChurchRequestCreateWithoutRequesterInput, Prisma.ChurchRequestUncheckedCreateWithoutRequesterInput>
+}
+
+export type ChurchRequestCreateWithoutReviewedByInput = {
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvedChurch?: Prisma.ChurchCreateNestedOneWithoutChurchRequestsApprovedInput
+  requester: Prisma.AccountCreateNestedOneWithoutChurchRequestInput
+}
+
+export type ChurchRequestUncheckedCreateWithoutReviewedByInput = {
+  id?: number
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  approvedChurchId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requesterId: number
+}
+
+export type ChurchRequestCreateOrConnectWithoutReviewedByInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput>
+}
+
+export type ChurchRequestCreateManyReviewedByInputEnvelope = {
+  data: Prisma.ChurchRequestCreateManyReviewedByInput | Prisma.ChurchRequestCreateManyReviewedByInput[]
+  skipDuplicates?: boolean
 }
 
 export type ChurchRequestUpsertWithoutRequesterInput = {
@@ -526,8 +845,12 @@ export type ChurchRequestUpdateWithoutRequesterInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewedBy?: Prisma.AccountUpdateOneWithoutReviewedChurchRequestsNestedInput
+  approvedChurch?: Prisma.ChurchUpdateOneWithoutChurchRequestsApprovedNestedInput
 }
 
 export type ChurchRequestUncheckedUpdateWithoutRequesterInput = {
@@ -537,8 +860,146 @@ export type ChurchRequestUncheckedUpdateWithoutRequesterInput = {
   contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ChurchRequestUpsertWithWhereUniqueWithoutReviewedByInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.ChurchRequestUpdateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedUpdateWithoutReviewedByInput>
+  create: Prisma.XOR<Prisma.ChurchRequestCreateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedCreateWithoutReviewedByInput>
+}
+
+export type ChurchRequestUpdateWithWhereUniqueWithoutReviewedByInput = {
+  where: Prisma.ChurchRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.ChurchRequestUpdateWithoutReviewedByInput, Prisma.ChurchRequestUncheckedUpdateWithoutReviewedByInput>
+}
+
+export type ChurchRequestUpdateManyWithWhereWithoutReviewedByInput = {
+  where: Prisma.ChurchRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.ChurchRequestUpdateManyMutationInput, Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByInput>
+}
+
+export type ChurchRequestCreateManyApprovedChurchInput = {
+  id?: number
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  reviewedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requesterId: number
+}
+
+export type ChurchRequestUpdateWithoutApprovedChurchInput = {
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewedBy?: Prisma.AccountUpdateOneWithoutReviewedChurchRequestsNestedInput
+  requester?: Prisma.AccountUpdateOneRequiredWithoutChurchRequestNestedInput
+}
+
+export type ChurchRequestUncheckedUpdateWithoutApprovedChurchInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requesterId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ChurchRequestUncheckedUpdateManyWithoutApprovedChurchInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requesterId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ChurchRequestCreateManyReviewedByInput = {
+  id?: number
+  churchName: string
+  churchAddress: string
+  contactPerson: string
+  contactPhone: string
+  status?: $Enums.RequestStatus
+  decisionNote?: string | null
+  reviewedAt?: Date | string | null
+  approvedChurchId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requesterId: number
+}
+
+export type ChurchRequestUpdateWithoutReviewedByInput = {
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvedChurch?: Prisma.ChurchUpdateOneWithoutChurchRequestsApprovedNestedInput
+  requester?: Prisma.AccountUpdateOneRequiredWithoutChurchRequestNestedInput
+}
+
+export type ChurchRequestUncheckedUpdateWithoutReviewedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requesterId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ChurchRequestUncheckedUpdateManyWithoutReviewedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  churchName?: Prisma.StringFieldUpdateOperationsInput | string
+  churchAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPerson?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requesterId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -550,9 +1011,15 @@ export type ChurchRequestSelect<ExtArgs extends runtime.Types.Extensions.Interna
   contactPerson?: boolean
   contactPhone?: boolean
   status?: boolean
+  decisionNote?: boolean
+  reviewedAt?: boolean
+  reviewedById?: boolean
+  approvedChurchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   requesterId?: boolean
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["churchRequest"]>
 
@@ -563,9 +1030,15 @@ export type ChurchRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   contactPerson?: boolean
   contactPhone?: boolean
   status?: boolean
+  decisionNote?: boolean
+  reviewedAt?: boolean
+  reviewedById?: boolean
+  approvedChurchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   requesterId?: boolean
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["churchRequest"]>
 
@@ -576,9 +1049,15 @@ export type ChurchRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   contactPerson?: boolean
   contactPhone?: boolean
   status?: boolean
+  decisionNote?: boolean
+  reviewedAt?: boolean
+  reviewedById?: boolean
+  approvedChurchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   requesterId?: boolean
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["churchRequest"]>
 
@@ -589,25 +1068,37 @@ export type ChurchRequestSelectScalar = {
   contactPerson?: boolean
   contactPhone?: boolean
   status?: boolean
+  decisionNote?: boolean
+  reviewedAt?: boolean
+  reviewedById?: boolean
+  approvedChurchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   requesterId?: boolean
 }
 
-export type ChurchRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "churchName" | "churchAddress" | "contactPerson" | "contactPhone" | "status" | "createdAt" | "updatedAt" | "requesterId", ExtArgs["result"]["churchRequest"]>
+export type ChurchRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "churchName" | "churchAddress" | "contactPerson" | "contactPhone" | "status" | "decisionNote" | "reviewedAt" | "reviewedById" | "approvedChurchId" | "createdAt" | "updatedAt" | "requesterId", ExtArgs["result"]["churchRequest"]>
 export type ChurchRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }
 export type ChurchRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }
 export type ChurchRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reviewedBy?: boolean | Prisma.ChurchRequest$reviewedByArgs<ExtArgs>
+  approvedChurch?: boolean | Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>
   requester?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
 }
 
 export type $ChurchRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ChurchRequest"
   objects: {
+    reviewedBy: Prisma.$AccountPayload<ExtArgs> | null
+    approvedChurch: Prisma.$ChurchPayload<ExtArgs> | null
     requester: Prisma.$AccountPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -617,6 +1108,10 @@ export type $ChurchRequestPayload<ExtArgs extends runtime.Types.Extensions.Inter
     contactPerson: string
     contactPhone: string
     status: $Enums.RequestStatus
+    decisionNote: string | null
+    reviewedAt: Date | null
+    reviewedById: number | null
+    approvedChurchId: number | null
     createdAt: Date
     updatedAt: Date
     requesterId: number
@@ -1014,6 +1509,8 @@ readonly fields: ChurchRequestFieldRefs;
  */
 export interface Prisma__ChurchRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  reviewedBy<T extends Prisma.ChurchRequest$reviewedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchRequest$reviewedByArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvedChurch<T extends Prisma.ChurchRequest$approvedChurchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchRequest$approvedChurchArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   requester<T extends Prisma.AccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AccountDefaultArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1050,6 +1547,10 @@ export interface ChurchRequestFieldRefs {
   readonly contactPerson: Prisma.FieldRef<"ChurchRequest", 'String'>
   readonly contactPhone: Prisma.FieldRef<"ChurchRequest", 'String'>
   readonly status: Prisma.FieldRef<"ChurchRequest", 'RequestStatus'>
+  readonly decisionNote: Prisma.FieldRef<"ChurchRequest", 'String'>
+  readonly reviewedAt: Prisma.FieldRef<"ChurchRequest", 'DateTime'>
+  readonly reviewedById: Prisma.FieldRef<"ChurchRequest", 'Int'>
+  readonly approvedChurchId: Prisma.FieldRef<"ChurchRequest", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ChurchRequest", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ChurchRequest", 'DateTime'>
   readonly requesterId: Prisma.FieldRef<"ChurchRequest", 'Int'>
@@ -1446,6 +1947,44 @@ export type ChurchRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many ChurchRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * ChurchRequest.reviewedBy
+ */
+export type ChurchRequest$reviewedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Account
+   */
+  select?: Prisma.AccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Account
+   */
+  omit?: Prisma.AccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AccountInclude<ExtArgs> | null
+  where?: Prisma.AccountWhereInput
+}
+
+/**
+ * ChurchRequest.approvedChurch
+ */
+export type ChurchRequest$approvedChurchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Church
+   */
+  select?: Prisma.ChurchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Church
+   */
+  omit?: Prisma.ChurchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChurchInclude<ExtArgs> | null
+  where?: Prisma.ChurchWhereInput
 }
 
 /**

@@ -34,12 +34,10 @@ class ArticleDetailScreen extends ConsumerWidget {
           final messenger = ScaffoldMessenger.of(context);
           await controller.toggleLike();
           final next = ref.read(articleDetailControllerProvider(articleId));
-          if (next.errorMessage != null) {
+          final msg = next.errorMessage?.trim();
+          if (msg != null && msg.isNotEmpty) {
             messenger.showSnackBar(
-              SnackBar(
-                content: Text(next.errorMessage!),
-                behavior: SnackBarBehavior.floating,
-              ),
+              SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
             );
             controller.clearError();
           }
@@ -50,7 +48,7 @@ class ArticleDetailScreen extends ConsumerWidget {
         children: [
           Gap.h32,
           ScreenTitleWidget.titleSecondary(
-            title: article?.title ?? 'Article',
+            title: article?.title ?? l10n.article_titleFallback,
             onBack: () => context.pop(),
           ),
           Gap.h16,
@@ -186,6 +184,7 @@ class _LikeBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final isLiked = liked ?? false;
 
@@ -202,7 +201,7 @@ class _LikeBar extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '$likesCount likes',
+              l10n.article_likesCount(likesCount),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: BaseColor.secondaryText,
               ),

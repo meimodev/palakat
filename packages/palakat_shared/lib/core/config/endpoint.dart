@@ -2,6 +2,7 @@
 /// Update these constants in one place to propagate across the app.
 class Endpoints {
   static const String signIn = '/auth/sign-in';
+  static const String superAdminSignIn = '/auth/super-admin/sign-in';
   static const String refresh = '/auth/refresh';
   static const String signOut = '/auth/sign-out';
   static const String syncClaims = '/auth/sync-claims';
@@ -82,8 +83,16 @@ class Endpoints {
   static const String validatePhone = '/auth/validate';
 
   // Song
-  static const String songs = '/song';
-  static String song(String songId) => '/song/$songId';
+  static const String songs = '/public/songs';
+  static String song(String songId) => '/public/songs/$songId';
+
+  // Song (Admin)
+  static const String adminSongs = '/admin/songs';
+  static String adminSong(String songId) => '/admin/songs/$songId';
+
+  static const String adminSongParts = '/admin/song-parts';
+  static String adminSongPart(String songPartId) =>
+      '/admin/song-parts/$songPartId';
 
   // Financial Account Number
   static const String financialAccountNumbers = '/financial-account-number';
