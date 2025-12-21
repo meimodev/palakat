@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Church'
+export type * from './models/ChurchLetterhead'
 export type * from './models/Column'
 export type * from './models/Membership'
 export type * from './models/MembershipPosition'

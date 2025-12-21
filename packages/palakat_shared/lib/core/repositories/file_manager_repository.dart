@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -87,6 +89,49 @@ class FileManagerRepository {
         e,
         st,
       );
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  /// Returns the proxy URL for a file that can be used directly in Image.network
+  /// This avoids CORS issues on Flutter Web by proxying through the backend
+  String getProxyUrl(int fileId) {
+    final http = _ref.read(httpServiceProvider);
+    final baseUrl = http.baseUrl;
+    return '$baseUrl${Endpoints.fileManagerProxy(fileId.toString())}';
+  }
+
+  /// Fetches file bytes through the proxy endpoint (handles auth automatically)
+  /// Use this for displaying images on Flutter Web to avoid CORS issues
+  Future<Result<Uint8List, Failure>> fetchFileBytes({
+    required int fileId,
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      
+      // Yield to event loop to prevent UI blocking
+      await Future<void>.delayed(Duration.zero);
+      
+      final response = await http.dio.get<List<int>>(
+        Endpoints.fileManagerProxy(fileId.toString()),
+        options: Options(
+          responseType: ResponseType.bytes,
+          receiveTimeout: timeout,
+        ),
+      );
+
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) {
+        return Result.failure(Failure('Empty file response'));
+      }
+
+      return Result.success(Uint8List.fromList(bytes));
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to fetch file');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to fetch file', e, st);
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }

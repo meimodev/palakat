@@ -15,6 +15,7 @@ export 'auth_response.dart';
 export 'auth_tokens.dart';
 export 'billing.dart';
 export 'church.dart';
+export 'church_letterhead.dart';
 export 'church_request.dart';
 export 'column.dart';
 export 'column_detail.dart';

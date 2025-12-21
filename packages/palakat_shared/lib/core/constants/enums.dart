@@ -219,6 +219,24 @@ enum GeneratedBy {
   system,
 }
 
+enum ReportGenerateType {
+  @JsonValue('INCOMING_DOCUMENT')
+  incomingDocument,
+  @JsonValue('CONGREGATION')
+  congregation,
+  @JsonValue('SERVICES')
+  services,
+  @JsonValue('ACTIVITY')
+  activity,
+}
+
+enum ReportFormat {
+  @JsonValue('PDF')
+  pdf,
+  @JsonValue('XLSX')
+  xlsx,
+}
+
 /// Form field types for activity creation forms.
 /// Used to configure which fields are required/optional based on activity type.
 enum FormFieldType {

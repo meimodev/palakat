@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Church: 'Church',
+  ChurchLetterhead: 'ChurchLetterhead',
   Column: 'Column',
   Membership: 'Membership',
   MembershipPosition: 'MembershipPosition',
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike"
+    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -495,6 +496,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ChurchCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ChurchCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChurchLetterhead: {
+      payload: Prisma.$ChurchLetterheadPayload<ExtArgs>
+      fields: Prisma.ChurchLetterheadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChurchLetterheadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChurchLetterheadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        findFirst: {
+          args: Prisma.ChurchLetterheadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChurchLetterheadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        findMany: {
+          args: Prisma.ChurchLetterheadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>[]
+        }
+        create: {
+          args: Prisma.ChurchLetterheadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        createMany: {
+          args: Prisma.ChurchLetterheadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ChurchLetterheadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>[]
+        }
+        delete: {
+          args: Prisma.ChurchLetterheadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        update: {
+          args: Prisma.ChurchLetterheadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        deleteMany: {
+          args: Prisma.ChurchLetterheadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChurchLetterheadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ChurchLetterheadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>[]
+        }
+        upsert: {
+          args: Prisma.ChurchLetterheadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchLetterheadPayload>
+        }
+        aggregate: {
+          args: Prisma.ChurchLetterheadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChurchLetterhead>
+        }
+        groupBy: {
+          args: Prisma.ChurchLetterheadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChurchLetterheadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChurchLetterheadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChurchLetterheadCountAggregateOutputType> | number
         }
       }
     }
@@ -2032,6 +2107,21 @@ export const ChurchScalarFieldEnum = {
 export type ChurchScalarFieldEnum = (typeof ChurchScalarFieldEnum)[keyof typeof ChurchScalarFieldEnum]
 
 
+export const ChurchLetterheadScalarFieldEnum = {
+  id: 'id',
+  churchId: 'churchId',
+  logoFileId: 'logoFileId',
+  title: 'title',
+  line1: 'line1',
+  line2: 'line2',
+  line3: 'line3',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChurchLetterheadScalarFieldEnum = (typeof ChurchLetterheadScalarFieldEnum)[keyof typeof ChurchLetterheadScalarFieldEnum]
+
+
 export const ColumnScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2227,6 +2317,9 @@ export type FileManagerScalarFieldEnum = (typeof FileManagerScalarFieldEnum)[key
 export const ReportScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
+  format: 'format',
+  params: 'params',
   generatedBy: 'generatedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -2334,6 +2427,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -2348,6 +2449,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -2574,6 +2684,48 @@ export type ListEnumFileProviderFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'ReportGenerateType'
+ */
+export type EnumReportGenerateTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportGenerateType'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportGenerateType[]'
+ */
+export type ListEnumReportGenerateTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportGenerateType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportFormat'
+ */
+export type EnumReportFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportFormat'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportFormat[]'
+ */
+export type ListEnumReportFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportFormat[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'GeneratedBy'
  */
 export type EnumGeneratedByFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeneratedBy'>
@@ -2738,6 +2890,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   church?: Prisma.ChurchOmit
+  churchLetterhead?: Prisma.ChurchLetterheadOmit
   column?: Prisma.ColumnOmit
   membership?: Prisma.MembershipOmit
   membershipPosition?: Prisma.MembershipPositionOmit

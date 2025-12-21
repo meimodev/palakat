@@ -14,6 +14,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  file_picker: ^10.3.3
+
   # State management
   flutter_riverpod: ^3.0.3
   hooks_riverpod: ^3.0.3

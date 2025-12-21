@@ -43,6 +43,11 @@ export { Prisma }
  */
 export type Church = Prisma.ChurchModel
 /**
+ * Model ChurchLetterhead
+ * 
+ */
+export type ChurchLetterhead = Prisma.ChurchLetterheadModel
+/**
  * Model Column
  * 
  */

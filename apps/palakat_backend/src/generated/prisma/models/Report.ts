@@ -41,6 +41,8 @@ export type ReportSumAggregateOutputType = {
 export type ReportMinAggregateOutputType = {
   id: number | null
   name: string | null
+  type: $Enums.ReportGenerateType | null
+  format: $Enums.ReportFormat | null
   generatedBy: $Enums.GeneratedBy | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +53,8 @@ export type ReportMinAggregateOutputType = {
 export type ReportMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  type: $Enums.ReportGenerateType | null
+  format: $Enums.ReportFormat | null
   generatedBy: $Enums.GeneratedBy | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +65,9 @@ export type ReportMaxAggregateOutputType = {
 export type ReportCountAggregateOutputType = {
   id: number
   name: number
+  type: number
+  format: number
+  params: number
   generatedBy: number
   createdAt: number
   updatedAt: number
@@ -85,6 +92,8 @@ export type ReportSumAggregateInputType = {
 export type ReportMinAggregateInputType = {
   id?: true
   name?: true
+  type?: true
+  format?: true
   generatedBy?: true
   createdAt?: true
   updatedAt?: true
@@ -95,6 +104,8 @@ export type ReportMinAggregateInputType = {
 export type ReportMaxAggregateInputType = {
   id?: true
   name?: true
+  type?: true
+  format?: true
   generatedBy?: true
   createdAt?: true
   updatedAt?: true
@@ -105,6 +116,9 @@ export type ReportMaxAggregateInputType = {
 export type ReportCountAggregateInputType = {
   id?: true
   name?: true
+  type?: true
+  format?: true
+  params?: true
   generatedBy?: true
   createdAt?: true
   updatedAt?: true
@@ -202,6 +216,9 @@ export type ReportGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ReportGroupByOutputType = {
   id: number
   name: string
+  type: $Enums.ReportGenerateType
+  format: $Enums.ReportFormat
+  params: runtime.JsonValue | null
   generatedBy: $Enums.GeneratedBy
   createdAt: Date
   updatedAt: Date
@@ -235,6 +252,9 @@ export type ReportWhereInput = {
   NOT?: Prisma.ReportWhereInput | Prisma.ReportWhereInput[]
   id?: Prisma.IntFilter<"Report"> | number
   name?: Prisma.StringFilter<"Report"> | string
+  type?: Prisma.EnumReportGenerateTypeFilter<"Report"> | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFilter<"Report"> | $Enums.ReportFormat
+  params?: Prisma.JsonNullableFilter<"Report">
   generatedBy?: Prisma.EnumGeneratedByFilter<"Report"> | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFilter<"Report"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Report"> | Date | string
@@ -247,6 +267,9 @@ export type ReportWhereInput = {
 export type ReportOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  format?: Prisma.SortOrder
+  params?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -263,6 +286,9 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ReportWhereInput[]
   NOT?: Prisma.ReportWhereInput | Prisma.ReportWhereInput[]
   name?: Prisma.StringFilter<"Report"> | string
+  type?: Prisma.EnumReportGenerateTypeFilter<"Report"> | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFilter<"Report"> | $Enums.ReportFormat
+  params?: Prisma.JsonNullableFilter<"Report">
   generatedBy?: Prisma.EnumGeneratedByFilter<"Report"> | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFilter<"Report"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Report"> | Date | string
@@ -274,6 +300,9 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
 export type ReportOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  format?: Prisma.SortOrder
+  params?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -292,6 +321,9 @@ export type ReportScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ReportScalarWhereWithAggregatesInput | Prisma.ReportScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Report"> | number
   name?: Prisma.StringWithAggregatesFilter<"Report"> | string
+  type?: Prisma.EnumReportGenerateTypeWithAggregatesFilter<"Report"> | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatWithAggregatesFilter<"Report"> | $Enums.ReportFormat
+  params?: Prisma.JsonNullableWithAggregatesFilter<"Report">
   generatedBy?: Prisma.EnumGeneratedByWithAggregatesFilter<"Report"> | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Report"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Report"> | Date | string
@@ -301,6 +333,9 @@ export type ReportScalarWhereWithAggregatesInput = {
 
 export type ReportCreateInput = {
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -311,6 +346,9 @@ export type ReportCreateInput = {
 export type ReportUncheckedCreateInput = {
   id?: number
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -320,6 +358,9 @@ export type ReportUncheckedCreateInput = {
 
 export type ReportUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -330,6 +371,9 @@ export type ReportUpdateInput = {
 export type ReportUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -340,6 +384,9 @@ export type ReportUncheckedUpdateInput = {
 export type ReportCreateManyInput = {
   id?: number
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -349,6 +396,9 @@ export type ReportCreateManyInput = {
 
 export type ReportUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -357,6 +407,9 @@ export type ReportUpdateManyMutationInput = {
 export type ReportUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -382,6 +435,9 @@ export type ReportNullableScalarRelationFilter = {
 export type ReportCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  format?: Prisma.SortOrder
+  params?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -398,6 +454,8 @@ export type ReportAvgOrderByAggregateInput = {
 export type ReportMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  format?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -408,6 +466,8 @@ export type ReportMaxOrderByAggregateInput = {
 export type ReportMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  format?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -495,12 +555,23 @@ export type ReportUncheckedUpdateOneWithoutFileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ReportUpdateToOneWithWhereWithoutFileInput, Prisma.ReportUpdateWithoutFileInput>, Prisma.ReportUncheckedUpdateWithoutFileInput>
 }
 
+export type EnumReportGenerateTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ReportGenerateType
+}
+
+export type EnumReportFormatFieldUpdateOperationsInput = {
+  set?: $Enums.ReportFormat
+}
+
 export type EnumGeneratedByFieldUpdateOperationsInput = {
   set?: $Enums.GeneratedBy
 }
 
 export type ReportCreateWithoutChurchInput = {
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -510,6 +581,9 @@ export type ReportCreateWithoutChurchInput = {
 export type ReportUncheckedCreateWithoutChurchInput = {
   id?: number
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -548,6 +622,9 @@ export type ReportScalarWhereInput = {
   NOT?: Prisma.ReportScalarWhereInput | Prisma.ReportScalarWhereInput[]
   id?: Prisma.IntFilter<"Report"> | number
   name?: Prisma.StringFilter<"Report"> | string
+  type?: Prisma.EnumReportGenerateTypeFilter<"Report"> | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFilter<"Report"> | $Enums.ReportFormat
+  params?: Prisma.JsonNullableFilter<"Report">
   generatedBy?: Prisma.EnumGeneratedByFilter<"Report"> | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFilter<"Report"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Report"> | Date | string
@@ -557,6 +634,9 @@ export type ReportScalarWhereInput = {
 
 export type ReportCreateWithoutFileInput = {
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -566,6 +646,9 @@ export type ReportCreateWithoutFileInput = {
 export type ReportUncheckedCreateWithoutFileInput = {
   id?: number
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -590,6 +673,9 @@ export type ReportUpdateToOneWithWhereWithoutFileInput = {
 
 export type ReportUpdateWithoutFileInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -599,6 +685,9 @@ export type ReportUpdateWithoutFileInput = {
 export type ReportUncheckedUpdateWithoutFileInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -608,6 +697,9 @@ export type ReportUncheckedUpdateWithoutFileInput = {
 export type ReportCreateManyChurchInput = {
   id?: number
   name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -616,6 +708,9 @@ export type ReportCreateManyChurchInput = {
 
 export type ReportUpdateWithoutChurchInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -625,6 +720,9 @@ export type ReportUpdateWithoutChurchInput = {
 export type ReportUncheckedUpdateWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -634,6 +732,9 @@ export type ReportUncheckedUpdateWithoutChurchInput = {
 export type ReportUncheckedUpdateManyWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -645,6 +746,9 @@ export type ReportUncheckedUpdateManyWithoutChurchInput = {
 export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
+  format?: boolean
+  params?: boolean
   generatedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -657,6 +761,9 @@ export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
+  format?: boolean
+  params?: boolean
   generatedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -669,6 +776,9 @@ export type ReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ReportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
+  format?: boolean
+  params?: boolean
   generatedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -681,6 +791,9 @@ export type ReportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ReportSelectScalar = {
   id?: boolean
   name?: boolean
+  type?: boolean
+  format?: boolean
+  params?: boolean
   generatedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -688,7 +801,7 @@ export type ReportSelectScalar = {
   fileId?: boolean
 }
 
-export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "generatedBy" | "createdAt" | "updatedAt" | "churchId" | "fileId", ExtArgs["result"]["report"]>
+export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "format" | "params" | "generatedBy" | "createdAt" | "updatedAt" | "churchId" | "fileId", ExtArgs["result"]["report"]>
 export type ReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
@@ -711,6 +824,9 @@ export type $ReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    type: $Enums.ReportGenerateType
+    format: $Enums.ReportFormat
+    params: runtime.JsonValue | null
     generatedBy: $Enums.GeneratedBy
     createdAt: Date
     updatedAt: Date
@@ -1143,6 +1259,9 @@ export interface Prisma__ReportClient<T, Null = never, ExtArgs extends runtime.T
 export interface ReportFieldRefs {
   readonly id: Prisma.FieldRef<"Report", 'Int'>
   readonly name: Prisma.FieldRef<"Report", 'String'>
+  readonly type: Prisma.FieldRef<"Report", 'ReportGenerateType'>
+  readonly format: Prisma.FieldRef<"Report", 'ReportFormat'>
+  readonly params: Prisma.FieldRef<"Report", 'Json'>
   readonly generatedBy: Prisma.FieldRef<"Report", 'GeneratedBy'>
   readonly createdAt: Prisma.FieldRef<"Report", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Report", 'DateTime'>

@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Church: 'Church',
+  ChurchLetterhead: 'ChurchLetterhead',
   Column: 'Column',
   Membership: 'Membership',
   MembershipPosition: 'MembershipPosition',
@@ -103,6 +104,21 @@ export const ChurchScalarFieldEnum = {
 } as const
 
 export type ChurchScalarFieldEnum = (typeof ChurchScalarFieldEnum)[keyof typeof ChurchScalarFieldEnum]
+
+
+export const ChurchLetterheadScalarFieldEnum = {
+  id: 'id',
+  churchId: 'churchId',
+  logoFileId: 'logoFileId',
+  title: 'title',
+  line1: 'line1',
+  line2: 'line2',
+  line3: 'line3',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChurchLetterheadScalarFieldEnum = (typeof ChurchLetterheadScalarFieldEnum)[keyof typeof ChurchLetterheadScalarFieldEnum]
 
 
 export const ColumnScalarFieldEnum = {
@@ -300,6 +316,9 @@ export type FileManagerScalarFieldEnum = (typeof FileManagerScalarFieldEnum)[key
 export const ReportScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
+  format: 'format',
+  params: 'params',
   generatedBy: 'generatedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -407,6 +426,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull'
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -421,4 +448,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull',
+  AnyNull: 'AnyNull'
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

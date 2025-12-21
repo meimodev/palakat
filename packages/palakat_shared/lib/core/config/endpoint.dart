@@ -43,6 +43,10 @@ class Endpoints {
   static String report(String reportId) => '/report/$reportId';
   static const String generateReport = '/report/generate';
 
+  // Church Letterhead
+  static const String churchLetterheadMe = '/church-letterhead/me';
+  static const String churchLetterheadMeLogo = '/church-letterhead/me/logo';
+
   // Document
   static const String documents = '/document';
   static String document(String documentId) => '/document/$documentId';
@@ -52,6 +56,8 @@ class Endpoints {
   static const String fileFinalize = '/file-manager/finalize';
   static String fileManagerResolveDownloadUrl(String fileId) =>
       '/file-manager/$fileId/resolve-download-url';
+  static String fileManagerProxy(String fileId) =>
+      '/file-manager/$fileId/proxy';
 
   //Approval Rule
   static const String approvalRules = '/approval-rule';

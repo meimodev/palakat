@@ -145,6 +145,24 @@ export const GeneratedBy = {
 export type GeneratedBy = (typeof GeneratedBy)[keyof typeof GeneratedBy]
 
 
+export const ReportGenerateType = {
+  INCOMING_DOCUMENT: 'INCOMING_DOCUMENT',
+  CONGREGATION: 'CONGREGATION',
+  SERVICES: 'SERVICES',
+  ACTIVITY: 'ACTIVITY'
+} as const
+
+export type ReportGenerateType = (typeof ReportGenerateType)[keyof typeof ReportGenerateType]
+
+
+export const ReportFormat = {
+  PDF: 'PDF',
+  XLSX: 'XLSX'
+} as const
+
+export type ReportFormat = (typeof ReportFormat)[keyof typeof ReportFormat]
+
+
 export const FileProvider = {
   FIREBASE_STORAGE: 'FIREBASE_STORAGE'
 } as const

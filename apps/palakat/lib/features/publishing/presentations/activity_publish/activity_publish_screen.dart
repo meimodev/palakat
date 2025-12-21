@@ -11,6 +11,8 @@ import 'package:palakat/features/operations/presentations/operations_controller.
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/widgets/input/file_picker_field.dart'
+    as shared;
 
 class ActivityPublishScreen extends ConsumerStatefulWidget {
   const ActivityPublishScreen({super.key, required this.type});
@@ -1154,8 +1156,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishState state,
     ActivityPublishController controller,
   ) {
-    final hasFile = state.file != null && state.file!.isNotEmpty;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1167,10 +1167,32 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           ),
         ),
         Gap.h6,
-        if (hasFile)
-          _buildSelectedFileCard(state, controller)
-        else
-          _buildFilePickerButton(controller),
+        shared.FilePickerField(
+          enabled: !state.loading,
+          value: (state.file != null && state.file!.isNotEmpty)
+              ? shared.FilePickerValue(
+                  name: state.file!,
+                  path: state.filePath,
+                  bytes: state.fileBytes,
+                  sizeBytes: state.fileSizeBytes,
+                )
+              : null,
+          pickButtonLabel: context.l10n.publish_uploadFile,
+          helperText: context.l10n.publish_supportedFileTypes,
+          allowedExtensions: const ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+          onChanged: (picked) {
+            if (picked == null) {
+              controller.clearSelectedFile();
+              return;
+            }
+            controller.onSelectedFile(
+              fileName: picked.name,
+              filePath: picked.path,
+              fileBytes: picked.bytes,
+              fileSizeBytes: picked.sizeBytes,
+            );
+          },
+        ),
       ],
     );
   }

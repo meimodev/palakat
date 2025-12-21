@@ -8,13 +8,14 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { FileService } from './file.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileListQueryDto } from './dto/file-list.dto';
 import { FileFinalizeDto } from './dto/file-finalize.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('file-manager')
@@ -42,6 +43,15 @@ export class FileController {
     @Req() req: Request,
   ) {
     return this.fileService.resolveDownloadUrl(id, (req as any).user);
+  }
+
+  @Get(':id/proxy')
+  async proxyFile(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    return this.fileService.proxyFile(id, (req as any).user, res);
   }
 
   @Delete(':id')

@@ -252,6 +252,7 @@ export type ChurchWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Church"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Church"> | Date | string
   locationId?: Prisma.IntFilter<"Church"> | number
+  letterhead?: Prisma.XOR<Prisma.ChurchLetterheadNullableScalarRelationFilter, Prisma.ChurchLetterheadWhereInput> | null
   location?: Prisma.XOR<Prisma.LocationScalarRelationFilter, Prisma.LocationWhereInput>
   columns?: Prisma.ColumnListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
@@ -276,6 +277,7 @@ export type ChurchOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
+  letterhead?: Prisma.ChurchLetterheadOrderByWithRelationInput
   location?: Prisma.LocationOrderByWithRelationInput
   columns?: Prisma.ColumnOrderByRelationAggregateInput
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
@@ -303,6 +305,7 @@ export type ChurchWhereUniqueInput = Prisma.AtLeast<{
   documentAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Church"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Church"> | Date | string
+  letterhead?: Prisma.XOR<Prisma.ChurchLetterheadNullableScalarRelationFilter, Prisma.ChurchLetterheadWhereInput> | null
   location?: Prisma.XOR<Prisma.LocationScalarRelationFilter, Prisma.LocationWhereInput>
   columns?: Prisma.ColumnListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
@@ -357,6 +360,7 @@ export type ChurchCreateInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -381,6 +385,7 @@ export type ChurchUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -402,6 +407,7 @@ export type ChurchUpdateInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -426,6 +432,7 @@ export type ChurchUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -519,14 +526,14 @@ export type ChurchSumOrderByAggregateInput = {
   locationId?: Prisma.SortOrder
 }
 
-export type ChurchNullableScalarRelationFilter = {
-  is?: Prisma.ChurchWhereInput | null
-  isNot?: Prisma.ChurchWhereInput | null
-}
-
 export type ChurchScalarRelationFilter = {
   is?: Prisma.ChurchWhereInput
   isNot?: Prisma.ChurchWhereInput
+}
+
+export type ChurchNullableScalarRelationFilter = {
+  is?: Prisma.ChurchWhereInput | null
+  isNot?: Prisma.ChurchWhereInput | null
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -547,6 +554,20 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type ChurchCreateNestedOneWithoutLetterheadInput = {
+  create?: Prisma.XOR<Prisma.ChurchCreateWithoutLetterheadInput, Prisma.ChurchUncheckedCreateWithoutLetterheadInput>
+  connectOrCreate?: Prisma.ChurchCreateOrConnectWithoutLetterheadInput
+  connect?: Prisma.ChurchWhereUniqueInput
+}
+
+export type ChurchUpdateOneRequiredWithoutLetterheadNestedInput = {
+  create?: Prisma.XOR<Prisma.ChurchCreateWithoutLetterheadInput, Prisma.ChurchUncheckedCreateWithoutLetterheadInput>
+  connectOrCreate?: Prisma.ChurchCreateOrConnectWithoutLetterheadInput
+  upsert?: Prisma.ChurchUpsertWithoutLetterheadInput
+  connect?: Prisma.ChurchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchUpdateToOneWithWhereWithoutLetterheadInput, Prisma.ChurchUpdateWithoutLetterheadInput>, Prisma.ChurchUncheckedUpdateWithoutLetterheadInput>
 }
 
 export type ChurchCreateNestedOneWithoutColumnsInput = {
@@ -743,6 +764,112 @@ export type ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ChurchUpdateToOneWithWhereWithoutFinancialAccountNumbersInput, Prisma.ChurchUpdateWithoutFinancialAccountNumbersInput>, Prisma.ChurchUncheckedUpdateWithoutFinancialAccountNumbersInput>
 }
 
+export type ChurchCreateWithoutLetterheadInput = {
+  name: string
+  phoneNumber?: string | null
+  email?: string | null
+  description?: string | null
+  documentAccountNumber?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location: Prisma.LocationCreateNestedOneWithoutChurchInput
+  columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
+  membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutChurchInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutChurchInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutChurchInput
+  reports?: Prisma.ReportCreateNestedManyWithoutChurchInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutChurchInput
+  files?: Prisma.FileManagerCreateNestedManyWithoutChurchInput
+  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutChurchInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestCreateNestedManyWithoutApprovedChurchInput
+}
+
+export type ChurchUncheckedCreateWithoutLetterheadInput = {
+  id?: number
+  name: string
+  phoneNumber?: string | null
+  email?: string | null
+  description?: string | null
+  documentAccountNumber?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  locationId: number
+  columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutChurchInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutChurchInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutChurchInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutChurchInput
+  files?: Prisma.FileManagerUncheckedCreateNestedManyWithoutChurchInput
+  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutChurchInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedCreateNestedManyWithoutChurchInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutApprovedChurchInput
+}
+
+export type ChurchCreateOrConnectWithoutLetterheadInput = {
+  where: Prisma.ChurchWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChurchCreateWithoutLetterheadInput, Prisma.ChurchUncheckedCreateWithoutLetterheadInput>
+}
+
+export type ChurchUpsertWithoutLetterheadInput = {
+  update: Prisma.XOR<Prisma.ChurchUpdateWithoutLetterheadInput, Prisma.ChurchUncheckedUpdateWithoutLetterheadInput>
+  create: Prisma.XOR<Prisma.ChurchCreateWithoutLetterheadInput, Prisma.ChurchUncheckedCreateWithoutLetterheadInput>
+  where?: Prisma.ChurchWhereInput
+}
+
+export type ChurchUpdateToOneWithWhereWithoutLetterheadInput = {
+  where?: Prisma.ChurchWhereInput
+  data: Prisma.XOR<Prisma.ChurchUpdateWithoutLetterheadInput, Prisma.ChurchUncheckedUpdateWithoutLetterheadInput>
+}
+
+export type ChurchUpdateWithoutLetterheadInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
+  columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
+  membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutChurchNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutChurchNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutChurchNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutChurchNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutChurchNestedInput
+  files?: Prisma.FileManagerUpdateManyWithoutChurchNestedInput
+  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutChurchNestedInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUpdateManyWithoutApprovedChurchNestedInput
+}
+
+export type ChurchUncheckedUpdateWithoutLetterheadInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutChurchNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutChurchNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutChurchNestedInput
+  files?: Prisma.FileManagerUncheckedUpdateManyWithoutChurchNestedInput
+  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutChurchNestedInput
+  financialAccountNumbers?: Prisma.FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput
+  churchRequestsApproved?: Prisma.ChurchRequestUncheckedUpdateManyWithoutApprovedChurchNestedInput
+}
+
 export type ChurchCreateWithoutColumnsInput = {
   name: string
   phoneNumber?: string | null
@@ -751,6 +878,7 @@ export type ChurchCreateWithoutColumnsInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutChurchInput
@@ -774,6 +902,7 @@ export type ChurchUncheckedCreateWithoutColumnsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutChurchInput
@@ -810,6 +939,7 @@ export type ChurchUpdateWithoutColumnsInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutChurchNestedInput
@@ -833,6 +963,7 @@ export type ChurchUncheckedUpdateWithoutColumnsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
@@ -853,6 +984,7 @@ export type ChurchCreateWithoutMembershipsInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutChurchInput
@@ -876,6 +1008,7 @@ export type ChurchUncheckedCreateWithoutMembershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutChurchInput
@@ -912,6 +1045,7 @@ export type ChurchUpdateWithoutMembershipsInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutChurchNestedInput
@@ -935,6 +1069,7 @@ export type ChurchUncheckedUpdateWithoutMembershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
@@ -955,6 +1090,7 @@ export type ChurchCreateWithoutMembershipPositionsInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -978,6 +1114,7 @@ export type ChurchUncheckedCreateWithoutMembershipPositionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutChurchInput
@@ -1014,6 +1151,7 @@ export type ChurchUpdateWithoutMembershipPositionsInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1037,6 +1175,7 @@ export type ChurchUncheckedUpdateWithoutMembershipPositionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutChurchNestedInput
@@ -1057,6 +1196,7 @@ export type ChurchCreateWithoutApprovalRulesInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1080,6 +1220,7 @@ export type ChurchUncheckedCreateWithoutApprovalRulesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1116,6 +1257,7 @@ export type ChurchUpdateWithoutApprovalRulesInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1139,6 +1281,7 @@ export type ChurchUncheckedUpdateWithoutApprovalRulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1159,6 +1302,7 @@ export type ChurchCreateWithoutRevenuesInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1182,6 +1326,7 @@ export type ChurchUncheckedCreateWithoutRevenuesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1218,6 +1363,7 @@ export type ChurchUpdateWithoutRevenuesInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1241,6 +1387,7 @@ export type ChurchUncheckedUpdateWithoutRevenuesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1261,6 +1408,7 @@ export type ChurchCreateWithoutExpensesInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1284,6 +1432,7 @@ export type ChurchUncheckedCreateWithoutExpensesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1320,6 +1469,7 @@ export type ChurchUpdateWithoutExpensesInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1343,6 +1493,7 @@ export type ChurchUncheckedUpdateWithoutExpensesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1363,6 +1514,7 @@ export type ChurchCreateWithoutLocationInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutChurchInput
@@ -1385,6 +1537,7 @@ export type ChurchUncheckedCreateWithoutLocationInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1422,6 +1575,7 @@ export type ChurchUpdateWithoutLocationInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutChurchNestedInput
@@ -1444,6 +1598,7 @@ export type ChurchUncheckedUpdateWithoutLocationInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1465,6 +1620,7 @@ export type ChurchCreateWithoutFilesInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1488,6 +1644,7 @@ export type ChurchUncheckedCreateWithoutFilesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1524,6 +1681,7 @@ export type ChurchUpdateWithoutFilesInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1547,6 +1705,7 @@ export type ChurchUncheckedUpdateWithoutFilesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1567,6 +1726,7 @@ export type ChurchCreateWithoutReportsInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1590,6 +1750,7 @@ export type ChurchUncheckedCreateWithoutReportsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1626,6 +1787,7 @@ export type ChurchUpdateWithoutReportsInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1649,6 +1811,7 @@ export type ChurchUncheckedUpdateWithoutReportsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1669,6 +1832,7 @@ export type ChurchCreateWithoutDocumentsInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1692,6 +1856,7 @@ export type ChurchUncheckedCreateWithoutDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1728,6 +1893,7 @@ export type ChurchUpdateWithoutDocumentsInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1751,6 +1917,7 @@ export type ChurchUncheckedUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1771,6 +1938,7 @@ export type ChurchCreateWithoutChurchRequestsApprovedInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1794,6 +1962,7 @@ export type ChurchUncheckedCreateWithoutChurchRequestsApprovedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1830,6 +1999,7 @@ export type ChurchUpdateWithoutChurchRequestsApprovedInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1853,6 +2023,7 @@ export type ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -1873,6 +2044,7 @@ export type ChurchCreateWithoutFinancialAccountNumbersInput = {
   documentAccountNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  letterhead?: Prisma.ChurchLetterheadCreateNestedOneWithoutChurchInput
   location: Prisma.LocationCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutChurchInput
@@ -1896,6 +2068,7 @@ export type ChurchUncheckedCreateWithoutFinancialAccountNumbersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   locationId: number
+  letterhead?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutChurchInput
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutChurchInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutChurchInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutChurchInput
@@ -1932,6 +2105,7 @@ export type ChurchUpdateWithoutFinancialAccountNumbersInput = {
   documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  letterhead?: Prisma.ChurchLetterheadUpdateOneWithoutChurchNestedInput
   location?: Prisma.LocationUpdateOneRequiredWithoutChurchNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutChurchNestedInput
@@ -1955,6 +2129,7 @@ export type ChurchUncheckedUpdateWithoutFinancialAccountNumbersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  letterhead?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutChurchNestedInput
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutChurchNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutChurchNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutChurchNestedInput
@@ -2098,6 +2273,7 @@ export type ChurchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   updatedAt?: boolean
   locationId?: boolean
+  letterhead?: boolean | Prisma.Church$letterheadArgs<ExtArgs>
   location?: boolean | Prisma.LocationDefaultArgs<ExtArgs>
   columns?: boolean | Prisma.Church$columnsArgs<ExtArgs>
   memberships?: boolean | Prisma.Church$membershipsArgs<ExtArgs>
@@ -2153,6 +2329,7 @@ export type ChurchSelectScalar = {
 
 export type ChurchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phoneNumber" | "email" | "description" | "documentAccountNumber" | "createdAt" | "updatedAt" | "locationId", ExtArgs["result"]["church"]>
 export type ChurchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  letterhead?: boolean | Prisma.Church$letterheadArgs<ExtArgs>
   location?: boolean | Prisma.LocationDefaultArgs<ExtArgs>
   columns?: boolean | Prisma.Church$columnsArgs<ExtArgs>
   memberships?: boolean | Prisma.Church$membershipsArgs<ExtArgs>
@@ -2177,6 +2354,7 @@ export type ChurchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type $ChurchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Church"
   objects: {
+    letterhead: Prisma.$ChurchLetterheadPayload<ExtArgs> | null
     location: Prisma.$LocationPayload<ExtArgs>
     columns: Prisma.$ColumnPayload<ExtArgs>[]
     memberships: Prisma.$MembershipPayload<ExtArgs>[]
@@ -2594,6 +2772,7 @@ readonly fields: ChurchFieldRefs;
  */
 export interface Prisma__ChurchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  letterhead<T extends Prisma.Church$letterheadArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$letterheadArgs<ExtArgs>>): Prisma.Prisma__ChurchLetterheadClient<runtime.Types.Result.GetResult<Prisma.$ChurchLetterheadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   location<T extends Prisma.LocationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LocationDefaultArgs<ExtArgs>>): Prisma.Prisma__LocationClient<runtime.Types.Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   columns<T extends Prisma.Church$columnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$columnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ColumnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberships<T extends Prisma.Church$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Church$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3037,6 +3216,25 @@ export type ChurchDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Churches to delete.
    */
   limit?: number
+}
+
+/**
+ * Church.letterhead
+ */
+export type Church$letterheadArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChurchLetterhead
+   */
+  select?: Prisma.ChurchLetterheadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChurchLetterhead
+   */
+  omit?: Prisma.ChurchLetterheadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChurchLetterheadInclude<ExtArgs> | null
+  where?: Prisma.ChurchLetterheadWhereInput
 }
 
 /**

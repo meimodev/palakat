@@ -431,14 +431,6 @@ export type ColumnUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.ColumnScalarWhereInput | Prisma.ColumnScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ColumnCreateNestedOneWithoutMembershipsInput = {
   create?: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipsInput, Prisma.ColumnUncheckedCreateWithoutMembershipsInput>
   connectOrCreate?: Prisma.ColumnCreateOrConnectWithoutMembershipsInput

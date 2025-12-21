@@ -890,7 +890,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get dashboard_title => 'Dasbor';
+  String get dashboard_title => 'Beranda';
 
   @override
   String get dashboard_subtitle => 'Ringkasan kegiatan gereja Anda.';

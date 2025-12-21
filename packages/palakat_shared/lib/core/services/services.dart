@@ -2,6 +2,7 @@
 library;
 
 export 'http_service.dart';
+export 'image_cache_service.dart';
 export 'local_storage_service.dart';
 export 'local_storage_service_provider.dart';
 export 'locale_controller.dart';

@@ -231,6 +231,9 @@ class HttpService {
   /// Get configured Dio instance
   Dio get dio => _dio;
 
+  /// Get the base URL
+  String get baseUrl => _dio.options.baseUrl;
+
   /// GET request
   Future<Response<T>> get<T>(
     String path, {

@@ -28,7 +28,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         reportTitle: reportTitle,
         description: description,
         onClose: () => DrawerUtils.closeDrawer(context),
-        onGenerate: (range) async {
+        onGenerate: (range, format) async {
           if (context.mounted) {
             // DrawerUtils.closeDrawer(context);
             // TODO: Call controller.generateReport() with proper data
@@ -42,6 +42,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             final controller = ref.read(reportControllerProvider.notifier);
             await controller.generateReport({
               'type': reportType,
+              'format': format.name.toUpperCase(),
               if (range != null) 'startDate': range.start.toIso8601String(),
               if (range != null) 'endDate': range.end.toIso8601String(),
             });
@@ -291,6 +292,21 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                 ),
               ],
             ],
+          );
+        },
+      ),
+      AppTableColumn<Report>(
+        title: 'Format',
+        flex: 1,
+        cellBuilder: (ctx, report) {
+          final theme = Theme.of(ctx);
+          return Text(
+            report.format.name.toUpperCase(),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
           );
         },
       ),

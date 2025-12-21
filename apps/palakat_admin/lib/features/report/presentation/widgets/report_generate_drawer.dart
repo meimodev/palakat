@@ -9,7 +9,8 @@ class ReportGenerateDrawer extends ConsumerStatefulWidget {
   final String reportTitle;
   final String description;
   final VoidCallback onClose;
-  final Future<void> Function(DateTimeRange? range)? onGenerate;
+  final Future<void> Function(DateTimeRange? range, ReportFormat format)?
+  onGenerate;
 
   const ReportGenerateDrawer({
     super.key,
@@ -27,6 +28,7 @@ class ReportGenerateDrawer extends ConsumerStatefulWidget {
 class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
   DateRangePreset _dateRangePreset = DateRangePreset.today;
   DateTimeRange? _customDateRange;
+  ReportFormat _format = ReportFormat.pdf;
   bool _generating = false;
   String? _errorMessage;
 
@@ -52,7 +54,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
 
     try {
       if (widget.onGenerate != null) {
-        await widget.onGenerate!(_getEffectiveDateRange());
+        await widget.onGenerate!(_getEffectiveDateRange(), _format);
       }
       if (!mounted) return;
 
@@ -155,6 +157,38 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                         _dateRangePreset = preset;
                       });
                     }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              LabeledField(
+                label: 'Format',
+                child: DropdownButtonFormField<ReportFormat>(
+                  value: _format,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    prefixIcon: Icon(Icons.description_outlined, size: 18),
+                  ),
+                  items: ReportFormat.values
+                      .map(
+                        (f) => DropdownMenuItem<ReportFormat>(
+                          value: f,
+                          child: Text(
+                            f.name.toUpperCase(),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (format) {
+                    if (format == null) return;
+                    setState(() {
+                      _format = format;
+                    });
                   },
                 ),
               ),

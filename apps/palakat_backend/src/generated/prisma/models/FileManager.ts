@@ -268,6 +268,7 @@ export type FileManagerWhereInput = {
   report?: Prisma.XOR<Prisma.ReportNullableScalarRelationFilter, Prisma.ReportWhereInput> | null
   document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
+  churchLetterheadLogo?: Prisma.XOR<Prisma.ChurchLetterheadNullableScalarRelationFilter, Prisma.ChurchLetterheadWhereInput> | null
 }
 
 export type FileManagerOrderByWithRelationInput = {
@@ -285,6 +286,7 @@ export type FileManagerOrderByWithRelationInput = {
   report?: Prisma.ReportOrderByWithRelationInput
   document?: Prisma.DocumentOrderByWithRelationInput
   activity?: Prisma.ActivityOrderByWithRelationInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadOrderByWithRelationInput
 }
 
 export type FileManagerWhereUniqueInput = Prisma.AtLeast<{
@@ -306,6 +308,7 @@ export type FileManagerWhereUniqueInput = Prisma.AtLeast<{
   report?: Prisma.XOR<Prisma.ReportNullableScalarRelationFilter, Prisma.ReportWhereInput> | null
   document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
+  churchLetterheadLogo?: Prisma.XOR<Prisma.ChurchLetterheadNullableScalarRelationFilter, Prisma.ChurchLetterheadWhereInput> | null
 }, "id" | "bucket_path">
 
 export type FileManagerOrderByWithAggregationInput = {
@@ -355,6 +358,7 @@ export type FileManagerCreateInput = {
   report?: Prisma.ReportCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUncheckedCreateInput = {
@@ -371,6 +375,7 @@ export type FileManagerUncheckedCreateInput = {
   report?: Prisma.ReportUncheckedCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityUncheckedCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUpdateInput = {
@@ -386,6 +391,7 @@ export type FileManagerUpdateInput = {
   report?: Prisma.ReportUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateInput = {
@@ -402,6 +408,7 @@ export type FileManagerUncheckedUpdateInput = {
   report?: Prisma.ReportUncheckedUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUncheckedUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerCreateManyInput = {
@@ -559,6 +566,22 @@ export type FileManagerUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.FileManagerScalarWhereInput | Prisma.FileManagerScalarWhereInput[]
 }
 
+export type FileManagerCreateNestedOneWithoutChurchLetterheadLogoInput = {
+  create?: Prisma.XOR<Prisma.FileManagerCreateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedCreateWithoutChurchLetterheadLogoInput>
+  connectOrCreate?: Prisma.FileManagerCreateOrConnectWithoutChurchLetterheadLogoInput
+  connect?: Prisma.FileManagerWhereUniqueInput
+}
+
+export type FileManagerUpdateOneWithoutChurchLetterheadLogoNestedInput = {
+  create?: Prisma.XOR<Prisma.FileManagerCreateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedCreateWithoutChurchLetterheadLogoInput>
+  connectOrCreate?: Prisma.FileManagerCreateOrConnectWithoutChurchLetterheadLogoInput
+  upsert?: Prisma.FileManagerUpsertWithoutChurchLetterheadLogoInput
+  disconnect?: Prisma.FileManagerWhereInput | boolean
+  delete?: Prisma.FileManagerWhereInput | boolean
+  connect?: Prisma.FileManagerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FileManagerUpdateToOneWithWhereWithoutChurchLetterheadLogoInput, Prisma.FileManagerUpdateWithoutChurchLetterheadLogoInput>, Prisma.FileManagerUncheckedUpdateWithoutChurchLetterheadLogoInput>
+}
+
 export type FileManagerCreateNestedOneWithoutActivityInput = {
   create?: Prisma.XOR<Prisma.FileManagerCreateWithoutActivityInput, Prisma.FileManagerUncheckedCreateWithoutActivityInput>
   connectOrCreate?: Prisma.FileManagerCreateOrConnectWithoutActivityInput
@@ -629,6 +652,7 @@ export type FileManagerCreateWithoutChurchInput = {
   report?: Prisma.ReportCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUncheckedCreateWithoutChurchInput = {
@@ -644,6 +668,7 @@ export type FileManagerUncheckedCreateWithoutChurchInput = {
   report?: Prisma.ReportUncheckedCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityUncheckedCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerCreateOrConnectWithoutChurchInput = {
@@ -688,6 +713,84 @@ export type FileManagerScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FileManager"> | Date | string
 }
 
+export type FileManagerCreateWithoutChurchLetterheadLogoInput = {
+  provider?: $Enums.FileProvider
+  bucket: string
+  path: string
+  sizeInKB: number
+  contentType?: string | null
+  originalName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutFilesInput
+  report?: Prisma.ReportCreateNestedOneWithoutFileInput
+  document?: Prisma.DocumentCreateNestedOneWithoutFileInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutFileInput
+}
+
+export type FileManagerUncheckedCreateWithoutChurchLetterheadLogoInput = {
+  id?: number
+  provider?: $Enums.FileProvider
+  bucket: string
+  path: string
+  sizeInKB: number
+  contentType?: string | null
+  originalName?: string | null
+  churchId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  report?: Prisma.ReportUncheckedCreateNestedOneWithoutFileInput
+  document?: Prisma.DocumentUncheckedCreateNestedOneWithoutFileInput
+  activity?: Prisma.ActivityUncheckedCreateNestedOneWithoutFileInput
+}
+
+export type FileManagerCreateOrConnectWithoutChurchLetterheadLogoInput = {
+  where: Prisma.FileManagerWhereUniqueInput
+  create: Prisma.XOR<Prisma.FileManagerCreateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedCreateWithoutChurchLetterheadLogoInput>
+}
+
+export type FileManagerUpsertWithoutChurchLetterheadLogoInput = {
+  update: Prisma.XOR<Prisma.FileManagerUpdateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedUpdateWithoutChurchLetterheadLogoInput>
+  create: Prisma.XOR<Prisma.FileManagerCreateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedCreateWithoutChurchLetterheadLogoInput>
+  where?: Prisma.FileManagerWhereInput
+}
+
+export type FileManagerUpdateToOneWithWhereWithoutChurchLetterheadLogoInput = {
+  where?: Prisma.FileManagerWhereInput
+  data: Prisma.XOR<Prisma.FileManagerUpdateWithoutChurchLetterheadLogoInput, Prisma.FileManagerUncheckedUpdateWithoutChurchLetterheadLogoInput>
+}
+
+export type FileManagerUpdateWithoutChurchLetterheadLogoInput = {
+  provider?: Prisma.EnumFileProviderFieldUpdateOperationsInput | $Enums.FileProvider
+  bucket?: Prisma.StringFieldUpdateOperationsInput | string
+  path?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeInKB?: Prisma.FloatFieldUpdateOperationsInput | number
+  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutFilesNestedInput
+  report?: Prisma.ReportUpdateOneWithoutFileNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutFileNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutFileNestedInput
+}
+
+export type FileManagerUncheckedUpdateWithoutChurchLetterheadLogoInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  provider?: Prisma.EnumFileProviderFieldUpdateOperationsInput | $Enums.FileProvider
+  bucket?: Prisma.StringFieldUpdateOperationsInput | string
+  path?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeInKB?: Prisma.FloatFieldUpdateOperationsInput | number
+  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  report?: Prisma.ReportUncheckedUpdateOneWithoutFileNestedInput
+  document?: Prisma.DocumentUncheckedUpdateOneWithoutFileNestedInput
+  activity?: Prisma.ActivityUncheckedUpdateOneWithoutFileNestedInput
+}
+
 export type FileManagerCreateWithoutActivityInput = {
   provider?: $Enums.FileProvider
   bucket: string
@@ -700,6 +803,7 @@ export type FileManagerCreateWithoutActivityInput = {
   church: Prisma.ChurchCreateNestedOneWithoutFilesInput
   report?: Prisma.ReportCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUncheckedCreateWithoutActivityInput = {
@@ -715,6 +819,7 @@ export type FileManagerUncheckedCreateWithoutActivityInput = {
   updatedAt?: Date | string
   report?: Prisma.ReportUncheckedCreateNestedOneWithoutFileInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerCreateOrConnectWithoutActivityInput = {
@@ -745,6 +850,7 @@ export type FileManagerUpdateWithoutActivityInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutFilesNestedInput
   report?: Prisma.ReportUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateWithoutActivityInput = {
@@ -760,6 +866,7 @@ export type FileManagerUncheckedUpdateWithoutActivityInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   report?: Prisma.ReportUncheckedUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerCreateWithoutReportInput = {
@@ -774,6 +881,7 @@ export type FileManagerCreateWithoutReportInput = {
   church: Prisma.ChurchCreateNestedOneWithoutFilesInput
   document?: Prisma.DocumentCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUncheckedCreateWithoutReportInput = {
@@ -789,6 +897,7 @@ export type FileManagerUncheckedCreateWithoutReportInput = {
   updatedAt?: Date | string
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityUncheckedCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerCreateOrConnectWithoutReportInput = {
@@ -819,6 +928,7 @@ export type FileManagerUpdateWithoutReportInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutFilesNestedInput
   document?: Prisma.DocumentUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateWithoutReportInput = {
@@ -834,6 +944,7 @@ export type FileManagerUncheckedUpdateWithoutReportInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.DocumentUncheckedUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUncheckedUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerCreateWithoutDocumentInput = {
@@ -848,6 +959,7 @@ export type FileManagerCreateWithoutDocumentInput = {
   church: Prisma.ChurchCreateNestedOneWithoutFilesInput
   report?: Prisma.ReportCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerUncheckedCreateWithoutDocumentInput = {
@@ -863,6 +975,7 @@ export type FileManagerUncheckedCreateWithoutDocumentInput = {
   updatedAt?: Date | string
   report?: Prisma.ReportUncheckedCreateNestedOneWithoutFileInput
   activity?: Prisma.ActivityUncheckedCreateNestedOneWithoutFileInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedCreateNestedOneWithoutLogoFileInput
 }
 
 export type FileManagerCreateOrConnectWithoutDocumentInput = {
@@ -893,6 +1006,7 @@ export type FileManagerUpdateWithoutDocumentInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutFilesNestedInput
   report?: Prisma.ReportUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateWithoutDocumentInput = {
@@ -908,6 +1022,7 @@ export type FileManagerUncheckedUpdateWithoutDocumentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   report?: Prisma.ReportUncheckedUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUncheckedUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerCreateManyChurchInput = {
@@ -934,6 +1049,7 @@ export type FileManagerUpdateWithoutChurchInput = {
   report?: Prisma.ReportUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateWithoutChurchInput = {
@@ -949,6 +1065,7 @@ export type FileManagerUncheckedUpdateWithoutChurchInput = {
   report?: Prisma.ReportUncheckedUpdateOneWithoutFileNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutFileNestedInput
   activity?: Prisma.ActivityUncheckedUpdateOneWithoutFileNestedInput
+  churchLetterheadLogo?: Prisma.ChurchLetterheadUncheckedUpdateOneWithoutLogoFileNestedInput
 }
 
 export type FileManagerUncheckedUpdateManyWithoutChurchInput = {
@@ -980,6 +1097,7 @@ export type FileManagerSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   report?: boolean | Prisma.FileManager$reportArgs<ExtArgs>
   document?: boolean | Prisma.FileManager$documentArgs<ExtArgs>
   activity?: boolean | Prisma.FileManager$activityArgs<ExtArgs>
+  churchLetterheadLogo?: boolean | Prisma.FileManager$churchLetterheadLogoArgs<ExtArgs>
 }, ExtArgs["result"]["fileManager"]>
 
 export type FileManagerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1029,6 +1147,7 @@ export type FileManagerInclude<ExtArgs extends runtime.Types.Extensions.Internal
   report?: boolean | Prisma.FileManager$reportArgs<ExtArgs>
   document?: boolean | Prisma.FileManager$documentArgs<ExtArgs>
   activity?: boolean | Prisma.FileManager$activityArgs<ExtArgs>
+  churchLetterheadLogo?: boolean | Prisma.FileManager$churchLetterheadLogoArgs<ExtArgs>
 }
 export type FileManagerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
@@ -1044,6 +1163,7 @@ export type $FileManagerPayload<ExtArgs extends runtime.Types.Extensions.Interna
     report: Prisma.$ReportPayload<ExtArgs> | null
     document: Prisma.$DocumentPayload<ExtArgs> | null
     activity: Prisma.$ActivityPayload<ExtArgs> | null
+    churchLetterheadLogo: Prisma.$ChurchLetterheadPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1454,6 +1574,7 @@ export interface Prisma__FileManagerClient<T, Null = never, ExtArgs extends runt
   report<T extends Prisma.FileManager$reportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileManager$reportArgs<ExtArgs>>): Prisma.Prisma__ReportClient<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   document<T extends Prisma.FileManager$documentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileManager$documentArgs<ExtArgs>>): Prisma.Prisma__DocumentClient<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activity<T extends Prisma.FileManager$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileManager$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  churchLetterheadLogo<T extends Prisma.FileManager$churchLetterheadLogoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileManager$churchLetterheadLogoArgs<ExtArgs>>): Prisma.Prisma__ChurchLetterheadClient<runtime.Types.Result.GetResult<Prisma.$ChurchLetterheadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1943,6 +2064,25 @@ export type FileManager$activityArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.ActivityInclude<ExtArgs> | null
   where?: Prisma.ActivityWhereInput
+}
+
+/**
+ * FileManager.churchLetterheadLogo
+ */
+export type FileManager$churchLetterheadLogoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChurchLetterhead
+   */
+  select?: Prisma.ChurchLetterheadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChurchLetterhead
+   */
+  omit?: Prisma.ChurchLetterheadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChurchLetterheadInclude<ExtArgs> | null
+  where?: Prisma.ChurchLetterheadWhereInput
 }
 
 /**

@@ -165,6 +165,56 @@ export class FileService {
     };
   }
 
+  async proxyFile(id: number, user: any, res: any) {
+    const userId = user?.userId;
+    if (!userId) {
+      throw new BadRequestException('Invalid user');
+    }
+
+    const membership = await (this.prisma as any).membership.findUnique({
+      where: { accountId: userId },
+      select: { churchId: true },
+    });
+
+    if (!membership?.churchId) {
+      throw new BadRequestException('User does not have a membership');
+    }
+
+    const file = await this.prisma.fileManager.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        churchId: true,
+        bucket: true,
+        path: true,
+        contentType: true,
+      } as any,
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    if (file.churchId !== membership.churchId) {
+      throw new BadRequestException('Invalid church context');
+    }
+
+    const bucket = this.firebaseAdmin.bucket(file.bucket);
+    const fileRef = bucket.file(file.path);
+
+    const [exists] = await fileRef.exists();
+    if (!exists) {
+      throw new NotFoundException('File not found in storage');
+    }
+
+    const contentType = file.contentType || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+
+    const stream = fileRef.createReadStream();
+    stream.pipe(res);
+  }
+
   async remove(id: number) {
     await this.prisma.fileManager.delete({
       where: { id },

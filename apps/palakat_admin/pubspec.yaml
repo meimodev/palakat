@@ -62,6 +62,7 @@ dependencies:
   # Open URLs on web/desktop/mobile
   url_launcher: ^6.3.0
   jiffy: ^6.4.3
+  file_picker: ^10.3.3
 
 dev_dependencies:
   flutter_test:

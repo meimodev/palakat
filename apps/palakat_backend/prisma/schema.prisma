@@ -15,6 +15,7 @@ model Church {
   email                   String?
   description             String?
   documentAccountNumber   String?
+  letterhead              ChurchLetterhead?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   locationId              Int                      @unique
@@ -32,6 +33,22 @@ model Church {
   churchRequestsApproved  ChurchRequest[]           @relation("ChurchRequestApprovedChurch")
 
   @@index([name])
+}
+
+model ChurchLetterhead {
+  id         Int         @id @default(autoincrement())
+  churchId   Int         @unique
+  church     Church      @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  logoFileId Int?        @unique
+  logoFile   FileManager? @relation("ChurchLetterheadLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
+  title      String?
+  line1      String?
+  line2      String?
+  line3      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([churchId])
 }
 
 model Column {
@@ -337,6 +354,18 @@ enum GeneratedBy {
   SYSTEM
 }
 
+enum ReportGenerateType {
+  INCOMING_DOCUMENT
+  CONGREGATION
+  SERVICES
+  ACTIVITY
+}
+
+enum ReportFormat {
+  PDF
+  XLSX
+}
+
 enum FileProvider {
   FIREBASE_STORAGE
 }
@@ -356,6 +385,7 @@ model FileManager {
   report    Report?
   document  Document?
   activity  Activity?
+  churchLetterheadLogo ChurchLetterhead? @relation("ChurchLetterheadLogo")
 
   @@unique([bucket, path])
   @@index([churchId])
@@ -365,6 +395,9 @@ model FileManager {
 model Report {
   id          Int         @id @default(autoincrement())
   name        String
+  type        ReportGenerateType @default(INCOMING_DOCUMENT)
+  format      ReportFormat       @default(PDF)
+  params      Json?
   generatedBy GeneratedBy
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -375,6 +408,8 @@ model Report {
 
   @@index([churchId])
   @@index([generatedBy])
+  @@index([type])
+  @@index([format])
 }
 
 model Document {

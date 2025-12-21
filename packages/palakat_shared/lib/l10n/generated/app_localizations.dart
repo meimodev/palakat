@@ -206,6 +206,10 @@ abstract class AppLocalizations {
   /// **'Songs'**
   String get nav_songs;
 
+  /// No description provided for @nav_articles.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles'**
   String get nav_articles;
 
   /// No description provided for @songBook_title.
@@ -238,14 +242,34 @@ abstract class AppLocalizations {
   /// **'Try searching with different keywords'**
   String get songBook_emptySubtitle;
 
+  /// No description provided for @articles_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles'**
   String get articles_title;
 
+  /// No description provided for @article_titleFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Article'**
   String get article_titleFallback;
 
+  /// No description provided for @article_likesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 likes} =1{1 like} other{{count} likes}}'**
   String article_likesCount(num count);
 
+  /// No description provided for @articleType_preachingMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Preaching Material'**
   String get articleType_preachingMaterial;
 
+  /// No description provided for @articleType_gameInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Instruction'**
   String get articleType_gameInstruction;
 
   /// No description provided for @map_selectLocationTitle.

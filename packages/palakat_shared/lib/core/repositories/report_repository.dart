@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../constants/enums.dart';
 import '../models/report.dart';
 import '../models/result.dart';
 import '../models/response/response.dart';
@@ -44,6 +45,44 @@ class ReportRepository {
       final error = ErrorMapper.unknown('Failed to fetch reports', e, st);
       return Result.failure(Failure(error.message, error.statusCode));
     }
+  }
+
+  String _reportGenerateTypeToApi(ReportGenerateType type) {
+    switch (type) {
+      case ReportGenerateType.incomingDocument:
+        return 'INCOMING_DOCUMENT';
+      case ReportGenerateType.congregation:
+        return 'CONGREGATION';
+      case ReportGenerateType.services:
+        return 'SERVICES';
+      case ReportGenerateType.activity:
+        return 'ACTIVITY';
+    }
+  }
+
+  String _reportFormatToApi(ReportFormat format) {
+    switch (format) {
+      case ReportFormat.pdf:
+        return 'PDF';
+      case ReportFormat.xlsx:
+        return 'XLSX';
+    }
+  }
+
+  Future<Result<Report, Failure>> generateReportTyped({
+    required ReportGenerateType type,
+    ReportFormat? format,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
+    return generateReport(
+      data: {
+        'type': _reportGenerateTypeToApi(type),
+        if (format != null) 'format': _reportFormatToApi(format),
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
+      },
+    );
   }
 
   Future<Result<Report, Failure>> fetchReport({required int reportId}) async {

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
@@ -7,7 +10,19 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/core/widgets/cached_file_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+final churchLetterheadProvider = FutureProvider<ChurchLetterhead?>((ref) async {
+  final repo = ref.read(churchLetterheadRepositoryProvider);
+  final result = await repo.fetchMyLetterhead();
+  return result.when(
+    onSuccess: (letterhead) => letterhead,
+    onFailure: (failure) {
+      throw AppError.serverError(failure.message, statusCode: failure.code);
+    },
+  );
+});
 
 class DocumentScreen extends ConsumerWidget {
   const DocumentScreen({super.key});
@@ -21,6 +36,7 @@ class DocumentScreen extends ConsumerWidget {
       documentControllerProvider.notifier,
     );
     final settingsAsync = ref.watch(documentSettingsProvider);
+    final letterheadAsync = ref.watch(churchLetterheadProvider);
 
     return Material(
       child: SingleChildScrollView(
@@ -104,6 +120,41 @@ class DocumentScreen extends ConsumerWidget {
                   theme: theme,
                   error: error,
                   onRetry: () => ref.invalidate(documentSettingsProvider),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            letterheadAsync.when(
+              data: (letterhead) => _LetterheadCard(
+                letterhead: letterhead,
+                onEdit: () => _openLetterheadDrawer(context, ref, letterhead),
+              ),
+              loading: () => SurfaceCard(
+                title: 'Letterhead',
+                subtitle: l10n.loading_data,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 8,
+                  ),
+                  child: LoadingShimmer(
+                    child: ShimmerPlaceholders.text(
+                      width: double.infinity,
+                      height: 40,
+                    ),
+                  ),
+                ),
+              ),
+              error: (error, stack) => SurfaceCard(
+                title: 'Letterhead',
+                subtitle: l10n.err_loadFailed,
+                child: _buildErrorWidget(
+                  context: context,
+                  theme: theme,
+                  error: error,
+                  onRetry: () => ref.invalidate(churchLetterheadProvider),
                 ),
               ),
             ),
@@ -322,6 +373,338 @@ class DocumentScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _openLetterheadDrawer(
+    BuildContext context,
+    WidgetRef ref,
+    ChurchLetterhead? letterhead,
+  ) {
+    DrawerUtils.showDrawer(
+      context: context,
+      drawer: _LetterheadEditDrawer(
+        letterhead: letterhead,
+        onClose: () => DrawerUtils.closeDrawer(context),
+        onSaved: () {
+          ref.invalidate(churchLetterheadProvider);
+        },
+      ),
+    );
+  }
+}
+
+class _LetterheadEditDrawer extends ConsumerStatefulWidget {
+  const _LetterheadEditDrawer({
+    required this.letterhead,
+    required this.onClose,
+    required this.onSaved,
+  });
+
+  final ChurchLetterhead? letterhead;
+  final VoidCallback onClose;
+  final VoidCallback onSaved;
+
+  @override
+  ConsumerState<_LetterheadEditDrawer> createState() =>
+      _LetterheadEditDrawerState();
+}
+
+class _LetterheadEditDrawerState extends ConsumerState<_LetterheadEditDrawer> {
+  final _formKey = GlobalKey<FormState>();
+
+  late final TextEditingController _titleController;
+  late final TextEditingController _line1Controller;
+  late final TextEditingController _line2Controller;
+  late final TextEditingController _line3Controller;
+
+  Uint8List? _pickedLogoBytes;
+  String? _pickedLogoFilename;
+
+  String? _existingLogoUrl;
+  bool _isLoadingLogo = false;
+
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isFormValid = false;
+  bool _didInitialize = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.letterhead?.title);
+    _line1Controller = TextEditingController(text: widget.letterhead?.line1);
+    _line2Controller = TextEditingController(text: widget.letterhead?.line2);
+    _line3Controller = TextEditingController(text: widget.letterhead?.line3);
+    _titleController.addListener(_handleFormChanged);
+    _line1Controller.addListener(_handleFormChanged);
+    _line2Controller.addListener(_handleFormChanged);
+    _line3Controller.addListener(_handleFormChanged);
+    // Schedule logo loading after the frame to avoid blocking UI
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_loadExistingLogo());
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInitialize) {
+      _didInitialize = true;
+      _handleFormChanged();
+    }
+  }
+
+  void _handleFormChanged() {
+    final l10n = context.l10n;
+
+    bool isValidField(String value, {required bool requiredField}) {
+      final v = value.trim();
+      if (requiredField && v.isEmpty) return false;
+      if (v.length > 200) return false;
+      return true;
+    }
+
+    final nextValid =
+        isValidField(_titleController.text, requiredField: true) &&
+        isValidField(_line1Controller.text, requiredField: true) &&
+        isValidField(_line2Controller.text, requiredField: false) &&
+        isValidField(_line3Controller.text, requiredField: false);
+
+    if (_isFormValid != nextValid) {
+      setState(() => _isFormValid = nextValid);
+    }
+
+    if (_errorMessage == l10n.validation_required && nextValid) {
+      setState(() => _errorMessage = null);
+    }
+  }
+
+  String? _validateLine(String? value, {required bool requiredField}) {
+    final l10n = context.l10n;
+    final v = (value ?? '').trim();
+    if (requiredField && v.isEmpty) {
+      return l10n.validation_required;
+    }
+    if (v.length > 200) {
+      return l10n.validation_maxLength(200);
+    }
+    return null;
+  }
+
+  Future<void> _loadExistingLogo() async {
+    final fileId =
+        widget.letterhead?.logoFileId ?? widget.letterhead?.logoFile?.id;
+    if (fileId == null) return;
+
+    setState(() => _isLoadingLogo = true);
+
+    try {
+      final fileRepo = ref.read(fileManagerRepositoryProvider);
+      final result = await fileRepo.resolveDownloadUrl(fileId: fileId);
+
+      if (!mounted) return;
+      
+      result.when(
+        onSuccess: (url) {
+          setState(() {
+            _existingLogoUrl = url;
+            _isLoadingLogo = false;
+          });
+        },
+        onFailure: (_) {
+          setState(() => _isLoadingLogo = false);
+        },
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoadingLogo = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.removeListener(_handleFormChanged);
+    _line1Controller.removeListener(_handleFormChanged);
+    _line2Controller.removeListener(_handleFormChanged);
+    _line3Controller.removeListener(_handleFormChanged);
+    _titleController.dispose();
+    _line1Controller.dispose();
+    _line2Controller.dispose();
+    _line3Controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) {
+      setState(() => _isFormValid = false);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final repo = ref.read(churchLetterheadRepositoryProvider);
+      final result = await repo.updateMyLetterhead(
+        data: {
+          'title': _titleController.text.trim(),
+          'line1': _line1Controller.text.trim(),
+          'line2': _line2Controller.text.trim(),
+          'line3': _line3Controller.text.trim(),
+        },
+      );
+
+      result.when(
+        onSuccess: (_) {},
+        onFailure: (failure) => throw Exception(failure.message),
+      );
+
+      final pickedBytes = _pickedLogoBytes;
+      final pickedFilename = _pickedLogoFilename;
+      if (pickedBytes != null && pickedFilename != null) {
+        final uploadRes = await repo.uploadLogo(
+          bytes: pickedBytes,
+          filename: pickedFilename,
+        );
+
+        uploadRes.when(
+          onSuccess: (_) {},
+          onFailure: (failure) => throw Exception(failure.message),
+        );
+      }
+
+      widget.onSaved();
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onClose();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final pickedLogoBytes = _pickedLogoBytes;
+    final pickedLogoFilename = _pickedLogoFilename;
+    final existingLogoFilename = widget.letterhead?.logoFile?.originalName;
+    final effectiveLogoFilename = pickedLogoFilename ?? existingLogoFilename;
+    // Use URL for existing logo, null if we have picked bytes
+    final previewUrl = pickedLogoBytes == null ? _existingLogoUrl : null;
+
+    return SideDrawer(
+      title: 'Letterhead',
+      subtitle: 'Edit your church letterhead information',
+      onClose: widget.onClose,
+      isLoading: _isLoading,
+      loadingMessage: l10n.loading_saving,
+      errorMessage: _errorMessage,
+      onRetry: _errorMessage != null
+          ? () {
+              setState(() => _errorMessage = null);
+            }
+          : null,
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _titleController,
+                    enabled: !_isLoading,
+                    decoration: InputDecoration(
+                      labelText: l10n.lbl_title,
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLength: 200,
+                    validator: (v) => _validateLine(v, requiredField: true),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _line1Controller,
+              enabled: !_isLoading,
+              decoration: const InputDecoration(
+                labelText: 'Line 1',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 200,
+              validator: (v) => _validateLine(v, requiredField: true),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _line2Controller,
+              enabled: !_isLoading,
+              decoration: const InputDecoration(
+                labelText: 'Line 2',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 200,
+              validator: (v) => _validateLine(v, requiredField: false),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _line3Controller,
+              enabled: !_isLoading,
+              decoration: const InputDecoration(
+                labelText: 'Line 3',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 200,
+              validator: (v) => _validateLine(v, requiredField: false),
+            ),
+            const SizedBox(height: 16),
+            FilePickerField(
+              enabled: !_isLoading,
+              label: 'Logo',
+              pickButtonLabel: 'Choose Logo',
+              helperText: 'JPG, JPEG, PNG',
+              allowedExtensions: const ['jpg', 'jpeg', 'png'],
+              previewUrl: previewUrl,
+              isLoadingPreview: _isLoadingLogo,
+              canClear: pickedLogoFilename != null,
+              value: (effectiveLogoFilename != null || pickedLogoBytes != null)
+                  ? FilePickerValue(
+                      name: effectiveLogoFilename ?? 'logo',
+                      bytes: pickedLogoBytes,
+                    )
+                  : null,
+              onChanged: (picked) {
+                setState(() {
+                  _pickedLogoFilename = picked?.name;
+                  _pickedLogoBytes = picked?.bytes;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      footer: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FilledButton(
+            onPressed: _isLoading || !_isFormValid ? null : _handleSave,
+            child: Text(l10n.btn_saveChanges),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _IdentityNumberEditDrawer extends StatefulWidget {
@@ -465,6 +848,117 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
             child: Text(l10n.btn_saveChanges),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class _LetterheadCard extends ConsumerWidget {
+  const _LetterheadCard({
+    required this.letterhead,
+    required this.onEdit,
+  });
+
+  final ChurchLetterhead? letterhead;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final fileId = letterhead?.logoFileId ?? letterhead?.logoFile?.id;
+
+    return SurfaceCard(
+      title: 'Letterhead',
+      subtitle: 'Configure your church letterhead for reports',
+      trailing: FilledButton.icon(
+        onPressed: onEdit,
+        icon: const Icon(Icons.edit),
+        label: Text(l10n.btn_edit),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Logo preview
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(7),
+                child: fileId != null
+                    ? CachedFileImage(
+                        fileId: fileId,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        placeholder: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        errorWidget: Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            size: 32,
+                            color:
+                                theme.colorScheme.error.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 32,
+                          color: theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.5),
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Text content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (letterhead?.title ?? '').isEmpty
+                        ? l10n.lbl_na
+                        : (letterhead?.title ?? ''),
+                    style: theme.textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    [
+                      letterhead?.line1,
+                      letterhead?.line2,
+                      letterhead?.line3,
+                    ].where((e) => (e ?? '').trim().isNotEmpty).join(' • '),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

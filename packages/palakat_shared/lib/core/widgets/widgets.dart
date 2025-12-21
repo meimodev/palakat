@@ -110,3 +110,6 @@ export 'validated_text_field.dart';
 // Search widgets
 export 'search_field.dart';
 export 'searchable_dialog_picker.dart';
+
+// Cached image widget
+export 'cached_file_image.dart';

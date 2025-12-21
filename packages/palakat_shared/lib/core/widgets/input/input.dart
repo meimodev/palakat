@@ -10,6 +10,7 @@
 library;
 
 export 'date_range_preset_input.dart';
+export 'file_picker_field.dart';
 export 'input_search_widget.dart';
 export 'input_variant_binary_option_widget.dart';
 export 'input_variant_dropdown_widget.dart';
