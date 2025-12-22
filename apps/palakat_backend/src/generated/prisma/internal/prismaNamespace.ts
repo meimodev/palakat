@@ -394,6 +394,8 @@ export const ModelName = {
   Activity: 'Activity',
   Revenue: 'Revenue',
   Expense: 'Expense',
+  CashAccount: 'CashAccount',
+  CashMutation: 'CashMutation',
   Location: 'Location',
   Approver: 'Approver',
   Song: 'Song',
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike"
+    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1162,6 +1164,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ExpenseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ExpenseCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashAccount: {
+      payload: Prisma.$CashAccountPayload<ExtArgs>
+      fields: Prisma.CashAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.CashAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        findMany: {
+          args: Prisma.CashAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>[]
+        }
+        create: {
+          args: Prisma.CashAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        createMany: {
+          args: Prisma.CashAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.CashAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        update: {
+          args: Prisma.CashAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.CashAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.CashAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashAccount>
+        }
+        groupBy: {
+          args: Prisma.CashAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashMutation: {
+      payload: Prisma.$CashMutationPayload<ExtArgs>
+      fields: Prisma.CashMutationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashMutationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashMutationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        findFirst: {
+          args: Prisma.CashMutationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashMutationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        findMany: {
+          args: Prisma.CashMutationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>[]
+        }
+        create: {
+          args: Prisma.CashMutationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        createMany: {
+          args: Prisma.CashMutationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashMutationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>[]
+        }
+        delete: {
+          args: Prisma.CashMutationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        update: {
+          args: Prisma.CashMutationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashMutationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashMutationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashMutationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>[]
+        }
+        upsert: {
+          args: Prisma.CashMutationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashMutationPayload>
+        }
+        aggregate: {
+          args: Prisma.CashMutationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashMutation>
+        }
+        groupBy: {
+          args: Prisma.CashMutationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashMutationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashMutationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashMutationCountAggregateOutputType> | number
         }
       }
     }
@@ -2250,6 +2400,38 @@ export const ExpenseScalarFieldEnum = {
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
+export const CashAccountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  currency: 'currency',
+  openingBalance: 'openingBalance',
+  churchId: 'churchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAccountScalarFieldEnum = (typeof CashAccountScalarFieldEnum)[keyof typeof CashAccountScalarFieldEnum]
+
+
+export const CashMutationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  amount: 'amount',
+  fromAccountId: 'fromAccountId',
+  toAccountId: 'toAccountId',
+  happenedAt: 'happenedAt',
+  note: 'note',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  churchId: 'churchId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashMutationScalarFieldEnum = (typeof CashMutationScalarFieldEnum)[keyof typeof CashMutationScalarFieldEnum]
+
+
 export const LocationScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2334,6 +2516,7 @@ export const DocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   accountNumber: 'accountNumber',
+  input: 'input',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId',
@@ -2628,6 +2811,34 @@ export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'CashMutationType'
+ */
+export type EnumCashMutationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CashMutationType'>
+    
+
+
+/**
+ * Reference to a field of type 'CashMutationType[]'
+ */
+export type ListEnumCashMutationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CashMutationType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CashMutationReferenceType'
+ */
+export type EnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CashMutationReferenceType'>
+    
+
+
+/**
+ * Reference to a field of type 'CashMutationReferenceType[]'
+ */
+export type ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CashMutationReferenceType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2736,6 +2947,20 @@ export type EnumGeneratedByFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'GeneratedBy[]'
  */
 export type ListEnumGeneratedByFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeneratedBy[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentInput'
+ */
+export type EnumDocumentInputFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentInput'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentInput[]'
+ */
+export type ListEnumDocumentInputFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentInput[]'>
     
 
 
@@ -2899,6 +3124,8 @@ export type GlobalOmitConfig = {
   activity?: Prisma.ActivityOmit
   revenue?: Prisma.RevenueOmit
   expense?: Prisma.ExpenseOmit
+  cashAccount?: Prisma.CashAccountOmit
+  cashMutation?: Prisma.CashMutationOmit
   location?: Prisma.LocationOmit
   approver?: Prisma.ApproverOmit
   song?: Prisma.SongOmit

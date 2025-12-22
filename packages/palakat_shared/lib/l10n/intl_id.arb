@@ -494,6 +494,10 @@
   "@btn_update": {
     "description": "Button text for update"
   },
+  "btn_transfer": "Transfer",
+  "@btn_transfer": {
+    "description": "Button text for transfer"
+  },
   "btn_addRule": "Tambah Aturan",
   "@btn_addRule": {
     "description": "Button text for add rule"
@@ -574,6 +578,26 @@
   "lbl_amount": "Jumlah",
   "@lbl_amount": {
     "description": "Label for amount field"
+  },
+  "lbl_currency": "Mata Uang",
+  "@lbl_currency": {
+    "description": "Label for currency field"
+  },
+  "lbl_openingBalance": "Saldo Awal",
+  "@lbl_openingBalance": {
+    "description": "Label for opening balance field"
+  },
+  "lbl_balance": "Saldo",
+  "@lbl_balance": {
+    "description": "Label for balance field"
+  },
+  "lbl_from": "Dari",
+  "@lbl_from": {
+    "description": "Label for from field"
+  },
+  "lbl_to": "Ke",
+  "@lbl_to": {
+    "description": "Label for to field"
   },
   "lbl_search": "Cari",
   "@lbl_search": {
@@ -1065,6 +1089,22 @@
   "card_accountNumbers_subtitle": "Daftar semua nomor akun keuangan untuk gereja Anda.",
   "@card_accountNumbers_subtitle": {
     "description": "Card subtitle for account numbers"
+  },
+  "card_cashAccounts_title": "Akun Tunai",
+  "@card_cashAccounts_title": {
+    "description": "Card title for cash accounts"
+  },
+  "card_cashAccounts_subtitle": "Kelola akun tunai dan lihat saldo.",
+  "@card_cashAccounts_subtitle": {
+    "description": "Card subtitle for cash accounts"
+  },
+  "card_cashMutations_title": "Mutasi Tunai",
+  "@card_cashMutations_title": {
+    "description": "Card title for cash mutations"
+  },
+  "card_cashMutations_subtitle": "Lacak pergerakan tunai antar akun.",
+  "@card_cashMutations_subtitle": {
+    "description": "Card subtitle for cash mutations"
   },
   "card_basicInfo_title": "Informasi Dasar",
   "@card_basicInfo_title": {
@@ -2247,6 +2287,26 @@
   "@tbl_type": {
     "description": "Table column header for type"
   },
+  "tbl_currency": "Mata Uang",
+  "@tbl_currency": {
+    "description": "Table column header for currency"
+  },
+  "tbl_openingBalance": "Saldo Awal",
+  "@tbl_openingBalance": {
+    "description": "Table column header for opening balance"
+  },
+  "tbl_balance": "Saldo",
+  "@tbl_balance": {
+    "description": "Table column header for balance"
+  },
+  "tbl_from": "Dari",
+  "@tbl_from": {
+    "description": "Table column header for from"
+  },
+  "tbl_to": "Ke",
+  "@tbl_to": {
+    "description": "Table column header for to"
+  },
   "tbl_supervisor": "Supervisor",
   "@tbl_supervisor": {
     "description": "Table column header for supervisor"
@@ -2445,6 +2505,42 @@
   "@reportDesc_activity": {
     "description": "Report drawer description for activity report"
   },
+
+  "reportType_financial": "Keuangan",
+  "@reportType_financial": {
+    "description": "Label for financial report type"
+  },
+  "reportTitle_financial": "Laporan Keuangan",
+  "@reportTitle_financial": {
+    "description": "Title for financial report"
+  },
+  "reportDesc_financial": "Buat laporan keuangan.",
+  "@reportDesc_financial": {
+    "description": "Description for financial report"
+  },
+  "lbl_financialSubtype": "Varian Keuangan",
+  "@lbl_financialSubtype": {
+    "description": "Label for financial report subtype dropdown"
+  },
+  "financialSubtype_revenue": "Pendapatan",
+  "@financialSubtype_revenue": {
+    "description": "Label for financial subtype REVENUE"
+  },
+  "financialSubtype_expense": "Pengeluaran",
+  "@financialSubtype_expense": {
+    "description": "Label for financial subtype EXPENSE"
+  },
+  "financialSubtype_mutation": "Mutasi",
+  "@financialSubtype_mutation": {
+    "description": "Label for financial subtype MUTATION"
+  },
+  "lbl_documentInput": "Varian Dokumen",
+  "documentInput_income": "Masuk",
+  "documentInput_outcome": "Keluar",
+  "lbl_congregationSubtype": "Varian Jemaat",
+  "congregationSubtype_wartaJemaat": "Warta Jemaat",
+  "congregationSubtype_hutJemaat": "HUT Jemaat",
+  "congregationSubtype_keanggotaan": "Keanggotaan",
   "tbl_linkedApprovalRule": "Aturan Persetujuan Terkait",
   "@tbl_linkedApprovalRule": {
     "description": "Table column header for linked approval rule"
@@ -2921,6 +3017,10 @@
   "validation_invalidNumber": "Silakan masukkan angka yang valid",
   "@validation_invalidNumber": {
     "description": "Invalid number validation message"
+  },
+  "validation_accountsMustBeDifferent": "Akun harus berbeda",
+  "@validation_accountsMustBeDifferent": {
+    "description": "Accounts must be different validation message"
   },
   "validation_invalidDate": "Silakan masukkan tanggal yang valid",
   "@validation_invalidDate": {

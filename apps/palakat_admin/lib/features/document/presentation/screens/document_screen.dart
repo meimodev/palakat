@@ -10,7 +10,6 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/widgets/cached_file_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final churchLetterheadProvider = FutureProvider<ChurchLetterhead?>((ref) async {
@@ -502,7 +501,7 @@ class _LetterheadEditDrawerState extends ConsumerState<_LetterheadEditDrawer> {
       final result = await fileRepo.resolveDownloadUrl(fileId: fileId);
 
       if (!mounted) return;
-      
+
       result.when(
         onSuccess: (url) {
           setState(() {
@@ -853,12 +852,8 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
   }
 }
 
-
 class _LetterheadCard extends ConsumerWidget {
-  const _LetterheadCard({
-    required this.letterhead,
-    required this.onEdit,
-  });
+  const _LetterheadCard({required this.letterhead, required this.onEdit});
 
   final ChurchLetterhead? letterhead;
   final VoidCallback onEdit;
@@ -913,8 +908,9 @@ class _LetterheadCard extends ConsumerWidget {
                           child: Icon(
                             Icons.broken_image_outlined,
                             size: 32,
-                            color:
-                                theme.colorScheme.error.withValues(alpha: 0.7),
+                            color: theme.colorScheme.error.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       )
@@ -922,8 +918,9 @@ class _LetterheadCard extends ConsumerWidget {
                         child: Icon(
                           Icons.image_outlined,
                           size: 32,
-                          color: theme.colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.5),
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
               ),

@@ -108,6 +108,26 @@ export const FinancialType = {
 export type FinancialType = (typeof FinancialType)[keyof typeof FinancialType]
 
 
+export const CashMutationType = {
+  IN: 'IN',
+  OUT: 'OUT',
+  TRANSFER: 'TRANSFER',
+  ADJUSTMENT: 'ADJUSTMENT'
+} as const
+
+export type CashMutationType = (typeof CashMutationType)[keyof typeof CashMutationType]
+
+
+export const CashMutationReferenceType = {
+  REVENUE: 'REVENUE',
+  EXPENSE: 'EXPENSE',
+  MANUAL: 'MANUAL',
+  TRANSFER: 'TRANSFER'
+} as const
+
+export type CashMutationReferenceType = (typeof CashMutationReferenceType)[keyof typeof CashMutationReferenceType]
+
+
 export const NotificationType = {
   ACTIVITY_CREATED: 'ACTIVITY_CREATED',
   APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
@@ -149,7 +169,8 @@ export const ReportGenerateType = {
   INCOMING_DOCUMENT: 'INCOMING_DOCUMENT',
   CONGREGATION: 'CONGREGATION',
   SERVICES: 'SERVICES',
-  ACTIVITY: 'ACTIVITY'
+  ACTIVITY: 'ACTIVITY',
+  FINANCIAL: 'FINANCIAL'
 } as const
 
 export type ReportGenerateType = (typeof ReportGenerateType)[keyof typeof ReportGenerateType]
@@ -161,6 +182,14 @@ export const ReportFormat = {
 } as const
 
 export type ReportFormat = (typeof ReportFormat)[keyof typeof ReportFormat]
+
+
+export const DocumentInput = {
+  INCOME: 'INCOME',
+  OUTCOME: 'OUTCOME'
+} as const
+
+export type DocumentInput = (typeof DocumentInput)[keyof typeof DocumentInput]
 
 
 export const FileProvider = {

@@ -25,6 +25,8 @@ model Church {
   membershipPositions     MembershipPosition[]
   revenues                Revenue[]
   expenses                Expense[]
+  cashAccounts             CashAccount[]
+  cashMutations            CashMutation[]
   reports                 Report[]
   documents               Document[]
   files                   FileManager[]
@@ -122,6 +124,7 @@ model Account {
   reviewedChurchRequests ChurchRequest[] @relation("ChurchRequestReviewedBy")
   articles              Article[]
   articleLikes          ArticleLike[]
+  cashMutationsCreated   CashMutation[]
 }
 
 model ApprovalRule {
@@ -209,6 +212,48 @@ model Expense {
   updatedAt                DateTime                @updatedAt
 
   @@index([financialAccountNumberId])
+}
+
+model CashAccount {
+  id             Int            @id @default(autoincrement())
+  name           String
+  currency       String         @default("IDR")
+  openingBalance Int            @default(0)
+  churchId       Int
+  church         Church         @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  mutationsFrom  CashMutation[] @relation("CashMutationFromAccount")
+  mutationsTo    CashMutation[] @relation("CashMutationToAccount")
+
+  @@unique([churchId, name])
+  @@index([churchId])
+}
+
+model CashMutation {
+  id            Int                     @id @default(autoincrement())
+  type          CashMutationType
+  amount        Int
+  fromAccountId Int?
+  toAccountId   Int?
+  happenedAt    DateTime
+  note          String?
+  referenceType CashMutationReferenceType?
+  referenceId   Int?
+  churchId      Int
+  church        Church                   @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  createdById   Int?
+  createdBy     Account?                 @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  fromAccount   CashAccount?             @relation("CashMutationFromAccount", fields: [fromAccountId], references: [id], onDelete: SetNull)
+  toAccount     CashAccount?             @relation("CashMutationToAccount", fields: [toAccountId], references: [id], onDelete: SetNull)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  @@index([churchId])
+  @@index([happenedAt])
+  @@index([type])
+  @@index([fromAccountId])
+  @@index([toAccountId])
 }
 
 model Location {
@@ -329,6 +374,20 @@ enum FinancialType {
   EXPENSE
 }
 
+enum CashMutationType {
+  IN
+  OUT
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum CashMutationReferenceType {
+  REVENUE
+  EXPENSE
+  MANUAL
+  TRANSFER
+}
+
 enum NotificationType {
   ACTIVITY_CREATED
   APPROVAL_REQUIRED
@@ -359,11 +418,17 @@ enum ReportGenerateType {
   CONGREGATION
   SERVICES
   ACTIVITY
+  FINANCIAL
 }
 
 enum ReportFormat {
   PDF
   XLSX
+}
+
+enum DocumentInput {
+  INCOME
+  OUTCOME
 }
 
 enum FileProvider {
@@ -416,6 +481,7 @@ model Document {
   id            Int          @id @default(autoincrement())
   name          String
   accountNumber String
+  input         DocumentInput @default(INCOME)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   churchId      Int

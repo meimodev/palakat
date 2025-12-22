@@ -355,6 +355,40 @@ export type EnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
 }
 
+export type EnumCashMutationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationType | Prisma.EnumCashMutationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel> | $Enums.CashMutationType
+}
+
+export type EnumCashMutationReferenceTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationReferenceType | Prisma.EnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel> | $Enums.CashMutationReferenceType | null
+}
+
+export type EnumCashMutationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationType | Prisma.EnumCashMutationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCashMutationTypeWithAggregatesFilter<$PrismaModel> | $Enums.CashMutationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel>
+}
+
+export type EnumCashMutationReferenceTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationReferenceType | Prisma.EnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCashMutationReferenceTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.CashMutationReferenceType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel>
+}
+
 export type FloatNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel> | null
@@ -560,6 +594,23 @@ export type EnumGeneratedByWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumGeneratedByFilter<$PrismaModel>
   _max?: Prisma.NestedEnumGeneratedByFilter<$PrismaModel>
+}
+
+export type EnumDocumentInputFilter<$PrismaModel = never> = {
+  equals?: $Enums.DocumentInput | Prisma.EnumDocumentInputFieldRefInput<$PrismaModel>
+  in?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel> | $Enums.DocumentInput
+}
+
+export type EnumDocumentInputWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DocumentInput | Prisma.EnumDocumentInputFieldRefInput<$PrismaModel>
+  in?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDocumentInputWithAggregatesFilter<$PrismaModel> | $Enums.DocumentInput
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel>
 }
 
 export type EnumRequestStatusFilter<$PrismaModel = never> = {
@@ -1001,6 +1052,40 @@ export type NestedEnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
 }
 
+export type NestedEnumCashMutationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationType | Prisma.EnumCashMutationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel> | $Enums.CashMutationType
+}
+
+export type NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationReferenceType | Prisma.EnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel> | $Enums.CashMutationReferenceType | null
+}
+
+export type NestedEnumCashMutationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationType | Prisma.EnumCashMutationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CashMutationType[] | Prisma.ListEnumCashMutationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCashMutationTypeWithAggregatesFilter<$PrismaModel> | $Enums.CashMutationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCashMutationTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumCashMutationReferenceTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CashMutationReferenceType | Prisma.EnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CashMutationReferenceType[] | Prisma.ListEnumCashMutationReferenceTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCashMutationReferenceTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.CashMutationReferenceType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCashMutationReferenceTypeNullableFilter<$PrismaModel>
+}
+
 export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel> | null
@@ -1157,6 +1242,23 @@ export type NestedEnumGeneratedByWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumGeneratedByFilter<$PrismaModel>
   _max?: Prisma.NestedEnumGeneratedByFilter<$PrismaModel>
+}
+
+export type NestedEnumDocumentInputFilter<$PrismaModel = never> = {
+  equals?: $Enums.DocumentInput | Prisma.EnumDocumentInputFieldRefInput<$PrismaModel>
+  in?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel> | $Enums.DocumentInput
+}
+
+export type NestedEnumDocumentInputWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DocumentInput | Prisma.EnumDocumentInputFieldRefInput<$PrismaModel>
+  in?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DocumentInput[] | Prisma.ListEnumDocumentInputFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDocumentInputWithAggregatesFilter<$PrismaModel> | $Enums.DocumentInput
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDocumentInputFilter<$PrismaModel>
 }
 
 export type NestedEnumRequestStatusFilter<$PrismaModel = never> = {

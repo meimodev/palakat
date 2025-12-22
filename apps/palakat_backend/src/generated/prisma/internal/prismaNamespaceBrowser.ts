@@ -61,6 +61,8 @@ export const ModelName = {
   Activity: 'Activity',
   Revenue: 'Revenue',
   Expense: 'Expense',
+  CashAccount: 'CashAccount',
+  CashMutation: 'CashMutation',
   Location: 'Location',
   Approver: 'Approver',
   Song: 'Song',
@@ -249,6 +251,38 @@ export const ExpenseScalarFieldEnum = {
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
+export const CashAccountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  currency: 'currency',
+  openingBalance: 'openingBalance',
+  churchId: 'churchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAccountScalarFieldEnum = (typeof CashAccountScalarFieldEnum)[keyof typeof CashAccountScalarFieldEnum]
+
+
+export const CashMutationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  amount: 'amount',
+  fromAccountId: 'fromAccountId',
+  toAccountId: 'toAccountId',
+  happenedAt: 'happenedAt',
+  note: 'note',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  churchId: 'churchId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashMutationScalarFieldEnum = (typeof CashMutationScalarFieldEnum)[keyof typeof CashMutationScalarFieldEnum]
+
+
 export const LocationScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -333,6 +367,7 @@ export const DocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   accountNumber: 'accountNumber',
+  input: 'input',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId',

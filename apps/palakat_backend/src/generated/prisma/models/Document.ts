@@ -42,6 +42,7 @@ export type DocumentMinAggregateOutputType = {
   id: number | null
   name: string | null
   accountNumber: string | null
+  input: $Enums.DocumentInput | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -52,6 +53,7 @@ export type DocumentMaxAggregateOutputType = {
   id: number | null
   name: string | null
   accountNumber: string | null
+  input: $Enums.DocumentInput | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -62,6 +64,7 @@ export type DocumentCountAggregateOutputType = {
   id: number
   name: number
   accountNumber: number
+  input: number
   createdAt: number
   updatedAt: number
   churchId: number
@@ -86,6 +89,7 @@ export type DocumentMinAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  input?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -96,6 +100,7 @@ export type DocumentMaxAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  input?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -106,6 +111,7 @@ export type DocumentCountAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  input?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -203,6 +209,7 @@ export type DocumentGroupByOutputType = {
   id: number
   name: string
   accountNumber: string
+  input: $Enums.DocumentInput
   createdAt: Date
   updatedAt: Date
   churchId: number
@@ -236,6 +243,7 @@ export type DocumentWhereInput = {
   id?: Prisma.IntFilter<"Document"> | number
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
@@ -248,6 +256,7 @@ export type DocumentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -264,6 +273,7 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
@@ -275,6 +285,7 @@ export type DocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -293,6 +304,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Document"> | number
   name?: Prisma.StringWithAggregatesFilter<"Document"> | string
   accountNumber?: Prisma.StringWithAggregatesFilter<"Document"> | string
+  input?: Prisma.EnumDocumentInputWithAggregatesFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   churchId?: Prisma.IntWithAggregatesFilter<"Document"> | number
@@ -302,6 +314,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
 export type DocumentCreateInput = {
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
@@ -312,6 +325,7 @@ export type DocumentUncheckedCreateInput = {
   id?: number
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -321,6 +335,7 @@ export type DocumentUncheckedCreateInput = {
 export type DocumentUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
@@ -331,6 +346,7 @@ export type DocumentUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -341,6 +357,7 @@ export type DocumentCreateManyInput = {
   id?: number
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -350,6 +367,7 @@ export type DocumentCreateManyInput = {
 export type DocumentUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -358,6 +376,7 @@ export type DocumentUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -383,6 +402,7 @@ export type DocumentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -399,6 +419,7 @@ export type DocumentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -409,6 +430,7 @@ export type DocumentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -495,9 +517,14 @@ export type DocumentUncheckedUpdateOneWithoutFileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutFileInput, Prisma.DocumentUpdateWithoutFileInput>, Prisma.DocumentUncheckedUpdateWithoutFileInput>
 }
 
+export type EnumDocumentInputFieldUpdateOperationsInput = {
+  set?: $Enums.DocumentInput
+}
+
 export type DocumentCreateWithoutChurchInput = {
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
@@ -507,6 +534,7 @@ export type DocumentUncheckedCreateWithoutChurchInput = {
   id?: number
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
@@ -545,6 +573,7 @@ export type DocumentScalarWhereInput = {
   id?: Prisma.IntFilter<"Document"> | number
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
@@ -554,6 +583,7 @@ export type DocumentScalarWhereInput = {
 export type DocumentCreateWithoutFileInput = {
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
@@ -563,6 +593,7 @@ export type DocumentUncheckedCreateWithoutFileInput = {
   id?: number
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -587,6 +618,7 @@ export type DocumentUpdateToOneWithWhereWithoutFileInput = {
 export type DocumentUpdateWithoutFileInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
@@ -596,6 +628,7 @@ export type DocumentUncheckedUpdateWithoutFileInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -605,6 +638,7 @@ export type DocumentCreateManyChurchInput = {
   id?: number
   name: string
   accountNumber: string
+  input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
@@ -613,6 +647,7 @@ export type DocumentCreateManyChurchInput = {
 export type DocumentUpdateWithoutChurchInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
@@ -622,6 +657,7 @@ export type DocumentUncheckedUpdateWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -631,6 +667,7 @@ export type DocumentUncheckedUpdateManyWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -642,6 +679,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -654,6 +692,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -666,6 +705,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -678,13 +718,14 @@ export type DocumentSelectScalar = {
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "createdAt" | "updatedAt" | "churchId" | "fileId", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
@@ -708,6 +749,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     name: string
     accountNumber: string
+    input: $Enums.DocumentInput
     createdAt: Date
     updatedAt: Date
     churchId: number
@@ -1140,6 +1182,7 @@ export interface DocumentFieldRefs {
   readonly id: Prisma.FieldRef<"Document", 'Int'>
   readonly name: Prisma.FieldRef<"Document", 'String'>
   readonly accountNumber: Prisma.FieldRef<"Document", 'String'>
+  readonly input: Prisma.FieldRef<"Document", 'DocumentInput'>
   readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly churchId: Prisma.FieldRef<"Document", 'Int'>

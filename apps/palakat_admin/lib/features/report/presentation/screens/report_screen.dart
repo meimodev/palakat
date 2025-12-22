@@ -16,38 +16,67 @@ class ReportScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportScreenState extends ConsumerState<ReportScreen> {
+  String _congregationSubtypeToApi(CongregationReportSubtype subtype) {
+    switch (subtype) {
+      case CongregationReportSubtype.wartaJemaat:
+        return 'WARTA_JEMAAT';
+      case CongregationReportSubtype.hutJemaat:
+        return 'HUT_JEMAAT';
+      case CongregationReportSubtype.keanggotaan:
+        return 'KEANGGOTAAN';
+    }
+  }
+
+  String _financialReportSubtypeToApi(FinancialReportSubtype subtype) {
+    switch (subtype) {
+      case FinancialReportSubtype.revenue:
+        return 'REVENUE';
+      case FinancialReportSubtype.expense:
+        return 'EXPENSE';
+      case FinancialReportSubtype.mutation:
+        return 'MUTATION';
+    }
+  }
+
   /// Shows report generation drawer
-  void _showGenerateDrawer(
-    String reportType,
-    String reportTitle,
-    String description,
-  ) {
+  void _showGenerateDrawer(String reportType) {
     DrawerUtils.showDrawer(
       context: context,
       drawer: ReportGenerateDrawer(
-        reportTitle: reportTitle,
-        description: description,
+        reportType: reportType,
         onClose: () => DrawerUtils.closeDrawer(context),
-        onGenerate: (range, format) async {
-          if (context.mounted) {
-            // DrawerUtils.closeDrawer(context);
-            // TODO: Call controller.generateReport() with proper data
-            // AppSnackbars.showSuccess(
-            //   context,
-            //   title: 'Report Generated',
-            //   message: 'Your report is being generated.',
-            // );
-            // ref.read(reportControllerProvider.notifier).refresh();
-
-            final controller = ref.read(reportControllerProvider.notifier);
-            await controller.generateReport({
-              'type': reportType,
-              'format': format.name.toUpperCase(),
-              if (range != null) 'startDate': range.start.toIso8601String(),
-              if (range != null) 'endDate': range.end.toIso8601String(),
-            });
-          }
-        },
+        onGenerate:
+            (
+              range,
+              format,
+              input,
+              congregationSubtype,
+              columnId,
+              activityType,
+              financialSubtype,
+            ) async {
+              if (context.mounted) {
+                final controller = ref.read(reportControllerProvider.notifier);
+                await controller.generateReport({
+                  'type': reportType,
+                  'format': format.name.toUpperCase(),
+                  if (input != null) 'input': input.name.toUpperCase(),
+                  if (congregationSubtype != null)
+                    'congregationSubtype': _congregationSubtypeToApi(
+                      congregationSubtype,
+                    ),
+                  if (activityType != null)
+                    'activityType': activityType.name.toUpperCase(),
+                  if (financialSubtype != null)
+                    'financialSubtype': _financialReportSubtypeToApi(
+                      financialSubtype,
+                    ),
+                  if (columnId != null) 'columnId': columnId,
+                  if (range != null) 'startDate': range.start.toIso8601String(),
+                  if (range != null) 'endDate': range.end.toIso8601String(),
+                });
+              }
+            },
       ),
     );
   }
@@ -92,41 +121,25 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     title: l10n.reportType_incomingDocument,
                     icon: Icons.mail_outline,
                     color: Colors.blue,
-                    onGenerate: () => _showGenerateDrawer(
-                      'INCOMING_DOCUMENT',
-                      l10n.reportTitle_incomingDocument,
-                      l10n.reportDesc_incomingDocument,
-                    ),
+                    onGenerate: () => _showGenerateDrawer('INCOMING_DOCUMENT'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_congregation,
                     icon: Icons.groups_outlined,
                     color: Colors.purple,
-                    onGenerate: () => _showGenerateDrawer(
-                      'CONGREGATION',
-                      l10n.reportTitle_congregation,
-                      l10n.reportDesc_congregation,
-                    ),
-                  ),
-                  _GenerateCard(
-                    title: l10n.reportType_services,
-                    icon: Icons.church_outlined,
-                    color: Colors.green,
-                    onGenerate: () => _showGenerateDrawer(
-                      'SERVICES',
-                      l10n.reportTitle_services,
-                      l10n.reportDesc_services,
-                    ),
+                    onGenerate: () => _showGenerateDrawer('CONGREGATION'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_activity,
                     icon: Icons.local_activity_outlined,
                     color: Colors.orange,
-                    onGenerate: () => _showGenerateDrawer(
-                      'ACTIVITY',
-                      l10n.reportTitle_activity,
-                      l10n.reportDesc_activity,
-                    ),
+                    onGenerate: () => _showGenerateDrawer('ACTIVITY'),
+                  ),
+                  _GenerateCard(
+                    title: l10n.reportType_financial,
+                    icon: Icons.account_balance_wallet_outlined,
+                    color: Colors.teal,
+                    onGenerate: () => _showGenerateDrawer('FINANCIAL'),
                   ),
                 ],
               ),

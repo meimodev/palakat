@@ -1,12 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Prisma, ReportFormat } from '../generated/prisma/client';
+import {
+  DocumentInput,
+  GeneratedBy,
+  Prisma,
+  ReportFormat,
+  ReportGenerateType,
+} from '../generated/prisma/client';
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import { PrismaService } from '../prisma.service';
 import { ReportListQueryDto } from './dto/report-list.dto';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
-import { ReportGenerateDto } from './dto/report-generate.dto';
+import {
+  CongregationReportSubtype,
+  FinancialReportSubtype,
+  ReportGenerateDto,
+} from './dto/report-generate.dto';
 
 @Injectable()
 export class ReportService {
@@ -21,7 +31,7 @@ export class ReportService {
       throw new BadRequestException('Invalid user');
     }
 
-    const membership = await (this.prisma as any).membership.findUnique({
+    const membership = await this.prisma.membership.findUnique({
       where: { accountId: userId },
       select: { churchId: true },
     });
@@ -289,14 +299,47 @@ export class ReportService {
     const startDate = dto.startDate;
     const endDate = dto.endDate;
 
+    const congregationSubtype =
+      type === ReportGenerateType.CONGREGATION
+        ? (dto.congregationSubtype ?? CongregationReportSubtype.WARTA_JEMAAT)
+        : dto.congregationSubtype;
+
+    const columnId =
+      type === ReportGenerateType.CONGREGATION ||
+      type === ReportGenerateType.ACTIVITY
+        ? dto.columnId
+        : undefined;
+
+    const input =
+      type === ReportGenerateType.INCOMING_DOCUMENT
+        ? (dto.input ?? DocumentInput.INCOME)
+        : dto.input;
+
+    const activityType =
+      type === ReportGenerateType.ACTIVITY ? dto.activityType : undefined;
+
+    const financialSubtype =
+      type === ReportGenerateType.FINANCIAL
+        ? (dto.financialSubtype ?? FinancialReportSubtype.REVENUE)
+        : dto.financialSubtype;
+
     const letterhead = await this.prisma.churchLetterhead.findUnique({
       where: { churchId },
       include: { logoFile: true },
     });
 
     const logoBuffer = await this.tryDownloadLogoBuffer(
-      (letterhead as any)?.logoFile,
+      letterhead?.logoFile ?? undefined,
     );
+
+    const letterheadInfo = letterhead
+      ? {
+          title: letterhead.title,
+          line1: letterhead.line1,
+          line2: letterhead.line2,
+          line3: letterhead.line3,
+        }
+      : undefined;
 
     const title = `Report ${type}`;
 
@@ -308,17 +351,170 @@ export class ReportService {
       'This report is a generated artifact.',
     ];
 
+    if (input) {
+      lines.splice(1, 0, `Input: ${input}`);
+    }
+
+    if (congregationSubtype) {
+      lines.push('', `Congregation Subtype: ${congregationSubtype}`);
+    }
+
+    if (columnId != null) {
+      lines.push(`Column ID: ${columnId}`);
+    }
+
+    if (activityType) {
+      lines.push(`Activity Type: ${activityType}`);
+    }
+
+    if (financialSubtype) {
+      lines.push(`Financial Subtype: ${financialSubtype}`);
+    }
+
+    if (type === ReportGenerateType.INCOMING_DOCUMENT) {
+      const documentsCount = await this.prisma.document.count({
+        where: {
+          churchId,
+          input,
+          ...(startDate && endDate
+            ? {
+                createdAt: {
+                  gte: startDate,
+                  lte: endDate,
+                },
+              }
+            : {}),
+        },
+      });
+      lines.push('', `Documents: ${documentsCount}`);
+    }
+
+    if (type === ReportGenerateType.CONGREGATION) {
+      const membersCount = await this.prisma.membership.count({
+        where: {
+          churchId,
+          ...(columnId != null ? { columnId } : {}),
+        },
+      });
+      lines.push('', `Members: ${membersCount}`);
+    }
+
+    if (type === ReportGenerateType.ACTIVITY) {
+      const activitiesCount = await this.prisma.activity.count({
+        where: {
+          supervisor: {
+            churchId,
+          },
+          ...(columnId != null ? { columnId } : {}),
+          ...(activityType ? { activityType } : {}),
+          ...(startDate && endDate
+            ? {
+                date: {
+                  gte: startDate,
+                  lte: endDate,
+                },
+              }
+            : {}),
+        },
+      });
+      lines.push('', `Activities: ${activitiesCount}`);
+    }
+
+    if (type === ReportGenerateType.FINANCIAL) {
+      const includeRevenue =
+        financialSubtype === FinancialReportSubtype.REVENUE ||
+        financialSubtype === FinancialReportSubtype.MUTATION;
+      const includeExpense =
+        financialSubtype === FinancialReportSubtype.EXPENSE ||
+        financialSubtype === FinancialReportSubtype.MUTATION;
+
+      const [revenueAgg, expenseAgg] = await this.prisma.$transaction([
+        includeRevenue
+          ? this.prisma.revenue.aggregate({
+              where: {
+                churchId,
+                ...(startDate && endDate
+                  ? {
+                      createdAt: {
+                        gte: startDate,
+                        lte: endDate,
+                      },
+                    }
+                  : {}),
+              },
+              _count: { _all: true },
+              _sum: { amount: true },
+            })
+          : this.prisma.revenue.aggregate({
+              where: { id: -1 },
+              _count: { _all: true },
+              _sum: { amount: true },
+            }),
+        includeExpense
+          ? this.prisma.expense.aggregate({
+              where: {
+                churchId,
+                ...(startDate && endDate
+                  ? {
+                      createdAt: {
+                        gte: startDate,
+                        lte: endDate,
+                      },
+                    }
+                  : {}),
+              },
+              _count: { _all: true },
+              _sum: { amount: true },
+            })
+          : this.prisma.expense.aggregate({
+              where: { id: -1 },
+              _count: { _all: true },
+              _sum: { amount: true },
+            }),
+      ]);
+
+      const revenueTotal = includeRevenue ? (revenueAgg._sum.amount ?? 0) : 0;
+      const expenseTotal = includeExpense ? (expenseAgg._sum.amount ?? 0) : 0;
+      const net = revenueTotal - expenseTotal;
+
+      const revenueCount = includeRevenue ? (revenueAgg._count?._all ?? 0) : 0;
+      const expenseCount = includeExpense ? (expenseAgg._count?._all ?? 0) : 0;
+
+      if (financialSubtype === FinancialReportSubtype.REVENUE) {
+        lines.push(
+          '',
+          `Revenue (count): ${revenueCount}`,
+          `Revenue (total): ${revenueTotal}`,
+        );
+      } else if (financialSubtype === FinancialReportSubtype.EXPENSE) {
+        lines.push(
+          '',
+          `Expense (count): ${expenseCount}`,
+          `Expense (total): ${expenseTotal}`,
+        );
+      } else {
+        lines.push(
+          '',
+          `Revenue (count): ${revenueCount}`,
+          `Revenue (total): ${revenueTotal}`,
+          `Expense (count): ${expenseCount}`,
+          `Expense (total): ${expenseTotal}`,
+          `Net: ${net}`,
+        );
+      }
+    }
+
     const buffer =
       format === ReportFormat.XLSX
         ? await this.renderXlsxBuffer({
             title,
             lines,
-            letterhead: letterhead as any,
+            letterhead: letterheadInfo,
           })
         : await this.renderPdfBuffer({
             title,
             lines,
-            letterhead: letterhead as any,
+            letterhead: letterheadInfo,
             logoBuffer,
           });
 
@@ -345,11 +541,20 @@ export class ReportService {
           churchId: String(churchId),
           reportType: String(type),
           reportFormat: String(format),
+          reportInput: input ? String(input) : '',
+          reportCongregationSubtype: congregationSubtype
+            ? String(congregationSubtype)
+            : '',
+          reportColumnId: columnId != null ? String(columnId) : '',
+          reportActivityType: activityType ? String(activityType) : '',
+          reportFinancialSubtype: financialSubtype
+            ? String(financialSubtype)
+            : '',
         },
       },
     });
 
-    const file = await (this.prisma as any).fileManager.create({
+    const file = await this.prisma.fileManager.create({
       data: {
         provider: 'FIREBASE_STORAGE',
         bucket: bucketName,
@@ -361,16 +566,29 @@ export class ReportService {
       },
     });
 
+    const reportParams = (() => {
+      const params: Record<string, unknown> = {};
+      if (input != null) params.input = input;
+      if (congregationSubtype != null)
+        params.congregationSubtype = congregationSubtype;
+      if (columnId != null) params.columnId = columnId;
+      if (activityType != null) params.activityType = activityType;
+      if (financialSubtype != null) params.financialSubtype = financialSubtype;
+      if (startDate) params.startDate = startDate.toISOString();
+      if (endDate) params.endDate = endDate.toISOString();
+
+      return Object.keys(params).length
+        ? (params as Prisma.InputJsonValue)
+        : undefined;
+    })();
+
     const report = await this.prisma.report.create({
       data: {
         name: title,
-        type: type as any,
-        format: format as any,
-        params: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-        } as any,
-        generatedBy: 'SYSTEM' as any,
+        type,
+        format,
+        params: reportParams,
+        generatedBy: GeneratedBy.SYSTEM,
         churchId,
         fileId: file.id,
       },
@@ -378,7 +596,7 @@ export class ReportService {
         church: true,
         file: true,
       },
-    } as any);
+    });
 
     return {
       message: 'Report generated',

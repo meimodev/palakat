@@ -88,6 +88,16 @@ export type Revenue = Prisma.RevenueModel
  */
 export type Expense = Prisma.ExpenseModel
 /**
+ * Model CashAccount
+ * 
+ */
+export type CashAccount = Prisma.CashAccountModel
+/**
+ * Model CashMutation
+ * 
+ */
+export type CashMutation = Prisma.CashMutationModel
+/**
  * Model Location
  * 
  */

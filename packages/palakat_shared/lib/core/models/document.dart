@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/church.dart';
 import 'package:palakat_shared/core/models/file_manager.dart';
 
@@ -12,6 +13,7 @@ abstract class Document with _$Document {
     int? id,
     required String name,
     required String accountNumber,
+    @Default(DocumentInput.income) DocumentInput input,
     DateTime? createdAt,
     DateTime? updatedAt,
     required int churchId,

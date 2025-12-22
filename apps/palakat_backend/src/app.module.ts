@@ -18,6 +18,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { FileModule } from './file/file.module';
 import { ArticleModule } from './article/article.module';
 import { FinancialAccountNumberModule } from './financial-account-number/financial-account-number.module';
+import { CashModule } from './cash/cash.module';
 import { LocationModule } from './location/location.module';
 import { MembershipPositionModule } from './membership-position/membership-position.module';
 import { MembershipModule } from './membership/membership.module';
@@ -55,6 +56,7 @@ import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.mo
     ApprovalRuleModule,
     ChurchRequestModule,
     FinancialAccountNumberModule,
+    CashModule,
     NotificationModule,
   ],
   controllers: [AppController],

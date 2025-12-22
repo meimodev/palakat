@@ -111,8 +111,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get map_confirmLocation => 'Confirm Location';
 
   @override
-  String get map_locationAccessError =>
-      'Unable to access location. Please check location permissions.';
+  String get map_locationAccessError => 'Unable to access location. Please check location permissions.';
 
   @override
   String get songDetail_errorLoadingSong => 'Error loading song';
@@ -121,8 +120,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supervisedActivities_title => 'Supervised Activities';
 
   @override
-  String get supervisedActivities_subtitle =>
-      'Activities you are responsible for';
+  String get supervisedActivities_subtitle => 'Activities you are responsible for';
 
   @override
   String get filter_activityType_label => 'Activity Type';
@@ -158,19 +156,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btn_clearFilters => 'Clear filters';
 
   @override
-  String get supervisedActivities_emptyFilteredTitle =>
-      'No activities match your filters';
+  String get supervisedActivities_emptyFilteredTitle => 'No activities match your filters';
 
   @override
-  String get supervisedActivities_emptyFilteredSubtitle =>
-      'Try adjusting your filters to see more results';
+  String get supervisedActivities_emptyFilteredSubtitle => 'Try adjusting your filters to see more results';
 
   @override
   String get supervisedActivities_emptyTitle => 'No supervised activities';
 
   @override
-  String get supervisedActivities_emptySubtitle =>
-      'Activities you supervise will appear here';
+  String get supervisedActivities_emptySubtitle => 'Activities you supervise will appear here';
 
   @override
   String get notificationSettings_title => 'Notification Settings';
@@ -185,12 +180,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationSettings_permissionDisabled => 'Disabled';
 
   @override
-  String get notificationSettings_permissionEnabledDesc =>
-      'You will receive notifications for activities, approvals, and announcements.';
+  String get notificationSettings_permissionEnabledDesc => 'You will receive notifications for activities, approvals, and announcements.';
 
   @override
-  String get notificationSettings_permissionDisabledDesc =>
-      'Enable notifications to stay updated on activities, approvals, and important announcements.';
+  String get notificationSettings_permissionDisabledDesc => 'Enable notifications to stay updated on activities, approvals, and important announcements.';
 
   @override
   String get notificationSettings_enableNotifications => 'Enable Notifications';
@@ -199,16 +192,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationPermission_rationale_title => 'Stay Updated';
 
   @override
-  String get notificationPermission_rationale_benefit_activities =>
-      'Get notified about new activities and events';
+  String get notificationPermission_rationale_benefit_activities => 'Get notified about new activities and events';
 
   @override
-  String get notificationPermission_rationale_benefit_approvals =>
-      'Receive approval requests that need your attention';
+  String get notificationPermission_rationale_benefit_approvals => 'Receive approval requests that need your attention';
 
   @override
-  String get notificationPermission_rationale_benefit_announcements =>
-      'Don\'t miss important church announcements';
+  String get notificationPermission_rationale_benefit_announcements => 'Don\'t miss important church announcements';
 
   @override
   String get notificationPermission_btn_notNow => 'Not Now';
@@ -217,28 +207,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationPermission_consequence_title => 'You\'ll Miss Out On';
 
   @override
-  String get notificationPermission_consequence_item_activities =>
-      'Activity notifications and event updates';
+  String get notificationPermission_consequence_item_activities => 'Activity notifications and event updates';
 
   @override
-  String get notificationPermission_consequence_item_approvals =>
-      'Approval requests that need your action';
+  String get notificationPermission_consequence_item_approvals => 'Approval requests that need your action';
 
   @override
-  String get notificationPermission_consequence_item_announcements =>
-      'Important church announcements and updates';
+  String get notificationPermission_consequence_item_announcements => 'Important church announcements and updates';
 
   @override
-  String get notificationPermission_btn_enableInSettings =>
-      'Enable in Settings';
+  String get notificationPermission_btn_enableInSettings => 'Enable in Settings';
 
   @override
-  String get notificationPermission_btn_continueWithoutNotifications =>
-      'Continue Without Notifications';
+  String get notificationPermission_btn_continueWithoutNotifications => 'Continue Without Notifications';
 
   @override
-  String get notificationSettings_errorLoadingPermissionStatus =>
-      'Error loading permission status';
+  String get notificationSettings_errorLoadingPermissionStatus => 'Error loading permission status';
 
   @override
   String notificationSettings_errorLoadingSettings(String error) {
@@ -246,36 +230,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get notificationSettings_preferences_title =>
-      'Notification Preferences';
+  String get notificationSettings_preferences_title => 'Notification Preferences';
 
   @override
-  String get notificationSettings_preferences_subtitle =>
-      'Choose which types of notifications you want to receive';
+  String get notificationSettings_preferences_subtitle => 'Choose which types of notifications you want to receive';
 
   @override
-  String get notificationSettings_channel_activityUpdates_title =>
-      'Activity Updates';
+  String get notificationSettings_channel_activityUpdates_title => 'Activity Updates';
 
   @override
-  String get notificationSettings_channel_activityUpdates_subtitle =>
-      'Notifications about church activities and events';
+  String get notificationSettings_channel_activityUpdates_subtitle => 'Notifications about church activities and events';
 
   @override
-  String get notificationSettings_channel_approvalRequests_title =>
-      'Approval Requests';
+  String get notificationSettings_channel_approvalRequests_title => 'Approval Requests';
 
   @override
-  String get notificationSettings_channel_approvalRequests_subtitle =>
-      'Notifications requiring your approval';
+  String get notificationSettings_channel_approvalRequests_subtitle => 'Notifications requiring your approval';
 
   @override
-  String get notificationSettings_channel_generalAnnouncements_title =>
-      'General Announcements';
+  String get notificationSettings_channel_generalAnnouncements_title => 'General Announcements';
 
   @override
-  String get notificationSettings_channel_generalAnnouncements_subtitle =>
-      'General church announcements and updates';
+  String get notificationSettings_channel_generalAnnouncements_subtitle => 'General church announcements and updates';
 
   @override
   String get notificationSettings_soundVibration_title => 'Sound & Vibration';
@@ -284,15 +260,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationSettings_sound_title => 'Sound';
 
   @override
-  String get notificationSettings_sound_subtitle =>
-      'Play sound when notifications arrive';
+  String get notificationSettings_sound_subtitle => 'Play sound when notifications arrive';
 
   @override
   String get notificationSettings_vibration_title => 'Vibration';
 
   @override
-  String get notificationSettings_vibration_subtitle =>
-      'Vibrate when notifications arrive';
+  String get notificationSettings_vibration_subtitle => 'Vibrate when notifications arrive';
 
   @override
   String get nav_operations => 'Ops';
@@ -301,8 +275,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operations_title => 'Operations';
 
   @override
-  String get operations_noPositionsSubtitle =>
-      'You don\'t have any operational positions yet';
+  String get operations_noPositionsSubtitle => 'You don\'t have any operational positions yet';
 
   @override
   String get operationsCategory_publishing => 'Publishing';
@@ -317,30 +290,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsItem_publish_service_title => 'Publish Service';
 
   @override
-  String get operationsItem_publish_service_desc =>
-      'Create and publish church service activities';
+  String get operationsItem_publish_service_desc => 'Create and publish church service activities';
 
   @override
   String get operationsItem_publish_event_title => 'Publish Event';
 
   @override
-  String get operationsItem_publish_event_desc =>
-      'Create and publish church events';
+  String get operationsItem_publish_event_desc => 'Create and publish church events';
 
   @override
-  String get operationsItem_publish_announcement_title =>
-      'Publish Announcement';
+  String get operationsItem_publish_announcement_title => 'Publish Announcement';
 
   @override
-  String get operationsItem_publish_announcement_desc =>
-      'Create and publish announcements';
+  String get operationsItem_publish_announcement_desc => 'Create and publish announcements';
 
   @override
   String get operationsItem_add_income_title => 'Add Revenue';
 
   @override
-  String get operationsItem_add_income_desc =>
-      'Record church income and offerings';
+  String get operationsItem_add_income_desc => 'Record church income and offerings';
 
   @override
   String get operationsItem_add_expense_title => 'Add Expense';
@@ -352,8 +320,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsItem_generate_report_title => 'Generate Report';
 
   @override
-  String get operationsItem_generate_report_desc =>
-      'Create activity and financial reports';
+  String get operationsItem_generate_report_desc => 'Create activity and financial reports';
 
   @override
   String get operations_noOperationsAvailable => 'No operations available';
@@ -383,8 +350,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approval_allCaughtUpTitle => 'All caught up!';
 
   @override
-  String get approval_allCaughtUpSubtitle =>
-      'No pending approvals requiring your action';
+  String get approval_allCaughtUpSubtitle => 'No pending approvals requiring your action';
 
   @override
   String approval_pendingReviewCount(int count) {
@@ -413,23 +379,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approval_confirmRejectTitle => 'Reject Activity?';
 
   @override
-  String get approval_confirmApproveDescription =>
-      'Are you sure you want to approve this activity? This action cannot be undone.';
+  String get approval_confirmApproveDescription => 'Are you sure you want to approve this activity? This action cannot be undone.';
 
   @override
-  String get approval_confirmRejectDescription =>
-      'Are you sure you want to reject this activity? This action cannot be undone.';
+  String get approval_confirmRejectDescription => 'Are you sure you want to reject this activity? This action cannot be undone.';
 
   @override
   String get approvalDetail_title => 'Approval Details';
 
   @override
-  String get approvalDetail_notFound =>
-      'Approval not found. It may have been removed or is unavailable.';
+  String get approvalDetail_notFound => 'Approval not found. It may have been removed or is unavailable.';
 
   @override
-  String get approvalDetail_waitingOthers =>
-      'Waiting on other approver to either accept or reject this approval';
+  String get approvalDetail_waitingOthers => 'Waiting on other approver to either accept or reject this approval';
 
   @override
   String get approvalDetail_activitySummary_title => 'Activity Summary';
@@ -441,12 +403,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approvalDetail_viewOnMapTooltip => 'View on Map';
 
   @override
-  String get approvalDetail_viewActivityDetails_title =>
-      'View Activity Details';
+  String get approvalDetail_viewActivityDetails_title => 'View Activity Details';
 
   @override
-  String get approvalDetail_viewActivityDetails_subtitle =>
-      'See full activity information';
+  String get approvalDetail_viewActivityDetails_subtitle => 'See full activity information';
 
   @override
   String get approvalDetail_accountDescription_label => 'Account Description';
@@ -477,8 +437,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get admin_billing_title => 'Billing Management';
 
   @override
-  String get admin_billing_subtitle =>
-      'Manage church billing, payments, and view payment history.';
+  String get admin_billing_subtitle => 'Manage church billing, payments, and view payment history.';
 
   @override
   String get admin_approval_title => 'Approvals';
@@ -487,15 +446,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get admin_account_title => 'Account';
 
   @override
-  String get admin_account_subtitle =>
-      'Manage your account information and settings';
+  String get admin_account_subtitle => 'Manage your account information and settings';
 
   @override
   String get admin_activity_title => 'Activity';
 
   @override
-  String get admin_activity_subtitle =>
-      'Monitor and manage all church activity.';
+  String get admin_activity_subtitle => 'Monitor and manage all church activity.';
 
   @override
   String get admin_revenue_title => 'Revenue';
@@ -510,36 +467,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get admin_financial_title => 'Financial Account Numbers';
 
   @override
-  String get admin_financial_subtitle =>
-      'Manage financial account numbers for your church.';
+  String get admin_financial_subtitle => 'Manage financial account numbers for your church.';
 
   @override
   String get admin_documentSettings_title => 'Document Settings';
 
   @override
-  String get admin_documentSettings_subtitle =>
-      'Manage document identity numbers and view recent approvals.';
+  String get admin_documentSettings_subtitle => 'Manage document identity numbers and view recent approvals.';
 
   @override
   String get admin_documentIdentityNumber_title => 'Document Identity Number';
 
   @override
-  String get admin_documentIdentityNumber_subtitle =>
-      'Current template used for new documents.';
+  String get admin_documentIdentityNumber_subtitle => 'Current template used for new documents.';
 
   @override
   String get admin_documentDirectory_title => 'Document Directory';
 
   @override
-  String get admin_documentDirectory_subtitle =>
-      'A record of all approved church documents.';
+  String get admin_documentDirectory_subtitle => 'A record of all approved church documents.';
 
   @override
   String get admin_church_title => 'Church Profile';
 
   @override
-  String get admin_church_subtitle =>
-      'Manage your church\'s public information and columns.';
+  String get admin_church_subtitle => 'Manage your church\'s public information and columns.';
 
   @override
   String get btn_continue => 'Continue';
@@ -566,8 +518,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btn_signOutConfirm => 'Sign Out?';
 
   @override
-  String get btn_signOutMessage =>
-      'Are you sure you want to sign out? You will need to sign in again to access your account.';
+  String get btn_signOutMessage => 'Are you sure you want to sign out? You will need to sign in again to access your account.';
 
   @override
   String get btn_resendCode => 'Resend Code';
@@ -619,6 +570,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btn_update => 'Update';
+
+  @override
+  String get btn_transfer => 'Transfer';
 
   @override
   String get btn_addRule => 'Add Rule';
@@ -678,13 +632,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_amount => 'Amount';
 
   @override
+  String get lbl_currency => 'Currency';
+
+  @override
+  String get lbl_openingBalance => 'Opening Balance';
+
+  @override
+  String get lbl_balance => 'Balance';
+
+  @override
+  String get lbl_from => 'From';
+
+  @override
+  String get lbl_to => 'To';
+
+  @override
   String get lbl_search => 'Search';
 
   @override
   String get lbl_generationType => 'Generation Type';
 
   @override
-  String get lbl_selectChurch => 'Select Church';
+  String get lbl_scope => 'Scope';
+
+  @override
+  String get lbl_deviceId => 'Device ID';
 
   @override
   String get lbl_selectColumn => 'Select Column';
@@ -710,8 +682,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get lbl_searchAccountNumber =>
-      'Search account number or description...';
+  String get lbl_searchAccountNumber => 'Search account number or description...';
 
   @override
   String lbl_noResultsFor(Object query) {
@@ -807,8 +778,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get err_serverError => 'Server error. Please try again later.';
 
   @override
-  String get err_unauthorized =>
-      'Your session has expired. Please sign in again.';
+  String get err_unauthorized => 'Your session has expired. Please sign in again.';
 
   @override
   String get err_invalidCredentials => 'Invalid email/phone or password.';
@@ -823,8 +793,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get err_invalidPhone => 'Invalid phone number format.';
 
   @override
-  String get err_somethingWentWrong =>
-      'Something went wrong. Please try again.';
+  String get err_somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
   String get err_noData => 'No data available.';
@@ -851,8 +820,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get err_error => 'Error';
 
   @override
-  String get err_accountLocked =>
-      'Your account is temporarily locked. Please wait 5 minutes and try again.';
+  String get err_accountLocked => 'Your account is temporarily locked. Please wait 5 minutes and try again.';
 
   @override
   String err_statusWithCode(Object code, Object label) {
@@ -901,22 +869,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_recent_memberRegistered_title => 'New Member Registered';
 
   @override
-  String get dashboard_recent_memberRegistered_desc =>
-      'John Doe joined the congregation';
+  String get dashboard_recent_memberRegistered_desc => 'John Doe joined the congregation';
 
   @override
   String get dashboard_recent_donationReceived_title => 'Donation Received';
 
   @override
-  String get dashboard_recent_donationReceived_desc =>
-      'Tithes and offerings collected';
+  String get dashboard_recent_donationReceived_desc => 'Tithes and offerings collected';
 
   @override
   String get dashboard_recent_eventApproved_title => 'Event Approved';
 
   @override
-  String get dashboard_recent_eventApproved_desc =>
-      'Youth Fellowship meeting scheduled';
+  String get dashboard_recent_eventApproved_desc => 'Youth Fellowship meeting scheduled';
 
   @override
   String get dashboard_recent_expenseRecorded_title => 'Expense Recorded';
@@ -979,8 +944,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membership_churchMembership_title => 'Church Membership';
 
   @override
-  String get membership_churchNotRegisteredInfo =>
-      'If your church is not registered in our system, you won\'t be able to find it in the list below.';
+  String get membership_churchNotRegisteredInfo => 'If your church is not registered in our system, you won\'t be able to find it in the list below.';
 
   @override
   String get membership_notBaptized => 'Not baptized';
@@ -1023,22 +987,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_overdueBills_title => 'Overdue Bills';
 
   @override
-  String get card_overdueBills_subtitle =>
-      'Bills that require urgent attention';
+  String get card_overdueBills_subtitle => 'Bills that require urgent attention';
 
   @override
   String get card_paymentHistory_title => 'Payment History';
 
   @override
-  String get card_paymentHistory_subtitle =>
-      'View all payment transactions and history.';
+  String get card_paymentHistory_subtitle => 'View all payment transactions and history.';
 
   @override
   String get card_billingItems_title => 'Billing Items';
 
   @override
-  String get card_billingItems_subtitle =>
-      'Manage church billing and payment records.';
+  String get card_billingItems_subtitle => 'Manage church billing and payment records.';
 
   @override
   String card_billingItems_subtitleWithTotal(int total) {
@@ -1049,8 +1010,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_approvalRules_title => 'Approval Rules';
 
   @override
-  String get card_approvalRules_subtitle =>
-      'Configure approval routing rules and requirements';
+  String get card_approvalRules_subtitle => 'Configure approval routing rules and requirements';
 
   @override
   String get card_memberDirectory_title => 'Member Directory';
@@ -1062,36 +1022,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_accountNumbers_title => 'Account Numbers';
 
   @override
-  String get card_accountNumbers_subtitle =>
-      'List of all financial account numbers for your church.';
+  String get card_accountNumbers_subtitle => 'List of all financial account numbers for your church.';
+
+  @override
+  String get card_cashAccounts_title => 'Cash Accounts';
+
+  @override
+  String get card_cashAccounts_subtitle => 'Manage cash accounts and view balances.';
+
+  @override
+  String get card_cashMutations_title => 'Cash Mutations';
+
+  @override
+  String get card_cashMutations_subtitle => 'Track cash movements between accounts.';
 
   @override
   String get card_basicInfo_title => 'Basic Information';
 
   @override
-  String get card_basicInfo_subtitle =>
-      'Church details and contact information';
+  String get card_basicInfo_subtitle => 'Church details and contact information';
 
   @override
   String get card_location_title => 'Location';
 
   @override
-  String get card_location_subtitle =>
-      'Church address and geographical information';
+  String get card_location_subtitle => 'Church address and geographical information';
 
   @override
   String get card_columnManagement_title => 'Column Management';
 
   @override
-  String get card_columnManagement_subtitle =>
-      'Manage church organizational columns';
+  String get card_columnManagement_subtitle => 'Manage church organizational columns';
 
   @override
   String get card_positionManagement_title => 'Position Management';
 
   @override
-  String get card_positionManagement_subtitle =>
-      'Manage church leadership positions';
+  String get card_positionManagement_subtitle => 'Manage church leadership positions';
 
   @override
   String get card_revenueRecords_title => 'Revenue Records';
@@ -1109,15 +1076,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_expenseRecords_title => 'Expense Records';
 
   @override
-  String get card_expenseRecords_subtitle =>
-      'Track and manage church expenses.';
+  String get card_expenseRecords_subtitle => 'Track and manage church expenses.';
 
   @override
   String get card_activityList_title => 'Activity List';
 
   @override
-  String get card_activityList_subtitle =>
-      'View all church activities and events.';
+  String get card_activityList_subtitle => 'View all church activities and events.';
 
   @override
   String get card_documentList_title => 'Documents';
@@ -1138,22 +1103,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_paymentInfo_title => 'Payment Information';
 
   @override
-  String get card_paymentInfo_subtitle =>
-      'Details about payment methods and accounts';
+  String get card_paymentInfo_subtitle => 'Details about payment methods and accounts';
 
   @override
   String get card_recentActivity_title => 'Recent Activity';
 
   @override
-  String get card_recentActivity_subtitle =>
-      'Latest church activities and events';
+  String get card_recentActivity_subtitle => 'Latest church activities and events';
 
   @override
   String get card_statistics_title => 'Statistics';
 
   @override
-  String get card_statistics_subtitle =>
-      'Church performance metrics and analytics';
+  String get card_statistics_subtitle => 'Church performance metrics and analytics';
 
   @override
   String get card_overview_title => 'Overview';
@@ -1165,8 +1127,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_accountSettings_title => 'Account Settings';
 
   @override
-  String get card_accountSettings_subtitle =>
-      'Manage your personal account preferences';
+  String get card_accountSettings_subtitle => 'Manage your personal account preferences';
 
   @override
   String get card_churchInfo_title => 'Church Information';
@@ -1178,15 +1139,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_financialSummary_title => 'Financial Summary';
 
   @override
-  String get card_financialSummary_subtitle =>
-      'Overview of church financial status';
+  String get card_financialSummary_subtitle => 'Overview of church financial status';
 
   @override
   String get card_accountInfo_title => 'Account Information';
 
   @override
-  String get card_accountInfo_subtitle =>
-      'Manage your profile and personal information';
+  String get card_accountInfo_subtitle => 'Manage your profile and personal information';
 
   @override
   String get card_securitySettings_title => 'Security Settings';
@@ -1228,29 +1187,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawer_editApprovalRule_title => 'Edit Approval Rule';
 
   @override
-  String get drawer_editApprovalRule_subtitle =>
-      'Update approval rule information';
+  String get drawer_editApprovalRule_subtitle => 'Update approval rule information';
 
   @override
   String get drawer_activityDetails_title => 'Activity Details';
 
   @override
-  String get drawer_activityDetails_subtitle =>
-      'View detailed information about this activity';
+  String get drawer_activityDetails_subtitle => 'View detailed information about this activity';
 
   @override
   String get drawer_revenueDetails_title => 'Revenue Details';
 
   @override
-  String get drawer_revenueDetails_subtitle =>
-      'View detailed information about this revenue entry';
+  String get drawer_revenueDetails_subtitle => 'View detailed information about this revenue entry';
 
   @override
   String get drawer_expenseDetails_title => 'Expense Details';
 
   @override
-  String get drawer_expenseDetails_subtitle =>
-      'View detailed information about this expense entry';
+  String get drawer_expenseDetails_subtitle => 'View detailed information about this expense entry';
 
   @override
   String get drawer_editChurchInfo_title => 'Edit Church Information';
@@ -1262,8 +1217,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawer_editLocation_title => 'Edit Location';
 
   @override
-  String get drawer_editLocation_subtitle =>
-      'Update address and coordinates for your church';
+  String get drawer_editLocation_subtitle => 'Update address and coordinates for your church';
 
   @override
   String get drawer_addColumn_title => 'Add Column';
@@ -1293,36 +1247,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawer_addAccountNumber_title => 'Add Account Number';
 
   @override
-  String get drawer_addAccountNumber_subtitle =>
-      'Create a new financial account number';
+  String get drawer_addAccountNumber_subtitle => 'Create a new financial account number';
 
   @override
   String get drawer_editAccountNumber_title => 'Edit Account Number';
 
   @override
-  String get drawer_editAccountNumber_subtitle =>
-      'Update the account number details';
+  String get drawer_editAccountNumber_subtitle => 'Update the account number details';
 
   @override
   String get drawer_generateReport_title => 'Generate Report';
 
   @override
-  String get drawer_generateReport_subtitle =>
-      'Configure the newly generate report';
+  String get drawer_generateReport_subtitle => 'Configure the newly generate report';
 
   @override
   String get drawer_editDocumentId_title => 'Edit Document Identity Number';
 
   @override
-  String get drawer_editDocumentId_subtitle =>
-      'Update the template used for new documents';
+  String get drawer_editDocumentId_subtitle => 'Update the template used for new documents';
 
   @override
   String get drawer_paymentHistory_title => 'Payment History';
 
   @override
-  String get drawer_paymentHistory_subtitle =>
-      'Complete payment transaction history';
+  String get drawer_paymentHistory_subtitle => 'Complete payment transaction history';
 
   @override
   String get drawer_billingDetails_title => 'Billing Details';
@@ -1337,8 +1286,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawer_changePassword_title => 'Change Password';
 
   @override
-  String get drawer_changePassword_subtitle =>
-      'Keep your account secure with a strong password';
+  String get drawer_changePassword_subtitle => 'Keep your account secure with a strong password';
 
   @override
   String get lbl_ruleId => 'Rule ID';
@@ -1389,16 +1337,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get account_phoneLabel_locked => 'Phone number (cannot be changed)';
 
   @override
-  String get account_phoneLabel_active =>
-      'Active phone to receive authentication message';
+  String get account_phoneLabel_active => 'Active phone to receive authentication message';
 
   @override
-  String get account_fullNameLabel =>
-      'Name without degree for your church membership';
+  String get account_fullNameLabel => 'Name without degree for your church membership';
 
   @override
-  String get account_emailLabel_optional =>
-      'Optional email for notifications and communication';
+  String get account_emailLabel_optional => 'Optional email for notifications and communication';
 
   @override
   String get account_bipraHint => 'Used to determine your BIPRA membership';
@@ -1407,26 +1352,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get account_claim_title => 'Claim Account';
 
   @override
-  String get account_claimedSubtitle_locked =>
-      'Account is claimed and cannot be unclaimed';
+  String get account_claimedSubtitle_locked => 'Account is claimed and cannot be unclaimed';
 
   @override
-  String get account_claimedSubtitle_unlocked =>
-      'Claimed account can only be modified by the owner, not the church';
+  String get account_claimedSubtitle_unlocked => 'Claimed account can only be modified by the owner, not the church';
 
   @override
   String get account_claimConfirm_title => 'Claim Account?';
 
   @override
-  String get account_claimConfirm_message =>
-      'Once the account is claimed, it cannot be unclaimed. Proceed?';
+  String get account_claimConfirm_message => 'Once the account is claimed, it cannot be unclaimed. Proceed?';
 
   @override
   String get auth_cancelRegistration_title => 'Cancel Registration?';
 
   @override
-  String get auth_cancelRegistration_message =>
-      'Your registration progress will be lost. Are you sure you want to go back?';
+  String get auth_cancelRegistration_message => 'Your registration progress will be lost. Are you sure you want to go back?';
 
   @override
   String get btn_stay => 'Stay';
@@ -1576,8 +1517,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_changePassword => 'Change Password';
 
   @override
-  String get lbl_changePasswordDesc =>
-      'Update your password regularly for security';
+  String get lbl_changePasswordDesc => 'Update your password regularly for security';
 
   @override
   String get lbl_signOutDesc => 'Sign out from your current session';
@@ -1586,16 +1526,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get desc_ruleActive => 'This rule is currently active';
 
   @override
-  String get desc_ruleInactive =>
-      'This rule is inactive and will not be enforced';
+  String get desc_ruleInactive => 'This rule is inactive and will not be enforced';
 
   @override
-  String get desc_activityTypeFilter =>
-      'When set, this rule only applies to activities of the selected type.';
+  String get desc_activityTypeFilter => 'When set, this rule only applies to activities of the selected type.';
 
   @override
-  String get desc_financialFilter =>
-      'When set, this rule only applies to activities with matching financial data.';
+  String get desc_financialFilter => 'When set, this rule only applies to activities with matching financial data.';
 
   @override
   String get section_basicInformation => 'Basic Information';
@@ -1678,12 +1615,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_publishToColumnOnly_title => 'Publish to my column only';
 
   @override
-  String get publish_publishToColumnOnly_subtitle =>
-      'Only members in your column will see this activity';
+  String get publish_publishToColumnOnly_subtitle => 'Only members in your column will see this activity';
 
   @override
-  String get publish_publishToColumnOnly_subtitleNoColumn =>
-      'You are not assigned to a column';
+  String get publish_publishToColumnOnly_subtitleNoColumn => 'You are not assigned to a column';
 
   @override
   String get lbl_general => 'General';
@@ -1704,8 +1639,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_pinOnMapOptional => 'Pin on Map (optional)';
 
   @override
-  String get publish_tapToSelectLocationOptional =>
-      'Tap to select location on map (optional)';
+  String get publish_tapToSelectLocationOptional => 'Tap to select location on map (optional)';
 
   @override
   String get publish_locationSelected => 'Location Selected';
@@ -1714,8 +1648,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_scheduleSubtitle => 'When will this happen?';
 
   @override
-  String get publish_hintAdditionalNotes =>
-      'Any other details attendees should know';
+  String get publish_hintAdditionalNotes => 'Any other details attendees should know';
 
   @override
   String get publish_eventSchedule => 'Event Schedule';
@@ -1739,8 +1672,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_fillAllRequiredFields => 'Please fill all required fields';
 
   @override
-  String get publish_financialRecordSubtitle =>
-      'Optional: Attach revenue or expense';
+  String get publish_financialRecordSubtitle => 'Optional: Attach revenue or expense';
 
   @override
   String get publish_addFinancialRecord => 'Add Financial Record';
@@ -1749,12 +1681,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_removeFinancialRecordTitle => 'Remove Financial Record?';
 
   @override
-  String get publish_removeFinancialRecordContent =>
-      'Are you sure you want to remove this financial record? This action cannot be undone.';
+  String get publish_removeFinancialRecordContent => 'Are you sure you want to remove this financial record? This action cannot be undone.';
 
   @override
-  String get publish_publishedNotice =>
-      'Published activities can only be managed on mobile app by the corresponding supervisor.';
+  String get publish_publishedNotice => 'Published activities can only be managed on mobile app by the corresponding supervisor.';
 
   @override
   String get publish_publishedByYou => 'Published By You';
@@ -1763,8 +1693,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publish_noPublishedActivities => 'No published activities';
 
   @override
-  String get publish_noPublishedActivitiesSubtitle =>
-      'Start publishing activities to see them here';
+  String get publish_noPublishedActivitiesSubtitle => 'Start publishing activities to see them here';
 
   @override
   String get churchRequest_title => 'Request Church Registration';
@@ -1776,20 +1705,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get churchRequest_status_onProgress => 'On Progress';
 
   @override
-  String get churchRequest_statusMessage_onReview =>
-      'Your request is under review and will be processed soon.';
+  String get churchRequest_statusMessage_onReview => 'Your request is under review and will be processed soon.';
 
   @override
-  String get churchRequest_statusMessage_onProgress =>
-      'Your request is being processed.';
+  String get churchRequest_statusMessage_onProgress => 'Your request is being processed.';
 
   @override
-  String get churchRequest_statusMessage_completed =>
-      'Your church has been registered! You can now select it when editing membership data.';
+  String get churchRequest_statusMessage_completed => 'Your church has been registered! You can now select it when editing membership data.';
 
   @override
-  String get churchRequest_description =>
-      'Fill in the details below to request registration for your church. We\'ll review and add it to our system.';
+  String get churchRequest_description => 'Fill in the details below to request registration for your church. We\'ll review and add it to our system.';
 
   @override
   String get churchRequest_requesterInformation => 'Requester Information';
@@ -1798,8 +1723,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get churchRequest_churchInformation => 'Church Information';
 
   @override
-  String get churchRequest_hintEnterContactPersonName =>
-      'Enter contact person name';
+  String get churchRequest_hintEnterContactPersonName => 'Enter contact person name';
 
   @override
   String get churchRequest_hintPhoneExample => '0812-3456-7890';
@@ -1811,20 +1735,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get churchRequest_submitRequest => 'Submit Request';
 
   @override
-  String get churchRequest_fixErrorsBeforeSubmitting =>
-      'Please fix the errors above before submitting';
+  String get churchRequest_fixErrorsBeforeSubmitting => 'Please fix the errors above before submitting';
 
   @override
-  String get churchRequest_fillAllRequiredFieldsCorrectly =>
-      'Please fill in all required fields correctly';
+  String get churchRequest_fillAllRequiredFieldsCorrectly => 'Please fill in all required fields correctly';
 
   @override
-  String get churchRequest_submittedSuccessfully =>
-      'Church registration request submitted successfully!';
+  String get churchRequest_submittedSuccessfully => 'Church registration request submitted successfully!';
 
   @override
-  String get churchRequest_validation_completeAddress =>
-      'Please enter a complete address';
+  String get churchRequest_validation_completeAddress => 'Please enter a complete address';
 
   @override
   String churchRequest_validation_phoneMinDigits(int min) {
@@ -1837,8 +1757,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get churchRequest_validation_phoneMustStartWithZero =>
-      'Phone number must start with 0';
+  String get churchRequest_validation_phoneMustStartWithZero => 'Phone number must start with 0';
 
   @override
   String churchRequest_errorWithDetail(String error) {
@@ -1855,8 +1774,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_enterEmailAddress => 'Enter email address';
 
   @override
-  String get hint_describeYourChurch =>
-      'Describe your church (visible to members)';
+  String get hint_describeYourChurch => 'Describe your church (visible to members)';
 
   @override
   String get hint_enterChurchAddress => 'Enter church address';
@@ -1910,8 +1828,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_approvalRuleExample => 'e.g. Financial Transactions';
 
   @override
-  String get hint_describeApprovalRule =>
-      'Describe when this approval is required';
+  String get hint_describeApprovalRule => 'Describe when this approval is required';
 
   @override
   String get hint_allActivityTypes => 'All activity types';
@@ -1923,8 +1840,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_selectPositionsToApprove => 'Select positions to approve...';
 
   @override
-  String get hint_signInCredentials =>
-      'e.g. name@company.com or 1234-5678-9012';
+  String get hint_signInCredentials => 'e.g. name@company.com or 1234-5678-9012';
 
   @override
   String get hint_searchApprovalRules => 'Search approval rules...';
@@ -1933,23 +1849,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_searchBillingItems => 'Search billing items...';
 
   @override
-  String get hint_searchByAccountNumber =>
-      'Search by account number, activity title...';
+  String get hint_searchByAccountNumber => 'Search by account number, activity title...';
 
   @override
   String get hint_searchByReportName => 'Search by report name...';
 
   @override
-  String get hint_searchNameColumnPosition =>
-      'Search name / column / position ...';
+  String get hint_searchNameColumnPosition => 'Search name / column / position ...';
 
   @override
-  String get hint_searchByTitleDescription =>
-      'Search by title, description, or supervisor name ...';
+  String get hint_searchByTitleDescription => 'Search by title, description, or supervisor name ...';
 
   @override
-  String get hint_searchAccountNumberDescription =>
-      'Search by account number or description...';
+  String get hint_searchAccountNumberDescription => 'Search by account number or description...';
 
   @override
   String get dlg_selectPosition_title => 'Select Position';
@@ -2004,6 +1916,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tbl_type => 'Type';
+
+  @override
+  String get tbl_currency => 'Currency';
+
+  @override
+  String get tbl_openingBalance => 'Opening Balance';
+
+  @override
+  String get tbl_balance => 'Balance';
+
+  @override
+  String get tbl_from => 'From';
+
+  @override
+  String get tbl_to => 'To';
+
+  @override
+  String get tbl_linkedApprovalRule => 'Linked Approval Rule';
 
   @override
   String get tbl_supervisor => 'Supervisor';
@@ -2123,8 +2053,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportTitle_incomingDocument => 'Incoming Document Report';
 
   @override
-  String get reportDesc_incomingDocument =>
-      'Generate a report for documents received.';
+  String get reportDesc_incomingDocument => 'Generate a report for documents received.';
 
   @override
   String get reportType_congregation => 'Congregation';
@@ -2133,8 +2062,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportTitle_congregation => 'Congregation Report';
 
   @override
-  String get reportDesc_congregation =>
-      'Generate a report on the congregation.';
+  String get reportDesc_congregation => 'Generate a report on the congregation.';
 
   @override
   String get reportType_services => 'Services';
@@ -2152,38 +2080,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportTitle_activity => 'Activity Report';
 
   @override
-  String get reportDesc_activity => 'Generate a report of all activities.';
+  String get reportDesc_activity => 'Generate a report for all activities.';
 
   @override
-  String get tbl_linkedApprovalRule => 'Linked Approval Rule';
+  String get reportType_financial => 'Financial';
+
+  @override
+  String get reportTitle_financial => 'Financial Report';
+
+  @override
+  String get reportDesc_financial => 'Generate a financial report.';
+
+  @override
+  String get lbl_financialSubtype => 'Financial Variant';
+
+  @override
+  String get financialSubtype_revenue => 'Revenue';
+
+  @override
+  String get financialSubtype_expense => 'Expense';
+
+  @override
+  String get financialSubtype_mutation => 'Mutation';
+
+  @override
+  String get lbl_documentInput => 'Document Variant';
+
+  @override
+  String get documentInput_income => 'Incoming';
+
+  @override
+  String get documentInput_outcome => 'Outgoing';
+
+  @override
+  String get lbl_congregationSubtype => 'Congregation Variant';
+
+  @override
+  String get congregationSubtype_wartaJemaat => 'Warta Jemaat';
+
+  @override
+  String get congregationSubtype_hutJemaat => 'HUT Jemaat';
+
+  @override
+  String get congregationSubtype_keanggotaan => 'Keanggotaan';
 
   @override
   String get dlg_deleteRule_title => 'Delete Rule';
 
   @override
-  String get dlg_deleteRule_content =>
-      'Are you sure you want to delete this approval rule?';
+  String get dlg_deleteRule_content => 'Are you sure you want to delete this approval rule?';
 
   @override
   String get dlg_deleteMember_title => 'Delete Member';
 
   @override
-  String get dlg_deleteMember_content =>
-      'Are you sure you want to delete this member? This action cannot be undone.';
+  String get dlg_deleteMember_content => 'Are you sure you want to delete this member? This action cannot be undone.';
 
   @override
   String get dlg_deletePosition_title => 'Delete Position';
 
   @override
-  String get dlg_deletePosition_content =>
-      'Are you sure you want to delete this position? This action cannot be undone.';
+  String get dlg_deletePosition_content => 'Are you sure you want to delete this position? This action cannot be undone.';
 
   @override
   String get dlg_deleteColumn_title => 'Delete Column';
 
   @override
-  String get dlg_deleteColumn_content =>
-      'Are you sure you want to delete this column? This action cannot be undone.';
+  String get dlg_deleteColumn_content => 'Are you sure you want to delete this column? This action cannot be undone.';
 
   @override
   String get dlg_signOut_title => 'Sign Out';
@@ -2321,8 +2284,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg_templateUpdated => 'Template updated successfully';
 
   @override
-  String get msg_documentTemplateWarning =>
-      'Changing the identity number template may cause certain numbers to be skipped.';
+  String get msg_documentTemplateWarning => 'Changing the identity number template may cause certain numbers to be skipped.';
 
   @override
   String get msg_reportGenerated => 'Report generated successfully';
@@ -2380,8 +2342,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg_exportComingSoon => 'Export functionality coming soon';
 
   @override
-  String get msg_downloadReportToViewDetails =>
-      'To view the full report details, please download the file.';
+  String get msg_downloadReportToViewDetails => 'To view the full report details, please download the file.';
 
   @override
   String msg_willBeRemindedAt(String reminderDate) {
@@ -2405,8 +2366,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg_cannotOpenReportFile => 'Cannot open the report file.';
 
   @override
-  String get msg_reportGenerationMayTakeAWhile =>
-      'Generating report might take a while, depending on the data requested.';
+  String get msg_reportGenerationMayTakeAWhile => 'Generating report might take a while, depending on the data requested.';
 
   @override
   String get msg_saveFailed => 'Failed to save';
@@ -2484,8 +2444,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unauthorized_signInRequired_title => 'Sign in required';
 
   @override
-  String get unauthorized_signInRequired_message =>
-      'This feature is available for signed-in users. Please sign in to continue.';
+  String get unauthorized_signInRequired_message => 'This feature is available for signed-in users. Please sign in to continue.';
 
   @override
   String get msg_insufficientPermissions => 'Insufficient permissions';
@@ -2527,6 +2486,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_invalidNumber => 'Please enter a valid number';
 
   @override
+  String get validation_accountsMustBeDifferent => 'Accounts must be different';
+
+  @override
   String get validation_invalidDate => 'Please enter a valid date';
 
   @override
@@ -2540,12 +2502,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get validation_passwordTooShort =>
-      'Password must be at least 6 characters';
+  String get validation_passwordTooShort => 'Password must be at least 6 characters';
 
   @override
-  String get validation_passwordTooWeak =>
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+  String get validation_passwordTooWeak => 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
 
   @override
   String get validation_passwordMismatch => 'Passwords do not match';
@@ -2554,8 +2514,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_confirmPassword => 'Please confirm your password';
 
   @override
-  String get validation_currentPasswordRequired =>
-      'Current password is required';
+  String get validation_currentPasswordRequired => 'Current password is required';
 
   @override
   String get validation_newPasswordRequired => 'New password is required';
@@ -2570,12 +2529,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_amountTooHigh => 'Amount exceeds maximum limit';
 
   @override
-  String get validation_invalidAccountNumber =>
-      'Please enter a valid account number';
+  String get validation_invalidAccountNumber => 'Please enter a valid account number';
 
   @override
-  String get validation_accountNumberExists =>
-      'This account number already exists';
+  String get validation_accountNumberExists => 'This account number already exists';
 
   @override
   String get validation_nameRequired => 'Name is required';
@@ -2614,12 +2571,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_positionRequired => 'Please select a position';
 
   @override
-  String get validation_activityTypeRequired =>
-      'Please select an activity type';
+  String get validation_activityTypeRequired => 'Please select an activity type';
 
   @override
-  String get validation_financialTypeRequired =>
-      'Please select a financial type';
+  String get validation_financialTypeRequired => 'Please select a financial type';
 
   @override
   String get validation_approverRequired => 'At least one approver is required';
@@ -2628,12 +2583,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_ruleNameRequired => 'Rule name is required';
 
   @override
-  String get validation_positionsRequired =>
-      'At least one position must be selected';
+  String get validation_positionsRequired => 'At least one position must be selected';
 
   @override
-  String get validation_financialAccountRequired =>
-      'Financial account number is required when financial type is selected';
+  String get validation_financialAccountRequired => 'Financial account number is required when financial type is selected';
 
   @override
   String get validation_duplicateEntry => 'This entry already exists';
@@ -2651,19 +2604,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_invalidRange => 'Invalid date range';
 
   @override
-  String get validation_startDateAfterEnd =>
-      'Start date must be before end date';
+  String get validation_startDateAfterEnd => 'Start date must be before end date';
 
   @override
   String get validation_coordinatesRequired => 'Coordinates are required';
 
   @override
-  String get validation_invalidLatitude =>
-      'Latitude must be between -90 and 90';
+  String get validation_invalidLatitude => 'Latitude must be between -90 and 90';
 
   @override
-  String get validation_invalidLongitude =>
-      'Longitude must be between -180 and 180';
+  String get validation_invalidLongitude => 'Longitude must be between -180 and 180';
 
   @override
   String get loading_data => 'Loading data...';
@@ -2747,8 +2697,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error_loadingAccount => 'Failed to load account information';
 
   @override
-  String get error_connectionFailed =>
-      'Connection failed. Please check your internet connection.';
+  String get error_connectionFailed => 'Connection failed. Please check your internet connection.';
 
   @override
   String get error_timeout => 'Request timed out. Please try again.';
@@ -2876,6 +2825,5 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashboard_recentActivitiesEmpty =>
-      'Recent transactions and member updates will be shown here.';
+  String get dashboard_recentActivitiesEmpty => 'Recent transactions and member updates will be shown here.';
 }

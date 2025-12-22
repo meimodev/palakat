@@ -57,6 +57,8 @@ class ReportRepository {
         return 'SERVICES';
       case ReportGenerateType.activity:
         return 'ACTIVITY';
+      case ReportGenerateType.financial:
+        return 'FINANCIAL';
     }
   }
 
@@ -69,15 +71,61 @@ class ReportRepository {
     }
   }
 
+  String _documentInputToApi(DocumentInput input) {
+    switch (input) {
+      case DocumentInput.income:
+        return 'INCOME';
+      case DocumentInput.outcome:
+        return 'OUTCOME';
+    }
+  }
+
+  String _congregationReportSubtypeToApi(CongregationReportSubtype subtype) {
+    switch (subtype) {
+      case CongregationReportSubtype.wartaJemaat:
+        return 'WARTA_JEMAAT';
+      case CongregationReportSubtype.hutJemaat:
+        return 'HUT_JEMAAT';
+      case CongregationReportSubtype.keanggotaan:
+        return 'KEANGGOTAAN';
+    }
+  }
+
+  String _financialReportSubtypeToApi(FinancialReportSubtype subtype) {
+    switch (subtype) {
+      case FinancialReportSubtype.revenue:
+        return 'REVENUE';
+      case FinancialReportSubtype.expense:
+        return 'EXPENSE';
+      case FinancialReportSubtype.mutation:
+        return 'MUTATION';
+    }
+  }
+
   Future<Result<Report, Failure>> generateReportTyped({
     required ReportGenerateType type,
     ReportFormat? format,
+    DocumentInput? input,
+    CongregationReportSubtype? congregationSubtype,
+    int? columnId,
+    ActivityType? activityType,
+    FinancialReportSubtype? financialSubtype,
     DateTime? startDate,
     DateTime? endDate,
   }) {
     return generateReport(
       data: {
         'type': _reportGenerateTypeToApi(type),
+        if (input != null) 'input': _documentInputToApi(input),
+        if (congregationSubtype != null)
+          'congregationSubtype': _congregationReportSubtypeToApi(
+            congregationSubtype,
+          ),
+        if (columnId != null) 'columnId': columnId,
+        if (activityType != null)
+          'activityType': activityType.name.toUpperCase(),
+        if (financialSubtype != null)
+          'financialSubtype': _financialReportSubtypeToApi(financialSubtype),
         if (format != null) 'format': _reportFormatToApi(format),
         if (startDate != null) 'startDate': startDate.toIso8601String(),
         if (endDate != null) 'endDate': endDate.toIso8601String(),

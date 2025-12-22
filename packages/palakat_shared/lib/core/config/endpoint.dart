@@ -38,6 +38,14 @@ class Endpoints {
   static const String expenses = '/expense';
   static String expense(String expenseId) => '/expense/$expenseId';
 
+  static const String cashAccounts = '/cash-account';
+  static String cashAccount(String cashAccountId) =>
+      '/cash-account/$cashAccountId';
+  static const String cashMutations = '/cash-mutation';
+  static String cashMutation(String cashMutationId) =>
+      '/cash-mutation/$cashMutationId';
+  static const String cashTransfer = '/cash-mutation/transfer';
+
   // Report
   static const String reports = '/report';
   static String report(String reportId) => '/report/$reportId';

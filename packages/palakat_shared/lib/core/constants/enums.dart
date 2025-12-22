@@ -219,6 +219,31 @@ enum GeneratedBy {
   system,
 }
 
+enum DocumentInput {
+  @JsonValue('INCOME')
+  income,
+  @JsonValue('OUTCOME')
+  outcome,
+}
+
+enum CongregationReportSubtype {
+  @JsonValue('WARTA_JEMAAT')
+  wartaJemaat,
+  @JsonValue('HUT_JEMAAT')
+  hutJemaat,
+  @JsonValue('KEANGGOTAAN')
+  keanggotaan,
+}
+
+enum FinancialReportSubtype {
+  @JsonValue('REVENUE')
+  revenue,
+  @JsonValue('EXPENSE')
+  expense,
+  @JsonValue('MUTATION')
+  mutation,
+}
+
 enum ReportGenerateType {
   @JsonValue('INCOMING_DOCUMENT')
   incomingDocument,
@@ -228,6 +253,8 @@ enum ReportGenerateType {
   services,
   @JsonValue('ACTIVITY')
   activity,
+  @JsonValue('FINANCIAL')
+  financial,
 }
 
 enum ReportFormat {
@@ -299,6 +326,20 @@ extension ActivityTypeExtension on ActivityType {
         return [FormFieldType.note];
       case ActivityType.announcement:
         return [];
+    }
+  }
+}
+
+extension FinancialReportSubtypeExtension on FinancialReportSubtype {
+  String get displayName {
+    final l10n = _l10n();
+    switch (this) {
+      case FinancialReportSubtype.revenue:
+        return l10n.financialSubtype_revenue;
+      case FinancialReportSubtype.expense:
+        return l10n.financialSubtype_expense;
+      case FinancialReportSubtype.mutation:
+        return l10n.financialSubtype_mutation;
     }
   }
 }

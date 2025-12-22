@@ -62,8 +62,7 @@ import 'app_localizations_id.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('id'),
+    Locale('id')
   ];
 
   /// No description provided for @appTitle.
@@ -1178,6 +1175,12 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get btn_update;
 
+  /// No description provided for @btn_transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get btn_transfer;
+
   /// No description provided for @btn_addRule.
   ///
   /// In en, this message translates to:
@@ -1292,6 +1295,36 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get lbl_amount;
 
+  /// No description provided for @lbl_currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get lbl_currency;
+
+  /// No description provided for @lbl_openingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Balance'**
+  String get lbl_openingBalance;
+
+  /// No description provided for @lbl_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get lbl_balance;
+
+  /// No description provided for @lbl_from.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get lbl_from;
+
+  /// No description provided for @lbl_to.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get lbl_to;
+
   /// No description provided for @lbl_search.
   ///
   /// In en, this message translates to:
@@ -1304,11 +1337,17 @@ abstract class AppLocalizations {
   /// **'Generation Type'**
   String get lbl_generationType;
 
-  /// No description provided for @lbl_selectChurch.
+  /// No description provided for @lbl_scope.
   ///
   /// In en, this message translates to:
-  /// **'Select Church'**
-  String get lbl_selectChurch;
+  /// **'Scope'**
+  String get lbl_scope;
+
+  /// No description provided for @lbl_deviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Device ID'**
+  String get lbl_deviceId;
 
   /// No description provided for @lbl_selectColumn.
   ///
@@ -1975,6 +2014,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'List of all financial account numbers for your church.'**
   String get card_accountNumbers_subtitle;
+
+  /// No description provided for @card_cashAccounts_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Accounts'**
+  String get card_cashAccounts_title;
+
+  /// No description provided for @card_cashAccounts_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage cash accounts and view balances.'**
+  String get card_cashAccounts_subtitle;
+
+  /// No description provided for @card_cashMutations_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Mutations'**
+  String get card_cashMutations_title;
+
+  /// No description provided for @card_cashMutations_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track cash movements between accounts.'**
+  String get card_cashMutations_subtitle;
 
   /// No description provided for @card_basicInfo_title.
   ///
@@ -3722,6 +3785,42 @@ abstract class AppLocalizations {
   /// **'Type'**
   String get tbl_type;
 
+  /// No description provided for @tbl_currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get tbl_currency;
+
+  /// No description provided for @tbl_openingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Balance'**
+  String get tbl_openingBalance;
+
+  /// No description provided for @tbl_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get tbl_balance;
+
+  /// No description provided for @tbl_from.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get tbl_from;
+
+  /// No description provided for @tbl_to.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get tbl_to;
+
+  /// No description provided for @tbl_linkedApprovalRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Approval Rule'**
+  String get tbl_linkedApprovalRule;
+
   /// No description provided for @tbl_supervisor.
   ///
   /// In en, this message translates to:
@@ -4013,14 +4112,92 @@ abstract class AppLocalizations {
   /// No description provided for @reportDesc_activity.
   ///
   /// In en, this message translates to:
-  /// **'Generate a report of all activities.'**
+  /// **'Generate a report for all activities.'**
   String get reportDesc_activity;
 
-  /// No description provided for @tbl_linkedApprovalRule.
+  /// No description provided for @reportType_financial.
   ///
   /// In en, this message translates to:
-  /// **'Linked Approval Rule'**
-  String get tbl_linkedApprovalRule;
+  /// **'Financial'**
+  String get reportType_financial;
+
+  /// No description provided for @reportTitle_financial.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Report'**
+  String get reportTitle_financial;
+
+  /// No description provided for @reportDesc_financial.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a financial report.'**
+  String get reportDesc_financial;
+
+  /// No description provided for @lbl_financialSubtype.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Variant'**
+  String get lbl_financialSubtype;
+
+  /// No description provided for @financialSubtype_revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get financialSubtype_revenue;
+
+  /// No description provided for @financialSubtype_expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get financialSubtype_expense;
+
+  /// No description provided for @financialSubtype_mutation.
+  ///
+  /// In en, this message translates to:
+  /// **'Mutation'**
+  String get financialSubtype_mutation;
+
+  /// No description provided for @lbl_documentInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Document Variant'**
+  String get lbl_documentInput;
+
+  /// No description provided for @documentInput_income.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming'**
+  String get documentInput_income;
+
+  /// No description provided for @documentInput_outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing'**
+  String get documentInput_outcome;
+
+  /// No description provided for @lbl_congregationSubtype.
+  ///
+  /// In en, this message translates to:
+  /// **'Congregation Variant'**
+  String get lbl_congregationSubtype;
+
+  /// No description provided for @congregationSubtype_wartaJemaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Warta Jemaat'**
+  String get congregationSubtype_wartaJemaat;
+
+  /// No description provided for @congregationSubtype_hutJemaat.
+  ///
+  /// In en, this message translates to:
+  /// **'HUT Jemaat'**
+  String get congregationSubtype_hutJemaat;
+
+  /// No description provided for @congregationSubtype_keanggotaan.
+  ///
+  /// In en, this message translates to:
+  /// **'Keanggotaan'**
+  String get congregationSubtype_keanggotaan;
 
   /// No description provided for @dlg_deleteRule_title.
   ///
@@ -4700,6 +4877,12 @@ abstract class AppLocalizations {
   /// **'Please enter a valid number'**
   String get validation_invalidNumber;
 
+  /// No description provided for @validation_accountsMustBeDifferent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts must be different'**
+  String get validation_accountsMustBeDifferent;
+
   /// No description provided for @validation_invalidDate.
   ///
   /// In en, this message translates to:
@@ -5307,8 +5490,7 @@ abstract class AppLocalizations {
   String get dashboard_recentActivitiesEmpty;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -5317,26 +5499,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'id'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'id'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'id':
-      return AppLocalizationsId();
+    case 'en': return AppLocalizationsEn();
+    case 'id': return AppLocalizationsId();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }
