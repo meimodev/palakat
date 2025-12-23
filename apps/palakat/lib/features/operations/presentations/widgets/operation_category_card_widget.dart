@@ -68,6 +68,47 @@ class OperationCategoryCard extends StatelessWidget {
     List<OperationItem> operations,
   ) {
     final l10n = context.l10n;
+
+    if (category.id == 'reports') {
+      if (operations.isEmpty) {
+        return Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Text(
+            l10n.operations_noOperationsAvailable,
+            style: BaseTypography.bodyMedium.copyWith(
+              color: BaseColor.textSecondary,
+            ),
+          ),
+        );
+      }
+
+      return Padding(
+        padding: EdgeInsets.only(
+          left: BaseSize.w8,
+          right: BaseSize.w8,
+          bottom: BaseSize.w12,
+          top: BaseSize.w8,
+        ),
+        child: GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: BaseSize.w8,
+          mainAxisSpacing: BaseSize.w8,
+          childAspectRatio: 3.0,
+          children: operations
+              .map(
+                (operation) => _ReportTypeTile(
+                  title: operation.title,
+                  icon: operation.icon,
+                  onTap: () => onOperationTap(operation),
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+
     if (operations.isEmpty) {
       return Padding(
         padding: EdgeInsets.all(BaseSize.w16),
@@ -99,6 +140,70 @@ class OperationCategoryCard extends StatelessWidget {
               ),
             )
             .toList(),
+      ),
+    );
+  }
+}
+
+class _ReportTypeTile extends StatelessWidget {
+  const _ReportTypeTile({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: BaseColor.surfaceLight,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.w12),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        splashColor: BaseColor.primary.withValues(alpha: 0.08),
+        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: BaseSize.w12,
+            vertical: BaseSize.h8,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: BaseSize.w28,
+                height: BaseSize.w28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: BaseColor.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(BaseSize.w8),
+                ),
+                child: Icon(icon, color: BaseColor.primary, size: BaseSize.w14),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: BaseSize.w8),
+                  child: Text(
+                    title,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

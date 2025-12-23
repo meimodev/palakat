@@ -17,6 +17,7 @@ class LocalStorageService {
   static const _kAuthKey = 'auth.response';
   static const _kMembershipKey = 'membership';
   static const _kLocaleKey = 'app.locale';
+  static const _kReportGenerateLastAtKey = 'report.generate.lastAt';
   static const _kPermissionStateBox = 'permission_state';
   static const _kPermissionStateKey = 'permission_state';
   static const _kNotificationSettingsBox = 'notification_settings';
@@ -78,10 +79,25 @@ class LocalStorageService {
     _membership = null;
     await box.delete(_kAuthKey);
     await box.delete(_kMembershipKey);
+    await box.delete(_kReportGenerateLastAtKey);
     dev.log(
       'LocalStorageService.clear: cleared all auth data from Hive',
       name: 'LocalStorageService',
     );
+  }
+
+  DateTime? get lastReportGeneratedAt {
+    if (!Hive.isBoxOpen(_kAuthBox)) return null;
+    final box = Hive.box(_kAuthBox);
+    final value = box.get(_kReportGenerateLastAtKey);
+    if (value is! String || value.trim().isEmpty) return null;
+    return DateTime.tryParse(value);
+  }
+
+  Future<void> saveLastReportGeneratedAt(DateTime time) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    await box.put(_kReportGenerateLastAtKey, time.toUtc().toIso8601String());
   }
 
   /// Clears all user-related data from local storage.

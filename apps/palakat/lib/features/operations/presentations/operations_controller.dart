@@ -189,12 +189,43 @@ class OperationsController extends _$OperationsController {
     // Reports category - available to users with positions
     final reportsOperations = <OperationItem>[
       OperationItem(
-        id: 'generate_report',
-        title: l10n.operationsItem_generate_report_title,
-        description: l10n.operationsItem_generate_report_desc,
-        icon: AppIcons.assessment,
-        routeName:
-            AppRoute.operations, // Placeholder - update when route exists
+        id: 'report_incoming_document',
+        title: l10n.reportType_incomingDocument,
+        description: l10n.reportDesc_incomingDocument,
+        icon: AppIcons.document,
+        routeName: AppRoute.reportGenerate,
+        routeParams: {
+          RouteParamKey.reportType: ReportGenerateType.incomingDocument,
+        },
+        isEnabled: hasPositions,
+      ),
+      OperationItem(
+        id: 'report_congregation',
+        title: l10n.reportType_congregation,
+        description: l10n.reportDesc_congregation,
+        icon: AppIcons.church,
+        routeName: AppRoute.reportGenerate,
+        routeParams: {
+          RouteParamKey.reportType: ReportGenerateType.congregation,
+        },
+        isEnabled: hasPositions,
+      ),
+      OperationItem(
+        id: 'report_activity',
+        title: l10n.reportType_activity,
+        description: l10n.reportDesc_activity,
+        icon: AppIcons.event,
+        routeName: AppRoute.reportGenerate,
+        routeParams: {RouteParamKey.reportType: ReportGenerateType.activity},
+        isEnabled: hasPositions,
+      ),
+      OperationItem(
+        id: 'report_financial',
+        title: l10n.reportType_financial,
+        description: l10n.reportDesc_financial,
+        icon: AppIcons.wallet,
+        routeName: AppRoute.reportGenerate,
+        routeParams: {RouteParamKey.reportType: ReportGenerateType.financial},
         isEnabled: hasPositions,
       ),
     ];

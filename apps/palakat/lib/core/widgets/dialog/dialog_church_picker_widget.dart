@@ -20,7 +20,7 @@ Future<Church?> showDialogChurchPickerWidget({
 }) {
   return showDialogCustomWidget<Church?>(
     context: context,
-    title: context.l10n.lbl_selectChurch,
+    title: context.l10n.nav_church,
     scrollControlled: false,
     closeIcon: FaIcon(
       AppIcons.close,

@@ -10,6 +10,15 @@ final operationsRouting = GoRoute(
   builder: (context, state) => const OperationsScreen(),
   routes: [
     GoRoute(
+      path: 'report-generate',
+      name: AppRoute.reportGenerate,
+      builder: (context, state) {
+        final params = (state.extra as RouteParam?)?.params;
+        final type = params?[RouteParamKey.reportType] as ReportGenerateType?;
+        return ReportGenerateScreen(initialReportType: type);
+      },
+    ),
+    GoRoute(
       path: 'activity-publish',
       name: AppRoute.activityPublish,
       builder: (context, state) {

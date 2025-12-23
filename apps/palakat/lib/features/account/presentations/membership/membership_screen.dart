@@ -108,8 +108,8 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                   _buildChurchRequestInfo(state, context),
                   Gap.h12,
                   InputWidget<model.Church>.dropdown(
-                    label: context.l10n.lbl_selectChurch,
-                    hint: context.l10n.lbl_selectChurch,
+                    label: context.l10n.nav_church,
+                    hint: context.l10n.nav_church,
                     currentInputValue: state.church,
                     errorText: state.errorChurch,
                     endIcon: Icon(AppIcons.chevronDown, size: 20),

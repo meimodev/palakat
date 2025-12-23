@@ -46,6 +46,7 @@ class AppRoute {
   static const String publishingMap = "publish-map";
   static const String supervisedActivitiesList = "supervised-activities-list";
   static const String financeCreate = "finance-create";
+  static const String reportGenerate = "report-generate";
 
   // approvals
   static const String approvals = 'approvals';
@@ -98,6 +99,7 @@ class RouteParamKey {
   static const String location = 'location';
   static const String financeType = 'financeType';
   static const String isStandalone = 'isStandalone';
+  static const String reportType = 'reportType';
 
   /// Flag indicating navigation from approval context (Req 6.2, 6.3)
   /// When true, activity detail screen should be in read-only mode
