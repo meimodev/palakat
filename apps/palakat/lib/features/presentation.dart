@@ -35,6 +35,8 @@ export 'home/presentation/home_screen.dart';
 export 'home/presentation/home_state.dart';
 export 'operations/presentations/operations_screen.dart';
 export 'operations/presentations/supervised_activities_list/supervised_activities_list_screen.dart';
+export 'operations/presentations/members/members_list_screen.dart';
+export 'operations/presentations/members/member_invite_screen.dart';
 export 'report/presentations/report_generate/report_generate_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_controller.dart';
 export 'publishing/presentations/activity_publish/activity_publish_screen.dart';

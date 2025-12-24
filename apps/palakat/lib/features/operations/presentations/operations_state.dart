@@ -38,5 +38,17 @@ abstract class OperationsState with _$OperationsState {
     /// Error message for supervised activities fetch
     /// _Requirements: 4.2_
     String? supervisedActivitiesError,
+
+    /// Whether the supervised activities section is expanded
+    @Default(false) bool supervisedActivitiesExpanded,
+
+    /// List of recent reports created by the current user (max 5)
+    @Default([]) List<Report> recentReports,
+
+    /// Loading state for recent reports section
+    @Default(false) bool loadingRecentReports,
+
+    /// Error message for recent reports fetch
+    String? recentReportsError,
   }) = _OperationsState;
 }

@@ -9,6 +9,8 @@ import 'package:palakat/features/operations/presentations/operations_controller.
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Operations screen displaying user's positions and available operations.
 /// Uses category-based organization with progressive disclosure.
@@ -80,6 +82,9 @@ class OperationsScreen extends ConsumerWidget {
           activities: state.supervisedActivities,
           isLoading: state.loadingSupervisedActivities,
           error: state.supervisedActivitiesError,
+          isExpanded: state.supervisedActivitiesExpanded,
+          onExpansionChanged: () =>
+              controller.toggleSupervisedActivitiesExpansion(),
           onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
           onActivityTap: (activity) => _handleActivityTap(context, activity),
           onRetry: () => controller.fetchSupervisedActivities(),
@@ -102,6 +107,12 @@ class OperationsScreen extends ConsumerWidget {
           onOperationTap: (operation) {
             _handleOperationTap(context, operation);
           },
+          recentReports: state.recentReports,
+          isLoadingRecentReports: state.loadingRecentReports,
+          recentReportsError: state.recentReportsError,
+          onReportDownloadTap: (report) =>
+              _handleReportDownload(context, ref, report),
+          onRecentReportsRetry: () => controller.fetchRecentReports(),
         ),
       ],
     );
@@ -141,6 +152,51 @@ class OperationsScreen extends ConsumerWidget {
     context.pushNamed(
       AppRoute.membership,
       extra: RouteParam(params: {'membershipId': membership.id}),
+    );
+  }
+
+  /// Handles report download by fetching download URL and opening it
+  Future<void> _handleReportDownload(
+    BuildContext context,
+    WidgetRef ref,
+    Report report,
+  ) async {
+    final l10n = context.l10n;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    // Show loading indicator
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.err_loadFailed),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final result = await reportRepository.downloadReport(reportId: report.id!);
+
+    result.when(
+      onSuccess: (url) async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.err_somethingWentWrong),
+              backgroundColor: BaseColor.error,
+            ),
+          );
+        }
+      },
+      onFailure: (failure) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(failure.message),
+            backgroundColor: BaseColor.error,
+          ),
+        );
+      },
     );
   }
 }
@@ -198,11 +254,21 @@ class _OperationCategoryList extends StatelessWidget {
     required this.categories,
     required this.onExpansionChanged,
     required this.onOperationTap,
+    this.recentReports,
+    this.isLoadingRecentReports = false,
+    this.recentReportsError,
+    this.onReportDownloadTap,
+    this.onRecentReportsRetry,
   });
 
   final List<OperationCategory> categories;
   final void Function(String categoryId, bool isExpanded) onExpansionChanged;
   final ValueChanged<OperationItem> onOperationTap;
+  final List<Report>? recentReports;
+  final bool isLoadingRecentReports;
+  final String? recentReportsError;
+  final ValueChanged<Report>? onReportDownloadTap;
+  final VoidCallback? onRecentReportsRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -214,12 +280,20 @@ class _OperationCategoryList extends StatelessWidget {
       separatorBuilder: (context, index) => Gap.h8,
       itemBuilder: (context, index) {
         final category = categories[index];
+        final isReportsCategory = category.id == 'reports';
         return OperationCategoryCard(
           category: category,
           onExpansionChanged: (isExpanded) {
             onExpansionChanged(category.id, isExpanded);
           },
           onOperationTap: onOperationTap,
+          recentReports: isReportsCategory ? recentReports : null,
+          isLoadingRecentReports: isReportsCategory
+              ? isLoadingRecentReports
+              : false,
+          recentReportsError: isReportsCategory ? recentReportsError : null,
+          onReportDownloadTap: isReportsCategory ? onReportDownloadTap : null,
+          onRecentReportsRetry: isReportsCategory ? onRecentReportsRetry : null,
         );
       },
     );

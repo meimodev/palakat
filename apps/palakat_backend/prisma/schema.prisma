@@ -125,6 +125,7 @@ model Account {
   articles              Article[]
   articleLikes          ArticleLike[]
   cashMutationsCreated   CashMutation[]
+  reportsCreated        Report[]
 }
 
 model ApprovalRule {
@@ -471,11 +472,14 @@ model Report {
   church      Church      @relation(fields: [churchId], references: [id])
   fileId      Int         @unique
   file        FileManager @relation(fields: [fileId], references: [id])
+  createdById Int?
+  createdBy   Account?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([churchId])
   @@index([generatedBy])
   @@index([type])
   @@index([format])
+  @@index([createdById])
 }
 
 model Document {

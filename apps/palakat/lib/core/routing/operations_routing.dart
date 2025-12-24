@@ -77,5 +77,17 @@ final operationsRouting = GoRoute(
         );
       },
     ),
+    // Members List Screen - View current church members
+    GoRoute(
+      path: 'members-list',
+      name: AppRoute.membersList,
+      builder: (context, state) => const MembersListScreen(),
+    ),
+    // Member Invite Screen - Invite new members to the church
+    GoRoute(
+      path: 'member-invite',
+      name: AppRoute.memberInvite,
+      builder: (context, state) => const MemberInviteScreen(),
+    ),
   ],
 );

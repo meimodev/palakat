@@ -40,7 +40,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.nav_expense, style: theme.textTheme.headlineMedium),
+            Text(
+              l10n.card_expenseRecords_title,
+              style: theme.textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               l10n.card_expenseRecords_subtitle,

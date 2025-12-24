@@ -2506,7 +2506,8 @@ export const ReportScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId',
-  fileId: 'fileId'
+  fileId: 'fileId',
+  createdById: 'createdById'
 } as const
 
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]

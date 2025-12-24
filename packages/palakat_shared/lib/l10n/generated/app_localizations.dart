@@ -128,17 +128,11 @@ abstract class AppLocalizations {
   /// **'Activity'**
   String get nav_activity;
 
-  /// No description provided for @nav_revenue.
+  /// No description provided for @nav_finance.
   ///
   /// In en, this message translates to:
-  /// **'Revenue'**
-  String get nav_revenue;
-
-  /// No description provided for @nav_expense.
-  ///
-  /// In en, this message translates to:
-  /// **'Expense'**
-  String get nav_expense;
+  /// **'Finance'**
+  String get nav_finance;
 
   /// No description provided for @nav_report.
   ///
@@ -632,6 +626,12 @@ abstract class AppLocalizations {
   /// **'Reports'**
   String get operationsCategory_reports;
 
+  /// No description provided for @operationsCategory_membership.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get operationsCategory_membership;
+
   /// No description provided for @operationsItem_publish_service_title.
   ///
   /// In en, this message translates to:
@@ -703,6 +703,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create activity and financial reports'**
   String get operationsItem_generate_report_desc;
+
+  /// No description provided for @operationsItem_view_members_title.
+  ///
+  /// In en, this message translates to:
+  /// **'View Members'**
+  String get operationsItem_view_members_title;
+
+  /// No description provided for @operationsItem_view_members_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'View current church members and their details'**
+  String get operationsItem_view_members_desc;
+
+  /// No description provided for @operationsItem_invite_member_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Member'**
+  String get operationsItem_invite_member_title;
+
+  /// No description provided for @operationsItem_invite_member_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invitation to add new members to the church'**
+  String get operationsItem_invite_member_desc;
 
   /// No description provided for @operations_noOperationsAvailable.
   ///
@@ -2125,6 +2149,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track and manage church expenses.'**
   String get card_expenseRecords_subtitle;
+
+  /// No description provided for @card_financeRecords_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance Records'**
+  String get card_financeRecords_title;
+
+  /// No description provided for @card_financeRecords_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View all revenue and expense records.'**
+  String get card_financeRecords_subtitle;
 
   /// No description provided for @card_activityList_title.
   ///
@@ -4049,13 +4085,13 @@ abstract class AppLocalizations {
   /// No description provided for @reportType_incomingDocument.
   ///
   /// In en, this message translates to:
-  /// **'Incoming Document'**
+  /// **'Document'**
   String get reportType_incomingDocument;
 
   /// No description provided for @reportTitle_incomingDocument.
   ///
   /// In en, this message translates to:
-  /// **'Incoming Document Report'**
+  /// **'Document Report'**
   String get reportTitle_incomingDocument;
 
   /// No description provided for @reportDesc_incomingDocument.
@@ -4064,10 +4100,22 @@ abstract class AppLocalizations {
   /// **'Generate a report for documents received.'**
   String get reportDesc_incomingDocument;
 
+  /// No description provided for @reportType_outcomingDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing Document'**
   String get reportType_outcomingDocument;
 
+  /// No description provided for @reportTitle_outcomingDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing Document Report'**
   String get reportTitle_outcomingDocument;
 
+  /// No description provided for @reportDesc_outcomingDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a report for documents sent.'**
   String get reportDesc_outcomingDocument;
 
   /// No description provided for @reportType_congregation.
@@ -4315,6 +4363,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment Method'**
   String get filter_paymentMethod;
+
+  /// No description provided for @filter_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get filter_type;
 
   /// No description provided for @filter_items.
   ///

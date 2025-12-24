@@ -24,10 +24,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get nav_activity => 'Kegiatan';
 
   @override
-  String get nav_revenue => 'Pendapatan';
-
-  @override
-  String get nav_expense => 'Pengeluaran';
+  String get nav_finance => 'Keuangan';
 
   @override
   String get nav_report => 'Laporan';
@@ -316,6 +313,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get operationsCategory_reports => 'Laporan';
 
   @override
+  String get operationsCategory_membership => 'Keanggotaan';
+
+  @override
   String get operationsItem_publish_service_title => 'Publikasikan Ibadah';
 
   @override
@@ -356,6 +356,20 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get operationsItem_generate_report_desc =>
       'Buat laporan kegiatan dan keuangan';
+
+  @override
+  String get operationsItem_view_members_title => 'Lihat Anggota';
+
+  @override
+  String get operationsItem_view_members_desc =>
+      'Lihat anggota gereja saat ini dan detailnya';
+
+  @override
+  String get operationsItem_invite_member_title => 'Undang Anggota';
+
+  @override
+  String get operationsItem_invite_member_desc =>
+      'Kirim undangan untuk menambahkan anggota baru ke gereja';
 
   @override
   String get operations_noOperationsAvailable => 'Tidak ada operasi tersedia';
@@ -1147,6 +1161,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get card_expenseRecords_subtitle =>
       'Lacak dan kelola pengeluaran gereja.';
+
+  @override
+  String get card_financeRecords_title => 'Catatan Keuangan';
+
+  @override
+  String get card_financeRecords_subtitle =>
+      'Lihat semua catatan pendapatan dan pengeluaran.';
 
   @override
   String get card_activityList_title => 'Daftar Kegiatan';
@@ -2320,6 +2341,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get filter_paymentMethod => 'Metode Pembayaran';
+
+  @override
+  String get filter_type => 'Tipe';
 
   @override
   String get filter_items => 'Item';

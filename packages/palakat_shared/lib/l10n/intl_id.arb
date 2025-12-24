@@ -22,13 +22,9 @@
   "@nav_activity": {
     "description": "Navigation label for activity"
   },
-  "nav_revenue": "Pendapatan",
-  "@nav_revenue": {
-    "description": "Navigation label for revenue"
-  },
-  "nav_expense": "Pengeluaran",
-  "@nav_expense": {
-    "description": "Navigation label for expense"
+  "nav_finance": "Keuangan",
+  "@nav_finance": {
+    "description": "Navigation label for finance"
   },
   "nav_report": "Laporan",
   "@nav_report": {
@@ -178,6 +174,7 @@
   "operationsCategory_publishing": "Publikasi",
   "operationsCategory_financial": "Keuangan",
   "operationsCategory_reports": "Laporan",
+  "operationsCategory_membership": "Keanggotaan",
   "operationsItem_publish_service_title": "Publikasikan Ibadah",
   "operationsItem_publish_service_desc": "Buat dan publikasikan kegiatan ibadah gereja",
   "operationsItem_publish_event_title": "Publikasikan Acara",
@@ -190,6 +187,10 @@
   "operationsItem_add_expense_desc": "Catat pengeluaran gereja",
   "operationsItem_generate_report_title": "Buat Laporan",
   "operationsItem_generate_report_desc": "Buat laporan kegiatan dan keuangan",
+  "operationsItem_view_members_title": "Lihat Anggota",
+  "operationsItem_view_members_desc": "Lihat anggota gereja saat ini dan detailnya",
+  "operationsItem_invite_member_title": "Undang Anggota",
+  "operationsItem_invite_member_desc": "Kirim undangan untuk menambahkan anggota baru ke gereja",
   "operations_noOperationsAvailable": "Tidak ada operasi tersedia",
 
   "approval_title": "Persetujuan",
@@ -1161,6 +1162,14 @@
   "card_expenseRecords_subtitle": "Lacak dan kelola pengeluaran gereja.",
   "@card_expenseRecords_subtitle": {
     "description": "Card subtitle for expense records"
+  },
+  "card_financeRecords_title": "Catatan Keuangan",
+  "@card_financeRecords_title": {
+    "description": "Card title for finance records"
+  },
+  "card_financeRecords_subtitle": "Lihat semua catatan pendapatan dan pengeluaran.",
+  "@card_financeRecords_subtitle": {
+    "description": "Card subtitle for finance records"
   },
   "card_activityList_title": "Daftar Kegiatan",
   "@card_activityList_title": {
@@ -2573,6 +2582,10 @@
   "filter_paymentMethod": "Metode Pembayaran",
   "@filter_paymentMethod": {
     "description": "Filter label for payment method"
+  },
+  "filter_type": "Tipe",
+  "@filter_type": {
+    "description": "Filter label for type"
   },
 
   "filter_items": "Item",

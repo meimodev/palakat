@@ -47,6 +47,43 @@ class ReportRepository {
     }
   }
 
+  /// Fetches reports created by the currently logged-in user.
+  /// Uses the `mine=true` query parameter to filter by current user.
+  Future<Result<PaginationResponseWrapper<Report>, Failure>> fetchMyReports({
+    int page = 1,
+    int pageSize = 5,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+
+      final query = <String, dynamic>{
+        'page': page,
+        'pageSize': pageSize,
+        'sortBy': 'createdAt',
+        'sortOrder': 'desc',
+        'mine': true,
+      };
+
+      final response = await http.get<Map<String, dynamic>>(
+        Endpoints.reports,
+        queryParameters: query,
+      );
+
+      final data = response.data ?? {};
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => Report.fromJson(e as Map<String, dynamic>),
+      );
+      return Result.success(result);
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to fetch my reports');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to fetch my reports', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
   String _reportGenerateTypeToApi(ReportGenerateType type) {
     switch (type) {
       case ReportGenerateType.incomingDocument:

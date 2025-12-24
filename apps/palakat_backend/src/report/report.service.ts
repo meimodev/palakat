@@ -204,11 +204,13 @@ export class ReportService {
     }
   }
 
-  async getReports(query: ReportListQueryDto) {
+  async getReports(query: ReportListQueryDto, user?: any) {
     const {
       search,
       churchId,
       generatedBy,
+      createdById,
+      mine,
       skip,
       take,
       sortBy = 'createdAt',
@@ -228,6 +230,14 @@ export class ReportService {
 
     if (generatedBy) {
       where.generatedBy = generatedBy;
+    }
+
+    if (createdById) {
+      where.createdById = createdById;
+    }
+
+    if (mine && user?.userId) {
+      where.createdById = user.userId;
     }
 
     const [total, reports] = await this.prisma.$transaction([
@@ -1265,6 +1275,8 @@ export class ReportService {
         : undefined;
     })();
 
+    const userId = user?.userId;
+
     const report = await this.prisma.report.create({
       data: {
         name: title,
@@ -1274,6 +1286,7 @@ export class ReportService {
         generatedBy: GeneratedBy.SYSTEM,
         churchId,
         fileId: file.id,
+        createdById: userId ?? null,
       },
       include: {
         church: true,

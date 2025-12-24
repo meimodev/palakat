@@ -6,12 +6,12 @@ import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/widgets.dart';
 
-/// Section widget displaying supervised activities on the Operations screen.
-/// Shows up to 3 most recent activities with a "See All" button.
+/// Expandable card widget displaying supervised activities on the Operations screen.
+/// Shows up to 3 most recent activities when expanded.
 ///
 /// Features:
-/// - Displays section header with title and "See All" button
-/// - Shows list of up to 3 activity items
+/// - Collapsible card with header that can be clicked to expand/collapse
+/// - Displays list of up to 3 activity items when expanded
 /// - Handles loading state with shimmer placeholder
 /// - Handles error state with retry button
 /// - Hides section when activities list is empty
@@ -23,6 +23,8 @@ class SupervisedActivitiesSection extends StatelessWidget {
     required this.activities,
     required this.isLoading,
     required this.error,
+    required this.isExpanded,
+    required this.onExpansionChanged,
     required this.onSeeAllTap,
     required this.onActivityTap,
     required this.onRetry,
@@ -36,6 +38,12 @@ class SupervisedActivitiesSection extends StatelessWidget {
 
   /// Error message if fetch failed, null if no error
   final String? error;
+
+  /// Whether the card is currently expanded
+  final bool isExpanded;
+
+  /// Callback when the card expansion state changes
+  final VoidCallback onExpansionChanged;
 
   /// Callback when "See All" button is tapped
   final VoidCallback onSeeAllTap;
@@ -54,19 +62,48 @@ class SupervisedActivitiesSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Section header with title and "See All" button
-        _SectionHeader(
-          onSeeAllTap: onSeeAllTap,
-          showSeeAll: !isLoading && error == null && activities.isNotEmpty,
-        ),
-        Gap.h4,
-        // Content: loading, error, or activities list
-        _buildContent(),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: BaseColor.surfaceMedium,
+        borderRadius: BorderRadius.circular(BaseSize.w16),
+        boxShadow: [
+          BoxShadow(
+            color: BaseColor.shadow.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Expandable header
+          _ExpandableHeader(
+            isExpanded: isExpanded,
+            activityCount: activities.length,
+            onTap: onExpansionChanged,
+            onSeeAllTap: onSeeAllTap,
+            showSeeAll: !isLoading && error == null && activities.isNotEmpty,
+          ),
+          // Expandable content
+          AnimatedCrossFade(
+            firstChild: Padding(
+              padding: EdgeInsets.only(
+                left: BaseSize.w8,
+                right: BaseSize.w8,
+                bottom: BaseSize.w12,
+              ),
+              child: _buildContent(),
+            ),
+            secondChild: const SizedBox.shrink(),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
     );
   }
 
@@ -104,59 +141,115 @@ class SupervisedActivitiesSection extends StatelessWidget {
   }
 }
 
-/// Section header with title and "See All" button
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.onSeeAllTap, required this.showSeeAll});
+/// Expandable header with icon, title, count badge, and expand/collapse indicator
+class _ExpandableHeader extends StatelessWidget {
+  const _ExpandableHeader({
+    required this.isExpanded,
+    required this.activityCount,
+    required this.onTap,
+    required this.onSeeAllTap,
+    required this.showSeeAll,
+  });
 
+  final bool isExpanded;
+  final int activityCount;
+  final VoidCallback onTap;
   final VoidCallback onSeeAllTap;
   final bool showSeeAll;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Section title
-        Text(
-          context.l10n.supervisedActivities_title,
-          style: BaseTypography.titleLarge.copyWith(
-            fontWeight: FontWeight.bold,
-            color: BaseColor.textPrimary,
-          ),
-        ),
-        // "See All" button - Requirement 2.1
-        if (showSeeAll)
-          TextButton(
-            onPressed: onSeeAllTap,
-            style: TextButton.styleFrom(
-              foregroundColor: BaseColor.primary[700],
-              padding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w8,
-                vertical: BaseSize.h4,
+    return Material(
+      color: BaseColor.primary[50],
+      child: InkWell(
+        onTap: onTap,
+        splashColor: BaseColor.primary.withValues(alpha: 0.1),
+        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              // Category icon
+              Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: BaseColor.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                ),
+                child: Icon(
+                  AppIcons.event,
+                  color: BaseColor.primary,
+                  size: BaseSize.w24,
+                ),
               ),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.l10n.btn_viewAll,
-                  style: BaseTypography.bodyMedium.copyWith(
+              Gap.w12,
+              // Title
+              Expanded(
+                child: Text(
+                  context.l10n.supervisedActivities_title,
+                  style: BaseTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: BaseColor.primary[700],
+                    color: BaseColor.textPrimary,
                   ),
                 ),
-                Gap.w4,
-                Icon(
-                  AppIcons.arrowForwardIos,
-                  size: BaseSize.w12,
-                  color: BaseColor.primary[700],
+              ),
+              // "See All" button - only visible when expanded
+              if (showSeeAll && isExpanded)
+                TextButton(
+                  onPressed: onSeeAllTap,
+                  style: TextButton.styleFrom(
+                    foregroundColor: BaseColor.primary[700],
+                    padding: EdgeInsets.symmetric(
+                      horizontal: BaseSize.w8,
+                      vertical: BaseSize.h4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    context.l10n.btn_viewAll,
+                    style: BaseTypography.bodySmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: BaseColor.primary[700],
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              // Activity count badge
+              if (!isExpanded)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: BaseSize.w8,
+                    vertical: BaseSize.w4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(BaseSize.w12),
+                  ),
+                  child: Text(
+                    '$activityCount',
+                    style: BaseTypography.labelSmall.copyWith(
+                      color: BaseColor.primary[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              // Expand/collapse icon with animation
+              Gap.w8,
+              AnimatedRotation(
+                turns: isExpanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  AppIcons.keyboardArrowDown,
+                  color: BaseColor.primary,
+                  size: BaseSize.w24,
+                ),
+              ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 }
@@ -173,28 +266,17 @@ class _ActivitiesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: BaseColor.surfaceMedium,
-      elevation: 1,
-      shadowColor: BaseColor.shadow.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      clipBehavior: Clip.hardEdge,
-      child: Padding(
-        padding: EdgeInsets.all(BaseSize.w8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (int i = 0; i < activities.length; i++) ...[
-              SupervisedActivityItemWidget(
-                activity: activities[i],
-                onTap: () => onActivityTap(activities[i]),
-              ),
-              if (i < activities.length - 1) Gap.h8,
-            ],
-          ],
-        ),
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < activities.length; i++) ...[
+          SupervisedActivityItemWidget(
+            activity: activities[i],
+            onTap: () => onActivityTap(activities[i]),
+          ),
+          if (i < activities.length - 1) Gap.h8,
+        ],
+      ],
     );
   }
 }

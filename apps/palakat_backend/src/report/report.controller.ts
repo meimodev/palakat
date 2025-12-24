@@ -23,8 +23,8 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Get()
-  async getReports(@Query() query: ReportListQueryDto) {
-    return this.reportService.getReports(query);
+  async getReports(@Query() query: ReportListQueryDto, @Req() req: any) {
+    return this.reportService.getReports(query, req.user);
   }
 
   @Get(':id')

@@ -317,7 +317,7 @@ class _FinancialIndicatorBadge extends StatelessWidget {
         ? BaseColor.green.shade700
         : BaseColor.red.shade700;
     final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
-    final label = isRevenue ? l10n.nav_revenue : l10n.nav_expense;
+    final label = isRevenue ? l10n.admin_revenue_title : l10n.operationsItem_add_expense_title;
 
     return Container(
       padding: EdgeInsets.symmetric(

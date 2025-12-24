@@ -96,18 +96,11 @@ class AppSidebar extends ConsumerWidget {
                       ),
                     ),
                     _NavItem(
-                      icon: Icons.attach_money,
-                      label: l10n.nav_revenue,
-                      selected: route.startsWith('/revenue'),
-                      onTap: () => context.go('/revenue'),
+                      icon: Icons.account_balance_wallet,
+                      label: l10n.nav_finance,
+                      selected: route.startsWith('/finance'),
+                      onTap: () => context.go('/finance'),
                       color: Colors.green,
-                    ),
-                    _NavItem(
-                      icon: Icons.credit_card,
-                      label: l10n.nav_expense,
-                      selected: route.startsWith('/expense'),
-                      onTap: () => context.go('/expense'),
-                      color: Colors.purple,
                     ),
                     _NavItem(
                       icon: Icons.insert_drive_file_outlined,

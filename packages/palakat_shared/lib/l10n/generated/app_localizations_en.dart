@@ -24,10 +24,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_activity => 'Activity';
 
   @override
-  String get nav_revenue => 'Revenue';
-
-  @override
-  String get nav_expense => 'Expense';
+  String get nav_finance => 'Finance';
 
   @override
   String get nav_report => 'Report';
@@ -314,6 +311,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsCategory_reports => 'Reports';
 
   @override
+  String get operationsCategory_membership => 'Membership';
+
+  @override
   String get operationsItem_publish_service_title => 'Publish Service';
 
   @override
@@ -354,6 +354,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get operationsItem_generate_report_desc =>
       'Create activity and financial reports';
+
+  @override
+  String get operationsItem_view_members_title => 'View Members';
+
+  @override
+  String get operationsItem_view_members_desc =>
+      'View current church members and their details';
+
+  @override
+  String get operationsItem_invite_member_title => 'Invite Member';
+
+  @override
+  String get operationsItem_invite_member_desc =>
+      'Send invitation to add new members to the church';
 
   @override
   String get operations_noOperationsAvailable => 'No operations available';
@@ -1146,6 +1160,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get card_expenseRecords_subtitle =>
       'Track and manage church expenses.';
+
+  @override
+  String get card_financeRecords_title => 'Finance Records';
+
+  @override
+  String get card_financeRecords_subtitle =>
+      'View all revenue and expense records.';
 
   @override
   String get card_activityList_title => 'Activity List';
@@ -2316,6 +2337,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filter_paymentMethod => 'Payment Method';
+
+  @override
+  String get filter_type => 'Type';
 
   @override
   String get filter_items => 'Items';

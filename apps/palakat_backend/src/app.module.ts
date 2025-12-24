@@ -29,6 +29,7 @@ import { RevenueModule } from './revenue/revenue.module';
 import { SongPartModule } from './song-part/song-part.module';
 import { SongModule } from './song/song.module';
 import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.mo
     ChurchRequestModule,
     FinancialAccountNumberModule,
     CashModule,
+    FinanceModule,
     NotificationModule,
   ],
   controllers: [AppController],

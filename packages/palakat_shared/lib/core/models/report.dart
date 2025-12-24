@@ -22,6 +22,7 @@ abstract class Report with _$Report {
     Church? church,
     required int fileId,
     required FileManager file,
+    int? createdById,
   }) = _Report;
 
   factory Report.fromJson(Map<String, dynamic> json) => _$ReportFromJson(json);

@@ -27,6 +27,7 @@ class OperationsController extends _$OperationsController {
   AuthRepository get _authRepository => ref.read(authRepositoryProvider);
   ActivityRepository get _activityRepository =>
       ref.read(activityRepositoryProvider);
+  ReportRepository get _reportRepository => ref.read(reportRepositoryProvider);
 
   @override
   OperationsState build() {
@@ -39,6 +40,7 @@ class OperationsController extends _$OperationsController {
   void fetchData() async {
     await fetchMembership();
     await fetchSupervisedActivities();
+    await fetchRecentReports();
   }
 
   Future<void> fetchMembership() async {
@@ -61,6 +63,32 @@ class OperationsController extends _$OperationsController {
         state = state.copyWith(
           loadingScreen: false,
           errorMessage: failure.message,
+        );
+      },
+    );
+  }
+
+  /// Fetches the 5 most recent reports created by the current user.
+  Future<void> fetchRecentReports() async {
+    state = state.copyWith(
+      loadingRecentReports: true,
+      recentReportsError: null,
+    );
+
+    final result = await _reportRepository.fetchMyReports(page: 1, pageSize: 5);
+
+    result.when(
+      onSuccess: (response) {
+        state = state.copyWith(
+          recentReports: response.data,
+          loadingRecentReports: false,
+          recentReportsError: null,
+        );
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          loadingRecentReports: false,
+          recentReportsError: failure.message,
         );
       },
     );
@@ -230,6 +258,26 @@ class OperationsController extends _$OperationsController {
       ),
     ];
 
+    // Membership category - for managing church members
+    final membershipOperations = <OperationItem>[
+      OperationItem(
+        id: 'view_members',
+        title: l10n.operationsItem_view_members_title,
+        description: l10n.operationsItem_view_members_desc,
+        icon: AppIcons.group,
+        routeName: AppRoute.membersList,
+        isEnabled: hasPositions,
+      ),
+      OperationItem(
+        id: 'invite_member',
+        title: l10n.operationsItem_invite_member_title,
+        description: l10n.operationsItem_invite_member_desc,
+        icon: AppIcons.addCircle,
+        routeName: AppRoute.memberInvite,
+        isEnabled: hasPositions,
+      ),
+    ];
+
     return [
       OperationCategory(
         id: 'publishing',
@@ -248,6 +296,12 @@ class OperationsController extends _$OperationsController {
         title: l10n.operationsCategory_reports,
         icon: AppIcons.barChart,
         operations: reportsOperations,
+      ),
+      OperationCategory(
+        id: 'membership',
+        title: l10n.operationsCategory_membership,
+        icon: AppIcons.group,
+        operations: membershipOperations,
       ),
     ];
   }
@@ -295,5 +349,12 @@ class OperationsController extends _$OperationsController {
 
   void clearError() {
     state = state.copyWith(errorMessage: null);
+  }
+
+  /// Toggles the expansion state of the supervised activities section.
+  void toggleSupervisedActivitiesExpansion() {
+    state = state.copyWith(
+      supervisedActivitiesExpanded: !state.supervisedActivitiesExpanded,
+    );
   }
 }

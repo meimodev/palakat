@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/widgets/operation_item_card_widget.dart';
+import 'package:palakat/features/operations/presentations/widgets/recent_reports_section_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/models/report.dart';
 
 /// Collapsible category card that groups related operations.
 /// Uses ExpansionTile pattern with custom styling.
@@ -14,6 +16,11 @@ class OperationCategoryCard extends StatelessWidget {
     required this.category,
     required this.onExpansionChanged,
     required this.onOperationTap,
+    this.recentReports,
+    this.isLoadingRecentReports = false,
+    this.recentReportsError,
+    this.onReportDownloadTap,
+    this.onRecentReportsRetry,
   });
 
   /// The category data to display
@@ -24,6 +31,21 @@ class OperationCategoryCard extends StatelessWidget {
 
   /// Callback when an operation item is tapped
   final ValueChanged<OperationItem> onOperationTap;
+
+  /// Recent reports for the Reports category (optional)
+  final List<Report>? recentReports;
+
+  /// Loading state for recent reports
+  final bool isLoadingRecentReports;
+
+  /// Error message for recent reports
+  final String? recentReportsError;
+
+  /// Callback when download button is tapped for a report
+  final ValueChanged<Report>? onReportDownloadTap;
+
+  /// Callback when retry button is tapped for recent reports
+  final VoidCallback? onRecentReportsRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -89,22 +111,41 @@ class OperationCategoryCard extends StatelessWidget {
           bottom: BaseSize.w12,
           top: BaseSize.w8,
         ),
-        child: GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: BaseSize.w8,
-          mainAxisSpacing: BaseSize.w8,
-          childAspectRatio: 3.0,
-          children: operations
-              .map(
-                (operation) => _ReportTypeTile(
-                  title: operation.title,
-                  icon: operation.icon,
-                  onTap: () => onOperationTap(operation),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: BaseSize.w8,
+              mainAxisSpacing: BaseSize.w8,
+              childAspectRatio: 3.0,
+              children: operations
+                  .map(
+                    (operation) => _ReportTypeTile(
+                      title: operation.title,
+                      icon: operation.icon,
+                      onTap: () => onOperationTap(operation),
+                    ),
+                  )
+                  .toList(),
+            ),
+            // Recent reports section
+            if (recentReports != null ||
+                isLoadingRecentReports ||
+                recentReportsError != null)
+              Padding(
+                padding: EdgeInsets.only(top: BaseSize.w8),
+                child: RecentReportsSection(
+                  reports: recentReports ?? [],
+                  isLoading: isLoadingRecentReports,
+                  error: recentReportsError,
+                  onDownloadTap: (report) => onReportDownloadTap?.call(report),
+                  onRetry: () => onRecentReportsRetry?.call(),
                 ),
-              )
-              .toList(),
+              ),
+          ],
         ),
       );
     }

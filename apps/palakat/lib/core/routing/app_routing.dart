@@ -47,6 +47,8 @@ class AppRoute {
   static const String supervisedActivitiesList = "supervised-activities-list";
   static const String financeCreate = "finance-create";
   static const String reportGenerate = "report-generate";
+  static const String membersList = "members-list";
+  static const String memberInvite = "member-invite";
 
   // approvals
   static const String approvals = 'approvals';

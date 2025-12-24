@@ -21,11 +21,10 @@ import 'features/billing/presentation/screens/billing_screen.dart';
 import 'features/church/presentation/screens/church_screen.dart';
 import 'features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'features/document/presentation/screens/document_screen.dart';
-import 'features/expense/presentation/screens/expense_screen.dart';
+import 'features/finance/presentation/screens/finance_screen.dart';
 import 'features/financial/presentation/screens/financial_account_list_screen.dart';
 import 'features/member/presentation/screens/member_screen.dart';
 import 'features/report/presentation/screens/report_screen.dart';
-import 'features/revenue/presentation/screens/revenue_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -159,21 +158,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ),
           GoRoute(
-            path: '/revenue',
-            name: 'revenue',
+            path: '/finance',
+            name: 'finance',
             pageBuilder: (context, state) => SmoothPageTransition<void>(
               key: state.pageKey,
-              name: 'revenue',
-              child: const RevenueScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/expense',
-            name: 'expense',
-            pageBuilder: (context, state) => SmoothPageTransition<void>(
-              key: state.pageKey,
-              name: 'expense',
-              child: const ExpenseScreen(),
+              name: 'finance',
+              child: const FinanceScreen(),
             ),
           ),
           GoRoute(
