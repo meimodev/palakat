@@ -111,7 +111,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get map_confirmLocation => 'Konfirmasi Lokasi';
 
   @override
-  String get map_locationAccessError => 'Tidak dapat mengakses lokasi. Periksa izin lokasi.';
+  String get map_locationAccessError =>
+      'Tidak dapat mengakses lokasi. Periksa izin lokasi.';
 
   @override
   String get songDetail_errorLoadingSong => 'Gagal memuat lagu';
@@ -120,7 +121,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get supervisedActivities_title => 'Kegiatan yang Diawasi';
 
   @override
-  String get supervisedActivities_subtitle => 'Kegiatan yang Anda tanggung jawabkan';
+  String get supervisedActivities_subtitle =>
+      'Kegiatan yang Anda tanggung jawabkan';
 
   @override
   String get filter_activityType_label => 'Jenis Kegiatan';
@@ -132,10 +134,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get filter_activityType_allTitle => 'Semua jenis';
 
   @override
-  String get filter_activityType_allSubtitle => 'Menampilkan semua jenis kegiatan';
+  String get filter_activityType_allSubtitle =>
+      'Menampilkan semua jenis kegiatan';
 
   @override
-  String get filter_activityType_allSheetSubtitle => 'Tampilkan semua jenis kegiatan';
+  String get filter_activityType_allSheetSubtitle =>
+      'Tampilkan semua jenis kegiatan';
 
   @override
   String get activityType_service_desc => 'Ibadah dan kebaktian';
@@ -156,16 +160,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get btn_clearFilters => 'Hapus filter';
 
   @override
-  String get supervisedActivities_emptyFilteredTitle => 'Tidak ada kegiatan yang sesuai dengan filter Anda';
+  String get supervisedActivities_emptyFilteredTitle =>
+      'Tidak ada kegiatan yang sesuai dengan filter Anda';
 
   @override
-  String get supervisedActivities_emptyFilteredSubtitle => 'Coba sesuaikan filter Anda untuk melihat lebih banyak hasil';
+  String get supervisedActivities_emptyFilteredSubtitle =>
+      'Coba sesuaikan filter Anda untuk melihat lebih banyak hasil';
 
   @override
-  String get supervisedActivities_emptyTitle => 'Tidak ada kegiatan yang diawasi';
+  String get supervisedActivities_emptyTitle =>
+      'Tidak ada kegiatan yang diawasi';
 
   @override
-  String get supervisedActivities_emptySubtitle => 'Kegiatan yang Anda awasi akan muncul di sini';
+  String get supervisedActivities_emptySubtitle =>
+      'Kegiatan yang Anda awasi akan muncul di sini';
 
   @override
   String get notificationSettings_title => 'Pengaturan Notifikasi';
@@ -180,10 +188,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get notificationSettings_permissionDisabled => 'Nonaktif';
 
   @override
-  String get notificationSettings_permissionEnabledDesc => 'Anda akan menerima notifikasi untuk kegiatan, persetujuan, dan pengumuman.';
+  String get notificationSettings_permissionEnabledDesc =>
+      'Anda akan menerima notifikasi untuk kegiatan, persetujuan, dan pengumuman.';
 
   @override
-  String get notificationSettings_permissionDisabledDesc => 'Aktifkan notifikasi untuk tetap mendapatkan pembaruan tentang kegiatan, persetujuan, dan pengumuman penting.';
+  String get notificationSettings_permissionDisabledDesc =>
+      'Aktifkan notifikasi untuk tetap mendapatkan pembaruan tentang kegiatan, persetujuan, dan pengumuman penting.';
 
   @override
   String get notificationSettings_enableNotifications => 'Aktifkan Notifikasi';
@@ -192,13 +202,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get notificationPermission_rationale_title => 'Tetap Terhubung';
 
   @override
-  String get notificationPermission_rationale_benefit_activities => 'Dapatkan notifikasi tentang kegiatan dan acara baru';
+  String get notificationPermission_rationale_benefit_activities =>
+      'Dapatkan notifikasi tentang kegiatan dan acara baru';
 
   @override
-  String get notificationPermission_rationale_benefit_approvals => 'Terima permintaan persetujuan yang memerlukan perhatian Anda';
+  String get notificationPermission_rationale_benefit_approvals =>
+      'Terima permintaan persetujuan yang memerlukan perhatian Anda';
 
   @override
-  String get notificationPermission_rationale_benefit_announcements => 'Jangan lewatkan pengumuman penting gereja';
+  String get notificationPermission_rationale_benefit_announcements =>
+      'Jangan lewatkan pengumuman penting gereja';
 
   @override
   String get notificationPermission_btn_notNow => 'Nanti Saja';
@@ -207,22 +220,28 @@ class AppLocalizationsId extends AppLocalizations {
   String get notificationPermission_consequence_title => 'Anda Akan Melewatkan';
 
   @override
-  String get notificationPermission_consequence_item_activities => 'Notifikasi kegiatan dan pembaruan acara';
+  String get notificationPermission_consequence_item_activities =>
+      'Notifikasi kegiatan dan pembaruan acara';
 
   @override
-  String get notificationPermission_consequence_item_approvals => 'Permintaan persetujuan yang memerlukan tindakan Anda';
+  String get notificationPermission_consequence_item_approvals =>
+      'Permintaan persetujuan yang memerlukan tindakan Anda';
 
   @override
-  String get notificationPermission_consequence_item_announcements => 'Pengumuman penting gereja dan pembaruan';
+  String get notificationPermission_consequence_item_announcements =>
+      'Pengumuman penting gereja dan pembaruan';
 
   @override
-  String get notificationPermission_btn_enableInSettings => 'Aktifkan di Pengaturan';
+  String get notificationPermission_btn_enableInSettings =>
+      'Aktifkan di Pengaturan';
 
   @override
-  String get notificationPermission_btn_continueWithoutNotifications => 'Lanjut Tanpa Notifikasi';
+  String get notificationPermission_btn_continueWithoutNotifications =>
+      'Lanjut Tanpa Notifikasi';
 
   @override
-  String get notificationSettings_errorLoadingPermissionStatus => 'Gagal memuat status izin';
+  String get notificationSettings_errorLoadingPermissionStatus =>
+      'Gagal memuat status izin';
 
   @override
   String notificationSettings_errorLoadingSettings(String error) {
@@ -233,25 +252,32 @@ class AppLocalizationsId extends AppLocalizations {
   String get notificationSettings_preferences_title => 'Preferensi Notifikasi';
 
   @override
-  String get notificationSettings_preferences_subtitle => 'Pilih jenis notifikasi yang ingin Anda terima';
+  String get notificationSettings_preferences_subtitle =>
+      'Pilih jenis notifikasi yang ingin Anda terima';
 
   @override
-  String get notificationSettings_channel_activityUpdates_title => 'Pembaruan Kegiatan';
+  String get notificationSettings_channel_activityUpdates_title =>
+      'Pembaruan Kegiatan';
 
   @override
-  String get notificationSettings_channel_activityUpdates_subtitle => 'Notifikasi tentang kegiatan dan acara gereja';
+  String get notificationSettings_channel_activityUpdates_subtitle =>
+      'Notifikasi tentang kegiatan dan acara gereja';
 
   @override
-  String get notificationSettings_channel_approvalRequests_title => 'Permintaan Persetujuan';
+  String get notificationSettings_channel_approvalRequests_title =>
+      'Permintaan Persetujuan';
 
   @override
-  String get notificationSettings_channel_approvalRequests_subtitle => 'Notifikasi yang memerlukan persetujuan Anda';
+  String get notificationSettings_channel_approvalRequests_subtitle =>
+      'Notifikasi yang memerlukan persetujuan Anda';
 
   @override
-  String get notificationSettings_channel_generalAnnouncements_title => 'Pengumuman Umum';
+  String get notificationSettings_channel_generalAnnouncements_title =>
+      'Pengumuman Umum';
 
   @override
-  String get notificationSettings_channel_generalAnnouncements_subtitle => 'Pengumuman dan pembaruan gereja';
+  String get notificationSettings_channel_generalAnnouncements_subtitle =>
+      'Pengumuman dan pembaruan gereja';
 
   @override
   String get notificationSettings_soundVibration_title => 'Suara & Getaran';
@@ -260,13 +286,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get notificationSettings_sound_title => 'Suara';
 
   @override
-  String get notificationSettings_sound_subtitle => 'Putar suara saat notifikasi masuk';
+  String get notificationSettings_sound_subtitle =>
+      'Putar suara saat notifikasi masuk';
 
   @override
   String get notificationSettings_vibration_title => 'Getaran';
 
   @override
-  String get notificationSettings_vibration_subtitle => 'Bergetar saat notifikasi masuk';
+  String get notificationSettings_vibration_subtitle =>
+      'Bergetar saat notifikasi masuk';
 
   @override
   String get nav_operations => 'Ops';
@@ -275,7 +303,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get operations_title => 'Operasi';
 
   @override
-  String get operations_noPositionsSubtitle => 'Anda belum memiliki posisi operasional';
+  String get operations_noPositionsSubtitle =>
+      'Anda belum memiliki posisi operasional';
 
   @override
   String get operationsCategory_publishing => 'Publikasi';
@@ -290,25 +319,30 @@ class AppLocalizationsId extends AppLocalizations {
   String get operationsItem_publish_service_title => 'Publikasikan Ibadah';
 
   @override
-  String get operationsItem_publish_service_desc => 'Buat dan publikasikan kegiatan ibadah gereja';
+  String get operationsItem_publish_service_desc =>
+      'Buat dan publikasikan kegiatan ibadah gereja';
 
   @override
   String get operationsItem_publish_event_title => 'Publikasikan Acara';
 
   @override
-  String get operationsItem_publish_event_desc => 'Buat dan publikasikan acara gereja';
+  String get operationsItem_publish_event_desc =>
+      'Buat dan publikasikan acara gereja';
 
   @override
-  String get operationsItem_publish_announcement_title => 'Publikasikan Pengumuman';
+  String get operationsItem_publish_announcement_title =>
+      'Publikasikan Pengumuman';
 
   @override
-  String get operationsItem_publish_announcement_desc => 'Buat dan publikasikan pengumuman';
+  String get operationsItem_publish_announcement_desc =>
+      'Buat dan publikasikan pengumuman';
 
   @override
   String get operationsItem_add_income_title => 'Tambah Pendapatan';
 
   @override
-  String get operationsItem_add_income_desc => 'Catat pendapatan gereja dan persembahan';
+  String get operationsItem_add_income_desc =>
+      'Catat pendapatan gereja dan persembahan';
 
   @override
   String get operationsItem_add_expense_title => 'Tambah Pengeluaran';
@@ -320,7 +354,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get operationsItem_generate_report_title => 'Buat Laporan';
 
   @override
-  String get operationsItem_generate_report_desc => 'Buat laporan kegiatan dan keuangan';
+  String get operationsItem_generate_report_desc =>
+      'Buat laporan kegiatan dan keuangan';
 
   @override
   String get operations_noOperationsAvailable => 'Tidak ada operasi tersedia';
@@ -350,7 +385,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_allCaughtUpTitle => 'Semua selesai!';
 
   @override
-  String get approval_allCaughtUpSubtitle => 'Tidak ada persetujuan yang menunggu tindakan Anda';
+  String get approval_allCaughtUpSubtitle =>
+      'Tidak ada persetujuan yang menunggu tindakan Anda';
 
   @override
   String approval_pendingReviewCount(int count) {
@@ -379,19 +415,23 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_confirmRejectTitle => 'Tolak Kegiatan?';
 
   @override
-  String get approval_confirmApproveDescription => 'Apakah Anda yakin ingin menyetujui kegiatan ini? Tindakan ini tidak dapat dibatalkan.';
+  String get approval_confirmApproveDescription =>
+      'Apakah Anda yakin ingin menyetujui kegiatan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
-  String get approval_confirmRejectDescription => 'Apakah Anda yakin ingin menolak kegiatan ini? Tindakan ini tidak dapat dibatalkan.';
+  String get approval_confirmRejectDescription =>
+      'Apakah Anda yakin ingin menolak kegiatan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get approvalDetail_title => 'Detail Persetujuan';
 
   @override
-  String get approvalDetail_notFound => 'Persetujuan tidak ditemukan. Mungkin sudah dihapus atau tidak tersedia.';
+  String get approvalDetail_notFound =>
+      'Persetujuan tidak ditemukan. Mungkin sudah dihapus atau tidak tersedia.';
 
   @override
-  String get approvalDetail_waitingOthers => 'Menunggu approver lain untuk menyetujui atau menolak persetujuan ini';
+  String get approvalDetail_waitingOthers =>
+      'Menunggu approver lain untuk menyetujui atau menolak persetujuan ini';
 
   @override
   String get approvalDetail_activitySummary_title => 'Ringkasan Kegiatan';
@@ -403,10 +443,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get approvalDetail_viewOnMapTooltip => 'Lihat di Peta';
 
   @override
-  String get approvalDetail_viewActivityDetails_title => 'Lihat Detail Kegiatan';
+  String get approvalDetail_viewActivityDetails_title =>
+      'Lihat Detail Kegiatan';
 
   @override
-  String get approvalDetail_viewActivityDetails_subtitle => 'Lihat informasi kegiatan secara lengkap';
+  String get approvalDetail_viewActivityDetails_subtitle =>
+      'Lihat informasi kegiatan secara lengkap';
 
   @override
   String get approvalDetail_accountDescription_label => 'Deskripsi Akun';
@@ -437,7 +479,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get admin_billing_title => 'Manajemen Tagihan';
 
   @override
-  String get admin_billing_subtitle => 'Kelola tagihan gereja, pembayaran, dan lihat riwayat pembayaran.';
+  String get admin_billing_subtitle =>
+      'Kelola tagihan gereja, pembayaran, dan lihat riwayat pembayaran.';
 
   @override
   String get admin_approval_title => 'Persetujuan';
@@ -446,19 +489,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get admin_account_title => 'Akun';
 
   @override
-  String get admin_account_subtitle => 'Kelola informasi akun dan pengaturan Anda';
+  String get admin_account_subtitle =>
+      'Kelola informasi akun dan pengaturan Anda';
 
   @override
   String get admin_activity_title => 'Kegiatan';
 
   @override
-  String get admin_activity_subtitle => 'Pantau dan kelola semua kegiatan gereja.';
+  String get admin_activity_subtitle =>
+      'Pantau dan kelola semua kegiatan gereja.';
 
   @override
   String get admin_revenue_title => 'Pendapatan';
 
   @override
-  String get admin_revenue_subtitle => 'Lacak dan kelola semua sumber pendapatan.';
+  String get admin_revenue_subtitle =>
+      'Lacak dan kelola semua sumber pendapatan.';
 
   @override
   String get admin_member_title => 'Anggota';
@@ -467,31 +513,36 @@ class AppLocalizationsId extends AppLocalizations {
   String get admin_financial_title => 'Nomor Akun Keuangan';
 
   @override
-  String get admin_financial_subtitle => 'Kelola nomor akun keuangan untuk gereja Anda.';
+  String get admin_financial_subtitle =>
+      'Kelola nomor akun keuangan untuk gereja Anda.';
 
   @override
   String get admin_documentSettings_title => 'Pengaturan Dokumen';
 
   @override
-  String get admin_documentSettings_subtitle => 'Kelola nomor identitas dokumen dan lihat persetujuan terbaru.';
+  String get admin_documentSettings_subtitle =>
+      'Kelola nomor identitas dokumen dan lihat persetujuan terbaru.';
 
   @override
   String get admin_documentIdentityNumber_title => 'Nomor Identitas Dokumen';
 
   @override
-  String get admin_documentIdentityNumber_subtitle => 'Template saat ini yang digunakan untuk dokumen baru.';
+  String get admin_documentIdentityNumber_subtitle =>
+      'Template saat ini yang digunakan untuk dokumen baru.';
 
   @override
   String get admin_documentDirectory_title => 'Direktori Dokumen';
 
   @override
-  String get admin_documentDirectory_subtitle => 'Catatan semua dokumen gereja yang telah disetujui.';
+  String get admin_documentDirectory_subtitle =>
+      'Catatan semua dokumen gereja yang telah disetujui.';
 
   @override
   String get admin_church_title => 'Profil Gereja';
 
   @override
-  String get admin_church_subtitle => 'Kelola informasi publik dan kolom gereja Anda.';
+  String get admin_church_subtitle =>
+      'Kelola informasi publik dan kolom gereja Anda.';
 
   @override
   String get btn_continue => 'Lanjutkan';
@@ -518,7 +569,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get btn_signOutConfirm => 'Keluar?';
 
   @override
-  String get btn_signOutMessage => 'Apakah Anda yakin ingin keluar? Anda perlu masuk kembali untuk mengakses akun Anda.';
+  String get btn_signOutMessage =>
+      'Apakah Anda yakin ingin keluar? Anda perlu masuk kembali untuk mengakses akun Anda.';
 
   @override
   String get btn_resendCode => 'Kirim Ulang Kode';
@@ -778,7 +830,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get err_serverError => 'Kesalahan server. Coba lagi nanti.';
 
   @override
-  String get err_unauthorized => 'Sesi Anda telah berakhir. Silakan masuk kembali.';
+  String get err_unauthorized =>
+      'Sesi Anda telah berakhir. Silakan masuk kembali.';
 
   @override
   String get err_invalidCredentials => 'Email/telepon atau kata sandi salah.';
@@ -820,7 +873,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get err_error => 'Kesalahan';
 
   @override
-  String get err_accountLocked => 'Akun Anda terkunci sementara. Silakan tunggu 5 menit dan coba lagi.';
+  String get err_accountLocked =>
+      'Akun Anda terkunci sementara. Silakan tunggu 5 menit dan coba lagi.';
 
   @override
   String err_statusWithCode(Object code, Object label) {
@@ -866,28 +920,33 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashboard_recentActivity => 'Aktivitas Terbaru';
 
   @override
-  String get dashboard_recent_memberRegistered_title => 'Anggota Baru Terdaftar';
+  String get dashboard_recent_memberRegistered_title =>
+      'Anggota Baru Terdaftar';
 
   @override
-  String get dashboard_recent_memberRegistered_desc => 'John Doe bergabung dengan jemaat';
+  String get dashboard_recent_memberRegistered_desc =>
+      'John Doe bergabung dengan jemaat';
 
   @override
   String get dashboard_recent_donationReceived_title => 'Donasi Diterima';
 
   @override
-  String get dashboard_recent_donationReceived_desc => 'Persepuluhan dan persembahan terkumpul';
+  String get dashboard_recent_donationReceived_desc =>
+      'Persepuluhan dan persembahan terkumpul';
 
   @override
   String get dashboard_recent_eventApproved_title => 'Kegiatan Disetujui';
 
   @override
-  String get dashboard_recent_eventApproved_desc => 'Pertemuan Persekutuan Pemuda dijadwalkan';
+  String get dashboard_recent_eventApproved_desc =>
+      'Pertemuan Persekutuan Pemuda dijadwalkan';
 
   @override
   String get dashboard_recent_expenseRecorded_title => 'Pengeluaran Dicatat';
 
   @override
-  String get dashboard_recent_expenseRecorded_desc => 'Pembayaran tagihan utilitas';
+  String get dashboard_recent_expenseRecorded_desc =>
+      'Pembayaran tagihan utilitas';
 
   @override
   String get dashboard_totalMembers => 'Total Anggota';
@@ -944,7 +1003,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get membership_churchMembership_title => 'Keanggotaan Gereja';
 
   @override
-  String get membership_churchNotRegisteredInfo => 'Jika gereja Anda belum terdaftar di sistem kami, Anda tidak akan dapat menemukannya di daftar di bawah ini.';
+  String get membership_churchNotRegisteredInfo =>
+      'Jika gereja Anda belum terdaftar di sistem kami, Anda tidak akan dapat menemukannya di daftar di bawah ini.';
 
   @override
   String get membership_notBaptized => 'Belum dibaptis';
@@ -987,19 +1047,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_overdueBills_title => 'Tagihan Terlambat';
 
   @override
-  String get card_overdueBills_subtitle => 'Tagihan yang memerlukan perhatian segera';
+  String get card_overdueBills_subtitle =>
+      'Tagihan yang memerlukan perhatian segera';
 
   @override
   String get card_paymentHistory_title => 'Riwayat Pembayaran';
 
   @override
-  String get card_paymentHistory_subtitle => 'Lihat semua transaksi dan riwayat pembayaran.';
+  String get card_paymentHistory_subtitle =>
+      'Lihat semua transaksi dan riwayat pembayaran.';
 
   @override
   String get card_billingItems_title => 'Item Tagihan';
 
   @override
-  String get card_billingItems_subtitle => 'Kelola tagihan dan catatan pembayaran gereja.';
+  String get card_billingItems_subtitle =>
+      'Kelola tagihan dan catatan pembayaran gereja.';
 
   @override
   String card_billingItems_subtitleWithTotal(int total) {
@@ -1010,7 +1073,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_approvalRules_title => 'Aturan Persetujuan';
 
   @override
-  String get card_approvalRules_subtitle => 'Konfigurasi aturan routing persetujuan dan persyaratan';
+  String get card_approvalRules_subtitle =>
+      'Konfigurasi aturan routing persetujuan dan persyaratan';
 
   @override
   String get card_memberDirectory_title => 'Direktori Anggota';
@@ -1022,7 +1086,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_accountNumbers_title => 'Nomor Akun';
 
   @override
-  String get card_accountNumbers_subtitle => 'Daftar semua nomor akun keuangan untuk gereja Anda.';
+  String get card_accountNumbers_subtitle =>
+      'Daftar semua nomor akun keuangan untuk gereja Anda.';
 
   @override
   String get card_cashAccounts_title => 'Akun Tunai';
@@ -1034,7 +1099,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_cashMutations_title => 'Mutasi Tunai';
 
   @override
-  String get card_cashMutations_subtitle => 'Lacak pergerakan tunai antar akun.';
+  String get card_cashMutations_subtitle =>
+      'Lacak pergerakan tunai antar akun.';
 
   @override
   String get card_basicInfo_title => 'Informasi Dasar';
@@ -1058,31 +1124,36 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_positionManagement_title => 'Manajemen Jabatan';
 
   @override
-  String get card_positionManagement_subtitle => 'Kelola jabatan kepemimpinan gereja';
+  String get card_positionManagement_subtitle =>
+      'Kelola jabatan kepemimpinan gereja';
 
   @override
   String get card_revenueRecords_title => 'Catatan Pendapatan';
 
   @override
-  String get card_revenueRecords_subtitle => 'Lacak dan kelola pendapatan gereja.';
+  String get card_revenueRecords_subtitle =>
+      'Lacak dan kelola pendapatan gereja.';
 
   @override
   String get card_revenueLog_title => 'Log Pendapatan';
 
   @override
-  String get card_revenueLog_subtitle => 'Catatan semua pendapatan yang tercatat.';
+  String get card_revenueLog_subtitle =>
+      'Catatan semua pendapatan yang tercatat.';
 
   @override
   String get card_expenseRecords_title => 'Catatan Pengeluaran';
 
   @override
-  String get card_expenseRecords_subtitle => 'Lacak dan kelola pengeluaran gereja.';
+  String get card_expenseRecords_subtitle =>
+      'Lacak dan kelola pengeluaran gereja.';
 
   @override
   String get card_activityList_title => 'Daftar Kegiatan';
 
   @override
-  String get card_activityList_subtitle => 'Lihat semua kegiatan dan acara gereja.';
+  String get card_activityList_subtitle =>
+      'Lihat semua kegiatan dan acara gereja.';
 
   @override
   String get card_documentList_title => 'Dokumen';
@@ -1103,13 +1174,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_paymentInfo_title => 'Informasi Pembayaran';
 
   @override
-  String get card_paymentInfo_subtitle => 'Detail tentang metode pembayaran dan akun';
+  String get card_paymentInfo_subtitle =>
+      'Detail tentang metode pembayaran dan akun';
 
   @override
   String get card_recentActivity_title => 'Aktivitas Terbaru';
 
   @override
-  String get card_recentActivity_subtitle => 'Kegiatan dan acara gereja terbaru';
+  String get card_recentActivity_subtitle =>
+      'Kegiatan dan acara gereja terbaru';
 
   @override
   String get card_statistics_title => 'Statistik';
@@ -1127,7 +1200,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_accountSettings_title => 'Pengaturan Akun';
 
   @override
-  String get card_accountSettings_subtitle => 'Kelola preferensi akun pribadi Anda';
+  String get card_accountSettings_subtitle =>
+      'Kelola preferensi akun pribadi Anda';
 
   @override
   String get card_churchInfo_title => 'Informasi Gereja';
@@ -1139,13 +1213,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_financialSummary_title => 'Ringkasan Keuangan';
 
   @override
-  String get card_financialSummary_subtitle => 'Ringkasan status keuangan gereja';
+  String get card_financialSummary_subtitle =>
+      'Ringkasan status keuangan gereja';
 
   @override
   String get card_accountInfo_title => 'Informasi Akun';
 
   @override
-  String get card_accountInfo_subtitle => 'Kelola profil dan informasi pribadi Anda';
+  String get card_accountInfo_subtitle =>
+      'Kelola profil dan informasi pribadi Anda';
 
   @override
   String get card_securitySettings_title => 'Pengaturan Keamanan';
@@ -1157,7 +1233,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_languageSettings_title => 'Pengaturan Bahasa';
 
   @override
-  String get card_languageSettings_subtitle => 'Pilih bahasa yang Anda inginkan';
+  String get card_languageSettings_subtitle =>
+      'Pilih bahasa yang Anda inginkan';
 
   @override
   String get card_accountActions_title => 'Tindakan Akun';
@@ -1187,25 +1264,29 @@ class AppLocalizationsId extends AppLocalizations {
   String get drawer_editApprovalRule_title => 'Ubah Aturan Persetujuan';
 
   @override
-  String get drawer_editApprovalRule_subtitle => 'Perbarui informasi aturan persetujuan';
+  String get drawer_editApprovalRule_subtitle =>
+      'Perbarui informasi aturan persetujuan';
 
   @override
   String get drawer_activityDetails_title => 'Detail Kegiatan';
 
   @override
-  String get drawer_activityDetails_subtitle => 'Lihat informasi detail tentang kegiatan ini';
+  String get drawer_activityDetails_subtitle =>
+      'Lihat informasi detail tentang kegiatan ini';
 
   @override
   String get drawer_revenueDetails_title => 'Detail Pendapatan';
 
   @override
-  String get drawer_revenueDetails_subtitle => 'Lihat informasi detail tentang entri pendapatan ini';
+  String get drawer_revenueDetails_subtitle =>
+      'Lihat informasi detail tentang entri pendapatan ini';
 
   @override
   String get drawer_expenseDetails_title => 'Detail Pengeluaran';
 
   @override
-  String get drawer_expenseDetails_subtitle => 'Lihat informasi detail tentang entri pengeluaran ini';
+  String get drawer_expenseDetails_subtitle =>
+      'Lihat informasi detail tentang entri pengeluaran ini';
 
   @override
   String get drawer_editChurchInfo_title => 'Ubah Informasi Gereja';
@@ -1217,7 +1298,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get drawer_editLocation_title => 'Ubah Lokasi';
 
   @override
-  String get drawer_editLocation_subtitle => 'Perbarui alamat dan koordinat gereja Anda';
+  String get drawer_editLocation_subtitle =>
+      'Perbarui alamat dan koordinat gereja Anda';
 
   @override
   String get drawer_addColumn_title => 'Tambah Kolom';
@@ -1247,7 +1329,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get drawer_addAccountNumber_title => 'Tambah Nomor Akun';
 
   @override
-  String get drawer_addAccountNumber_subtitle => 'Buat nomor akun keuangan baru';
+  String get drawer_addAccountNumber_subtitle =>
+      'Buat nomor akun keuangan baru';
 
   @override
   String get drawer_editAccountNumber_title => 'Ubah Nomor Akun';
@@ -1259,19 +1342,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get drawer_generateReport_title => 'Buat Laporan';
 
   @override
-  String get drawer_generateReport_subtitle => 'Konfigurasi laporan yang baru dibuat';
+  String get drawer_generateReport_subtitle =>
+      'Konfigurasi laporan yang baru dibuat';
 
   @override
   String get drawer_editDocumentId_title => 'Ubah Nomor Identitas Dokumen';
 
   @override
-  String get drawer_editDocumentId_subtitle => 'Perbarui template yang digunakan untuk dokumen baru';
+  String get drawer_editDocumentId_subtitle =>
+      'Perbarui template yang digunakan untuk dokumen baru';
 
   @override
   String get drawer_paymentHistory_title => 'Riwayat Pembayaran';
 
   @override
-  String get drawer_paymentHistory_subtitle => 'Riwayat transaksi pembayaran lengkap';
+  String get drawer_paymentHistory_subtitle =>
+      'Riwayat transaksi pembayaran lengkap';
 
   @override
   String get drawer_billingDetails_title => 'Detail Tagihan';
@@ -1286,7 +1372,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get drawer_changePassword_title => 'Ubah Kata Sandi';
 
   @override
-  String get drawer_changePassword_subtitle => 'Jaga keamanan akun Anda dengan kata sandi yang kuat';
+  String get drawer_changePassword_subtitle =>
+      'Jaga keamanan akun Anda dengan kata sandi yang kuat';
 
   @override
   String get lbl_ruleId => 'ID Aturan';
@@ -1337,37 +1424,45 @@ class AppLocalizationsId extends AppLocalizations {
   String get account_phoneLabel_locked => 'Nomor telepon (tidak dapat diubah)';
 
   @override
-  String get account_phoneLabel_active => 'Nomor telepon aktif untuk menerima pesan autentikasi';
+  String get account_phoneLabel_active =>
+      'Nomor telepon aktif untuk menerima pesan autentikasi';
 
   @override
-  String get account_fullNameLabel => 'Nama tanpa gelar untuk keanggotaan gereja';
+  String get account_fullNameLabel =>
+      'Nama tanpa gelar untuk keanggotaan gereja';
 
   @override
-  String get account_emailLabel_optional => 'Email opsional untuk notifikasi dan komunikasi';
+  String get account_emailLabel_optional =>
+      'Email opsional untuk notifikasi dan komunikasi';
 
   @override
-  String get account_bipraHint => 'Digunakan untuk menentukan keanggotaan BIPRA';
+  String get account_bipraHint =>
+      'Digunakan untuk menentukan keanggotaan BIPRA';
 
   @override
   String get account_claim_title => 'Klaim Akun';
 
   @override
-  String get account_claimedSubtitle_locked => 'Akun sudah diklaim dan tidak dapat dibatalkan';
+  String get account_claimedSubtitle_locked =>
+      'Akun sudah diklaim dan tidak dapat dibatalkan';
 
   @override
-  String get account_claimedSubtitle_unlocked => 'Akun yang diklaim hanya dapat diubah oleh pemilik, bukan gereja';
+  String get account_claimedSubtitle_unlocked =>
+      'Akun yang diklaim hanya dapat diubah oleh pemilik, bukan gereja';
 
   @override
   String get account_claimConfirm_title => 'Klaim Akun?';
 
   @override
-  String get account_claimConfirm_message => 'Setelah akun diklaim, tidak dapat dibatalkan. Lanjutkan?';
+  String get account_claimConfirm_message =>
+      'Setelah akun diklaim, tidak dapat dibatalkan. Lanjutkan?';
 
   @override
   String get auth_cancelRegistration_title => 'Batalkan Pendaftaran?';
 
   @override
-  String get auth_cancelRegistration_message => 'Progres pendaftaran Anda akan hilang. Yakin ingin kembali?';
+  String get auth_cancelRegistration_message =>
+      'Progres pendaftaran Anda akan hilang. Yakin ingin kembali?';
 
   @override
   String get btn_stay => 'Tetap';
@@ -1517,7 +1612,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_changePassword => 'Ubah Kata Sandi';
 
   @override
-  String get lbl_changePasswordDesc => 'Perbarui kata sandi Anda secara berkala untuk keamanan';
+  String get lbl_changePasswordDesc =>
+      'Perbarui kata sandi Anda secara berkala untuk keamanan';
 
   @override
   String get lbl_signOutDesc => 'Keluar dari sesi Anda saat ini';
@@ -1526,13 +1622,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get desc_ruleActive => 'Aturan ini sedang aktif';
 
   @override
-  String get desc_ruleInactive => 'Aturan ini tidak aktif dan tidak akan diterapkan';
+  String get desc_ruleInactive =>
+      'Aturan ini tidak aktif dan tidak akan diterapkan';
 
   @override
-  String get desc_activityTypeFilter => 'Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan jenis yang dipilih.';
+  String get desc_activityTypeFilter =>
+      'Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan jenis yang dipilih.';
 
   @override
-  String get desc_financialFilter => 'Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan data keuangan yang sesuai.';
+  String get desc_financialFilter =>
+      'Jika diatur, aturan ini hanya berlaku untuk aktivitas dengan data keuangan yang sesuai.';
 
   @override
   String get section_basicInformation => 'Informasi Dasar';
@@ -1612,13 +1711,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_targetGroup => 'Kelompok Target';
 
   @override
-  String get publish_publishToColumnOnly_title => 'Publikasikan hanya ke kolom saya';
+  String get publish_publishToColumnOnly_title =>
+      'Publikasikan hanya ke kolom saya';
 
   @override
-  String get publish_publishToColumnOnly_subtitle => 'Hanya anggota di kolom Anda yang akan melihat kegiatan ini';
+  String get publish_publishToColumnOnly_subtitle =>
+      'Hanya anggota di kolom Anda yang akan melihat kegiatan ini';
 
   @override
-  String get publish_publishToColumnOnly_subtitleNoColumn => 'Anda belum terdaftar di kolom';
+  String get publish_publishToColumnOnly_subtitleNoColumn =>
+      'Anda belum terdaftar di kolom';
 
   @override
   String get lbl_general => 'Umum';
@@ -1630,7 +1732,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_locationSubtitle => 'Di mana kegiatan ini berlangsung?';
 
   @override
-  String get publish_hintLocationExample => 'contoh: Aula Gereja, Nama Tuan Rumah';
+  String get publish_hintLocationExample =>
+      'contoh: Aula Gereja, Nama Tuan Rumah';
 
   @override
   String get publish_lblLocationName => 'Nama Lokasi';
@@ -1639,7 +1742,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_pinOnMapOptional => 'Pin di Peta (opsional)';
 
   @override
-  String get publish_tapToSelectLocationOptional => 'Ketuk untuk memilih lokasi di peta (opsional)';
+  String get publish_tapToSelectLocationOptional =>
+      'Ketuk untuk memilih lokasi di peta (opsional)';
 
   @override
   String get publish_locationSelected => 'Lokasi Dipilih';
@@ -1648,7 +1752,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_scheduleSubtitle => 'Kapan kegiatan ini berlangsung?';
 
   @override
-  String get publish_hintAdditionalNotes => 'Detail lain yang perlu diketahui peserta';
+  String get publish_hintAdditionalNotes =>
+      'Detail lain yang perlu diketahui peserta';
 
   @override
   String get publish_eventSchedule => 'Jadwal Kegiatan';
@@ -1669,10 +1774,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_supportedFileTypes => 'JPG, PNG, PDF, DOC, DOCX';
 
   @override
-  String get publish_fillAllRequiredFields => 'Silakan isi semua kolom yang wajib';
+  String get publish_fillAllRequiredFields =>
+      'Silakan isi semua kolom yang wajib';
 
   @override
-  String get publish_financialRecordSubtitle => 'Opsional: Lampirkan pendapatan atau pengeluaran';
+  String get publish_financialRecordSubtitle =>
+      'Opsional: Lampirkan pendapatan atau pengeluaran';
 
   @override
   String get publish_addFinancialRecord => 'Tambah Catatan Keuangan';
@@ -1681,19 +1788,23 @@ class AppLocalizationsId extends AppLocalizations {
   String get publish_removeFinancialRecordTitle => 'Hapus Catatan Keuangan?';
 
   @override
-  String get publish_removeFinancialRecordContent => 'Apakah Anda yakin ingin menghapus catatan keuangan ini? Tindakan ini tidak dapat dibatalkan.';
+  String get publish_removeFinancialRecordContent =>
+      'Apakah Anda yakin ingin menghapus catatan keuangan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
-  String get publish_publishedNotice => 'Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.';
+  String get publish_publishedNotice =>
+      'Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.';
 
   @override
   String get publish_publishedByYou => 'Dipublikasikan oleh Anda';
 
   @override
-  String get publish_noPublishedActivities => 'Tidak ada kegiatan yang dipublikasikan';
+  String get publish_noPublishedActivities =>
+      'Tidak ada kegiatan yang dipublikasikan';
 
   @override
-  String get publish_noPublishedActivitiesSubtitle => 'Mulai publikasikan kegiatan untuk melihatnya di sini';
+  String get publish_noPublishedActivitiesSubtitle =>
+      'Mulai publikasikan kegiatan untuk melihatnya di sini';
 
   @override
   String get churchRequest_title => 'Ajukan Pendaftaran Gereja';
@@ -1705,16 +1816,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get churchRequest_status_onProgress => 'Sedang Diproses';
 
   @override
-  String get churchRequest_statusMessage_onReview => 'Permintaan Anda sedang ditinjau dan akan segera diproses.';
+  String get churchRequest_statusMessage_onReview =>
+      'Permintaan Anda sedang ditinjau dan akan segera diproses.';
 
   @override
-  String get churchRequest_statusMessage_onProgress => 'Permintaan Anda sedang diproses.';
+  String get churchRequest_statusMessage_onProgress =>
+      'Permintaan Anda sedang diproses.';
 
   @override
-  String get churchRequest_statusMessage_completed => 'Gereja Anda telah terdaftar! Anda sekarang dapat memilihnya saat mengubah data keanggotaan.';
+  String get churchRequest_statusMessage_completed =>
+      'Gereja Anda telah terdaftar! Anda sekarang dapat memilihnya saat mengubah data keanggotaan.';
 
   @override
-  String get churchRequest_description => 'Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem.';
+  String get churchRequest_description =>
+      'Isi detail di bawah ini untuk mengajukan pendaftaran gereja Anda. Kami akan meninjau dan menambahkannya ke sistem.';
 
   @override
   String get churchRequest_requesterInformation => 'Informasi Pemohon';
@@ -1723,7 +1838,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get churchRequest_churchInformation => 'Informasi Gereja';
 
   @override
-  String get churchRequest_hintEnterContactPersonName => 'Masukkan nama narahubung';
+  String get churchRequest_hintEnterContactPersonName =>
+      'Masukkan nama narahubung';
 
   @override
   String get churchRequest_hintPhoneExample => '0812-3456-7890';
@@ -1735,16 +1851,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get churchRequest_submitRequest => 'Kirim Permintaan';
 
   @override
-  String get churchRequest_fixErrorsBeforeSubmitting => 'Silakan perbaiki kesalahan di atas sebelum mengirim';
+  String get churchRequest_fixErrorsBeforeSubmitting =>
+      'Silakan perbaiki kesalahan di atas sebelum mengirim';
 
   @override
-  String get churchRequest_fillAllRequiredFieldsCorrectly => 'Silakan isi semua kolom wajib dengan benar';
+  String get churchRequest_fillAllRequiredFieldsCorrectly =>
+      'Silakan isi semua kolom wajib dengan benar';
 
   @override
-  String get churchRequest_submittedSuccessfully => 'Permohonan pendaftaran gereja berhasil dikirim!';
+  String get churchRequest_submittedSuccessfully =>
+      'Permohonan pendaftaran gereja berhasil dikirim!';
 
   @override
-  String get churchRequest_validation_completeAddress => 'Silakan masukkan alamat lengkap';
+  String get churchRequest_validation_completeAddress =>
+      'Silakan masukkan alamat lengkap';
 
   @override
   String churchRequest_validation_phoneMinDigits(int min) {
@@ -1757,7 +1877,8 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get churchRequest_validation_phoneMustStartWithZero => 'Nomor telepon harus diawali 0';
+  String get churchRequest_validation_phoneMustStartWithZero =>
+      'Nomor telepon harus diawali 0';
 
   @override
   String churchRequest_errorWithDetail(String error) {
@@ -1774,7 +1895,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_enterEmailAddress => 'Masukkan alamat email';
 
   @override
-  String get hint_describeYourChurch => 'Deskripsikan gereja Anda (terlihat oleh anggota)';
+  String get hint_describeYourChurch =>
+      'Deskripsikan gereja Anda (terlihat oleh anggota)';
 
   @override
   String get hint_enterChurchAddress => 'Masukkan alamat gereja';
@@ -1828,7 +1950,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_approvalRuleExample => 'contoh: Transaksi Keuangan';
 
   @override
-  String get hint_describeApprovalRule => 'Deskripsikan kapan persetujuan ini diperlukan';
+  String get hint_describeApprovalRule =>
+      'Deskripsikan kapan persetujuan ini diperlukan';
 
   @override
   String get hint_allActivityTypes => 'Semua jenis kegiatan';
@@ -1837,10 +1960,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_noFinancialFilter => 'Tanpa filter keuangan';
 
   @override
-  String get hint_selectPositionsToApprove => 'Pilih jabatan untuk menyetujui...';
+  String get hint_selectPositionsToApprove =>
+      'Pilih jabatan untuk menyetujui...';
 
   @override
-  String get hint_signInCredentials => 'contoh: nama@perusahaan.com atau 1234-5678-9012';
+  String get hint_signInCredentials =>
+      'contoh: nama@perusahaan.com atau 1234-5678-9012';
 
   @override
   String get hint_searchApprovalRules => 'Cari aturan persetujuan...';
@@ -1849,7 +1974,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_searchBillingItems => 'Cari item tagihan...';
 
   @override
-  String get hint_searchByAccountNumber => 'Cari berdasarkan nomor akun, judul kegiatan...';
+  String get hint_searchByAccountNumber =>
+      'Cari berdasarkan nomor akun, judul kegiatan...';
 
   @override
   String get hint_searchByReportName => 'Cari berdasarkan nama laporan...';
@@ -1858,10 +1984,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_searchNameColumnPosition => 'Cari nama / kolom / jabatan ...';
 
   @override
-  String get hint_searchByTitleDescription => 'Cari berdasarkan judul, deskripsi, atau nama supervisor ...';
+  String get hint_searchByTitleDescription =>
+      'Cari berdasarkan judul, deskripsi, atau nama supervisor ...';
 
   @override
-  String get hint_searchAccountNumberDescription => 'Cari nomor akun atau deskripsi...';
+  String get hint_searchAccountNumberDescription =>
+      'Cari nomor akun atau deskripsi...';
 
   @override
   String get dlg_selectPosition_title => 'Pilih Jabatan';
@@ -2047,13 +2175,24 @@ class AppLocalizationsId extends AppLocalizations {
   String get billingStatus_refunded => 'Dikembalikan';
 
   @override
-  String get reportType_incomingDocument => 'Dokumen Masuk';
+  String get reportType_incomingDocument => 'Dokumen';
 
   @override
-  String get reportTitle_incomingDocument => 'Laporan Dokumen Masuk';
+  String get reportTitle_incomingDocument => 'Laporan Dokumen';
 
   @override
-  String get reportDesc_incomingDocument => 'Buat laporan untuk dokumen yang diterima.';
+  String get reportDesc_incomingDocument =>
+      'Buat laporan untuk dokumen yang diterima.';
+
+  @override
+  String get reportType_outcomingDocument => 'Dokumen Keluar';
+
+  @override
+  String get reportTitle_outcomingDocument => 'Laporan Dokumen Keluar';
+
+  @override
+  String get reportDesc_outcomingDocument =>
+      'Buat laporan untuk dokumen yang dikirim.';
 
   @override
   String get reportType_congregation => 'Jemaat';
@@ -2128,25 +2267,29 @@ class AppLocalizationsId extends AppLocalizations {
   String get dlg_deleteRule_title => 'Hapus Aturan';
 
   @override
-  String get dlg_deleteRule_content => 'Apakah Anda yakin ingin menghapus aturan persetujuan ini?';
+  String get dlg_deleteRule_content =>
+      'Apakah Anda yakin ingin menghapus aturan persetujuan ini?';
 
   @override
   String get dlg_deleteMember_title => 'Hapus Anggota';
 
   @override
-  String get dlg_deleteMember_content => 'Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.';
+  String get dlg_deleteMember_content =>
+      'Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get dlg_deletePosition_title => 'Hapus Jabatan';
 
   @override
-  String get dlg_deletePosition_content => 'Apakah Anda yakin ingin menghapus jabatan ini? Tindakan ini tidak dapat dibatalkan.';
+  String get dlg_deletePosition_content =>
+      'Apakah Anda yakin ingin menghapus jabatan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get dlg_deleteColumn_title => 'Hapus Kolom';
 
   @override
-  String get dlg_deleteColumn_content => 'Apakah Anda yakin ingin menghapus kolom ini? Tindakan ini tidak dapat dibatalkan.';
+  String get dlg_deleteColumn_content =>
+      'Apakah Anda yakin ingin menghapus kolom ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get dlg_signOut_title => 'Keluar';
@@ -2272,7 +2415,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_approvalRuleCreated => 'Aturan persetujuan berhasil dibuat';
 
   @override
-  String get msg_approvalRuleUpdated => 'Aturan persetujuan berhasil diperbarui';
+  String get msg_approvalRuleUpdated =>
+      'Aturan persetujuan berhasil diperbarui';
 
   @override
   String get msg_approvalRuleDeleted => 'Aturan persetujuan berhasil dihapus';
@@ -2284,7 +2428,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_templateUpdated => 'Template berhasil diperbarui';
 
   @override
-  String get msg_documentTemplateWarning => 'Mengubah template nomor identitas dapat menyebabkan beberapa nomor terlewati.';
+  String get msg_documentTemplateWarning =>
+      'Mengubah template nomor identitas dapat menyebabkan beberapa nomor terlewati.';
 
   @override
   String get msg_reportGenerated => 'Laporan berhasil dibuat';
@@ -2342,7 +2487,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_exportComingSoon => 'Fitur ekspor akan segera hadir';
 
   @override
-  String get msg_downloadReportToViewDetails => 'Untuk melihat detail laporan lengkap, silakan unduh file.';
+  String get msg_downloadReportToViewDetails =>
+      'Untuk melihat detail laporan lengkap, silakan unduh file.';
 
   @override
   String msg_willBeRemindedAt(String reminderDate) {
@@ -2366,7 +2512,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_cannotOpenReportFile => 'Tidak dapat membuka file laporan.';
 
   @override
-  String get msg_reportGenerationMayTakeAWhile => 'Pembuatan laporan mungkin membutuhkan waktu, tergantung data yang diminta.';
+  String get msg_reportGenerationMayTakeAWhile =>
+      'Pembuatan laporan mungkin membutuhkan waktu, tergantung data yang diminta.';
 
   @override
   String get msg_saveFailed => 'Gagal menyimpan';
@@ -2384,10 +2531,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_createApprovalRuleFailed => 'Gagal membuat aturan persetujuan';
 
   @override
-  String get msg_updateApprovalRuleFailed => 'Gagal memperbarui aturan persetujuan';
+  String get msg_updateApprovalRuleFailed =>
+      'Gagal memperbarui aturan persetujuan';
 
   @override
-  String get msg_deleteApprovalRuleFailed => 'Gagal menghapus aturan persetujuan';
+  String get msg_deleteApprovalRuleFailed =>
+      'Gagal menghapus aturan persetujuan';
 
   @override
   String get msg_recordPaymentFailed => 'Gagal mencatat pembayaran';
@@ -2444,7 +2593,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get unauthorized_signInRequired_title => 'Perlu masuk';
 
   @override
-  String get unauthorized_signInRequired_message => 'Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.';
+  String get unauthorized_signInRequired_message =>
+      'Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.';
 
   @override
   String get msg_insufficientPermissions => 'Izin tidak mencukupi';
@@ -2474,10 +2624,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get validation_requiredField => 'Kolom ini wajib diisi';
 
   @override
-  String get validation_invalidEmail => 'Silakan masukkan alamat email yang valid';
+  String get validation_invalidEmail =>
+      'Silakan masukkan alamat email yang valid';
 
   @override
-  String get validation_invalidPhone => 'Silakan masukkan nomor telepon yang valid';
+  String get validation_invalidPhone =>
+      'Silakan masukkan nomor telepon yang valid';
 
   @override
   String get validation_invalidUrl => 'Silakan masukkan URL yang valid';
@@ -2502,10 +2654,12 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get validation_passwordTooShort => 'Kata sandi harus minimal 6 karakter';
+  String get validation_passwordTooShort =>
+      'Kata sandi harus minimal 6 karakter';
 
   @override
-  String get validation_passwordTooWeak => 'Kata sandi harus mengandung minimal satu huruf besar, satu huruf kecil, dan satu angka';
+  String get validation_passwordTooWeak =>
+      'Kata sandi harus mengandung minimal satu huruf besar, satu huruf kecil, dan satu angka';
 
   @override
   String get validation_passwordMismatch => 'Kata sandi tidak cocok';
@@ -2514,7 +2668,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get validation_confirmPassword => 'Silakan konfirmasi kata sandi Anda';
 
   @override
-  String get validation_currentPasswordRequired => 'Kata sandi saat ini diperlukan';
+  String get validation_currentPasswordRequired =>
+      'Kata sandi saat ini diperlukan';
 
   @override
   String get validation_newPasswordRequired => 'Kata sandi baru diperlukan';
@@ -2529,7 +2684,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get validation_amountTooHigh => 'Jumlah melebihi batas maksimum';
 
   @override
-  String get validation_invalidAccountNumber => 'Silakan masukkan nomor akun yang valid';
+  String get validation_invalidAccountNumber =>
+      'Silakan masukkan nomor akun yang valid';
 
   @override
   String get validation_accountNumberExists => 'Nomor akun ini sudah ada';
@@ -2583,10 +2739,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get validation_ruleNameRequired => 'Nama aturan diperlukan';
 
   @override
-  String get validation_positionsRequired => 'Minimal satu posisi harus dipilih';
+  String get validation_positionsRequired =>
+      'Minimal satu posisi harus dipilih';
 
   @override
-  String get validation_financialAccountRequired => 'Nomor akun keuangan diperlukan ketika jenis keuangan dipilih';
+  String get validation_financialAccountRequired =>
+      'Nomor akun keuangan diperlukan ketika jenis keuangan dipilih';
 
   @override
   String get validation_duplicateEntry => 'Entri ini sudah ada';
@@ -2604,7 +2762,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get validation_invalidRange => 'Rentang tanggal tidak valid';
 
   @override
-  String get validation_startDateAfterEnd => 'Tanggal mulai harus sebelum tanggal akhir';
+  String get validation_startDateAfterEnd =>
+      'Tanggal mulai harus sebelum tanggal akhir';
 
   @override
   String get validation_coordinatesRequired => 'Koordinat diperlukan';
@@ -2697,7 +2856,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get error_loadingAccount => 'Gagal memuat informasi akun';
 
   @override
-  String get error_connectionFailed => 'Koneksi gagal. Periksa koneksi internet Anda.';
+  String get error_connectionFailed =>
+      'Koneksi gagal. Periksa koneksi internet Anda.';
 
   @override
   String get error_timeout => 'Permintaan timeout. Silakan coba lagi.';
@@ -2742,7 +2902,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get noData_results => 'Tidak ada hasil ditemukan';
 
   @override
-  String get noData_matchingCriteria => 'Tidak ada data yang sesuai dengan kriteria pencarian Anda';
+  String get noData_matchingCriteria =>
+      'Tidak ada data yang sesuai dengan kriteria pencarian Anda';
 
   @override
   String get noData_positions => 'Tidak ada posisi tersedia';
@@ -2825,5 +2986,6 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get dashboard_recentActivitiesEmpty => 'Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.';
+  String get dashboard_recentActivitiesEmpty =>
+      'Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.';
 }

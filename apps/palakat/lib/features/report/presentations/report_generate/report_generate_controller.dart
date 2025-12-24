@@ -193,8 +193,22 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
         type == ReportGenerateType.activity;
     final usesActivityType = type == ReportGenerateType.activity;
 
+    final isDocumentReport =
+        type == ReportGenerateType.incomingDocument ||
+        type == ReportGenerateType.outcomingDocument;
+    final wasDocumentReport =
+        state.reportType == ReportGenerateType.incomingDocument ||
+        state.reportType == ReportGenerateType.outcomingDocument;
+
+    final nextDocumentInput = isDocumentReport && !wasDocumentReport
+        ? (type == ReportGenerateType.outcomingDocument
+              ? DocumentInput.outcome
+              : DocumentInput.income)
+        : null;
+
     state = state.copyWith(
       reportType: type,
+      documentInput: nextDocumentInput,
       clearSelectedColumn: !usesColumn,
       clearActivityType: !usesActivityType,
       clearErrorMessage: true,
@@ -279,7 +293,9 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
       final generateResult = await repo.generateReportTyped(
         type: state.reportType,
         format: state.format,
-        input: state.reportType == ReportGenerateType.incomingDocument
+        input:
+            state.reportType == ReportGenerateType.incomingDocument ||
+                state.reportType == ReportGenerateType.outcomingDocument
             ? state.documentInput
             : null,
         congregationSubtype: state.reportType == ReportGenerateType.congregation

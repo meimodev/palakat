@@ -50,6 +50,10 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
   void initState() {
     super.initState();
     // Default to today to avoid accidentally querying all data
+
+    if (widget.reportType == 'OUTCOMING_DOCUMENT') {
+      _documentInput = DocumentInput.outcome;
+    }
   }
 
   DateTimeRange? _getEffectiveDateRange() {
@@ -82,7 +86,10 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
         await widget.onGenerate!(
           effectiveRange,
           _format,
-          widget.reportType == 'INCOMING_DOCUMENT' ? _documentInput : null,
+          widget.reportType == 'INCOMING_DOCUMENT' ||
+                  widget.reportType == 'OUTCOMING_DOCUMENT'
+              ? _documentInput
+              : null,
           widget.reportType == 'CONGREGATION' ? _congregationSubtype : null,
           includeColumn ? _selectedColumn?.id : null,
           widget.reportType == 'ACTIVITY' ? _activityType : null,
@@ -112,7 +119,9 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
     final churchState = ref.watch(churchControllerProvider);
     final availableColumns = churchState.columns.value ?? const <cm.Column>[];
 
-    final showDocumentInput = widget.reportType == 'INCOMING_DOCUMENT';
+    final showDocumentInput =
+        widget.reportType == 'INCOMING_DOCUMENT' ||
+        widget.reportType == 'OUTCOMING_DOCUMENT';
     final showCongregationSubtype = widget.reportType == 'CONGREGATION';
     final showColumnDropdown =
         widget.reportType == 'CONGREGATION' || widget.reportType == 'ACTIVITY';

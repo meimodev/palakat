@@ -167,6 +167,7 @@ export type GeneratedBy = (typeof GeneratedBy)[keyof typeof GeneratedBy]
 
 export const ReportGenerateType = {
   INCOMING_DOCUMENT: 'INCOMING_DOCUMENT',
+  OUTCOMING_DOCUMENT: 'OUTCOMING_DOCUMENT',
   CONGREGATION: 'CONGREGATION',
   SERVICES: 'SERVICES',
   ACTIVITY: 'ACTIVITY',

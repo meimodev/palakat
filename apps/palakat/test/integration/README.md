@@ -192,6 +192,47 @@ While automated tests cover most scenarios, some flows require manual testing:
 - [ ] New user navigates to registration screen
 - [ ] Registration completes and user is signed in
 
+### Report Generation & Download
+
+- [ ] Open Report Generate screen (Admin and Mobile)
+- [ ] Generate **INCOMING_DOCUMENT** report:
+  - [ ] PDF
+  - [ ] XLSX
+  - [ ] DocumentInput = INCOME
+  - [ ] DocumentInput = OUTCOME
+- [ ] Generate **OUTCOMING_DOCUMENT** report:
+  - [ ] PDF
+  - [ ] XLSX
+  - [ ] DocumentInput = INCOME
+  - [ ] DocumentInput = OUTCOME
+- [ ] Generate **CONGREGATION** report:
+  - [ ] Warta Jemaat (bulletin)
+  - [ ] HUT Jemaat (table)
+  - [ ] Keanggotaan (table)
+  - [ ] PDF
+  - [ ] XLSX
+- [ ] Generate **ACTIVITY** report:
+  - [ ] All activity types
+  - [ ] Service only
+  - [ ] Announcement only
+  - [ ] Event only
+  - [ ] With column filter
+  - [ ] Without column filter
+  - [ ] PDF
+  - [ ] XLSX
+- [ ] Generate **FINANCIAL** report:
+  - [ ] Revenue (table)
+  - [ ] Expense (table)
+  - [ ] Mutation (cash position + mutation ledger)
+  - [ ] PDF
+  - [ ] XLSX
+- [ ] Validate downloaded/opened file:
+  - [ ] File opens successfully via external viewer
+  - [ ] Title/letterhead is present
+  - [ ] Date range matches the selected range
+  - [ ] Table headers match the expected layout
+  - [ ] Mutation report shows cash position (opening/in/out/closing) and distinct mutation sections (revenue/expense/other)
+
 ### Error Scenarios
 
 - [ ] Invalid phone number shows error

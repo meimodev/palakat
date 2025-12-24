@@ -41,7 +41,8 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
     final state = ref.watch(reportGenerateControllerProvider);
 
     final showDocumentInput =
-        state.reportType == ReportGenerateType.incomingDocument;
+        state.reportType == ReportGenerateType.incomingDocument ||
+        state.reportType == ReportGenerateType.outcomingDocument;
     final showCongregationSubtype =
         state.reportType == ReportGenerateType.congregation;
     final showColumn =
@@ -170,6 +171,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
             currentInputValue: state.reportType,
             options: const [
               ReportGenerateType.incomingDocument,
+              ReportGenerateType.outcomingDocument,
               ReportGenerateType.congregation,
               ReportGenerateType.activity,
               ReportGenerateType.financial,
@@ -182,6 +184,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
                 title: l10n.lbl_reportType,
                 options: const [
                   ReportGenerateType.incomingDocument,
+                  ReportGenerateType.outcomingDocument,
                   ReportGenerateType.congregation,
                   ReportGenerateType.activity,
                   ReportGenerateType.financial,
@@ -376,6 +379,8 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
     switch (t) {
       case ReportGenerateType.incomingDocument:
         return l10n.reportType_incomingDocument;
+      case ReportGenerateType.outcomingDocument:
+        return l10n.reportType_outcomingDocument;
       case ReportGenerateType.congregation:
         return l10n.reportType_congregation;
       case ReportGenerateType.activity:

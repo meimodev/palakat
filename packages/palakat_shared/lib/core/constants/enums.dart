@@ -247,6 +247,8 @@ enum FinancialReportSubtype {
 enum ReportGenerateType {
   @JsonValue('INCOMING_DOCUMENT')
   incomingDocument,
+  @JsonValue('OUTCOMING_DOCUMENT')
+  outcomingDocument,
   @JsonValue('CONGREGATION')
   congregation,
   @JsonValue('SERVICES')

@@ -2457,17 +2457,29 @@
     "description": "Billing status label for refunded"
   },
 
-  "reportType_incomingDocument": "Dokumen Masuk",
+  "reportType_incomingDocument": "Dokumen",
   "@reportType_incomingDocument": {
     "description": "Generate report card title for incoming document"
   },
-  "reportTitle_incomingDocument": "Laporan Dokumen Masuk",
+  "reportTitle_incomingDocument": "Laporan Dokumen",
   "@reportTitle_incomingDocument": {
     "description": "Report drawer title for incoming document report"
   },
   "reportDesc_incomingDocument": "Buat laporan untuk dokumen yang diterima.",
   "@reportDesc_incomingDocument": {
     "description": "Report drawer description for incoming document report"
+  },
+  "reportType_outcomingDocument": "Dokumen Keluar",
+  "@reportType_outcomingDocument": {
+    "description": "Generate report card title for outcoming document"
+  },
+  "reportTitle_outcomingDocument": "Laporan Dokumen Keluar",
+  "@reportTitle_outcomingDocument": {
+    "description": "Report drawer title for outcoming document report"
+  },
+  "reportDesc_outcomingDocument": "Buat laporan untuk dokumen yang dikirim.",
+  "@reportDesc_outcomingDocument": {
+    "description": "Report drawer description for outcoming document report"
   },
   "reportType_congregation": "Jemaat",
   "@reportType_congregation": {

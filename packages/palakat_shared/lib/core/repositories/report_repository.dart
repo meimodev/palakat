@@ -51,6 +51,8 @@ class ReportRepository {
     switch (type) {
       case ReportGenerateType.incomingDocument:
         return 'INCOMING_DOCUMENT';
+      case ReportGenerateType.outcomingDocument:
+        return 'OUTCOMING_DOCUMENT';
       case ReportGenerateType.congregation:
         return 'CONGREGATION';
       case ReportGenerateType.services:

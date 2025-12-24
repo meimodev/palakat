@@ -415,6 +415,7 @@ enum GeneratedBy {
 
 enum ReportGenerateType {
   INCOMING_DOCUMENT
+  OUTCOMING_DOCUMENT
   CONGREGATION
   SERVICES
   ACTIVITY

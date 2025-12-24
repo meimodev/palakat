@@ -15,7 +15,10 @@ final operationsRouting = GoRoute(
       builder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.reportType] as ReportGenerateType?;
-        return ReportGenerateScreen(initialReportType: type);
+        final normalizedType = type == ReportGenerateType.outcomingDocument
+            ? ReportGenerateType.incomingDocument
+            : type;
+        return ReportGenerateScreen(initialReportType: normalizedType);
       },
     ),
     GoRoute(
