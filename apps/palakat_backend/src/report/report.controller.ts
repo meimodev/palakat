@@ -12,19 +12,39 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
+import { ReportQueueService } from './report-queue.service';
 import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { ReportListQueryDto } from './dto/report-list.dto';
 import { ReportGenerateDto } from './dto/report-generate.dto';
+import { ReportJobListQueryDto } from './dto/report-job-list.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('report')
 export class ReportController {
-  constructor(private readonly reportService: ReportService) {}
+  constructor(
+    private readonly reportService: ReportService,
+    private readonly reportQueueService: ReportQueueService,
+  ) {}
 
   @Get()
   async getReports(@Query() query: ReportListQueryDto, @Req() req: any) {
     return this.reportService.getReports(query, req.user);
+  }
+
+  @Get('jobs')
+  async getMyJobs(@Query() query: ReportJobListQueryDto, @Req() req: any) {
+    return this.reportQueueService.getMyJobs(query, req.user);
+  }
+
+  @Get('jobs/:id')
+  async getJobStatus(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.reportQueueService.getJobStatus(id, req.user);
+  }
+
+  @Delete('jobs/:id')
+  async cancelJob(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.reportQueueService.cancelJob(id, req.user);
   }
 
   @Get(':id')
@@ -44,7 +64,7 @@ export class ReportController {
 
   @Post('generate')
   async generate(@Body() dto: ReportGenerateDto, @Req() req: any) {
-    return this.reportService.generate(dto, req.user);
+    return this.reportQueueService.createJob(dto, req.user);
   }
 
   @Patch(':id')

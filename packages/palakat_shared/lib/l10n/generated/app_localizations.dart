@@ -2204,6 +2204,12 @@ abstract class AppLocalizations {
   /// **'Report History'**
   String get card_reportHistory_title;
 
+  /// No description provided for @card_pendingJobs_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating Reports'**
+  String get card_pendingJobs_title;
+
   /// No description provided for @card_paymentInfo_title.
   ///
   /// In en, this message translates to:
@@ -5551,6 +5557,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent transactions and member updates will be shown here.'**
   String get dashboard_recentActivitiesEmpty;
+
+  /// No description provided for @msg_reportQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report is being generated. You\'ll be notified when it\'s ready.'**
+  String get msg_reportQueued;
+
+  /// No description provided for @msg_reportQueuedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Report queued'**
+  String get msg_reportQueuedShort;
+
+  /// No description provided for @msg_reportReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report is ready for download!'**
+  String get msg_reportReady;
+
+  /// No description provided for @msg_reportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Report generation failed. Please try again.'**
+  String get msg_reportFailed;
+
+  /// No description provided for @msg_tapToDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to download'**
+  String get msg_tapToDownload;
+
+  /// No description provided for @lbl_pendingReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Reports'**
+  String get lbl_pendingReports;
+
+  /// No description provided for @lbl_reportJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Jobs'**
+  String get lbl_reportJobs;
+
+  /// No description provided for @lbl_noActiveJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'No active report jobs'**
+  String get lbl_noActiveJobs;
+
+  /// No description provided for @lbl_estimatedTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated time: {time}'**
+  String lbl_estimatedTime(String time);
+
+  /// No description provided for @jobStatus_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued'**
+  String get jobStatus_pending;
+
+  /// No description provided for @jobStatus_processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating...'**
+  String get jobStatus_processing;
+
+  /// No description provided for @jobStatus_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get jobStatus_completed;
+
+  /// No description provided for @jobStatus_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get jobStatus_failed;
+
+  /// No description provided for @notificationType_reportReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Ready'**
+  String get notificationType_reportReady;
+
+  /// No description provided for @notificationType_reportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Failed'**
+  String get notificationType_reportFailed;
 }
 
 class _AppLocalizationsDelegate

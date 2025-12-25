@@ -311,7 +311,14 @@ export class ReportService {
 
   async generate(dto: ReportGenerateDto, user?: any) {
     const churchId = await this.resolveRequesterChurchId(user);
+    return this.generateInternal(dto, user?.userId, churchId);
+  }
 
+  async generateInternal(
+    dto: ReportGenerateDto,
+    userId: number,
+    churchId: number,
+  ) {
     const type = dto.type;
     const format = dto.format ?? ReportFormat.PDF;
     const startDate = dto.startDate;
@@ -1274,8 +1281,6 @@ export class ReportService {
         ? (params as Prisma.InputJsonValue)
         : undefined;
     })();
-
-    const userId = user?.userId;
 
     const report = await this.prisma.report.create({
       data: {

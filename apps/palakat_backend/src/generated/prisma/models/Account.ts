@@ -331,6 +331,7 @@ export type AccountWhereInput = {
   articleLikes?: Prisma.ArticleLikeListRelationFilter
   cashMutationsCreated?: Prisma.CashMutationListRelationFilter
   reportsCreated?: Prisma.ReportListRelationFilter
+  reportJobsRequested?: Prisma.ReportJobListRelationFilter
 }
 
 export type AccountOrderByWithRelationInput = {
@@ -359,6 +360,7 @@ export type AccountOrderByWithRelationInput = {
   articleLikes?: Prisma.ArticleLikeOrderByRelationAggregateInput
   cashMutationsCreated?: Prisma.CashMutationOrderByRelationAggregateInput
   reportsCreated?: Prisma.ReportOrderByRelationAggregateInput
+  reportJobsRequested?: Prisma.ReportJobOrderByRelationAggregateInput
 }
 
 export type AccountWhereUniqueInput = Prisma.AtLeast<{
@@ -390,6 +392,7 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   articleLikes?: Prisma.ArticleLikeListRelationFilter
   cashMutationsCreated?: Prisma.CashMutationListRelationFilter
   reportsCreated?: Prisma.ReportListRelationFilter
+  reportJobsRequested?: Prisma.ReportJobListRelationFilter
 }, "id" | "phone" | "email">
 
 export type AccountOrderByWithAggregationInput = {
@@ -467,6 +470,7 @@ export type AccountCreateInput = {
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateInput = {
@@ -495,6 +499,7 @@ export type AccountUncheckedCreateInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUpdateInput = {
@@ -522,6 +527,7 @@ export type AccountUpdateInput = {
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateInput = {
@@ -550,6 +556,7 @@ export type AccountUncheckedUpdateInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateManyInput = {
@@ -819,6 +826,20 @@ export type AccountUpdateOneRequiredWithoutArticleLikesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutArticleLikesInput, Prisma.AccountUpdateWithoutArticleLikesInput>, Prisma.AccountUncheckedUpdateWithoutArticleLikesInput>
 }
 
+export type AccountCreateNestedOneWithoutReportJobsRequestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedCreateWithoutReportJobsRequestedInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReportJobsRequestedInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneRequiredWithoutReportJobsRequestedNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedCreateWithoutReportJobsRequestedInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReportJobsRequestedInput
+  upsert?: Prisma.AccountUpsertWithoutReportJobsRequestedInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutReportJobsRequestedInput, Prisma.AccountUpdateWithoutReportJobsRequestedInput>, Prisma.AccountUncheckedUpdateWithoutReportJobsRequestedInput>
+}
+
 export type AccountCreateWithoutMembershipInput = {
   name: string
   phone: string
@@ -843,6 +864,7 @@ export type AccountCreateWithoutMembershipInput = {
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutMembershipInput = {
@@ -870,6 +892,7 @@ export type AccountUncheckedCreateWithoutMembershipInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutMembershipInput = {
@@ -912,6 +935,7 @@ export type AccountUpdateWithoutMembershipInput = {
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutMembershipInput = {
@@ -939,6 +963,7 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateWithoutCashMutationsCreatedInput = {
@@ -965,6 +990,7 @@ export type AccountCreateWithoutCashMutationsCreatedInput = {
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutCashMutationsCreatedInput = {
@@ -992,6 +1018,7 @@ export type AccountUncheckedCreateWithoutCashMutationsCreatedInput = {
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutCashMutationsCreatedInput = {
@@ -1034,6 +1061,7 @@ export type AccountUpdateWithoutCashMutationsCreatedInput = {
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
@@ -1061,6 +1089,7 @@ export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateWithoutReportsCreatedInput = {
@@ -1087,6 +1116,7 @@ export type AccountCreateWithoutReportsCreatedInput = {
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutReportsCreatedInput = {
@@ -1114,6 +1144,7 @@ export type AccountUncheckedCreateWithoutReportsCreatedInput = {
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutReportsCreatedInput = {
@@ -1156,6 +1187,7 @@ export type AccountUpdateWithoutReportsCreatedInput = {
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
@@ -1183,6 +1215,7 @@ export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateWithoutReviewedChurchRequestsInput = {
@@ -1209,6 +1242,7 @@ export type AccountCreateWithoutReviewedChurchRequestsInput = {
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
@@ -1236,6 +1270,7 @@ export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutReviewedChurchRequestsInput = {
@@ -1267,6 +1302,7 @@ export type AccountCreateWithoutChurchRequestInput = {
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutChurchRequestInput = {
@@ -1294,6 +1330,7 @@ export type AccountUncheckedCreateWithoutChurchRequestInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutChurchRequestInput = {
@@ -1336,6 +1373,7 @@ export type AccountUpdateWithoutReviewedChurchRequestsInput = {
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
@@ -1363,6 +1401,7 @@ export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUpsertWithoutChurchRequestInput = {
@@ -1400,6 +1439,7 @@ export type AccountUpdateWithoutChurchRequestInput = {
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutChurchRequestInput = {
@@ -1427,6 +1467,7 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateWithoutArticlesInput = {
@@ -1453,6 +1494,7 @@ export type AccountCreateWithoutArticlesInput = {
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutArticlesInput = {
@@ -1480,6 +1522,7 @@ export type AccountUncheckedCreateWithoutArticlesInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutArticlesInput = {
@@ -1522,6 +1565,7 @@ export type AccountUpdateWithoutArticlesInput = {
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutArticlesInput = {
@@ -1549,6 +1593,7 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountCreateWithoutArticleLikesInput = {
@@ -1575,6 +1620,7 @@ export type AccountCreateWithoutArticleLikesInput = {
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountUncheckedCreateWithoutArticleLikesInput = {
@@ -1602,6 +1648,7 @@ export type AccountUncheckedCreateWithoutArticleLikesInput = {
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
 }
 
 export type AccountCreateOrConnectWithoutArticleLikesInput = {
@@ -1644,6 +1691,7 @@ export type AccountUpdateWithoutArticleLikesInput = {
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutArticleLikesInput = {
@@ -1671,6 +1719,133 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
+}
+
+export type AccountCreateWithoutReportJobsRequestedInput = {
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+}
+
+export type AccountUncheckedCreateWithoutReportJobsRequestedInput = {
+  id?: number
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type AccountCreateOrConnectWithoutReportJobsRequestedInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedCreateWithoutReportJobsRequestedInput>
+}
+
+export type AccountUpsertWithoutReportJobsRequestedInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedUpdateWithoutReportJobsRequestedInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedCreateWithoutReportJobsRequestedInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutReportJobsRequestedInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutReportJobsRequestedInput, Prisma.AccountUncheckedUpdateWithoutReportJobsRequestedInput>
+}
+
+export type AccountUpdateWithoutReportJobsRequestedInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutReportJobsRequestedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -1684,6 +1859,7 @@ export type AccountCountOutputType = {
   articleLikes: number
   cashMutationsCreated: number
   reportsCreated: number
+  reportJobsRequested: number
 }
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1692,6 +1868,7 @@ export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   articleLikes?: boolean | AccountCountOutputTypeCountArticleLikesArgs
   cashMutationsCreated?: boolean | AccountCountOutputTypeCountCashMutationsCreatedArgs
   reportsCreated?: boolean | AccountCountOutputTypeCountReportsCreatedArgs
+  reportJobsRequested?: boolean | AccountCountOutputTypeCountReportJobsRequestedArgs
 }
 
 /**
@@ -1739,6 +1916,13 @@ export type AccountCountOutputTypeCountReportsCreatedArgs<ExtArgs extends runtim
   where?: Prisma.ReportWhereInput
 }
 
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountReportJobsRequestedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReportJobWhereInput
+}
+
 
 export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1766,6 +1950,7 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   cashMutationsCreated?: boolean | Prisma.Account$cashMutationsCreatedArgs<ExtArgs>
   reportsCreated?: boolean | Prisma.Account$reportsCreatedArgs<ExtArgs>
+  reportJobsRequested?: boolean | Prisma.Account$reportJobsRequestedArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["account"]>
 
@@ -1841,6 +2026,7 @@ export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   cashMutationsCreated?: boolean | Prisma.Account$cashMutationsCreatedArgs<ExtArgs>
   reportsCreated?: boolean | Prisma.Account$reportsCreatedArgs<ExtArgs>
+  reportJobsRequested?: boolean | Prisma.Account$reportJobsRequestedArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1856,6 +2042,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     articleLikes: Prisma.$ArticleLikePayload<ExtArgs>[]
     cashMutationsCreated: Prisma.$CashMutationPayload<ExtArgs>[]
     reportsCreated: Prisma.$ReportPayload<ExtArgs>[]
+    reportJobsRequested: Prisma.$ReportJobPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2277,6 +2464,7 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
   articleLikes<T extends Prisma.Account$articleLikesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$articleLikesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticleLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cashMutationsCreated<T extends Prisma.Account$cashMutationsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$cashMutationsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashMutationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportsCreated<T extends Prisma.Account$reportsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$reportsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reportJobsRequested<T extends Prisma.Account$reportJobsRequestedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$reportJobsRequestedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2867,6 +3055,30 @@ export type Account$reportsCreatedArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ReportScalarFieldEnum | Prisma.ReportScalarFieldEnum[]
+}
+
+/**
+ * Account.reportJobsRequested
+ */
+export type Account$reportJobsRequestedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReportJob
+   */
+  select?: Prisma.ReportJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReportJob
+   */
+  omit?: Prisma.ReportJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReportJobInclude<ExtArgs> | null
+  where?: Prisma.ReportJobWhereInput
+  orderBy?: Prisma.ReportJobOrderByWithRelationInput | Prisma.ReportJobOrderByWithRelationInput[]
+  cursor?: Prisma.ReportJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReportJobScalarFieldEnum | Prisma.ReportJobScalarFieldEnum[]
 }
 
 /**

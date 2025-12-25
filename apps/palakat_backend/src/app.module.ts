@@ -1,5 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { HelperService } from '../common/helper/helper.service';
 import { AccountModule } from './account/account.module';
 import { ActivitiesModule } from './activity/activity.module';
@@ -34,6 +35,7 @@ import { FinanceModule } from './finance/finance.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     FirebaseModule,
     AuthModule,

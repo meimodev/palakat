@@ -168,6 +168,16 @@ export class PusherBeamsService {
   }
 
   /**
+   * Formats an account interest name for individual notifications.
+   *
+   * @param accountId - The account ID
+   * @returns Formatted interest name: account.{accountId}
+   */
+  formatAccountInterest(accountId: number): string {
+    return `account.${accountId}`;
+  }
+
+  /**
    * Formats a church-wide interest name.
    *
    * @param churchId - The church ID

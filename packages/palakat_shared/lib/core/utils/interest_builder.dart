@@ -36,12 +36,17 @@ class InterestBuilder {
   /// Pattern: membership.{membershipId}
   static String membership(int membershipId) => 'membership.$membershipId';
 
+  /// Format individual account interest
+  /// Pattern: account.{accountId}
+  static String account(int accountId) => 'account.$accountId';
+
   /// Build all applicable interests for a user based on their membership data
   ///
   /// Returns a list of interests including:
   /// - Global interest (palakat)
   /// - Church interest
   /// - Church BIPRA interest
+  /// - Account interest
   /// - Membership interest
   /// - Column interest (if columnId provided)
   /// - Column BIPRA interest (if columnId provided)
@@ -49,6 +54,7 @@ class InterestBuilder {
     required int membershipId,
     required int churchId,
     required String bipra,
+    required int accountId,
     int? columnId,
   }) {
     final interests = <String>[
@@ -57,6 +63,7 @@ class InterestBuilder {
       church(churchId),
       churchBipra(churchId, 'GENERAL'),
       churchBipra(churchId, bipra),
+      account(accountId),
       membership(membershipId),
     ];
 

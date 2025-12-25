@@ -275,6 +275,7 @@ export type ReportWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerScalarRelationFilter, Prisma.FileManagerWhereInput>
   createdBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  reportJob?: Prisma.XOR<Prisma.ReportJobNullableScalarRelationFilter, Prisma.ReportJobWhereInput> | null
 }
 
 export type ReportOrderByWithRelationInput = {
@@ -292,6 +293,7 @@ export type ReportOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
   createdBy?: Prisma.AccountOrderByWithRelationInput
+  reportJob?: Prisma.ReportJobOrderByWithRelationInput
 }
 
 export type ReportWhereUniqueInput = Prisma.AtLeast<{
@@ -312,6 +314,7 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerScalarRelationFilter, Prisma.FileManagerWhereInput>
   createdBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  reportJob?: Prisma.XOR<Prisma.ReportJobNullableScalarRelationFilter, Prisma.ReportJobWhereInput> | null
 }, "id" | "fileId">
 
 export type ReportOrderByWithAggregationInput = {
@@ -361,6 +364,7 @@ export type ReportCreateInput = {
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
+  reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
 }
 
 export type ReportUncheckedCreateInput = {
@@ -375,6 +379,7 @@ export type ReportUncheckedCreateInput = {
   churchId: number
   fileId: number
   createdById?: number | null
+  reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
 export type ReportUpdateInput = {
@@ -388,6 +393,7 @@ export type ReportUpdateInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
+  reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateInput = {
@@ -402,6 +408,7 @@ export type ReportUncheckedUpdateInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
 export type ReportCreateManyInput = {
@@ -639,6 +646,22 @@ export type EnumGeneratedByFieldUpdateOperationsInput = {
   set?: $Enums.GeneratedBy
 }
 
+export type ReportCreateNestedOneWithoutReportJobInput = {
+  create?: Prisma.XOR<Prisma.ReportCreateWithoutReportJobInput, Prisma.ReportUncheckedCreateWithoutReportJobInput>
+  connectOrCreate?: Prisma.ReportCreateOrConnectWithoutReportJobInput
+  connect?: Prisma.ReportWhereUniqueInput
+}
+
+export type ReportUpdateOneWithoutReportJobNestedInput = {
+  create?: Prisma.XOR<Prisma.ReportCreateWithoutReportJobInput, Prisma.ReportUncheckedCreateWithoutReportJobInput>
+  connectOrCreate?: Prisma.ReportCreateOrConnectWithoutReportJobInput
+  upsert?: Prisma.ReportUpsertWithoutReportJobInput
+  disconnect?: Prisma.ReportWhereInput | boolean
+  delete?: Prisma.ReportWhereInput | boolean
+  connect?: Prisma.ReportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReportUpdateToOneWithWhereWithoutReportJobInput, Prisma.ReportUpdateWithoutReportJobInput>, Prisma.ReportUncheckedUpdateWithoutReportJobInput>
+}
+
 export type ReportCreateWithoutChurchInput = {
   name: string
   type?: $Enums.ReportGenerateType
@@ -649,6 +672,7 @@ export type ReportCreateWithoutChurchInput = {
   updatedAt?: Date | string
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
+  reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
 }
 
 export type ReportUncheckedCreateWithoutChurchInput = {
@@ -662,6 +686,7 @@ export type ReportUncheckedCreateWithoutChurchInput = {
   updatedAt?: Date | string
   fileId: number
   createdById?: number | null
+  reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
 export type ReportCreateOrConnectWithoutChurchInput = {
@@ -717,6 +742,7 @@ export type ReportCreateWithoutCreatedByInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
+  reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
 }
 
 export type ReportUncheckedCreateWithoutCreatedByInput = {
@@ -730,6 +756,7 @@ export type ReportUncheckedCreateWithoutCreatedByInput = {
   updatedAt?: Date | string
   churchId: number
   fileId: number
+  reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
 export type ReportCreateOrConnectWithoutCreatedByInput = {
@@ -768,6 +795,7 @@ export type ReportCreateWithoutFileInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
+  reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
 }
 
 export type ReportUncheckedCreateWithoutFileInput = {
@@ -781,6 +809,7 @@ export type ReportUncheckedCreateWithoutFileInput = {
   updatedAt?: Date | string
   churchId: number
   createdById?: number | null
+  reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
 export type ReportCreateOrConnectWithoutFileInput = {
@@ -809,6 +838,7 @@ export type ReportUpdateWithoutFileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
+  reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateWithoutFileInput = {
@@ -821,6 +851,77 @@ export type ReportUncheckedUpdateWithoutFileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
+}
+
+export type ReportCreateWithoutReportJobInput = {
+  name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  generatedBy: $Enums.GeneratedBy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutReportsInput
+  file: Prisma.FileManagerCreateNestedOneWithoutReportInput
+  createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
+}
+
+export type ReportUncheckedCreateWithoutReportJobInput = {
+  id?: number
+  name: string
+  type?: $Enums.ReportGenerateType
+  format?: $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  generatedBy: $Enums.GeneratedBy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  churchId: number
+  fileId: number
+  createdById?: number | null
+}
+
+export type ReportCreateOrConnectWithoutReportJobInput = {
+  where: Prisma.ReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReportCreateWithoutReportJobInput, Prisma.ReportUncheckedCreateWithoutReportJobInput>
+}
+
+export type ReportUpsertWithoutReportJobInput = {
+  update: Prisma.XOR<Prisma.ReportUpdateWithoutReportJobInput, Prisma.ReportUncheckedUpdateWithoutReportJobInput>
+  create: Prisma.XOR<Prisma.ReportCreateWithoutReportJobInput, Prisma.ReportUncheckedCreateWithoutReportJobInput>
+  where?: Prisma.ReportWhereInput
+}
+
+export type ReportUpdateToOneWithWhereWithoutReportJobInput = {
+  where?: Prisma.ReportWhereInput
+  data: Prisma.XOR<Prisma.ReportUpdateWithoutReportJobInput, Prisma.ReportUncheckedUpdateWithoutReportJobInput>
+}
+
+export type ReportUpdateWithoutReportJobInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
+  file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
+  createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
+}
+
+export type ReportUncheckedUpdateWithoutReportJobInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumReportGenerateTypeFieldUpdateOperationsInput | $Enums.ReportGenerateType
+  format?: Prisma.EnumReportFormatFieldUpdateOperationsInput | $Enums.ReportFormat
+  params?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -847,6 +948,7 @@ export type ReportUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
+  reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateWithoutChurchInput = {
@@ -860,6 +962,7 @@ export type ReportUncheckedUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateManyWithoutChurchInput = {
@@ -898,6 +1001,7 @@ export type ReportUpdateWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
+  reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateWithoutCreatedByInput = {
@@ -911,6 +1015,7 @@ export type ReportUncheckedUpdateWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
+  reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateManyWithoutCreatedByInput = {
@@ -943,6 +1048,7 @@ export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.Report$createdByArgs<ExtArgs>
+  reportJob?: boolean | Prisma.Report$reportJobArgs<ExtArgs>
 }, ExtArgs["result"]["report"]>
 
 export type ReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -998,6 +1104,7 @@ export type ReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.Report$createdByArgs<ExtArgs>
+  reportJob?: boolean | Prisma.Report$reportJobArgs<ExtArgs>
 }
 export type ReportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
@@ -1016,6 +1123,7 @@ export type $ReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     church: Prisma.$ChurchPayload<ExtArgs>
     file: Prisma.$FileManagerPayload<ExtArgs>
     createdBy: Prisma.$AccountPayload<ExtArgs> | null
+    reportJob: Prisma.$ReportJobPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1426,6 +1534,7 @@ export interface Prisma__ReportClient<T, Null = never, ExtArgs extends runtime.T
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   file<T extends Prisma.FileManagerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileManagerDefaultArgs<ExtArgs>>): Prisma.Prisma__FileManagerClient<runtime.Types.Result.GetResult<Prisma.$FileManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.Report$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Report$createdByArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reportJob<T extends Prisma.Report$reportJobArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Report$reportJobArgs<ExtArgs>>): Prisma.Prisma__ReportJobClient<runtime.Types.Result.GetResult<Prisma.$ReportJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1878,6 +1987,25 @@ export type Report$createdByArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.AccountInclude<ExtArgs> | null
   where?: Prisma.AccountWhereInput
+}
+
+/**
+ * Report.reportJob
+ */
+export type Report$reportJobArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReportJob
+   */
+  select?: Prisma.ReportJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReportJob
+   */
+  omit?: Prisma.ReportJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReportJobInclude<ExtArgs> | null
+  where?: Prisma.ReportJobWhereInput
 }
 
 /**

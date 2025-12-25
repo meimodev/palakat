@@ -92,62 +92,86 @@ void main() {
         },
       );
 
+      final accountIdArb = integer(min: 1, max: 999999);
+
       property(
-        'buildUserInterests without columnId should return 4 interests',
+        'buildUserInterests without columnId should return 7 interests',
         () {
-          forAll(combine2(membershipIdArb, churchIdArb), (pair) {
-            final membershipId = pair.$1;
-            final churchId = pair.$2;
+          forAll(combine3(membershipIdArb, churchIdArb, accountIdArb), (triple) {
+            final membershipId = triple.$1;
+            final churchId = triple.$2;
+            final accountId = triple.$3;
             for (final bipra in bipraValues) {
               final interests = InterestBuilder.buildUserInterests(
                 membershipId: membershipId,
                 churchId: churchId,
                 bipra: bipra,
+                accountId: accountId,
               );
 
-              expect(interests.length, equals(4));
+              expect(interests.length, equals(7));
               expect(interests[0], equals('palakat'));
-              expect(interests[1], equals('church.$churchId'));
+              expect(interests[1], equals('debug-palakat'));
+              expect(interests[2], equals('church.$churchId'));
               expect(
-                interests[2],
+                interests[3],
+                equals('church.${churchId}_bipra.GENERAL'),
+              );
+              expect(
+                interests[4],
                 equals('church.${churchId}_bipra.${bipra.toUpperCase()}'),
               );
-              expect(interests[3], equals('membership.$membershipId'));
+              expect(interests[5], equals('account.$accountId'));
+              expect(interests[6], equals('membership.$membershipId'));
             }
           });
         },
       );
 
-      property('buildUserInterests with columnId should return 6 interests', () {
-        forAll(combine3(membershipIdArb, churchIdArb, columnIdArb), (triple) {
-          final membershipId = triple.$1;
-          final churchId = triple.$2;
-          final columnId = triple.$3;
-          for (final bipra in bipraValues) {
-            final interests = InterestBuilder.buildUserInterests(
-              membershipId: membershipId,
-              churchId: churchId,
-              bipra: bipra,
-              columnId: columnId,
-            );
+      property('buildUserInterests with columnId should return 9 interests', () {
+        forAll(
+          combine4(membershipIdArb, churchIdArb, columnIdArb, accountIdArb),
+          (quad) {
+            final membershipId = quad.$1;
+            final churchId = quad.$2;
+            final columnId = quad.$3;
+            final accountId = quad.$4;
+            for (final bipra in bipraValues) {
+              final interests = InterestBuilder.buildUserInterests(
+                membershipId: membershipId,
+                churchId: churchId,
+                bipra: bipra,
+                columnId: columnId,
+                accountId: accountId,
+              );
 
-            expect(interests.length, equals(6));
-            expect(interests[0], equals('palakat'));
-            expect(interests[1], equals('church.$churchId'));
-            expect(
-              interests[2],
-              equals('church.${churchId}_bipra.${bipra.toUpperCase()}'),
-            );
-            expect(interests[3], equals('membership.$membershipId'));
-            expect(interests[4], equals('church.${churchId}_column.$columnId'));
-            expect(
-              interests[5],
-              equals(
-                'church.${churchId}_column.${columnId}_bipra.${bipra.toUpperCase()}',
-              ),
-            );
-          }
-        });
+              expect(interests.length, equals(9));
+              expect(interests[0], equals('palakat'));
+              expect(interests[1], equals('debug-palakat'));
+              expect(interests[2], equals('church.$churchId'));
+              expect(
+                interests[3],
+                equals('church.${churchId}_bipra.GENERAL'),
+              );
+              expect(
+                interests[4],
+                equals('church.${churchId}_bipra.${bipra.toUpperCase()}'),
+              );
+              expect(interests[5], equals('account.$accountId'));
+              expect(interests[6], equals('membership.$membershipId'));
+              expect(
+                interests[7],
+                equals('church.${churchId}_column.$columnId'),
+              );
+              expect(
+                interests[8],
+                equals(
+                  'church.${churchId}_column.${columnId}_bipra.${bipra.toUpperCase()}',
+                ),
+              );
+            }
+          },
+        );
       });
     });
 
@@ -194,12 +218,16 @@ void main() {
           membershipId: 1,
           churchId: 2,
           bipra: 'pkb',
+          accountId: 10,
         );
 
-        expect(interests, hasLength(4));
+        expect(interests, hasLength(7));
         expect(interests, contains('palakat'));
+        expect(interests, contains('debug-palakat'));
         expect(interests, contains('church.2'));
+        expect(interests, contains('church.2_bipra.GENERAL'));
         expect(interests, contains('church.2_bipra.PKB'));
+        expect(interests, contains('account.10'));
         expect(interests, contains('membership.1'));
       });
 
@@ -209,12 +237,16 @@ void main() {
           churchId: 2,
           bipra: 'wki',
           columnId: 3,
+          accountId: 10,
         );
 
-        expect(interests, hasLength(6));
+        expect(interests, hasLength(9));
         expect(interests, contains('palakat'));
+        expect(interests, contains('debug-palakat'));
         expect(interests, contains('church.2'));
+        expect(interests, contains('church.2_bipra.GENERAL'));
         expect(interests, contains('church.2_bipra.WKI'));
+        expect(interests, contains('account.10'));
         expect(interests, contains('membership.1'));
         expect(interests, contains('church.2_column.3'));
         expect(interests, contains('church.2_column.3_bipra.WKI'));

@@ -142,6 +142,11 @@ class PusherBeamsController extends _$PusherBeamsController {
       return;
     }
 
+    if (effectiveAccount.id == null) {
+      _log('Cannot register interests: account ID is null');
+      return;
+    }
+
     // Get BIPRA from account using the calculateBipra extension
     final bipra = effectiveAccount.calculateBipra.abv;
 
@@ -156,6 +161,7 @@ class PusherBeamsController extends _$PusherBeamsController {
       membershipId: membershipId,
       churchId: churchId,
       bipra: bipra,
+      accountId: effectiveAccount.id!,
       columnId: columnId,
     );
 

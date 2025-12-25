@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/report.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/widgets.dart';
 
 /// Section widget displaying recent reports created by the current user.
-/// Shows up to 5 reports with download buttons.
+/// Shows pending/processing jobs at the top, then completed reports with download buttons.
 class RecentReportsSection extends StatelessWidget {
   const RecentReportsSection({
     super.key,
@@ -15,6 +17,8 @@ class RecentReportsSection extends StatelessWidget {
     required this.error,
     required this.onDownloadTap,
     required this.onRetry,
+    this.pendingJobs = const [],
+    this.isLoadingPendingJobs = false,
   });
 
   /// List of recent reports to display (max 5)
@@ -32,10 +36,19 @@ class RecentReportsSection extends StatelessWidget {
   /// Callback when retry button is tapped after error
   final VoidCallback onRetry;
 
+  /// List of pending/processing report jobs
+  final List<ReportJob> pendingJobs;
+
+  /// Whether pending jobs are currently loading
+  final bool isLoadingPendingJobs;
+
   @override
   Widget build(BuildContext context) {
-    // Hide section when not loading, no error, and reports list is empty
-    if (!isLoading && error == null && reports.isEmpty) {
+    final hasContent = reports.isNotEmpty || pendingJobs.isNotEmpty;
+    final isAnyLoading = isLoading || isLoadingPendingJobs;
+
+    // Hide section when not loading, no error, and no content
+    if (!isAnyLoading && error == null && !hasContent) {
       return const SizedBox.shrink();
     }
 
@@ -59,12 +72,21 @@ class RecentReportsSection extends StatelessWidget {
     }
 
     // Priority 2: Show loading shimmer
-    if (isLoading) {
+    if (isLoading && reports.isEmpty && pendingJobs.isEmpty) {
       return LoadingShimmer(isLoading: true, child: _buildShimmerPlaceholder());
     }
 
-    // Priority 3: Show reports list
-    return _ReportsList(reports: reports, onDownloadTap: onDownloadTap);
+    // Priority 3: Show pending jobs and reports list
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Pending/Processing jobs first
+        if (pendingJobs.isNotEmpty) _PendingJobsList(jobs: pendingJobs),
+        // Completed reports
+        if (reports.isNotEmpty)
+          _ReportsList(reports: reports, onDownloadTap: onDownloadTap),
+      ],
+    );
   }
 
   Widget _buildShimmerPlaceholder() {
@@ -269,4 +291,204 @@ class RecentReportItem extends StatelessWidget {
         return BaseColor.success;
     }
   }
+}
+
+/// List of pending/processing report jobs
+class _PendingJobsList extends StatelessWidget {
+  const _PendingJobsList({required this.jobs});
+
+  final List<ReportJob> jobs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: jobs
+          .map(
+            (job) => Padding(
+              padding: EdgeInsets.only(bottom: BaseSize.w4),
+              child: _PendingJobItem(job: job),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+/// Individual pending/processing job item with status indicator
+class _PendingJobItem extends StatelessWidget {
+  const _PendingJobItem({required this.job});
+
+  final ReportJob job;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final createdAt = job.createdAt;
+    final dateText = createdAt != null
+        ? '${createdAt.day}/${createdAt.month}/${createdAt.year}'
+        : l10n.msg_noGenerationDate;
+
+    final statusInfo = _getStatusInfo(context, job.status);
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w12,
+        vertical: BaseSize.h8,
+      ),
+      decoration: BoxDecoration(
+        color: statusInfo.backgroundColor,
+        borderRadius: BorderRadius.circular(BaseSize.w8),
+        border: Border.all(color: statusInfo.borderColor, width: 1),
+      ),
+      child: Row(
+        children: [
+          // Status icon
+          Container(
+            width: BaseSize.w32,
+            height: BaseSize.w32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: statusInfo.iconBackgroundColor,
+              borderRadius: BorderRadius.circular(BaseSize.w8),
+            ),
+            child: statusInfo.isAnimated
+                ? SizedBox(
+                    width: BaseSize.w16,
+                    height: BaseSize.w16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: statusInfo.iconColor,
+                    ),
+                  )
+                : Icon(
+                    statusInfo.icon,
+                    color: statusInfo.iconColor,
+                    size: BaseSize.w16,
+                  ),
+          ),
+          Gap.w12,
+          // Job details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getJobName(context, job),
+                  style: BaseTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BaseColor.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      statusInfo.statusText,
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: statusInfo.iconColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      ' • $dateText',
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getJobName(BuildContext context, ReportJob job) {
+    final l10n = context.l10n;
+    switch (job.type) {
+      case ReportGenerateType.incomingDocument:
+        return l10n.reportType_incomingDocument;
+      case ReportGenerateType.outcomingDocument:
+        return l10n.reportType_outcomingDocument;
+      case ReportGenerateType.congregation:
+        return l10n.reportType_congregation;
+      case ReportGenerateType.services:
+        return l10n.reportType_services;
+      case ReportGenerateType.activity:
+        return l10n.reportType_activity;
+      case ReportGenerateType.financial:
+        return l10n.reportType_financial;
+    }
+  }
+
+  _StatusInfo _getStatusInfo(BuildContext context, ReportJobStatus status) {
+    final l10n = context.l10n;
+    switch (status) {
+      case ReportJobStatus.pending:
+        return _StatusInfo(
+          icon: AppIcons.pending,
+          iconColor: BaseColor.warning,
+          iconBackgroundColor: BaseColor.warning.withValues(alpha: 0.12),
+          backgroundColor: BaseColor.yellow.shade50,
+          borderColor: BaseColor.yellow.shade200,
+          statusText: l10n.jobStatus_pending,
+          isAnimated: false,
+        );
+      case ReportJobStatus.processing:
+        return _StatusInfo(
+          icon: AppIcons.pending,
+          iconColor: BaseColor.primary,
+          iconBackgroundColor: BaseColor.primary.withValues(alpha: 0.12),
+          backgroundColor: BaseColor.blue.shade50,
+          borderColor: BaseColor.blue.shade200,
+          statusText: l10n.jobStatus_processing,
+          isAnimated: true,
+        );
+      case ReportJobStatus.completed:
+        return _StatusInfo(
+          icon: AppIcons.checkCircle,
+          iconColor: BaseColor.success,
+          iconBackgroundColor: BaseColor.success.withValues(alpha: 0.12),
+          backgroundColor: BaseColor.green.shade50,
+          borderColor: BaseColor.green.shade200,
+          statusText: l10n.jobStatus_completed,
+          isAnimated: false,
+        );
+      case ReportJobStatus.failed:
+        return _StatusInfo(
+          icon: AppIcons.error,
+          iconColor: BaseColor.error,
+          iconBackgroundColor: BaseColor.error.withValues(alpha: 0.12),
+          backgroundColor: BaseColor.red.shade50,
+          borderColor: BaseColor.red.shade200,
+          statusText: l10n.jobStatus_failed,
+          isAnimated: false,
+        );
+    }
+  }
+}
+
+class _StatusInfo {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBackgroundColor;
+  final Color backgroundColor;
+  final Color borderColor;
+  final String statusText;
+  final bool isAnimated;
+
+  const _StatusInfo({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBackgroundColor,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.statusText,
+    required this.isAnimated,
+  });
 }

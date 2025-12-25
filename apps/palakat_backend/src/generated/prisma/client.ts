@@ -157,3 +157,8 @@ export type Article = Prisma.ArticleModel
  * 
  */
 export type ArticleLike = Prisma.ArticleLikeModel
+/**
+ * Model ReportJob
+ * 
+ */
+export type ReportJob = Prisma.ReportJobModel

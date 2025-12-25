@@ -1192,6 +1192,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get card_reportHistory_title => 'Riwayat Laporan';
 
   @override
+  String get card_pendingJobs_title => 'Laporan Dalam Proses';
+
+  @override
   String get card_paymentInfo_title => 'Informasi Pembayaran';
 
   @override
@@ -3012,4 +3015,52 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get dashboard_recentActivitiesEmpty =>
       'Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.';
+
+  @override
+  String get msg_reportQueued =>
+      'Laporan Anda sedang dibuat. Anda akan diberi tahu saat sudah siap.';
+
+  @override
+  String get msg_reportQueuedShort => 'Laporan dalam antrian';
+
+  @override
+  String get msg_reportReady => 'Laporan Anda siap diunduh!';
+
+  @override
+  String get msg_reportFailed => 'Pembuatan laporan gagal. Silakan coba lagi.';
+
+  @override
+  String get msg_tapToDownload => 'Ketuk untuk mengunduh';
+
+  @override
+  String get lbl_pendingReports => 'Laporan Tertunda';
+
+  @override
+  String get lbl_reportJobs => 'Daftar Laporan';
+
+  @override
+  String get lbl_noActiveJobs => 'Tidak ada laporan aktif';
+
+  @override
+  String lbl_estimatedTime(String time) {
+    return 'Perkiraan waktu: $time';
+  }
+
+  @override
+  String get jobStatus_pending => 'Dalam Antrian';
+
+  @override
+  String get jobStatus_processing => 'Sedang Dibuat...';
+
+  @override
+  String get jobStatus_completed => 'Siap';
+
+  @override
+  String get jobStatus_failed => 'Gagal';
+
+  @override
+  String get notificationType_reportReady => 'Laporan Siap';
+
+  @override
+  String get notificationType_reportFailed => 'Laporan Gagal';
 }

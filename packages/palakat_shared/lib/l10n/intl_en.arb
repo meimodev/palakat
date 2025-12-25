@@ -498,6 +498,7 @@
   "card_reportList_title": "Reports",
   "card_reportList_subtitle": "Generate and view church reports.",
   "card_reportHistory_title": "Report History",
+  "card_pendingJobs_title": "Generating Reports",
   "card_paymentInfo_title": "Payment Information",
   "card_paymentInfo_subtitle": "Details about payment methods and accounts",
   "card_recentActivity_title": "Recent Activity",
@@ -1345,5 +1346,31 @@
   "dashboard_recentActivitiesEmpty": "Recent transactions and member updates will be shown here.",
   "@dashboard_recentActivitiesEmpty": {
     "description": "Empty state text for recent activities section"
-  }
+  },
+
+  "msg_reportQueued": "Your report is being generated. You'll be notified when it's ready.",
+  "msg_reportQueuedShort": "Report queued",
+  "msg_reportReady": "Your report is ready for download!",
+  "msg_reportFailed": "Report generation failed. Please try again.",
+  "msg_tapToDownload": "Tap to download",
+
+  "lbl_pendingReports": "Pending Reports",
+  "lbl_reportJobs": "Report Jobs",
+  "lbl_noActiveJobs": "No active report jobs",
+  "lbl_estimatedTime": "Estimated time: {time}",
+  "@lbl_estimatedTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jobStatus_pending": "Queued",
+  "jobStatus_processing": "Generating...",
+  "jobStatus_completed": "Ready",
+  "jobStatus_failed": "Failed",
+
+  "notificationType_reportReady": "Report Ready",
+  "notificationType_reportFailed": "Report Failed"
 }

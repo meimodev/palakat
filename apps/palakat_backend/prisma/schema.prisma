@@ -33,6 +33,7 @@ model Church {
   approvalRules           ApprovalRule[]
   financialAccountNumbers FinancialAccountNumber[]
   churchRequestsApproved  ChurchRequest[]           @relation("ChurchRequestApprovedChurch")
+  reportJobs              ReportJob[]
 
   @@index([name])
 }
@@ -126,6 +127,7 @@ model Account {
   articleLikes          ArticleLike[]
   cashMutationsCreated   CashMutation[]
   reportsCreated        Report[]
+  reportJobsRequested   ReportJob[]    @relation("ReportJobRequester")
 }
 
 model ApprovalRule {
@@ -396,6 +398,15 @@ enum NotificationType {
   APPROVAL_REJECTED
   CHURCH_REQUEST_APPROVED
   CHURCH_REQUEST_REJECTED
+  REPORT_READY
+  REPORT_FAILED
+}
+
+enum ReportJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 enum ArticleType {
@@ -474,6 +485,7 @@ model Report {
   file        FileManager @relation(fields: [fileId], references: [id])
   createdById Int?
   createdBy   Account?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  reportJob   ReportJob?
 
   @@index([churchId])
   @@index([generatedBy])
@@ -591,4 +603,28 @@ model ArticleLike {
   @@unique([articleId, accountId])
   @@index([articleId])
   @@index([accountId])
+}
+
+model ReportJob {
+  id             Int              @id @default(autoincrement())
+  status         ReportJobStatus  @default(PENDING)
+  type           ReportGenerateType
+  format         ReportFormat     @default(PDF)
+  params         Json?
+  errorMessage   String?
+  progress       Int              @default(0)
+  churchId       Int
+  church         Church           @relation(fields: [churchId], references: [id])
+  requestedById  Int
+  requestedBy    Account          @relation("ReportJobRequester", fields: [requestedById], references: [id])
+  reportId       Int?             @unique
+  report         Report?          @relation(fields: [reportId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  completedAt    DateTime?
+
+  @@index([status])
+  @@index([churchId])
+  @@index([requestedById])
+  @@index([status, createdAt])
 }

@@ -46,7 +46,8 @@ class AuthController extends _$AuthController {
   /// **Validates: Requirements 4.2**
   Future<void> _registerPushNotificationInterests(AuthResponse auth) async {
     final membership = auth.account.membership;
-    if (membership == null) {
+    final accountId = auth.account.id;
+    if (membership == null || accountId == null) {
       return;
     }
 
@@ -54,7 +55,10 @@ class AuthController extends _$AuthController {
       final pusherBeamsController = ref.read(
         pusherBeamsControllerProvider.notifier,
       );
-      await pusherBeamsController.registerInterests(membership);
+      await pusherBeamsController.registerInterests(
+        membership,
+        accountId: accountId,
+      );
     } catch (e) {
       // Don't block sign-in flow if push notification registration fails
       // The error is already logged in the controller

@@ -1191,6 +1191,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_reportHistory_title => 'Report History';
 
   @override
+  String get card_pendingJobs_title => 'Generating Reports';
+
+  @override
   String get card_paymentInfo_title => 'Payment Information';
 
   @override
@@ -3007,4 +3010,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dashboard_recentActivitiesEmpty =>
       'Recent transactions and member updates will be shown here.';
+
+  @override
+  String get msg_reportQueued =>
+      'Your report is being generated. You\'ll be notified when it\'s ready.';
+
+  @override
+  String get msg_reportQueuedShort => 'Report queued';
+
+  @override
+  String get msg_reportReady => 'Your report is ready for download!';
+
+  @override
+  String get msg_reportFailed => 'Report generation failed. Please try again.';
+
+  @override
+  String get msg_tapToDownload => 'Tap to download';
+
+  @override
+  String get lbl_pendingReports => 'Pending Reports';
+
+  @override
+  String get lbl_reportJobs => 'Report Jobs';
+
+  @override
+  String get lbl_noActiveJobs => 'No active report jobs';
+
+  @override
+  String lbl_estimatedTime(String time) {
+    return 'Estimated time: $time';
+  }
+
+  @override
+  String get jobStatus_pending => 'Queued';
+
+  @override
+  String get jobStatus_processing => 'Generating...';
+
+  @override
+  String get jobStatus_completed => 'Ready';
+
+  @override
+  String get jobStatus_failed => 'Failed';
+
+  @override
+  String get notificationType_reportReady => 'Report Ready';
+
+  @override
+  String get notificationType_reportFailed => 'Report Failed';
 }

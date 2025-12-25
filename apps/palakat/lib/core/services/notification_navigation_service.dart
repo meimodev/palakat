@@ -80,6 +80,22 @@ class NotificationNavigationService {
         );
         break;
 
+      case 'REPORT_READY':
+        debugPrint(
+          '🔔 [NotificationNavigationService] Navigating to operations (report ready)',
+        );
+        // Navigate to operations screen where reports can be accessed
+        router.go('/operations');
+        break;
+
+      case 'REPORT_FAILED':
+        debugPrint(
+          '🔔 [NotificationNavigationService] Navigating to operations (report failed)',
+        );
+        // Navigate to operations screen
+        router.go('/operations');
+        break;
+
       default: // Req 3.5 - invalid/unknown type
         debugPrint(
           '🔔 [NotificationNavigationService] Unknown type, navigating to home',

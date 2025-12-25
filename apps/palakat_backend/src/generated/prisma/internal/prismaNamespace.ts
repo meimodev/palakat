@@ -407,7 +407,8 @@ export const ModelName = {
   FinancialAccountNumber: 'FinancialAccountNumber',
   Notification: 'Notification',
   Article: 'Article',
-  ArticleLike: 'ArticleLike'
+  ArticleLike: 'ArticleLike',
+  ReportJob: 'ReportJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike"
+    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2203,6 +2204,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ReportJob: {
+      payload: Prisma.$ReportJobPayload<ExtArgs>
+      fields: Prisma.ReportJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReportJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReportJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        findFirst: {
+          args: Prisma.ReportJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReportJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        findMany: {
+          args: Prisma.ReportJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>[]
+        }
+        create: {
+          args: Prisma.ReportJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        createMany: {
+          args: Prisma.ReportJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReportJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>[]
+        }
+        delete: {
+          args: Prisma.ReportJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        update: {
+          args: Prisma.ReportJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReportJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReportJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReportJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReportJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportJobPayload>
+        }
+        aggregate: {
+          args: Prisma.ReportJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReportJob>
+        }
+        groupBy: {
+          args: Prisma.ReportJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReportJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReportJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReportJobCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2601,6 +2676,25 @@ export const ArticleLikeScalarFieldEnum = {
 } as const
 
 export type ArticleLikeScalarFieldEnum = (typeof ArticleLikeScalarFieldEnum)[keyof typeof ArticleLikeScalarFieldEnum]
+
+
+export const ReportJobScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  type: 'type',
+  format: 'format',
+  params: 'params',
+  errorMessage: 'errorMessage',
+  progress: 'progress',
+  churchId: 'churchId',
+  requestedById: 'requestedById',
+  reportId: 'reportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type ReportJobScalarFieldEnum = (typeof ReportJobScalarFieldEnum)[keyof typeof ReportJobScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3020,6 +3114,20 @@ export type EnumArticleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 export type ListEnumArticleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArticleStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'ReportJobStatus'
+ */
+export type EnumReportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReportJobStatus[]'
+ */
+export type ListEnumReportJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportJobStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -3139,6 +3247,7 @@ export type GlobalOmitConfig = {
   notification?: Prisma.NotificationOmit
   article?: Prisma.ArticleOmit
   articleLike?: Prisma.ArticleLikeOmit
+  reportJob?: Prisma.ReportJobOmit
 }
 
 /* Types for Logging */

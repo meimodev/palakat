@@ -266,6 +266,36 @@ enum ReportFormat {
   xlsx,
 }
 
+enum ReportJobStatus {
+  @JsonValue('PENDING')
+  pending,
+  @JsonValue('PROCESSING')
+  processing,
+  @JsonValue('COMPLETED')
+  completed,
+  @JsonValue('FAILED')
+  failed,
+}
+
+enum NotificationType {
+  @JsonValue('ACTIVITY_CREATED')
+  activityCreated,
+  @JsonValue('APPROVAL_REQUIRED')
+  approvalRequired,
+  @JsonValue('APPROVAL_CONFIRMED')
+  approvalConfirmed,
+  @JsonValue('APPROVAL_REJECTED')
+  approvalRejected,
+  @JsonValue('CHURCH_REQUEST_APPROVED')
+  churchRequestApproved,
+  @JsonValue('CHURCH_REQUEST_REJECTED')
+  churchRequestRejected,
+  @JsonValue('REPORT_READY')
+  reportReady,
+  @JsonValue('REPORT_FAILED')
+  reportFailed,
+}
+
 /// Form field types for activity creation forms.
 /// Used to configure which fields are required/optional based on activity type.
 enum FormFieldType {

@@ -5,6 +5,7 @@ import 'package:palakat/features/operations/presentations/widgets/operation_item
 import 'package:palakat/features/operations/presentations/widgets/recent_reports_section_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/report.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 
 /// Collapsible category card that groups related operations.
 /// Uses ExpansionTile pattern with custom styling.
@@ -21,6 +22,8 @@ class OperationCategoryCard extends StatelessWidget {
     this.recentReportsError,
     this.onReportDownloadTap,
     this.onRecentReportsRetry,
+    this.pendingReportJobs,
+    this.isLoadingPendingReportJobs = false,
   });
 
   /// The category data to display
@@ -46,6 +49,12 @@ class OperationCategoryCard extends StatelessWidget {
 
   /// Callback when retry button is tapped for recent reports
   final VoidCallback? onRecentReportsRetry;
+
+  /// Pending/processing report jobs for the Reports category (optional)
+  final List<ReportJob>? pendingReportJobs;
+
+  /// Loading state for pending report jobs
+  final bool isLoadingPendingReportJobs;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +143,9 @@ class OperationCategoryCard extends StatelessWidget {
             // Recent reports section
             if (recentReports != null ||
                 isLoadingRecentReports ||
-                recentReportsError != null)
+                recentReportsError != null ||
+                (pendingReportJobs != null && pendingReportJobs!.isNotEmpty) ||
+                isLoadingPendingReportJobs)
               Padding(
                 padding: EdgeInsets.only(top: BaseSize.w8),
                 child: RecentReportsSection(
@@ -143,6 +154,8 @@ class OperationCategoryCard extends StatelessWidget {
                   error: recentReportsError,
                   onDownloadTap: (report) => onReportDownloadTap?.call(report),
                   onRetry: () => onRecentReportsRetry?.call(),
+                  pendingJobs: pendingReportJobs ?? [],
+                  isLoadingPendingJobs: isLoadingPendingReportJobs,
                 ),
               ),
           ],

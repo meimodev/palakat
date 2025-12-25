@@ -55,6 +55,10 @@ class Endpoints {
   static String report(String reportId) => '/report/$reportId';
   static const String generateReport = '/report/generate';
 
+  // Report Jobs
+  static const String reportJobs = '/report/jobs';
+  static String reportJob(int jobId) => '/report/jobs/$jobId';
+
   // Church Letterhead
   static const String churchLetterheadMe = '/church-letterhead/me';
   static const String churchLetterheadMeLogo = '/church-letterhead/me/logo';

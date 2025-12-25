@@ -7,7 +7,6 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/report/presentations/report_generate/report_generate_controller.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/column.dart' as model;
-import 'package:url_launcher/url_launcher.dart';
 
 class ReportGenerateScreen extends ConsumerStatefulWidget {
   const ReportGenerateScreen({super.key, this.initialReportType});
@@ -73,13 +72,13 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
               onTap: state.cooldownRemainingSeconds > 0 || state.isGenerating
                   ? null
                   : () async {
-                      final report = await controller.generateReport();
+                      final job = await controller.queueReport();
 
                       if (!context.mounted) return;
 
                       final next = ref.read(reportGenerateControllerProvider);
 
-                      if (report == null) {
+                      if (job == null) {
                         final remaining = next.cooldownRemainingSeconds;
                         final error = next.errorMessage;
 
@@ -97,45 +96,15 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
                         return;
                       }
 
-                      _showSnackBar(context, l10n.msg_reportGenerated);
+                      // Show queued message and navigate back
+                      _showSnackBar(context, l10n.msg_reportQueued);
 
-                      final url = await controller.resolveDownloadUrl(
-                        reportId: report.id!,
-                      );
-
-                      if (!context.mounted) return;
-
-                      if (url == null) {
-                        final error = ref
-                            .read(reportGenerateControllerProvider)
-                            .errorMessage;
-                        if (error != null && error.trim().isNotEmpty) {
-                          _showSnackBar(context, error);
+                      // Navigate back after short delay to let user see the message
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        if (context.mounted) {
+                          context.pop();
                         }
-                        return;
-                      }
-
-                      _showSnackBar(
-                        context,
-                        l10n.msg_openingReport(report.name),
-                      );
-
-                      final uri = Uri.tryParse(url);
-                      if (uri == null) {
-                        _showSnackBar(context, l10n.msg_cannotOpenReportFile);
-                        return;
-                      }
-
-                      final opened = await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-
-                      if (!context.mounted) return;
-
-                      if (!opened) {
-                        _showSnackBar(context, l10n.msg_cannotOpenReportFile);
-                      }
+                      });
                     },
             ),
           ],

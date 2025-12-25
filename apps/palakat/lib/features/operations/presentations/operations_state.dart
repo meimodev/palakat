@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/models/models.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 
 import '../data/operation_models.dart';
 
@@ -50,5 +51,14 @@ abstract class OperationsState with _$OperationsState {
 
     /// Error message for recent reports fetch
     String? recentReportsError,
+
+    /// List of pending/processing report jobs for the current user
+    @Default([]) List<ReportJob> pendingReportJobs,
+
+    /// Loading state for pending report jobs section
+    @Default(false) bool loadingPendingReportJobs,
+
+    /// Error message for pending report jobs fetch
+    String? pendingReportJobsError,
   }) = _OperationsState;
 }

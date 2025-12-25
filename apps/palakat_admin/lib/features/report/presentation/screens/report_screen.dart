@@ -6,6 +6,8 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/report/report.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ReportScreen extends ConsumerStatefulWidget {
@@ -57,24 +59,44 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             ) async {
               if (context.mounted) {
                 final controller = ref.read(reportControllerProvider.notifier);
-                await controller.generateReport({
-                  'type': reportType,
-                  'format': format.name.toUpperCase(),
-                  if (input != null) 'input': input.name.toUpperCase(),
-                  if (congregationSubtype != null)
-                    'congregationSubtype': _congregationSubtypeToApi(
-                      congregationSubtype,
-                    ),
-                  if (activityType != null)
-                    'activityType': activityType.name.toUpperCase(),
-                  if (financialSubtype != null)
-                    'financialSubtype': _financialReportSubtypeToApi(
-                      financialSubtype,
-                    ),
-                  if (columnId != null) 'columnId': columnId,
-                  if (range != null) 'startDate': range.start.toIso8601String(),
-                  if (range != null) 'endDate': range.end.toIso8601String(),
-                });
+                try {
+                  final success = await controller.queueReport({
+                    'type': reportType,
+                    'format': format.name.toUpperCase(),
+                    if (input != null) 'input': input.name.toUpperCase(),
+                    if (congregationSubtype != null)
+                      'congregationSubtype': _congregationSubtypeToApi(
+                        congregationSubtype,
+                      ),
+                    if (activityType != null)
+                      'activityType': activityType.name.toUpperCase(),
+                    if (financialSubtype != null)
+                      'financialSubtype': _financialReportSubtypeToApi(
+                        financialSubtype,
+                      ),
+                    if (columnId != null) 'columnId': columnId,
+                    if (range != null)
+                      'startDate': range.start.toIso8601String(),
+                    if (range != null) 'endDate': range.end.toIso8601String(),
+                  });
+
+                  if (context.mounted && success) {
+                    DrawerUtils.closeDrawer(context);
+                    AppSnackbars.showSuccess(
+                      context,
+                      title: context.l10n.msg_reportQueuedShort,
+                      message: context.l10n.msg_reportQueued,
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    AppSnackbars.showError(
+                      context,
+                      title: context.l10n.msg_reportFailed,
+                      message: e.toString(),
+                    );
+                  }
+                }
               }
             },
       ),
@@ -146,6 +168,20 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             ),
 
             const SizedBox(height: 24),
+
+            // Pending Report Jobs Section
+            if (state.pendingReportJobs.isNotEmpty ||
+                state.loadingPendingReportJobs)
+              _PendingJobsSection(
+                jobs: state.pendingReportJobs,
+                isLoading: state.loadingPendingReportJobs,
+                error: state.pendingReportJobsError,
+                onRetry: () => controller.refresh(),
+              ),
+
+            if (state.pendingReportJobs.isNotEmpty ||
+                state.loadingPendingReportJobs)
+              const SizedBox(height: 24),
 
             // Report History
             SurfaceCard(
@@ -280,7 +316,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
           final theme = Theme.of(ctx);
           final fileName =
               report.file.originalName ??
-              (report.file.path?.split('/').last ?? ctx.l10n.lbl_na);
+              (report.file.path != null
+                  ? report.file.path!.split('/').last
+                  : ctx.l10n.lbl_na);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -427,4 +465,254 @@ class _GenerateCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Section widget displaying pending/processing report jobs
+class _PendingJobsSection extends StatelessWidget {
+  const _PendingJobsSection({
+    required this.jobs,
+    required this.isLoading,
+    required this.error,
+    required this.onRetry,
+  });
+
+  final List<ReportJob> jobs;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    return SurfaceCard(
+      title: l10n.card_pendingJobs_title,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isLoading && jobs.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (error != null && jobs.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text(
+                    error!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(onPressed: onRetry, child: Text(l10n.btn_retry)),
+                ],
+              ),
+            )
+          else
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: jobs.map((job) => _PendingJobCard(job: job)).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Individual pending job card with status indicator
+class _PendingJobCard extends StatelessWidget {
+  const _PendingJobCard({required this.job});
+
+  final ReportJob job;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final statusInfo = _getStatusInfo(context, job.status);
+
+    final createdAt = job.createdAt;
+    final dateText = createdAt != null
+        ? createdAt.toCustomFormat("dd MMM yyyy, HH:mm")
+        : l10n.lbl_na;
+
+    return Container(
+      width: 280,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: statusInfo.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusInfo.borderColor),
+      ),
+      child: Row(
+        children: [
+          // Status icon
+          Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: statusInfo.iconBackgroundColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: statusInfo.isAnimated
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: statusInfo.iconColor,
+                    ),
+                  )
+                : Icon(statusInfo.icon, color: statusInfo.iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          // Job details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getJobName(context, job),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusInfo.iconColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        statusInfo.statusText,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: statusInfo.iconColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  dateText,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getJobName(BuildContext context, ReportJob job) {
+    final l10n = context.l10n;
+    switch (job.type) {
+      case ReportGenerateType.incomingDocument:
+        return l10n.reportType_incomingDocument;
+      case ReportGenerateType.outcomingDocument:
+        return l10n.reportType_outcomingDocument;
+      case ReportGenerateType.congregation:
+        return l10n.reportType_congregation;
+      case ReportGenerateType.services:
+        return l10n.reportType_services;
+      case ReportGenerateType.activity:
+        return l10n.reportType_activity;
+      case ReportGenerateType.financial:
+        return l10n.reportType_financial;
+    }
+  }
+
+  _StatusInfo _getStatusInfo(BuildContext context, ReportJobStatus status) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    switch (status) {
+      case ReportJobStatus.pending:
+        return _StatusInfo(
+          icon: Icons.hourglass_empty,
+          iconColor: Colors.orange,
+          iconBackgroundColor: Colors.orange.withValues(alpha: 0.12),
+          backgroundColor: Colors.orange.shade50,
+          borderColor: Colors.orange.shade200,
+          statusText: l10n.jobStatus_pending,
+          isAnimated: false,
+        );
+      case ReportJobStatus.processing:
+        return _StatusInfo(
+          icon: Icons.sync,
+          iconColor: theme.colorScheme.primary,
+          iconBackgroundColor: theme.colorScheme.primary.withValues(
+            alpha: 0.12,
+          ),
+          backgroundColor: theme.colorScheme.primaryContainer.withValues(
+            alpha: 0.3,
+          ),
+          borderColor: theme.colorScheme.primary.withValues(alpha: 0.3),
+          statusText: l10n.jobStatus_processing,
+          isAnimated: true,
+        );
+      case ReportJobStatus.completed:
+        return _StatusInfo(
+          icon: Icons.check_circle,
+          iconColor: Colors.green,
+          iconBackgroundColor: Colors.green.withValues(alpha: 0.12),
+          backgroundColor: Colors.green.shade50,
+          borderColor: Colors.green.shade200,
+          statusText: l10n.jobStatus_completed,
+          isAnimated: false,
+        );
+      case ReportJobStatus.failed:
+        return _StatusInfo(
+          icon: Icons.error,
+          iconColor: theme.colorScheme.error,
+          iconBackgroundColor: theme.colorScheme.error.withValues(alpha: 0.12),
+          backgroundColor: theme.colorScheme.errorContainer.withValues(
+            alpha: 0.3,
+          ),
+          borderColor: theme.colorScheme.error.withValues(alpha: 0.3),
+          statusText: l10n.jobStatus_failed,
+          isAnimated: false,
+        );
+    }
+  }
+}
+
+class _StatusInfo {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBackgroundColor;
+  final Color backgroundColor;
+  final Color borderColor;
+  final String statusText;
+  final bool isAnimated;
+
+  const _StatusInfo({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBackgroundColor,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.statusText,
+    required this.isAnimated,
+  });
 }

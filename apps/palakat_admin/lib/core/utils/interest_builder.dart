@@ -50,17 +50,25 @@ class InterestBuilder {
   /// @returns Formatted interest name: membership.{membershipId}
   static String membership(int membershipId) => 'membership.$membershipId';
 
+  /// Formats an account interest name for individual notifications.
+  ///
+  /// @param accountId - The account ID
+  /// @returns Formatted interest name: account.{accountId}
+  static String account(int accountId) => 'account.$accountId';
+
   /// Builds a list of all applicable interests for a user.
   ///
   /// @param membershipId - The user's membership ID
   /// @param churchId - The user's church ID
   /// @param bipra - The user's BIPRA division abbreviation
+  /// @param accountId - The user's account ID
   /// @param columnId - Optional column ID if user belongs to a column
   /// @returns List of all interest names the user should subscribe to
   static List<String> buildUserInterests({
     required int membershipId,
     required int churchId,
     required String bipra,
+    required int accountId,
     int? columnId,
   }) {
     final interests = <String>[
@@ -68,6 +76,7 @@ class InterestBuilder {
       church(churchId),
       churchBipra(churchId, 'GENERAL'),
       churchBipra(churchId, bipra),
+      account(accountId),
       membership(membershipId),
     ];
 

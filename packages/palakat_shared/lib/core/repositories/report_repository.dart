@@ -3,6 +3,7 @@ import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../constants/enums.dart';
 import '../models/report.dart';
+import '../models/report_job.dart';
 import '../models/result.dart';
 import '../models/response/response.dart';
 import '../services/http_service.dart';
@@ -141,7 +142,7 @@ class ReportRepository {
     }
   }
 
-  Future<Result<Report, Failure>> generateReportTyped({
+  Future<Result<ReportJob, Failure>> generateReportTyped({
     required ReportGenerateType type,
     ReportFormat? format,
     DocumentInput? input,
@@ -194,7 +195,7 @@ class ReportRepository {
     }
   }
 
-  Future<Result<Report, Failure>> generateReport({
+  Future<Result<ReportJob, Failure>> generateReport({
     required Map<String, dynamic> data,
   }) async {
     try {
@@ -211,7 +212,7 @@ class ReportRepository {
           Failure('Invalid generate report response payload'),
         );
       }
-      return Result.success(Report.fromJson(json));
+      return Result.success(ReportJob.fromJson(json));
     } on DioException catch (e) {
       final error = ErrorMapper.fromDio(e, 'Failed to generate report');
       return Result.failure(Failure(error.message, error.statusCode));
@@ -272,6 +273,135 @@ class ReportRepository {
       return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
       final error = ErrorMapper.unknown('Failed to download report', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  // ========== Report Job Methods ==========
+
+  /// Queue a report generation job
+  Future<Result<ReportJob, Failure>> queueReportGeneration({
+    required ReportGenerateType type,
+    ReportFormat? format,
+    DocumentInput? input,
+    CongregationReportSubtype? congregationSubtype,
+    int? columnId,
+    ActivityType? activityType,
+    FinancialReportSubtype? financialSubtype,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      final response = await http.post<Map<String, dynamic>>(
+        Endpoints.generateReport,
+        data: {
+          'type': _reportGenerateTypeToApi(type),
+          if (input != null) 'input': _documentInputToApi(input),
+          if (congregationSubtype != null)
+            'congregationSubtype': _congregationReportSubtypeToApi(
+              congregationSubtype,
+            ),
+          if (columnId != null) 'columnId': columnId,
+          if (activityType != null)
+            'activityType': activityType.name.toUpperCase(),
+          if (financialSubtype != null)
+            'financialSubtype': _financialReportSubtypeToApi(financialSubtype),
+          if (format != null) 'format': _reportFormatToApi(format),
+          if (startDate != null) 'startDate': startDate.toIso8601String(),
+          if (endDate != null) 'endDate': endDate.toIso8601String(),
+        },
+      );
+
+      final body = response.data;
+      final Map<String, dynamic> json = body?['data'] ?? {};
+      if (json.isEmpty) {
+        return Result.failure(Failure('Invalid queue report response payload'));
+      }
+      return Result.success(ReportJob.fromJson(json));
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to queue report');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to queue report', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  /// Fetch list of user's report jobs
+  Future<Result<PaginationResponseWrapper<ReportJob>, Failure>>
+  fetchMyReportJobs({
+    int page = 1,
+    int pageSize = 10,
+    ReportJobStatus? status,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+
+      final query = <String, dynamic>{
+        'page': page,
+        'pageSize': pageSize,
+        'sortBy': 'createdAt',
+        'sortOrder': 'desc',
+        if (status != null) 'status': status.name.toUpperCase(),
+      };
+
+      final response = await http.get<Map<String, dynamic>>(
+        Endpoints.reportJobs,
+        queryParameters: query,
+      );
+
+      final data = response.data ?? {};
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => ReportJob.fromJson(e as Map<String, dynamic>),
+      );
+      return Result.success(result);
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to fetch report jobs');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to fetch report jobs', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  /// Fetch single report job status
+  Future<Result<ReportJob, Failure>> fetchReportJob({
+    required int jobId,
+  }) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      final response = await http.get<Map<String, dynamic>>(
+        Endpoints.reportJob(jobId),
+      );
+
+      final data = response.data;
+      final Map<String, dynamic> json = data?['data'] ?? {};
+      if (json.isEmpty) {
+        return Result.failure(Failure('Invalid report job response payload'));
+      }
+      return Result.success(ReportJob.fromJson(json));
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to fetch report job');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to fetch report job', e, st);
+      return Result.failure(Failure(error.message, error.statusCode));
+    }
+  }
+
+  /// Cancel a pending report job
+  Future<Result<void, Failure>> cancelReportJob({required int jobId}) async {
+    try {
+      final http = _ref.read(httpServiceProvider);
+      await http.delete<void>(Endpoints.reportJob(jobId));
+      return Result.success(null);
+    } on DioException catch (e) {
+      final error = ErrorMapper.fromDio(e, 'Failed to cancel report job');
+      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e, st) {
+      final error = ErrorMapper.unknown('Failed to cancel report job', e, st);
       return Result.failure(Failure(error.message, error.statusCode));
     }
   }

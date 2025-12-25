@@ -8,6 +8,7 @@ import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/column.dart' as model;
 import 'package:palakat_shared/core/models/report.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
@@ -263,7 +264,8 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     _startCooldownTimer();
   }
 
-  Future<Report?> generateReport() async {
+  /// Queue a report generation job (async/notification-based)
+  Future<ReportJob?> queueReport() async {
     if (state.isGenerating) return null;
 
     final remaining = _cooldownRemainingSeconds(
@@ -290,7 +292,7 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
           state.reportType == ReportGenerateType.congregation ||
           state.reportType == ReportGenerateType.activity;
 
-      final generateResult = await repo.generateReportTyped(
+      final queueResult = await repo.queueReportGeneration(
         type: state.reportType,
         format: state.format,
         input:
@@ -312,12 +314,12 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
         endDate: effectiveRange.end,
       );
 
-      Report? report;
+      ReportJob? job;
       Failure? failure;
 
-      generateResult.when(
-        onSuccess: (r) {
-          report = r;
+      queueResult.when(
+        onSuccess: (j) {
+          job = j;
           return null;
         },
         onFailure: (f) {
@@ -325,26 +327,30 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
         },
       );
 
-      if (report == null) {
+      if (job == null) {
         state = state.copyWith(
           errorMessage: failure?.message ?? _l10n().msg_generateReportFailed,
         );
         return null;
       }
 
-      if (report!.id == null) {
-        state = state.copyWith(errorMessage: _l10n().msg_generateReportFailed);
-        return null;
-      }
-
       await startCooldown();
-      return report;
+      return job;
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
       return null;
     } finally {
       state = state.copyWith(isGenerating: false);
     }
+  }
+
+  @Deprecated(
+    'Use queueReport() instead for async generation with notifications',
+  )
+  Future<Report?> generateReport() async {
+    // Kept for backward compatibility - calls the queue method
+    final job = await queueReport();
+    return job?.report;
   }
 
   Future<String?> resolveDownloadUrl({required int reportId}) async {

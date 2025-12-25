@@ -7,7 +7,9 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
+import 'package:palakat/features/report/presentations/report_generate/report_generate_controller.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,11 +18,36 @@ import 'package:url_launcher/url_launcher.dart';
 /// Uses category-based organization with progressive disclosure.
 ///
 /// Requirements: 2.1, 2.2, 2.3, 2.5, 3.4
-class OperationsScreen extends ConsumerWidget {
+class OperationsScreen extends ConsumerStatefulWidget {
   const OperationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OperationsScreen> createState() => _OperationsScreenState();
+}
+
+class _OperationsScreenState extends ConsumerState<OperationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen for report generation state changes to refresh report data
+    Future.microtask(() {
+      ref.listen<ReportGenerateState>(reportGenerateControllerProvider, (
+        previous,
+        next,
+      ) {
+        // Refresh report data when a report job was just queued
+        // (isGenerating changed from true to false and no error)
+        if (previous?.isGenerating == true &&
+            next.isGenerating == false &&
+            next.errorMessage == null) {
+          ref.read(operationsControllerProvider.notifier).refreshReportData();
+        }
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final controller = ref.read(operationsControllerProvider.notifier);
     final state = ref.watch(operationsControllerProvider);
@@ -112,7 +139,9 @@ class OperationsScreen extends ConsumerWidget {
           recentReportsError: state.recentReportsError,
           onReportDownloadTap: (report) =>
               _handleReportDownload(context, ref, report),
-          onRecentReportsRetry: () => controller.fetchRecentReports(),
+          onRecentReportsRetry: () => controller.fetchReportData(),
+          pendingReportJobs: state.pendingReportJobs,
+          isLoadingPendingReportJobs: state.loadingPendingReportJobs,
         ),
       ],
     );
@@ -259,6 +288,8 @@ class _OperationCategoryList extends StatelessWidget {
     this.recentReportsError,
     this.onReportDownloadTap,
     this.onRecentReportsRetry,
+    this.pendingReportJobs,
+    this.isLoadingPendingReportJobs = false,
   });
 
   final List<OperationCategory> categories;
@@ -269,6 +300,8 @@ class _OperationCategoryList extends StatelessWidget {
   final String? recentReportsError;
   final ValueChanged<Report>? onReportDownloadTap;
   final VoidCallback? onRecentReportsRetry;
+  final List<ReportJob>? pendingReportJobs;
+  final bool isLoadingPendingReportJobs;
 
   @override
   Widget build(BuildContext context) {
@@ -294,6 +327,10 @@ class _OperationCategoryList extends StatelessWidget {
           recentReportsError: isReportsCategory ? recentReportsError : null,
           onReportDownloadTap: isReportsCategory ? onReportDownloadTap : null,
           onRecentReportsRetry: isReportsCategory ? onRecentReportsRetry : null,
+          pendingReportJobs: isReportsCategory ? pendingReportJobs : null,
+          isLoadingPendingReportJobs: isReportsCategory
+              ? isLoadingPendingReportJobs
+              : false,
         );
       },
     );

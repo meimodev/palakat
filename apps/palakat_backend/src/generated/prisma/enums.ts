@@ -134,10 +134,22 @@ export const NotificationType = {
   APPROVAL_CONFIRMED: 'APPROVAL_CONFIRMED',
   APPROVAL_REJECTED: 'APPROVAL_REJECTED',
   CHURCH_REQUEST_APPROVED: 'CHURCH_REQUEST_APPROVED',
-  CHURCH_REQUEST_REJECTED: 'CHURCH_REQUEST_REJECTED'
+  CHURCH_REQUEST_REJECTED: 'CHURCH_REQUEST_REJECTED',
+  REPORT_READY: 'REPORT_READY',
+  REPORT_FAILED: 'REPORT_FAILED'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const ReportJobStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type ReportJobStatus = (typeof ReportJobStatus)[keyof typeof ReportJobStatus]
 
 
 export const ArticleType = {

@@ -71,10 +71,14 @@ class PusherBeamsController extends _$PusherBeamsController {
   /// - BIPRA interest (church.{churchId}_bipra.{BIPRA})
   /// - Column interest (church.{churchId}_column.{columnId}) if applicable
   /// - Column BIPRA interest if applicable
+  /// - Account interest (account.{accountId})
   /// - Membership interest (membership.{membershipId})
   ///
   /// **Validates: Requirements 4.2, 4.3**
-  Future<void> registerInterests(Membership membership) async {
+  Future<void> registerInterests(
+    Membership membership, {
+    required int accountId,
+  }) async {
     final service = ref.read(pusherBeamsWebServiceProvider);
 
     if (!service.isInitialized) {
@@ -104,12 +108,13 @@ class PusherBeamsController extends _$PusherBeamsController {
     final bipra = _getBipraFromMembership(membership);
     final columnId = membership.column?.id;
 
-    _log('Building interests for membership $membershipId');
+    _log('Building interests for membership $membershipId, account $accountId');
 
     final interests = InterestBuilder.buildUserInterests(
       membershipId: membershipId,
       churchId: churchId,
       bipra: bipra,
+      accountId: accountId,
       columnId: columnId,
     );
 

@@ -1,23 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 part 'notification.freezed.dart';
 part 'notification.g.dart';
-
-/// Notification type enum matching backend NotificationType
-enum NotificationType {
-  @JsonValue('ACTIVITY_CREATED')
-  activityCreated,
-  @JsonValue('APPROVAL_REQUIRED')
-  approvalRequired,
-  @JsonValue('APPROVAL_CONFIRMED')
-  approvalConfirmed,
-  @JsonValue('APPROVAL_REJECTED')
-  approvalRejected,
-  @JsonValue('CHURCH_REQUEST_APPROVED')
-  churchRequestApproved,
-  @JsonValue('CHURCH_REQUEST_REJECTED')
-  churchRequestRejected,
-}
 
 /// Notification model representing push notifications in the system
 @freezed

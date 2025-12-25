@@ -5,6 +5,7 @@ import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/report/presentation/state/report_screen_state.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'report_controller.g.dart';
@@ -21,6 +22,7 @@ class ReportController extends _$ReportController {
     final initial = const ReportScreenState();
     Future.microtask(() {
       _fetchReports();
+      _fetchPendingReportJobs();
     });
     return initial;
   }
@@ -130,7 +132,64 @@ class ReportController extends _$ReportController {
   }
 
   Future<void> refresh() async {
-    await _fetchReports();
+    await Future.wait([_fetchReports(), _fetchPendingReportJobs()]);
+  }
+
+  /// Fetches pending/processing report jobs for the current church.
+  Future<void> _fetchPendingReportJobs() async {
+    state = state.copyWith(
+      loadingPendingReportJobs: true,
+      pendingReportJobsError: null,
+    );
+
+    final repository = ref.read(reportRepositoryProvider);
+
+    // Fetch both pending and processing jobs
+    final pendingResult = await repository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.pending,
+    );
+
+    final processingResult = await repository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.processing,
+    );
+
+    final List<ReportJob> allPendingJobs = [];
+    String? errorMessage;
+
+    pendingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage = failure.message;
+      },
+    );
+
+    processingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage ??= failure.message;
+      },
+    );
+
+    // Sort by createdAt descending (newest first)
+    allPendingJobs.sort((a, b) {
+      final aTime = a.createdAt ?? DateTime(1970);
+      final bTime = b.createdAt ?? DateTime(1970);
+      return bTime.compareTo(aTime);
+    });
+
+    state = state.copyWith(
+      pendingReportJobs: allPendingJobs,
+      loadingPendingReportJobs: false,
+      pendingReportJobsError: errorMessage,
+    );
   }
 
   // Fetch single report detail (doesn't mutate state)
@@ -143,16 +202,27 @@ class ReportController extends _$ReportController {
     );
   }
 
-  // Generate report
-  Future<void> generateReport(Map<String, dynamic> data) async {
+  // Queue report generation (returns job, not immediate report)
+  Future<bool> queueReport(Map<String, dynamic> data) async {
     final repository = ref.read(reportRepositoryProvider);
     final result = await repository.generateReport(data: data);
 
+    bool success = false;
     result.when(
-      onSuccess: (_) {},
+      onSuccess: (_) {
+        success = true;
+      },
       onFailure: (failure) => throw Exception(failure.message),
     );
 
+    return success;
+  }
+
+  @Deprecated(
+    'Use queueReport instead - reports are now generated asynchronously',
+  )
+  Future<void> generateReport(Map<String, dynamic> data) async {
+    await queueReport(data);
     await _fetchReports();
   }
 

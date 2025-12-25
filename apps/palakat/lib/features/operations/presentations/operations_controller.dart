@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
+import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
@@ -40,7 +41,17 @@ class OperationsController extends _$OperationsController {
   void fetchData() async {
     await fetchMembership();
     await fetchSupervisedActivities();
-    await fetchRecentReports();
+    await fetchReportData();
+  }
+
+  /// Fetches both recent reports and pending report jobs.
+  Future<void> fetchReportData() async {
+    await Future.wait([fetchRecentReports(), fetchPendingReportJobs()]);
+  }
+
+  /// Refreshes report data - called when returning from report generation.
+  Future<void> refreshReportData() async {
+    await fetchReportData();
   }
 
   Future<void> fetchMembership() async {
@@ -91,6 +102,61 @@ class OperationsController extends _$OperationsController {
           recentReportsError: failure.message,
         );
       },
+    );
+  }
+
+  /// Fetches pending/processing report jobs for the current user.
+  Future<void> fetchPendingReportJobs() async {
+    state = state.copyWith(
+      loadingPendingReportJobs: true,
+      pendingReportJobsError: null,
+    );
+
+    // Fetch both pending and processing jobs
+    final pendingResult = await _reportRepository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.pending,
+    );
+
+    final processingResult = await _reportRepository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.processing,
+    );
+
+    final List<ReportJob> allPendingJobs = [];
+    String? errorMessage;
+
+    pendingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage = failure.message;
+      },
+    );
+
+    processingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage ??= failure.message;
+      },
+    );
+
+    // Sort by createdAt descending (newest first)
+    allPendingJobs.sort((a, b) {
+      final aTime = a.createdAt ?? DateTime(1970);
+      final bTime = b.createdAt ?? DateTime(1970);
+      return bTime.compareTo(aTime);
+    });
+
+    state = state.copyWith(
+      pendingReportJobs: allPendingJobs,
+      loadingPendingReportJobs: false,
+      pendingReportJobsError: errorMessage,
     );
   }
 

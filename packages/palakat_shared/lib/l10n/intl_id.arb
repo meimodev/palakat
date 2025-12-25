@@ -1199,6 +1199,10 @@
   "@card_reportHistory_title": {
     "description": "Card title for report history"
   },
+  "card_pendingJobs_title": "Laporan Dalam Proses",
+  "@card_pendingJobs_title": {
+    "description": "Card title for pending report jobs"
+  },
   "card_paymentInfo_title": "Informasi Pembayaran",
   "@card_paymentInfo_title": {
     "description": "Card title for payment information"
@@ -3503,5 +3507,31 @@
   "dashboard_recentActivitiesEmpty": "Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.",
   "@dashboard_recentActivitiesEmpty": {
     "description": "Empty state text for recent activities section"
-  }
+  },
+
+  "msg_reportQueued": "Laporan Anda sedang dibuat. Anda akan diberi tahu saat sudah siap.",
+  "msg_reportQueuedShort": "Laporan dalam antrian",
+  "msg_reportReady": "Laporan Anda siap diunduh!",
+  "msg_reportFailed": "Pembuatan laporan gagal. Silakan coba lagi.",
+  "msg_tapToDownload": "Ketuk untuk mengunduh",
+
+  "lbl_pendingReports": "Laporan Tertunda",
+  "lbl_reportJobs": "Daftar Laporan",
+  "lbl_noActiveJobs": "Tidak ada laporan aktif",
+  "lbl_estimatedTime": "Perkiraan waktu: {time}",
+  "@lbl_estimatedTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "jobStatus_pending": "Dalam Antrian",
+  "jobStatus_processing": "Sedang Dibuat...",
+  "jobStatus_completed": "Siap",
+  "jobStatus_failed": "Gagal",
+
+  "notificationType_reportReady": "Laporan Siap",
+  "notificationType_reportFailed": "Laporan Gagal"
 }

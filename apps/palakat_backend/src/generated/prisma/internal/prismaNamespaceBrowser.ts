@@ -74,7 +74,8 @@ export const ModelName = {
   FinancialAccountNumber: 'FinancialAccountNumber',
   Notification: 'Notification',
   Article: 'Article',
-  ArticleLike: 'ArticleLike'
+  ArticleLike: 'ArticleLike',
+  ReportJob: 'ReportJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -452,6 +453,25 @@ export const ArticleLikeScalarFieldEnum = {
 } as const
 
 export type ArticleLikeScalarFieldEnum = (typeof ArticleLikeScalarFieldEnum)[keyof typeof ArticleLikeScalarFieldEnum]
+
+
+export const ReportJobScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  type: 'type',
+  format: 'format',
+  params: 'params',
+  errorMessage: 'errorMessage',
+  progress: 'progress',
+  churchId: 'churchId',
+  requestedById: 'requestedById',
+  reportId: 'reportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type ReportJobScalarFieldEnum = (typeof ReportJobScalarFieldEnum)[keyof typeof ReportJobScalarFieldEnum]
 
 
 export const SortOrder = {
