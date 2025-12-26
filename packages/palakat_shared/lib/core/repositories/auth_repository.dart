@@ -1,46 +1,35 @@
-import 'package:dio/dio.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
 import 'package:palakat_shared/core/models/account.dart';
 import 'package:palakat_shared/core/models/auth_credentials.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
 import 'package:palakat_shared/core/models/result.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
 import 'package:palakat_shared/core/services/local_storage_service.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 import 'package:palakat_shared/core/utils/error_mapper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_repository.g.dart';
 
 class AuthRepository {
-  final Dio _dio;
+  final SocketService _socket;
   final LocalStorageService _localStorageService;
 
-  const AuthRepository(this._dio, this._localStorageService);
+  const AuthRepository(this._socket, this._localStorageService);
 
   Future<Result<AuthResponse, Failure>> signIn(
     AuthCredentials credentials,
   ) async {
     try {
-      final body = {
-        'identifier': credentials.identifier,
-        'password': credentials.password,
-      };
-      final res = await _dio.post<Map<String, dynamic>>(
-        Endpoints.signIn,
-        data: body,
+      final auth = await _socket.signIn(
+        identifier: credentials.identifier,
+        password: credentials.password,
       );
-      final auth = AuthResponse.fromJson(res.data?["data"] ?? const {});
       // Persist full auth payload (tokens + account) using Hive
       await _localStorageService.saveAuth(auth);
       return Result.success(auth);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to sign in');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to sign in', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -50,27 +39,17 @@ class AuthRepository {
       if (refreshToken == null || refreshToken.isEmpty) {
         return Result.failure(Failure('No refresh token available'));
       }
-      final res = await _dio.post<Map<String, dynamic>>(
-        Endpoints.refresh,
-        data: {'refresh_token': refreshToken},
-      );
-      // some APIs return tokens directly; others nest in data
-      final data = res.data ?? const {};
-      final tokens = AuthTokens.fromJson(data["data"]);
+      final tokens = await _socket.refresh(refreshToken: refreshToken);
       await _localStorageService.saveTokens(tokens);
       return Result.success(tokens);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to refresh tokens');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to refresh tokens', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<void, Failure>> signOut() async {
     try {
-      await _dio.post(Endpoints.signOut);
+      await _socket.rpc('auth.signOut');
     } catch (_) {
       // ignore network errors on logout
     } finally {
@@ -101,27 +80,18 @@ class AuthRepository {
     String phone,
   ) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        Endpoints.validatePhone,
-        queryParameters: {'phone': phone},
-      );
+      final res = await _socket.rpc('auth.validatePhone', {'phone': phone});
+      final json = res['data'];
 
-      final data = res.data ?? {};
-      final json = data['data'];
-
-      if (json == null || json.isEmpty) {
+      if (json is! Map<String, dynamic> || json.isEmpty) {
         return Result.failure(Failure('Account not found', 404));
       }
       final auth = AuthResponse.fromJson(json);
       await _localStorageService.saveAuth(auth);
 
       return Result.success(auth);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to validate account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to validate account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -149,24 +119,19 @@ class AuthRepository {
         return Result.failure(Failure('Firebase ID token is required'));
       }
 
-      await _dio.post(
-        Endpoints.syncClaims,
-        options: Options(headers: {'Authorization': 'Bearer $firebaseIdToken'}),
-      );
+      await _socket.rpc('auth.syncClaims', {
+        'firebaseIdToken': firebaseIdToken,
+      });
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to sync claims');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to sync claims', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  final dio = ref.watch(dioInstanceProvider);
+  final socket = ref.watch(socketServiceProvider);
   final auth = ref.watch(localStorageServiceProvider);
-  return AuthRepository(dio, auth);
+  return AuthRepository(socket, auth);
 }

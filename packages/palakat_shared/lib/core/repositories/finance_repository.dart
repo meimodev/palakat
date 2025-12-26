@@ -1,14 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/finance_entry.dart';
 import 'package:palakat_shared/core/models/finance_overview.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:palakat_shared/core/models/response/response.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
-import 'package:palakat_shared/core/utils/error_mapper.dart';
-
-import '../config/endpoint.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 import '../models/result.dart';
 
 final financeRepositoryProvider = Provider<FinanceRepository>((ref) {
@@ -58,13 +54,11 @@ class FinanceRepository implements FinanceRepositoryBase {
   @override
   Future<Result<FinanceOverview, Failure>> fetchOverview() async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.financeOverview,
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('finance.overview');
 
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid finance overview response payload'),
@@ -72,16 +66,8 @@ class FinanceRepository implements FinanceRepositoryBase {
       }
 
       return Result.success(FinanceOverview.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch finance overview');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch finance overview',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -91,30 +77,17 @@ class FinanceRepository implements FinanceRepositoryBase {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.finance,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('finance.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => FinanceEntry.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch finance entries');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch finance entries',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

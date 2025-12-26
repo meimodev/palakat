@@ -1,13 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
 import '../models/song.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/socket_service.dart';
 
 part 'song_repository.g.dart';
 
@@ -25,28 +22,18 @@ class SongRepository {
     required PaginationRequestWrapper<GetFetchSongsRequest> paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.songs,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('songsPublic.list', query);
       // Use SongMapper to transform backend response to Flutter Song model
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => (e as Map<String, dynamic>).toSong(),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch songs');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch songs', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -67,24 +54,22 @@ class SongRepository {
   /// Get a single song by ID with all its parts
   Future<Result<Song, Failure>> getSongById({required String songId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.song(songId),
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final id = int.tryParse(songId);
+      if (id == null) {
+        return Result.failure(Failure('Invalid songId'));
+      }
+      final body = await socket.rpc('songsPublic.get', {'id': id});
 
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid song response payload'));
       }
       // Use SongMapper to transform backend response to Flutter Song model
       return Result.success(json.toSong());
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch song');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch song', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

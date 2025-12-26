@@ -1,9 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/services.dart';
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
 
 import '../domain/cash_account.dart';
 
@@ -25,7 +22,6 @@ class CashAccountRepository {
     String? sortOrder,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = <String, dynamic>{
         'page': page,
         'pageSize': pageSize,
@@ -34,23 +30,15 @@ class CashAccountRepository {
         if (search != null && search.isNotEmpty) 'search': search,
       };
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.cashAccounts,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('cashAccount.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => CashAccount.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch cash accounts');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch cash accounts', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -60,18 +48,15 @@ class CashAccountRepository {
     int? openingBalance,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.cashAccounts,
-        data: {
-          'name': name,
-          if (currency != null && currency.isNotEmpty) 'currency': currency,
-          if (openingBalance != null) 'openingBalance': openingBalance,
-        },
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('cashAccount.create', {
+        'name': name,
+        if (currency != null && currency.isNotEmpty) 'currency': currency,
+        if (openingBalance != null) 'openingBalance': openingBalance,
+      });
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create cash account response payload'),
@@ -79,12 +64,8 @@ class CashAccountRepository {
       }
 
       return Result.success(CashAccount.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create cash account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to create cash account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -95,18 +76,18 @@ class CashAccountRepository {
     int? openingBalance,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.cashAccount(id.toString()),
-        data: {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('cashAccount.update', {
+        'id': id,
+        'dto': {
           if (name != null) 'name': name,
           if (currency != null) 'currency': currency,
           if (openingBalance != null) 'openingBalance': openingBalance,
         },
-      );
+      });
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update cash account response payload'),
@@ -114,26 +95,18 @@ class CashAccountRepository {
       }
 
       return Result.success(CashAccount.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update cash account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update cash account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<void, Failure>> delete({required int id}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.cashAccount(id.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('cashAccount.delete', {'id': id});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete cash account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete cash account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

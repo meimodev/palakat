@@ -1,13 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
 import '../models/revenue.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/socket_service.dart';
 
 part 'revenue_repository.g.dart';
 
@@ -51,27 +48,17 @@ class RevenueRepository implements RevenueRepositoryBase {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.revenues,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('revenue.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Revenue.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch revenue');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch revenue', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -80,23 +67,16 @@ class RevenueRepository implements RevenueRepositoryBase {
     required int revenueId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.revenue(revenueId.toString()),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('revenue.get', {'id': revenueId});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid revenue response payload'));
       }
       return Result.success(Revenue.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch revenue');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch revenue', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -106,15 +86,15 @@ class RevenueRepository implements RevenueRepositoryBase {
     required Map<String, dynamic> update,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
+      final socket = _ref.read(socketServiceProvider);
 
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.revenue(revenueId.toString()),
-        data: update,
-      );
+      final body = await socket.rpc('revenue.update', {
+        'id': revenueId,
+        'dto': update,
+      });
 
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update revenue response payload'),
@@ -122,12 +102,8 @@ class RevenueRepository implements RevenueRepositoryBase {
       }
 
       return Result.success(Revenue.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update revenue');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update revenue', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -136,41 +112,29 @@ class RevenueRepository implements RevenueRepositoryBase {
     required CreateRevenueRequest request,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.revenues,
-        data: request.toJson(),
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('revenue.create', request.toJson());
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create revenue response payload'),
         );
       }
       return Result.success(Revenue.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create revenue');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to create revenue', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   @override
   Future<Result<void, Failure>> deleteRevenue({required int revenueId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.revenue(revenueId.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('revenue.delete', {'id': revenueId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete revenue');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete revenue', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

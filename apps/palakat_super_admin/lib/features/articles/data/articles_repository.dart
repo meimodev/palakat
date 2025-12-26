@@ -1,20 +1,21 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:palakat_shared/core/models/response/pagination_response_wrapper.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 import '../../auth/application/super_admin_auth_controller.dart';
 import 'article_model.dart';
 
 final articlesRepositoryProvider = Provider<ArticlesRepository>((ref) {
-  final dio = ref.watch(superAdminAuthedDioProvider);
-  return ArticlesRepository(dio: dio);
+  final socket = ref.watch(superAdminSocketServiceProvider);
+  return ArticlesRepository(socket: socket);
 });
 
 class ArticlesRepository {
-  ArticlesRepository({required this.dio});
+  ArticlesRepository({required this.socket});
 
-  final Dio dio;
+  final SocketService socket;
 
   static const Object _notProvided = Object();
 
@@ -38,12 +39,7 @@ class ArticlesRepository {
         'sortOrder': sortOrder.trim(),
     };
 
-    final res = await dio.get<Map<String, dynamic>>(
-      'admin/articles',
-      queryParameters: query,
-    );
-
-    final data = res.data ?? const {};
+    final data = await socket.rpc('admin.articles.list', query);
     return PaginationResponseWrapper.fromJson(
       data,
       (e) => ArticleModel.fromJson(e as Map<String, dynamic>),
@@ -51,8 +47,7 @@ class ArticlesRepository {
   }
 
   Future<ArticleModel> fetchArticle(int id) async {
-    final res = await dio.get<Map<String, dynamic>>('admin/articles/$id');
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.articles.get', {'id': id});
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) {
       throw StateError('Invalid response');
@@ -79,11 +74,7 @@ class ArticlesRepository {
         'coverImageUrl': coverImageUrl.trim(),
     };
 
-    final res = await dio.post<Map<String, dynamic>>(
-      'admin/articles',
-      data: payload,
-    );
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.articles.create', payload);
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return ArticleModel.fromJson(data);
@@ -107,26 +98,25 @@ class ArticlesRepository {
       if (coverImageUrl != _notProvided) 'coverImageUrl': coverImageUrl,
     };
 
-    final res = await dio.patch<Map<String, dynamic>>(
-      'admin/articles/$id',
-      data: payload,
-    );
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.articles.update', {
+      'id': id,
+      'dto': payload,
+    });
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return ArticleModel.fromJson(data);
   }
 
   Future<void> publish(int id) async {
-    await dio.post('admin/articles/$id/publish');
+    await socket.rpc('admin.articles.publish', {'id': id});
   }
 
   Future<void> unpublish(int id) async {
-    await dio.post('admin/articles/$id/unpublish');
+    await socket.rpc('admin.articles.unpublish', {'id': id});
   }
 
   Future<void> archive(int id) async {
-    await dio.delete('admin/articles/$id');
+    await socket.rpc('admin.articles.archive', {'id': id});
   }
 
   Future<ArticleModel> uploadCover({
@@ -134,24 +124,51 @@ class ArticlesRepository {
     required List<int> bytes,
     required String filename,
     String? contentType,
+    void Function(int sentBytes, int totalBytes)? onProgress,
   }) async {
-    final form = FormData.fromMap({
-      'file': MultipartFile.fromBytes(
-        bytes,
-        filename: filename,
-        contentType: contentType == null ? null : MediaType.parse(contentType),
-      ),
+    final init = await socket.rpc('admin.articles.cover.upload.init', {
+      'id': id,
+      'sizeBytes': bytes.length,
+      'contentType': contentType ?? 'image/png',
+      'originalName': filename,
     });
 
-    final res = await dio.post<Map<String, dynamic>>(
-      'admin/articles/$id/cover',
-      data: form,
-      options: Options(contentType: 'multipart/form-data'),
-    );
+    final initData = init['data'];
+    if (initData is! Map) throw StateError('Invalid upload init response');
+    final uploadId = initData['uploadId'];
+    final chunkSize = initData['chunkSize'];
+    if (uploadId is! String || uploadId.isEmpty) {
+      throw StateError('Invalid upload id');
+    }
+    final cs = chunkSize is int ? chunkSize : (256 * 1024);
 
-    final body = res.data ?? const {};
-    final data = body['data'] as Map<String, dynamic>?;
-    if (data == null) throw StateError('Invalid response');
-    return ArticleModel.fromJson(data);
+    int sent = 0;
+    try {
+      while (sent < bytes.length) {
+        final end = (sent + cs) > bytes.length ? bytes.length : (sent + cs);
+        final chunk = bytes.sublist(sent, end);
+        final b64 = base64Encode(chunk);
+        await socket.rpc('admin.articles.cover.upload.chunk', {
+          'uploadId': uploadId,
+          'dataBase64': b64,
+        });
+        sent = end;
+        onProgress?.call(sent, bytes.length);
+      }
+
+      final done = await socket.rpc('admin.articles.cover.upload.complete', {
+        'uploadId': uploadId,
+      });
+      final data = done['data'];
+      if (data is! Map<String, dynamic>) throw StateError('Invalid response');
+      return ArticleModel.fromJson(data);
+    } catch (e) {
+      try {
+        await socket.rpc('admin.articles.cover.upload.abort', {
+          'uploadId': uploadId,
+        });
+      } catch (_) {}
+      rethrow;
+    }
   }
 }

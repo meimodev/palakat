@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
+import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/services.dart';
 
 import 'core/navigation/router.dart';
 import 'core/firebase/firebase_bootstrap.dart';
 import 'core/services/super_admin_auth_storage.dart';
 import 'core/theme/theme.dart';
+import 'features/auth/application/super_admin_auth_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +45,12 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,
+      builder: (context, child) => FileTransferProgressBanner(
+        child: SocketConnectionBanner(
+          child: child,
+          getSocket: (ref) => ref.read(superAdminSocketServiceProvider),
+        ),
+      ),
     );
   }
 }

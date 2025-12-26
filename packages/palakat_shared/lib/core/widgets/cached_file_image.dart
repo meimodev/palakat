@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +31,7 @@ class CachedFileImage extends ConsumerStatefulWidget {
 }
 
 class _CachedFileImageState extends ConsumerState<CachedFileImage> {
-  String? _imageUrl;
+  Uint8List? _imageBytes;
   bool _isLoading = true;
   bool _hasError = false;
 
@@ -58,14 +59,14 @@ class _CachedFileImageState extends ConsumerState<CachedFileImage> {
 
     try {
       final fileRepo = ref.read(fileManagerRepositoryProvider);
-      final result = await fileRepo.resolveDownloadUrl(fileId: widget.fileId);
+      final result = await fileRepo.fetchFileBytes(fileId: widget.fileId);
 
       if (!mounted) return;
 
       result.when(
-        onSuccess: (url) {
+        onSuccess: (bytes) {
           setState(() {
-            _imageUrl = url;
+            _imageBytes = bytes;
             _isLoading = false;
             _hasError = false;
           });
@@ -108,7 +109,7 @@ class _CachedFileImageState extends ConsumerState<CachedFileImage> {
           );
     }
 
-    if (_hasError || _imageUrl == null) {
+    if (_hasError || _imageBytes == null) {
       return widget.errorWidget ??
           SizedBox(
             width: widget.width,
@@ -123,32 +124,11 @@ class _CachedFileImageState extends ConsumerState<CachedFileImage> {
           );
     }
 
-    return Image.network(
-      _imageUrl!,
+    return Image.memory(
+      _imageBytes!,
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return widget.placeholder ??
-            SizedBox(
-              width: widget.width,
-              height: widget.height,
-              child: Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                ),
-              ),
-            );
-      },
       errorBuilder: (context, error, stackTrace) {
         return widget.errorWidget ??
             SizedBox(

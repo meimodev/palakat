@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/presentation.dart';
@@ -10,7 +8,6 @@ import 'package:palakat_shared/models.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:uuid/uuid.dart';
 
 part 'activity_publish_controller.g.dart';
 
@@ -199,15 +196,6 @@ class ActivityPublishController extends _$ActivityPublishController {
 
       int? fileId;
       if (state.type == ActivityType.announcement && state.fileBytes != null) {
-        final firebaseUser = FirebaseAuth.instance.currentUser;
-        if (firebaseUser == null) {
-          state = state.copyWith(
-            loading: false,
-            errorMessage: 'Session expired. Please sign in again.',
-          );
-          return false;
-        }
-
         final churchId = membership.church?.id;
         if (churchId == null) {
           state = state.copyWith(
@@ -217,72 +205,48 @@ class ActivityPublishController extends _$ActivityPublishController {
           return false;
         }
 
-        final firebaseIdToken = await firebaseUser.getIdToken();
-        if (firebaseIdToken == null || firebaseIdToken.trim().isEmpty) {
-          state = state.copyWith(
-            loading: false,
-            errorMessage: 'Session expired. Please sign in again.',
-          );
-          return false;
-        }
-
-        final authRepo = ref.read(authRepositoryProvider);
-        final syncResult = await authRepo.syncClaims(
-          firebaseIdToken: firebaseIdToken,
-        );
-        bool syncOk = true;
-        syncResult.when(
-          onSuccess: (_) {
-            syncOk = true;
-          },
-          onFailure: (failure) {
-            syncOk = false;
-            state = state.copyWith(
-              loading: false,
-              errorMessage: failure.message,
-            );
-          },
-        );
-        if (!syncOk) {
-          return false;
-        }
-
-        await firebaseUser.getIdToken(true);
-
         final originalName = state.file ?? 'attachment';
-        final uuid = const Uuid().v4();
-        final objectName = '${uuid}_$originalName';
-        final path = 'churches/$churchId/announcements/$objectName';
+        final socket = ref.read(socketServiceProvider);
 
-        final metadata = SettableMetadata(contentType: state.fileContentType);
-        await FirebaseStorage.instance
-            .ref(path)
-            .putData(state.fileBytes!, metadata);
-
-        final sizeInKB =
-            (state.fileSizeBytes ?? state.fileBytes!.length) / 1024;
-        final fileRepo = ref.read(fileManagerRepositoryProvider);
-        final finalizeResult = await fileRepo.finalize(
-          churchId: churchId,
-          path: path,
-          sizeInKB: double.parse(sizeInKB.toStringAsFixed(2)),
-          contentType: state.fileContentType,
-          originalName: originalName,
+        final progress = ref.read(
+          fileTransferProgressControllerProvider.notifier,
+        );
+        final progressId = progress.start(
+          direction: FileTransferDirection.upload,
+          totalBytes: state.fileBytes!.length,
+          label: originalName,
         );
 
-        finalizeResult.when(
-          onSuccess: (file) {
-            fileId = file.id;
-          },
-          onFailure: (failure) {
+        try {
+          final uploaded = await socket.uploadFileBytes(
+            churchId: churchId,
+            bytes: state.fileBytes!,
+            originalName: originalName,
+            contentType: state.fileContentType,
+            onProgress: (sent, total) {
+              progress.update(
+                progressId,
+                transferredBytes: sent,
+                totalBytes: total,
+              );
+            },
+          );
+          progress.complete(progressId);
+
+          final data = uploaded['data'];
+          if (data is Map && data['id'] is int) {
+            fileId = data['id'] as int;
+          } else {
+            progress.fail(progressId, errorMessage: 'Invalid upload response');
             state = state.copyWith(
               loading: false,
-              errorMessage: failure.message,
+              errorMessage: 'Invalid upload response',
             );
-          },
-        );
-        if (fileId == null) {
-          return false;
+            return false;
+          }
+        } catch (e) {
+          progress.fail(progressId, errorMessage: e.toString());
+          rethrow;
         }
       }
 

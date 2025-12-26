@@ -1,99 +1,84 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/models.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 part 'church_request_repository.g.dart';
 
 @riverpod
 ChurchRequestRepository churchRequestRepository(Ref ref) {
-  final httpService = ref.watch(httpServiceProvider);
-  return ChurchRequestRepository(httpService);
+  return ChurchRequestRepository(ref);
 }
 
 class ChurchRequestRepository {
-  final HttpService _httpService;
+  final Ref _ref;
 
-  ChurchRequestRepository(this._httpService);
+  ChurchRequestRepository(this._ref);
 
   Future<Result<ChurchRequest, Failure>> createChurchRequest({
     required Map<String, dynamic> data,
   }) async {
     try {
-      final response = await _httpService.post('/church-request', data: data);
-
-      final churchRequest = ChurchRequest.fromJson(response.data['data']);
-      return Result.success(churchRequest);
-    } on DioException catch (e) {
-      return Result.failure(
-        Failure(
-          e.response?.data['message'] ?? 'Failed to submit church request',
-        ),
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('churchRequest.create', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid church request response payload'),
+        );
+      }
+      return Result.success(ChurchRequest.fromJson(json));
     } catch (e) {
-      return Result.failure(Failure('An unexpected error occurred'));
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<ChurchRequest?, Failure>> getMyChurchRequest() async {
     try {
-      final response = await _httpService.get('/church-request/my-request');
-
-      if (response.data['data'] == null) {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('churchRequest.my');
+      final data = body['data'];
+      if (data == null) {
         return Result.success(null);
       }
+      if (data is! Map<String, dynamic>) {
+        return Result.failure(
+          Failure('Invalid church request response payload'),
+        );
+      }
 
-      final churchRequest = ChurchRequest.fromJson(response.data['data']);
-      return Result.success(churchRequest);
-    } on DioException catch (e) {
-      return Result.failure(
-        Failure(
-          e.response?.data['message'] ?? 'Failed to fetch church request',
-        ),
-      );
+      return Result.success(ChurchRequest.fromJson(data));
     } catch (e) {
-      return Result.failure(Failure('An unexpected error occurred'));
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<PaginationResponseWrapper<ChurchRequest>, Failure>>
   fetchChurchRequests({required PaginationRequestWrapper request}) async {
     try {
-      final response = await _httpService.get(
-        '/admin/church-requests',
-        queryParameters: {'page': request.page, 'pageSize': request.pageSize},
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('admin.churchRequest.list', {
+        'page': request.page,
+        'pageSize': request.pageSize,
+      });
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => ChurchRequest.fromJson(e as Map<String, dynamic>),
       );
 
       return Result.success(result);
-    } on DioException catch (e) {
-      return Result.failure(
-        Failure(
-          e.response?.data['message'] ?? 'Failed to fetch church requests',
-        ),
-      );
     } catch (e) {
-      return Result.failure(Failure('An unexpected error occurred'));
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<void, Failure>> deleteChurchRequest(int id) async {
     try {
-      await _httpService.delete('/church-request/$id');
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('admin.churchRequest.delete', {'id': id});
       return Result.success(null);
-    } on DioException catch (e) {
-      return Result.failure(
-        Failure(
-          e.response?.data['message'] ?? 'Failed to delete church request',
-        ),
-      );
     } catch (e) {
-      return Result.failure(Failure('An unexpected error occurred'));
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

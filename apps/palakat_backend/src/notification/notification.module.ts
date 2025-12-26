@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 import { PusherBeamsService } from './pusher-beams.service';
 import { NotificationService } from './notification.service';
-import { NotificationController } from './notification.controller';
 
 /**
  * Notification module for handling push notifications via Pusher Beams.
@@ -16,8 +16,7 @@ import { NotificationController } from './notification.controller';
  * **Validates: Requirements 8.1**
  */
 @Module({
-  imports: [ConfigModule, PrismaModule],
-  controllers: [NotificationController],
+  imports: [ConfigModule, PrismaModule, RealtimeModule],
   providers: [PusherBeamsService, NotificationService],
   exports: [PusherBeamsService, NotificationService],
 })

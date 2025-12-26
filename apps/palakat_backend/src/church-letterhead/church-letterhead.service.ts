@@ -44,6 +44,48 @@ export class ChurchLetterheadService {
     };
   }
 
+  async setLogoFile(logoFileId: number, user?: any) {
+    const churchId = await this.resolveRequesterChurchId(user);
+
+    if (typeof logoFileId !== 'number') {
+      throw new BadRequestException('logoFileId is required');
+    }
+
+    const file = await (this.prisma as any).fileManager.findUnique({
+      where: { id: logoFileId },
+      select: { id: true, churchId: true, contentType: true } as any,
+    });
+
+    if (!file) {
+      throw new BadRequestException('File not found');
+    }
+
+    if (file.churchId !== churchId) {
+      throw new BadRequestException('Invalid church context');
+    }
+
+    if (!file.contentType || !file.contentType.startsWith('image/')) {
+      throw new BadRequestException('Only image uploads are supported');
+    }
+
+    const letterhead = await this.prisma.churchLetterhead.upsert({
+      where: { churchId },
+      create: {
+        church: { connect: { id: churchId } },
+        logoFile: { connect: { id: logoFileId } },
+      } as any,
+      update: {
+        logoFile: { connect: { id: logoFileId } },
+      } as any,
+      include: { logoFile: true },
+    });
+
+    return {
+      message: 'OK',
+      data: letterhead,
+    };
+  }
+
   async updateMe(dto: UpdateChurchLetterheadDto, user?: any) {
     const churchId = await this.resolveRequesterChurchId(user);
 

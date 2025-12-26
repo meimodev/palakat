@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../constants/enums.dart';
@@ -6,9 +5,9 @@ import '../models/report.dart';
 import '../models/report_job.dart';
 import '../models/result.dart';
 import '../models/response/response.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
+import '../services/file_transfer_progress_service.dart';
+import '../services/socket_service.dart';
+import '../utils/file_bytes_url.dart';
 
 part 'report_repository.g.dart';
 
@@ -24,27 +23,17 @@ class ReportRepository {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.reports,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('report.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Report.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch reports');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch reports', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -55,8 +44,6 @@ class ReportRepository {
     int pageSize = 5,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = <String, dynamic>{
         'page': page,
         'pageSize': pageSize,
@@ -65,23 +52,15 @@ class ReportRepository {
         'mine': true,
       };
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.reports,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('report.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Report.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch my reports');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch my reports', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -175,23 +154,16 @@ class ReportRepository {
 
   Future<Result<Report, Failure>> fetchReport({required int reportId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.report(reportId.toString()),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('report.get', {'id': reportId});
+      final Map<String, dynamic> json =
+          (data['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid report response payload'));
       }
       return Result.success(Report.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch report');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch report', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -199,40 +171,28 @@ class ReportRepository {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.generateReport,
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('report.generate', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid generate report response payload'),
         );
       }
       return Result.success(ReportJob.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to generate report');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to generate report', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<void, Failure>> deleteReport({required int reportId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.report(reportId.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('report.delete', {'id': reportId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete report');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete report', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -240,40 +200,44 @@ class ReportRepository {
     required int reportId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final reportResponse = await http.get<Map<String, dynamic>>(
-        Endpoints.report(reportId.toString()),
-      );
-
-      final reportBody = reportResponse.data;
-      final Map<String, dynamic> reportJson = reportBody?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('report.get', {'id': reportId});
+      final Map<String, dynamic> reportJson =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (reportJson.isEmpty) {
         return Result.failure(Failure('Invalid report response payload'));
       }
 
       final report = Report.fromJson(reportJson);
-      final fileId = report.fileId;
 
-      final resolveResponse = await http.get<Map<String, dynamic>>(
-        Endpoints.fileManagerResolveDownloadUrl(fileId.toString()),
+      final progress = _ref.read(
+        fileTransferProgressControllerProvider.notifier,
+      );
+      final progressId = progress.start(
+        direction: FileTransferDirection.download,
+        totalBytes: 0,
+        label: report.name,
       );
 
-      final resolveBody = resolveResponse.data ?? {};
-      final resolveData = resolveBody['data'];
-      if (resolveData is! Map<String, dynamic>) {
-        return Result.failure(Failure('Invalid resolve download url payload'));
-      }
-      final url = resolveData['url'];
-      if (url is! String || url.trim().isEmpty) {
-        return Result.failure(Failure('Invalid resolve download url response'));
-      }
+      final dl = await socket.downloadFileBytes(
+        fileId: report.fileId,
+        onProgress: (received, total) {
+          progress.update(
+            progressId,
+            transferredBytes: received,
+            totalBytes: total,
+          );
+        },
+      );
+      progress.complete(progressId);
+      final url = await bytesToUrl(
+        bytes: dl.bytes,
+        filename: dl.originalName ?? report.name,
+        contentType: dl.contentType,
+      );
       return Result.success(url);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to download report');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to download report', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -292,39 +256,31 @@ class ReportRepository {
     DateTime? endDate,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.generateReport,
-        data: {
-          'type': _reportGenerateTypeToApi(type),
-          if (input != null) 'input': _documentInputToApi(input),
-          if (congregationSubtype != null)
-            'congregationSubtype': _congregationReportSubtypeToApi(
-              congregationSubtype,
-            ),
-          if (columnId != null) 'columnId': columnId,
-          if (activityType != null)
-            'activityType': activityType.name.toUpperCase(),
-          if (financialSubtype != null)
-            'financialSubtype': _financialReportSubtypeToApi(financialSubtype),
-          if (format != null) 'format': _reportFormatToApi(format),
-          if (startDate != null) 'startDate': startDate.toIso8601String(),
-          if (endDate != null) 'endDate': endDate.toIso8601String(),
-        },
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('report.generate', {
+        'type': _reportGenerateTypeToApi(type),
+        if (input != null) 'input': _documentInputToApi(input),
+        if (congregationSubtype != null)
+          'congregationSubtype': _congregationReportSubtypeToApi(
+            congregationSubtype,
+          ),
+        if (columnId != null) 'columnId': columnId,
+        if (activityType != null)
+          'activityType': activityType.name.toUpperCase(),
+        if (financialSubtype != null)
+          'financialSubtype': _financialReportSubtypeToApi(financialSubtype),
+        if (format != null) 'format': _reportFormatToApi(format),
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid queue report response payload'));
       }
       return Result.success(ReportJob.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to queue report');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to queue report', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -336,8 +292,6 @@ class ReportRepository {
     ReportJobStatus? status,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = <String, dynamic>{
         'page': page,
         'pageSize': pageSize,
@@ -346,23 +300,15 @@ class ReportRepository {
         if (status != null) 'status': status.name.toUpperCase(),
       };
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.reportJobs,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('reportJob.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => ReportJob.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch report jobs');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch report jobs', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -371,38 +317,27 @@ class ReportRepository {
     required int jobId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.reportJob(jobId),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('reportJob.get', {'id': jobId});
+      final Map<String, dynamic> json =
+          (data['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid report job response payload'));
       }
       return Result.success(ReportJob.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch report job');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch report job', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   /// Cancel a pending report job
   Future<Result<void, Failure>> cancelReportJob({required int jobId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.reportJob(jobId));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('reportJob.cancel', {'id': jobId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to cancel report job');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to cancel report job', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

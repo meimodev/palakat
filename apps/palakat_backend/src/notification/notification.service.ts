@@ -9,6 +9,7 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationListQueryDto } from './dto/notification-list.dto';
 import { PusherBeamsService } from './pusher-beams.service';
 import { NotificationType } from '../generated/prisma/client';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 
 /**
  * Interface representing an activity with relations needed for notifications
@@ -83,6 +84,7 @@ export class NotificationService {
   constructor(
     private prisma: PrismaService,
     private pusherBeams: PusherBeamsService,
+    private realtime: RealtimeEmitterService,
   ) {}
 
   /**
@@ -107,6 +109,14 @@ export class NotificationService {
         activity: true,
       },
     });
+
+    try {
+      this.realtime.emitToRoom(
+        createNotificationDto.recipient,
+        'notification.created',
+        { data: notification },
+      );
+    } catch (_) {}
 
     return {
       message: 'Notification created successfully',
@@ -425,6 +435,12 @@ export class NotificationService {
       },
     });
 
+    try {
+      this.realtime.emitToRoom(membershipInterest, 'notification.updated', {
+        data: notification,
+      });
+    } catch (_) {}
+
     return {
       message: 'Notification marked as read',
       data: notification,
@@ -462,6 +478,12 @@ export class NotificationService {
     await (this.prisma as any).notification.delete({
       where: { id },
     });
+
+    try {
+      this.realtime.emitToRoom(membershipInterest, 'notification.deleted', {
+        data: { id },
+      });
+    } catch (_) {}
 
     return {
       message: 'Notification deleted successfully',

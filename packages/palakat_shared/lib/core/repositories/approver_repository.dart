@@ -1,6 +1,5 @@
 import 'dart:developer' as developer;
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/approver.dart';
@@ -8,9 +7,7 @@ import '../models/approval_status.dart';
 import '../models/request/request.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
+import '../services/socket_service.dart';
 
 part 'approver_repository.g.dart';
 
@@ -27,27 +24,17 @@ class ApproverRepository {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.approvers,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('approver.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Approver.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch approvers');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch approvers', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -56,23 +43,16 @@ class ApproverRepository {
     required int approverId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.approver(approverId),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approver.get', {'id': approverId});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid approver response payload'));
       }
       return Result.success(Approver.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch approver');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch approver', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -82,20 +62,20 @@ class ApproverRepository {
     required Map<String, dynamic> update,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approver.update', {
+        'id': approverId,
+        'dto': update,
+      });
 
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.approver(approverId),
-        data: update,
-      );
-
-      final data = response.data;
+      final data = body;
       developer.log(
         'updateApprover response: $data',
         name: 'ApproverRepository',
       );
 
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (data['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update approver response payload'),
@@ -103,14 +83,6 @@ class ApproverRepository {
       }
 
       return Result.success(Approver.fromJson(json));
-    } on DioException catch (e) {
-      developer.log(
-        'updateApprover DioException: ${e.message}',
-        name: 'ApproverRepository',
-        error: e,
-      );
-      final error = ErrorMapper.fromDio(e, 'Failed to update approver');
-      return Result.failure(Failure(error.message, error.statusCode));
     } catch (e, st) {
       developer.log(
         'updateApprover error: $e',
@@ -118,8 +90,7 @@ class ApproverRepository {
         error: e,
         stackTrace: st,
       );
-      final error = ErrorMapper.unknown('Failed to update approver', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -128,26 +99,18 @@ class ApproverRepository {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.approvers,
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approver.create', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create approver response payload'),
         );
       }
       return Result.success(Approver.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create approver');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to create approver', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -156,15 +119,11 @@ class ApproverRepository {
     required int approverId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.approver(approverId));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('approver.delete', {'id': approverId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete approver');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete approver', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 

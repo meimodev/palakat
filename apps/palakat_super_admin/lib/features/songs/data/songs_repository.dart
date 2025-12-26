@@ -1,20 +1,20 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/models/response/pagination_response_wrapper.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 import '../../auth/application/super_admin_auth_controller.dart';
 import 'admin_song_model.dart';
 import 'admin_song_part_model.dart';
 
 final songsRepositoryProvider = Provider<SongsRepository>((ref) {
-  final dio = ref.watch(superAdminAuthedDioProvider);
-  return SongsRepository(dio: dio);
+  final socket = ref.watch(superAdminSocketServiceProvider);
+  return SongsRepository(socket: socket);
 });
 
 class SongsRepository {
-  SongsRepository({required this.dio});
+  SongsRepository({required this.socket});
 
-  final Dio dio;
+  final SocketService socket;
 
   Future<PaginationResponseWrapper<AdminSongModel>> fetchSongs({
     required int page,
@@ -32,12 +32,7 @@ class SongsRepository {
         'sortOrder': sortOrder.trim(),
     };
 
-    final res = await dio.get<Map<String, dynamic>>(
-      'admin/songs',
-      queryParameters: query,
-    );
-
-    final data = res.data ?? const {};
+    final data = await socket.rpc('admin.songs.list', query);
     return PaginationResponseWrapper.fromJson(
       data,
       (e) => AdminSongModel.fromJson(e as Map<String, dynamic>),
@@ -45,8 +40,7 @@ class SongsRepository {
   }
 
   Future<AdminSongModel> fetchSong(int id) async {
-    final res = await dio.get<Map<String, dynamic>>('admin/songs/$id');
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.songs.get', {'id': id});
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) {
       throw StateError('Invalid response');
@@ -67,11 +61,7 @@ class SongsRepository {
       'link': link,
     };
 
-    final res = await dio.post<Map<String, dynamic>>(
-      'admin/songs',
-      data: payload,
-    );
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.songs.create', payload);
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return AdminSongModel.fromJson(data);
@@ -91,18 +81,17 @@ class SongsRepository {
       if (link != null) 'link': link,
     };
 
-    final res = await dio.patch<Map<String, dynamic>>(
-      'admin/songs/$id',
-      data: payload,
-    );
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.songs.update', {
+      'id': id,
+      'dto': payload,
+    });
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return AdminSongModel.fromJson(data);
   }
 
   Future<void> deleteSong(int id) async {
-    await dio.delete('admin/songs/$id');
+    await socket.rpc('admin.songs.delete', {'id': id});
   }
 
   Future<AdminSongPartModel> createSongPart({
@@ -120,12 +109,8 @@ class SongsRepository {
       },
     };
 
-    final res = await dio.post<Map<String, dynamic>>(
-      'admin/song-parts',
-      data: payload,
-    );
+    final body = await socket.rpc('admin.songParts.create', payload);
 
-    final body = res.data ?? const {};
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return AdminSongPartModel.fromJson(data);
@@ -143,18 +128,17 @@ class SongsRepository {
       if (content != null) 'content': content,
     };
 
-    final res = await dio.patch<Map<String, dynamic>>(
-      'admin/song-parts/$id',
-      data: payload,
-    );
+    final body = await socket.rpc('admin.songParts.update', {
+      'id': id,
+      'dto': payload,
+    });
 
-    final body = res.data ?? const {};
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return AdminSongPartModel.fromJson(data);
   }
 
   Future<void> deleteSongPart(int id) async {
-    await dio.delete('admin/song-parts/$id');
+    await socket.rpc('admin.songParts.delete', {'id': id});
   }
 }

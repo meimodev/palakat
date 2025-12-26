@@ -262,6 +262,13 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
         : 'png';
     final filename = file.name.trim().isNotEmpty ? file.name : 'cover.$ext';
 
+    final progress = ref.read(fileTransferProgressControllerProvider.notifier);
+    final progressId = progress.start(
+      direction: FileTransferDirection.upload,
+      totalBytes: bytes.length,
+      label: filename,
+    );
+
     setState(() => _loading = true);
     try {
       final repo = ref.read(articlesRepositoryProvider);
@@ -270,7 +277,15 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
         bytes: bytes,
         filename: filename,
         contentType: inferContentType(ext),
+        onProgress: (sent, total) {
+          progress.update(
+            progressId,
+            transferredBytes: sent,
+            totalBytes: total,
+          );
+        },
       );
+      progress.complete(progressId);
       _loaded = updated;
       _coverImageUrl = updated.coverImageUrl;
 
@@ -279,6 +294,13 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
           context,
         ).showSnackBar(const SnackBar(content: Text('Cover uploaded')));
         setState(() {});
+      }
+    } catch (e) {
+      progress.fail(progressId, errorMessage: e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _loading = false);

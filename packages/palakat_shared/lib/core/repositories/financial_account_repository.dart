@@ -1,13 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
 import '../models/financial_account_number.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/socket_service.dart';
 
 part 'financial_account_repository.g.dart';
 
@@ -24,66 +21,43 @@ class FinancialAccountRepository {
 
   /// Fetches list of financial account numbers with pagination
   Future<Result<PaginationResponseWrapper<FinancialAccountNumber>, Failure>>
-      getAll({
+  getAll({
     required PaginationRequestWrapper<GetFinancialAccountsRequest>
-        paginationRequest,
+    paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.financialAccountNumbers,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('financialAccountNumber.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => FinancialAccountNumber.fromJson(e as Map<String, dynamic>),
       );
 
       return Result.success(result);
-    } on DioException catch (e) {
-      final error =
-          ErrorMapper.fromDio(e, 'Failed to fetch financial accounts');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error =
-          ErrorMapper.unknown('Failed to fetch financial accounts', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
-
 
   /// Creates a new financial account number
   Future<Result<FinancialAccountNumber, Failure>> create({
     required Map<String, dynamic> data,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.financialAccountNumbers,
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('financialAccountNumber.create', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create financial account response payload'),
         );
       }
       return Result.success(FinancialAccountNumber.fromJson(json));
-    } on DioException catch (e) {
-      final error =
-          ErrorMapper.fromDio(e, 'Failed to create financial account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error =
-          ErrorMapper.unknown('Failed to create financial account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -93,45 +67,32 @@ class FinancialAccountRepository {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.financialAccountNumber(id.toString()),
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('financialAccountNumber.update', {
+        'id': id,
+        'dto': data,
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update financial account response payload'),
         );
       }
       return Result.success(FinancialAccountNumber.fromJson(json));
-    } on DioException catch (e) {
-      final error =
-          ErrorMapper.fromDio(e, 'Failed to update financial account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error =
-          ErrorMapper.unknown('Failed to update financial account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   /// Deletes a financial account number
   Future<Result<void, Failure>> delete({required int id}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.financialAccountNumber(id.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('financialAccountNumber.delete', {'id': id});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error =
-          ErrorMapper.fromDio(e, 'Failed to delete financial account');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error =
-          ErrorMapper.unknown('Failed to delete financial account', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

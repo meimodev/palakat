@@ -57,46 +57,45 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
               activityType,
               financialSubtype,
             ) async {
-              if (context.mounted) {
-                final controller = ref.read(reportControllerProvider.notifier);
-                try {
-                  final success = await controller.queueReport({
-                    'type': reportType,
-                    'format': format.name.toUpperCase(),
-                    if (input != null) 'input': input.name.toUpperCase(),
-                    if (congregationSubtype != null)
-                      'congregationSubtype': _congregationSubtypeToApi(
-                        congregationSubtype,
-                      ),
-                    if (activityType != null)
-                      'activityType': activityType.name.toUpperCase(),
-                    if (financialSubtype != null)
-                      'financialSubtype': _financialReportSubtypeToApi(
-                        financialSubtype,
-                      ),
-                    if (columnId != null) 'columnId': columnId,
-                    if (range != null)
-                      'startDate': range.start.toIso8601String(),
-                    if (range != null) 'endDate': range.end.toIso8601String(),
-                  });
+              if (!mounted) return;
+              final l10n = context.l10n;
+              final controller = ref.read(reportControllerProvider.notifier);
+              try {
+                final success = await controller.queueReport({
+                  'type': reportType,
+                  'format': format.name.toUpperCase(),
+                  if (input != null) 'input': input.name.toUpperCase(),
+                  if (congregationSubtype != null)
+                    'congregationSubtype': _congregationSubtypeToApi(
+                      congregationSubtype,
+                    ),
+                  if (activityType != null)
+                    'activityType': activityType.name.toUpperCase(),
+                  if (financialSubtype != null)
+                    'financialSubtype': _financialReportSubtypeToApi(
+                      financialSubtype,
+                    ),
+                  if (columnId != null) 'columnId': columnId,
+                  if (range != null) 'startDate': range.start.toIso8601String(),
+                  if (range != null) 'endDate': range.end.toIso8601String(),
+                });
 
-                  if (context.mounted && success) {
-                    DrawerUtils.closeDrawer(context);
-                    AppSnackbars.showSuccess(
-                      context,
-                      title: context.l10n.msg_reportQueuedShort,
-                      message: context.l10n.msg_reportQueued,
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    AppSnackbars.showError(
-                      context,
-                      title: context.l10n.msg_reportFailed,
-                      message: e.toString(),
-                    );
-                  }
+                if (!mounted) return;
+                if (success) {
+                  DrawerUtils.closeDrawer(context);
+                  AppSnackbars.showSuccess(
+                    context,
+                    title: l10n.msg_reportQueuedShort,
+                    message: l10n.msg_reportQueued,
+                  );
                 }
+              } catch (e) {
+                if (!mounted) return;
+                AppSnackbars.showError(
+                  context,
+                  title: l10n.msg_reportFailed,
+                  message: e.toString(),
+                );
               }
             },
       ),

@@ -4,7 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { HelperService } from '../common/helper/helper.service';
 import { AccountModule } from './account/account.module';
 import { ActivitiesModule } from './activity/activity.module';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApprovalRuleModule } from './approval-rule/approval-rule.module';
 import { ApproverModule } from './approver/approver.module';
@@ -31,6 +30,7 @@ import { SongPartModule } from './song-part/song-part.module';
 import { SongModule } from './song/song.module';
 import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.module';
 import { FinanceModule } from './finance/finance.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
@@ -39,6 +39,7 @@ import { FinanceModule } from './finance/finance.module';
     PrismaModule,
     FirebaseModule,
     AuthModule,
+    RealtimeModule,
     AccountModule,
     MembershipModule,
     ActivitiesModule,
@@ -63,7 +64,6 @@ import { FinanceModule } from './finance/finance.module';
     FinanceModule,
     NotificationModule,
   ],
-  controllers: [AppController],
   providers: [AppService, Logger, PrismaExceptionFilter, HelperService],
   exports: [HelperService],
 })

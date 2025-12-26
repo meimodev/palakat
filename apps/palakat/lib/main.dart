@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -15,10 +14,12 @@ import 'package:palakat/core/services/notification_display_service.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
 import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
+import 'package:palakat/core/services/realtime_notification_listener.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
-import 'package:palakat_shared/core/models/auth_tokens.dart';
+import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
+import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
@@ -275,49 +276,30 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
-        httpServiceProvider.overrideWith((ref) {
+        socketServiceProvider.overrideWith((ref) {
           final config = ref.watch(appConfigProvider);
           final localStorage = ref.watch(localStorageServiceProvider);
-          final headers = <String, String>{};
 
-          return HttpService(
-            baseUrl: config.apiBaseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 20),
-            sendTimeout: const Duration(seconds: 20),
-            extraHeaders: headers.isEmpty ? null : headers,
+          final api = Uri.parse(config.apiBaseUrl);
+          final wsBase =
+              '${api.scheme}://${api.host}${api.hasPort ? ':${api.port}' : ''}';
+
+          late final SocketService service;
+          service = SocketService(
+            url: wsBase,
             accessTokenProvider: () => localStorage.accessToken ?? '',
             refreshTokens: () async {
               final refreshToken = localStorage.refreshToken;
               if (refreshToken == null || refreshToken.isEmpty) {
-                throw StateError('No refresh token available');
+                throw Failure('No refresh token available');
               }
-
-              final dio = Dio(
-                BaseOptions(
-                  baseUrl: config.apiBaseUrl,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    if (headers.isNotEmpty) ...headers,
-                  },
-                ),
-              );
-
-              final res = await dio.post<Map<String, dynamic>>(
-                Endpoints.refresh,
-                data: {'refresh_token': refreshToken},
-              );
-
-              final data = res.data ?? const {};
-              final tokens = AuthTokens.fromJson(data['data']);
+              final tokens = await service.refresh(refreshToken: refreshToken);
               await localStorage.saveTokens(tokens);
+              return tokens;
             },
             onUnauthorized: () async {
-              // Show the unauthorized sheet ASAP. Cleanup must never block UI.
               unawaited(_handleUnauthorized());
 
-              // Best-effort cleanup in the background.
               unawaited(() async {
                 try {
                   final pusherBeamsController = ref.read(
@@ -332,6 +314,8 @@ void main() async {
               } catch (_) {}
             },
           );
+
+          return service;
         }),
       ],
       child: const MyApp(),
@@ -352,6 +336,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    ref.read(realtimeNotificationListenerProvider);
 
     _localeSubscription = ref.listenManual(localeControllerProvider, (
       prev,
@@ -510,6 +496,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         routeInformationProvider: router.routeInformationProvider,
         title: l10n.appTitle,
         theme: BaseTheme.appTheme,
+        builder: (context, child) => FileTransferProgressBanner(
+          child: SocketConnectionBanner(child: child),
+        ),
         // Localization configuration - Requirements: 1.1, 1.4
         locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,

@@ -1,22 +1,22 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/church_request.dart';
 import 'package:palakat_shared/core/models/response/pagination_response_wrapper.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 import '../../auth/application/super_admin_auth_controller.dart';
 
 final churchRequestsRepositoryProvider = Provider<ChurchRequestsRepository>((
   ref,
 ) {
-  final dio = ref.watch(superAdminAuthedDioProvider);
-  return ChurchRequestsRepository(dio: dio);
+  final socket = ref.watch(superAdminSocketServiceProvider);
+  return ChurchRequestsRepository(socket: socket);
 });
 
 class ChurchRequestsRepository {
-  ChurchRequestsRepository({required this.dio});
+  ChurchRequestsRepository({required this.socket});
 
-  final Dio dio;
+  final SocketService socket;
 
   String _requestStatusToApi(RequestStatus status) {
     switch (status) {
@@ -49,12 +49,7 @@ class ChurchRequestsRepository {
         'sortOrder': sortOrder.trim(),
     };
 
-    final res = await dio.get<Map<String, dynamic>>(
-      'admin/church-requests',
-      queryParameters: query,
-    );
-
-    final data = res.data ?? const {};
+    final data = await socket.rpc('admin.churchRequest.list', query);
     return PaginationResponseWrapper.fromJson(
       data,
       (e) => ChurchRequest.fromJson(e as Map<String, dynamic>),
@@ -62,10 +57,7 @@ class ChurchRequestsRepository {
   }
 
   Future<ChurchRequest> fetchChurchRequest(int id) async {
-    final res = await dio.get<Map<String, dynamic>>(
-      'admin/church-requests/$id',
-    );
-    final body = res.data ?? const {};
+    final body = await socket.rpc('admin.churchRequest.get', {'id': id});
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) {
       throw StateError('Invalid response');
@@ -78,7 +70,7 @@ class ChurchRequestsRepository {
       if (decisionNote != null && decisionNote.trim().isNotEmpty)
         'decisionNote': decisionNote.trim(),
     };
-    await dio.post('admin/church-requests/$id/approve', data: payload);
+    await socket.rpc('admin.churchRequest.approve', {'id': id, 'dto': payload});
   }
 
   Future<void> reject({required int id, required String decisionNote}) async {
@@ -86,9 +78,9 @@ class ChurchRequestsRepository {
     if (trimmed.isEmpty) {
       throw StateError('Decision note is required');
     }
-    await dio.post(
-      'admin/church-requests/$id/reject',
-      data: {'decisionNote': trimmed},
-    );
+    await socket.rpc('admin.churchRequest.reject', {
+      'id': id,
+      'dto': {'decisionNote': trimmed},
+    });
   }
 }

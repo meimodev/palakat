@@ -1,10 +1,7 @@
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
-import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
-import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
+import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 import '../../../core/services/super_admin_auth_storage.dart';
 
@@ -12,82 +9,25 @@ final superAdminAuthStorageProvider = Provider<SuperAdminAuthStorage>((ref) {
   return SuperAdminAuthStorage();
 });
 
-final superAdminDioProvider = Provider<Dio>((ref) {
-  final config = ref.watch(appConfigProvider);
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: config.apiBaseUrl,
-      headers: const {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
-  );
-
-  // Add logging interceptor in debug mode
-  if (kDebugMode) {
-    dio.interceptors.add(
-      TalkerDioLogger(
-        settings: const TalkerDioLoggerSettings(
-          printRequestHeaders: true,
-          printResponseHeaders: false,
-          printResponseMessage: true,
-        ),
-      ),
-    );
-  }
-
-  return dio;
-});
-
-final superAdminAuthedDioProvider = Provider<Dio>((ref) {
+final superAdminSocketServiceProvider = Provider<SocketService>((ref) {
   final config = ref.watch(appConfigProvider);
   final storage = ref.watch(superAdminAuthStorageProvider);
   final token = ref.watch(superAdminAuthControllerProvider).asData?.value;
 
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: config.apiBaseUrl,
-      headers: const {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
+  final api = Uri.parse(config.apiBaseUrl);
+  final wsBase =
+      '${api.scheme}://${api.host}${api.hasPort ? ':${api.port}' : ''}';
+
+  return SocketService(
+    url: wsBase,
+    accessTokenProvider: () => token ?? storage.accessToken ?? '',
+    refreshTokens: () async {
+      throw Failure('No refresh token available');
+    },
+    onUnauthorized: () async {
+      await ref.read(superAdminAuthControllerProvider.notifier).signOut();
+    },
   );
-
-  // Add logging interceptor in debug mode
-  if (kDebugMode) {
-    dio.interceptors.add(
-      TalkerDioLogger(
-        settings: const TalkerDioLoggerSettings(
-          printRequestHeaders: true,
-          printResponseHeaders: false,
-          printResponseMessage: true,
-        ),
-      ),
-    );
-  }
-
-  dio.interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (options, handler) {
-        final accessToken = token ?? storage.accessToken;
-        if (accessToken != null && accessToken.trim().isNotEmpty) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
-        handler.next(options);
-      },
-      onError: (error, handler) async {
-        final status = error.response?.statusCode;
-        if (status == 401) {
-          await ref.read(superAdminAuthControllerProvider.notifier).signOut();
-        }
-        handler.next(error);
-      },
-    ),
-  );
-
-  return dio;
 });
 
 final superAdminAuthControllerProvider =
@@ -105,7 +45,7 @@ class SuperAdminAuthController extends AsyncNotifier<String?> {
   Future<void> signIn({required String phone, required String password}) async {
     state = const AsyncLoading();
     try {
-      final dio = ref.read(superAdminDioProvider);
+      final socket = ref.read(superAdminSocketServiceProvider);
       final storage = ref.read(superAdminAuthStorageProvider);
 
       final trimmedPhone = phone.trim();
@@ -115,12 +55,11 @@ class SuperAdminAuthController extends AsyncNotifier<String?> {
         throw StateError('Phone and password are required');
       }
 
-      final res = await dio.post<Map<String, dynamic>>(
-        Endpoints.superAdminSignIn,
-        data: {'phone': trimmedPhone, 'password': trimmedPassword},
-      );
+      final body = await socket.rpc('auth.superAdminSignIn', {
+        'phone': trimmedPhone,
+        'password': trimmedPassword,
+      });
 
-      final body = res.data ?? const {};
       final data = (body['data'] as Map<String, dynamic>?) ?? const {};
       final tokens = (data['tokens'] as Map<String, dynamic>?) ?? const {};
       final accessToken =
@@ -131,18 +70,18 @@ class SuperAdminAuthController extends AsyncNotifier<String?> {
 
       await storage.saveAccessToken(accessToken);
       state = AsyncData(accessToken);
-    } on DioException catch (e, st) {
-      final status = e.response?.statusCode;
-      if (status == 401) {
-        state = AsyncError(StateError('Invalid phone/password'), st);
-        return;
-      }
-      if (status == 403) {
-        state = AsyncError(StateError('Super admin account required'), st);
-        return;
-      }
-      state = AsyncError(e, st);
     } catch (e, st) {
+      if (e is Failure) {
+        final msg = e.message.toLowerCase();
+        if (msg.contains('invalid credentials')) {
+          state = AsyncError(StateError('Invalid phone/password'), st);
+          return;
+        }
+        if (msg.contains('super admin') || msg.contains('forbidden')) {
+          state = AsyncError(StateError('Super admin account required'), st);
+          return;
+        }
+      }
       state = AsyncError(e, st);
     }
   }

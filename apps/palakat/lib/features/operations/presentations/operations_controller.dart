@@ -6,7 +6,7 @@ import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
-import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -35,6 +35,18 @@ class OperationsController extends _$OperationsController {
     Future.microtask(() {
       fetchData();
     });
+
+    ref.listen(realtimeEventProvider, (_, next) {
+      final e = next.asData?.value;
+      if (e == null) return;
+
+      if (e.name == 'reportJob.created' ||
+          e.name == 'reportJob.updated' ||
+          e.name == 'report.ready') {
+        Future.microtask(() => fetchReportData());
+      }
+    });
+
     return const OperationsState();
   }
 

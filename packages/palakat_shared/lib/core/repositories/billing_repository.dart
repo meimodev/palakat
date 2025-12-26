@@ -1,9 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/billing.dart';
 import 'package:palakat_shared/core/models/result.dart';
-import 'package:palakat_shared/core/utils/error_mapper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'billing_repository.g.dart';
@@ -21,12 +19,8 @@ class BillingRepository {
       final items = _generateMockBillingItems();
 
       return Result.success(items);
-    } on DioException catch (e, st) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch billing items', st);
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch billing items', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -44,20 +38,8 @@ class BillingRepository {
       final payments = _generateMockPaymentHistory();
 
       return Result.success(payments);
-    } on DioException catch (e, st) {
-      final error = ErrorMapper.fromDio(
-        e,
-        'Failed to fetch payment history',
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch payment history',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -82,12 +64,8 @@ class BillingRepository {
 
       await Future.delayed(const Duration(milliseconds: 500));
       return Result.success(null);
-    } on DioException catch (e, st) {
-      final error = ErrorMapper.fromDio(e, 'Failed to record payment', st);
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to record payment', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 

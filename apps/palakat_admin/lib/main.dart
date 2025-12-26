@@ -5,6 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
+import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -55,6 +57,9 @@ class PalakatAdminApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,
+      builder: (context, child) => FileTransferProgressBanner(
+        child: SocketConnectionBanner(child: child),
+      ),
       // Localization configuration - Requirements: 1.2, 1.4
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,

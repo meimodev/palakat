@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/approval_rule.dart';
 import '../models/financial_account_number.dart';
@@ -6,9 +5,7 @@ import '../models/member_position.dart';
 import '../models/request/request.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
-import '../config/endpoint.dart';
+import '../services/socket_service.dart';
 
 part 'approval_repository.g.dart';
 
@@ -25,30 +22,17 @@ class ApprovalRepository {
     paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.approvalRules,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('approvalRule.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => ApprovalRule.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch approval rules');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch approval rules',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -59,26 +43,17 @@ class ApprovalRepository {
     paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.membershipPositions,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('membershipPosition.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => MemberPosition.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch positions');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch positions', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -87,13 +62,10 @@ class ApprovalRepository {
     int ruleId,
   ) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.approvalRule(ruleId.toString()),
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approvalRule.get', {'id': ruleId});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid approval rule response payload'),
@@ -101,12 +73,8 @@ class ApprovalRepository {
       }
 
       return Result.success(ApprovalRule.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch approval rule');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch approval rule', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -115,14 +83,10 @@ class ApprovalRepository {
     Map<String, dynamic> data,
   ) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.approvalRules,
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approvalRule.create', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create approval rule response payload'),
@@ -130,16 +94,8 @@ class ApprovalRepository {
       }
 
       return Result.success(ApprovalRule.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create approval rule');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to create approval rule',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -149,14 +105,13 @@ class ApprovalRepository {
     required Map<String, dynamic> data,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.approvalRule(ruleId.toString()),
-        data: data,
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approvalRule.update', {
+        'id': ruleId,
+        'dto': data,
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update approval rule response payload'),
@@ -164,35 +119,19 @@ class ApprovalRepository {
       }
 
       return Result.success(ApprovalRule.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update approval rule');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to update approval rule',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   /// Delete an approval rule
   Future<Result<void, Failure>> deleteApprovalRule(int ruleId) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete(Endpoints.approvalRule(ruleId.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('approvalRule.delete', {'id': ruleId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete approval rule');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to delete approval rule',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -203,7 +142,6 @@ class ApprovalRepository {
   Future<Result<List<FinancialAccountNumber>, Failure>>
   fetchFinancialAccountNumbers({required int churchId, String? type}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = <String, dynamic>{
         'churchId': churchId,
         'page': 1,
@@ -213,30 +151,15 @@ class ApprovalRepository {
         query['type'] = type;
       }
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.financialAccountNumbers,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('financialAccountNumber.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => FinancialAccountNumber.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result.data);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(
-        e,
-        'Failed to fetch financial accounts',
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch financial accounts',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -251,8 +174,11 @@ class ApprovalRepository {
     int? currentRuleId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final query = <String, dynamic>{'churchId': churchId};
+      final query = <String, dynamic>{
+        'churchId': churchId,
+        'page': 1,
+        'pageSize': 100,
+      };
       if (type != null) {
         query['type'] = type;
       }
@@ -260,32 +186,15 @@ class ApprovalRepository {
         query['currentRuleId'] = currentRuleId;
       }
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.availableFinancialAccountNumbers,
-        queryParameters: query,
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('financialAccountNumber.available', query);
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => FinancialAccountNumber.fromJson(e as Map<String, dynamic>),
       );
-
-      final data = response.data ?? {};
-      final List<dynamic> items = data['data'] ?? [];
-      final accounts = items
-          .map(
-            (e) => FinancialAccountNumber.fromJson(e as Map<String, dynamic>),
-          )
-          .toList();
-      return Result.success(accounts);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(
-        e,
-        'Failed to fetch available financial accounts',
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch available financial accounts',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+      return Result.success(result.data);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

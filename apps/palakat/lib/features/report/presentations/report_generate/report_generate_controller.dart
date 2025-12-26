@@ -386,10 +386,12 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
   }
 
   Future<GeneratedReportDownload?> generateAndResolveDownloadUrl() async {
-    final report = await generateReport();
+    final job = await queueReport();
+    final report = job?.report;
     if (report?.id == null) return null;
 
-    final url = await resolveDownloadUrl(reportId: report!.id!);
+    final reportId = report!.id!;
+    final url = await resolveDownloadUrl(reportId: reportId);
     if (url == null) return null;
 
     return GeneratedReportDownload(report: report, url: url);

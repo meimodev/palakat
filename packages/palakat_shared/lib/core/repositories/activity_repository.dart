@@ -1,13 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
 import '../models/activity.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/socket_service.dart';
 
 part 'activity_repository.g.dart';
 
@@ -24,27 +21,16 @@ class ActivityRepository {
     paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
-
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.activities,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('activity.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Activity.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch activities');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch activities', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -52,23 +38,16 @@ class ActivityRepository {
     required int activityId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.activity(activityId.toString()),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('activity.get', {'id': activityId});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid activity response payload'));
       }
       return Result.success(Activity.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch activity');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch activity', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -77,15 +56,14 @@ class ActivityRepository {
     required Map<String, dynamic> update,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('activity.update', {
+        'id': activityId,
+        'dto': update,
+      });
 
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.activity(activityId.toString()),
-        data: update,
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update activity response payload'),
@@ -93,12 +71,8 @@ class ActivityRepository {
       }
 
       return Result.success(Activity.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update activity');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update activity', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -106,8 +80,6 @@ class ActivityRepository {
     required CreateActivityRequest request,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final payload = request.toJson();
 
       final locationName = payload.remove('locationName');
@@ -127,25 +99,19 @@ class ActivityRepository {
         };
       }
 
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.activities,
-        data: payload,
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('activity.create', payload);
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create activity response payload'),
         );
       }
       return Result.success(Activity.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create activity');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to create activity', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -153,15 +119,11 @@ class ActivityRepository {
     required int activityId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.activity(activityId.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('activity.delete', {'id': activityId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete activity');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete activity', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

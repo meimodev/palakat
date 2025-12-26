@@ -1,15 +1,12 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
 import 'package:palakat_shared/core/models/document.dart';
 import 'package:palakat_shared/core/models/app_error.dart';
 import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:palakat_shared/core/models/response/response.dart';
-import 'package:palakat_shared/core/utils/error_mapper.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
 import 'package:palakat_shared/core/repositories/church_repository.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 part 'document_repository.g.dart';
 
@@ -24,27 +21,17 @@ class DocumentRepository {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.documents,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('document.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Document.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch documents');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch documents', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -55,7 +42,9 @@ class DocumentRepository {
       final churchId = auth?.account.membership?.church?.id;
 
       if (churchId == null) {
-        return Result.failure(Failure('Church ID not found in authenticated user'));
+        return Result.failure(
+          Failure('Church ID not found in authenticated user'),
+        );
       }
 
       // Fetch church detail
@@ -67,30 +56,34 @@ class DocumentRepository {
           // Extract documentAccountNumber
           final documentAccountNumber = church.documentAccountNumber;
           if (documentAccountNumber == null || documentAccountNumber.isEmpty) {
-            return Result.failure(Failure('Document account number not found in church profile'));
+            return Result.failure(
+              Failure('Document account number not found in church profile'),
+            );
           }
-          return Result.success(DocumentSettings(identityNumberTemplate: documentAccountNumber));
+          return Result.success(
+            DocumentSettings(identityNumberTemplate: documentAccountNumber),
+          );
         },
         onFailure: (failure) => Result.failure(failure),
       );
       return result!;
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch document settings');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch document settings', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
-  Future<Result<DocumentSettings, Failure>> updateIdentityTemplate(String newTemplate) async {
+  Future<Result<DocumentSettings, Failure>> updateIdentityTemplate(
+    String newTemplate,
+  ) async {
     try {
       // Get churchId from authenticated user
       final auth = _ref.read(localStorageServiceProvider).currentAuth;
       final churchId = auth?.account.membership?.church?.id;
 
       if (churchId == null) {
-        return Result.failure(Failure('Church ID not found in authenticated user'));
+        return Result.failure(
+          Failure('Church ID not found in authenticated user'),
+        );
       }
 
       // Update church documentAccountNumber
@@ -105,23 +98,22 @@ class DocumentRepository {
           // Return updated document settings
           final documentAccountNumber = updatedChurch.documentAccountNumber;
           if (documentAccountNumber == null || documentAccountNumber.isEmpty) {
-            return Result.failure(Failure('Document account number not found after update'));
+            return Result.failure(
+              Failure('Document account number not found after update'),
+            );
           }
-          return Result.success(DocumentSettings(identityNumberTemplate: documentAccountNumber));
+          return Result.success(
+            DocumentSettings(identityNumberTemplate: documentAccountNumber),
+          );
         },
         onFailure: (failure) => Result.failure(failure),
       );
       return result!;
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update identity template');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update identity template', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }
-
 
 @riverpod
 Future<DocumentSettings?> documentSettings(Ref ref) async {

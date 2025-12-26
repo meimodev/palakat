@@ -1,19 +1,19 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/models/church.dart';
 import 'package:palakat_shared/core/models/response/pagination_response_wrapper.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 
 import '../../auth/application/super_admin_auth_controller.dart';
 
 final churchesRepositoryProvider = Provider<ChurchesRepository>((ref) {
-  final dio = ref.watch(superAdminAuthedDioProvider);
-  return ChurchesRepository(dio: dio);
+  final socket = ref.watch(superAdminSocketServiceProvider);
+  return ChurchesRepository(socket: socket);
 });
 
 class ChurchesRepository {
-  ChurchesRepository({required this.dio});
+  ChurchesRepository({required this.socket});
 
-  final Dio dio;
+  final SocketService socket;
 
   static const Object notProvided = Object();
 
@@ -33,12 +33,7 @@ class ChurchesRepository {
         'sortOrder': sortOrder.trim(),
     };
 
-    final res = await dio.get<Map<String, dynamic>>(
-      'admin/churches',
-      queryParameters: query,
-    );
-
-    final data = res.data ?? const {};
+    final data = await socket.rpc('church.list', query);
     return PaginationResponseWrapper.fromJson(
       data,
       (e) => Church.fromJson(e as Map<String, dynamic>),
@@ -46,8 +41,7 @@ class ChurchesRepository {
   }
 
   Future<Church> fetchChurch(int id) async {
-    final res = await dio.get<Map<String, dynamic>>('admin/churches/$id');
-    final body = res.data ?? const {};
+    final body = await socket.rpc('church.get', {'id': id});
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) {
       throw StateError('Invalid response');
@@ -87,12 +81,8 @@ class ChurchesRepository {
       },
     };
 
-    final res = await dio.post<Map<String, dynamic>>(
-      'admin/churches',
-      data: payload,
-    );
+    final body = await socket.rpc('church.create', payload);
 
-    final body = res.data ?? const {};
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return Church.fromJson(data);
@@ -128,18 +118,14 @@ class ChurchesRepository {
         },
     };
 
-    final res = await dio.patch<Map<String, dynamic>>(
-      'admin/churches/$id',
-      data: payload,
-    );
+    final body = await socket.rpc('church.update', {'id': id, 'dto': payload});
 
-    final body = res.data ?? const {};
     final data = body['data'] as Map<String, dynamic>?;
     if (data == null) throw StateError('Invalid response');
     return Church.fromJson(data);
   }
 
   Future<void> deleteChurch(int id) async {
-    await dio.delete('admin/churches/$id');
+    await socket.rpc('church.delete', {'id': id});
   }
 }

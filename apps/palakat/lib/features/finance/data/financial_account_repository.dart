@@ -1,9 +1,8 @@
-import 'package:palakat_shared/core/config/endpoint.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
 import 'package:palakat_shared/core/models/response/pagination_response_wrapper.dart';
 import 'package:palakat_shared/core/models/result.dart';
-import 'package:palakat_shared/core/services/http_service.dart';
+import 'package:palakat_shared/core/services/socket_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'financial_account_repository.g.dart';
@@ -42,8 +41,6 @@ class FinancialAccountRepository implements FinancialAccountRepositoryBase {
     FinanceType? type,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final queryParameters = <String, dynamic>{
         'churchId': churchId,
         'page': page,
@@ -56,12 +53,11 @@ class FinancialAccountRepository implements FinancialAccountRepositoryBase {
         queryParameters['type'] = type.value;
       }
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.financialAccountNumbers,
-        queryParameters: queryParameters,
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc(
+        'financialAccountNumber.list',
+        queryParameters,
       );
-
-      final data = response.data ?? {};
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => FinancialAccountNumber.fromJson(e as Map<String, dynamic>),

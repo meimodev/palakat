@@ -40,6 +40,10 @@ class NotificationNavigationService {
 
     // Fallback to home if activityId is missing (Req 3.5)
     if (parsedActivityId == null) {
+      if (type == 'REPORT_READY' || type == 'REPORT_FAILED') {
+        router.go('/operations');
+        return;
+      }
       debugPrint(
         '🔔 [NotificationNavigationService] No activityId, navigating to home',
       );

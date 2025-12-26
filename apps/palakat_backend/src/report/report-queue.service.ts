@@ -9,6 +9,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma.service';
 import { ReportService } from './report.service';
 import { PusherBeamsService } from '../notification/pusher-beams.service';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import {
   Prisma,
   ReportJobStatus,
@@ -28,6 +29,7 @@ export class ReportQueueService {
     private prisma: PrismaService,
     private reportService: ReportService,
     private pusherBeams: PusherBeamsService,
+    private realtime: RealtimeEmitterService,
   ) {}
 
   private async resolveRequesterChurchId(user?: any): Promise<number> {
@@ -81,6 +83,12 @@ export class ReportQueueService {
     });
 
     this.logger.log(`Report job ${job.id} created for user ${userId}`);
+
+    try {
+      this.realtime.emitToRoom(`account.${userId}`, 'reportJob.created', {
+        data: job,
+      });
+    } catch (_) {}
 
     return {
       message: 'Report generation queued',
@@ -242,6 +250,20 @@ export class ReportQueueService {
     });
 
     try {
+      this.realtime.emitToRoom(
+        `account.${job.requestedById}`,
+        'reportJob.updated',
+        {
+          data: {
+            id: job.id,
+            status: ReportJobStatus.PROCESSING,
+            progress: 10,
+          },
+        },
+      );
+    } catch (_) {}
+
+    try {
       // Validate and convert params to ReportGenerateDto
       if (
         !job.params ||
@@ -284,6 +306,30 @@ export class ReportQueueService {
         },
       });
 
+      try {
+        this.realtime.emitToRoom(
+          `account.${job.requestedById}`,
+          'reportJob.updated',
+          {
+            data: {
+              id: job.id,
+              status: ReportJobStatus.COMPLETED,
+              progress: 100,
+              reportId: report.id,
+              completedAt: new Date(),
+            },
+          },
+        );
+        this.realtime.emitToRoom(
+          `account.${job.requestedById}`,
+          'report.ready',
+          {
+            data: report,
+            jobId: job.id,
+          },
+        );
+      } catch (_) {}
+
       this.logger.log(
         `Report job ${job.id} completed, report ${report.id} created`,
       );
@@ -302,6 +348,20 @@ export class ReportQueueService {
           errorMessage: error.message || 'Unknown error',
         },
       });
+
+      try {
+        this.realtime.emitToRoom(
+          `account.${job.requestedById}`,
+          'reportJob.updated',
+          {
+            data: {
+              id: job.id,
+              status: ReportJobStatus.FAILED,
+              errorMessage: error.message || 'Unknown error',
+            },
+          },
+        );
+      } catch (_) {}
 
       await this.notifyReportFailed(job, error.message || 'Unknown error');
     }

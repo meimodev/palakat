@@ -1,9 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/services.dart';
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_shared/core/config/endpoint.dart';
 
 import '../domain/cash_mutation.dart';
 
@@ -29,7 +26,6 @@ class CashMutationRepository {
     String? sortOrder,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
       final query = <String, dynamic>{
         'page': page,
         'pageSize': pageSize,
@@ -42,27 +38,15 @@ class CashMutationRepository {
         if (search != null && search.isNotEmpty) 'search': search,
       };
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.cashMutations,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('cashMutation.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => CashMutation.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch cash mutations');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to fetch cash mutations',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -70,13 +54,11 @@ class CashMutationRepository {
     required int mutationId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.cashMutation(mutationId.toString()),
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('cashMutation.get', {'id': mutationId});
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid cash mutation response payload'),
@@ -84,12 +66,8 @@ class CashMutationRepository {
       }
 
       return Result.success(CashMutation.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch cash mutation');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch cash mutation', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -102,21 +80,18 @@ class CashMutationRepository {
     String? note,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.cashMutations,
-        data: {
-          'type': type.apiValue,
-          'amount': amount,
-          if (fromAccountId != null) 'fromAccountId': fromAccountId,
-          if (toAccountId != null) 'toAccountId': toAccountId,
-          'happenedAt': happenedAt.toIso8601String(),
-          if (note != null && note.isNotEmpty) 'note': note,
-        },
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('cashMutation.create', {
+        'type': type.apiValue,
+        'amount': amount,
+        if (fromAccountId != null) 'fromAccountId': fromAccountId,
+        if (toAccountId != null) 'toAccountId': toAccountId,
+        'happenedAt': happenedAt.toIso8601String(),
+        if (note != null && note.isNotEmpty) 'note': note,
+      });
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create cash mutation response payload'),
@@ -124,16 +99,8 @@ class CashMutationRepository {
       }
 
       return Result.success(CashMutation.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create cash mutation');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to create cash mutation',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -145,20 +112,17 @@ class CashMutationRepository {
     String? note,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.cashTransfer,
-        data: {
-          'fromAccountId': fromAccountId,
-          'toAccountId': toAccountId,
-          'amount': amount,
-          'happenedAt': happenedAt.toIso8601String(),
-          if (note != null && note.isNotEmpty) 'note': note,
-        },
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('cashMutation.transfer', {
+        'fromAccountId': fromAccountId,
+        'toAccountId': toAccountId,
+        'amount': amount,
+        'happenedAt': happenedAt.toIso8601String(),
+        if (note != null && note.isNotEmpty) 'note': note,
+      });
 
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid transfer cash response payload'),
@@ -166,30 +130,18 @@ class CashMutationRepository {
       }
 
       return Result.success(CashMutation.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to transfer cash');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to transfer cash', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   Future<Result<void, Failure>> delete({required int id}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.cashMutation(id.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('cashMutation.delete', {'id': id});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete cash mutation');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to delete cash mutation',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

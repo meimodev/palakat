@@ -113,3 +113,7 @@ export 'searchable_dialog_picker.dart';
 
 // Cached image widget
 export 'cached_file_image.dart';
+
+export 'socket_connection_banner.dart';
+
+export 'file_transfer_progress_banner.dart';

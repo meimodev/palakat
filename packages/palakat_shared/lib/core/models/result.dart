@@ -52,6 +52,9 @@ class Failure implements Exception {
   Failure(this.message, [this.code]);
 
   factory Failure.fromException(Object exception) {
+    if (exception is Failure) {
+      return exception;
+    }
     if (exception is DioException) {
       final statusCode = exception.response?.statusCode;
       final unauthorizedHandled =

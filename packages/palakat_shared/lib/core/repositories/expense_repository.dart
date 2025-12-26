@@ -1,13 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
 import '../models/expense.dart';
 import '../models/response/response.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/socket_service.dart';
 
 part 'expense_repository.g.dart';
 
@@ -51,27 +48,17 @@ class ExpenseRepository implements ExpenseRepositoryBase {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-
       final query = paginationRequest.toJsonFlat((p) => p.toJson());
 
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.expenses,
-        queryParameters: query,
-      );
-
-      final data = response.data ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('expense.list', query);
       final result = PaginationResponseWrapper.fromJson(
         data,
         (e) => Expense.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch expenses');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch expenses', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -80,23 +67,16 @@ class ExpenseRepository implements ExpenseRepositoryBase {
     required int expenseId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.expense(expenseId.toString()),
-      );
-
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('expense.get', {'id': expenseId});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(Failure('Invalid expense response payload'));
       }
       return Result.success(Expense.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch expense');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch expense', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -106,15 +86,15 @@ class ExpenseRepository implements ExpenseRepositoryBase {
     required Map<String, dynamic> update,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
+      final socket = _ref.read(socketServiceProvider);
 
-      final response = await http.patch<Map<String, dynamic>>(
-        Endpoints.expense(expenseId.toString()),
-        data: update,
-      );
+      final body = await socket.rpc('expense.update', {
+        'id': expenseId,
+        'dto': update,
+      });
 
-      final data = response.data;
-      final Map<String, dynamic> json = data?['data'] ?? {};
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid update expense response payload'),
@@ -122,12 +102,8 @@ class ExpenseRepository implements ExpenseRepositoryBase {
       }
 
       return Result.success(Expense.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to update expense');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to update expense', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -136,41 +112,29 @@ class ExpenseRepository implements ExpenseRepositoryBase {
     required CreateExpenseRequest request,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.expenses,
-        data: request.toJson(),
-      );
-
-      final body = response.data;
-      final Map<String, dynamic> json = body?['data'] ?? {};
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('expense.create', request.toJson());
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid create expense response payload'),
         );
       }
       return Result.success(Expense.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to create expense');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to create expense', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   @override
   Future<Result<void, Failure>> deleteExpense({required int expenseId}) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      await http.delete<void>(Endpoints.expense(expenseId.toString()));
+      final socket = _ref.read(socketServiceProvider);
+      await socket.rpc('expense.delete', {'id': expenseId});
       return Result.success(null);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to delete expense');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to delete expense', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

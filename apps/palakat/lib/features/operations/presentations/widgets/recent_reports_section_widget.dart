@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/report.dart';
 import 'package:palakat_shared/core/models/report_job.dart';

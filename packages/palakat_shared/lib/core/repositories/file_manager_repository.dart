@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../config/endpoint.dart';
+import '../config/app_config.dart';
 import '../models/file_manager.dart';
 import '../models/result.dart';
-import '../services/http_service.dart';
-import '../utils/error_mapper.dart';
+import '../services/file_transfer_progress_service.dart';
+import '../services/socket_service.dart';
+import '../utils/file_bytes_url.dart';
 
 part 'file_manager_repository.g.dart';
 
@@ -29,20 +29,16 @@ class FileManagerRepository {
     String? originalName,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.post<Map<String, dynamic>>(
-        Endpoints.fileFinalize,
-        data: {
-          'churchId': churchId,
-          if (bucket != null) 'bucket': bucket,
-          'path': path,
-          'sizeInKB': sizeInKB,
-          if (contentType != null) 'contentType': contentType,
-          if (originalName != null) 'originalName': originalName,
-        },
-      );
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('file.finalize', {
+        'churchId': churchId,
+        if (bucket != null) 'bucket': bucket,
+        'path': path,
+        'sizeInKB': sizeInKB,
+        if (contentType != null) 'contentType': contentType,
+        if (originalName != null) 'originalName': originalName,
+      });
 
-      final body = response.data ?? const {};
       final json = body['data'];
       if (json is! Map<String, dynamic>) {
         return Result.failure(
@@ -50,12 +46,8 @@ class FileManagerRepository {
         );
       }
       return Result.success(FileManager.fromJson(json));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to finalize file');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to finalize file', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
@@ -63,42 +55,47 @@ class FileManagerRepository {
     required int fileId,
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      final response = await http.get<Map<String, dynamic>>(
-        Endpoints.fileManagerResolveDownloadUrl(fileId.toString()),
+      final socket = _ref.read(socketServiceProvider);
+
+      final progress = _ref.read(
+        fileTransferProgressControllerProvider.notifier,
+      );
+      final progressId = progress.start(
+        direction: FileTransferDirection.download,
+        totalBytes: 0,
+        label: 'file#$fileId',
       );
 
-      final body = response.data ?? const {};
-      final data = body['data'];
-      if (data is! Map<String, dynamic>) {
-        return Result.failure(Failure('Invalid resolve-download-url payload'));
-      }
-
-      final url = data['url'];
-      if (url is! String || url.trim().isEmpty) {
-        return Result.failure(Failure('Invalid resolve-download-url response'));
-      }
-
+      final dl = await socket.downloadFileBytes(
+        fileId: fileId,
+        onProgress: (received, total) {
+          progress.update(
+            progressId,
+            transferredBytes: received,
+            totalBytes: total,
+          );
+        },
+      );
+      progress.complete(progressId);
+      final url = await bytesToUrl(
+        bytes: dl.bytes,
+        filename: dl.originalName ?? 'file',
+        contentType: dl.contentType,
+      );
       return Result.success(url);
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to resolve download url');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown(
-        'Failed to resolve download url',
-        e,
-        st,
-      );
-      return Result.failure(Failure(error.message, error.statusCode));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 
   /// Returns the proxy URL for a file that can be used directly in Image.network
   /// This avoids CORS issues on Flutter Web by proxying through the backend
   String getProxyUrl(int fileId) {
-    final http = _ref.read(httpServiceProvider);
-    final baseUrl = http.baseUrl;
-    return '$baseUrl${Endpoints.fileManagerProxy(fileId.toString())}';
+    final config = _ref.read(appConfigProvider);
+    final baseUrl = config.apiBaseUrl.endsWith('/')
+        ? config.apiBaseUrl.substring(0, config.apiBaseUrl.length - 1)
+        : config.apiBaseUrl;
+    return '$baseUrl/file-manager/$fileId/proxy';
   }
 
   /// Fetches file bytes through the proxy endpoint (handles auth automatically)
@@ -108,31 +105,35 @@ class FileManagerRepository {
     Duration timeout = const Duration(seconds: 30),
   }) async {
     try {
-      final http = _ref.read(httpServiceProvider);
-      
-      // Yield to event loop to prevent UI blocking
-      await Future<void>.delayed(Duration.zero);
-      
-      final response = await http.dio.get<List<int>>(
-        Endpoints.fileManagerProxy(fileId.toString()),
-        options: Options(
-          responseType: ResponseType.bytes,
-          receiveTimeout: timeout,
-        ),
+      final socket = _ref.read(socketServiceProvider);
+
+      final progress = _ref.read(
+        fileTransferProgressControllerProvider.notifier,
+      );
+      final progressId = progress.start(
+        direction: FileTransferDirection.download,
+        totalBytes: 0,
+        label: 'file#$fileId',
       );
 
-      final bytes = response.data;
-      if (bytes == null || bytes.isEmpty) {
+      final dl = await socket.downloadFileBytes(
+        fileId: fileId,
+        onProgress: (received, total) {
+          progress.update(
+            progressId,
+            transferredBytes: received,
+            totalBytes: total,
+          );
+        },
+      );
+      progress.complete(progressId);
+      if (dl.bytes.isEmpty) {
+        progress.fail(progressId, errorMessage: 'Empty file response');
         return Result.failure(Failure('Empty file response'));
       }
-
-      return Result.success(Uint8List.fromList(bytes));
-    } on DioException catch (e) {
-      final error = ErrorMapper.fromDio(e, 'Failed to fetch file');
-      return Result.failure(Failure(error.message, error.statusCode));
-    } catch (e, st) {
-      final error = ErrorMapper.unknown('Failed to fetch file', e, st);
-      return Result.failure(Failure(error.message, error.statusCode));
+      return Result.success(dl.bytes);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
     }
   }
 }

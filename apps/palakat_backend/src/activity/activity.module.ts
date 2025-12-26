@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ActivitiesService } from './activity.service';
-import { ActivitiesController } from './activity.controller';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationModule } from '../notification/notification.module';
 
@@ -14,7 +13,6 @@ import { NotificationModule } from '../notification/notification.module';
  */
 @Module({
   imports: [NotificationModule],
-  controllers: [ActivitiesController],
   providers: [ActivitiesService, ApproverResolverService],
 })
 export class ActivitiesModule {}
