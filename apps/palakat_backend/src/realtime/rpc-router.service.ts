@@ -441,6 +441,88 @@ export class RpcRouterService {
       case 'ping':
         return { message: 'pong' };
 
+      case 'app.home.get': {
+        const user = this.requireUserId(client);
+        const membershipId = await this.resolveMembershipIdForUser(user.userId);
+        const membershipRes: any =
+          await this.membershipService.findOne(membershipId);
+        const membership = membershipRes?.data ?? membershipRes;
+
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setUTCDate(startDate.getUTCDate() - 1);
+
+        const endDate = new Date(now);
+        endDate.setUTCHours(23, 59, 59, 999);
+        endDate.setUTCDate(endDate.getUTCDate() + 5);
+
+        const query: any = {
+          startDate,
+          endDate,
+          sortBy: 'date',
+          sortOrder: 'asc',
+          skip: 0,
+          take: 250,
+        };
+
+        const churchId =
+          (membership as any)?.churchId ?? (membership as any)?.church?.id;
+        if (typeof churchId === 'number') {
+          query.churchId = churchId;
+        }
+
+        const activitiesRes: any = await this.activitiesService.findAll(
+          query,
+          this.getAuthContext(client),
+        );
+        const activities = Array.isArray(activitiesRes?.data)
+          ? activitiesRes.data
+          : [];
+
+        const isApproved = (activity: any): boolean => {
+          const approvers = activity?.approvers;
+          if (!Array.isArray(approvers) || approvers.length === 0) return false;
+          return approvers.every((a: any) => a?.status === 'APPROVED');
+        };
+
+        const approved = activities.filter(isApproved);
+
+        const thisWeekActivities = approved.filter(
+          (a: any) =>
+            a?.activityType === 'EVENT' || a?.activityType === 'SERVICE',
+        );
+        const thisWeekAnnouncements = approved.filter(
+          (a: any) => a?.activityType === 'ANNOUNCEMENT',
+        );
+
+        const upcoming = thisWeekActivities
+          .filter((a: any) => {
+            const date = a?.date ? new Date(a.date) : null;
+            if (!date || isNaN(date.getTime())) return false;
+            return date.getTime() >= now.getTime();
+          })
+          .sort(
+            (a: any, b: any) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
+
+        return {
+          message: 'OK',
+          data: {
+            membership,
+            range: {
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+            },
+            thisWeekActivities,
+            thisWeekAnnouncements,
+            nextUpActivity: upcoming.length > 0 ? upcoming[0] : null,
+          },
+        };
+      }
+
       case 'auth.attach':
         return this.attachTokenToClient(client, payload.accessToken);
 
@@ -498,6 +580,27 @@ export class RpcRouterService {
       case 'auth.syncClaims': {
         const firebaseIdToken = payload.firebaseIdToken as string;
         return this.authService.syncClaims(firebaseIdToken);
+      }
+
+      case 'auth.firebaseSignIn': {
+        const firebaseIdToken = payload.firebaseIdToken as string;
+        if (!firebaseIdToken || firebaseIdToken.trim().length === 0) {
+          throw new BadRequestException('firebaseIdToken is required');
+        }
+        return this.authService.signInWithFirebaseIdToken(firebaseIdToken);
+      }
+
+      case 'auth.firebaseRegister': {
+        const firebaseIdToken = payload.firebaseIdToken as string;
+        if (!firebaseIdToken || firebaseIdToken.trim().length === 0) {
+          throw new BadRequestException('firebaseIdToken is required');
+        }
+
+        const { firebaseIdToken: _, ...dto } = (payload ?? {}) as any;
+        return this.authService.registerWithFirebaseIdToken(
+          firebaseIdToken,
+          dto,
+        );
       }
 
       case 'sub.join': {

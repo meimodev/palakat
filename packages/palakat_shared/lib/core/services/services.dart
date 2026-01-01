@@ -1,6 +1,7 @@
 /// Core services for business logic and external integrations
 library;
 
+export 'app_logger.dart';
 export 'image_cache_service.dart';
 export 'local_storage_service.dart';
 export 'local_storage_service_provider.dart';

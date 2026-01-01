@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 final dashboardRouting = GoRoute(
   path: '/dashboard',
@@ -10,7 +11,11 @@ final dashboardRouting = GoRoute(
     GoRoute(
       path: 'view-all',
       name: AppRoute.viewAll,
-      builder: (context, state) => const ViewAllScreen(),
+      builder: (context, state) {
+        final params = (state.extra as RouteParam?)?.params;
+        final type = params?[RouteParamKey.activityType] as ActivityType?;
+        return ViewAllScreen(activityType: type);
+      },
     ),
     GoRoute(
       path: 'activity-detail/:activityId',

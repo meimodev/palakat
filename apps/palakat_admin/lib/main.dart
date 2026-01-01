@@ -57,8 +57,11 @@ class PalakatAdminApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,
-      builder: (context, child) => FileTransferProgressBanner(
-        child: SocketConnectionBanner(child: child),
+      builder: (context, child) => FocusTraversalGroup(
+        policy: WidgetOrderTraversalPolicy(),
+        child: FileTransferProgressBanner(
+          child: SocketConnectionBanner(child: child),
+        ),
       ),
       // Localization configuration - Requirements: 1.2, 1.4
       locale: locale,

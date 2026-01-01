@@ -10,14 +10,20 @@ part 'member_controller.g.dart';
 @riverpod
 class MemberController extends _$MemberController {
   late final Debouncer _searchDebouncer;
+  bool _isDisposed = false;
 
   @override
   MemberScreenState build() {
+    _isDisposed = false;
     _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 300));
-    ref.onDispose(() => _searchDebouncer.dispose());
+    ref.onDispose(() {
+      _isDisposed = true;
+      _searchDebouncer.dispose();
+    });
 
     final initial = const MemberScreenState();
     Future.microtask(() {
+      if (_isDisposed) return;
       _fetchMemberPositions();
       _fetchCounts();
       _fetchAccounts();
@@ -29,6 +35,7 @@ class MemberController extends _$MemberController {
       ref.read(authControllerProvider).value!.account.membership!.church!;
 
   Future<void> _fetchAccounts() async {
+    if (_isDisposed) return;
     state = state.copyWith(accounts: const AsyncLoading());
     try {
       final repository = ref.read(membershipRepositoryProvider);
@@ -45,27 +52,37 @@ class MemberController extends _$MemberController {
           sortOrder: 'asc',
         ),
       );
+      if (_isDisposed) return;
       result.when(
-        onSuccess: (accounts) =>
-            state = state.copyWith(accounts: AsyncData(accounts)),
-        onFailure: (failure) => state = state.copyWith(
-          accounts: AsyncError(failure.message, StackTrace.current),
-        ),
+        onSuccess: (accounts) {
+          if (_isDisposed) return;
+          state = state.copyWith(accounts: AsyncData(accounts));
+        },
+        onFailure: (failure) {
+          if (_isDisposed) return;
+          state = state.copyWith(
+            accounts: AsyncError(failure.message, StackTrace.current),
+          );
+        },
       );
     } catch (e, st) {
+      if (_isDisposed) return;
       state = state.copyWith(accounts: AsyncError(e, st));
     }
   }
 
   Future<void> _fetchCounts() async {
+    if (_isDisposed) return;
     state = state.copyWith(counts: const AsyncLoading());
     try {
       final repository = ref.read(membershipRepositoryProvider);
       final result = await repository.fetchCounts(
         GetFetchAccountsRequest(churchId: church.id),
       );
+      if (_isDisposed) return;
       result.when(
         onSuccess: (data) {
+          if (_isDisposed) return;
           final counts = MemberScreenStateCounts(
             total: data['total'] ?? 0,
             claimed: data['claimed'] ?? 0,
@@ -74,28 +91,40 @@ class MemberController extends _$MemberController {
           );
           state = state.copyWith(counts: AsyncData(counts));
         },
-        onFailure: (failure) => state = state.copyWith(
-          counts: AsyncError(failure.message, StackTrace.current),
-        ),
+        onFailure: (failure) {
+          if (_isDisposed) return;
+          state = state.copyWith(
+            counts: AsyncError(failure.message, StackTrace.current),
+          );
+        },
       );
     } catch (e, st) {
+      if (_isDisposed) return;
       state = state.copyWith(counts: AsyncError(e, st));
     }
   }
 
-  void _fetchMemberPositions() async {
+  Future<void> _fetchMemberPositions() async {
+    if (_isDisposed) return;
     state = state.copyWith(positions: const AsyncLoading());
     try {
       final churchRepo = ref.read(churchRepositoryProvider);
       final result = await churchRepo.fetchPositions(churchId: church.id!);
+      if (_isDisposed) return;
       result.when(
-        onSuccess: (positions) =>
-            state = state.copyWith(positions: AsyncData(positions)),
-        onFailure: (failure) => state = state.copyWith(
-          positions: AsyncError(failure.message, StackTrace.current),
-        ),
+        onSuccess: (positions) {
+          if (_isDisposed) return;
+          state = state.copyWith(positions: AsyncData(positions));
+        },
+        onFailure: (failure) {
+          if (_isDisposed) return;
+          state = state.copyWith(
+            positions: AsyncError(failure.message, StackTrace.current),
+          );
+        },
       );
     } catch (e, st) {
+      if (_isDisposed) return;
       state = state.copyWith(positions: AsyncError(e, st));
     }
   }
@@ -158,6 +187,7 @@ class MemberController extends _$MemberController {
 
   // Save member (create or update)
   Future<void> saveMember(Account account) async {
+    if (_isDisposed) return;
     final repository = ref.read(membershipRepositoryProvider);
 
     final payload = account.toJson();
@@ -168,6 +198,7 @@ class MemberController extends _$MemberController {
           )
         : await repository.createAccount(data: payload);
 
+    if (_isDisposed) return;
     result.when(
       onSuccess: (_) async {
         await _fetchAccounts();
@@ -179,9 +210,11 @@ class MemberController extends _$MemberController {
 
   // Delete member
   Future<void> deleteMember(int memberId) async {
+    if (_isDisposed) return;
     final repository = ref.read(membershipRepositoryProvider);
     final result = await repository.deleteAccount(accountId: memberId);
 
+    if (_isDisposed) return;
     result.when(
       onSuccess: (_) async {
         // Refresh the list after delete

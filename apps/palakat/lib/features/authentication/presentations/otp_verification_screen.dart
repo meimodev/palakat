@@ -268,6 +268,15 @@ class OtpVerificationScreen extends ConsumerWidget {
                                       '🔔 Push notification registration failed: $e',
                                     );
                                   }
+
+                                  final membershipId = account.membership?.id;
+                                  if (membershipId == null) {
+                                    if (context.mounted) {
+                                      context.goNamed(AppRoute.membership);
+                                    }
+                                    return;
+                                  }
+
                                   // Navigate to home screen for existing users
                                   if (context.mounted) {
                                     if (rt != null && rt.isNotEmpty) {
@@ -277,7 +286,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                                     }
                                   }
                                 },
-                                onNotRegistered: () {
+                                onNotRegistered: (firebaseIdToken) {
                                   // Navigate to registration for new users
                                   // Pass verified phone to registration screen
                                   final verifiedPhone =
@@ -289,7 +298,10 @@ class OtpVerificationScreen extends ConsumerWidget {
                                         );
                                   context.pushNamed(
                                     AppRoute.account,
-                                    extra: {'verifiedPhone': verifiedPhone},
+                                    extra: {
+                                      'verifiedPhone': verifiedPhone,
+                                      'firebaseIdToken': firebaseIdToken,
+                                    },
                                   );
                                 },
                               );
@@ -359,6 +371,18 @@ class OtpVerificationScreen extends ConsumerWidget {
                                                   '🔔 Push notification registration failed: $e',
                                                 );
                                               }
+
+                                              final membershipId =
+                                                  account.membership?.id;
+                                              if (membershipId == null) {
+                                                if (context.mounted) {
+                                                  context.goNamed(
+                                                    AppRoute.membership,
+                                                  );
+                                                }
+                                                return;
+                                              }
+
                                               if (context.mounted) {
                                                 if (rt != null &&
                                                     rt.isNotEmpty) {
@@ -370,7 +394,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                                                 }
                                               }
                                             },
-                                            onNotRegistered: () {
+                                            onNotRegistered: (firebaseIdToken) {
                                               final verifiedPhone =
                                                   fullPhoneNumber.isNotEmpty
                                                   ? fullPhoneNumber
@@ -386,6 +410,8 @@ class OtpVerificationScreen extends ConsumerWidget {
                                                 extra: {
                                                   'verifiedPhone':
                                                       verifiedPhone,
+                                                  'firebaseIdToken':
+                                                      firebaseIdToken,
                                                 },
                                               );
                                             },
@@ -459,9 +485,14 @@ class _OtpInputState extends State<_OtpInput> {
   @override
   void initState() {
     super.initState();
-    // Auto-focus when screen appears
+    // Auto-focus when screen appears with a slight delay to ensure layout is complete
+    // This prevents RenderBox layout errors during focus traversal
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted && widget.enabled) {
+          _focusNode.requestFocus();
+        }
+      });
     });
   }
 
@@ -525,7 +556,7 @@ class _OtpInputState extends State<_OtpInput> {
           onChanged: widget.enabled ? widget.onChanged : null,
           onCompleted: widget.enabled ? widget.onCompleted : null,
           keyboardType: TextInputType.number,
-          autofocus: true,
+          autofocus: false, // Disabled to prevent RenderBox layout errors
           enabled: widget.enabled,
         ),
       ),

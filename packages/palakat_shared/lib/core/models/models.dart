@@ -33,6 +33,7 @@ export 'member_position.dart';
 export 'member_position_detail.dart';
 export 'member_screen_state_counts.dart';
 export 'membership.dart';
+export 'home_dashboard.dart';
 export 'notification.dart';
 export 'notification_settings.dart';
 export 'payment_method.dart';

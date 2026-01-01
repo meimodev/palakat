@@ -13,7 +13,7 @@ import { RpcRequest } from './realtime.types';
 @WebSocketGateway({
   path: '/ws',
   cors: {
-    origin: '*',
+    origin: true,
     credentials: true,
   },
 })
@@ -26,6 +26,18 @@ export class RealtimeGateway {
   constructor(private readonly router: RpcRouterService) {}
 
   async handleConnection(client: any) {
+    const address =
+      client?.handshake?.address ??
+      client?.conn?.remoteAddress ??
+      client?.request?.socket?.remoteAddress;
+    const transport = client?.conn?.transport?.name;
+    const hasToken =
+      typeof client?.handshake?.auth?.token === 'string' &&
+      client.handshake.auth.token.trim().length > 0;
+    this.logger.log(
+      `Client connected id=${client?.id} address=${address} transport=${transport} hasToken=${hasToken}`,
+    );
+
     const token = client?.handshake?.auth?.token as string | undefined;
     if (token && token.trim().length > 0) {
       const res = await this.router.dispatch(client, {

@@ -15,6 +15,7 @@ export 'expense_repository.dart';
 export 'file_manager_repository.dart';
 export 'finance_repository.dart';
 export 'financial_account_repository.dart';
+export 'home_repository.dart';
 export 'membership_repository.dart';
 export 'report_repository.dart';
 export 'revenue_repository.dart';

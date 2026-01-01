@@ -14,8 +14,14 @@ import 'package:palakat_shared/core/extension/extension.dart';
 class AccountScreen extends ConsumerStatefulWidget {
   final String? verifiedPhone;
   final int? accountId;
+  final String? firebaseIdToken;
 
-  const AccountScreen({super.key, this.verifiedPhone, this.accountId});
+  const AccountScreen({
+    super.key,
+    this.verifiedPhone,
+    this.accountId,
+    this.firebaseIdToken,
+  });
 
   @override
   ConsumerState<AccountScreen> createState() => _AccountScreenState();
@@ -42,6 +48,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       else if (widget.verifiedPhone != null &&
           widget.verifiedPhone!.isNotEmpty) {
         controller.initializeWithVerifiedPhone(widget.verifiedPhone!);
+        if (widget.firebaseIdToken != null &&
+            widget.firebaseIdToken!.isNotEmpty) {
+          controller.initializeWithFirebaseIdToken(widget.firebaseIdToken!);
+        }
       } else {}
     });
   }

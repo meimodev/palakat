@@ -13,4 +13,5 @@ export 'get_fetch_member_position_request.dart';
 export 'get_financial_accounts_request.dart';
 export 'get_fetch_positions_request.dart';
 export 'get_fetch_songs_request.dart';
+export 'get_home_dashboard_request.dart';
 export 'pagination_request_wrapper.dart';

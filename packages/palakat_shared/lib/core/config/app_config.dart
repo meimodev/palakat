@@ -11,7 +11,6 @@ part 'app_config.g.dart';
 /// Centralized configuration loaded from .env
 @freezed
 abstract class AppConfig with _$AppConfig {
-
   const factory AppConfig({required String apiBaseUrl, String? apiKey}) =
       _AppConfig;
 
@@ -27,12 +26,13 @@ abstract class AppConfig with _$AppConfig {
 
     final key = dotenv.env['API_KEY'];
 
-    final normalizedBaseUrl = baseUrl.endsWith('/')
-        ? baseUrl.replaceAll('/', '')
-        : baseUrl;
+    final normalizedBaseUrl = baseUrl.replaceAll(RegExp(r'/+$'), '');
+    final normalizedVersion = baseUrlVersion.replaceAll(RegExp(r'^/+|/+$'), '');
+    final parsedBase = Uri.tryParse(normalizedBaseUrl);
+    final portPart = (parsedBase?.hasPort ?? false) ? '' : ':$baseUrlPort';
 
     return AppConfig(
-      apiBaseUrl: "$normalizedBaseUrl:$baseUrlPort/$baseUrlVersion/",
+      apiBaseUrl: "$normalizedBaseUrl$portPart/$normalizedVersion/",
       apiKey: key?.isEmpty == true ? null : key,
     );
   }
@@ -44,6 +44,7 @@ AppConfig appConfig(Ref ref) {
   // In debug, log configuration for quick verification (without secrets)
   final config = AppConfig.fromEnv();
   if (kDebugMode) {
+    debugPrint('Loaded ${config.toString()}');
     dev.log('Loaded ${config.toString()}', name: 'AppConfig');
   }
   return config;

@@ -420,7 +420,7 @@ class AuthenticationController extends _$AuthenticationController {
   /// Verifies OTP with Firebase and validates account with backend
   Future<void> verifyOtp({
     required void Function(Account account) onAlreadyRegistered,
-    required VoidCallback onNotRegistered,
+    required void Function(String firebaseIdToken) onNotRegistered,
   }) async {
     if (!validateOtp()) {
       return;
@@ -479,7 +479,7 @@ class AuthenticationController extends _$AuthenticationController {
   /// Internal method to verify OTP with Firebase
   Future<void> _verifyOtpWithTimeout({
     required void Function(Account account) onAlreadyRegistered,
-    required VoidCallback onNotRegistered,
+    required void Function(String firebaseIdToken) onNotRegistered,
   }) async {
     // Step 1: Verify OTP with Firebase
     final firebaseResult = await _firebaseAuthRepo.verifyOtp(
@@ -490,8 +490,34 @@ class AuthenticationController extends _$AuthenticationController {
     // Handle Firebase verification failure
     await firebaseResult.when(
       onSuccess: (userCredential) async {
-        // Firebase verification successful, now validate with backend
+        final user = userCredential.user;
+        if (user == null) {
+          final l10n = _l10n();
+          state = state.copyWith(
+            isVerifyingOtp: false,
+            isValidatingAccount: false,
+            loading: false,
+            errorMessage: l10n.err_somethingWentWrong,
+          );
+          return;
+        }
+
+        final firebaseIdToken = await user.getIdToken();
+
+        if (firebaseIdToken == null) {
+          final l10n = _l10n();
+          state = state.copyWith(
+            isVerifyingOtp: false,
+            isValidatingAccount: false,
+            loading: false,
+            errorMessage: l10n.err_somethingWentWrong,
+          );
+          return;
+        }
+
+        // Firebase verification successful, now sign in with backend
         await _validateWithBackend(
+          firebaseIdToken: firebaseIdToken,
           onAlreadyRegistered: onAlreadyRegistered,
           onNotRegistered: onNotRegistered,
         );
@@ -523,8 +549,9 @@ class AuthenticationController extends _$AuthenticationController {
 
   /// Internal method to validate account with backend after Firebase success
   Future<void> _validateWithBackend({
+    required String firebaseIdToken,
     required void Function(Account account) onAlreadyRegistered,
-    required VoidCallback onNotRegistered,
+    required void Function(String firebaseIdToken) onNotRegistered,
   }) async {
     // Cancel timer when Firebase verification is successful
     _timer?.cancel();
@@ -532,16 +559,11 @@ class AuthenticationController extends _$AuthenticationController {
     // Update state to show backend validation is in progress
     state = state.copyWith(isValidatingAccount: true);
 
-    // Use fullPhoneNumber (E.164 format) for backend validation
-    final phoneToValidate = state.fullPhoneNumber.isNotEmpty
-        ? state.fullPhoneNumber
-        : state.phoneNumber;
-
     try {
       // Add timeout wrapper for backend validation
       await Future.any([
         _performBackendValidation(
-          phoneToValidate: phoneToValidate,
+          firebaseIdToken: firebaseIdToken,
           onAlreadyRegistered: onAlreadyRegistered,
           onNotRegistered: onNotRegistered,
         ),
@@ -579,16 +601,16 @@ class AuthenticationController extends _$AuthenticationController {
 
   /// Performs the actual backend validation
   Future<void> _performBackendValidation({
-    required String phoneToValidate,
+    required String firebaseIdToken,
     required void Function(Account account) onAlreadyRegistered,
-    required VoidCallback onNotRegistered,
+    required void Function(String firebaseIdToken) onNotRegistered,
   }) async {
     // Step 2: Validate account with backend
-    final validateAccountByPhoneResult = await _authRepo.validateAccountByPhone(
-      phoneToValidate,
+    final signInResult = await _authRepo.firebaseSignIn(
+      firebaseIdToken: firebaseIdToken,
     );
 
-    validateAccountByPhoneResult.when(
+    signInResult.when(
       onSuccess: (auth) async {
         // Account exists - store tokens and account data
         state = state.copyWith(
@@ -603,9 +625,7 @@ class AuthenticationController extends _$AuthenticationController {
         );
 
         // Update local storage with auth data
-        if (auth.account.membership != null) {
-          await updateLocallySavedAuth(auth);
-        }
+        await updateLocallySavedAuth(auth);
 
         // Show success feedback briefly before navigation
         await Future.delayed(const Duration(milliseconds: 800));
@@ -634,7 +654,7 @@ class AuthenticationController extends _$AuthenticationController {
           // Reset success feedback
           state = state.copyWith(showSuccessFeedback: false);
 
-          onNotRegistered();
+          onNotRegistered(firebaseIdToken);
           return;
         }
 

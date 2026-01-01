@@ -32,7 +32,6 @@ Map<String, dynamic>? _coldStartNotificationData;
 
 // Global flag to track if app is initialized
 bool _isAppInitialized = false;
-
 bool _isUnauthorizedSheetVisible = false;
 
 Future<void> _handleUnauthorized() async {
@@ -277,6 +276,7 @@ void main() async {
     ProviderScope(
       overrides: [
         socketServiceProvider.overrideWith((ref) {
+          ref.keepAlive();
           final config = ref.watch(appConfigProvider);
           final localStorage = ref.watch(localStorageServiceProvider);
 
@@ -496,8 +496,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         routeInformationProvider: router.routeInformationProvider,
         title: l10n.appTitle,
         theme: BaseTheme.appTheme,
-        builder: (context, child) => FileTransferProgressBanner(
-          child: SocketConnectionBanner(child: child),
+        builder: (context, child) => FocusTraversalGroup(
+          // Use ReadingOrderTraversalPolicy with a try-catch wrapper
+          // to prevent RenderBox layout errors during focus traversal
+          policy: _SafeFocusTraversalPolicy(),
+          child: FileTransferProgressBanner(
+            child: SocketConnectionBanner(child: child),
+          ),
         ),
         // Localization configuration - Requirements: 1.1, 1.4
         locale: locale,
@@ -505,5 +510,36 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
       ),
     );
+  }
+}
+
+/// Custom focus traversal policy that gracefully handles RenderBox layout errors
+/// This prevents crashes when Flutter tries to find focusable widgets before
+/// the overlay (_RenderTheater) is fully laid out, especially on web.
+class _SafeFocusTraversalPolicy extends ReadingOrderTraversalPolicy {
+  @override
+  Iterable<FocusNode> sortDescendants(
+    Iterable<FocusNode> descendants,
+    FocusNode currentNode,
+  ) {
+    try {
+      // Filter out nodes that don't have a valid render box yet
+      final validDescendants = descendants.where((node) {
+        try {
+          final context = node.context;
+          if (context == null) return false;
+          final renderObject = context.findRenderObject();
+          if (renderObject is! RenderBox) return false;
+          // Check if the render box has been laid out
+          return renderObject.hasSize;
+        } catch (_) {
+          return false;
+        }
+      });
+      return super.sortDescendants(validDescendants, currentNode);
+    } catch (_) {
+      // If sorting fails, return empty list to prevent crash
+      return const [];
+    }
   }
 }

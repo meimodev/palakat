@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateApproverDto } from './dto/create-approver.dto';
@@ -13,6 +15,7 @@ import { NotificationService } from '../notification/notification.service';
 export class ApproverService {
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
   ) {}
 

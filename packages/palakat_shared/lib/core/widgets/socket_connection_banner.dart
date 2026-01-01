@@ -31,7 +31,10 @@ class _SocketConnectionBannerState extends ConsumerState<SocketConnectionBanner>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _connect();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _connect();
+    });
   }
 
   @override
@@ -145,7 +148,12 @@ class _SocketConnectionBannerState extends ConsumerState<SocketConnectionBanner>
                         ),
                         const SizedBox(width: 10),
                         TextButton(
-                          onPressed: () => unawaited(socket.connect()),
+                          onPressed: () {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!mounted) return;
+                              unawaited(socket.connect());
+                            });
+                          },
                           style: TextButton.styleFrom(
                             foregroundColor: foreground,
                           ),

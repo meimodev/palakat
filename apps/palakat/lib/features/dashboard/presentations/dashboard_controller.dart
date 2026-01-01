@@ -1,7 +1,6 @@
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
-import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -17,7 +16,7 @@ class DashboardController extends _$DashboardController {
     return const DashboardState();
   }
 
-  ActivityRepository get _activityRepo => ref.read(activityRepositoryProvider);
+  HomeRepository get _homeRepo => ref.read(homeRepositoryProvider);
 
   AuthRepository get _authRepo => ref.read(authRepositoryProvider);
 
@@ -86,8 +85,13 @@ class DashboardController extends _$DashboardController {
         onSuccess: (account) {
           if (account != null) {
             state = state.copyWith(account: account, membershipLoading: false);
-            fetchThisWeekActivities();
-            fetchChurchRequest();
+
+            Future.microtask(() async {
+              await Future.wait([
+                fetchThisWeekActivities(),
+                fetchChurchRequest(),
+              ]);
+            });
           } else {
             state = state.copyWith(
               account: null,
@@ -141,10 +145,7 @@ class DashboardController extends _$DashboardController {
   }
 
   Future<void> fetchThisWeekActivities() async {
-    final membership = state.account!.membership;
-    final churchId = membership?.church?.id;
-
-    if (churchId == null) {
+    if (state.account == null) {
       state = state.copyWith(
         thisWeekActivitiesLoading: false,
         thisWeekActivities: [],
@@ -154,28 +155,27 @@ class DashboardController extends _$DashboardController {
       return;
     }
 
-    final now = DateTime.now();
-    final startOfWeek = now.toStartOfTheWeek;
-    final endOfWeek = now.toEndOfTheWeek;
-
-    final result = await _activityRepo.fetchActivities(
-      paginationRequest: PaginationRequestWrapper(
-        data: GetFetchActivitiesRequest(
-          churchId: churchId,
-          startDate: startOfWeek,
-          endDate: endOfWeek,
-        ),
-      ),
+    state = state.copyWith(
+      thisWeekActivitiesLoading: true,
+      thisWeekAnnouncementsLoading: true,
     );
+
+    final result = await _homeRepo.getHomeDashboard();
 
     result.when(
       onSuccess: (response) {
-        final approved = response.data.where(
+        final data = response.data;
+
+        final approvedActivities = data.thisWeekActivities.where(
+          (activity) =>
+              activity.approvers.approvalStatus == ApprovalStatus.approved,
+        );
+        final approvedAnnouncements = data.thisWeekAnnouncements.where(
           (activity) =>
               activity.approvers.approvalStatus == ApprovalStatus.approved,
         );
 
-        final eventsAndServices = approved
+        final eventsAndServices = approvedActivities
             .where(
               (activity) =>
                   activity.activityType == ActivityType.event ||
@@ -183,13 +183,19 @@ class DashboardController extends _$DashboardController {
             )
             .toList();
 
-        final announcements = approved
+        final announcements = approvedAnnouncements
             .where(
               (activity) => activity.activityType == ActivityType.announcement,
             )
             .toList();
 
+        final currentAccount = state.account;
+        final updatedAccount = currentAccount == null
+            ? null
+            : currentAccount.copyWith(membership: data.membership);
+
         state = state.copyWith(
+          account: updatedAccount,
           thisWeekActivitiesLoading: false,
           thisWeekActivities: eventsAndServices,
           thisWeekAnnouncementsLoading: false,

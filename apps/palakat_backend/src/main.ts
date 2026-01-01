@@ -12,9 +12,9 @@ async function bootstrap() {
   const prismaExceptionFilter = app.get(PrismaExceptionFilter);
 
   app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: true,
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
   app.useGlobalFilters(prismaExceptionFilter);
@@ -32,7 +32,7 @@ async function bootstrap() {
   await wsAdapter.connectToRedis();
   app.useWebSocketAdapter(wsAdapter);
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
 
 bootstrap();

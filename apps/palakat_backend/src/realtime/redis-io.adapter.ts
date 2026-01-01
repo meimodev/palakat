@@ -42,9 +42,10 @@ export class RedisIoAdapter extends IoAdapter {
     const server = super.createIOServer(port, {
       ...options,
       cors: {
-        origin: '*',
+        origin: true,
         credentials: true,
       },
+      allowEIO3: true,
       maxHttpBufferSize: 1024 * 1024,
     } as ServerOptions);
 

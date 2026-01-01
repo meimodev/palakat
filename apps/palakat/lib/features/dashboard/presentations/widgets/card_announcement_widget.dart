@@ -8,17 +8,18 @@ class CardAnnouncementWidget extends StatelessWidget {
     super.key,
     required this.title,
     required this.onPressedCard,
-    required this.onPressedDownload,
+    this.onPressedDownload,
     required this.publishedOn,
   });
 
   final String title;
   final DateTime publishedOn;
   final VoidCallback onPressedCard;
-  final VoidCallback onPressedDownload;
+  final VoidCallback? onPressedDownload;
 
   @override
   Widget build(BuildContext context) {
+    final canDownload = onPressedDownload != null;
     return Material(
       color: BaseColor.cardBackground1,
       elevation: 1,
@@ -80,28 +81,30 @@ class CardAnnouncementWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              Gap.w12,
-              // Download button
-              Material(
-                color: BaseColor.yellow[50],
-                elevation: 2,
-                shadowColor: Colors.black.withValues(alpha: 0.1),
-                shape: const CircleBorder(),
-                clipBehavior: Clip.hardEdge,
-                child: InkWell(
-                  onTap: onPressedDownload,
-                  child: Container(
-                    width: BaseSize.w40,
-                    height: BaseSize.w40,
-                    alignment: Alignment.center,
-                    child: FaIcon(
-                      AppIcons.download,
-                      size: BaseSize.w20,
-                      color: BaseColor.yellow[700],
+              if (canDownload) ...[
+                Gap.w12,
+                // Download button
+                Material(
+                  color: BaseColor.yellow[50],
+                  elevation: 2,
+                  shadowColor: Colors.black.withValues(alpha: 0.1),
+                  shape: const CircleBorder(),
+                  clipBehavior: Clip.hardEdge,
+                  child: InkWell(
+                    onTap: onPressedDownload,
+                    child: Container(
+                      width: BaseSize.w40,
+                      height: BaseSize.w40,
+                      alignment: Alignment.center,
+                      child: FaIcon(
+                        AppIcons.download,
+                        size: BaseSize.w20,
+                        color: BaseColor.yellow[700],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

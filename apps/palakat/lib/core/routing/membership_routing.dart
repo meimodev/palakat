@@ -10,16 +10,23 @@ final accountRouting = GoRoute(
     final extra = state.extra;
     String? verifiedPhone;
     int? accountId;
+    String? firebaseIdToken;
 
     if (extra is Map<String, dynamic>) {
       verifiedPhone = extra['verifiedPhone'] as String?;
       accountId = extra['accountId'] as int?;
+      firebaseIdToken = extra['firebaseIdToken'] as String?;
     } else if (extra is RouteParam) {
       verifiedPhone = extra.params['verifiedPhone'] as String?;
       accountId = extra.params['accountId'] as int?;
+      firebaseIdToken = extra.params['firebaseIdToken'] as String?;
     }
 
-    return AccountScreen(verifiedPhone: verifiedPhone, accountId: accountId);
+    return AccountScreen(
+      verifiedPhone: verifiedPhone,
+      accountId: accountId,
+      firebaseIdToken: firebaseIdToken,
+    );
   },
   routes: [
     GoRoute(

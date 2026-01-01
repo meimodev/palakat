@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'widgets.dart';
 
-class AnnouncementWidget extends StatelessWidget {
+class AnnouncementWidget extends ConsumerWidget {
   const AnnouncementWidget({
     super.key,
     required this.onPressedViewAll,
@@ -18,8 +21,16 @@ class AnnouncementWidget extends StatelessWidget {
   final void Function() onPressedViewAll;
   final List<Activity> announcements;
 
+  Future<void> _openUrl(String urlString) async {
+    final uri = Uri.tryParse(urlString);
+    if (uri == null) return;
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -43,6 +54,7 @@ class AnnouncementWidget extends StatelessWidget {
             separatorBuilder: (_, _) => Gap.h12,
             itemBuilder: (context, index) {
               final announcement = announcements[index];
+              final fileId = announcement.fileId;
               return CardAnnouncementWidget(
                 title: announcement.title,
                 publishedOn: announcement.date,
@@ -52,9 +64,24 @@ class AnnouncementWidget extends StatelessWidget {
                     pathParameters: {'activityId': announcement.id.toString()},
                   );
                 },
-                onPressedDownload: () {
-                  // TODO: Implement download functionality
-                },
+                onPressedDownload: fileId == null
+                    ? null
+                    : () async {
+                        final repo = ref.read(fileManagerRepositoryProvider);
+                        final result = await repo.resolveDownloadUrl(
+                          fileId: fileId,
+                        );
+                        result.when(
+                          onSuccess: (url) => _openUrl(url),
+                          onFailure: (failure) {
+                            final msg = failure.message.trim();
+                            if (msg.isEmpty) return;
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(msg)));
+                          },
+                        );
+                      },
               );
             },
           ),

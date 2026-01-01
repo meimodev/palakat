@@ -33,6 +33,64 @@ class AuthRepository {
     }
   }
 
+  Future<Result<AuthResponse, Failure>> firebaseSignIn({
+    required String firebaseIdToken,
+  }) async {
+    try {
+      if (firebaseIdToken.trim().isEmpty) {
+        return Result.failure(Failure('Firebase ID token is required'));
+      }
+
+      final res = await _socket.rpc('auth.firebaseSignIn', {
+        'firebaseIdToken': firebaseIdToken,
+      });
+      final json = res['data'];
+      if (json is! Map<String, dynamic> || json.isEmpty) {
+        return Result.failure(Failure('Invalid auth response'));
+      }
+
+      final auth = AuthResponse.fromJson(json);
+      await _localStorageService.saveAuth(auth);
+      await _socket.rpc('auth.attach', {
+        'accessToken': auth.tokens.accessToken,
+      });
+
+      return Result.success(auth);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<AuthResponse, Failure>> firebaseRegister({
+    required String firebaseIdToken,
+    required Map<String, dynamic> dto,
+  }) async {
+    try {
+      if (firebaseIdToken.trim().isEmpty) {
+        return Result.failure(Failure('Firebase ID token is required'));
+      }
+
+      final res = await _socket.rpc('auth.firebaseRegister', {
+        'firebaseIdToken': firebaseIdToken,
+        ...dto,
+      });
+      final json = res['data'];
+      if (json is! Map<String, dynamic> || json.isEmpty) {
+        return Result.failure(Failure('Invalid auth response'));
+      }
+
+      final auth = AuthResponse.fromJson(json);
+      await _localStorageService.saveAuth(auth);
+      await _socket.rpc('auth.attach', {
+        'accessToken': auth.tokens.accessToken,
+      });
+
+      return Result.success(auth);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   Future<Result<AuthTokens, Failure>> refresh() async {
     try {
       final refreshToken = _localStorageService.refreshToken;

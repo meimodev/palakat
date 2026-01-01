@@ -4,6 +4,8 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma.service';
@@ -29,6 +31,7 @@ export class ReportQueueService {
     private prisma: PrismaService,
     private reportService: ReportService,
     private pusherBeams: PusherBeamsService,
+    @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
   ) {}
 

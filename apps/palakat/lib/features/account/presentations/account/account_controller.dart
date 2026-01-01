@@ -20,6 +20,8 @@ AppLocalizations _l10n() {
 
 @riverpod
 class AccountController extends _$AccountController {
+  String? _firebaseIdToken;
+
   @override
   AccountState build() {
     return const AccountState();
@@ -53,6 +55,10 @@ class AccountController extends _$AccountController {
       phone: formattedPhone,
       isPhoneVerified: true,
     );
+  }
+
+  void initializeWithFirebaseIdToken(String firebaseIdToken) {
+    _firebaseIdToken = firebaseIdToken;
   }
 
   /// Fetch account data from backend by ID
@@ -346,27 +352,20 @@ class AccountController extends _$AccountController {
     state = state.copyWith(isRegistering: true, errorMessage: null);
 
     try {
-      final membershipRepo = ref.read(membershipRepositoryProvider);
       final authRepo = ref.read(authRepositoryProvider);
 
-      // Use verified phone if available, otherwise use entered phone
-      final phoneToUse = state.verifiedPhone ?? state.phone;
-
-      if (phoneToUse == null || phoneToUse.isEmpty) {
+      final firebaseIdToken = _firebaseIdToken;
+      if (firebaseIdToken == null || firebaseIdToken.trim().isEmpty) {
         final l10n = _l10n();
         state = state.copyWith(
           isRegistering: false,
-          errorMessage: l10n.validation_phoneRequired,
+          errorMessage: l10n.err_somethingWentWrong,
         );
         return null;
       }
 
-      // Strip formatting from phone (remove dashes)
-      final cleanPhone = phoneToUse.replaceAll(RegExp(r'\D'), '');
-
       // Prepare account data for registration
       final accountData = {
-        'phone': cleanPhone,
         'name': state.name,
         if (state.email != null && state.email!.isNotEmpty)
           'email': state.email,
@@ -376,32 +375,12 @@ class AccountController extends _$AccountController {
         'claimed': state.claimed,
       };
 
-      // Create account via membership repository
-      final createResult = await membershipRepo.createAccount(
-        data: accountData,
+      final registerResult = await authRepo.firebaseRegister(
+        firebaseIdToken: firebaseIdToken,
+        dto: accountData,
       );
 
-      // Handle account creation result
-      final account = createResult.when(
-        onSuccess: (acc) => acc,
-        onFailure: (failure) {
-          final l10n = _l10n();
-          state = state.copyWith(
-            isRegistering: false,
-            errorMessage: '${l10n.msg_createFailed}: ${failure.message}',
-          );
-          return;
-        },
-      );
-
-      if (account == null) {
-        return null;
-      }
-
-      // Account created successfully, now validate to get tokens
-      final validateResult = await authRepo.validateAccountByPhone(cleanPhone);
-
-      final authResponse = validateResult.when(
+      final authResponse = registerResult.when(
         onSuccess: (auth) => auth,
         onFailure: (failure) {
           final l10n = _l10n();
@@ -416,9 +395,6 @@ class AccountController extends _$AccountController {
       if (authResponse == null) {
         return null;
       }
-
-      // Store auth data locally
-      await authRepo.updateLocallySavedAuth(authResponse);
 
       state = state.copyWith(
         isRegistering: false,

@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -113,6 +115,196 @@ export class AuthService {
       data: {
         uid,
         claims,
+      },
+    };
+  }
+
+  async signInWithFirebaseIdToken(firebaseIdToken: string) {
+    if (!firebaseIdToken || firebaseIdToken.trim().length === 0) {
+      throw new BadRequestException('Firebase ID token is required');
+    }
+
+    const decoded = await this.firebaseAdmin
+      .auth()
+      .verifyIdToken(firebaseIdToken);
+    const phoneNumber = (decoded as any).phone_number as string | undefined;
+    if (!phoneNumber) {
+      throw new BadRequestException(
+        'Firebase token does not contain phone_number',
+      );
+    }
+
+    const normalizedPhone = this.normalizeIndonesianPhone(phoneNumber);
+
+    const account: any = await this.prisma.account.findUnique({
+      where: { phone: normalizedPhone },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        email: true,
+        gender: true,
+        maritalStatus: true,
+        dob: true,
+        claimed: true,
+        createdAt: true,
+        updatedAt: true,
+        role: true,
+        isActive: true,
+        membership: {
+          include: {
+            column: true,
+            membershipPositions: true,
+            church: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    if (!account.isActive) {
+      throw new ForbiddenException('Account is inactive');
+    }
+
+    const { accessToken, refreshToken, refreshTokenExpiresAt } =
+      await this.issueTokensWithRole(account.id, account.role, 'user');
+
+    const decodedRefresh: any = this.jwtService.decode(refreshToken);
+    await this.prisma.account.update({
+      where: { id: account.id },
+      data: {
+        refreshTokenHash: await bcrypt.hash(refreshToken, 12),
+        refreshTokenExpiresAt,
+        refreshTokenJti:
+          decodedRefresh && typeof decodedRefresh === 'object'
+            ? (decodedRefresh as any).jti
+            : null,
+      } as any,
+    } as any);
+
+    return {
+      message: 'OK',
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+        account,
+      },
+    };
+  }
+
+  async registerWithFirebaseIdToken(
+    firebaseIdToken: string,
+    dto: {
+      name: string;
+      email?: string | null;
+      dob: string | Date;
+      gender: any;
+      maritalStatus: any;
+      claimed?: boolean;
+    },
+  ) {
+    if (!firebaseIdToken || firebaseIdToken.trim().length === 0) {
+      throw new BadRequestException('Firebase ID token is required');
+    }
+
+    const decoded = await this.firebaseAdmin
+      .auth()
+      .verifyIdToken(firebaseIdToken);
+    const phoneNumber = (decoded as any).phone_number as string | undefined;
+    if (!phoneNumber) {
+      throw new BadRequestException(
+        'Firebase token does not contain phone_number',
+      );
+    }
+
+    const normalizedPhone = this.normalizeIndonesianPhone(phoneNumber);
+
+    const existing = await this.prisma.account.findUnique({
+      where: { phone: normalizedPhone },
+      select: { id: true },
+    });
+    if (existing?.id) {
+      throw new ConflictException('Account already exists');
+    }
+
+    if (!dto?.name || dto.name.trim().length === 0) {
+      throw new BadRequestException('name is required');
+    }
+
+    let dobValue: any = dto.dob;
+    if (typeof dobValue === 'string' && !dobValue.endsWith('Z')) {
+      dobValue = dobValue + 'Z';
+    }
+    const dob = dobValue ? new Date(dobValue) : null;
+    if (!dob || isNaN(dob.getTime())) {
+      throw new BadRequestException('dob is required');
+    }
+
+    const created: any = await this.prisma.account.create({
+      data: {
+        name: dto.name.trim(),
+        phone: normalizedPhone,
+        email:
+          typeof dto.email === 'string' && dto.email.trim().length > 0
+            ? dto.email.trim().toLowerCase()
+            : null,
+        gender: dto.gender,
+        maritalStatus: dto.maritalStatus,
+        dob,
+        claimed: dto.claimed === true,
+      } as any,
+      include: {
+        membership: {
+          include: {
+            column: true,
+            membershipPositions: true,
+            church: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    const { accessToken, refreshToken, refreshTokenExpiresAt } =
+      await this.issueTokensWithRole(
+        created.id,
+        created.role ?? AccountRole.USER,
+        'user',
+      );
+
+    const decodedRefresh: any = this.jwtService.decode(refreshToken);
+    await this.prisma.account.update({
+      where: { id: created.id },
+      data: {
+        refreshTokenHash: await bcrypt.hash(refreshToken, 12),
+        refreshTokenExpiresAt,
+        refreshTokenJti:
+          decodedRefresh && typeof decodedRefresh === 'object'
+            ? (decodedRefresh as any).jti
+            : null,
+      } as any,
+    } as any);
+
+    return {
+      message: 'OK',
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+        account: created,
       },
     };
   }
