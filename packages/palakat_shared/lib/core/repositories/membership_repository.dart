@@ -87,6 +87,23 @@ class MembershipRepository {
     }
   }
 
+  Future<Result<Account, Failure>> fetchAccountByIdentifier({
+    required String identifier,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('account.get', {'id': identifier});
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(Failure('Invalid account response payload'));
+      }
+      return Result.success(Account.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   Future<Result<Account, Failure>> createAccount({
     required Map<String, dynamic> data,
   }) async {

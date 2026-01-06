@@ -9,6 +9,7 @@ abstract class GetFetchMemberPosition with _$GetFetchMemberPosition {
   @JsonSerializable(includeIfNull: false)
   const factory GetFetchMemberPosition({
     int? churchId,
+    int? columnId,
     String? position,
     String? search,
   }) = _GetFetchMemberPosition;

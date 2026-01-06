@@ -83,6 +83,26 @@ final operationsRouting = GoRoute(
       name: AppRoute.membersList,
       builder: (context, state) => const MembersListScreen(),
     ),
+    GoRoute(
+      path: 'member-birthdays',
+      name: AppRoute.memberBirthdays,
+      builder: (context, state) => const MemberBirthdaysScreen(),
+    ),
+    GoRoute(
+      path: 'member-detail/:membershipId',
+      name: AppRoute.memberDetail,
+      builder: (context, state) {
+        final membershipIdStr = state.pathParameters['membershipId'];
+
+        assert(
+          membershipIdStr != null,
+          'membershipId path parameter cannot be null',
+        );
+
+        final membershipId = int.parse(membershipIdStr!);
+        return MemberDetailScreen(membershipId: membershipId);
+      },
+    ),
     // Member Invite Screen - Invite new members to the church
     GoRoute(
       path: 'member-invite',

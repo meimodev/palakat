@@ -347,6 +347,14 @@ class OperationsController extends _$OperationsController {
         isEnabled: hasPositions,
       ),
       OperationItem(
+        id: 'member_birthdays',
+        title: l10n.tbl_birth,
+        description: 'View member birthdays',
+        icon: AppIcons.calendarToday,
+        routeName: AppRoute.memberBirthdays,
+        isEnabled: hasPositions,
+      ),
+      OperationItem(
         id: 'invite_member',
         title: l10n.operationsItem_invite_member_title,
         description: l10n.operationsItem_invite_member_desc,
