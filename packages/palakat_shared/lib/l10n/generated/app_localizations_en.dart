@@ -78,6 +78,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get songBook_emptySubtitle => 'Try searching with different keywords';
 
   @override
+  String get songBook_downloadRequiredTitle => 'Download required';
+
+  @override
+  String get songBook_downloadRequiredSubtitle =>
+      'To use Song Book, you need to download the song database first. This will be saved on your device for offline use.';
+
+  @override
+  String get songBook_downloadRequiredButton => 'Download song database';
+
+  @override
   String get articles_title => 'Articles';
 
   @override

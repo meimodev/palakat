@@ -79,6 +79,9 @@
   "songBook_searchHint": "Cari judul atau nomor lagu",
   "songBook_emptyTitle": "Tidak ada lagu ditemukan",
   "songBook_emptySubtitle": "Coba cari dengan kata kunci lain",
+  "songBook_downloadRequiredTitle": "Perlu unduh data",
+  "songBook_downloadRequiredSubtitle": "Untuk menggunakan Buku Lagu, Anda perlu mengunduh database lagu terlebih dahulu. Data ini akan disimpan di perangkat Anda untuk penggunaan offline.",
+  "songBook_downloadRequiredButton": "Unduh database lagu",
   "articles_title": "Artikel",
   "@articles_title": {
     "description": "Title for articles list screen"
@@ -571,6 +574,14 @@
   "lbl_generationType": "Jenis Pembuatan",
   "@lbl_generationType": {
     "description": "Label for generation type"
+  },
+  "lbl_scope": "Cakupan",
+  "@lbl_scope": {
+    "description": "Label for scope"
+  },
+  "lbl_deviceId": "ID Perangkat",
+  "@lbl_deviceId": {
+    "description": "Label for device ID"
   },
   "lbl_description": "Deskripsi",
   "@lbl_description": {

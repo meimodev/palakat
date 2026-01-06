@@ -236,6 +236,24 @@ abstract class AppLocalizations {
   /// **'Try searching with different keywords'**
   String get songBook_emptySubtitle;
 
+  /// No description provided for @songBook_downloadRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download required'**
+  String get songBook_downloadRequiredTitle;
+
+  /// No description provided for @songBook_downloadRequiredSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To use Song Book, you need to download the song database first. This will be saved on your device for offline use.'**
+  String get songBook_downloadRequiredSubtitle;
+
+  /// No description provided for @songBook_downloadRequiredButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download song database'**
+  String get songBook_downloadRequiredButton;
+
   /// No description provided for @articles_title.
   ///
   /// In en, this message translates to:

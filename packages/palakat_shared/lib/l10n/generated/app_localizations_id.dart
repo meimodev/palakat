@@ -78,6 +78,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get songBook_emptySubtitle => 'Coba cari dengan kata kunci lain';
 
   @override
+  String get songBook_downloadRequiredTitle => 'Perlu unduh data';
+
+  @override
+  String get songBook_downloadRequiredSubtitle =>
+      'Untuk menggunakan Buku Lagu, Anda perlu mengunduh database lagu terlebih dahulu. Data ini akan disimpan di perangkat Anda untuk penggunaan offline.';
+
+  @override
+  String get songBook_downloadRequiredButton => 'Unduh database lagu';
+
+  @override
   String get articles_title => 'Artikel';
 
   @override
