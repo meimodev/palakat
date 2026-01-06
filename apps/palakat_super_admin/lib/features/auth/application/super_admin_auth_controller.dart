@@ -12,7 +12,6 @@ final superAdminAuthStorageProvider = Provider<SuperAdminAuthStorage>((ref) {
 final superAdminSocketServiceProvider = Provider<SocketService>((ref) {
   final config = ref.watch(appConfigProvider);
   final storage = ref.watch(superAdminAuthStorageProvider);
-  final token = ref.watch(superAdminAuthControllerProvider).asData?.value;
 
   final api = Uri.parse(config.apiBaseUrl);
   final wsBase =
@@ -20,7 +19,7 @@ final superAdminSocketServiceProvider = Provider<SocketService>((ref) {
 
   return SocketService(
     url: wsBase,
-    accessTokenProvider: () => token ?? storage.accessToken ?? '',
+    accessTokenProvider: () => storage.accessToken ?? '',
     refreshTokens: () async {
       throw Failure('No refresh token available');
     },
@@ -69,6 +68,11 @@ class SuperAdminAuthController extends AsyncNotifier<String?> {
       }
 
       await storage.saveAccessToken(accessToken);
+
+      // Reconnect so the next handshake includes the new token.
+      await socket.disconnect();
+      await socket.connect();
+
       state = AsyncData(accessToken);
     } catch (e, st) {
       if (e is Failure) {

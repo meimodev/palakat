@@ -45,10 +45,14 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: router,
-      builder: (context, child) => FileTransferProgressBanner(
-        child: SocketConnectionBanner(
-          child: child,
-          getSocket: (ref) => ref.read(superAdminSocketServiceProvider),
+      builder: (context, child) => FocusTraversalGroup(
+        policy: WidgetOrderTraversalPolicy(),
+        child: FileTransferProgressBanner(
+          child: SocketConnectionBanner(
+            blockInteractionWhenNotConnected: false,
+            child: child,
+            getSocket: (ref) => ref.read(superAdminSocketServiceProvider),
+          ),
         ),
       ),
     );

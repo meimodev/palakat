@@ -92,7 +92,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'song_edit',
             builder: (context, state) {
               final idStr = state.pathParameters['id'];
-              final id = int.tryParse(idStr ?? '');
+              final id = (idStr ?? '').trim();
+              if (id.isEmpty) {
+                return const SizedBox.shrink();
+              }
               return SongEditorScreen(songId: id);
             },
           ),
