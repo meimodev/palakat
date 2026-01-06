@@ -6,7 +6,6 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
-import 'package:palakat/features/home/presentation/home_controller.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -25,21 +24,6 @@ class DashboardScreen extends ConsumerWidget {
     if (upcoming.isEmpty) return null;
     upcoming.sort((a, b) => a.date.compareTo(b.date));
     return upcoming.first;
-  }
-
-  Future<void> _navigateToHomeTabOrRoute(
-    BuildContext context,
-    WidgetRef ref, {
-    required int tabIndex,
-    required String fallbackRouteName,
-  }) async {
-    final home = ref.read(homeControllerProvider);
-    if (home.pageController.hasClients) {
-      ref.read(homeControllerProvider.notifier).navigateTo(tabIndex);
-      return;
-    }
-
-    await context.pushNamed(fallbackRouteName);
   }
 
   @override
@@ -61,7 +45,6 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Gap.h48,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -149,30 +132,6 @@ class DashboardScreen extends ConsumerWidget {
                           pathParameters: {'activityId': next!.id.toString()},
                         );
                       },
-                onTapSongs: () => _navigateToHomeTabOrRoute(
-                  context,
-                  ref,
-                  tabIndex: 1,
-                  fallbackRouteName: AppRoute.songBook,
-                ),
-                onTapOperations: () => _navigateToHomeTabOrRoute(
-                  context,
-                  ref,
-                  tabIndex: 2,
-                  fallbackRouteName: AppRoute.operations,
-                ),
-                onTapApprovals: () => _navigateToHomeTabOrRoute(
-                  context,
-                  ref,
-                  tabIndex: 3,
-                  fallbackRouteName: AppRoute.approvals,
-                ),
-                onTapArticles: () => _navigateToHomeTabOrRoute(
-                  context,
-                  ref,
-                  tabIndex: 4,
-                  fallbackRouteName: AppRoute.articles,
-                ),
               ),
               Gap.h16,
               Column(
@@ -267,21 +226,10 @@ class DashboardScreen extends ConsumerWidget {
 }
 
 class _ActionCenter extends StatelessWidget {
-  const _ActionCenter({
-    required this.next,
-    required this.onTapNext,
-    required this.onTapSongs,
-    required this.onTapOperations,
-    required this.onTapApprovals,
-    required this.onTapArticles,
-  });
+  const _ActionCenter({required this.next, required this.onTapNext});
 
   final Activity? next;
   final VoidCallback? onTapNext;
-  final VoidCallback onTapSongs;
-  final VoidCallback onTapOperations;
-  final VoidCallback onTapApprovals;
-  final VoidCallback onTapArticles;
 
   @override
   Widget build(BuildContext context) {
@@ -367,115 +315,7 @@ class _ActionCenter extends StatelessWidget {
             ),
           ),
         ),
-        Gap.h12,
-        Row(
-          children: [
-            Expanded(
-              child: _QuickActionTile(
-                icon: AppIcons.music,
-                label: context.l10n.songBook_title,
-                onTap: onTapSongs,
-                bg: BaseColor.teal[50]!,
-                fg: BaseColor.teal[700]!,
-              ),
-            ),
-            Gap.w12,
-            Expanded(
-              child: _QuickActionTile(
-                icon: AppIcons.grid,
-                label: context.l10n.operations_title,
-                onTap: onTapOperations,
-                bg: BaseColor.primary[50]!,
-                fg: BaseColor.primary[700]!,
-              ),
-            ),
-          ],
-        ),
-        Gap.h12,
-        Row(
-          children: [
-            Expanded(
-              child: _QuickActionTile(
-                icon: AppIcons.approval,
-                label: context.l10n.approval_title,
-                onTap: onTapApprovals,
-                bg: BaseColor.yellow[50]!,
-                fg: BaseColor.yellow[700]!,
-              ),
-            ),
-            Gap.w12,
-            Expanded(
-              child: _QuickActionTile(
-                icon: AppIcons.reader,
-                label: context.l10n.articles_title,
-                onTap: onTapArticles,
-                bg: BaseColor.blue[50]!,
-                fg: BaseColor.blue[700]!,
-              ),
-            ),
-          ],
-        ),
       ],
-    );
-  }
-}
-
-class _QuickActionTile extends StatelessWidget {
-  const _QuickActionTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.bg,
-    required this.fg,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color bg;
-  final Color fg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: bg,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h12,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: BaseSize.w32,
-                height: BaseSize.w32,
-                decoration: BoxDecoration(
-                  color: fg.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(icon, size: BaseSize.w16, color: fg),
-              ),
-              Gap.w12,
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: fg,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

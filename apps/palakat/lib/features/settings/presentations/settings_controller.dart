@@ -28,7 +28,7 @@ class SettingsController extends _$SettingsController {
   AuthRepository get _authRepository => ref.read(authRepositoryProvider);
 
   /// Whether the current user has a membership
-  bool get hasMembership => state.membership != null;
+  bool hasMembership() => state.membership != null;
 
   /// Loads settings data including account, membership, and app version.
   ///

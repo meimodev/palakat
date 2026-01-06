@@ -135,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
             title: l10n.card_languageSettings_title,
             child: const LanguageSelector(),
           ),
-          Gap.h32,
+          Gap.h16,
           // Sign Out Button - Requirements: 5.1
           ButtonWidget.primary(
             text: l10n.btn_signOut,

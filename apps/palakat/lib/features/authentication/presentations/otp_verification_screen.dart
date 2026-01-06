@@ -50,7 +50,7 @@ class OtpVerificationScreen extends ConsumerWidget {
     if (shouldShow && context.mounted) {
       // Show permission rationale and request if user allows
       final permissionState = ref.read(permissionStateProvider.notifier);
-      await permissionState.requestPermissions(context);
+      await permissionState.requestPermissions();
     }
   }
 

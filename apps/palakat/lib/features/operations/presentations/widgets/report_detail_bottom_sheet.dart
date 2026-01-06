@@ -114,7 +114,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement export functionality
+                      // Note: Export functionality pending.
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.msg_exportComingSoon)),
                       );

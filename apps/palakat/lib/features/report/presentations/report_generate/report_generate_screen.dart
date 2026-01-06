@@ -39,6 +39,10 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
     final controller = ref.read(reportGenerateControllerProvider.notifier);
     final state = ref.watch(reportGenerateControllerProvider);
 
+    final effectiveRange = state.dateRangePreset == DateRangePreset.custom
+        ? state.customDateRange
+        : state.dateRangePreset.getDateRange();
+
     final showDocumentInput =
         state.reportType == ReportGenerateType.incomingDocument ||
         state.reportType == ReportGenerateType.outcomingDocument;
@@ -278,61 +282,17 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
             Gap.h12,
           ],
 
-          InputWidget<DateRangePreset>.dropdown(
+          DateRangePresetInput(
             label: l10n.lbl_dateRange,
-            hint: l10n.lbl_dateRange,
-            currentInputValue: state.dateRangePreset,
-            options: DateRangePreset.values
+            preset: state.dateRangePreset,
+            start: effectiveRange?.start,
+            end: effectiveRange?.end,
+            allowedPresets: DateRangePreset.values
                 .where((p) => p != DateRangePreset.allTime)
                 .toList(),
-            optionLabel: (p) => p.displayName,
-            customDisplayBuilder: (p) => Text(
-              p == DateRangePreset.custom
-                  ? _dateRangeDisplay(context, state)
-                  : p.displayName,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.black,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            onChanged: controller.setDateRangePreset,
-            onPressedWithResult: () async {
-              final selected = await _showEnumBottomSheet<DateRangePreset>(
-                context,
-                title: l10n.lbl_dateRange,
-                options: DateRangePreset.values
-                    .where((p) => p != DateRangePreset.allTime)
-                    .toList(),
-                current: state.dateRangePreset,
-                optionLabel: (p) => p.displayName,
-              );
-
-              if (!context.mounted) return null;
-
-              if (selected == null) return null;
-
-              if (selected != DateRangePreset.custom) {
-                return selected;
-              }
-
-              final initial =
-                  state.customDateRange ??
-                  DateTimeRange(start: DateTime.now(), end: DateTime.now());
-
-              final picked = await showDateRangePicker(
-                context: context,
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
-                initialDateRange: initial,
-              );
-
-              if (!context.mounted) return null;
-
-              if (picked == null) return null;
-
-              controller.setCustomDateRange(picked);
-              return DateRangePreset.custom;
-            },
+            onPresetChanged: controller.setDateRangePreset,
+            onCustomDateRangeSelected: controller.setCustomDateRange,
+            onChanged: (start, end) {},
           ),
 
           Gap.h12,
@@ -374,27 +334,6 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
       case CongregationReportSubtype.keanggotaan:
         return l10n.congregationSubtype_keanggotaan;
     }
-  }
-
-  static String _dateRangeDisplay(
-    BuildContext context,
-    ReportGenerateState state,
-  ) {
-    final locale = Localizations.localeOf(context).toString();
-    final fmt = intl.DateFormat.yMMMd(locale);
-
-    if (state.dateRangePreset != DateRangePreset.custom) {
-      return state.dateRangePreset.displayName;
-    }
-
-    final range = state.customDateRange;
-    if (range == null) {
-      return state.dateRangePreset.displayName;
-    }
-
-    final s = fmt.format(range.start);
-    final e = fmt.format(range.end);
-    return s == e ? s : '$s - $e';
   }
 
   static Future<T?> _showEnumBottomSheet<T>(

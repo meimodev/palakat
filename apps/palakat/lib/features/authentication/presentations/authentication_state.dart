@@ -37,7 +37,8 @@ abstract class AuthenticationState with _$AuthenticationState {
     String? errorMessage,
 
     // Authentication result
-    Account? account,
+    // ignore: invalid_annotation_target
+    @JsonKey(includeFromJson: false, includeToJson: false) Account? account,
     AuthTokens? tokens,
 
     // Legacy fields (for backward compatibility during migration)

@@ -66,7 +66,6 @@ class _SupervisedActivitiesListScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Gap.h32,
           ScreenTitleWidget.titleSecondary(
             title: l10n.supervisedActivities_title,
             subTitle: l10n.supervisedActivities_subtitle,

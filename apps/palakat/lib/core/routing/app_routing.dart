@@ -49,6 +49,8 @@ class AppRoute {
   static const String reportGenerate = "report-generate";
   static const String membersList = "members-list";
   static const String memberInvite = "member-invite";
+  static const String memberDetail = "member-detail";
+  static const String memberBirthdays = "member-birthdays";
 
   // approvals
   static const String approvals = 'approvals';

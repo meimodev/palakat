@@ -72,11 +72,11 @@ class ScaffoldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topSpace = BaseSize.h8;
+
     final Widget childWrapper = AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: LoadingWrapper(
-        paddingTop: BaseSize.h48,
-        paddingBottom: BaseSize.h48,
         loading: loading,
         hasError: hasError,
         errorMessage: errorMessage,
@@ -85,6 +85,19 @@ class ScaffoldWidget extends StatelessWidget {
         child: child,
       ),
     );
+
+    final Widget bodyContent = disableSingleChildScrollView
+        ? Padding(
+            padding: EdgeInsets.only(top: topSpace),
+            child: childWrapper,
+          )
+        : SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(top: topSpace),
+              child: Column(children: [childWrapper, Gap.h64]),
+            ),
+          );
 
     return SafeArea(
       child: Scaffold(
@@ -95,26 +108,12 @@ class ScaffoldWidget extends StatelessWidget {
             left: disablePadding ? 0 : BaseSize.w12,
             right: disablePadding ? 0 : BaseSize.w12,
           ),
-          child: disableSingleChildScrollView
-              ? Column(
-                  children: [
-                    Expanded(child: childWrapper),
-                    persistBottomWidget ?? const SizedBox(),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [Gap.h48, childWrapper, Gap.h64],
-                        ),
-                      ),
-                    ),
-                    persistBottomWidget ?? const SizedBox(),
-                  ],
-                ),
+          child: Column(
+            children: [
+              Expanded(child: bodyContent),
+              persistBottomWidget ?? const SizedBox(),
+            ],
+          ),
         ),
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,

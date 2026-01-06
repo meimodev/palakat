@@ -46,7 +46,6 @@ class ArticleDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Gap.h32,
           ScreenTitleWidget.titleSecondary(
             title: article?.title ?? l10n.article_titleFallback,
             onBack: () => context.pop(),

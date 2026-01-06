@@ -50,7 +50,6 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Gap.h32,
           ScreenTitleWidget.titleSecondary(
             title: 'Articles',
             onBack: () => context.pop(),

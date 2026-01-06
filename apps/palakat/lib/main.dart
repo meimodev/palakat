@@ -392,7 +392,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     if (shouldShow && mounted) {
       // Show permission rationale and request if user allows
       final permissionState = ref.read(permissionStateProvider.notifier);
-      await permissionState.requestPermissions(context);
+      await permissionState.requestPermissions();
     }
   }
 
@@ -501,7 +501,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           // to prevent RenderBox layout errors during focus traversal
           policy: _SafeFocusTraversalPolicy(),
           child: FileTransferProgressBanner(
-            child: SocketConnectionBanner(child: child),
+            child: SocketConnectionBanner(
+              blockInteractionWhenNotConnected: false,
+              child: child,
+            ),
           ),
         ),
         // Localization configuration - Requirements: 1.1, 1.4
