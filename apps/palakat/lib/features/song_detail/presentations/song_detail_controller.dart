@@ -1,5 +1,4 @@
 import 'package:palakat_shared/core/models/models.dart';
-import 'package:palakat_shared/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'song_detail_controller.g.dart';
@@ -10,32 +9,30 @@ class SongDetailController extends _$SongDetailController {
   Future<List<SongPart>> build(Song song) async {
     state = const AsyncValue.loading();
     try {
-      // Check if song data is incomplete (empty definition or composition)
-      final isIncomplete = song.definition.isEmpty || song.composition.isEmpty;
+      final songParts = <SongPart>[];
 
-      Song completeSong = song;
-
-      // Fetch complete song data if incomplete
-      if (isIncomplete) {
-        final songRepo = ref.read(songRepositoryProvider);
-        final result = await songRepo.getSongById(songId: song.id);
-
-        result.when(
-          onSuccess: (fetchedSong) {
-            completeSong = fetchedSong;
-            return null;
-          },
-          onFailure: (failure) {
-            // If fetch fails, continue with original song data
-            // This allows graceful degradation
-            completeSong = song;
-          },
-        );
+      if (song.composition.isNotEmpty) {
+        for (final type in song.composition) {
+          final idx = song.definition.indexWhere((f) => f.type == type);
+          if (idx != -1) {
+            songParts.add(song.definition[idx]);
+          }
+        }
       }
 
-      final songParts = completeSong.composition
-          .map((e) => completeSong.definition.firstWhere((f) => f.type == e))
-          .toList();
+      if (songParts.isEmpty) {
+        songParts.addAll(song.definition);
+      } else {
+        for (final def in song.definition) {
+          final exists = songParts.any(
+            (p) => p.type == def.type && p.content == def.content,
+          );
+          if (!exists) {
+            songParts.add(def);
+          }
+        }
+      }
+
       state = AsyncValue.data(songParts);
       return songParts;
     } catch (e) {

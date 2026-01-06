@@ -94,7 +94,7 @@ class SongCategoryCard extends StatelessWidget {
             .map(
               (song) => Padding(
                 // 8px grid spacing (Requirement 2.4)
-                padding: EdgeInsets.only(bottom: BaseSize.w8),
+                padding: EdgeInsets.only(bottom: BaseSize.w12),
                 child: SongItemCard(song: song, onTap: () => onSongTap(song)),
               ),
             )

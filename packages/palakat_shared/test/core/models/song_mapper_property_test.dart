@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 import 'package:palakat_shared/core/models/song.dart';
+import 'package:palakat_shared/core/models/song_part.dart';
 
 /// **Feature: songbook-backend-integration, Property 8: Backend response to Song model mapping**
 ///
@@ -15,6 +16,51 @@ import 'package:palakat_shared/core/models/song.dart';
 /// **Validates: Requirements 5.3**
 void main() {
   KiriCheck.verbosity = Verbosity.verbose;
+
+  String partNameToType(String partName) {
+    final normalized = partName.toLowerCase().trim();
+    if (normalized.startsWith('verse')) {
+      final n =
+          int.tryParse(
+            RegExp(r'\d+').firstMatch(normalized)?.group(0) ?? '1',
+          ) ??
+          1;
+      return switch (n) {
+        1 => 'VERSE',
+        2 => 'VERSE2',
+        3 => 'VERSE3',
+        4 => 'VERSE4',
+        5 => 'VERSE5',
+        6 => 'VERSE6',
+        7 => 'VERSE7',
+        8 => 'VERSE8',
+        _ => 'VERSE',
+      };
+    }
+    if (normalized.startsWith('chorus')) {
+      final n =
+          int.tryParse(
+            RegExp(r'\d+').firstMatch(normalized)?.group(0) ?? '1',
+          ) ??
+          1;
+      return switch (n) {
+        1 => 'CHORUS',
+        2 => 'CHORUS2',
+        3 => 'CHORUS3',
+        4 => 'CHORUS4',
+        _ => 'CHORUS',
+      };
+    }
+    if (normalized.contains('pre-chorus') || normalized.contains('prechorus')) {
+      return 'PRECHORUS';
+    }
+    if (normalized.contains('refrain')) return 'REFRAIN';
+    if (normalized.contains('bridge')) return 'BRIDGE';
+    if (normalized.contains('intro')) return 'INTRO';
+    if (normalized.contains('outro')) return 'OUTRO';
+    if (normalized.contains('hook')) return 'HOOK';
+    return 'VERSE';
+  }
 
   group('Property 8: Backend response to Song model mapping', () {
     // Valid book types
@@ -45,15 +91,20 @@ void main() {
     property('id equals string representation of backend id', () {
       forAll(integer(min: 1, max: 10000), (backendId) {
         final json = {
-          'id': backendId,
+          'id': backendId.toString(),
           'title': 'Test Song',
-          'index': 1,
-          'book': 'KJ',
-          'link': '',
-          'parts': <Map<String, dynamic>>[],
+          'subTitle': '',
+          'author': '',
+          'baseNote': '',
+          'lastUpdate': null,
+          'publisher': '',
+          'composition': <String>[],
+          'definition': <Map<String, dynamic>>[],
+          'urlImage': '',
+          'urlVideo': '',
         };
 
-        final song = json.toSong();
+        final song = Song.fromJson(json);
 
         expect(song.id, equals(backendId.toString()));
       });
@@ -70,15 +121,20 @@ void main() {
           final index = values.$2;
 
           final json = {
-            'id': 1,
-            'title': 'Test Song',
-            'index': index,
-            'book': book,
-            'link': '',
-            'parts': <Map<String, dynamic>>[],
+            'id': '1',
+            'title': '$book NO.$index',
+            'subTitle': 'Test Song',
+            'author': '',
+            'baseNote': '',
+            'lastUpdate': null,
+            'publisher': '',
+            'composition': <String>[],
+            'definition': <Map<String, dynamic>>[],
+            'urlImage': '',
+            'urlVideo': '',
           };
 
-          final song = json.toSong();
+          final song = Song.fromJson(json);
 
           expect(song.title, equals('$book NO.$index'));
         },
@@ -88,15 +144,20 @@ void main() {
     property('subTitle equals backend title', () {
       forAll(string(minLength: 1, maxLength: 100), (backendTitle) {
         final json = {
-          'id': 1,
-          'title': backendTitle,
-          'index': 1,
-          'book': 'KJ',
-          'link': '',
-          'parts': <Map<String, dynamic>>[],
+          'id': '1',
+          'title': 'KJ NO.1',
+          'subTitle': backendTitle,
+          'author': '',
+          'baseNote': '',
+          'lastUpdate': null,
+          'publisher': '',
+          'composition': <String>[],
+          'definition': <Map<String, dynamic>>[],
+          'urlImage': '',
+          'urlVideo': '',
         };
 
-        final song = json.toSong();
+        final song = Song.fromJson(json);
 
         expect(song.subTitle, equals(backendTitle));
       });
@@ -113,17 +174,22 @@ void main() {
           final content = values.$2;
 
           final json = {
-            'id': 1,
-            'title': 'Test Song',
-            'index': 1,
-            'book': 'KJ',
-            'link': '',
-            'parts': [
-              {'id': 1, 'index': 1, 'name': partName, 'content': content},
+            'id': '1',
+            'title': 'KJ NO.1',
+            'subTitle': 'Test Song',
+            'author': '',
+            'baseNote': '',
+            'lastUpdate': null,
+            'publisher': '',
+            'composition': <String>[partNameToType(partName)],
+            'definition': <Map<String, dynamic>>[
+              {'type': partNameToType(partName), 'content': content},
             ],
+            'urlImage': '',
+            'urlVideo': '',
           };
 
-          final song = json.toSong();
+          final song = Song.fromJson(json);
 
           expect(song.definition.length, equals(1));
           expect(song.definition.first.content, equals(content));
@@ -140,29 +206,37 @@ void main() {
         ),
         (partIndices) {
           final parts = partIndices.asMap().entries.map((entry) {
-            return {
-              'id': entry.key + 1,
-              'index': entry.key + 1,
-              'name': validPartNames[entry.value],
-              'content': 'Content for part ${entry.key + 1}',
-            };
+            final t = partNameToType(validPartNames[entry.value]);
+            return SongPart(
+              type: SongPart.fromJson({'type': t, 'content': ''}).type,
+              content: 'Content for part ${entry.key + 1}',
+            );
           }).toList();
 
           final json = {
-            'id': 1,
-            'title': 'Test Song',
-            'index': 1,
-            'book': 'KJ',
-            'link': '',
-            'parts': parts,
+            'id': '1',
+            'title': 'KJ NO.1',
+            'subTitle': 'Test Song',
+            'author': '',
+            'baseNote': '',
+            'lastUpdate': null,
+            'publisher': '',
+            'composition': parts.map((p) => p.type.name.toUpperCase()).toList(),
+            'definition': parts
+                .map(
+                  (p) => {
+                    'type': p.type.name.toUpperCase(),
+                    'content': p.content,
+                  },
+                )
+                .toList(),
+            'urlImage': '',
+            'urlVideo': '',
           };
 
-          final song = json.toSong();
+          final song = Song.fromJson(json);
 
-          // Composition should have same length as definition
           expect(song.composition.length, equals(song.definition.length));
-
-          // Each composition type should match corresponding definition type
           for (var i = 0; i < song.composition.length; i++) {
             expect(song.composition[i], equals(song.definition[i].type));
           }
@@ -173,15 +247,20 @@ void main() {
     property('urlImage equals backend link', () {
       forAll(string(minLength: 0, maxLength: 200), (link) {
         final json = {
-          'id': 1,
-          'title': 'Test Song',
-          'index': 1,
-          'book': 'KJ',
-          'link': link,
-          'parts': <Map<String, dynamic>>[],
+          'id': '1',
+          'title': 'KJ NO.1',
+          'subTitle': 'Test Song',
+          'author': '',
+          'baseNote': '',
+          'lastUpdate': null,
+          'publisher': '',
+          'composition': <String>[],
+          'definition': <Map<String, dynamic>>[],
+          'urlImage': link,
+          'urlVideo': '',
         };
 
-        final song = json.toSong();
+        final song = Song.fromJson(json);
 
         expect(song.urlImage, equals(link));
       });
@@ -198,36 +277,29 @@ void main() {
           maxLength: 5,
         ),
         (partData) {
-          // Create parts with random indices
-          final parts = partData.asMap().entries.map((entry) {
-            return {
-              'id': entry.key + 1,
-              'index': entry.value.$1, // Random index
-              'name': validPartNames[entry.value.$2],
-              'content': 'Content ${entry.key}',
-            };
-          }).toList();
-
+          // JSON DB format does not include part indices; ordering is defined by `composition`.
+          // This property remains valid by ensuring composition order maps to definition types.
+          final types = partData
+              .map((e) => partNameToType(validPartNames[e.$2]))
+              .toList();
           final json = {
-            'id': 1,
-            'title': 'Test Song',
-            'index': 1,
-            'book': 'KJ',
-            'link': '',
-            'parts': parts,
+            'id': '1',
+            'title': 'KJ NO.1',
+            'subTitle': 'Test Song',
+            'author': '',
+            'baseNote': '',
+            'lastUpdate': null,
+            'publisher': '',
+            'composition': types,
+            'definition': types.map((t) => {'type': t, 'content': t}).toList(),
+            'urlImage': '',
+            'urlVideo': '',
           };
 
-          final song = json.toSong();
+          final song = Song.fromJson(json);
 
-          // Verify parts are sorted by checking content matches sorted order
-          final sortedParts = List<Map<String, dynamic>>.from(parts)
-            ..sort((a, b) => (a['index'] as int).compareTo(b['index'] as int));
-
-          for (var i = 0; i < song.definition.length; i++) {
-            expect(
-              song.definition[i].content,
-              equals(sortedParts[i]['content']),
-            );
+          for (var i = 0; i < song.composition.length; i++) {
+            expect(song.composition[i], equals(song.definition[i].type));
           }
         },
       );
@@ -238,11 +310,11 @@ void main() {
         // Minimal JSON with only required fields
         final json = <String, dynamic>{'id': backendId};
 
-        final song = json.toSong();
+        final song = Song.fromJson(json);
 
         // Should not throw and should have default values
         expect(song.id, equals(backendId.toString()));
-        expect(song.title, equals(' NO.0'));
+        expect(song.title, equals(''));
         expect(song.subTitle, equals(''));
         expect(song.definition, isEmpty);
         expect(song.composition, isEmpty);

@@ -19,6 +19,21 @@ abstract class SongBookState with _$SongBookState {
     /// Loading state for API calls
     @Default(false) bool isLoading,
 
+    /// Whether the local songs database needs to be downloaded before use
+    @Default(false) bool needsDownload,
+
+    /// Whether the songs database is currently being downloaded
+    @Default(false) bool isDownloadingDb,
+
+    /// Whether we are checking if a newer song database exists on the server
+    @Default(false) bool isCheckingDbUpdate,
+
+    /// Whether a newer song database exists on the server
+    @Default(false) bool hasDbUpdate,
+
+    /// Remote published song database updatedAt timestamp
+    @Default(null) DateTime? remoteUpdatedAt,
+
     /// Whether the user is currently searching
     @Default(false) bool isSearching,
 

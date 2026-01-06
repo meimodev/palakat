@@ -17,15 +17,39 @@ class FakePaginationRequestWrapper extends Fake
 
 /// Helper to create a properly configured ProviderContainer with mocked repository
 ProviderContainer createTestContainer(MockSongRepository mockRepo) {
-  return ProviderContainer(
+  when(() => mockRepo.hasCachedSongDb()).thenAnswer((_) async => true);
+  when(
+    () => mockRepo.getSongBooks(forceRefresh: any(named: 'forceRefresh')),
+  ).thenAnswer((_) async => []);
+
+  final container = ProviderContainer(
     overrides: [songRepositoryProvider.overrideWithValue(mockRepo)],
   );
+
+  container.listen(songBookControllerProvider, (_, _) {});
+  return container;
+}
+
+Future<void> waitForSongBookReady(ProviderContainer container) async {
+  for (var i = 0; i < 50; i++) {
+    final state = container.read(songBookControllerProvider);
+    if (!state.isLoading || state.needsDownload) return;
+    await Future.delayed(const Duration(milliseconds: 20));
+  }
 }
 
 /// Helper to setup mock repository with default successful responses
 void setupMockRepoWithEmptySongs(MockSongRepository mockRepo) {
+  when(() => mockRepo.hasCachedSongDb()).thenAnswer((_) async => true);
   when(
-    () => mockRepo.getSongs(paginationRequest: any(named: 'paginationRequest')),
+    () => mockRepo.getSongBooks(forceRefresh: any(named: 'forceRefresh')),
+  ).thenAnswer((_) async => []);
+
+  when(
+    () => mockRepo.getSongs(
+      paginationRequest: any(named: 'paginationRequest'),
+      forceRefresh: any(named: 'forceRefresh'),
+    ),
   ).thenAnswer(
     (_) async => Result.success(
       PaginationResponseWrapper<Song>(
@@ -46,8 +70,7 @@ void setupMockRepoWithEmptySongs(MockSongRepository mockRepo) {
   when(
     () => mockRepo.searchSongs(
       query: any(named: 'query'),
-      page: any(named: 'page'),
-      pageSize: any(named: 'pageSize'),
+      forceRefresh: any(named: 'forceRefresh'),
     ),
   ).thenAnswer(
     (_) async => Result.success(
@@ -69,8 +92,16 @@ void setupMockRepoWithEmptySongs(MockSongRepository mockRepo) {
 
 /// Helper to setup mock repository with provided songs
 void setupMockRepoWithSongs(MockSongRepository mockRepo, List<Song> songs) {
+  when(() => mockRepo.hasCachedSongDb()).thenAnswer((_) async => true);
   when(
-    () => mockRepo.getSongs(paginationRequest: any(named: 'paginationRequest')),
+    () => mockRepo.getSongBooks(forceRefresh: any(named: 'forceRefresh')),
+  ).thenAnswer((_) async => []);
+
+  when(
+    () => mockRepo.getSongs(
+      paginationRequest: any(named: 'paginationRequest'),
+      forceRefresh: any(named: 'forceRefresh'),
+    ),
   ).thenAnswer(
     (_) async => Result.success(
       PaginationResponseWrapper<Song>(
@@ -99,7 +130,7 @@ Future<T> runWithProvider<T>(
 
   try {
     final controller = container.read(songBookControllerProvider.notifier);
-    await Future.delayed(const Duration(milliseconds: 200));
+    await waitForSongBookReady(container);
     return await testFn(controller);
   } finally {
     subscription.close();
@@ -107,7 +138,7 @@ Future<T> runWithProvider<T>(
 }
 
 void main() {
-  KiriCheck.verbosity = Verbosity.verbose;
+  KiriCheck.verbosity = Verbosity.quiet;
 
   setUpAll(() {
     registerFallbackValue(FakeGetFetchSongsRequest());
@@ -156,14 +187,15 @@ void main() {
           final controller = container.read(
             songBookControllerProvider.notifier,
           );
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
 
           // Call searchSongs with the generated query
           await controller.searchSongs(query);
-          await Future.delayed(const Duration(milliseconds: 50));
 
           // Assert - Verify searchSongs was called with the exact query
-          verify(() => mockRepo.searchSongs(query: query)).called(1);
+          verify(
+            () => mockRepo.searchSongs(query: query, forceRefresh: false),
+          ).called(1);
 
           subscription.close();
         } finally {
@@ -197,6 +229,7 @@ void main() {
           when(
             () => mockRepo.getSongs(
               paginationRequest: any(named: 'paginationRequest'),
+              forceRefresh: any(named: 'forceRefresh'),
             ),
           ).thenAnswer(
             (_) async => Result.success(
@@ -218,8 +251,7 @@ void main() {
           when(
             () => mockRepo.searchSongs(
               query: any(named: 'query'),
-              page: any(named: 'page'),
-              pageSize: any(named: 'pageSize'),
+              forceRefresh: any(named: 'forceRefresh'),
             ),
           ).thenAnswer((invocation) async {
             capturedQuery = invocation.namedArguments[#query] as String;
@@ -246,9 +278,8 @@ void main() {
             final controller = container.read(
               songBookControllerProvider.notifier,
             );
-            await Future.delayed(const Duration(milliseconds: 200));
+            await waitForSongBookReady(container);
             await controller.searchSongs(query);
-            await Future.delayed(const Duration(milliseconds: 50));
 
             // Assert - The captured query should be exactly the input query
             expect(capturedQuery, equals(query));
@@ -322,7 +353,7 @@ void main() {
             container.read(songBookControllerProvider);
 
             // Wait for the async fetchSongs to complete
-            await Future.delayed(const Duration(milliseconds: 200));
+            await waitForSongBookReady(container);
 
             // Assert
             final state = container.read(songBookControllerProvider);
@@ -350,7 +381,7 @@ void main() {
         try {
           // Act
           container.read(songBookControllerProvider);
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
 
           // Assert
           final state = container.read(songBookControllerProvider);
@@ -371,7 +402,7 @@ void main() {
         try {
           // Act
           container.read(songBookControllerProvider);
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
 
           // Assert
           final state = container.read(songBookControllerProvider);
@@ -392,7 +423,7 @@ void main() {
         try {
           // Act
           container.read(songBookControllerProvider);
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
 
           // Assert
           final state = container.read(songBookControllerProvider);
@@ -482,7 +513,7 @@ void main() {
           final controller = container.read(
             songBookControllerProvider.notifier,
           );
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
 
           // Call searchSongs with empty/whitespace query
           await controller.searchSongs(emptyQuery);
@@ -513,7 +544,7 @@ void main() {
           final controller = container.read(
             songBookControllerProvider.notifier,
           );
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
           await controller.searchSongs(emptyQuery);
 
           // Assert
@@ -542,7 +573,7 @@ void main() {
           final controller = container.read(
             songBookControllerProvider.notifier,
           );
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
           await controller.searchSongs(emptyQuery);
 
           // Assert
@@ -575,8 +606,7 @@ void main() {
         when(
           () => mockRepo.searchSongs(
             query: any(named: 'query'),
-            page: any(named: 'page'),
-            pageSize: any(named: 'pageSize'),
+            forceRefresh: any(named: 'forceRefresh'),
           ),
         ).thenAnswer(
           (_) async => Result.success(
@@ -602,15 +632,17 @@ void main() {
           final controller = container.read(
             songBookControllerProvider.notifier,
           );
-          await Future.delayed(const Duration(milliseconds: 200));
+          await waitForSongBookReady(container);
+
+          // Ignore any interactions caused by provider initialization/fetchSongs.
+          clearInteractions(mockRepo);
           await controller.searchSongs(emptyQuery);
 
           // Assert - searchSongs should NOT have been called
           verifyNever(
             () => mockRepo.searchSongs(
               query: any(named: 'query'),
-              page: any(named: 'page'),
-              pageSize: any(named: 'pageSize'),
+              forceRefresh: any(named: 'forceRefresh'),
             ),
           );
         } finally {

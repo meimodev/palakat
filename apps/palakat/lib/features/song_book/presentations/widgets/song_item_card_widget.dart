@@ -8,7 +8,12 @@ import 'package:palakat_shared/core/models/models.dart' hide Column;
 ///
 /// Requirements: 2.3, 4.1, 4.2, 4.4
 class SongItemCard extends StatelessWidget {
-  const SongItemCard({super.key, required this.song, required this.onTap});
+  const SongItemCard({
+    super.key,
+    required this.song,
+    required this.onTap,
+    this.searchQuery,
+  });
 
   /// The song data to display
   final Song song;
@@ -16,14 +21,62 @@ class SongItemCard extends StatelessWidget {
   /// Callback when the card is tapped
   final VoidCallback onTap;
 
+  final String? searchQuery;
+
   /// Border radius for the card (12px as per design spec)
   static const double borderRadius = 12.0;
 
+  String _normalize(String value) {
+    return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+  }
+
+  String? _lyricsSnippet() {
+    final qRaw = (searchQuery ?? '').trim();
+    if (qRaw.isEmpty) return null;
+
+    final q = _normalize(qRaw);
+    if (q.isEmpty) return null;
+
+    SongPart? firstMatch;
+    for (final p in song.definition) {
+      if (_normalize(p.content).contains(q)) {
+        firstMatch = p;
+        break;
+      }
+    }
+
+    SongPart? verseMatch;
+    for (final p in song.definition) {
+      if (p.type.name.startsWith('verse') &&
+          _normalize(p.content).contains(q)) {
+        verseMatch = p;
+        break;
+      }
+    }
+
+    SongPart? firstVerse;
+    for (final p in song.definition) {
+      if (p.type.name.startsWith('verse')) {
+        firstVerse = p;
+        break;
+      }
+    }
+
+    final part = verseMatch ?? firstVerse ?? firstMatch;
+    if (part == null) return null;
+
+    final content = part.content.trim().replaceAll(RegExp(r'\s+'), ' ');
+    const maxLen = 140;
+    if (content.length <= maxLen) return content;
+    return '${content.substring(0, maxLen)}…';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final snippet = _lyricsSnippet();
     return Material(
       color: BaseColor.surfaceLight,
-      elevation: 0,
+      elevation: 0.5,
       shadowColor: BaseColor.shadow.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -36,7 +89,10 @@ class SongItemCard extends StatelessWidget {
         splashColor: BaseColor.primary.withValues(alpha: 0.1),
         highlightColor: BaseColor.primary.withValues(alpha: 0.05),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
+          padding: EdgeInsets.symmetric(
+            horizontal: BaseSize.w12,
+            vertical: BaseSize.w10,
+          ),
           child: Row(
             children: [
               // Song icon container
@@ -44,15 +100,13 @@ class SongItemCard extends StatelessWidget {
               Gap.w12,
               // Title and subtitle
               Expanded(
-                child: _SongContent(title: song.title, subtitle: song.subTitle),
+                child: _SongContent(
+                  title: song.title,
+                  subtitle: song.subTitle,
+                  snippet: snippet,
+                ),
               ),
-              Gap.w8,
-              // Chevron indicator
-              FaIcon(
-                AppIcons.forward,
-                color: BaseColor.textSecondary,
-                size: BaseSize.w24,
-              ),
+              const SizedBox.shrink(),
             ],
           ),
         ),
@@ -66,8 +120,8 @@ class _SongIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: BaseSize.w48,
-      height: BaseSize.w48,
+      width: BaseSize.w32,
+      height: BaseSize.w32,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: BaseColor.primary[50],
@@ -76,7 +130,7 @@ class _SongIcon extends StatelessWidget {
       child: FaIcon(
         AppIcons.musicNote,
         color: BaseColor.primary,
-        size: BaseSize.w24,
+        size: BaseSize.w16,
       ),
     );
   }
@@ -84,10 +138,22 @@ class _SongIcon extends StatelessWidget {
 
 /// Content section with title and subtitle
 class _SongContent extends StatelessWidget {
-  const _SongContent({required this.title, required this.subtitle});
+  const _SongContent({
+    required this.title,
+    required this.subtitle,
+    required this.snippet,
+  });
 
   final String title;
   final String subtitle;
+  final String? snippet;
+
+  String _displayTitle(String value) {
+    return value
+        .replaceAll(RegExp(r'\bNO\.?\s*', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +163,7 @@ class _SongContent extends StatelessWidget {
       children: [
         // Title (e.g., "KJ NO.1")
         Text(
-          title,
+          _displayTitle(title),
           style: BaseTypography.titleMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: BaseColor.textPrimary,
@@ -112,9 +178,20 @@ class _SongContent extends StatelessWidget {
           style: BaseTypography.bodySmall.copyWith(
             color: BaseColor.textSecondary,
           ),
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        if (snippet != null && snippet!.trim().isNotEmpty) ...[
+          Gap.h4,
+          Text(
+            snippet!,
+            style: BaseTypography.bodySmall.copyWith(
+              color: BaseColor.textSecondary,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ],
     );
   }

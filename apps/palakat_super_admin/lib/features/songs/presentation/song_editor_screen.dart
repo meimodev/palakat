@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
-import '../data/admin_song_model.dart';
-import '../data/admin_song_part_model.dart';
-import '../data/songs_repository.dart';
+import '../application/songs_controller.dart';
 
 class SongEditorScreen extends ConsumerStatefulWidget {
   const SongEditorScreen({super.key, this.songId});
 
-  final int? songId;
+  final String? songId;
 
   @override
   ConsumerState<SongEditorScreen> createState() => _SongEditorScreenState();
@@ -19,85 +17,77 @@ class SongEditorScreen extends ConsumerStatefulWidget {
 class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  final _idController = TextEditingController();
+  final _bookIdController = TextEditingController();
+  final _bookNameController = TextEditingController();
   final _titleController = TextEditingController();
-  final _indexController = TextEditingController();
-  final _linkController = TextEditingController();
+  final _subTitleController = TextEditingController();
+  final _authorController = TextEditingController();
+  final _baseNoteController = TextEditingController();
+  final _publisherController = TextEditingController();
+  final _urlImageController = TextEditingController();
+  final _urlVideoController = TextEditingController();
 
-  String _book = 'KJ';
+  List<SongPartType> _composition = const <SongPartType>[];
+  List<SongPart> _parts = const <SongPart>[];
+
   bool _loading = false;
-  AdminSongModel? _loaded;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadIfNeeded();
   }
 
   @override
   void dispose() {
+    _idController.dispose();
+    _bookIdController.dispose();
+    _bookNameController.dispose();
     _titleController.dispose();
-    _indexController.dispose();
-    _linkController.dispose();
+    _subTitleController.dispose();
+    _authorController.dispose();
+    _baseNoteController.dispose();
+    _publisherController.dispose();
+    _urlImageController.dispose();
+    _urlVideoController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadIfNeeded() async {
-    final id = widget.songId;
-    if (id == null) return;
-
-    setState(() => _loading = true);
-    try {
-      final repo = ref.read(songsRepositoryProvider);
-      final song = await repo.fetchSong(id);
-      _loaded = song;
-      _titleController.text = song.title;
-      _indexController.text = song.index.toString();
-      _linkController.text = song.link;
-      _book = song.book;
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
   }
 
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
+    _syncDefinitionFromComposition();
+
     setState(() => _loading = true);
     try {
-      final repo = ref.read(songsRepositoryProvider);
-      final title = _titleController.text.trim();
-      final index = int.parse(_indexController.text.trim());
-      final link = _linkController.text.trim();
+      final controller = ref.read(songsControllerProvider.notifier);
+      final id = _idController.text.trim();
 
-      AdminSongModel saved;
+      final song = Song(
+        id: id,
+        bookId: _bookIdController.text.trim(),
+        bookName: _bookNameController.text.trim(),
+        title: _titleController.text.trim(),
+        subTitle: _subTitleController.text.trim(),
+        author: _authorController.text.trim(),
+        baseNote: _baseNoteController.text.trim(),
+        publisher: _publisherController.text.trim(),
+        composition: _composition,
+        definition: [..._parts],
+        urlImage: _urlImageController.text.trim(),
+        urlVideo: _urlVideoController.text.trim(),
+      );
+
+      await controller.upsertSong(song);
+
+      if (!mounted) return;
       if (widget.songId == null) {
-        saved = await repo.createSong(
-          title: title,
-          index: index,
-          book: _book,
-          link: link,
-        );
-
-        if (!mounted) return;
-        context.go('/songs/${saved.id}');
-        return;
-      } else {
-        saved = await repo.updateSong(
-          id: widget.songId!,
-          title: title,
-          index: index,
-          book: _book,
-          link: link,
-        );
+        context.go('/songs/$id');
       }
-
-      _loaded = saved;
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Saved')));
-        setState(() {});
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Saved locally')));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -111,7 +101,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
 
   Future<void> _deleteSong() async {
     final id = widget.songId;
-    if (id == null) return;
+    if (id == null || id.trim().isEmpty) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -137,71 +127,123 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
 
     setState(() => _loading = true);
     try {
-      final repo = ref.read(songsRepositoryProvider);
-      await repo.deleteSong(id);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Deleted')));
-        context.go('/songs');
-      }
+      final controller = ref.read(songsControllerProvider.notifier);
+      await controller.deleteSong(id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Deleted')));
+      context.go('/songs');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _createOrEditPart({required AdminSongPartModel? part}) async {
-    final songId = widget.songId ?? _loaded?.id;
-    if (songId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Save the song first.')));
-      return;
+  void _swapPart(int a, int b) {
+    setState(() {
+      final nextComposition = [..._composition];
+      final tmpType = nextComposition[a];
+      nextComposition[a] = nextComposition[b];
+      nextComposition[b] = tmpType;
+      _composition = nextComposition;
+      _syncDefinitionFromComposition();
+    });
+  }
+
+  void _removeAt(int index) {
+    setState(() {
+      final nextComposition = [..._composition];
+      if (index >= 0 && index < nextComposition.length) {
+        nextComposition.removeAt(index);
+      }
+      _composition = nextComposition;
+      _syncDefinitionFromComposition();
+    });
+  }
+
+  void _syncDefinitionFromComposition() {
+    final uniqueTypes = <SongPartType>[];
+    final seen = <SongPartType>{};
+    for (final t in _composition) {
+      if (seen.add(t)) uniqueTypes.add(t);
     }
 
-    final currentMaxIndex =
-        (_loaded?.parts
-            .map((e) => e.index)
-            .fold<int>(0, (a, b) => a > b ? a : b)) ??
-        0;
-    final defaultIndex = part?.index ?? (currentMaxIndex + 1);
+    final byType = <SongPartType, SongPart>{};
+    for (final p in _parts) {
+      byType.putIfAbsent(p.type, () => p);
+    }
 
-    final indexController = TextEditingController(
-      text: defaultIndex.toString(),
-    );
-    final nameController = TextEditingController(text: part?.name ?? '');
-    final contentController = TextEditingController(text: part?.content ?? '');
+    _parts = [
+      for (final t in uniqueTypes) byType[t] ?? SongPart(type: t, content: ''),
+    ];
+  }
+
+  Future<void> _addCompositionItem() async {
+    SongPartType type = SongPartType.verse;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(part == null ? 'Add part' : 'Edit part'),
+          title: const Text('Add part type'),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: indexController,
-                  decoration: const InputDecoration(labelText: 'Index'),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name (e.g., Verse 1, Chorus)',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: contentController,
-                  decoration: const InputDecoration(labelText: 'Content'),
-                  minLines: 6,
-                  maxLines: 12,
-                ),
-              ],
+            child: DropdownButtonFormField<SongPartType>(
+              value: type,
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: SongPartType.values
+                  .map(
+                    (t) => DropdownMenuItem<SongPartType>(
+                      value: t,
+                      child: Text(t.name),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value == null) return;
+                type = value;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _composition = [..._composition, type];
+      _syncDefinitionFromComposition();
+    });
+  }
+
+  Future<void> _editPartContent(int index) async {
+    if (index < 0 || index >= _parts.length) return;
+    final part = _parts[index];
+    final contentController = TextEditingController(text: part.content);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit ${part.type.name}'),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: TextFormField(
+              controller: contentController,
+              decoration: const InputDecoration(labelText: 'Content'),
+              minLines: 6,
+              maxLines: 12,
             ),
           ),
           actions: [
@@ -219,280 +261,357 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
     );
 
     if (confirmed != true) {
-      indexController.dispose();
-      nameController.dispose();
       contentController.dispose();
       return;
     }
 
-    setState(() => _loading = true);
-    try {
-      final repo = ref.read(songsRepositoryProvider);
-      final index = int.tryParse(indexController.text.trim()) ?? defaultIndex;
-      final name = nameController.text.trim();
-      final content = contentController.text;
+    final next = part.copyWith(content: contentController.text);
+    contentController.dispose();
 
-      if (part == null) {
-        await repo.createSongPart(
-          songId: songId,
-          index: index,
-          name: name,
-          content: content,
-        );
-      } else {
-        await repo.updateSongPart(
-          id: part.id,
-          index: index,
-          name: name,
-          content: content,
-        );
-      }
-
-      await _loadIfNeeded();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
-    } finally {
-      indexController.dispose();
-      nameController.dispose();
-      contentController.dispose();
-      if (mounted) setState(() => _loading = false);
-    }
+    setState(() {
+      final list = [..._parts];
+      list[index] = next;
+      _parts = list;
+    });
   }
 
-  Future<void> _deletePart(AdminSongPartModel part) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete this part?'),
-          content: const Text('This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
+  void _hydrateFromSong(Song s) {
+    _idController.text = s.id;
+    _bookIdController.text = s.bookId;
+    _bookNameController.text = s.bookName;
+    _titleController.text = s.title;
+    _subTitleController.text = s.subTitle;
+    _authorController.text = s.author;
+    _baseNoteController.text = s.baseNote;
+    _publisherController.text = s.publisher;
+    _urlImageController.text = s.urlImage;
+    _urlVideoController.text = s.urlVideo;
 
-    if (confirmed != true) return;
+    final composition = [...s.composition];
+    final definition = [...s.definition];
+    if (composition.isEmpty) {
+      composition.addAll(definition.map((e) => e.type));
+    }
 
-    setState(() => _loading = true);
-    try {
-      final repo = ref.read(songsRepositoryProvider);
-      await repo.deleteSongPart(part.id);
-      await _loadIfNeeded();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+    _composition = composition;
+    _parts = definition;
+    _syncDefinitionFromComposition();
+  }
+
+  @override
+  void didUpdateWidget(covariant SongEditorScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.songId != widget.songId) {
+      _initialized = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final songsState = ref.watch(songsControllerProvider);
+    final controller = ref.read(songsControllerProvider.notifier);
+
+    final asyncDb = songsState.songDb;
     final isNew = widget.songId == null;
-    final theme = Theme.of(context);
 
-    final parts = List<AdminSongPartModel>.from(_loaded?.parts ?? const []);
-    parts.sort((a, b) => a.index.compareTo(b.index));
+    if (!_initialized && asyncDb.hasValue) {
+      final songId = widget.songId;
+      if (songId != null) {
+        final song = controller.findSongById(songId);
+        if (song != null) {
+          _hydrateFromSong(song);
+          _initialized = true;
+        }
+      } else {
+        _idController.text = '';
+        _composition = const <SongPartType>[];
+        _parts = const <SongPart>[];
+        _initialized = true;
+      }
+    }
 
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Text(
-              isNew ? 'New Song' : 'Edit Song',
-              style: theme.textTheme.headlineMedium,
-            ),
-            const Spacer(),
-            if (!isNew) ...[
-              OutlinedButton(
-                onPressed: _loading ? null : _deleteSong,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
+    final title = isNew ? 'New Song' : 'Edit Song';
+    final canEdit = asyncDb.hasValue;
+
+    if (!canEdit) {
+      return Center(
+        child: asyncDb.isLoading
+            ? const CircularProgressIndicator()
+            : Text(asyncDb.error.toString()),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 16),
+          SurfaceCard(
+            title: 'Song',
+            subtitle:
+                'Edits are saved locally and uploaded when you publish songs.json.',
+            trailing: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: _loading ? null : _save,
+                  icon: _loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save),
+                  label: const Text('Save'),
                 ),
-                child: const Text('Delete'),
-              ),
-              const SizedBox(width: 8),
-            ],
-            ElevatedButton(
-              onPressed: _loading ? null : _save,
-              child: const Text('Save'),
+                if (!isNew)
+                  FilledButton.tonalIcon(
+                    onPressed: _loading ? null : _deleteSong,
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete'),
+                  ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Song metadata', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 12),
                   TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                    enabled: !_loading,
-                    textInputAction: TextInputAction.next,
-                    validator: (v) => Validators.required(
-                      'Title is required',
-                    ).asFormFieldValidator(v),
+                    controller: _idController,
+                    decoration: const InputDecoration(
+                      labelText: 'ID (e.g. KJ-1)',
+                    ),
+                    enabled: isNew,
+                    validator: (v) {
+                      final value = (v ?? '').trim();
+                      if (value.isEmpty) return 'ID is required';
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _book,
-                          decoration: const InputDecoration(labelText: 'Book'),
-                          items: const [
-                            DropdownMenuItem(value: 'NKB', child: Text('NKB')),
-                            DropdownMenuItem(
-                              value: 'NNBT',
-                              child: Text('NNBT'),
-                            ),
-                            DropdownMenuItem(value: 'KJ', child: Text('KJ')),
-                            DropdownMenuItem(value: 'DSL', child: Text('DSL')),
-                          ],
-                          onChanged: _loading
-                              ? null
-                              : (v) {
-                                  if (v == null) return;
-                                  setState(() => _book = v);
-                                },
+                        child: TextFormField(
+                          controller: _bookIdController,
+                          decoration: const InputDecoration(
+                            labelText: 'Book ID (e.g. kj)',
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: TextFormField(
-                          controller: _indexController,
-                          decoration: const InputDecoration(labelText: 'Index'),
-                          enabled: !_loading,
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            final value = (v ?? '').trim();
-                            if (value.isEmpty) return 'Index is required';
-                            final parsed = int.tryParse(value);
-                            if (parsed == null || parsed < 1) {
-                              return 'Index must be a positive number';
-                            }
-                            return null;
-                          },
+                          controller: _bookNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Book Name',
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
-                    controller: _linkController,
-                    decoration: const InputDecoration(labelText: 'Link'),
-                    enabled: !_loading,
+                    controller: _titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                    validator: (v) {
+                      final value = (v ?? '').trim();
+                      if (value.isEmpty) return 'Title is required';
+                      return null;
+                    },
                   ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _subTitleController,
+                    decoration: const InputDecoration(labelText: 'Sub Title'),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _authorController,
+                          decoration: const InputDecoration(
+                            labelText: 'Author',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _publisherController,
+                          decoration: const InputDecoration(
+                            labelText: 'Publisher',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _baseNoteController,
+                    decoration: const InputDecoration(labelText: 'Base Note'),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _urlImageController,
+                          decoration: const InputDecoration(
+                            labelText: 'urlImage',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _urlVideoController,
+                          decoration: const InputDecoration(
+                            labelText: 'urlVideo',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Composition',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      FilledButton.icon(
+                        onPressed: _loading ? null : _addCompositionItem,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (_composition.isEmpty)
+                    Text(
+                      'No composition yet.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  else
+                    ...List.generate(_composition.length, (i) {
+                      final t = _composition[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 56, child: Text('${i + 1}.')),
+                            Expanded(
+                              child: DropdownButtonFormField<SongPartType>(
+                                value: t,
+                                decoration: const InputDecoration(
+                                  labelText: 'Type',
+                                ),
+                                items: SongPartType.values
+                                    .map(
+                                      (v) => DropdownMenuItem<SongPartType>(
+                                        value: v,
+                                        child: Text(v.name),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: _loading
+                                    ? null
+                                    : (value) {
+                                        if (value == null) return;
+                                        setState(() {
+                                          final nextComposition = [
+                                            ..._composition,
+                                          ];
+                                          nextComposition[i] = value;
+                                          _composition = nextComposition;
+                                          _syncDefinitionFromComposition();
+                                        });
+                                      },
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: _loading || i == 0
+                                  ? null
+                                  : () => _swapPart(i, i - 1),
+                              icon: const Icon(Icons.arrow_upward),
+                            ),
+                            IconButton(
+                              onPressed:
+                                  _loading || i == _composition.length - 1
+                                  ? null
+                                  : () => _swapPart(i, i + 1),
+                              icon: const Icon(Icons.arrow_downward),
+                            ),
+                            IconButton(
+                              onPressed: _loading ? null : () => _removeAt(i),
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+
+                  const SizedBox(height: 20),
+                  Text(
+                    'Definition',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  if (_parts.isEmpty)
+                    Text(
+                      'No definition yet.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  else
+                    ...List.generate(_parts.length, (i) {
+                      final p = _parts[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(p.type.name),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    p.content,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: _loading
+                                  ? null
+                                  : () => _editPartContent(i),
+                              icon: const Icon(Icons.edit_outlined),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                 ],
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Text('Song parts', style: theme.textTheme.titleLarge),
-                    const Spacer(),
-                    FilledButton.icon(
-                      onPressed: _loading
-                          ? null
-                          : () => _createOrEditPart(part: null),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add part'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                if (parts.isEmpty)
-                  const Text('No parts yet. Add verses/chorus here.'),
-                ...parts.map((p) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.colorScheme.outline),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          '${p.index}. ${p.name.isEmpty ? '(unnamed)' : p.name}',
-                        ),
-                        subtitle: Text(
-                          p.content,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Wrap(
-                          spacing: 8,
-                          children: [
-                            IconButton(
-                              tooltip: 'Edit',
-                              onPressed: _loading
-                                  ? null
-                                  : () => _createOrEditPart(part: p),
-                              icon: const Icon(Icons.edit_outlined),
-                            ),
-                            IconButton(
-                              tooltip: 'Delete',
-                              onPressed: _loading ? null : () => _deletePart(p),
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: theme.colorScheme.error,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () => context.go('/songs'),
+            child: const Text('Back to list'),
           ),
-        ),
-        if (_loading) ...[
-          const SizedBox(height: 12),
-          const LinearProgressIndicator(),
         ],
-      ],
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
-        }
-        return content;
-      },
+      ),
     );
   }
 }
