@@ -60,7 +60,10 @@ class PalakatAdminApp extends ConsumerWidget {
       builder: (context, child) => FocusTraversalGroup(
         policy: WidgetOrderTraversalPolicy(),
         child: FileTransferProgressBanner(
-          child: SocketConnectionBanner(child: child),
+          child: SocketConnectionBanner(
+            blockInteractionWhenNotConnected: false,
+            child: child,
+          ),
         ),
       ),
       // Localization configuration - Requirements: 1.2, 1.4

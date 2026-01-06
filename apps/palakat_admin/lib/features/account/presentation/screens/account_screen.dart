@@ -262,7 +262,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   );
                   return;
                 }
-                // TODO: Integrate with backend password change
+                // Note: Password change API integration pending.
                 Navigator.of(context).pop();
                 AppSnackbars.showSuccess(
                   context,
@@ -359,7 +359,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement actual sign out logic
+              // Note: Admin sign out flow integration pending.
               AppSnackbars.showSuccess(
                 context,
                 title: l10n.msg_saved,

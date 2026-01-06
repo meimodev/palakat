@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:palakat_shared/palakat_shared.dart' hide Column, ActivityType;
+import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 import '../state/dashboard_controller.dart';
-import '../state/dashboard_screen_state.dart';
+import '../../../activity/activity.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -17,229 +17,153 @@ class DashboardScreen extends ConsumerWidget {
 
     final l10n = context.l10n;
 
+    final isNarrow = MediaQuery.of(context).size.width < 1000;
+    final churchName = state.home.value?.data.membership.church?.name;
+    final subtitle = churchName == null || churchName.trim().isEmpty
+        ? l10n.dashboard_subtitle
+        : churchName;
+
+    final pendingApprovals = state.pendingApprovals.value;
+    final home = state.home.value;
+
+    final pendingTotal = pendingApprovals?.pagination.total ?? 0;
+    final scheduleCount = home?.data.thisWeekActivities.length ?? 0;
+    final announcementCount = home?.data.thisWeekAnnouncements.length ?? 0;
+
     return Material(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with title and subtitle
-            Text(l10n.dashboard_title, style: theme.textTheme.headlineMedium),
-            const SizedBox(height: 4),
-            Text(
-              l10n.dashboard_subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Grid of 4 stat cards
-            state.stats.when(
-              loading: () => Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  for (int i = 0; i < 4; i++)
-                    LoadingShimmer(
-                      child: Container(
-                        width: 280,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: theme.colorScheme.outlineVariant,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ShimmerPlaceholders.text(width: 100, height: 14),
-                              const SizedBox(height: 10),
-                              ShimmerPlaceholders.text(width: 150, height: 24),
-                              const SizedBox(height: 8),
-                              ShimmerPlaceholders.text(width: 120, height: 12),
-                            ],
-                          ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.dashboard_title,
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    ),
-                ],
-              ),
-              error: (e, st) => Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
+                    ],
+                  ),
                 ),
-                child: Column(
+                const SizedBox(width: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Text(
-                      l10n.err_loadFailed,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onErrorContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: controller.fetchStats,
+                    OutlinedButton.icon(
+                      onPressed: () => controller.refresh(),
                       icon: const Icon(Icons.refresh),
-                      label: Text(l10n.btn_retry),
+                      label: Text(l10n.tooltip_refresh),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () => context.go('/activity'),
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.nav_activity),
                     ),
                   ],
                 ),
-              ),
-              data: (stats) => Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  _StatCard(
-                    title: l10n.dashboard_totalMembers,
-                    value: NumberFormat('#,###').format(stats.totalMembers),
-                    icon: Icons.groups_outlined,
-                    change: l10n.stat_changeFromLastMonth(
-                      stats.membersChange.toString(),
-                    ),
-                  ),
-                  _StatCard(
-                    title: l10n.dashboard_totalRevenue,
-                    value: NumberFormat.simpleCurrency().format(
-                      stats.totalRevenue,
-                    ),
-                    icon: Icons.attach_money,
-                    change: l10n.stat_changePercentFromLastMonth(
-                      stats.revenueChange.toString(),
-                    ),
-                  ),
-                  _StatCard(
-                    title: l10n.dashboard_totalExpense,
-                    value: NumberFormat.simpleCurrency().format(
-                      stats.totalExpense,
-                    ),
-                    icon: Icons.credit_card,
-                    change: l10n.stat_changePercentFromLastMonth(
-                      stats.expenseChange.toString(),
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
 
             const SizedBox(height: 16),
 
-            // Recent Activity card
-            SurfaceCard(
-              title: l10n.dashboard_recentActivity,
-              subtitle:
-                  state.recentActivities.hasValue &&
-                      state.recentActivities.value!.isNotEmpty
-                  ? l10n.dashboard_recentActivitiesCount(
-                      state.recentActivities.value!.length,
-                    )
-                  : l10n.dashboard_recentActivitiesEmpty,
-              trailing: IconButton(
-                onPressed: controller.fetchRecentActivities,
-                icon: const Icon(Icons.refresh),
-                tooltip: l10n.tooltip_refresh,
-              ),
-              child: state.recentActivities.when(
-                loading: () => LoadingShimmer(
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < 3; i++) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ShimmerPlaceholders.text(
-                                      width: 200,
-                                      height: 16,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    ShimmerPlaceholders.text(
-                                      width: 300,
-                                      height: 14,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (i < 2)
-                          Divider(
-                            height: 1,
-                            color: theme.colorScheme.outlineVariant,
-                          ),
-                      ],
-                    ],
-                  ),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                QuickStatCard(
+                  label: l10n.approval_title,
+                  value: pendingTotal.toString(),
+                  icon: Icons.assignment_outlined,
+                  iconColor: Colors.blue.shade700,
+                  iconBackgroundColor: Colors.blue.shade50,
+                  isLoading: state.pendingApprovals.isLoading,
+                  width: 240,
                 ),
-                error: (e, st) => Container(
-                  padding: const EdgeInsets.all(32),
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      Text(
-                        l10n.err_loadFailed,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.error,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: controller.fetchRecentActivities,
-                        icon: const Icon(Icons.refresh),
-                        label: Text(l10n.btn_retry),
-                      ),
-                    ],
-                  ),
+                QuickStatCard(
+                  label: l10n.section_schedule,
+                  value: scheduleCount.toString(),
+                  icon: Icons.event_outlined,
+                  iconColor: Colors.orange.shade700,
+                  iconBackgroundColor: Colors.orange.shade50,
+                  isLoading: state.home.isLoading,
+                  width: 240,
                 ),
-                data: (activities) => activities.isEmpty
-                    ? Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        alignment: Alignment.center,
-                        child: Text(
-                          l10n.err_noData,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      )
-                    : Column(
-                        children: [
-                          for (int i = 0; i < activities.length; i++) ...[
-                            _ActivityItem(activity: activities[i]),
-                            if (i < activities.length - 1)
-                              Divider(
-                                height: 1,
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                          ],
-                        ],
-                      ),
-              ),
+                QuickStatCard(
+                  label: l10n.activityType_announcement,
+                  value: announcementCount.toString(),
+                  icon: Icons.campaign_outlined,
+                  iconColor: Colors.purple.shade700,
+                  iconBackgroundColor: Colors.purple.shade50,
+                  isLoading: state.home.isLoading,
+                  width: 240,
+                ),
+              ],
             ),
+
+            const SizedBox(height: 16),
+
+            if (isNarrow)
+              Column(
+                children: [
+                  _PendingApprovalsCard(
+                    pendingApprovals: pendingApprovals,
+                    loading: state.pendingApprovals.isLoading,
+                    hasError: state.pendingApprovals.hasError,
+                    error: state.pendingApprovals.error,
+                    onRetry: controller.fetchPendingApprovals,
+                  ),
+                  const SizedBox(height: 16),
+                  _UpcomingCard(
+                    home: home,
+                    loading: state.home.isLoading,
+                    hasError: state.home.hasError,
+                    error: state.home.error,
+                    onRetry: controller.fetchHome,
+                  ),
+                ],
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _UpcomingCard(
+                          home: home,
+                          loading: state.home.isLoading,
+                          hasError: state.home.hasError,
+                          error: state.home.error,
+                          onRetry: controller.fetchHome,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 520,
+                    child: _PendingApprovalsCard(
+                      pendingApprovals: pendingApprovals,
+                      loading: state.pendingApprovals.isLoading,
+                      hasError: state.pendingApprovals.hasError,
+                      error: state.pendingApprovals.error,
+                      onRetry: controller.fetchPendingApprovals,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -247,184 +171,303 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.change,
+class _PendingApprovalsCard extends StatelessWidget {
+  const _PendingApprovalsCard({
+    required this.pendingApprovals,
+    required this.loading,
+    required this.hasError,
+    required this.error,
+    required this.onRetry,
   });
 
-  final String title;
-  final String value;
-  final IconData icon;
-  final String change;
+  final PaginationResponseWrapper<Approver>? pendingApprovals;
+  final bool loading;
+  final bool hasError;
+  final Object? error;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: 280,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    final l10n = context.l10n;
+    final rawApprovals = pendingApprovals?.data ?? const <Approver>[];
+    final activityApprovals = rawApprovals
+        .where((a) {
+          final activityId = a.activityId;
+          final activity = a.activity;
+          if (activityId == null || activity == null) return false;
+
+          return activity.approvers.approvalStatus ==
+              ApprovalStatus.unconfirmed;
+        })
+        .toList(growable: false);
+
+    final approvalsByActivityId = <int, Approver>{};
+    for (final a in activityApprovals) {
+      final activityId = a.activityId;
+      if (activityId == null) continue;
+
+      final existing = approvalsByActivityId[activityId];
+      if (existing == null) {
+        approvalsByActivityId[activityId] = a;
+        continue;
+      }
+
+      if (existing.activity == null && a.activity != null) {
+        approvalsByActivityId[activityId] = a;
+      }
+    }
+
+    final approvals = approvalsByActivityId.values.toList(growable: false);
+
+    final total = approvals.length;
+
+    return SurfaceCard(
+      title: l10n.approval_title,
+      subtitle: l10n.approval_pendingReviewCount(total),
+      trailing: TextButton(
+        onPressed: () => context.go('/activity'),
+        child: Text(l10n.btn_viewAll),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+      child: LoadingWrapper(
+        loading: loading,
+        hasError: hasError,
+        errorMessage: hasError ? error.toString() : null,
+        onRetry: onRetry,
+        child: approvals.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(context.l10n.approval_allCaughtUpTitle),
+              )
+            : Column(
+                children: [
+                  for (final a in approvals) ...[
+                    Builder(
+                      builder: (context) {
+                        final activity = a.activity;
+                        final title =
+                            activity?.title ??
+                            context.l10n.lbl_hashId(
+                              a.activityId?.toString() ?? context.l10n.lbl_na,
+                            );
+                        final memberName = a.membership?.account?.name;
+                        final subtitleText =
+                            (activity?.note?.trim().isNotEmpty == true)
+                            ? activity!.note!.trim()
+                            : (activity?.description?.trim().isNotEmpty == true)
+                            ? activity!.description!.trim()
+                            : (memberName != null &&
+                                  memberName.trim().isNotEmpty)
+                            ? memberName.trim()
+                            : null;
+
+                        final dateText = activity?.date.toDateTimeString();
+                        final subtitle = dateText == null
+                            ? subtitleText
+                            : (subtitleText == null
+                                  ? dateText
+                                  : '$dateText • $subtitleText');
+
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          minVerticalPadding: 0,
+                          visualDensity: const VisualDensity(
+                            horizontal: -2,
+                            vertical: -3,
+                          ),
+                          onTap: a.activityId == null
+                              ? null
+                              : () {
+                                  DrawerUtils.showDrawer(
+                                    context: context,
+                                    drawer: ActivityDetailDrawer(
+                                      activityId: a.activityId!,
+                                      onClose: () =>
+                                          DrawerUtils.closeDrawer(context),
+                                    ),
+                                  );
+                                },
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            radius: 16,
+                            child: Icon(
+                              Icons.assignment_outlined,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              size: 18,
+                            ),
+                          ),
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              if (activity != null)
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 120,
+                                  ),
+                                  child: ActivityTypeChip(
+                                    type: activity.activityType,
+                                    iconSize: 12,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          subtitle: subtitle == null
+                              ? null
+                              : Text(
+                                  subtitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                          trailing: null,
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+                  ],
+                ],
               ),
-              Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            change,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _ActivityItem extends StatelessWidget {
-  const _ActivityItem({required this.activity});
+class _UpcomingCard extends StatelessWidget {
+  const _UpcomingCard({
+    required this.home,
+    required this.loading,
+    required this.hasError,
+    required this.error,
+    required this.onRetry,
+  });
 
-  final RecentActivity activity;
-
-  IconData _getActivityIcon() {
-    switch (activity.type) {
-      case ActivityType.member:
-        return Icons.person_add;
-      case ActivityType.transaction:
-        return Icons.attach_money;
-      case ActivityType.approval:
-        return Icons.check_circle_outline;
-      case ActivityType.event:
-        return Icons.event;
-    }
-  }
-
-  Color _getActivityColor(ThemeData theme) {
-    switch (activity.type) {
-      case ActivityType.member:
-        return theme.colorScheme.primary;
-      case ActivityType.transaction:
-        return theme.colorScheme.tertiary;
-      case ActivityType.approval:
-        return Colors.green;
-      case ActivityType.event:
-        return theme.colorScheme.tertiary;
-    }
-  }
-
-  String _formatTimestamp(BuildContext context, DateTime timestamp) {
-    final l10n = context.l10n;
-    final now = DateTime.now();
-    final diff = now.difference(timestamp);
-
-    if (diff.inDays > 0) {
-      return l10n.time_daysAgo(diff.inDays);
-    } else if (diff.inHours > 0) {
-      return l10n.time_hoursAgo(diff.inHours);
-    } else if (diff.inMinutes > 0) {
-      return l10n.time_minutesAgo(diff.inMinutes);
-    } else {
-      return l10n.time_justNow;
-    }
-  }
+  final HomeDashboardResponse? home;
+  final bool loading;
+  final bool hasError;
+  final Object? error;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = _getActivityColor(theme);
+    final data = home?.data;
+    final nextUp = data?.nextUpActivity;
+    final schedule = data?.thisWeekActivities ?? const <Activity>[];
+    final announcements = data?.thisWeekAnnouncements ?? const <Activity>[];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(_getActivityIcon(), size: 20, color: color),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        activity.title,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+    return SurfaceCard(
+      title: context.l10n.section_schedule,
+      subtitle: context.l10n.dateRangeFilter_thisMonth,
+      trailing: TextButton(
+        onPressed: () => context.go('/activity'),
+        child: Text(context.l10n.btn_viewAll),
+      ),
+      child: LoadingWrapper(
+        loading: loading,
+        hasError: hasError,
+        errorMessage: hasError ? error.toString() : null,
+        onRetry: onRetry,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (nextUp != null) ...[
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.tertiaryContainer,
+                  child: Icon(
+                    Icons.event,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                title: Text(
+                  nextUp.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(nextUp.date.toDateTimeString()),
+                trailing: TextButton(
+                  onPressed: nextUp.id == null
+                      ? null
+                      : () {
+                          DrawerUtils.showDrawer(
+                            context: context,
+                            drawer: ActivityDetailDrawer(
+                              activityId: nextUp.id!,
+                              onClose: () => DrawerUtils.closeDrawer(context),
+                            ),
+                          );
+                        },
+                  child: Text(context.l10n.btn_viewAll),
+                ),
+              ),
+              const Divider(height: 1),
+            ],
+            if (schedule.isNotEmpty) ...[
+              Text(
+                context.l10n.section_schedule,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              for (final a in schedule.take(3))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          a.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                    if (activity.amount != null)
+                      const SizedBox(width: 12),
                       Text(
-                        activity.amount!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.tertiary,
+                        a.date.toCustomFormat('dd MMM'),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  activity.description,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatTimestamp(context, activity.timestamp),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(
-                      alpha: 0.6,
-                    ),
-                    fontSize: 11,
+              const Divider(height: 1),
+            ],
+            if (announcements.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.activityType_announcement,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              for (final a in announcements.take(2))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    a.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
+            ],
+          ],
+        ),
       ),
     );
   }

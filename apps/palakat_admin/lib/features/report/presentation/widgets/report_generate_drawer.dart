@@ -307,50 +307,31 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
 
           LabeledField(
             label: l10n.lbl_dateRange,
-            child: DropdownButtonFormField<DateRangePreset>(
-              value: _dateRangePreset,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                prefixIcon: Icon(Icons.date_range, size: 18),
-              ),
-              items: DateRangePreset.values
-                  .where((preset) => preset != DateRangePreset.allTime)
-                  .map(
-                    (preset) => DropdownMenuItem<DateRangePreset>(
-                      value: preset,
-                      child: Text(
-                        preset.displayName,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (preset) async {
-                if (preset == null) return;
-
-                if (preset == DateRangePreset.custom) {
-                  final picked = await showDateRangePicker(
-                    context: context,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                    initialDateRange:
-                        _customDateRange ?? _getEffectiveDateRange(),
-                  );
-                  if (picked != null) {
+            child: Builder(
+              builder: (context) {
+                final effective = _getEffectiveDateRange();
+                return DateRangePresetInput(
+                  label: '',
+                  hint: l10n.lbl_dateRange,
+                  preset: _dateRangePreset,
+                  start: effective?.start,
+                  end: effective?.end,
+                  allowedPresets: DateRangePreset.values
+                      .where((p) => p != DateRangePreset.allTime)
+                      .toList(),
+                  onCustomDateRangeSelected: (range) {
+                    setState(() => _customDateRange = range);
+                  },
+                  onPresetChanged: (preset) {
                     setState(() {
-                      _customDateRange = picked;
                       _dateRangePreset = preset;
+                      if (preset != DateRangePreset.custom) {
+                        _customDateRange = null;
+                      }
                     });
-                  }
-                } else {
-                  setState(() {
-                    _dateRangePreset = preset;
-                  });
-                }
+                  },
+                  onChanged: (start, end) {},
+                );
               },
             ),
           ),

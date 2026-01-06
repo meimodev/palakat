@@ -200,6 +200,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     final filteredItems = controller.getFilteredBillingItems();
     final paginatedItems = controller.getPaginatedBillingItems();
     final total = filteredItems.length;
+    final selected = state.dateRange;
 
     return SurfaceCard(
       title: l10n.card_billingItems_title,
@@ -268,10 +269,21 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                     onChanged: controller.updateStatusFilter,
                   ),
                   const SizedBox(width: 8),
-                  DateRangeFilter(
-                    value: state.dateRange,
-                    onChanged: controller.updateDateRange,
-                    onClear: () => controller.updateDateRange(null),
+                  DateRangePresetInput(
+                    label: '',
+                    hint: l10n.lbl_dateRange,
+                    start: selected?.start,
+                    end: selected?.end,
+                    onChanged: (start, end) {
+                      if (start == null || end == null) {
+                        controller.updateDateRange(null);
+                        return;
+                      }
+
+                      controller.updateDateRange(
+                        DateTimeRange(start: start, end: end),
+                      );
+                    },
                   ),
                 ],
               ),
