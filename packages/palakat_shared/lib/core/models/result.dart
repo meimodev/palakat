@@ -69,6 +69,8 @@ class Failure implements Exception {
             'A network error occurred',
         statusCode,
       );
+    } else if (exception is Error) {
+      return Failure(exception.toString());
     } else if (exception is Exception) {
       return Failure(exception.toString());
     } else {

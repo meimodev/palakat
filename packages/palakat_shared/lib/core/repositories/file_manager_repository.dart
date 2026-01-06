@@ -54,17 +54,14 @@ class FileManagerRepository {
   Future<Result<String, Failure>> resolveDownloadUrl({
     required int fileId,
   }) async {
+    final progress = _ref.read(fileTransferProgressControllerProvider.notifier);
+    final progressId = progress.start(
+      direction: FileTransferDirection.download,
+      totalBytes: 0,
+      label: 'file#$fileId',
+    );
     try {
       final socket = _ref.read(socketServiceProvider);
-
-      final progress = _ref.read(
-        fileTransferProgressControllerProvider.notifier,
-      );
-      final progressId = progress.start(
-        direction: FileTransferDirection.download,
-        totalBytes: 0,
-        label: 'file#$fileId',
-      );
 
       final dl = await socket.downloadFileBytes(
         fileId: fileId,
@@ -76,14 +73,19 @@ class FileManagerRepository {
           );
         },
       );
-      progress.complete(progressId);
+      if (dl.bytes.isEmpty) {
+        progress.fail(progressId, errorMessage: 'Empty file response');
+        return Result.failure(Failure('Empty file response'));
+      }
       final url = await bytesToUrl(
         bytes: dl.bytes,
         filename: dl.originalName ?? 'file',
         contentType: dl.contentType,
       );
+      progress.complete(progressId);
       return Result.success(url);
     } catch (e) {
+      progress.fail(progressId, errorMessage: Failure.fromException(e).message);
       return Result.failure(Failure.fromException(e));
     }
   }
@@ -103,36 +105,50 @@ class FileManagerRepository {
   Future<Result<Uint8List, Failure>> fetchFileBytes({
     required int fileId,
     Duration timeout = const Duration(seconds: 30),
+    bool showProgress = true,
   }) async {
+    final progress = showProgress
+        ? _ref.read(fileTransferProgressControllerProvider.notifier)
+        : null;
+    final progressId = showProgress
+        ? progress?.start(
+            direction: FileTransferDirection.download,
+            totalBytes: 0,
+            label: 'file#$fileId',
+          )
+        : null;
     try {
       final socket = _ref.read(socketServiceProvider);
-
-      final progress = _ref.read(
-        fileTransferProgressControllerProvider.notifier,
-      );
-      final progressId = progress.start(
-        direction: FileTransferDirection.download,
-        totalBytes: 0,
-        label: 'file#$fileId',
-      );
 
       final dl = await socket.downloadFileBytes(
         fileId: fileId,
         onProgress: (received, total) {
-          progress.update(
-            progressId,
-            transferredBytes: received,
-            totalBytes: total,
-          );
+          if (progress != null && progressId != null) {
+            progress.update(
+              progressId,
+              transferredBytes: received,
+              totalBytes: total,
+            );
+          }
         },
       );
-      progress.complete(progressId);
       if (dl.bytes.isEmpty) {
-        progress.fail(progressId, errorMessage: 'Empty file response');
+        if (progress != null && progressId != null) {
+          progress.fail(progressId, errorMessage: 'Empty file response');
+        }
         return Result.failure(Failure('Empty file response'));
+      }
+      if (progress != null && progressId != null) {
+        progress.complete(progressId);
       }
       return Result.success(dl.bytes);
     } catch (e) {
+      if (progress != null && progressId != null) {
+        progress.fail(
+          progressId,
+          errorMessage: Failure.fromException(e).message,
+        );
+      }
       return Result.failure(Failure.fromException(e));
     }
   }

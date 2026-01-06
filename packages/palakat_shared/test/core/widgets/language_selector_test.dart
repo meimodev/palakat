@@ -55,7 +55,7 @@ void main() {
       await tester.pump();
 
       // Dialog should be visible with both options
-      expect(find.text('Select Language'), findsOneWidget);
+      expect(find.text('Language'), findsOneWidget);
       expect(
         find.text('Bahasa Indonesia'),
         findsNWidgets(2),
@@ -92,7 +92,7 @@ void main() {
       await tester.pump();
 
       // Dialog should be closed
-      expect(find.text('Select Language'), findsNothing);
+      expect(find.text('Language'), findsNothing);
     });
 
     testWidgets('displays dropdown arrow icon', (tester) async {

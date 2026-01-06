@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
+import 'package:palakat_shared/core/widgets/input/date_range_preset_input.dart';
 import 'package:palakat_shared/core/widgets/pagination_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:palakat_shared/core/widgets/search_field.dart';
@@ -630,53 +631,31 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
     // Date range preset dropdown
     if (widget.config.onDateRangePresetChanged != null) {
       addSpacer();
+
+      final preset = widget.config.dateRangePreset ?? DateRangePreset.allTime;
+      final effectiveRange = preset == DateRangePreset.custom
+          ? widget.config.customDateRange
+          : preset.getDateRange();
+
+      final allowedPresets = widget.config.onCustomDateRangeSelected == null
+          ? DateRangePreset.values
+                .where((p) => p != DateRangePreset.custom)
+                .toList()
+          : DateRangePreset.values;
+
       children.add(
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 240),
-          child: DropdownButtonFormField<DateRangePreset>(
-            isExpanded: true,
-            value: widget.config.dateRangePreset ?? DateRangePreset.allTime,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              labelText: l10n.lbl_dateRange,
-              prefixIcon: const Icon(Icons.date_range, size: 18),
-            ),
-            items: DateRangePreset.values
-                .map(
-                  (preset) => DropdownMenuItem<DateRangePreset>(
-                    value: preset,
-                    child: Text(
-                      preset.displayName,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (preset) async {
-              if (preset == null) return;
-
-              if (preset == DateRangePreset.custom) {
-                // Open date picker for custom range
-                final picked = await showDateRangePicker(
-                  context: context,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  initialDateRange: widget.config.customDateRange,
-                );
-                if (picked != null &&
-                    widget.config.onCustomDateRangeSelected != null) {
-                  widget.config.onCustomDateRangeSelected!(picked);
-                }
-                widget.config.onDateRangePresetChanged!(preset);
-              } else {
-                // Use preset date range
-                widget.config.onDateRangePresetChanged!(preset);
-              }
-            },
+          child: DateRangePresetInput(
+            label: '',
+            hint: l10n.lbl_dateRange,
+            preset: preset,
+            start: effectiveRange?.start,
+            end: effectiveRange?.end,
+            allowedPresets: allowedPresets,
+            onPresetChanged: widget.config.onDateRangePresetChanged,
+            onCustomDateRangeSelected: widget.config.onCustomDateRangeSelected,
+            onChanged: (start, end) {},
           ),
         ),
       );

@@ -11,8 +11,11 @@ part 'app_config.g.dart';
 /// Centralized configuration loaded from .env
 @freezed
 abstract class AppConfig with _$AppConfig {
-  const factory AppConfig({required String apiBaseUrl, String? apiKey}) =
-      _AppConfig;
+  const factory AppConfig({
+    required String apiBaseUrl,
+    String? apiKey,
+    int? songDbFileId,
+  }) = _AppConfig;
 
   factory AppConfig.fromEnv() {
     final baseUrl = dotenv.env['API_BASE_URL']?.trim() ?? '';
@@ -26,6 +29,11 @@ abstract class AppConfig with _$AppConfig {
 
     final key = dotenv.env['API_KEY'];
 
+    final rawSongDbFileId = dotenv.env['SONG_DB_FILE_ID']?.trim();
+    final songDbFileId = rawSongDbFileId == null || rawSongDbFileId.isEmpty
+        ? null
+        : int.tryParse(rawSongDbFileId);
+
     final normalizedBaseUrl = baseUrl.replaceAll(RegExp(r'/+$'), '');
     final normalizedVersion = baseUrlVersion.replaceAll(RegExp(r'^/+|/+$'), '');
     final parsedBase = Uri.tryParse(normalizedBaseUrl);
@@ -34,6 +42,7 @@ abstract class AppConfig with _$AppConfig {
     return AppConfig(
       apiBaseUrl: "$normalizedBaseUrl$portPart/$normalizedVersion/",
       apiKey: key?.isEmpty == true ? null : key,
+      songDbFileId: songDbFileId,
     );
   }
 }

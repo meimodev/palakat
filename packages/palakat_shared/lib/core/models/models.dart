@@ -44,5 +44,6 @@ export 'request/request.dart';
 export 'response/response.dart';
 export 'result.dart';
 export 'revenue.dart';
+export 'song_book.dart';
 export 'song.dart';
 export 'song_part.dart';

@@ -27,7 +27,7 @@ class BillingRepository {
   /// Fetch payment history (with mock data for now)
   Future<Result<List<PaymentHistory>, Failure>> getPaymentHistoryAsync() async {
     try {
-      // TODO: Replace with real API call when backend is ready
+      // Note: Replace with real API call when backend is ready.
       // final response = await apiService.get(BillingEndpoints.getPaymentHistory);
       // final payments = (response.data as List)
       //     .map((json) => PaymentHistory.fromJson(json))
@@ -51,7 +51,7 @@ class BillingRepository {
     String? notes,
   }) async {
     try {
-      // TODO: Implement actual API call when backend is ready
+      // Note: Implement actual API call when backend is ready.
       // await apiService.post(
       //   BillingEndpoints.recordPayment,
       //   data: {

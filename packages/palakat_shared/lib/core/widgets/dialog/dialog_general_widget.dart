@@ -22,7 +22,7 @@ Future showDialogGeneralWidget(
   // bool avoidKeyboard = false,
   // bool hideButtons = false,
 ) async {
-  // TODO: Implement general dialog widget
+  // Note: General dialog widget implementation pending.
   // This widget should provide a flexible dialog with:
   // - Optional image header
   // - Title and subtitle

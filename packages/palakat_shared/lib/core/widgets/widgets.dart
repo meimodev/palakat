@@ -77,7 +77,6 @@ export 'supervisor_card.dart';
 
 // Date and picker widgets
 export 'date_of_birth_picker.dart';
-export 'date_range_filter.dart';
 export 'financial_account_picker.dart';
 export 'gender_dropdown.dart';
 export 'language_selector.dart';

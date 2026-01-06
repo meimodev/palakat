@@ -386,10 +386,13 @@ enum SongPartType {
   @JsonValue("VERSE")
   verse,
 
+  @JsonValue("VERSE1")
+  verse1,
+
   @JsonValue("VERSE2")
   verse2,
 
-  @JsonValue("VERSE4")
+  @JsonValue("VERSE3")
   verse3,
 
   @JsonValue("VERSE4")
@@ -406,6 +409,12 @@ enum SongPartType {
 
   @JsonValue("VERSE8")
   verse8,
+
+  @JsonValue("VERSE9")
+  verse9,
+
+  @JsonValue("VERSE10")
+  verse10,
 
   @JsonValue("REFRAIN")
   refrain,

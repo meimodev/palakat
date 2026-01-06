@@ -244,16 +244,21 @@ class _TransferTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 6),
-                IconButton(
-                  onPressed: onDismiss,
-                  tooltip: 'Dismiss',
-                  iconSize: 18,
-                  constraints: const BoxConstraints(
-                    minWidth: 36,
-                    minHeight: 36,
-                  ),
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.close, color: colors.foreground),
+                Builder(
+                  builder: (context) {
+                    final hasOverlay = Overlay.maybeOf(context) != null;
+                    return IconButton(
+                      onPressed: onDismiss,
+                      tooltip: hasOverlay ? 'Dismiss' : null,
+                      iconSize: 18,
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.close, color: colors.foreground),
+                    );
+                  },
                 ),
               ],
             ),

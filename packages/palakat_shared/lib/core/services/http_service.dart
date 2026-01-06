@@ -378,7 +378,7 @@ HttpService httpService(Ref ref) {
     },
     onUnauthorized: () async {
       // Ensure controller state resets so router guard reacts
-      // TODO: Implement auth controller in consuming app
+      // Note: Implement auth controller integration in consuming app.
       // await ref.read(authControllerProvider.notifier).forceSignOut();
       await localStorage.clear();
     },

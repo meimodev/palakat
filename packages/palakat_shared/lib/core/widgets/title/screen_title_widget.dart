@@ -216,12 +216,7 @@ class ScreenTitleWidget extends StatelessWidget {
 
   Widget _buildTitleSecondary(BuildContext context, ThemeData theme) {
     return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
-        left: 4,
-        right: 12,
-        bottom: 8,
-      ),
+      padding: EdgeInsets.only(top: 8, left: 4, right: 12, bottom: 8),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         boxShadow: [

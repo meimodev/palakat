@@ -11,7 +11,7 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final route = GoRouterState.of(context).uri.toString();
     final l10n = context.l10n;
-    // TODO: Implement auth controller in consuming app
+    // Note: Implement auth controller integration in consuming app.
     // final auth = ref.watch(authControllerProvider).asData?.value;
     // final account = auth?.account;
     final displayName = l10n.lbl_adminUser; // account?.name ?? 'Admin User';

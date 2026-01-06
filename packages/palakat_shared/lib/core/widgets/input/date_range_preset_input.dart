@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'input_widget.dart';
@@ -14,13 +15,29 @@ class DateRangePresetInput extends StatelessWidget {
   const DateRangePresetInput({
     super.key,
     required this.label,
+    this.hint,
     required this.start,
     required this.end,
     required this.onChanged,
+    this.showYear = true,
+    this.preset,
+    this.onPresetChanged,
+    this.onCustomDateRangeSelected,
+    this.allowedPresets = const [
+      DateRangePreset.allTime,
+      DateRangePreset.today,
+      DateRangePreset.thisWeek,
+      DateRangePreset.thisMonth,
+      DateRangePreset.lastWeek,
+      DateRangePreset.lastMonth,
+      DateRangePreset.custom,
+    ],
   });
 
   /// Field label
   final String label;
+
+  final String? hint;
 
   /// Currently selected start date (nullable)
   final DateTime? start;
@@ -31,41 +48,57 @@ class DateRangePresetInput extends StatelessWidget {
   /// Callback invoked when the user selects a preset or custom range.
   final void Function(DateTime? start, DateTime? end) onChanged;
 
+  final bool showYear;
+
+  final DateRangePreset? preset;
+  final ValueChanged<DateRangePreset>? onPresetChanged;
+  final ValueChanged<DateTimeRange?>? onCustomDateRangeSelected;
+
+  final List<DateRangePreset> allowedPresets;
+
   @override
   Widget build(BuildContext context) {
-    final currentPreset = _detectPreset(start, end);
+    final currentPreset = preset ?? _detectPreset(start, end, allowedPresets);
 
-    return InputWidget<_DateRangePreset>.dropdown(
+    return InputWidget<DateRangePreset>.dropdown(
       label: label,
-      hint: 'Select date range',
+      hint:
+          hint ?? (label.isEmpty ? DateRangePreset.allTime.displayName : label),
       currentInputValue: currentPreset,
-      options: _DateRangePreset.values,
-      optionLabel: (_) => _formatRange(start, end),
-      customDisplayBuilder: (_) => _buildCustomDisplay(context),
-      onChanged: (p) async {
-        await _applyPreset(context, p, start, end);
-      },
+      options: allowedPresets,
+      optionLabel: (p) => p.displayName,
+      customDisplayBuilder: (_) => _buildCustomDisplay(context, currentPreset),
       onPressedWithResult: () async {
-        return await _pickPresetBottomSheet(
+        final selected = await _pickPresetBottomSheet(
           context,
           current: currentPreset,
+          allowedPresets: allowedPresets,
           start: start,
           end: end,
         );
+
+        if (selected == null) return null;
+
+        if (!context.mounted) return null;
+
+        final applied = await _applyPreset(context, selected, start, end);
+        if (!applied) return null;
+
+        return selected;
       },
+      onChanged: (_) {},
     );
   }
 
   /// Builds custom display widget showing preset label on top and date range below
-  Widget _buildCustomDisplay(BuildContext context) {
+  Widget _buildCustomDisplay(BuildContext context, DateRangePreset preset) {
     final theme = Theme.of(context);
-    final preset = _detectPreset(start, end);
-    final dateRange = _formatRangeDateOnly(start, end);
+    final dateRange = _formatRangeDateOnly(start, end, showYear: showYear);
 
     // For "All dates", just show single line
-    if (preset == _DateRangePreset.all) {
+    if (preset == DateRangePreset.allTime) {
       return Text(
-        'All dates',
+        preset.displayName,
         style: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.onSurface,
           fontWeight: FontWeight.w500,
@@ -74,9 +107,9 @@ class DateRangePresetInput extends StatelessWidget {
     }
 
     // For custom range, show just the date range
-    if (preset == _DateRangePreset.custom) {
+    if (preset == DateRangePreset.custom) {
       return Text(
-        dateRange,
+        (start == null && end == null) ? preset.displayName : dateRange,
         style: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.onSurface,
           fontWeight: FontWeight.w500,
@@ -90,7 +123,7 @@ class DateRangePresetInput extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          _labelForPreset(preset),
+          preset.displayName,
           style: theme.textTheme.titleMedium?.copyWith(
             color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.w500,
@@ -106,28 +139,19 @@ class DateRangePresetInput extends StatelessWidget {
     );
   }
 
-  String _formatRange(DateTime? start, DateTime? end) {
-    if (start == null && end == null) return 'All dates';
-
-    // Check if it matches a preset and return label + date range
-    final preset = _detectPreset(start, end);
-    final dateRange = _formatRangeDateOnly(start, end);
-
-    if (preset != _DateRangePreset.custom && preset != _DateRangePreset.all) {
-      return '${_labelForPreset(preset)} ($dateRange)';
-    }
-
-    // For custom range, show date only
-    return dateRange;
-  }
-
   /// Formats date range without time - used for subtitles in bottom sheet
-  String _formatRangeDateOnly(DateTime? start, DateTime? end) {
-    if (start == null && end == null) return 'All dates';
+  String _formatRangeDateOnly(
+    DateTime? start,
+    DateTime? end, {
+    required bool showYear,
+  }) {
+    if (start == null && end == null) {
+      return DateRangePreset.allTime.displayName;
+    }
     final s = start ?? end!;
     final e = end ?? start!;
-    final sStr = s.ddMmmmYyyy;
-    final eStr = e.ddMmmmYyyy;
+    final sStr = showYear ? s.ddMmmmYyyy : s.ddMmmm;
+    final eStr = showYear ? e.ddMmmmYyyy : e.ddMmmm;
 
     return sStr == eStr ? sStr : '$sStr - $eStr';
   }
@@ -136,152 +160,58 @@ class DateRangePresetInput extends StatelessWidget {
   DateTime _endOfDay(DateTime d) =>
       DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
 
-  _DateRangePreset _detectPreset(DateTime? start, DateTime? end) {
-    if (start == null && end == null) return _DateRangePreset.all;
-    if (start == null || end == null) return _DateRangePreset.custom;
-    final now = DateTime.now();
+  DateRangePreset _detectPreset(
+    DateTime? start,
+    DateTime? end,
+    List<DateRangePreset> presets,
+  ) {
+    if (presets.isEmpty) return DateRangePreset.custom;
+
+    if (start == null && end == null) {
+      return presets.contains(DateRangePreset.allTime)
+          ? DateRangePreset.allTime
+          : presets.first;
+    }
+
+    if (start == null || end == null) {
+      return presets.contains(DateRangePreset.custom)
+          ? DateRangePreset.custom
+          : presets.first;
+    }
+
     final s = _startOfDay(start);
     final e = _endOfDay(end);
-    final todayS = _startOfDay(now);
-    final todayE = _endOfDay(now);
 
-    bool sameDay(DateTime aS, DateTime aE, DateTime bS, DateTime bE) =>
-        aS == bS && aE == bE;
+    for (final preset in presets) {
+      if (preset == DateRangePreset.custom ||
+          preset == DateRangePreset.allTime) {
+        continue;
+      }
+      final range = preset.getDateRange();
+      if (range == null) continue;
 
-    if (sameDay(s, e, todayS, todayE)) return _DateRangePreset.today;
-
-    if (s == _startOfDay(now.subtract(const Duration(days: 6))) &&
-        e == todayE) {
-      return _DateRangePreset.last7;
-    }
-    if (s == _startOfDay(now.subtract(const Duration(days: 29))) &&
-        e == todayE) {
-      return _DateRangePreset.last30;
+      if (_startOfDay(range.start) == s && _endOfDay(range.end) == e) {
+        return preset;
+      }
     }
 
-    final thisMonthStart = DateTime(now.year, now.month, 1);
-    final thisMonthEnd = _endOfDay(DateTime(now.year, now.month + 1, 0));
-    if (s == thisMonthStart && e == thisMonthEnd) {
-      return _DateRangePreset.thisMonth;
-    }
-
-    final lastMonthStart = DateTime(now.year, now.month - 1, 1);
-    final lastMonthEnd = _endOfDay(DateTime(now.year, now.month, 0));
-    if (s == lastMonthStart && e == lastMonthEnd) {
-      return _DateRangePreset.lastMonth;
-    }
-
-    final thisYearStart = DateTime(now.year, 1, 1);
-    final thisYearEnd = _endOfDay(DateTime(now.year, 12, 31));
-    if (s == thisYearStart && e == thisYearEnd) {
-      return _DateRangePreset.thisYear;
-    }
-
-    return _DateRangePreset.custom;
+    return presets.contains(DateRangePreset.custom)
+        ? DateRangePreset.custom
+        : presets.first;
   }
 
-  String _labelForPreset(_DateRangePreset p) {
-    switch (p) {
-      case _DateRangePreset.all:
-        return 'All dates';
-      case _DateRangePreset.today:
-        return 'Today';
-      case _DateRangePreset.last7:
-        return 'Last 7 days';
-      case _DateRangePreset.last30:
-        return 'Last 30 days';
-      case _DateRangePreset.thisMonth:
-        return 'This month';
-      case _DateRangePreset.lastMonth:
-        return 'Last month';
-      case _DateRangePreset.thisYear:
-        return 'This year';
-      case _DateRangePreset.custom:
-        return 'Custom range…';
-    }
-  }
-
-  DateTimeRange? _rangeForPreset(_DateRangePreset preset, DateTime now) {
-    switch (preset) {
-      case _DateRangePreset.all:
-        return null;
-      case _DateRangePreset.today:
-        return DateTimeRange(start: _startOfDay(now), end: _endOfDay(now));
-      case _DateRangePreset.last7:
-        return DateTimeRange(
-          start: _startOfDay(now.subtract(const Duration(days: 6))),
-          end: _endOfDay(now),
-        );
-      case _DateRangePreset.last30:
-        return DateTimeRange(
-          start: _startOfDay(now.subtract(const Duration(days: 29))),
-          end: _endOfDay(now),
-        );
-      case _DateRangePreset.thisMonth:
-        return DateTimeRange(
-          start: DateTime(now.year, now.month, 1),
-          end: _endOfDay(DateTime(now.year, now.month + 1, 0)),
-        );
-      case _DateRangePreset.lastMonth:
-        return DateTimeRange(
-          start: DateTime(now.year, now.month - 1, 1),
-          end: _endOfDay(DateTime(now.year, now.month, 0)),
-        );
-      case _DateRangePreset.thisYear:
-        return DateTimeRange(
-          start: DateTime(now.year, 1, 1),
-          end: _endOfDay(DateTime(now.year, 12, 31)),
-        );
-      case _DateRangePreset.custom:
-        return null;
-    }
-  }
-
-  Future<void> _applyPreset(
+  Future<bool> _applyPreset(
     BuildContext context,
-    _DateRangePreset preset,
+    DateRangePreset preset,
     DateTime? currentStart,
     DateTime? currentEnd,
   ) async {
-    final now = DateTime.now();
     switch (preset) {
-      case _DateRangePreset.all:
+      case DateRangePreset.allTime:
+        onPresetChanged?.call(DateRangePreset.allTime);
         onChanged(null, null);
-        break;
-      case _DateRangePreset.today:
-        onChanged(_startOfDay(now), _endOfDay(now));
-        break;
-      case _DateRangePreset.last7:
-        onChanged(
-          _startOfDay(now.subtract(const Duration(days: 6))),
-          _endOfDay(now),
-        );
-        break;
-      case _DateRangePreset.last30:
-        onChanged(
-          _startOfDay(now.subtract(const Duration(days: 29))),
-          _endOfDay(now),
-        );
-        break;
-      case _DateRangePreset.thisMonth:
-        onChanged(
-          DateTime(now.year, now.month, 1),
-          _endOfDay(DateTime(now.year, now.month + 1, 0)),
-        );
-        break;
-      case _DateRangePreset.lastMonth:
-        onChanged(
-          DateTime(now.year, now.month - 1, 1),
-          _endOfDay(DateTime(now.year, now.month, 0)),
-        );
-        break;
-      case _DateRangePreset.thisYear:
-        onChanged(
-          DateTime(now.year, 1, 1),
-          _endOfDay(DateTime(now.year, 12, 31)),
-        );
-        break;
-      case _DateRangePreset.custom:
+        return true;
+      case DateRangePreset.custom:
         final picked = await showDateRangePicker(
           context: context,
           firstDate: DateTime(2000),
@@ -293,22 +223,34 @@ class DateRangePresetInput extends StatelessWidget {
                 )
               : null,
         );
-        if (picked != null) {
-          onChanged(picked.start, picked.end);
-        }
-        break;
+        if (picked == null) return false;
+        onCustomDateRangeSelected?.call(picked);
+        onPresetChanged?.call(DateRangePreset.custom);
+        onChanged(picked.start, picked.end);
+        return true;
+      case DateRangePreset.today:
+      case DateRangePreset.thisWeek:
+      case DateRangePreset.thisMonth:
+      case DateRangePreset.lastWeek:
+      case DateRangePreset.lastMonth:
+        final range = preset.getDateRange();
+        if (range == null) return false;
+        onPresetChanged?.call(preset);
+        onChanged(range.start, range.end);
+        return true;
     }
   }
 
-  Future<_DateRangePreset?> _pickPresetBottomSheet(
+  Future<DateRangePreset?> _pickPresetBottomSheet(
     BuildContext context, {
-    required _DateRangePreset current,
+    required DateRangePreset current,
+    required List<DateRangePreset> allowedPresets,
     required DateTime? start,
     required DateTime? end,
   }) async {
     final theme = Theme.of(context);
 
-    return showModalBottomSheet<_DateRangePreset>(
+    return showModalBottomSheet<DateRangePreset>(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -316,25 +258,38 @@ class DateRangePresetInput extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       builder: (ctx) {
+        final customSubtitle = (start != null && end != null)
+            ? _formatRangeDateOnly(start, end, showYear: showYear)
+            : null;
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ..._DateRangePreset.values.map((p) {
+              ...allowedPresets.map((p) {
                 final selected = p == current;
-                final now = DateTime.now();
-                final range = _rangeForPreset(p, now);
+                final range = p.getDateRange();
                 final showSubtitle =
-                    p != _DateRangePreset.custom &&
-                    p != _DateRangePreset.all &&
+                    p != DateRangePreset.custom &&
+                    p != DateRangePreset.allTime &&
                     range != null;
                 return ListTile(
-                  title: Text(_labelForPreset(p)),
+                  title: Text(p.displayName),
                   subtitle: showSubtitle
                       ? Text(
-                          _formatRangeDateOnly(range.start, range.end),
+                          _formatRangeDateOnly(
+                            range.start,
+                            range.end,
+                            showYear: showYear,
+                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                      : (p == DateRangePreset.custom && customSubtitle != null)
+                      ? Text(
+                          customSubtitle,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -350,15 +305,4 @@ class DateRangePresetInput extends StatelessWidget {
       },
     );
   }
-}
-
-enum _DateRangePreset {
-  all,
-  today,
-  last7,
-  last30,
-  thisMonth,
-  lastMonth,
-  thisYear,
-  custom,
 }
