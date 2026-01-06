@@ -151,7 +151,7 @@ class _NotificationPermissionBannerState
 
     if (result == true) {
       // User tapped "Allow Notifications"
-      await permissionNotifier.requestPermissions(context);
+      await permissionNotifier.requestPermissions();
     }
   }
 

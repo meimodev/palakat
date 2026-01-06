@@ -86,9 +86,7 @@ class PusherBeamsMobileService {
     if (shouldShow) {
       // Request permissions with rationale flow
       if (!context.mounted) return;
-      final status = await _permissionManager.requestPermissionsWithRationale(
-        context,
-      );
+      final status = await _permissionManager.requestPermissionsWithRationale();
       _log('Permission request result: $status');
 
       if (status == PermissionStatus.granted) {
@@ -387,34 +385,36 @@ class PusherBeamsMobileService {
 
     _log('Setting up FCM token refresh listener...');
 
-    _tokenRefreshSubscription =
-        FirebaseMessaging.instance.onTokenRefresh.listen(
-      (newToken) async {
-        _log('🔄 FCM token refreshed: ${newToken.substring(0, 20)}...');
-        _log('Re-registering device with Pusher Beams...');
+    _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
+        .listen(
+          (newToken) async {
+            _log('🔄 FCM token refreshed: ${newToken.substring(0, 20)}...');
+            _log('Re-registering device with Pusher Beams...');
 
-        try {
-          // Stop and restart Pusher Beams to re-register with new token
-          // This is necessary because Pusher Beams caches the FCM token
-          // and won't automatically pick up the new one
-          await PusherBeams.instance.stop();
-          await Future.delayed(const Duration(milliseconds: 500));
-          await PusherBeams.instance.start(instanceId);
+            try {
+              // Stop and restart Pusher Beams to re-register with new token
+              // This is necessary because Pusher Beams caches the FCM token
+              // and won't automatically pick up the new one
+              await PusherBeams.instance.stop();
+              await Future.delayed(const Duration(milliseconds: 500));
+              await PusherBeams.instance.start(instanceId);
 
-          // Re-register the foreground callback after SDK restart
-          // This is critical - without this, foreground notifications
-          // will stop working after token refresh
-          _registerForegroundCallback();
+              // Re-register the foreground callback after SDK restart
+              // This is critical - without this, foreground notifications
+              // will stop working after token refresh
+              _registerForegroundCallback();
 
-          _log('✅ Device re-registered with Pusher Beams after token refresh');
-        } catch (e) {
-          _log('❌ Failed to re-register after token refresh: $e');
-        }
-      },
-      onError: (error) {
-        _log('❌ Error in token refresh listener: $error');
-      },
-    );
+              _log(
+                '✅ Device re-registered with Pusher Beams after token refresh',
+              );
+            } catch (e) {
+              _log('❌ Failed to re-register after token refresh: $e');
+            }
+          },
+          onError: (error) {
+            _log('❌ Error in token refresh listener: $error');
+          },
+        );
 
     _log('✅ FCM token refresh listener set up');
   }
@@ -634,7 +634,9 @@ class PusherBeamsMobileService {
       // Register the callback with Pusher Beams SDK
       // Note: This is a callback-based API in pusher_beams 1.1.0
       // The callback is stored internally by the SDK
-      PusherBeams.instance.onMessageReceivedInTheForeground(_foregroundCallback!);
+      PusherBeams.instance.onMessageReceivedInTheForeground(
+        _foregroundCallback!,
+      );
       _log('✅ Foreground message callback set on Pusher Beams SDK');
     } catch (e, stackTrace) {
       _log('❌ Failed to set foreground message callback: $e');

@@ -155,7 +155,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                           final controller = ref.read(
                             permissionStateProvider.notifier,
                           );
-                          await controller.requestPermissions(context);
+                          await controller.requestPermissions();
                         },
                       ),
                     ],

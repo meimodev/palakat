@@ -2,7 +2,6 @@ import 'dart:developer' as dev show log;
 import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
 import 'package:palakat_shared/core/services/local_storage_service.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
@@ -18,9 +17,7 @@ abstract class PermissionManagerService {
   Future<bool> shouldShowRationale();
 
   /// Request permissions with rationale flow
-  Future<PermissionStatus> requestPermissionsWithRationale(
-    BuildContext context,
-  );
+  Future<PermissionStatus> requestPermissionsWithRationale();
 
   /// Open system settings for app
   Future<void> openAppSettings();
@@ -97,9 +94,7 @@ class PermissionManagerServiceImpl implements PermissionManagerService {
   }
 
   @override
-  Future<PermissionStatus> requestPermissionsWithRationale(
-    BuildContext context,
-  ) async {
+  Future<PermissionStatus> requestPermissionsWithRationale() async {
     final state = await getPermissionState();
 
     // If permanently denied, can't request - must go to settings
