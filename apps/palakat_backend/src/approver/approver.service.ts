@@ -107,6 +107,9 @@ export class ApproverService {
     total: number;
   }> {
     const {
+      churchId,
+      startDate,
+      endDate,
       membershipId,
       activityId,
       status,
@@ -130,6 +133,26 @@ export class ApproverService {
       where.status = status;
     }
 
+    if (churchId !== undefined && churchId !== null) {
+      where.activity = {
+        ...(where.activity ?? {}),
+        supervisor: {
+          churchId,
+        },
+      };
+    }
+
+    if (startDate || endDate) {
+      where.activity = {
+        ...(where.activity ?? {}),
+        date: {
+          ...(where.activity?.date ?? {}),
+          ...(startDate ? { gte: startDate } : {}),
+          ...(endDate ? { lte: endDate } : {}),
+        },
+      };
+    }
+
     const [total, approvers] = await (this.prisma as any).$transaction([
       (this.prisma as any).approver.count({ where }),
       (this.prisma as any).approver.findMany({
@@ -150,6 +173,15 @@ export class ApproverService {
                       dob: true,
                     },
                   },
+                },
+              },
+              approvers: {
+                select: {
+                  id: true,
+                  membershipId: true,
+                  status: true,
+                  createdAt: true,
+                  updatedAt: true,
                 },
               },
             },
@@ -193,6 +225,15 @@ export class ApproverService {
                     dob: true,
                   },
                 },
+              },
+            },
+            approvers: {
+              select: {
+                id: true,
+                membershipId: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
               },
             },
           },

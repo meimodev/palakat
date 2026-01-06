@@ -13,7 +13,7 @@ abstract class Approver with _$Approver {
     int? membershipId,
     Membership? membership,
     int? activityId,
-    @JsonKey(includeToJson: false, includeFromJson: false) Activity? activity,
+    @JsonKey(includeToJson: false) Activity? activity,
     @Default(ApprovalStatus.unconfirmed) ApprovalStatus status,
     DateTime? createdAt,
     DateTime? updatedAt,

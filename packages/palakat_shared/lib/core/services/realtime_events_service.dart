@@ -35,6 +35,8 @@ class RealtimeEventsService {
     _listen('reportJob.created');
     _listen('reportJob.updated');
     _listen('report.ready');
+
+    _listen('songDb.updated');
   }
 
   void _listen(String eventName) {

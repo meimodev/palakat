@@ -350,12 +350,12 @@ class SocketService {
 
   void on(String event, RpcHandler handler) {
     final socket = _ensureSocket();
-    final wrapped = (dynamic data) {
+    void wrapped(dynamic data) {
       if (kDebugMode) {
         _logWsDebug('event <- $event payload=${_stringifyForLog(data)}');
       }
       handler(data);
-    };
+    }
 
     final byHandler = _wrappedHandlers.putIfAbsent(
       event,

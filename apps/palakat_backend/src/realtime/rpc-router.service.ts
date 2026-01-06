@@ -37,6 +37,7 @@ import { SongPartService } from '../song-part/song-part.service';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 import { RpcRequest, RpcResponse } from './realtime.types';
 import { mapErrorToRpc } from './realtime.utils';
+import { RealtimeEmitterService } from './realtime-emitter.service';
 import {
   stripKeys,
   transformToIdArrays,
@@ -170,6 +171,10 @@ export class RpcRouterService {
     return this.moduleRef.get(FirebaseAdminService, { strict: false });
   }
 
+  private get realtimeEmitter(): RealtimeEmitterService {
+    return this.moduleRef.get(RealtimeEmitterService, { strict: false });
+  }
+
   onDisconnect(client: any) {
     const socketId = client?.id as string | undefined;
     if (!socketId) return;
@@ -285,6 +290,115 @@ export class RpcRouterService {
       throw new UnauthorizedException('Unauthenticated');
     }
     return user;
+  }
+
+  private isPublicSongDbFileId(fileId: number): boolean {
+    const raw = process.env.SONG_DB_FILE_ID;
+    if (!raw || typeof raw !== 'string') return false;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return false;
+    return fileId === parsed;
+  }
+
+  private isPublicSongDbFileRecord(file: any): boolean {
+    const originalName = (file?.originalName ?? '').toString().trim();
+    const rawPath = (file?.path ?? '').toString();
+    const normalizedPath = rawPath.replace(/^\/+/, '').trim();
+    if (!normalizedPath) return false;
+    if (normalizedPath !== 'db/songs.json') return false;
+    if (originalName.length > 0 && originalName !== 'songs.json') return false;
+    return true;
+  }
+
+  private songDbBookId(book: any): string {
+    const normalized = (book ?? '').toString().trim().toLowerCase();
+    return normalized;
+  }
+
+  private songDbBookName(book: any): string {
+    const normalized = (book ?? '').toString().trim().toUpperCase();
+    switch (normalized) {
+      case 'NNBT':
+        return 'Nanyikanlah Nyanyian Baru Bagi Tuhan';
+      case 'KJ':
+        return 'Kidung Jemaat';
+      case 'NKB':
+        return 'Nanyikanlah Kidung Baru';
+      case 'DSL':
+        return 'Dua Sahabat Lama';
+      default:
+        return '';
+    }
+  }
+
+  private songDbBooks(): Array<{ id: string; name: string }> {
+    return [
+      { id: 'nnbt', name: this.songDbBookName('NNBT') },
+      { id: 'kj', name: this.songDbBookName('KJ') },
+      { id: 'nkb', name: this.songDbBookName('NKB') },
+      { id: 'dsl', name: this.songDbBookName('DSL') },
+    ];
+  }
+
+  private normalizeSongDbPartType(raw: any): string {
+    const input = (raw ?? '').toString().trim();
+    if (!input) return 'VERSE';
+
+    const normalized = input
+      .toUpperCase()
+      .replace(/\s+/g, '')
+      .replace(/[^A-Z0-9]/g, '');
+    if (!normalized) return 'VERSE';
+
+    const allowed = new Set([
+      'INTRO',
+      'OUTRO',
+      'VERSE',
+      'VERSE1',
+      'VERSE2',
+      'VERSE3',
+      'VERSE4',
+      'VERSE5',
+      'VERSE6',
+      'VERSE7',
+      'VERSE8',
+      'VERSE9',
+      'VERSE10',
+      'REFRAIN',
+      'PRECHORUS',
+      'CHORUS',
+      'CHORUS2',
+      'CHORUS3',
+      'CHORUS4',
+      'BRIDGE',
+      'HOOK',
+    ]);
+
+    if (allowed.has(normalized)) return normalized;
+
+    if (normalized.startsWith('VERSE')) {
+      const suffix = normalized.slice('VERSE'.length);
+      if (suffix.length > 0 && /^\d+$/.test(suffix)) {
+        const type = `VERSE${suffix}`;
+        if (allowed.has(type)) return type;
+      }
+      return 'VERSE';
+    }
+
+    if (normalized.startsWith('CHORUS')) {
+      const suffix = normalized.slice('CHORUS'.length);
+      if (suffix.length > 0 && /^\d+$/.test(suffix)) {
+        const type = `CHORUS${suffix}`;
+        if (allowed.has(type)) return type;
+      }
+      return 'CHORUS';
+    }
+
+    if (normalized === 'PRECHORUS' || normalized === 'PRECHOR') {
+      return 'PRECHORUS';
+    }
+
+    return 'VERSE';
   }
 
   private requireAuthAny(client: any): {
@@ -450,13 +564,21 @@ export class RpcRouterService {
 
         const now = new Date();
 
-        const startDate = new Date(now);
-        startDate.setUTCHours(0, 0, 0, 0);
-        startDate.setUTCDate(startDate.getUTCDate() - 1);
+        const startDate = new Date(
+          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0),
+        );
 
-        const endDate = new Date(now);
-        endDate.setUTCHours(23, 59, 59, 999);
-        endDate.setUTCDate(endDate.getUTCDate() + 5);
+        const endDate = new Date(
+          Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+          ),
+        );
 
         const query: any = {
           startDate,
@@ -481,19 +603,11 @@ export class RpcRouterService {
           ? activitiesRes.data
           : [];
 
-        const isApproved = (activity: any): boolean => {
-          const approvers = activity?.approvers;
-          if (!Array.isArray(approvers) || approvers.length === 0) return false;
-          return approvers.every((a: any) => a?.status === 'APPROVED');
-        };
-
-        const approved = activities.filter(isApproved);
-
-        const thisWeekActivities = approved.filter(
+        const thisWeekActivities = activities.filter(
           (a: any) =>
             a?.activityType === 'EVENT' || a?.activityType === 'SERVICE',
         );
-        const thisWeekAnnouncements = approved.filter(
+        const thisWeekAnnouncements = activities.filter(
           (a: any) => a?.activityType === 'ANNOUNCEMENT',
         );
 
@@ -1550,23 +1664,75 @@ export class RpcRouterService {
         return { message: 'OK', data: true };
       }
 
-      case 'file.download.init': {
-        const user = this.requireUserId(client);
-        const socketId = client?.id as string;
-        const fileId = payload.fileId as number;
-        if (typeof fileId !== 'number') {
+      case 'public.songDb.meta': {
+        const rawFileId =
+          (payload as any)?.fileId ?? process.env.SONG_DB_FILE_ID;
+        const fileId =
+          typeof rawFileId === 'number' ? rawFileId : Number(rawFileId);
+        if (typeof fileId !== 'number' || !Number.isFinite(fileId)) {
           throw new BadRequestException('fileId is required');
         }
 
-        const membership = await (this.prisma as any).membership.findUnique({
-          where: { accountId: user.userId },
-          select: { churchId: true },
+        let file = await (this.prisma as any).fileManager.findUnique({
+          where: { id: fileId },
+          select: {
+            id: true,
+            bucket: true,
+            path: true,
+            sizeInKB: true,
+            contentType: true,
+            originalName: true,
+            updatedAt: true,
+          },
         });
-        if (!membership?.churchId) {
-          throw new BadRequestException('User does not have a membership');
+
+        if (!file) {
+          file = await (this.prisma as any).fileManager.findFirst({
+            where: {
+              path: {
+                in: ['db/songs.json', '/db/songs.json'],
+              },
+            },
+            select: {
+              id: true,
+              bucket: true,
+              path: true,
+              sizeInKB: true,
+              contentType: true,
+              originalName: true,
+              updatedAt: true,
+            },
+          });
         }
 
-        const file = await (this.prisma as any).fileManager.findUnique({
+        if (!file || !this.isPublicSongDbFileRecord(file)) {
+          throw new BadRequestException('Song DB file not found');
+        }
+
+        return {
+          message: 'OK',
+          data: {
+            fileId: file.id,
+            bucket: file.bucket,
+            path: file.path,
+            sizeInKB: file.sizeInKB,
+            contentType: file.contentType,
+            originalName: file.originalName,
+            updatedAt: file.updatedAt,
+          },
+        };
+      }
+
+      case 'file.download.init': {
+        const socketId = client?.id as string;
+        const rawFileId = (payload as any)?.fileId;
+        const fileId =
+          typeof rawFileId === 'number' ? rawFileId : Number(rawFileId);
+        if (typeof fileId !== 'number' || !Number.isFinite(fileId)) {
+          throw new BadRequestException('fileId is required');
+        }
+
+        let file = await (this.prisma as any).fileManager.findUnique({
           where: { id: fileId },
           select: {
             id: true,
@@ -1578,11 +1744,74 @@ export class RpcRouterService {
             sizeInKB: true,
           },
         });
+
+        if (!file) {
+          file = await (this.prisma as any).fileManager.findFirst({
+            where: {
+              path: {
+                in: ['db/songs.json', '/db/songs.json'],
+              },
+            },
+            select: {
+              id: true,
+              churchId: true,
+              bucket: true,
+              path: true,
+              contentType: true,
+              originalName: true,
+              sizeInKB: true,
+            },
+          });
+        }
+
+        const configuredSongDbIdRaw = process.env.SONG_DB_FILE_ID;
+        const configuredSongDbId = configuredSongDbIdRaw
+          ? Number(configuredSongDbIdRaw)
+          : Number.NaN;
+        const defaultSongDbId = 999;
+        const allowSongDbFallback =
+          !Number.isFinite(configuredSongDbId) ||
+          fileId === configuredSongDbId ||
+          fileId === defaultSongDbId;
+
+        if (!file && allowSongDbFallback) {
+          const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
+          const normalizedBucketName =
+            bucketName && bucketName.trim().length > 0
+              ? bucketName.trim()
+              : undefined;
+          file = {
+            id: fileId,
+            churchId: 0,
+            bucket: normalizedBucketName,
+            path: 'db/songs.json',
+            contentType: 'application/json',
+            originalName: 'songs.json',
+            sizeInKB: 0,
+          };
+        }
+
         if (!file) {
           throw new BadRequestException('File not found');
         }
-        if (file.churchId !== membership.churchId) {
-          throw new BadRequestException('Invalid church context');
+
+        const isPublicSongDb = this.isPublicSongDbFileRecord(file);
+        const user = isPublicSongDb ? undefined : this.requireUserId(client);
+
+        let membershipChurchId: number | undefined;
+        if (!isPublicSongDb) {
+          const membership = await (this.prisma as any).membership.findUnique({
+            where: { accountId: user.userId },
+            select: { churchId: true },
+          });
+          if (!membership?.churchId) {
+            throw new BadRequestException('User does not have a membership');
+          }
+          membershipChurchId = membership.churchId;
+
+          if (file.churchId !== membershipChurchId) {
+            throw new BadRequestException('Invalid church context');
+          }
         }
 
         const bucket = this.firebaseAdmin.bucket(file.bucket);
@@ -1608,6 +1837,7 @@ export class RpcRouterService {
           stream,
           iterator,
           sentBytes: 0,
+          public: isPublicSongDb,
         });
         this.trackSocketSession(socketId, 'download', downloadId);
 
@@ -1625,7 +1855,6 @@ export class RpcRouterService {
       }
 
       case 'file.download.chunk': {
-        this.requireUserId(client);
         const socketId = client?.id as string;
         const downloadId = payload.downloadId as string;
         if (!downloadId || typeof downloadId !== 'string') {
@@ -1635,6 +1864,10 @@ export class RpcRouterService {
         const session = this.downloadSessions.get(downloadId);
         if (!session || session.socketId !== socketId) {
           throw new BadRequestException('Invalid downloadId');
+        }
+
+        if (session.public !== true) {
+          this.requireUserId(client);
         }
 
         const next = await session.iterator.next();
@@ -1662,13 +1895,21 @@ export class RpcRouterService {
       }
 
       case 'file.download.complete': {
-        this.requireUserId(client);
         const socketId = client?.id as string;
         const downloadId = payload.downloadId as string;
         if (!downloadId || typeof downloadId !== 'string') {
           throw new BadRequestException('downloadId is required');
         }
         const session = this.downloadSessions.get(downloadId);
+
+        if (
+          session &&
+          session.socketId === socketId &&
+          session.public !== true
+        ) {
+          this.requireUserId(client);
+        }
+
         if (session && session.socketId === socketId) {
           try {
             session.stream?.destroy?.();
@@ -1940,8 +2181,31 @@ export class RpcRouterService {
 
       // ===== Approver =====
       case 'approver.list': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const query = this.withPagination(payload) as any;
+
+        const membershipId = await this.resolveMembershipIdForUser(user.userId);
+        const membership = await (this.prisma as any).membership.findUnique({
+          where: { id: membershipId },
+          select: { churchId: true },
+        });
+
+        const requesterChurchId = membership?.churchId;
+        if (typeof requesterChurchId !== 'number') {
+          throw new BadRequestException('Invalid membership church context');
+        }
+
+        if (
+          query.churchId !== undefined &&
+          query.churchId !== null &&
+          query.churchId !== requesterChurchId
+        ) {
+          throw new ForbiddenException(
+            'You are not authorized to access approvers for this church',
+          );
+        }
+
+        query.churchId = requesterChurchId;
         const res: any = await this.approverService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
@@ -2204,6 +2468,554 @@ export class RpcRouterService {
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
         return this.songService.delete(id, this.getAuthContext(client));
+      }
+
+      case 'admin.songs.publish': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        if (!this.firebaseAdmin.isConfigured()) {
+          throw new BadRequestException('Firebase Storage is not configured');
+        }
+
+        const rawFileId = payload.fileId ?? process.env.SONG_DB_FILE_ID ?? 999;
+        const requestedFileId =
+          typeof rawFileId === 'number' ? rawFileId : Number(rawFileId);
+        if (
+          typeof requestedFileId !== 'number' ||
+          !Number.isFinite(requestedFileId)
+        ) {
+          throw new BadRequestException('SONG_DB_FILE_ID is not configured');
+        }
+
+        const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
+        if (!bucketName || bucketName.trim().length === 0) {
+          throw new BadRequestException('FIREBASE_STORAGE_BUCKET is not set');
+        }
+
+        let fileRecord = await (this.prisma as any).fileManager.findUnique({
+          where: { id: requestedFileId },
+          select: {
+            id: true,
+            churchId: true,
+            bucket: true,
+            path: true,
+            contentType: true,
+            originalName: true,
+          },
+        });
+
+        if (!fileRecord) {
+          fileRecord = await (this.prisma as any).fileManager.findFirst({
+            where: {
+              path: {
+                in: ['db/songs.json', '/db/songs.json'],
+              },
+            },
+            select: {
+              id: true,
+              churchId: true,
+              bucket: true,
+              path: true,
+              contentType: true,
+              originalName: true,
+            },
+          });
+        }
+
+        // If a record already exists for db/songs.json, prefer updating it to
+        // avoid unique(bucket,path) conflicts when SONG_DB_FILE_ID is mismatched.
+        const effectiveFileId =
+          typeof fileRecord?.id === 'number' ? fileRecord.id : requestedFileId;
+
+        const configuredChurchIdRaw = process.env.SONG_DB_CHURCH_ID;
+        const configuredChurchId = configuredChurchIdRaw
+          ? Number(configuredChurchIdRaw)
+          : Number.NaN;
+
+        let churchId: number | undefined =
+          typeof fileRecord?.churchId === 'number'
+            ? fileRecord.churchId
+            : undefined;
+        if (!churchId && Number.isFinite(configuredChurchId)) {
+          churchId = configuredChurchId;
+        }
+        if (!churchId) {
+          const first = await (this.prisma as any).church.findFirst({
+            select: { id: true },
+          });
+          if (first?.id) churchId = first.id;
+        }
+        if (!churchId || !Number.isFinite(churchId)) {
+          throw new BadRequestException(
+            'No Church found. Set SONG_DB_CHURCH_ID to an existing church id.',
+          );
+        }
+
+        const songs = await (this.prisma as any).song.findMany({
+          orderBy: [{ book: 'asc' }, { index: 'asc' }],
+          include: {
+            parts: {
+              orderBy: { index: 'asc' },
+            },
+          },
+        });
+
+        const books = this.songDbBooks();
+        const now = new Date();
+
+        const payloadJson = {
+          version: '1.0.0',
+          updatedAt: now.toISOString(),
+          books_count: books.length,
+          songs_count: Array.isArray(songs) ? songs.length : 0,
+          books,
+          songs: (Array.isArray(songs) ? songs : []).map((song: any) => {
+            const book = song?.book ?? '';
+            const bookId = this.songDbBookId(book);
+            const parts = Array.isArray(song?.parts) ? song.parts : [];
+            const definition = parts.map((p: any) => {
+              const type = this.normalizeSongDbPartType(p?.name);
+              return {
+                type,
+                content: (p?.content ?? '').toString(),
+              };
+            });
+            const composition = definition.map((d: any) => d.type);
+
+            return {
+              id: `${book}-${song?.index}`,
+              bookId,
+              bookName: this.songDbBookName(book),
+              title: (song?.title ?? '').toString(),
+              subTitle: '',
+              author: '',
+              baseNote: '',
+              lastUpdate: song?.updatedAt
+                ? new Date(song.updatedAt).toISOString()
+                : now.toISOString(),
+              publisher: '',
+              composition,
+              definition,
+              urlImage: '',
+              urlVideo: (song?.link ?? '').toString(),
+            };
+          }),
+        };
+
+        const rawJson = JSON.stringify(payloadJson, null, 2);
+        const buf = Buffer.from(rawJson, 'utf8');
+        const sizeInKB = Number((buf.byteLength / 1024).toFixed(2));
+
+        const bucket = this.firebaseAdmin.bucket(bucketName);
+        const fileRef = bucket.file('db/songs.json');
+        await (fileRef as any).save(buf, {
+          resumable: false,
+          contentType: 'application/json',
+          metadata: {
+            metadata: {
+              churchId: String(churchId),
+              originalName: 'songs.json',
+            },
+          },
+        });
+
+        const updated = await (this.prisma as any).fileManager.upsert({
+          where: { id: effectiveFileId },
+          update: {
+            provider: 'FIREBASE_STORAGE',
+            bucket: bucketName,
+            path: 'db/songs.json',
+            sizeInKB,
+            contentType: 'application/json',
+            originalName: 'songs.json',
+            churchId,
+          },
+          create: {
+            id: effectiveFileId,
+            provider: 'FIREBASE_STORAGE',
+            bucket: bucketName,
+            path: 'db/songs.json',
+            sizeInKB,
+            contentType: 'application/json',
+            originalName: 'songs.json',
+            churchId,
+          },
+          select: {
+            id: true,
+            updatedAt: true,
+            sizeInKB: true,
+            bucket: true,
+            path: true,
+          },
+        });
+
+        return {
+          message: 'OK',
+          data: {
+            fileId: updated.id,
+            bucket: updated.bucket,
+            path: updated.path,
+            updatedAt: updated.updatedAt,
+            sizeInKB: updated.sizeInKB,
+            songsCount: payloadJson.songs_count,
+            booksCount: payloadJson.books_count,
+          },
+        };
+      }
+
+      case 'admin.songDb.upload.init': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        if (!this.firebaseAdmin.isConfigured()) {
+          throw new BadRequestException('Firebase Storage is not configured');
+        }
+
+        const socketId = client?.id as string;
+        const sizeBytes = payload.sizeBytes as number;
+        const contentType = payload.contentType as string | undefined;
+        const originalName = payload.originalName as string | undefined;
+
+        if (typeof sizeBytes !== 'number' || sizeBytes <= 0) {
+          throw new BadRequestException('sizeBytes is required');
+        }
+        if (sizeBytes > this.MAX_FILE_BYTES) {
+          throw new BadRequestException('File too large');
+        }
+
+        const rawFileId = payload.fileId ?? process.env.SONG_DB_FILE_ID ?? 999;
+        const requestedFileId =
+          typeof rawFileId === 'number' ? rawFileId : Number(rawFileId);
+        if (
+          typeof requestedFileId !== 'number' ||
+          !Number.isFinite(requestedFileId)
+        ) {
+          throw new BadRequestException('SONG_DB_FILE_ID is not configured');
+        }
+
+        const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
+        if (!bucketName || bucketName.trim().length === 0) {
+          throw new BadRequestException('FIREBASE_STORAGE_BUCKET is not set');
+        }
+
+        let fileRecord = await (this.prisma as any).fileManager.findUnique({
+          where: { id: requestedFileId },
+          select: { id: true, churchId: true },
+        });
+        if (!fileRecord) {
+          fileRecord = await (this.prisma as any).fileManager.findFirst({
+            where: {
+              path: {
+                in: ['db/songs.json', '/db/songs.json'],
+              },
+            },
+            select: { id: true, churchId: true },
+          });
+        }
+
+        const effectiveFileId =
+          typeof fileRecord?.id === 'number' ? fileRecord.id : requestedFileId;
+
+        const configuredChurchIdRaw = process.env.SONG_DB_CHURCH_ID;
+        const configuredChurchId = configuredChurchIdRaw
+          ? Number(configuredChurchIdRaw)
+          : Number.NaN;
+
+        let churchId: number | undefined =
+          typeof fileRecord?.churchId === 'number'
+            ? fileRecord.churchId
+            : undefined;
+        if (!churchId && Number.isFinite(configuredChurchId)) {
+          churchId = configuredChurchId;
+        }
+        if (!churchId) {
+          const first = await (this.prisma as any).church.findFirst({
+            select: { id: true },
+          });
+          if (first?.id) churchId = first.id;
+        }
+        if (!churchId || !Number.isFinite(churchId)) {
+          throw new BadRequestException(
+            'No Church found. Set SONG_DB_CHURCH_ID to an existing church id.',
+          );
+        }
+
+        const uploadId = randomBytes(16).toString('hex');
+        const bucket = this.firebaseAdmin.bucket(bucketName);
+        const path = 'db/songs.json';
+        const fileRef = bucket.file(path);
+
+        const canStream =
+          typeof (fileRef as any).createWriteStream === 'function';
+        const writeStream = canStream
+          ? (fileRef as any).createWriteStream({
+              resumable: false,
+              contentType: contentType || 'application/json',
+              metadata: {
+                metadata: {
+                  churchId: String(churchId),
+                  originalName: originalName ?? 'songs.json',
+                },
+              },
+            })
+          : null;
+
+        const session = {
+          type: 'songDb',
+          uploadId,
+          socketId,
+          requestedFileId,
+          effectiveFileId,
+          churchId,
+          bucketName,
+          path,
+          contentType: contentType || 'application/json',
+          originalName: originalName ?? 'songs.json',
+          sizeBytes,
+          receivedBytes: 0,
+          writeStream,
+          buffers: [] as Buffer[],
+        };
+        this.uploadSessions.set(uploadId, session);
+        this.trackSocketSession(socketId, 'upload', uploadId);
+
+        return {
+          message: 'OK',
+          data: {
+            uploadId,
+            fileId: effectiveFileId,
+            chunkSize: this.CHUNK_BYTES,
+            maxBytes: this.MAX_FILE_BYTES,
+            bucket: bucketName,
+            path,
+          },
+        };
+      }
+
+      case 'admin.songDb.upload.chunk': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        const socketId = client?.id as string;
+        const uploadId = payload.uploadId as string;
+        const dataBase64 = payload.dataBase64 as string;
+        if (!uploadId || typeof uploadId !== 'string') {
+          throw new BadRequestException('uploadId is required');
+        }
+        if (!dataBase64 || typeof dataBase64 !== 'string') {
+          throw new BadRequestException('dataBase64 is required');
+        }
+
+        const session = this.uploadSessions.get(uploadId);
+        if (
+          !session ||
+          session.socketId !== socketId ||
+          session.type !== 'songDb'
+        ) {
+          throw new BadRequestException('Invalid uploadId');
+        }
+
+        const buf = Buffer.from(dataBase64, 'base64');
+        if (buf.length === 0) {
+          throw new BadRequestException('Empty chunk');
+        }
+        if (buf.length > this.CHUNK_BYTES) {
+          throw new BadRequestException('Chunk too large');
+        }
+
+        session.receivedBytes += buf.length;
+        if (session.receivedBytes > session.sizeBytes) {
+          throw new BadRequestException('Received too many bytes');
+        }
+        if (session.receivedBytes > this.MAX_FILE_BYTES) {
+          throw new BadRequestException('File too large');
+        }
+
+        if (session.writeStream) {
+          const ok = session.writeStream.write(buf);
+          if (!ok) {
+            await new Promise<void>((resolve, reject) => {
+              session.writeStream.once('drain', resolve);
+              session.writeStream.once('error', reject);
+            });
+          }
+        } else {
+          session.buffers.push(buf);
+        }
+
+        return {
+          message: 'OK',
+          data: {
+            receivedBytes: session.receivedBytes,
+            totalBytes: session.sizeBytes,
+          },
+        };
+      }
+
+      case 'admin.songDb.upload.complete': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        const socketId = client?.id as string;
+        const uploadId = payload.uploadId as string;
+        if (!uploadId || typeof uploadId !== 'string') {
+          throw new BadRequestException('uploadId is required');
+        }
+
+        const session = this.uploadSessions.get(uploadId);
+        if (
+          !session ||
+          session.socketId !== socketId ||
+          session.type !== 'songDb'
+        ) {
+          throw new BadRequestException('Invalid uploadId');
+        }
+
+        if (session.receivedBytes !== session.sizeBytes) {
+          throw new BadRequestException('Incomplete upload');
+        }
+
+        let finalBuffer: Buffer | undefined;
+        if (session.writeStream) {
+          await new Promise<void>((resolve, reject) => {
+            session.writeStream.end();
+            session.writeStream.once('finish', resolve);
+            session.writeStream.once('error', reject);
+          });
+        } else {
+          const bucket = this.firebaseAdmin.bucket(session.bucketName);
+          const fileRef = bucket.file(session.path);
+          finalBuffer = Buffer.concat(session.buffers);
+          await (fileRef as any).save(finalBuffer, {
+            resumable: false,
+            contentType: session.contentType || 'application/json',
+            metadata: {
+              metadata: {
+                churchId: String(session.churchId),
+                originalName: session.originalName ?? 'songs.json',
+              },
+            },
+          });
+        }
+
+        if (finalBuffer) {
+          try {
+            JSON.parse(finalBuffer.toString('utf8'));
+          } catch {
+            throw new BadRequestException('Invalid JSON');
+          }
+        }
+
+        const sizeInKB = Number((session.sizeBytes / 1024).toFixed(2));
+
+        let fileRecord = await (this.prisma as any).fileManager.findUnique({
+          where: { id: session.requestedFileId },
+          select: { id: true },
+        });
+        if (!fileRecord) {
+          fileRecord = await (this.prisma as any).fileManager.findFirst({
+            where: {
+              path: {
+                in: ['db/songs.json', '/db/songs.json'],
+              },
+            },
+            select: { id: true },
+          });
+        }
+
+        const effectiveFileId =
+          typeof fileRecord?.id === 'number'
+            ? fileRecord.id
+            : session.effectiveFileId;
+
+        const updated = await (this.prisma as any).fileManager.upsert({
+          where: { id: effectiveFileId },
+          update: {
+            provider: 'FIREBASE_STORAGE',
+            bucket: session.bucketName,
+            path: 'db/songs.json',
+            sizeInKB,
+            contentType: session.contentType || 'application/json',
+            originalName: session.originalName ?? 'songs.json',
+            churchId: session.churchId,
+          },
+          create: {
+            id: effectiveFileId,
+            provider: 'FIREBASE_STORAGE',
+            bucket: session.bucketName,
+            path: 'db/songs.json',
+            sizeInKB,
+            contentType: session.contentType || 'application/json',
+            originalName: session.originalName ?? 'songs.json',
+            churchId: session.churchId,
+          },
+          select: {
+            id: true,
+            updatedAt: true,
+            sizeInKB: true,
+            bucket: true,
+            path: true,
+          },
+        });
+
+        this.uploadSessions.delete(uploadId);
+
+        this.realtimeEmitter.emitToRoom(
+          `church.${session.churchId}`,
+          'songDb.updated',
+          {
+            fileId: updated.id,
+            updatedAt: updated.updatedAt,
+            sizeInKB: updated.sizeInKB,
+          },
+        );
+
+        return {
+          message: 'OK',
+          data: {
+            fileId: updated.id,
+            bucket: updated.bucket,
+            path: updated.path,
+            updatedAt: updated.updatedAt,
+            sizeInKB: updated.sizeInKB,
+          },
+        };
+      }
+
+      case 'admin.songDb.upload.abort': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        const socketId = client?.id as string;
+        const uploadId = payload.uploadId as string;
+        if (!uploadId || typeof uploadId !== 'string') {
+          throw new BadRequestException('uploadId is required');
+        }
+
+        const session = this.uploadSessions.get(uploadId);
+        if (
+          session &&
+          session.socketId === socketId &&
+          session.type === 'songDb'
+        ) {
+          try {
+            session.writeStream?.end?.();
+          } catch (_) {}
+          this.uploadSessions.delete(uploadId);
+        }
+
+        return { message: 'OK', data: true };
       }
 
       // ===== Song Parts =====

@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   ActivityType,
   ApprovalStatus,
@@ -574,6 +576,7 @@ async function cleanDatabase() {
     prisma.expense.deleteMany(),
     p.financialAccountNumber.deleteMany(),
     prisma.activity.deleteMany(),
+    p.reportJob.deleteMany(),
     prisma.report.deleteMany(),
     prisma.document.deleteMany(),
     prisma.fileManager.deleteMany(),
@@ -1844,6 +1847,82 @@ async function seedFiles(churches: ChurchWithColumns[]) {
   return filesByChurch;
 }
 
+async function seedSongDbFile(churches: ChurchWithColumns[]) {
+  const rawId = process.env.SONG_DB_FILE_ID;
+  if (!rawId || rawId.trim().length === 0) {
+    console.log('ℹ️ SONG_DB_FILE_ID is not set; skipping song DB file seed');
+    return null;
+  }
+  const fileId = Number(rawId);
+  if (!Number.isFinite(fileId)) {
+    console.log(
+      '⚠️ SONG_DB_FILE_ID is not a valid number; skipping song DB file seed',
+    );
+    return null;
+  }
+
+  const churchId = churches?.[0]?.id;
+  if (!churchId) {
+    throw new Error('No churches available to attach song DB file');
+  }
+
+  const bucket = process.env.FIREBASE_STORAGE_BUCKET ?? 'seed-bucket';
+  const originalName = 'songs.json';
+  const storagePath = 'db/songs.json';
+  const localTemplatePath = path.resolve(
+    __dirname,
+    'seed_assets',
+    'song_db',
+    originalName,
+  );
+
+  let sizeInKB = 1;
+  try {
+    const buf = fs.readFileSync(localTemplatePath);
+    sizeInKB = Math.max(0.01, parseFloat((buf.byteLength / 1024).toFixed(2)));
+  } catch (_) {
+    console.log(
+      `⚠️ Song DB template not found at ${localTemplatePath}. Record will be seeded with sizeInKB=${sizeInKB}.`,
+    );
+  }
+
+  const file = await (prisma as any).fileManager.upsert({
+    where: { id: fileId },
+    update: {
+      provider: 'FIREBASE_STORAGE',
+      bucket,
+      path: storagePath,
+      sizeInKB,
+      contentType: 'application/json',
+      originalName,
+      churchId,
+    },
+    create: {
+      id: fileId,
+      provider: 'FIREBASE_STORAGE',
+      bucket,
+      path: storagePath,
+      sizeInKB,
+      contentType: 'application/json',
+      originalName,
+      churchId,
+    },
+  });
+  try {
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"FileManager"', 'id'), (SELECT MAX(id) FROM "FileManager"));`,
+    );
+  } catch (_) {}
+
+  console.log('✅ Seeded Song DB FileManager record');
+  console.log(`   id=${file.id} bucket=${bucket} path=${storagePath}`);
+  console.log(
+    `   Upload template file to Firebase Storage: ${bucket}/${storagePath} (template: ${localTemplatePath})`,
+  );
+
+  return file;
+}
+
 async function seedReports(
   churches: ChurchWithColumns[],
   filesByChurch: Record<number, { id: number }[]>,
@@ -2198,6 +2277,8 @@ async function main() {
     await seedSongs();
 
     await seedArticles();
+
+    await seedSongDbFile(mainChurches);
 
     // Create files, reports, and documents
     const filesByChurch = await seedFiles(mainChurches);

@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:property": "jest --config ./test/property/jest-property.json",
     "test:property:watch": "jest --config ./test/property/jest-property.json --watch",
+    "songdb:upsert": "tsx prisma/upsert_song_db_file.ts",
     "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate dev && prisma generate && prisma db seed",
     "db:deploy": "prisma migrate deploy && prisma generate",

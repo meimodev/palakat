@@ -24,7 +24,10 @@ class ApproverRepository {
     required PaginationRequestWrapper paginationRequest,
   }) async {
     try {
-      final query = paginationRequest.toJsonFlat((p) => p.toJson());
+      final query = paginationRequest.toJsonFlat((p) {
+        if (p is Map<String, dynamic>) return p;
+        return (p as dynamic).toJson() as Map<String, dynamic>;
+      });
 
       final socket = _ref.read(socketServiceProvider);
       final data = await socket.rpc('approver.list', query);
