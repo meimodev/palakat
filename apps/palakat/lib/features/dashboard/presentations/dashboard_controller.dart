@@ -90,6 +90,7 @@ class DashboardController extends _$DashboardController {
               await Future.wait([
                 fetchThisWeekActivities(),
                 fetchChurchRequest(),
+                fetchPendingMembershipInvitation(),
               ]);
             });
           } else {
@@ -98,6 +99,8 @@ class DashboardController extends _$DashboardController {
               membershipLoading: false,
               thisWeekAnnouncementsLoading: false,
               thisWeekActivitiesLoading: false,
+              pendingMembershipInvitationLoading: false,
+              pendingMembershipInvitation: null,
               churchRequestLoading: false,
             );
           }
@@ -106,6 +109,8 @@ class DashboardController extends _$DashboardController {
           state = state.copyWith(
             account: null,
             membershipLoading: false,
+            pendingMembershipInvitationLoading: false,
+            pendingMembershipInvitation: null,
             errorMessage: failure.message,
           );
         },
@@ -114,7 +119,54 @@ class DashboardController extends _$DashboardController {
       state = state.copyWith(
         account: null,
         membershipLoading: false,
+        pendingMembershipInvitationLoading: false,
+        pendingMembershipInvitation: null,
         errorMessage: 'Failed to fetch account: $e',
+      );
+    }
+  }
+
+  Future<void> fetchPendingMembershipInvitation() async {
+    final account = state.account;
+    if (account == null) {
+      state = state.copyWith(
+        pendingMembershipInvitationLoading: false,
+        pendingMembershipInvitation: null,
+      );
+      return;
+    }
+
+    final membershipId =
+        account.membership?.id ?? _localStorage.currentMembership?.id;
+    if (membershipId != null) {
+      state = state.copyWith(
+        pendingMembershipInvitationLoading: false,
+        pendingMembershipInvitation: null,
+      );
+      return;
+    }
+
+    state = state.copyWith(pendingMembershipInvitationLoading: true);
+    try {
+      final result = await _membershipRepo.membershipInvitationMyPending();
+      result.when(
+        onSuccess: (inv) {
+          state = state.copyWith(
+            pendingMembershipInvitationLoading: false,
+            pendingMembershipInvitation: inv,
+          );
+        },
+        onFailure: (_) {
+          state = state.copyWith(
+            pendingMembershipInvitationLoading: false,
+            pendingMembershipInvitation: null,
+          );
+        },
+      );
+    } catch (_) {
+      state = state.copyWith(
+        pendingMembershipInvitationLoading: false,
+        pendingMembershipInvitation: null,
       );
     }
   }
@@ -146,6 +198,18 @@ class DashboardController extends _$DashboardController {
 
   Future<void> fetchThisWeekActivities() async {
     if (state.account == null) {
+      state = state.copyWith(
+        thisWeekActivitiesLoading: false,
+        thisWeekActivities: [],
+        thisWeekAnnouncementsLoading: false,
+        thisWeekAnnouncements: [],
+      );
+      return;
+    }
+
+    final membershipId =
+        state.account?.membership?.id ?? _localStorage.currentMembership?.id;
+    if (membershipId == null) {
       state = state.copyWith(
         thisWeekActivitiesLoading: false,
         thisWeekActivities: [],

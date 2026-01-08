@@ -91,6 +91,51 @@ export class ActivitiesService {
 
     const where: any = {};
 
+    const parseDateFilter = (
+      value: unknown,
+      field: 'startDate' | 'endDate',
+    ): Date | undefined => {
+      if (value === undefined || value === null || value === '') {
+        return undefined;
+      }
+
+      if (value instanceof Date) {
+        if (Number.isNaN(value.getTime())) {
+          throw new BadRequestException(`${field} is not a valid date`);
+        }
+        return value;
+      }
+
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        const hasTimezone =
+          trimmed.endsWith('Z') ||
+          /[+-]\d{2}:\d{2}$/.test(trimmed) ||
+          /[+-]\d{4}$/.test(trimmed);
+
+        const date = new Date(hasTimezone ? trimmed : `${trimmed}Z`);
+        if (Number.isNaN(date.getTime())) {
+          throw new BadRequestException(`${field} is not a valid ISO date`);
+        }
+        return date;
+      }
+
+      const date = new Date(value as any);
+      if (Number.isNaN(date.getTime())) {
+        throw new BadRequestException(`${field} is not a valid date`);
+      }
+      return date;
+    };
+
+    const parsedStartDate = parseDateFilter(startDate as any, 'startDate');
+    const parsedEndDate = parseDateFilter(endDate as any, 'endDate');
+
+    if (parsedStartDate && parsedEndDate && parsedStartDate > parsedEndDate) {
+      throw new BadRequestException(
+        'startDate must be before or equal to endDate',
+      );
+    }
+
     // Only filter by membershipId if provided
     if (membershipId !== undefined && membershipId !== null) {
       where.supervisorId = membershipId;
@@ -118,13 +163,13 @@ export class ActivitiesService {
       where.AND = [...(where.AND ?? []), { OR: allowedAudience }];
     }
 
-    if (startDate || endDate) {
+    if (parsedStartDate || parsedEndDate) {
       where.date = {};
-      if (startDate) {
-        where.date.gte = startDate;
+      if (parsedStartDate) {
+        where.date.gte = parsedStartDate;
       }
-      if (endDate) {
-        where.date.lte = endDate;
+      if (parsedEndDate) {
+        where.date.lte = parsedEndDate;
       }
     }
 

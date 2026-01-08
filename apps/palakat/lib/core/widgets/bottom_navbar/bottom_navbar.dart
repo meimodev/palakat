@@ -5,7 +5,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
-class BottomNavBar extends ConsumerWidget {
+class BottomNavBar extends ConsumerStatefulWidget {
   const BottomNavBar({
     super.key,
     required this.currentIndex,
@@ -16,24 +16,274 @@ class BottomNavBar extends ConsumerWidget {
   final Function(int) onPressedItem;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Check auth state to determine which items to show
+  ConsumerState<BottomNavBar> createState() => _BottomNavBarState();
+}
+
+class _BottomNavBarState extends ConsumerState<BottomNavBar>
+    with SingleTickerProviderStateMixin {
+  static const int _specialMenuIndex = 5;
+  static const double _menuMinWidth = 220;
+  static const double _menuMaxWidth = 260;
+  static const double _menuEstimatedHeight = 120;
+
+  final LayerLink _specialMenuLink = LayerLink();
+  final GlobalKey _specialMenuKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+  late final AnimationController _menuController;
+  late final Animation<double> _menuOpacity;
+  late final Animation<double> _menuScale;
+
+  bool get _isMenuOpen => _overlayEntry != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _menuController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 160),
+    );
+    _menuOpacity = CurvedAnimation(
+      parent: _menuController,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+    _menuScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _menuController,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeInCubic,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _menuController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openMenu() async {
+    if (_isMenuOpen) return;
+
+    final overlay = Overlay.of(context, rootOverlay: true);
+
+    _overlayEntry = _buildOverlayEntry();
+    overlay.insert(_overlayEntry!);
+    if (mounted) setState(() {});
+    await _menuController.forward(from: 0);
+  }
+
+  Future<void> _closeMenu() async {
+    if (!_isMenuOpen) return;
+    await _menuController.reverse();
+    _removeOverlay();
+    if (mounted) setState(() {});
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Future<void> _toggleMenu() async {
+    if (_isMenuOpen) {
+      await _closeMenu();
+      return;
+    }
+    await _openMenu();
+  }
+
+  Future<void> _onPickMenuItem(int index) async {
+    await _closeMenu();
+    widget.onPressedItem(index);
+  }
+
+  OverlayEntry _buildOverlayEntry() {
+    return OverlayEntry(
+      builder: (overlayContext) {
+        final renderBox =
+            _specialMenuKey.currentContext?.findRenderObject() as RenderBox?;
+        final iconRect = renderBox != null
+            ? renderBox.localToGlobal(Offset.zero) & renderBox.size
+            : Rect.zero;
+
+        final media = MediaQuery.of(overlayContext);
+        final safePadding = media.padding;
+        const horizontalMargin = 12.0;
+        const verticalMargin = 12.0;
+
+        final screenSize = media.size;
+
+        final maxRight = (screenSize.width - _menuMaxWidth - horizontalMargin);
+        final safeMaxRight = maxRight > horizontalMargin
+            ? maxRight
+            : horizontalMargin;
+        final right = (screenSize.width - iconRect.right)
+            .clamp(horizontalMargin, safeMaxRight)
+            .toDouble();
+
+        final maxBottom =
+            (screenSize.height -
+            safePadding.top -
+            verticalMargin -
+            _menuEstimatedHeight);
+        final safeMaxBottom = maxBottom > (safePadding.bottom + verticalMargin)
+            ? maxBottom
+            : (safePadding.bottom + verticalMargin);
+        final bottom = (screenSize.height - iconRect.top)
+            .clamp(safePadding.bottom + verticalMargin, safeMaxBottom)
+            .toDouble();
+
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _closeMenu,
+                child: Container(color: Colors.black.withValues(alpha: 0.10)),
+              ),
+            ),
+            Positioned(
+              right: right,
+              bottom: bottom,
+              child: FadeTransition(
+                opacity: _menuOpacity,
+                child: ScaleTransition(
+                  scale: _menuScale,
+                  alignment: Alignment.bottomRight,
+                  child: Material(
+                    color: BaseColor.white,
+                    elevation: 16,
+                    borderRadius: BorderRadius.circular(16),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: _menuMinWidth,
+                        maxWidth: _menuMaxWidth,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _menuItem(
+                              icon: AppIcons.document,
+                              label: overlayContext.l10n.operations_title,
+                              onTap: () => _onPickMenuItem(2),
+                            ),
+                            _menuItem(
+                              icon: AppIcons.reader,
+                              label: overlayContext.l10n.nav_approval,
+                              onTap: () => _onPickMenuItem(3),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _menuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            FaIcon(icon, size: 18, color: BaseColor.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: BaseTypography.titleMedium.copyWith(
+                  color: BaseColor.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _specialMenuIcon() {
+    const double iconSize = 24.0;
+    final icon = _isMenuOpen ? AppIcons.close : AppIcons.church;
+
+    return CompositedTransformTarget(
+      link: _specialMenuLink,
+      child: Container(
+        key: _specialMenuKey,
+        child: AnimatedRotation(
+          turns: _isMenuOpen ? 0.125 : 0.0,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.92, end: 1.0).animate(animation),
+                child: FadeTransition(opacity: animation, child: child),
+              );
+            },
+            child: FaIcon(
+              icon,
+              key: ValueKey<bool>(_isMenuOpen),
+              size: iconSize,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(authMembershipChangeSignalProvider);
     final storage = ref.watch(localStorageServiceProvider);
     final hasAuth = storage.currentAuth?.account != null;
+    final hasMembership =
+        storage.currentMembership?.id != null ||
+        storage.currentAuth?.account.membership?.id != null;
+    final showSpecialMenu = hasAuth && hasMembership;
 
-    // Define visible indices: [0: Home, 1: Songs, 2: Ops, 3: Approval]
-    // Without auth: only show Home and Songs
-    final visibleIndices = hasAuth ? [0, 1, 2, 3, 4] : [0, 1, 4];
+    if (!showSpecialMenu && _isMenuOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _closeMenu();
+      });
+    }
 
-    // Map currentIndex to visual position in the filtered list
-    final selectedVisualIndex = visibleIndices.indexOf(currentIndex);
+    final visibleIndices = showSpecialMenu ? [0, 1, 4, 5] : [0, 1, 4];
+
+    final shouldHighlightSpecialMenu =
+        showSpecialMenu &&
+        (widget.currentIndex == 2 || widget.currentIndex == 3);
+    final effectiveCurrentIndex = shouldHighlightSpecialMenu
+        ? _specialMenuIndex
+        : widget.currentIndex;
+
+    final selectedVisualIndex = visibleIndices.indexOf(effectiveCurrentIndex);
     final safeSelectedIndex = selectedVisualIndex >= 0
         ? selectedVisualIndex
         : 0;
 
-    // Unified teal primary color for all selected states (Requirements 5.1)
     const Color selectedColor = BaseColor.primary;
-    // Neutral color for unselected states (Requirements 5.2)
     const Color unselectedColor = BaseColor.textSecondary;
 
     final selectedLabelStyle = BaseTypography.labelMedium.copyWith(
@@ -55,7 +305,6 @@ class BottomNavBar extends ConsumerWidget {
           color: BaseColor.white,
           border: Border(
             top: BorderSide(
-              // Top border using primary color at 12% opacity (Requirements 5.5)
               color: selectedColor.withValues(alpha: 0.12),
               width: 1,
             ),
@@ -65,6 +314,12 @@ class BottomNavBar extends ConsumerWidget {
           top: false,
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
+              iconTheme: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const IconThemeData(color: selectedColor);
+                }
+                return const IconThemeData(color: unselectedColor);
+              }),
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
                   return selectedLabelStyle;
@@ -74,29 +329,28 @@ class BottomNavBar extends ConsumerWidget {
               height: 70,
             ),
             child: NavigationBar(
-              // 400ms animation duration (Requirements 6.1)
               animationDuration: const Duration(milliseconds: 400),
               selectedIndex: safeSelectedIndex,
               onDestinationSelected: (visualIndex) {
-                // Map visual index back to logical index
                 final logicalIndex = visibleIndices[visualIndex];
-                onPressedItem(logicalIndex);
+                if (logicalIndex == _specialMenuIndex) {
+                  _toggleMenu();
+                  return;
+                }
+
+                if (_isMenuOpen) {
+                  _closeMenu();
+                }
+                widget.onPressedItem(logicalIndex);
               },
               backgroundColor: Colors.transparent,
               elevation: 0,
-              // Indicator using primary color at 15% opacity (Requirements 5.3)
               indicatorColor: selectedColor.withValues(alpha: 0.15),
               indicatorShape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              // Always show labels (Requirements 6.2)
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: _buildDestinations(
-                context,
-                visibleIndices,
-                selectedColor,
-                unselectedColor,
-              ),
+              destinations: _buildDestinations(context, visibleIndices),
             ),
           ),
         ),
@@ -108,8 +362,6 @@ class BottomNavBar extends ConsumerWidget {
   List<NavigationDestination> _buildDestinations(
     BuildContext context,
     List<int> visibleIndices,
-    Color selectedColor,
-    Color unselectedColor,
   ) {
     // Consistent icon sizing at 24px (Requirements 5.4)
     const double iconSize = 24.0;
@@ -118,17 +370,13 @@ class BottomNavBar extends ConsumerWidget {
     final allDestinations = <int, _DestinationData>{
       0: _DestinationData(icon: AppIcons.grid, label: context.l10n.nav_home),
       1: _DestinationData(icon: AppIcons.music, label: context.l10n.nav_songs),
-      2: _DestinationData(
-        icon: AppIcons.document,
-        label: context.l10n.nav_operations,
-      ),
-      3: _DestinationData(
-        icon: AppIcons.reader,
-        label: context.l10n.nav_approval,
-      ),
       4: _DestinationData(
         icon: AppIcons.article,
         label: context.l10n.nav_articles,
+      ),
+      5: _DestinationData(
+        icon: AppIcons.church,
+        label: context.l10n.nav_church,
       ),
     };
 
@@ -136,9 +384,15 @@ class BottomNavBar extends ConsumerWidget {
     return visibleIndices.map((logicalIndex) {
       final data = allDestinations[logicalIndex]!;
 
+      if (logicalIndex == _specialMenuIndex) {
+        return NavigationDestination(
+          icon: _specialMenuIcon(),
+          label: data.label,
+        );
+      }
+
       return NavigationDestination(
-        icon: FaIcon(data.icon, size: iconSize, color: unselectedColor),
-        selectedIcon: FaIcon(data.icon, size: iconSize, color: selectedColor),
+        icon: FaIcon(data.icon, size: iconSize),
         label: data.label,
       );
     }).toList();

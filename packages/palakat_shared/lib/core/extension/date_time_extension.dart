@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 
 extension XDateTime on DateTime {
-  Jiffy get toJiffy => Jiffy.parseFromDateTime(this);
+  Jiffy get toJiffy => Jiffy.parseFromDateTime(toLocal());
 
   String toStringFormatted(String format) {
     return toJiffy.format(pattern: format);
   }
 
   bool isSameDay(DateTime dateTime) {
-    return toJiffy.isSame(dateTime.toJiffy, unit: Unit.day);
+    final a = toLocal();
+    final b = dateTime.toLocal();
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   bool isOnThisWeek(DateTime dateTime) {
@@ -66,20 +68,9 @@ extension XDateTime on DateTime {
   }
 
   List<DateTime> get generateThisWeekDates {
-    return [
-      ...List.generate(
-        1,
-        (index) => toJiffy
-            .startOf(Unit.day)
-            .dateTime
-            .subtract(Duration(days: index + 1)),
-      ).reversed,
-      ...List.generate(
-        6,
-        (index) =>
-            toJiffy.startOf(Unit.day).dateTime.add(Duration(days: index)),
-      ),
-    ];
+    final startOfWeek = toJiffy.startOf(Unit.week).startOf(Unit.day).dateTime;
+
+    return List.generate(7, (index) => startOfWeek.add(Duration(days: index)));
   }
 
   //

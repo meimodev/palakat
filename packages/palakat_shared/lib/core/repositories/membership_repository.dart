@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/account.dart';
+import '../models/membership_invitation.dart';
 import '../models/membership.dart';
 import '../models/request/request.dart';
 import '../models/response/response.dart';
@@ -236,6 +237,101 @@ class MembershipRepository {
       final socket = _ref.read(socketServiceProvider);
       await socket.rpc('membership.delete', {'id': membershipId});
       return Result.success(null);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<MembershipInvitationPreview, Failure>>
+  membershipInvitationPreview({required String identifier}) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('membershipInvitation.preview', {
+        'identifier': identifier,
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid membership invitation preview response payload'),
+        );
+      }
+      return Result.success(MembershipInvitationPreview.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<MembershipInvitation, Failure>> membershipInvitationCreate({
+    required int inviteeId,
+    required int churchId,
+    required int columnId,
+    required bool baptize,
+    required bool sidi,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('membershipInvitation.create', {
+        'inviteeId': inviteeId,
+        'churchId': churchId,
+        'columnId': columnId,
+        'baptize': baptize,
+        'sidi': sidi,
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid membership invitation create response payload'),
+        );
+      }
+      return Result.success(MembershipInvitation.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<MembershipInvitation?, Failure>>
+  membershipInvitationMyPending() async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('membershipInvitation.myPending');
+      final raw = body['data'];
+      if (raw == null) {
+        return Result.success(null);
+      }
+      final Map<String, dynamic> json = (raw as Map).cast<String, dynamic>();
+      if (json.isEmpty) {
+        return Result.success(null);
+      }
+      return Result.success(MembershipInvitation.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<MembershipInvitationRespondResult, Failure>>
+  membershipInvitationRespond({
+    required int id,
+    required String action,
+    String? reason,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final payload = <String, dynamic>{'id': id, 'action': action};
+      final trimmedReason = reason?.trim();
+      if (trimmedReason != null && trimmedReason.isNotEmpty) {
+        payload['reason'] = trimmedReason;
+      }
+      final body = await socket.rpc('membershipInvitation.respond', payload);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid membership invitation respond response payload'),
+        );
+      }
+      return Result.success(MembershipInvitationRespondResult.fromJson(json));
     } catch (e) {
       return Result.failure(Failure.fromException(e));
     }

@@ -11,6 +11,7 @@ import 'package:palakat/features/authentication/data/utils/phone_number_formatte
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/repositories.dart';
 import 'package:pinput/pinput.dart';
 
 /// OTP verification screen for Firebase Phone Authentication
@@ -271,8 +272,27 @@ class OtpVerificationScreen extends ConsumerWidget {
 
                                   final membershipId = account.membership?.id;
                                   if (membershipId == null) {
-                                    if (context.mounted) {
-                                      context.goNamed(AppRoute.membership);
+                                    try {
+                                      final membershipRepo = ref.read(
+                                        membershipRepositoryProvider,
+                                      );
+                                      final pendingRes = await membershipRepo
+                                          .membershipInvitationMyPending();
+                                      final pending = pendingRes.when(
+                                        onSuccess: (p) => p,
+                                        onFailure: (_) {},
+                                      );
+                                      if (context.mounted) {
+                                        if (pending?.id != null) {
+                                          context.goNamed(AppRoute.home);
+                                        } else {
+                                          context.goNamed(AppRoute.membership);
+                                        }
+                                      }
+                                    } catch (_) {
+                                      if (context.mounted) {
+                                        context.goNamed(AppRoute.membership);
+                                      }
                                     }
                                     return;
                                   }
@@ -375,10 +395,35 @@ class OtpVerificationScreen extends ConsumerWidget {
                                               final membershipId =
                                                   account.membership?.id;
                                               if (membershipId == null) {
-                                                if (context.mounted) {
-                                                  context.goNamed(
-                                                    AppRoute.membership,
+                                                try {
+                                                  final membershipRepo = ref.read(
+                                                    membershipRepositoryProvider,
                                                   );
+                                                  final pendingRes =
+                                                      await membershipRepo
+                                                          .membershipInvitationMyPending();
+                                                  final pending = pendingRes
+                                                      .when(
+                                                        onSuccess: (p) => p,
+                                                        onFailure: (_) {},
+                                                      );
+                                                  if (context.mounted) {
+                                                    if (pending?.id != null) {
+                                                      context.goNamed(
+                                                        AppRoute.home,
+                                                      );
+                                                    } else {
+                                                      context.goNamed(
+                                                        AppRoute.membership,
+                                                      );
+                                                    }
+                                                  }
+                                                } catch (_) {
+                                                  if (context.mounted) {
+                                                    context.goNamed(
+                                                      AppRoute.membership,
+                                                    );
+                                                  }
                                                 }
                                                 return;
                                               }

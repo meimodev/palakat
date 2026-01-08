@@ -19,6 +19,16 @@ class MemberInviteScreen extends ConsumerWidget {
     final state = ref.watch(memberInviteControllerProvider);
     final controller = ref.read(memberInviteControllerProvider.notifier);
 
+    final eligibility = state.invitationEligibility;
+    final canInvite =
+        eligibility == MembershipInvitationEligibility.canInvite ||
+        eligibility == MembershipInvitationEligibility.rejectedPreviously;
+    final canEditSacrament = canInvite;
+    final inviteLabel =
+        eligibility == MembershipInvitationEligibility.rejectedPreviously
+        ? 'Re-invite'
+        : l10n.operationsItem_invite_member_title;
+
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       child: Column(
@@ -67,11 +77,15 @@ class MemberInviteScreen extends ConsumerWidget {
               accountName: state.foundAccount?.name,
               phone: state.foundAccount?.phone,
               claimed: state.foundAccount?.claimed ?? false,
+              bipraLabel: state.foundAccount?.calculateBipra.abv,
+              infoMessage: state.infoMessage,
               baptize: state.baptize,
               sidi: state.sidi,
+              canEditSacrament: canEditSacrament,
               onChangedBaptize: controller.setBaptize,
               onChangedSidi: controller.setSidi,
-              onPressedInvite: state.foundAccount == null
+              inviteLabel: inviteLabel,
+              onPressedInvite: state.foundAccount == null || !canInvite
                   ? null
                   : () async {
                       final ok = await controller.inviteToMyColumn();
@@ -95,10 +109,14 @@ class _InviteResultSection extends StatelessWidget {
     required this.accountName,
     required this.phone,
     required this.claimed,
+    required this.bipraLabel,
+    required this.infoMessage,
     required this.baptize,
     required this.sidi,
+    required this.canEditSacrament,
     required this.onChangedBaptize,
     required this.onChangedSidi,
+    required this.inviteLabel,
     required this.onPressedInvite,
     required this.isSubmitting,
   });
@@ -108,10 +126,14 @@ class _InviteResultSection extends StatelessWidget {
   final String? accountName;
   final String? phone;
   final bool claimed;
+  final String? bipraLabel;
+  final String? infoMessage;
   final bool baptize;
   final bool sidi;
+  final bool canEditSacrament;
   final ValueChanged<bool> onChangedBaptize;
   final ValueChanged<bool> onChangedSidi;
+  final String inviteLabel;
   final VoidCallback? onPressedInvite;
   final bool isSubmitting;
 
@@ -193,6 +215,31 @@ class _InviteResultSection extends StatelessWidget {
                               ),
                             ),
                           ),
+                          if (bipraLabel != null &&
+                              bipraLabel!.trim().isNotEmpty)
+                            Container(
+                              margin: EdgeInsets.only(left: BaseSize.w8),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: BaseSize.w8,
+                                vertical: BaseSize.h4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: BaseColor.teal[50],
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color:
+                                      BaseColor.teal[200] ??
+                                      BaseColor.neutral40,
+                                ),
+                              ),
+                              child: Text(
+                                bipraLabel!,
+                                style: BaseTypography.labelSmall.copyWith(
+                                  color: BaseColor.teal[700],
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
                           if (claimed) ...[
                             Gap.w8,
                             Icon(
@@ -219,27 +266,43 @@ class _InviteResultSection extends StatelessWidget {
             ),
           ),
         ),
+        if (infoMessage != null && infoMessage!.trim().isNotEmpty) ...[
+          Gap.h12,
+          InfoBoxWidget(message: infoMessage!),
+        ],
         Gap.h16,
-        InputWidget<bool>.binaryOption(
-          currentInputValue: baptize,
-          options: const [true, false],
-          label: l10n.lbl_baptized,
-          onChanged: onChangedBaptize,
-          optionLabel: (option) =>
-              option ? l10n.lbl_baptized : l10n.membership_notBaptized,
+        AbsorbPointer(
+          absorbing: !canEditSacrament,
+          child: Opacity(
+            opacity: canEditSacrament ? 1 : 0.6,
+            child: InputWidget<bool>.binaryOption(
+              currentInputValue: baptize,
+              options: const [true, false],
+              label: l10n.lbl_baptized,
+              onChanged: onChangedBaptize,
+              optionLabel: (option) =>
+                  option ? l10n.lbl_baptized : l10n.membership_notBaptized,
+            ),
+          ),
         ),
         Gap.h12,
-        InputWidget<bool>.binaryOption(
-          currentInputValue: sidi,
-          options: const [true, false],
-          label: l10n.lbl_sidi,
-          onChanged: onChangedSidi,
-          optionLabel: (option) =>
-              option ? l10n.lbl_sidi : l10n.membership_notSidi,
+        AbsorbPointer(
+          absorbing: !canEditSacrament,
+          child: Opacity(
+            opacity: canEditSacrament ? 1 : 0.6,
+            child: InputWidget<bool>.binaryOption(
+              currentInputValue: sidi,
+              options: const [true, false],
+              label: l10n.lbl_sidi,
+              onChanged: onChangedSidi,
+              optionLabel: (option) =>
+                  option ? l10n.lbl_sidi : l10n.membership_notSidi,
+            ),
+          ),
         ),
         Gap.h16,
         ButtonWidget.primary(
-          text: l10n.operationsItem_invite_member_title,
+          text: inviteLabel,
           isLoading: isSubmitting,
           onTap: isSubmitting ? null : onPressedInvite,
         ),

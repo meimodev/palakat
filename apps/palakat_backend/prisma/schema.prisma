@@ -63,6 +63,7 @@ model Column {
   church      Church?      @relation(fields: [churchId], references: [id], onDelete: SetNull)
   memberships Membership[]
   activities  Activity[]
+  membershipInvitations MembershipInvitation[]
 
   @@unique([churchId, name])
 }
@@ -123,6 +124,8 @@ model Account {
   membership            Membership?
   churchRequest         ChurchRequest?  @relation("ChurchRequestRequester")
   reviewedChurchRequests ChurchRequest[] @relation("ChurchRequestReviewedBy")
+  sentMembershipInvitations     MembershipInvitation[] @relation("MembershipInvitationInviter")
+  receivedMembershipInvitations MembershipInvitation[] @relation("MembershipInvitationInvitee")
   articles              Article[]
   articleLikes          ArticleLike[]
   cashMutationsCreated   CashMutation[]
@@ -348,6 +351,12 @@ enum ApprovalStatus {
   REJECTED
 }
 
+enum MembershipInvitationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum RequestStatus {
   TODO
   DOING
@@ -531,6 +540,32 @@ model ChurchRequest {
   @@index([requesterId])
   @@index([createdAt])
   @@index([status])
+}
+
+model MembershipInvitation {
+  id             Int                       @id @default(autoincrement())
+  inviterId      Int
+  inviteeId      Int
+  churchId       Int
+  columnId       Int
+  baptize        Boolean                   @default(false)
+  sidi           Boolean                   @default(false)
+  status         MembershipInvitationStatus @default(PENDING)
+  rejectedReason String?
+  rejectedAt     DateTime?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+
+  inviter Account @relation("MembershipInvitationInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee Account @relation("MembershipInvitationInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  church  Church  @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  column  Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  @@index([inviterId])
+  @@index([inviteeId])
+  @@index([inviteeId, status])
+  @@index([churchId])
+  @@index([columnId])
 }
 
 model FinancialAccountNumber {

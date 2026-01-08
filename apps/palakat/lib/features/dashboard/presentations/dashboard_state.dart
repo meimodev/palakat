@@ -11,6 +11,8 @@ abstract class DashboardState with _$DashboardState {
     @Default(true) bool thisWeekAnnouncementsLoading,
     @Default(<Activity>[]) List<Activity> thisWeekAnnouncements,
     @Default(true) bool membershipLoading,
+    @Default(false) bool pendingMembershipInvitationLoading,
+    final MembershipInvitation? pendingMembershipInvitation,
     final Account? account,
     final String? errorMessage,
     @Default(false) bool churchRequestLoading,

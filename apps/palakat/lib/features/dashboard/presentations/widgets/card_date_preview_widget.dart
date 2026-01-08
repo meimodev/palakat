@@ -11,6 +11,8 @@ class CardDatePreviewWidget extends StatelessWidget {
     this.width,
     required this.eventCount,
     required this.serviceCount,
+    required this.birthdayCount,
+    this.announcementCount = 0,
   });
 
   final DateTime date;
@@ -18,6 +20,8 @@ class CardDatePreviewWidget extends StatelessWidget {
 
   final int eventCount;
   final int serviceCount;
+  final int birthdayCount;
+  final int announcementCount;
 
   final double? height;
   final double? width;
@@ -25,7 +29,11 @@ class CardDatePreviewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = date.isSameDay(DateTime.now());
-    final hasEvents = serviceCount > 0 || eventCount > 0;
+    final hasEvents =
+        serviceCount > 0 ||
+        eventCount > 0 ||
+        birthdayCount > 0 ||
+        announcementCount > 0;
 
     return Material(
       clipBehavior: Clip.hardEdge,
@@ -88,38 +96,102 @@ class CardDatePreviewWidget extends StatelessWidget {
   }
 
   Widget _buildCounters(bool isToday) {
-    return Flexible(
-      child: Wrap(
-        spacing: BaseSize.w4,
-        runSpacing: BaseSize.h4,
-        alignment: WrapAlignment.center,
-        children: [
-          if (serviceCount != 0)
-            _pillChip(
-              icon: AppIcons.church,
-              label: serviceCount.toString(),
-              bg: isToday
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : BaseColor.green[50]!,
-              fg: isToday ? Colors.white : BaseColor.green[700]!,
-              border: isToday
-                  ? Colors.white.withValues(alpha: 0.3)
-                  : BaseColor.green[200]!,
-            ),
-          if (eventCount != 0)
-            _pillChip(
-              icon: AppIcons.event,
-              label: eventCount.toString(),
-              bg: isToday
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : BaseColor.blue[50]!,
-              fg: isToday ? Colors.white : BaseColor.blue[700]!,
-              border: isToday
-                  ? Colors.white.withValues(alpha: 0.3)
-                  : BaseColor.blue[200]!,
-            ),
-        ],
-      ),
+    final items = <Widget>[];
+
+    if (birthdayCount != 0) {
+      items.add(
+        _pillChip(
+          icon: AppIcons.birthday,
+          label: birthdayCount.toString(),
+          bg: isToday
+              ? Colors.white.withValues(alpha: 0.2)
+              : BaseColor.yellow[50]!,
+          fg: isToday ? Colors.white : BaseColor.yellow[700]!,
+          border: isToday
+              ? Colors.white.withValues(alpha: 0.3)
+              : BaseColor.yellow[200]!,
+        ),
+      );
+    }
+
+    if (serviceCount != 0) {
+      items.add(
+        _pillChip(
+          icon: AppIcons.church,
+          label: serviceCount.toString(),
+          bg: isToday
+              ? Colors.white.withValues(alpha: 0.2)
+              : BaseColor.green[50]!,
+          fg: isToday ? Colors.white : BaseColor.green[700]!,
+          border: isToday
+              ? Colors.white.withValues(alpha: 0.3)
+              : BaseColor.green[200]!,
+        ),
+      );
+    }
+
+    if (eventCount != 0) {
+      items.add(
+        _pillChip(
+          icon: AppIcons.event,
+          label: eventCount.toString(),
+          bg: isToday
+              ? Colors.white.withValues(alpha: 0.2)
+              : BaseColor.blue[50]!,
+          fg: isToday ? Colors.white : BaseColor.blue[700]!,
+          border: isToday
+              ? Colors.white.withValues(alpha: 0.3)
+              : BaseColor.blue[200]!,
+        ),
+      );
+    }
+
+    if (announcementCount != 0) {
+      items.add(
+        _pillChip(
+          icon: AppIcons.announcement,
+          label: announcementCount.toString(),
+          bg: isToday
+              ? Colors.white.withValues(alpha: 0.2)
+              : BaseColor.teal[50]!,
+          fg: isToday ? Colors.white : BaseColor.teal[700]!,
+          border: isToday
+              ? Colors.white.withValues(alpha: 0.3)
+              : BaseColor.teal[200]!,
+        ),
+      );
+    }
+
+    if (items.isEmpty) return const SizedBox();
+
+    Widget cell(Widget? child) {
+      return Expanded(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: child ?? const SizedBox(),
+          ),
+        ),
+      );
+    }
+
+    Widget row(Widget? left, Widget? right) {
+      return Row(children: [cell(left), Gap.w4, cell(right)]);
+    }
+
+    final row1Left = items.isNotEmpty ? items[0] : null;
+    final row1Right = items.length > 1 ? items[1] : null;
+    final row2Left = items.length > 2 ? items[2] : null;
+    final row2Right = items.length > 3 ? items[3] : null;
+
+    final hasSecondRow = row2Left != null || row2Right != null;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        row(row1Left, row1Right),
+        if (hasSecondRow) ...[Gap.h4, row(row2Left, row2Right)],
+      ],
     );
   }
 

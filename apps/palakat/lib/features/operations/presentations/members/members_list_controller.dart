@@ -94,9 +94,10 @@ class MembersListController extends Notifier<MembersListState> {
   @override
   MembersListState build() {
     final local = ref.read(localStorageServiceProvider);
-    final membership = local.currentMembership;
+    final membership =
+        local.currentMembership ?? local.currentAuth?.account.membership;
 
-    final churchId = membership?.church?.id;
+    final churchId = membership?.church?.id ?? membership?.column?.churchId;
     final columnId = membership?.column?.id;
 
     final initial = MembersListState(
@@ -122,7 +123,7 @@ class MembersListController extends Notifier<MembersListState> {
     final churchId = state.churchId;
     final columnId = state.columnId;
 
-    if (churchId == null || columnId == null) {
+    if (churchId == null) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Membership scope not found',

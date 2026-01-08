@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/services.dart';
@@ -90,12 +89,11 @@ class MemberBirthdaysController extends Notifier<MemberBirthdaysState> {
   @override
   MemberBirthdaysState build() {
     final local = ref.read(localStorageServiceProvider);
-    final membership = local.currentMembership;
+    final membership =
+        local.currentMembership ?? local.currentAuth?.account.membership;
 
-    final churchId = membership?.church?.id;
+    final churchId = membership?.church?.id ?? membership?.column?.churchId;
     final columnId = membership?.column?.id;
-
-    final thisWeek = DateRangePreset.thisWeek.getDateRange();
 
     final initial = MemberBirthdaysState(
       churchId: churchId,
@@ -105,8 +103,8 @@ class MemberBirthdaysController extends Notifier<MemberBirthdaysState> {
       isLoading: true,
       errorMessage: null,
       memberships: const [],
-      filterStartDate: thisWeek?.start,
-      filterEndDate: thisWeek?.end,
+      filterStartDate: null,
+      filterEndDate: null,
     );
 
     Future.microtask(fetchMembers);
@@ -125,7 +123,7 @@ class MemberBirthdaysController extends Notifier<MemberBirthdaysState> {
     final churchId = state.churchId;
     final columnId = state.columnId;
 
-    if (churchId == null || columnId == null) {
+    if (churchId == null) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Membership scope not found',

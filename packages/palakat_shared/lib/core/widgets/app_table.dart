@@ -491,6 +491,7 @@ class AppTableFiltersConfig {
     this.customDateRange,
     this.onDateRangePresetChanged,
     this.onCustomDateRangeSelected,
+    this.useRootNavigatorForDateRangePicker = false,
     this.dropdownLabel,
     this.dropdownOptions,
     this.dropdownValue,
@@ -529,6 +530,8 @@ class AppTableFiltersConfig {
 
   /// Callback when custom date range is selected via picker.
   final ValueChanged<DateTimeRange?>? onCustomDateRangeSelected;
+
+  final bool useRootNavigatorForDateRangePicker;
 
   /// Optional label for generic dropdown (e.g., "Activity Type").
   final String? dropdownLabel;
@@ -653,6 +656,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
             start: effectiveRange?.start,
             end: effectiveRange?.end,
             allowedPresets: allowedPresets,
+            useRootNavigator: widget.config.useRootNavigatorForDateRangePicker,
             onPresetChanged: widget.config.onDateRangePresetChanged,
             onCustomDateRangeSelected: widget.config.onCustomDateRangeSelected,
             onChanged: (start, end) {},

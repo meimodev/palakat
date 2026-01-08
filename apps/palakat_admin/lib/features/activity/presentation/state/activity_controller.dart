@@ -12,11 +12,16 @@ part 'activity_controller.g.dart';
 @riverpod
 class ActivityController extends _$ActivityController {
   late final Debouncer _searchDebouncer;
+  bool _isDisposed = false;
+  int _fetchRequestId = 0;
 
   @override
   ActivityScreenState build() {
     _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 300));
-    ref.onDispose(() => _searchDebouncer.dispose());
+    ref.onDispose(() {
+      _isDisposed = true;
+      _searchDebouncer.dispose();
+    });
 
     final initial = const ActivityScreenState();
     Future.microtask(() {
@@ -29,39 +34,53 @@ class ActivityController extends _$ActivityController {
       ref.read(authControllerProvider).value!.account.membership!.church!;
 
   Future<void> _fetchActivities() async {
-    state = state.copyWith(activities: const AsyncLoading());
+    if (_isDisposed) return;
+    final requestId = ++_fetchRequestId;
+
+    final snapshot = state;
+    state = snapshot.copyWith(activities: const AsyncLoading());
     try {
       final repository = ref.read(activityRepositoryProvider);
 
       // Calculate actual date range from preset
       DateTimeRange? actualDateRange;
-      if (state.dateRangePreset == DateRangePreset.custom) {
-        actualDateRange = state.customDateRange;
-      } else if (state.dateRangePreset != DateRangePreset.allTime) {
-        actualDateRange = state.dateRangePreset.getDateRange();
+      if (snapshot.dateRangePreset == DateRangePreset.custom) {
+        actualDateRange = snapshot.customDateRange;
+      } else if (snapshot.dateRangePreset != DateRangePreset.allTime) {
+        actualDateRange = snapshot.dateRangePreset.getDateRange();
       }
+
+      final churchId = church.id!;
+      final searchQuery = snapshot.searchQuery;
+      final activityTypeFilter = snapshot.activityTypeFilter;
+      final currentPage = snapshot.currentPage;
+      final pageSize = snapshot.pageSize;
 
       final result = await repository.fetchActivities(
         paginationRequest: PaginationRequestWrapper(
           data: GetFetchActivitiesRequest(
-            churchId: church.id!,
-            search: state.searchQuery.isEmpty ? null : state.searchQuery,
+            churchId: churchId,
+            search: searchQuery.isEmpty ? null : searchQuery,
             startDate: actualDateRange?.start,
             endDate: actualDateRange?.end,
-            activityType: state.activityTypeFilter,
+            activityType: activityTypeFilter,
           ),
-          page: state.currentPage,
-          pageSize: state.pageSize,
+          page: currentPage,
+          pageSize: pageSize,
           sortBy: 'id',
           sortOrder: 'desc',
         ),
       );
 
+      if (_isDisposed || requestId != _fetchRequestId) return;
+
       result.when(
         onSuccess: (activities) {
+          if (_isDisposed || requestId != _fetchRequestId) return;
           state = state.copyWith(activities: AsyncData(activities));
         },
         onFailure: (failure) {
+          if (_isDisposed || requestId != _fetchRequestId) return;
           state = state.copyWith(
             activities: AsyncError(
               Exception(failure.message),
@@ -71,6 +90,7 @@ class ActivityController extends _$ActivityController {
         },
       );
     } catch (e, st) {
+      if (_isDisposed || requestId != _fetchRequestId) return;
       state = state.copyWith(activities: AsyncError(e, st));
     }
   }

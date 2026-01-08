@@ -109,6 +109,46 @@ function getCurrentDay(date: Date = new Date()): Date {
   return result;
 }
 
+function addUtcDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+}
+
+function getStartOfWeek(date: Date = new Date()): Date {
+  const result = new Date(date);
+  const day = result.getUTCDay();
+  const daysSinceMonday = (day + 6) % 7;
+  result.setUTCDate(result.getUTCDate() - daysSinceMonday);
+  result.setUTCHours(0, 0, 0, 0);
+  return result;
+}
+
+function getCurrentWeekDates(date: Date = new Date()): Date[] {
+  const startOfWeek = getStartOfWeek(date);
+  const dates: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addUtcDays(startOfWeek, i);
+    d.setUTCHours(12, 0, 0, 0);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function getWeekDateOverrideMapForActivityVariations(
+  variations: { type: ActivityType; bipra: Bipra | null }[],
+  weekDates: Date[],
+): Map<number, Date> {
+  const map = new Map<number, Date>();
+  if (weekDates.length === 0) {
+    return map;
+  }
+  for (let i = 0; i < variations.length; i++) {
+    map.set(i, weekDates[i % weekDates.length]);
+  }
+  return map;
+}
+
 // ============================================================================
 // DATA CONSTANTS
 // ============================================================================
@@ -795,8 +835,22 @@ async function seedExtraMembersForChurches(
   let accountIndex = 100;
 
   for (const church of mainChurches) {
+    const weekBirthdayDates = getCurrentWeekDates();
     for (let i = 0; i < CONFIG.extraMembersPerChurch; i++) {
       const accountData = generateAccountData(accountIndex);
+
+      if (i < weekBirthdayDates.length) {
+        accountData.dob = weekBirthdayDates[i];
+        accountData.gender = i % 2 === 0 ? Gender.MALE : Gender.FEMALE;
+        accountData.maritalStatus =
+          i % 2 === 0 ? MaritalStatus.SINGLE : MaritalStatus.MARRIED;
+        accountData.email = i % 3 === 0 ? null : accountData.email;
+        accountData.claimed = i % 2 === 0;
+        accountData.isActive = i !== 5;
+        accountData.failedLoginAttempts = i === 6 ? 3 : 0;
+        accountData.lockUntil =
+          i === 6 ? new Date(Date.now() + 2 * 60 * 60 * 1000) : null;
+      }
 
       const account = await prisma.account.create({
         data: {
@@ -812,9 +866,10 @@ async function seedExtraMembersForChurches(
         data: {
           accountId: account.id,
           churchId: church.id,
-          columnId: column.id,
-          baptize: randomBoolean(0.8),
-          sidi: randomBoolean(0.6),
+          columnId: i === 0 ? null : column.id,
+          baptize:
+            i < weekBirthdayDates.length ? i % 2 === 0 : randomBoolean(0.8),
+          sidi: i < weekBirthdayDates.length ? i % 3 === 0 : randomBoolean(0.6),
         },
       });
 
@@ -1393,8 +1448,13 @@ async function createActivityWithConnectedModels(
   index: number,
   financialAccounts: FinancialAccountWithType[],
   financialType: ActivityFinancialType,
+  dateOverride?: Date,
+  forceAllApproversApproved?: boolean,
 ) {
-  const activityData = generateActivityData(activityType, bipra, index);
+  const baseActivityData = generateActivityData(activityType, bipra, index);
+  const activityData = dateOverride
+    ? { ...baseActivityData, date: dateOverride }
+    : baseActivityData;
 
   // Create location (70% chance)
   let locationId: number | null = null;
@@ -1496,12 +1556,16 @@ async function createActivityWithConnectedModels(
   }
 
   // Get approvers based on approval rules
-  const approverMembershipIds = await resolveApproversForSeeder(
+  let approverMembershipIds = await resolveApproversForSeeder(
     churchId,
     activityType,
     financialAccountNumberId,
     resolvedFinancialType,
   );
+
+  if (forceAllApproversApproved && approverMembershipIds.length === 0) {
+    approverMembershipIds = [supervisorId];
+  }
 
   // Create approver records with varying statuses
   for (let i = 0; i < approverMembershipIds.length; i++) {
@@ -1510,7 +1574,9 @@ async function createActivityWithConnectedModels(
       data: {
         activityId: activity.id,
         membershipId,
-        status: APPROVAL_STATUSES[i % APPROVAL_STATUSES.length],
+        status: forceAllApproversApproved
+          ? ApprovalStatus.APPROVED
+          : APPROVAL_STATUSES[i % APPROVAL_STATUSES.length],
       },
     });
   }
@@ -1542,11 +1608,20 @@ async function seedMainAccountActivities(
       `   Creating 25 activities for main account (phone: ${mainMembership.accountPhone})...`,
     );
 
+    const weekDates = getCurrentWeekDates();
+    const weekDateOverrideMap = getWeekDateOverrideMapForActivityVariations(
+      variations,
+      weekDates,
+    );
+
     // First 15 activities: cover all variations (3 types × 5 bipras)
     for (let i = 0; i < variations.length; i++) {
       const variation = variations[i];
       // Cycle through financial types: revenue, expense, none
       const financialType = financialTypes[i % financialTypes.length];
+
+      const dateOverride = weekDateOverrideMap.get(i);
+      const forceAllApproversApproved = true;
 
       const activity = await createActivityWithConnectedModels(
         mainMembership.id,
@@ -1556,6 +1631,8 @@ async function seedMainAccountActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        dateOverride,
+        forceAllApproversApproved,
       );
 
       activities.push({
@@ -1628,6 +1705,12 @@ async function seedExtraChurchActivities(
 
     console.log(`   Creating 25 extra activities for ${church.name}...`);
 
+    const weekDates = getCurrentWeekDates();
+    const weekDateOverrideMap = getWeekDateOverrideMapForActivityVariations(
+      variations,
+      weekDates,
+    );
+
     // First 15 activities: cover all variations
     for (let i = 0; i < variations.length; i++) {
       const variation = variations[i];
@@ -1637,6 +1720,9 @@ async function seedExtraChurchActivities(
       // Cycle through financial types: revenue, expense, none
       const financialType = financialTypes[i % financialTypes.length];
 
+      const dateOverride = weekDateOverrideMap.get(i);
+      const forceAllApproversApproved = true;
+
       const activity = await createActivityWithConnectedModels(
         supervisor.id,
         church.id,
@@ -1645,6 +1731,8 @@ async function seedExtraChurchActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        dateOverride,
+        forceAllApproversApproved,
       );
 
       activities.push({

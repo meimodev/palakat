@@ -1,10 +1,12 @@
 export 'activity_widget.dart';
 export 'announcement_widget.dart';
 export 'articles_widget.dart';
+export 'birthdays_widget.dart';
 export 'card_activity_section_widget.dart';
 export 'card_announcement_widget.dart';
 export 'card_articles_widget.dart';
 export 'card_date_preview_widget.dart';
 export 'church_request_status_card_widget.dart';
 export 'dialog_preview_day_activities_widget.dart';
+export 'membership_invitation_confirmation_card_widget.dart';
 export 'news_widget.dart';

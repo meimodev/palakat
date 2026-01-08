@@ -108,6 +108,8 @@ abstract class AppIcons {
   /// Announcement/campaign
   static const IconData announcement = FontAwesomeIcons.bullhorn;
 
+  static const IconData birthday = FontAwesomeIcons.cakeCandles;
+
   /// Notes/memo
   static const IconData notes = FontAwesomeIcons.noteSticky;
 

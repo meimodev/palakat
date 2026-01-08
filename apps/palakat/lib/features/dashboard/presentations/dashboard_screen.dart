@@ -7,7 +7,6 @@ import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
-import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
@@ -16,22 +15,13 @@ import 'widgets/widgets.dart';
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
-  Activity? _nextUp(List<Activity> activities) {
-    final now = DateTime.now();
-    final upcoming = activities
-        .where((a) => a.date.isAfter(now) || a.date.isAtSameMomentAs(now))
-        .toList(growable: false);
-    if (upcoming.isEmpty) return null;
-    upcoming.sort((a, b) => a.date.compareTo(b.date));
-    return upcoming.first;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
-
-    final next = _nextUp(state.thisWeekActivities);
+    final thisWeekBirthdaysAsync = ref.watch(thisWeekBirthdaysProvider);
+    final thisWeekBirthdays =
+        thisWeekBirthdaysAsync.value ?? const <BirthdayItem>[];
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -96,6 +86,18 @@ class DashboardScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+              if (state.pendingMembershipInvitation != null)
+                Column(
+                  children: [
+                    MembershipInvitationConfirmationCardWidget(
+                      invitation: state.pendingMembershipInvitation!,
+                      onResolved: () async {
+                        await controller.fetchData();
+                      },
+                    ),
+                    Gap.h16,
+                  ],
+                ),
               LoadingWrapper(
                 loading: state.membershipLoading,
                 hasError:
@@ -122,23 +124,13 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               Gap.h16,
-              _ActionCenter(
-                next: next,
-                onTapNext: next?.id == null
-                    ? null
-                    : () {
-                        context.pushNamed(
-                          AppRoute.activityDetail,
-                          pathParameters: {'activityId': next!.id.toString()},
-                        );
-                      },
-              ),
-              Gap.h16,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   LoadingWrapper(
-                    loading: state.thisWeekActivitiesLoading,
+                    loading:
+                        state.thisWeekActivitiesLoading ||
+                        state.thisWeekAnnouncementsLoading,
                     hasError:
                         state.errorMessage != null &&
                         state.thisWeekActivitiesLoading == false,
@@ -161,6 +153,8 @@ class DashboardScreen extends ConsumerWidget {
                         );
                       },
                       activities: state.thisWeekActivities,
+                      announcements: state.thisWeekAnnouncements,
+                      birthdays: thisWeekBirthdays,
                       cardsHeight: BaseSize.customWidth(92),
                       onPressedCardDatePreview: (DateTime dateTime) async {
                         final thisDayActivities = state.thisWeekActivities
@@ -169,10 +163,30 @@ class DashboardScreen extends ConsumerWidget {
                             )
                             .toList();
 
+                        final thisDayAnnouncements = state.thisWeekAnnouncements
+                            .where((a) => a.date.isSameDay(dateTime))
+                            .toList(growable: false);
+
+                        final thisDayBirthdays = thisWeekBirthdays
+                            .where((b) => b.date.isSameDay(dateTime))
+                            .toList(growable: false);
+
                         await showDialogPreviewDayActivitiesWidget(
                           title: dateTime.ddMmmm,
                           context: context,
-                          data: thisDayActivities,
+                          activities: [
+                            ...thisDayAnnouncements,
+                            ...thisDayActivities,
+                          ],
+                          birthdays: thisDayBirthdays,
+                          onPressedCardBirthday: (birthday) {
+                            final id = birthday.membership.id;
+                            if (id == null) return;
+                            context.pushNamed(
+                              AppRoute.memberDetail,
+                              pathParameters: {'membershipId': id.toString()},
+                            );
+                          },
                           onPressedCardActivity: (activity) {
                             context.pushNamed(
                               AppRoute.activityDetail,
@@ -185,35 +199,6 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  LoadingWrapper(
-                    loading: state.thisWeekAnnouncementsLoading,
-                    hasError:
-                        state.errorMessage != null &&
-                        state.thisWeekAnnouncementsLoading == false,
-                    errorMessage: state.errorMessage,
-                    onRetry: () => controller.fetchThisWeekActivities(),
-                    shimmerPlaceholder: Column(
-                      children: [
-                        PalakatShimmerPlaceholders.announcementCard(),
-                        Gap.h12,
-                        PalakatShimmerPlaceholders.announcementCard(),
-                      ],
-                    ),
-                    child: AnnouncementWidget(
-                      announcements: state.thisWeekAnnouncements,
-                      onPressedViewAll: () async {
-                        await context.pushNamed(
-                          AppRoute.viewAll,
-                          extra: const RouteParam(
-                            params: {
-                              RouteParamKey.activityType:
-                                  ActivityType.announcement,
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ),
                 ],
               ),
               Gap.h64,
@@ -221,101 +206,6 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ActionCenter extends StatelessWidget {
-  const _ActionCenter({required this.next, required this.onTapNext});
-
-  final Activity? next;
-  final VoidCallback? onTapNext;
-
-  @override
-  Widget build(BuildContext context) {
-    final nextTitle =
-        '${context.l10n.pagination_next} ${context.l10n.lbl_activity}';
-    final nextValue = next;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: EdgeInsets.all(BaseSize.w12),
-          decoration: BoxDecoration(
-            color: BaseColor.blue[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BaseColor.blue[200]!, width: 1),
-          ),
-          child: InkWell(
-            onTap: onTapNext,
-            borderRadius: BorderRadius.circular(12),
-            child: Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.blue[100],
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    AppIcons.calendar,
-                    size: BaseSize.w18,
-                    color: BaseColor.blue[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        nextTitle,
-                        style: BaseTypography.labelMedium.copyWith(
-                          color: BaseColor.blue[700],
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Gap.h4,
-                      Text(
-                        nextValue == null
-                            ? context.l10n.noData_activities
-                            : nextValue.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: BaseColor.black,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (nextValue != null) ...[
-                        Gap.h4,
-                        Text(
-                          '${nextValue.date.EEEEddMMMyyyyShort} • ${nextValue.date.HHmm}',
-                          style: BaseTypography.bodySmall.copyWith(
-                            color: BaseColor.secondaryText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (onTapNext != null) ...[
-                  Gap.w8,
-                  FaIcon(
-                    AppIcons.openExternal,
-                    size: BaseSize.w16,
-                    color: BaseColor.blue[700],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

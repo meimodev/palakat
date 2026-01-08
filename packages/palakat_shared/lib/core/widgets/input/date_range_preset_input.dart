@@ -23,6 +23,7 @@ class DateRangePresetInput extends StatelessWidget {
     this.preset,
     this.onPresetChanged,
     this.onCustomDateRangeSelected,
+    this.useRootNavigator = false,
     this.allowedPresets = const [
       DateRangePreset.allTime,
       DateRangePreset.today,
@@ -53,6 +54,8 @@ class DateRangePresetInput extends StatelessWidget {
   final DateRangePreset? preset;
   final ValueChanged<DateRangePreset>? onPresetChanged;
   final ValueChanged<DateTimeRange?>? onCustomDateRangeSelected;
+
+  final bool useRootNavigator;
 
   final List<DateRangePreset> allowedPresets;
 
@@ -214,6 +217,7 @@ class DateRangePresetInput extends StatelessWidget {
       case DateRangePreset.custom:
         final picked = await showDateRangePicker(
           context: context,
+          useRootNavigator: useRootNavigator,
           firstDate: DateTime(2000),
           lastDate: DateTime(2100),
           initialDateRange: (currentStart != null || currentEnd != null)
@@ -252,6 +256,7 @@ class DateRangePresetInput extends StatelessWidget {
 
     return showModalBottomSheet<DateRangePreset>(
       context: context,
+      useRootNavigator: useRootNavigator,
       useSafeArea: true,
       isScrollControlled: true,
       shape: const ContinuousRectangleBorder(

@@ -142,7 +142,7 @@ class _BirthdaysContent extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Icon(
-                      AppIcons.calendarToday,
+                      AppIcons.birthday,
                       size: BaseSize.w16,
                       color: BaseColor.yellow[700],
                     ),

@@ -350,7 +350,7 @@ class OperationsController extends _$OperationsController {
         id: 'member_birthdays',
         title: l10n.tbl_birth,
         description: 'View member birthdays',
-        icon: AppIcons.calendarToday,
+        icon: AppIcons.birthday,
         routeName: AppRoute.memberBirthdays,
         isEnabled: hasPositions,
       ),

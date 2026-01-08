@@ -61,7 +61,14 @@ export class MembershipService {
     const where: any = {};
 
     if (churchId) {
-      where.churchId = churchId;
+      where.OR = [
+        { churchId },
+        {
+          column: {
+            churchId,
+          },
+        },
+      ];
     }
     if (columnId) {
       where.columnId = columnId;

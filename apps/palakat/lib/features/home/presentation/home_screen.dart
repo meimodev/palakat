@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/repositories.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +21,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   bool _hasRegisteredInterests = false;
   bool _hasCheckedMembership = false;
+  bool _hasCheckedMembershipGate = false;
   String? _lastMembershipId;
 
   @override
@@ -56,6 +60,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       _lastMembershipId = currentMembershipId;
       _hasRegisteredInterests = false;
       _hasCheckedMembership = false;
+      _hasCheckedMembershipGate = false;
     }
 
     // This runs every time the widget is rebuilt due to navigation
@@ -65,6 +70,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _registerPushNotificationInterests();
       });
+    }
+
+    if (!_hasCheckedMembershipGate) {
+      _hasCheckedMembershipGate = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _enforceMembershipGate();
+      });
+    }
+  }
+
+  Future<void> _enforceMembershipGate() async {
+    try {
+      final localStorage = ref.read(localStorageServiceProvider);
+      final hasAuth = localStorage.currentAuth?.account != null;
+      if (!hasAuth) return;
+
+      final hasMembership =
+          localStorage.currentMembership?.id != null ||
+          localStorage.currentAuth?.account.membership?.id != null;
+      if (hasMembership) return;
+
+      final membershipRepo = ref.read(membershipRepositoryProvider);
+      final pendingRes = await membershipRepo.membershipInvitationMyPending();
+      final pending = pendingRes.when(onSuccess: (p) => p, onFailure: (_) {});
+
+      if (!mounted) return;
+
+      if (pending?.id == null) {
+        context.goNamed(AppRoute.membership);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      context.goNamed(AppRoute.membership);
     }
   }
 
@@ -107,10 +145,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     final controller = ref.read(homeControllerProvider.notifier);
     final state = ref.watch(homeControllerProvider);
+    ref.watch(authMembershipChangeSignalProvider);
     final localStorage = ref.watch(localStorageServiceProvider);
     final hasAuth = localStorage.currentAuth?.account != null;
 
-    final allowedIndices = hasAuth ? const [0, 1, 2, 3, 4] : const [0, 1, 4];
+    final hasMembership =
+        localStorage.currentMembership?.id != null ||
+        localStorage.currentAuth?.account.membership?.id != null;
+    final canAccessProtectedTabs = hasAuth && hasMembership;
+
+    final allowedIndices = canAccessProtectedTabs
+        ? const [0, 1, 2, 3, 4]
+        : const [0, 1, 4];
     if (!allowedIndices.contains(state.selectedBottomNavIndex)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.navigateTo(0);

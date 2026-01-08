@@ -52,12 +52,25 @@ class ViewAllScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(viewAllActivitiesProvider(activityType));
 
+    final showBirthdays = activityType == null;
+    final birthdaysAsync = showBirthdays
+        ? ref.watch(thisWeekBirthdaysProvider)
+        : null;
+
     final titlePrefix = activityType == ActivityType.announcement
         ? context.l10n.activityType_announcement
         : context.l10n.lbl_activity;
 
     final failure = async.error is Failure ? (async.error as Failure) : null;
-    final errorMessage = failure?.message;
+    final birthdaysFailure = birthdaysAsync?.error is Failure
+        ? (birthdaysAsync!.error as Failure)
+        : null;
+    final errorMessage = failure?.message ?? birthdaysFailure?.message;
+
+    final loading = async.isLoading || (birthdaysAsync?.isLoading ?? false);
+    final hasError =
+        (async.hasError || (birthdaysAsync?.hasError ?? false)) &&
+        (errorMessage != null);
 
     return ScaffoldWidget(
       child: Column(
@@ -70,11 +83,15 @@ class ViewAllScreen extends ConsumerWidget {
           ),
           Gap.h16,
           LoadingWrapper(
-            loading: async.isLoading,
-            hasError: async.hasError && (errorMessage != null),
+            loading: loading,
+            hasError: hasError,
             errorMessage: errorMessage,
-            onRetry: () =>
-                ref.invalidate(viewAllActivitiesProvider(activityType)),
+            onRetry: () {
+              ref.invalidate(viewAllActivitiesProvider(activityType));
+              if (showBirthdays) {
+                ref.invalidate(thisWeekBirthdaysProvider);
+              }
+            },
             shimmerPlaceholder: Column(
               children: [
                 PalakatShimmerPlaceholders.activityCard(),
@@ -87,13 +104,11 @@ class ViewAllScreen extends ConsumerWidget {
             child: Builder(
               builder: (_) {
                 final activities = async.value ?? const <Activity>[];
-                final filtered = activityType == null
-                    ? activities
-                          .where(
-                            (a) => a.activityType != ActivityType.announcement,
-                          )
-                          .toList(growable: false)
-                    : activities;
+                final filtered = activities;
+
+                final birthdays = showBirthdays
+                    ? (birthdaysAsync?.value ?? const <BirthdayItem>[])
+                    : const <BirthdayItem>[];
 
                 return Column(
                   children: [
@@ -108,6 +123,17 @@ class ViewAllScreen extends ConsumerWidget {
                                 (activity) => activity.date.isSameDay(date),
                               )
                               .toList(),
+                          birthdays: birthdays
+                              .where((b) => b.date.isSameDay(date))
+                              .toList(growable: false),
+                          onPressedBirthday: (birthday) {
+                            final id = birthday.membership.id;
+                            if (id == null) return;
+                            context.pushNamed(
+                              AppRoute.memberDetail,
+                              pathParameters: {'membershipId': id.toString()},
+                            );
+                          },
                           onPressedCard: (Activity activity) {
                             context.pushNamed(
                               AppRoute.activityDetail,

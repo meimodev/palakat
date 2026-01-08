@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/account.dart';
+import 'package:palakat_shared/core/models/membership.dart';
+import 'package:palakat_shared/core/models/membership_invitation.dart';
 import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/services.dart';
@@ -16,6 +19,11 @@ class MemberInviteState {
   final bool isSearching;
   final bool isSubmitting;
   final Account? foundAccount;
+  final Membership? existingMembership;
+  final MembershipInvitationEligibility? invitationEligibility;
+  final MembershipInvitation? pendingInvitation;
+  final MembershipInvitation? latestRejectedInvitation;
+  final String? infoMessage;
   final bool baptize;
   final bool sidi;
   final String? errorMessage;
@@ -30,6 +38,11 @@ class MemberInviteState {
     required this.isSearching,
     required this.isSubmitting,
     required this.foundAccount,
+    required this.existingMembership,
+    required this.invitationEligibility,
+    required this.pendingInvitation,
+    required this.latestRejectedInvitation,
+    required this.infoMessage,
     required this.baptize,
     required this.sidi,
     required this.errorMessage,
@@ -45,6 +58,11 @@ class MemberInviteState {
       isSearching = false,
       isSubmitting = false,
       foundAccount = null,
+      existingMembership = null,
+      invitationEligibility = null,
+      pendingInvitation = null,
+      latestRejectedInvitation = null,
+      infoMessage = null,
       baptize = false,
       sidi = false,
       errorMessage = null;
@@ -59,11 +77,17 @@ class MemberInviteState {
     bool? isSearching,
     bool? isSubmitting,
     Account? foundAccount,
+    Membership? existingMembership,
+    MembershipInvitationEligibility? invitationEligibility,
+    MembershipInvitation? pendingInvitation,
+    MembershipInvitation? latestRejectedInvitation,
+    String? infoMessage,
     bool? baptize,
     bool? sidi,
     String? errorMessage,
     bool clearErrorMessage = false,
     bool clearFoundAccount = false,
+    bool clearInvitationContext = false,
   }) {
     return MemberInviteState(
       churchId: churchId ?? this.churchId,
@@ -77,6 +101,21 @@ class MemberInviteState {
       foundAccount: clearFoundAccount
           ? null
           : (foundAccount ?? this.foundAccount),
+      existingMembership: clearInvitationContext
+          ? null
+          : (existingMembership ?? this.existingMembership),
+      invitationEligibility: clearInvitationContext
+          ? null
+          : (invitationEligibility ?? this.invitationEligibility),
+      pendingInvitation: clearInvitationContext
+          ? null
+          : (pendingInvitation ?? this.pendingInvitation),
+      latestRejectedInvitation: clearInvitationContext
+          ? null
+          : (latestRejectedInvitation ?? this.latestRejectedInvitation),
+      infoMessage: clearInvitationContext
+          ? null
+          : (infoMessage ?? this.infoMessage),
       baptize: baptize ?? this.baptize,
       sidi: sidi ?? this.sidi,
       errorMessage: clearErrorMessage
@@ -118,6 +157,11 @@ class MemberInviteController extends Notifier<MemberInviteState> {
       isSearching: false,
       isSubmitting: false,
       foundAccount: null,
+      existingMembership: null,
+      invitationEligibility: null,
+      pendingInvitation: null,
+      latestRejectedInvitation: null,
+      infoMessage: null,
       baptize: false,
       sidi: false,
       errorMessage: null,
@@ -164,32 +208,71 @@ class MemberInviteController extends Notifier<MemberInviteState> {
       isSearching: true,
       clearErrorMessage: true,
       clearFoundAccount: true,
+      clearInvitationContext: true,
     );
 
-    final Result<Account, Failure> res = await _membershipRepository
-        .fetchAccountByIdentifier(identifier: identifier);
+    final Result<MembershipInvitationPreview, Failure> res =
+        await _membershipRepository.membershipInvitationPreview(
+          identifier: identifier,
+        );
 
     res.when(
-      onSuccess: (account) {
-        final existing = account.membership;
+      onSuccess: (preview) {
+        final eligibility = preview.eligibility;
+
+        final existingMembership = preview.membership;
+        final pending = preview.pendingInvitation;
+        final rejected = preview.latestRejectedInvitation;
+
+        String? info;
+        if (eligibility == MembershipInvitationEligibility.alreadyMember) {
+          final c = existingMembership?.church?.name;
+          final col = existingMembership?.column?.name;
+          final scope = [
+            if (c != null && c.trim().isNotEmpty) c.trim(),
+            if (col != null && col.trim().isNotEmpty) 'Column ${col.trim()}',
+          ].join(' • ');
+          info = scope.trim().isEmpty
+              ? 'This user already has membership.'
+              : 'This user already has membership in $scope.';
+        } else if (eligibility ==
+            MembershipInvitationEligibility.pendingInviteExists) {
+          final inviter = pending?.inviter?.name;
+          info = inviter != null && inviter.trim().isNotEmpty
+              ? 'Already invited by $inviter. Waiting for approval.'
+              : 'Already invited. Waiting for approval.';
+        } else if (eligibility ==
+            MembershipInvitationEligibility.rejectedPreviously) {
+          final note = rejected?.rejectedReason?.trim();
+          info = (note == null || note.isEmpty)
+              ? 'Previous invitation was rejected. You may re-invite.'
+              : 'Previous invitation was rejected: $note. You may re-invite.';
+        } else {
+          info = null;
+        }
+
+        final initialBaptize = pending?.baptize ?? rejected?.baptize ?? false;
+        final initialSidi = pending?.sidi ?? rejected?.sidi ?? false;
+
         state = state.copyWith(
           isSearching: false,
-          foundAccount: account,
-          baptize: existing?.baptize ?? false,
-          sidi: existing?.sidi ?? false,
+          foundAccount: preview.invitee,
+          existingMembership: existingMembership,
+          invitationEligibility: eligibility,
+          pendingInvitation: pending,
+          latestRejectedInvitation: rejected,
+          infoMessage: info,
+          baptize: initialBaptize,
+          sidi: initialSidi,
           clearErrorMessage: true,
         );
         return null;
       },
       onFailure: (failure) {
-        final msg = failure.message;
-        final isNotFound =
-            msg.toLowerCase().contains('not found') ||
-            msg.toLowerCase().contains('account not found');
-
+        final isNotFound = failure.code == 404;
         state = state.copyWith(
           isSearching: false,
-          errorMessage: isNotFound ? null : msg,
+          errorMessage: isNotFound ? null : failure.message,
         );
       },
     );
@@ -199,6 +282,7 @@ class MemberInviteController extends Notifier<MemberInviteState> {
     final account = state.foundAccount;
     final churchId = state.churchId;
     final columnId = state.columnId;
+    final eligibility = state.invitationEligibility;
 
     if (account?.id == null) {
       state = state.copyWith(errorMessage: 'Please lookup a member first');
@@ -209,43 +293,37 @@ class MemberInviteController extends Notifier<MemberInviteState> {
       return false;
     }
 
+    final allowed =
+        eligibility == MembershipInvitationEligibility.canInvite ||
+        eligibility == MembershipInvitationEligibility.rejectedPreviously;
+    if (!allowed) {
+      state = state.copyWith(
+        errorMessage: 'Cannot invite this user at the moment',
+      );
+      return false;
+    }
+
     state = state.copyWith(isSubmitting: true, clearErrorMessage: true);
 
-    final dto = {
-      'membership': {
-        'upsert': {
-          'create': {
-            'baptize': state.baptize,
-            'sidi': state.sidi,
-            'church': {
-              'connect': {'id': churchId},
-            },
-            'column': {
-              'connect': {'id': columnId},
-            },
-          },
-          'update': {
-            'baptize': state.baptize,
-            'sidi': state.sidi,
-            'church': {
-              'connect': {'id': churchId},
-            },
-            'column': {
-              'connect': {'id': columnId},
-            },
-            'membershipPositions': {'set': []},
-          },
-        },
-      },
-    };
-
-    final Result<Account, Failure> result = await _membershipRepository
-        .updateAccount(accountId: account!.id!, update: dto);
+    final Result<MembershipInvitation, Failure> result =
+        await _membershipRepository.membershipInvitationCreate(
+          inviteeId: account!.id!,
+          churchId: churchId,
+          columnId: columnId,
+          baptize: state.baptize,
+          sidi: state.sidi,
+        );
 
     bool ok = false;
     result.when(
-      onSuccess: (_) {
+      onSuccess: (inv) {
         ok = true;
+        state = state.copyWith(
+          invitationEligibility:
+              MembershipInvitationEligibility.pendingInviteExists,
+          pendingInvitation: inv,
+          infoMessage: 'Invitation sent. Waiting for approval.',
+        );
         return null;
       },
       onFailure: (failure) {

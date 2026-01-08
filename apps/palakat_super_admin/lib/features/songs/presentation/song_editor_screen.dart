@@ -581,13 +581,14 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(p.type.name),
-                                  const SizedBox(height: 4),
                                   Text(
-                                    p.content,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
+                                    p.type.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
+                                  const SizedBox(height: 4),
+                                  Text(p.content),
                                 ],
                               ),
                             ),

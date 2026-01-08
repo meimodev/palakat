@@ -93,6 +93,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           controller.onChangedDateRangePreset,
                       onCustomDateRangeSelected:
                           controller.onCustomDateRangeSelected,
+                      useRootNavigatorForDateRangePicker: true,
                       dropdownLabel: l10n.lbl_type,
                       dropdownOptions: {
                         ActivityType.service.name:

@@ -20,6 +20,7 @@ class SegmentTitleWidget extends StatelessWidget {
     this.onPressedViewAll,
     required this.count,
     required this.title,
+    this.titleStyle,
     this.leadingIcon,
     this.leadingBg,
     this.leadingFg,
@@ -33,6 +34,8 @@ class SegmentTitleWidget extends StatelessWidget {
 
   /// The title text
   final String title;
+
+  final TextStyle? titleStyle;
 
   /// Optional icon to display before the title
   final IconData? leadingIcon;
@@ -110,10 +113,12 @@ class SegmentTitleWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  style:
+                      titleStyle ??
+                      theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

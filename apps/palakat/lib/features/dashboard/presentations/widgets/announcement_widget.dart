@@ -31,6 +31,11 @@ class AnnouncementWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final maxItems = 5;
+    final itemCount = announcements.length > maxItems
+        ? maxItems
+        : announcements.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -38,6 +43,10 @@ class AnnouncementWidget extends ConsumerWidget {
           onPressedViewAll: onPressedViewAll,
           count: announcements.length,
           title: context.l10n.activityType_announcement,
+          titleStyle: BaseTypography.titleMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: BaseColor.black,
+          ),
           leadingIcon: AppIcons.announcement,
           leadingBg: BaseColor.yellow[50],
           leadingFg: BaseColor.yellow[700],
@@ -50,7 +59,7 @@ class AnnouncementWidget extends ConsumerWidget {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: announcements.length,
+            itemCount: itemCount,
             separatorBuilder: (_, _) => Gap.h12,
             itemBuilder: (context, index) {
               final announcement = announcements[index];

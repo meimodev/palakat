@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -564,15 +566,26 @@ export class RpcRouterService {
 
         const now = new Date();
 
+        const utcDay = now.getUTCDay();
+        const daysSinceMonday = (utcDay + 6) % 7;
+
         const startDate = new Date(
-          Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0),
+          Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() - daysSinceMonday,
+            0,
+            0,
+            0,
+            0,
+          ),
         );
 
         const endDate = new Date(
           Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth() + 1,
-            0,
+            startDate.getUTCFullYear(),
+            startDate.getUTCMonth(),
+            startDate.getUTCDate() + 6,
             23,
             59,
             59,
@@ -1166,6 +1179,502 @@ export class RpcRouterService {
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
         return this.membershipService.remove(id);
+      }
+
+      // ===== Membership Invitations =====
+      case 'membershipInvitation.preview': {
+        this.requireUserId(client);
+
+        const identifier =
+          (payload.identifier as string | undefined) ??
+          (payload.id as string | undefined) ??
+          (payload.phone as string | undefined);
+        if (!identifier || typeof identifier !== 'string') {
+          throw new BadRequestException('identifier is required');
+        }
+
+        const invitee: any = await (this.prisma as any).account.findUnique({
+          where: { phone: identifier },
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            email: true,
+            isActive: true,
+            claimed: true,
+            gender: true,
+            maritalStatus: true,
+            dob: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+
+        if (!invitee?.id) {
+          throw new NotFoundException('Account not found');
+        }
+
+        const membership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { accountId: invitee.id },
+          include: {
+            account: true,
+            church: true,
+            column: true,
+            membershipPositions: true,
+          },
+        });
+
+        if (membership?.id) {
+          return {
+            message: 'OK',
+            data: {
+              eligibility: 'ALREADY_MEMBER',
+              invitee,
+              membership,
+              pendingInvitation: null,
+              latestRejectedInvitation: null,
+            },
+          };
+        }
+
+        const pendingInvitation: any = await (
+          this.prisma as any
+        ).membershipInvitation.findFirst({
+          where: {
+            inviteeId: invitee.id,
+            status: 'PENDING',
+          },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        if (pendingInvitation?.id) {
+          return {
+            message: 'OK',
+            data: {
+              eligibility: 'PENDING_INVITE_EXISTS',
+              invitee,
+              membership: null,
+              pendingInvitation,
+              latestRejectedInvitation: null,
+            },
+          };
+        }
+
+        const latestRejectedInvitation: any = await (
+          this.prisma as any
+        ).membershipInvitation.findFirst({
+          where: {
+            inviteeId: invitee.id,
+            status: 'REJECTED',
+          },
+          orderBy: { updatedAt: 'desc' },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        return {
+          message: 'OK',
+          data: {
+            eligibility: latestRejectedInvitation?.id
+              ? 'REJECTED_PREVIOUSLY'
+              : 'CAN_INVITE',
+            invitee,
+            membership: null,
+            pendingInvitation: null,
+            latestRejectedInvitation: latestRejectedInvitation?.id
+              ? latestRejectedInvitation
+              : null,
+          },
+        };
+      }
+
+      case 'membershipInvitation.create': {
+        const user = this.requireUserId(client);
+        const inviteeId = payload.inviteeId as number;
+        const churchId = payload.churchId as number;
+        const columnId = payload.columnId as number;
+        const baptize = payload.baptize === true;
+        const sidi = payload.sidi === true;
+
+        if (typeof inviteeId !== 'number') {
+          throw new BadRequestException('inviteeId is required');
+        }
+        if (typeof churchId !== 'number') {
+          throw new BadRequestException('churchId is required');
+        }
+        if (typeof columnId !== 'number') {
+          throw new BadRequestException('columnId is required');
+        }
+        if (inviteeId === user.userId) {
+          throw new BadRequestException('Cannot invite yourself');
+        }
+
+        const inviterMembershipId = await this.resolveMembershipIdForUser(
+          user.userId,
+        );
+        const inviterMembership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { id: inviterMembershipId },
+          select: { id: true, churchId: true, columnId: true },
+        });
+        if (!inviterMembership?.id) {
+          throw new BadRequestException('Invalid inviter membership');
+        }
+        if (inviterMembership.churchId !== churchId) {
+          throw new ForbiddenException('Invalid church scope');
+        }
+        if (inviterMembership.columnId !== columnId) {
+          throw new ForbiddenException('Invalid column scope');
+        }
+
+        const column: any = await (this.prisma as any).column.findUnique({
+          where: { id: columnId },
+          select: { id: true, churchId: true },
+        });
+        if (!column?.id) {
+          throw new BadRequestException('columnId does not exist');
+        }
+        if (
+          typeof column.churchId !== 'number' ||
+          column.churchId !== churchId
+        ) {
+          throw new BadRequestException(
+            'columnId belongs to a different church',
+          );
+        }
+
+        const inviteeMembership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { accountId: inviteeId },
+          select: { id: true },
+        });
+        if (inviteeMembership?.id) {
+          throw new ConflictException('Invitee already has a membership');
+        }
+
+        const existingPending: any = await (
+          this.prisma as any
+        ).membershipInvitation.findFirst({
+          where: { inviteeId, status: 'PENDING' },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        if (existingPending?.id) {
+          return {
+            message: 'OK',
+            data: existingPending,
+          };
+        }
+
+        const created: any = await (
+          this.prisma as any
+        ).membershipInvitation.create({
+          data: {
+            inviterId: user.userId,
+            inviteeId,
+            churchId,
+            columnId,
+            baptize,
+            sidi,
+            status: 'PENDING',
+          },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        return {
+          message: 'OK',
+          data: created,
+        };
+      }
+
+      case 'membershipInvitation.myPending': {
+        const user = this.requireUserId(client);
+
+        const pending: any = await (
+          this.prisma as any
+        ).membershipInvitation.findFirst({
+          where: {
+            inviteeId: user.userId,
+            status: 'PENDING',
+          },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        return {
+          message: 'OK',
+          data: pending ?? null,
+        };
+      }
+
+      case 'membershipInvitation.respond': {
+        const user = this.requireUserId(client);
+        const id = payload.id as number;
+        const action = (payload.action ?? payload.status ?? '').toString();
+        const reason =
+          (payload.reason as string | undefined) ??
+          (payload.rejectedReason as string | undefined) ??
+          (payload.dto?.reason as string | undefined) ??
+          (payload.dto?.rejectedReason as string | undefined);
+
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+        if (!action || (action !== 'APPROVE' && action !== 'REJECT')) {
+          throw new BadRequestException('action must be APPROVE or REJECT');
+        }
+
+        const invitation: any = await (
+          this.prisma as any
+        ).membershipInvitation.findUnique({
+          where: { id },
+          include: {
+            inviter: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+                isActive: true,
+                claimed: true,
+                gender: true,
+                maritalStatus: true,
+                dob: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        if (!invitation?.id) {
+          throw new NotFoundException('Invitation not found');
+        }
+        if (invitation.inviteeId !== user.userId) {
+          throw new ForbiddenException('Not allowed');
+        }
+        if (invitation.status !== 'PENDING') {
+          throw new ConflictException('Invitation already resolved');
+        }
+
+        if (action === 'REJECT') {
+          const updated: any = await (
+            this.prisma as any
+          ).membershipInvitation.update({
+            where: { id: invitation.id },
+            data: {
+              status: 'REJECTED',
+              rejectedAt: new Date(),
+              rejectedReason:
+                typeof reason === 'string' && reason.trim().length > 0
+                  ? reason.trim()
+                  : null,
+            },
+            include: {
+              inviter: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  email: true,
+                  isActive: true,
+                  claimed: true,
+                  gender: true,
+                  maritalStatus: true,
+                  dob: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+              church: { select: { id: true, name: true } },
+              column: { select: { id: true, name: true, churchId: true } },
+            },
+          });
+
+          return { message: 'OK', data: { invitation: updated } };
+        }
+
+        const existingMembership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { accountId: user.userId },
+          select: { id: true },
+        });
+        if (existingMembership?.id) {
+          throw new ConflictException('User already has a membership');
+        }
+
+        const res = await (this.prisma as any).$transaction(async (tx: any) => {
+          const column: any = await tx.column.findUnique({
+            where: { id: invitation.columnId },
+            select: { id: true, churchId: true },
+          });
+          if (!column?.id) {
+            throw new BadRequestException('columnId does not exist');
+          }
+          if (
+            typeof column.churchId !== 'number' ||
+            column.churchId !== invitation.churchId
+          ) {
+            throw new BadRequestException(
+              'columnId belongs to a different church',
+            );
+          }
+
+          const membership = await tx.membership.create({
+            data: {
+              accountId: user.userId,
+              churchId: invitation.churchId,
+              columnId: invitation.columnId,
+              baptize: invitation.baptize === true,
+              sidi: invitation.sidi === true,
+            },
+            include: {
+              account: true,
+              church: true,
+              column: true,
+              membershipPositions: true,
+            },
+          });
+
+          const updatedInvitation = await tx.membershipInvitation.update({
+            where: { id: invitation.id },
+            data: {
+              status: 'APPROVED',
+              rejectedAt: null,
+              rejectedReason: null,
+            },
+            include: {
+              inviter: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  email: true,
+                  isActive: true,
+                  claimed: true,
+                  gender: true,
+                  maritalStatus: true,
+                  dob: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+              church: { select: { id: true, name: true } },
+              column: { select: { id: true, name: true, churchId: true } },
+            },
+          });
+
+          return { membership, invitation: updatedInvitation };
+        });
+
+        try {
+          if (res?.membership?.id) {
+            client.join(`membership.${res.membership.id}`);
+          }
+          if (res?.membership?.churchId) {
+            client.join(`church.${res.membership.churchId}`);
+          }
+        } catch (_) {}
+
+        return { message: 'OK', data: res };
       }
 
       // ===== Finance / Revenue / Expense =====

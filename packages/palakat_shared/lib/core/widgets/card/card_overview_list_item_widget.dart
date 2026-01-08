@@ -17,29 +17,54 @@ class CardOverviewListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Determine icon and colors based on activity type
+    final bool isAnnouncement = type == ActivityType.announcement;
     final bool isService = type == ActivityType.service;
+
     final IconData iconData = isService
         ? Icons.church_outlined
+        : isAnnouncement
+        ? Icons.campaign_outlined
         : Icons.event_outlined;
+
     final Color bgColor = isService
         ? BaseColor.green[100]!
+        : isAnnouncement
+        ? BaseColor.teal[100]!
         : BaseColor.blue[100]!;
+
     final Color iconColor = isService
         ? BaseColor.green[700]!
+        : isAnnouncement
+        ? BaseColor.teal[700]!
         : BaseColor.blue[700]!;
-    final Color chipBg = isService ? BaseColor.green[50]! : BaseColor.blue[50]!;
+
+    final Color chipBg = isService
+        ? BaseColor.green[50]!
+        : isAnnouncement
+        ? BaseColor.teal[50]!
+        : BaseColor.blue[50]!;
+
     final Color chipFg = isService
         ? BaseColor.green[700]!
+        : isAnnouncement
+        ? BaseColor.teal[700]!
         : BaseColor.blue[700]!;
+
     final Color chipBorder = isService
         ? BaseColor.green[200]!
+        : isAnnouncement
+        ? BaseColor.teal[200]!
         : BaseColor.blue[200]!;
 
     return Material(
       color: BaseColor.cardBackground1,
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: isService ? BaseColor.green[50] : BaseColor.blue[50],
+      surfaceTintColor: isService
+          ? BaseColor.green[50]
+          : isAnnouncement
+          ? BaseColor.teal[50]
+          : BaseColor.blue[50],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.hardEdge,
       child: InkWell(

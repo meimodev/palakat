@@ -89,6 +89,26 @@ enum ApprovalStatus {
   rejected,
 }
 
+enum MembershipInvitationStatus {
+  @JsonValue('PENDING')
+  pending,
+  @JsonValue('APPROVED')
+  approved,
+  @JsonValue('REJECTED')
+  rejected,
+}
+
+enum MembershipInvitationEligibility {
+  @JsonValue('ALREADY_MEMBER')
+  alreadyMember,
+  @JsonValue('PENDING_INVITE_EXISTS')
+  pendingInviteExists,
+  @JsonValue('REJECTED_PREVIOUSLY')
+  rejectedPreviously,
+  @JsonValue('CAN_INVITE')
+  canInvite,
+}
+
 enum RequestStatus {
   @JsonValue('TODO')
   todo,
