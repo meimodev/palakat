@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
@@ -30,8 +31,10 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
   final GlobalKey _specialMenuKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   late final AnimationController _menuController;
+  late final Animation<double> _barrierOpacity;
   late final Animation<double> _menuOpacity;
   late final Animation<double> _menuScale;
+  late final Animation<Offset> _menuOffset;
 
   bool get _isMenuOpen => _overlayEntry != null;
 
@@ -40,21 +43,43 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
     super.initState();
     _menuController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 220),
-      reverseDuration: const Duration(milliseconds: 160),
+      duration: const Duration(milliseconds: 280),
+      reverseDuration: const Duration(milliseconds: 220),
+    );
+    _barrierOpacity = CurvedAnimation(
+      parent: _menuController,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
     );
     _menuOpacity = CurvedAnimation(
       parent: _menuController,
       curve: Curves.easeOutCubic,
       reverseCurve: Curves.easeInCubic,
     );
-    _menuScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+    _menuScale = Tween<double>(begin: 0.98, end: 1.0).animate(
       CurvedAnimation(
         parent: _menuController,
-        curve: Curves.easeOutBack,
+        curve: Curves.easeOutCubic,
         reverseCurve: Curves.easeInCubic,
       ),
     );
+    _menuOffset = Tween<Offset>(begin: const Offset(0, 0.04), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _menuController,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          ),
+        );
+  }
+
+  @override
+  void didUpdateWidget(covariant BottomNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex != widget.currentIndex &&
+        _overlayEntry != null) {
+      _overlayEntry?.markNeedsBuild();
+    }
   }
 
   @override
@@ -136,13 +161,29 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
             .clamp(safePadding.bottom + verticalMargin, safeMaxBottom)
             .toDouble();
 
+        String currentPath;
+        try {
+          currentPath = GoRouterState.of(context).uri.path;
+        } catch (_) {
+          currentPath = '';
+        }
+        final isInOperationsRoute = currentPath.startsWith('/operations');
+        final isInApprovalsRoute = currentPath.startsWith('/approvals');
+        final isOperationsSelected =
+            widget.currentIndex == 2 || isInOperationsRoute;
+        final isApprovalSelected =
+            widget.currentIndex == 3 || isInApprovalsRoute;
+
         return Stack(
           children: [
             Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _closeMenu,
-                child: Container(color: Colors.black.withValues(alpha: 0.10)),
+              child: FadeTransition(
+                opacity: _barrierOpacity,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _closeMenu,
+                  child: Container(color: Colors.black.withValues(alpha: 0.14)),
+                ),
               ),
             ),
             Positioned(
@@ -150,35 +191,40 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
               bottom: bottom,
               child: FadeTransition(
                 opacity: _menuOpacity,
-                child: ScaleTransition(
-                  scale: _menuScale,
-                  alignment: Alignment.bottomRight,
-                  child: Material(
-                    color: BaseColor.white,
-                    elevation: 16,
-                    borderRadius: BorderRadius.circular(16),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: _menuMinWidth,
-                        maxWidth: _menuMaxWidth,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _menuItem(
-                              icon: AppIcons.document,
-                              label: overlayContext.l10n.operations_title,
-                              onTap: () => _onPickMenuItem(2),
-                            ),
-                            _menuItem(
-                              icon: AppIcons.reader,
-                              label: overlayContext.l10n.nav_approval,
-                              onTap: () => _onPickMenuItem(3),
-                            ),
-                          ],
+                child: SlideTransition(
+                  position: _menuOffset,
+                  child: ScaleTransition(
+                    scale: _menuScale,
+                    alignment: Alignment.bottomRight,
+                    child: Material(
+                      color: BaseColor.white,
+                      elevation: 16,
+                      borderRadius: BorderRadius.circular(16),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minWidth: _menuMinWidth,
+                          maxWidth: _menuMaxWidth,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _menuItem(
+                                icon: AppIcons.document,
+                                label: overlayContext.l10n.operations_title,
+                                selected: isOperationsSelected,
+                                onTap: () => _onPickMenuItem(2),
+                              ),
+                              _menuItem(
+                                icon: AppIcons.reader,
+                                label: overlayContext.l10n.nav_approval,
+                                selected: isApprovalSelected,
+                                onTap: () => _onPickMenuItem(3),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -195,26 +241,38 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
   Widget _menuItem({
     required IconData icon,
     required String label,
+    required bool selected,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          children: [
-            FaIcon(icon, size: 18, color: BaseColor.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: BaseTypography.titleMedium.copyWith(
-                  color: BaseColor.black,
-                  fontWeight: FontWeight.w600,
+    final bgColor = selected
+        ? BaseColor.primary.withValues(alpha: 0.10)
+        : Colors.transparent;
+    final iconColor = selected ? BaseColor.primary : BaseColor.textSecondary;
+    final textColor = selected ? BaseColor.primary : BaseColor.black;
+
+    return Material(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              FaIcon(icon, size: 18, color: iconColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: BaseTypography.titleMedium.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -271,9 +329,16 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar>
 
     final visibleIndices = showSpecialMenu ? [0, 1, 4, 5] : [0, 1, 4];
 
+    final currentPath = GoRouterState.of(context).uri.path;
+    final isInOperationsRoute = currentPath.startsWith('/operations');
+    final isInApprovalsRoute = currentPath.startsWith('/approvals');
+
     final shouldHighlightSpecialMenu =
         showSpecialMenu &&
-        (widget.currentIndex == 2 || widget.currentIndex == 3);
+        (widget.currentIndex == 2 ||
+            widget.currentIndex == 3 ||
+            isInOperationsRoute ||
+            isInApprovalsRoute);
     final effectiveCurrentIndex = shouldHighlightSpecialMenu
         ? _specialMenuIndex
         : widget.currentIndex;

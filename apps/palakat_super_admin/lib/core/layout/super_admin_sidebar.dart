@@ -94,6 +94,13 @@ class SuperAdminSidebar extends ConsumerWidget {
                       onTap: () => context.go('/songs'),
                       color: Colors.teal,
                     ),
+                    _NavItem(
+                      icon: Icons.mail_outline,
+                      label: 'Membership Invitations',
+                      selected: route.startsWith('/membership-invitations'),
+                      onTap: () => context.go('/membership-invitations'),
+                      color: Colors.purple,
+                    ),
                   ],
                 ),
               ),

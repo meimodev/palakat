@@ -729,10 +729,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_generationType => 'Jenis Pembuatan';
 
   @override
-  String get lbl_scope => 'Scope';
+  String get lbl_scope => 'Cakupan';
 
   @override
-  String get lbl_deviceId => 'Device ID';
+  String get lbl_deviceId => 'ID Perangkat';
 
   @override
   String get lbl_selectColumn => 'Pilih Kolom';
@@ -748,6 +748,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_noColumnsFound => 'Tidak ada kolom ditemukan';
+
+  @override
+  String get lbl_selectChurch => 'Pilih Gereja';
 
   @override
   String get lbl_selectChurchFirst => 'Silakan pilih gereja terlebih dahulu';
@@ -989,6 +992,17 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dashboard_statistics => 'Statistik';
+
+  @override
+  String get dashboard_membershipInvitation_title => 'Undangan keanggotaan';
+
+  @override
+  String get dashboard_membershipInvitation_snackbarApproved =>
+      'Undangan disetujui';
+
+  @override
+  String get dashboard_membershipInvitation_snackbarRejected =>
+      'Undangan ditolak';
 
   @override
   String get msg_pressBackToExit => 'Tekan kembali untuk keluar';
@@ -2485,6 +2499,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_activityApproved => 'Kegiatan berhasil disetujui';
+
+  @override
+  String get msg_publishedActivitiesManagedOnMobile =>
+      'Kegiatan yang sudah dipublikasikan hanya dapat dikelola di aplikasi mobile oleh penanggung jawab terkait.';
 
   @override
   String get msg_activityRejected => 'Kegiatan berhasil ditolak';

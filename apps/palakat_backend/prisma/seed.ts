@@ -624,6 +624,7 @@ async function cleanDatabase() {
     prisma.song.deleteMany(),
     prisma.approvalRule.deleteMany(),
     prisma.membershipPosition.deleteMany(),
+    p.membershipInvitation.deleteMany(),
     prisma.membership.deleteMany(),
     prisma.churchRequest.deleteMany(),
     prisma.column.deleteMany(),
@@ -2159,6 +2160,125 @@ async function seedExtraAccountsWithoutMembership(passwordHash: string) {
   return accounts;
 }
 
+async function seedMembershipInvitations(
+  mainAccounts: { id: number; phone: string }[],
+  mainChurches: ChurchWithColumns[],
+  accountsWithoutMembership: { id: number; name: string; phone: string }[],
+) {
+  console.log('✉️ Creating membership invitations...');
+
+  const p = prisma as any;
+  const reservedForChurchRequests = new Set(
+    accountsWithoutMembership.slice(0, 3).map((a) => a.id),
+  );
+
+  let created = 0;
+  let approved = 0;
+  let rejected = 0;
+  let pending = 0;
+
+  for (let i = 0; i < accountsWithoutMembership.length; i++) {
+    const invitee = accountsWithoutMembership[i];
+    const inviterIndex = i % mainAccounts.length;
+    const inviter = mainAccounts[inviterIndex];
+    const church = mainChurches[inviterIndex];
+    const columnId = church.columns?.[0]?.id;
+
+    if (!columnId) {
+      continue;
+    }
+    if (inviter.id === invitee.id) {
+      continue;
+    }
+
+    const existingMembership = await prisma.membership.findUnique({
+      where: { accountId: invitee.id },
+      select: { id: true },
+    });
+    if (existingMembership?.id) {
+      continue;
+    }
+
+    const existingPending = await p.membershipInvitation.findFirst({
+      where: { inviteeId: invitee.id, status: 'PENDING' },
+      select: { id: true },
+    });
+    if (existingPending?.id) {
+      continue;
+    }
+
+    const baptize = randomBoolean(0.6);
+    const sidi = randomBoolean(0.5);
+
+    const isReserved = reservedForChurchRequests.has(invitee.id);
+    const status = isReserved
+      ? i % 2 === 0
+        ? 'PENDING'
+        : 'REJECTED'
+      : approved === 0
+        ? 'APPROVED'
+        : randomBoolean(0.5)
+          ? 'PENDING'
+          : 'REJECTED';
+
+    if (status === 'APPROVED') {
+      await prisma.$transaction([
+        prisma.membership.create({
+          data: {
+            accountId: invitee.id,
+            churchId: church.id,
+            columnId,
+            baptize,
+            sidi,
+          },
+        }),
+        p.membershipInvitation.create({
+          data: {
+            inviterId: inviter.id,
+            inviteeId: invitee.id,
+            churchId: church.id,
+            columnId,
+            baptize,
+            sidi,
+            status: 'APPROVED',
+            rejectedAt: null,
+            rejectedReason: null,
+          },
+        }),
+      ]);
+      approved++;
+      created++;
+      continue;
+    }
+
+    await p.membershipInvitation.create({
+      data: {
+        inviterId: inviter.id,
+        inviteeId: invitee.id,
+        churchId: church.id,
+        columnId,
+        baptize,
+        sidi,
+        status,
+        rejectedAt: status === 'REJECTED' ? new Date() : null,
+        rejectedReason:
+          status === 'REJECTED' ? 'Seeded rejected invitation' : null,
+      },
+    });
+
+    if (status === 'PENDING') {
+      pending++;
+    } else {
+      rejected++;
+    }
+    created++;
+  }
+
+  console.log(
+    `✅ Created ${created} membership invitations (pending: ${pending}, rejected: ${rejected}, approved: ${approved})`,
+  );
+}
+
 async function seedChurchRequests(
   accountsWithoutMembership: { id: number; name: string; phone: string }[],
 ) {
@@ -2201,6 +2321,11 @@ async function printSummary(
   console.log(
     `📋 Membership Positions: ${await prisma.membershipPosition.count()}`,
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = prisma as any;
+  console.log(
+    `✉️  Membership Invitations: ${await p.membershipInvitation.count()}`,
+  );
   console.log(`📜 Approval Rules: ${await prisma.approvalRule.count()}`);
   console.log(`📅 Activities: ${await prisma.activity.count()}`);
   console.log(`✔️  Approvers: ${await prisma.approver.count()}`);
@@ -2210,8 +2335,6 @@ async function printSummary(
   console.log(`📁 Files: ${await prisma.fileManager.count()}`);
   console.log(`📊 Reports: ${await prisma.report.count()}`);
   console.log(`📄 Documents: ${await prisma.document.count()}`);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const p = prisma as any;
   console.log(
     `💳 Financial Account Numbers: ${await p.financialAccountNumber.count()}`,
   );
@@ -2377,6 +2500,11 @@ async function main() {
     // Create extra accounts without membership and church requests
     const accountsWithoutMembership =
       await seedExtraAccountsWithoutMembership(passwordHash);
+    await seedMembershipInvitations(
+      mainAccounts,
+      mainChurches,
+      accountsWithoutMembership,
+    );
     await seedChurchRequests(accountsWithoutMembership);
 
     // Print summary

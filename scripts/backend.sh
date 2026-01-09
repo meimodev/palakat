@@ -36,6 +36,10 @@ print_section() {
     echo -e "${BLUE}=====================================${NC}"
 }
 
+normalize_choice() {
+    echo "${1}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]'
+}
+
 # Parse command line arguments
 START_BACKEND=true
 SKIP_DOCKER=false
@@ -110,8 +114,8 @@ ask_interactive_options() {
 
     # Ask about Docker
     read -p "$(echo -e ${YELLOW}❓ Start Docker services? [Y/n]:${NC} )" docker_choice
-    docker_choice=${docker_choice:-Y}
-    if [[ "$docker_choice" =~ ^[Nn]$ ]]; then
+    docker_choice=$(normalize_choice "${docker_choice:-Y}")
+    if [[ "$docker_choice" == "n" || "$docker_choice" == "no" ]]; then
         SKIP_DOCKER=true
         print_info "Will skip Docker startup"
     else
@@ -121,8 +125,8 @@ ask_interactive_options() {
 
     # Ask about seeding
     read -p "$(echo -e ${YELLOW}❓ Seed the database? [Y/n]:${NC} )" seed_choice
-    seed_choice=${seed_choice:-Y}
-    if [[ "$seed_choice" =~ ^[Nn]$ ]]; then
+    seed_choice=$(normalize_choice "${seed_choice:-Y}")
+    if [[ "$seed_choice" == "n" || "$seed_choice" == "no" ]]; then
         SKIP_SEED=true
         print_info "Will skip database seeding"
     else
@@ -132,8 +136,8 @@ ask_interactive_options() {
 
     # Ask about starting backend
     read -p "$(echo -e ${YELLOW}❓ Start the backend server after setup? [Y/n]:${NC} )" start_choice
-    start_choice=${start_choice:-Y}
-    if [[ "$start_choice" =~ ^[Nn]$ ]]; then
+    start_choice=$(normalize_choice "${start_choice:-Y}")
+    if [[ "$start_choice" == "n" || "$start_choice" == "no" ]]; then
         START_BACKEND=false
         print_info "Will not start the backend server"
     else
@@ -390,18 +394,18 @@ setup_database() {
         pnpm install
     fi
 
-    # Generate Prisma Client
-    print_info "Generating Prisma Client..."
-    pnpm run prisma:generate
-
     # Check if migrations exist
     if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations)" ]; then
         print_info "Running database migrations..."
-        pnpm run db:migrate
+        pnpm exec prisma migrate deploy
     else
         print_info "No migrations found. Pushing database schema..."
-        pnpm run db:push
+        pnpm exec prisma db push --force-reset
     fi
+
+    # Generate Prisma Client
+    print_info "Generating Prisma Client..."
+    pnpm run prisma:generate
 
     print_success "Database setup completed successfully"
 }
@@ -409,9 +413,12 @@ setup_database() {
 # Seed database
 seed_database() {
     if [ "$SKIP_SEED" = true ]; then
+        print_info "Seed step enabled: no"
         print_section "Skipping Database Seeding"
         return
     fi
+
+    print_info "Seed step enabled: yes"
 
     print_section "Seeding Database"
 

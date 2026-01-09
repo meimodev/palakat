@@ -630,6 +630,23 @@ export type EnumRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumRequestStatusFilter<$PrismaModel>
 }
 
+export type EnumMembershipInvitationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MembershipInvitationStatus | Prisma.EnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel> | $Enums.MembershipInvitationStatus
+}
+
+export type EnumMembershipInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MembershipInvitationStatus | Prisma.EnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMembershipInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.MembershipInvitationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel>
+}
+
 export type EnumFinancialTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.FinancialType | Prisma.EnumFinancialTypeFieldRefInput<$PrismaModel>
   in?: $Enums.FinancialType[] | Prisma.ListEnumFinancialTypeFieldRefInput<$PrismaModel>
@@ -1293,6 +1310,23 @@ export type NestedEnumRequestStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRequestStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRequestStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumMembershipInvitationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MembershipInvitationStatus | Prisma.EnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel> | $Enums.MembershipInvitationStatus
+}
+
+export type NestedEnumMembershipInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MembershipInvitationStatus | Prisma.EnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MembershipInvitationStatus[] | Prisma.ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMembershipInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.MembershipInvitationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMembershipInvitationStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumFinancialTypeFilter<$PrismaModel = never> = {

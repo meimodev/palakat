@@ -118,6 +118,11 @@ export type Document = Prisma.DocumentModel
  */
 export type ChurchRequest = Prisma.ChurchRequestModel
 /**
+ * Model MembershipInvitation
+ * 
+ */
+export type MembershipInvitation = Prisma.MembershipInvitationModel
+/**
  * Model FinancialAccountNumber
  * 
  */

@@ -938,6 +938,18 @@
   "@dashboard_statistics": {
     "description": "Dashboard statistics label"
   },
+  "dashboard_membershipInvitation_title": "Undangan keanggotaan",
+  "@dashboard_membershipInvitation_title": {
+    "description": "Judul kartu beranda untuk undangan keanggotaan yang tertunda"
+  },
+  "dashboard_membershipInvitation_snackbarApproved": "Undangan disetujui",
+  "@dashboard_membershipInvitation_snackbarApproved": {
+    "description": "Teks snackbar setelah menyetujui undangan keanggotaan"
+  },
+  "dashboard_membershipInvitation_snackbarRejected": "Undangan ditolak",
+  "@dashboard_membershipInvitation_snackbarRejected": {
+    "description": "Teks snackbar setelah menolak undangan keanggotaan"
+  },
   "msg_pressBackToExit": "Tekan kembali untuk keluar",
   "@msg_pressBackToExit": {
     "description": "Message shown when user presses back to exit"

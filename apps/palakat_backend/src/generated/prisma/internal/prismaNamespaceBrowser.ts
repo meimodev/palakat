@@ -71,6 +71,7 @@ export const ModelName = {
   Report: 'Report',
   Document: 'Document',
   ChurchRequest: 'ChurchRequest',
+  MembershipInvitation: 'MembershipInvitation',
   FinancialAccountNumber: 'FinancialAccountNumber',
   Notification: 'Notification',
   Article: 'Article',
@@ -396,6 +397,24 @@ export const ChurchRequestScalarFieldEnum = {
 } as const
 
 export type ChurchRequestScalarFieldEnum = (typeof ChurchRequestScalarFieldEnum)[keyof typeof ChurchRequestScalarFieldEnum]
+
+
+export const MembershipInvitationScalarFieldEnum = {
+  id: 'id',
+  inviterId: 'inviterId',
+  inviteeId: 'inviteeId',
+  churchId: 'churchId',
+  columnId: 'columnId',
+  baptize: 'baptize',
+  sidi: 'sidi',
+  status: 'status',
+  rejectedReason: 'rejectedReason',
+  rejectedAt: 'rejectedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MembershipInvitationScalarFieldEnum = (typeof MembershipInvitationScalarFieldEnum)[keyof typeof MembershipInvitationScalarFieldEnum]
 
 
 export const FinancialAccountNumberScalarFieldEnum = {

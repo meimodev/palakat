@@ -1424,6 +1424,12 @@ abstract class AppLocalizations {
   /// **'No columns found'**
   String get lbl_noColumnsFound;
 
+  /// No description provided for @lbl_selectChurch.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Church'**
+  String get lbl_selectChurch;
+
   /// No description provided for @lbl_selectChurchFirst.
   ///
   /// In en, this message translates to:
@@ -1867,6 +1873,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Statistics'**
   String get dashboard_statistics;
+
+  /// Dashboard card title for a pending membership invitation
+  ///
+  /// In en, this message translates to:
+  /// **'Membership invitation'**
+  String get dashboard_membershipInvitation_title;
+
+  /// Snackbar text shown after approving a membership invitation
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation approved'**
+  String get dashboard_membershipInvitation_snackbarApproved;
+
+  /// Snackbar text shown after rejecting a membership invitation
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation rejected'**
+  String get dashboard_membershipInvitation_snackbarRejected;
 
   /// No description provided for @msg_pressBackToExit.
   ///
@@ -4633,6 +4657,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Activity approved successfully'**
   String get msg_activityApproved;
+
+  /// No description provided for @msg_publishedActivitiesManagedOnMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Published activities can only be managed in the mobile app by the assigned person in charge.'**
+  String get msg_publishedActivitiesManagedOnMobile;
 
   /// No description provided for @msg_activityRejected.
   ///

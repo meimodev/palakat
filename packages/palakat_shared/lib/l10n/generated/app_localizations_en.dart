@@ -747,6 +747,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_noColumnsFound => 'No columns found';
 
   @override
+  String get lbl_selectChurch => 'Select Church';
+
+  @override
   String get lbl_selectChurchFirst => 'Please select a church first';
 
   @override
@@ -986,6 +989,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboard_statistics => 'Statistics';
+
+  @override
+  String get dashboard_membershipInvitation_title => 'Membership invitation';
+
+  @override
+  String get dashboard_membershipInvitation_snackbarApproved =>
+      'Invitation approved';
+
+  @override
+  String get dashboard_membershipInvitation_snackbarRejected =>
+      'Invitation rejected';
 
   @override
   String get msg_pressBackToExit => 'Press back again to exit';
@@ -2480,6 +2494,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_activityApproved => 'Activity approved successfully';
+
+  @override
+  String get msg_publishedActivitiesManagedOnMobile =>
+      'Published activities can only be managed in the mobile app by the assigned person in charge.';
 
   @override
   String get msg_activityRejected => 'Activity rejected successfully';

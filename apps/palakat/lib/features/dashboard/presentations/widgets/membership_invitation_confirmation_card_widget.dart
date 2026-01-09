@@ -38,6 +38,9 @@ class _MembershipInvitationConfirmationCardWidgetState
     final id = widget.invitation.id;
     if (id == null) return;
 
+    final approvedSnack =
+        context.l10n.dashboard_membershipInvitation_snackbarApproved;
+
     setState(() => _loading = true);
     try {
       final repo = ref.read(membershipRepositoryProvider);
@@ -71,7 +74,7 @@ class _MembershipInvitationConfirmationCardWidgetState
       }
 
       widget.onResolved();
-      _showSnack('Invitation approved');
+      _showSnack(approvedSnack);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -80,6 +83,9 @@ class _MembershipInvitationConfirmationCardWidgetState
   Future<void> _reject() async {
     final id = widget.invitation.id;
     if (id == null) return;
+
+    final rejectedSnack =
+        context.l10n.dashboard_membershipInvitation_snackbarRejected;
 
     setState(() => _loading = true);
     try {
@@ -99,7 +105,7 @@ class _MembershipInvitationConfirmationCardWidgetState
       if (ok != true) return;
 
       widget.onResolved();
-      _showSnack('Invitation rejected');
+      _showSnack(rejectedSnack);
 
       if (mounted) {
         context.goNamed(AppRoute.membership);
@@ -107,6 +113,65 @@ class _MembershipInvitationConfirmationCardWidgetState
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Widget _buildInfoRow({required IconData icon, required String text}) {
+    return Row(
+      children: [
+        Icon(icon, size: BaseSize.w12, color: BaseColor.neutral[700]),
+        Gap.w8,
+        Expanded(
+          child: Text(
+            text,
+            style: BaseTypography.bodyMedium.copyWith(
+              color: BaseColor.neutral[800],
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusChip({required bool isActive, required String text}) {
+    final bgColor = isActive
+        ? BaseColor.primary[100]!
+        : BaseColor.neutral[200]!;
+    final borderColor = isActive
+        ? BaseColor.primary[400]!
+        : BaseColor.neutral[300]!;
+    final fgColor = isActive
+        ? BaseColor.primary[800]!
+        : BaseColor.neutral[800]!;
+    final icon = isActive ? AppIcons.checkCircle : AppIcons.cancel;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w10,
+        vertical: BaseSize.h6,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: BaseSize.w12, color: fgColor),
+          Gap.w8,
+          Text(
+            text,
+            style: BaseTypography.bodySmall.copyWith(
+              color: fgColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -117,8 +182,6 @@ class _MembershipInvitationConfirmationCardWidgetState
     final inviterName = inv.inviter?.name ?? l10n.lbl_na;
     final churchName = inv.church?.name ?? l10n.lbl_na;
     final columnName = inv.column?.name ?? l10n.lbl_na;
-
-    final subtitle = '$churchName • $columnName';
 
     return Container(
       padding: EdgeInsets.all(BaseSize.w12),
@@ -133,17 +196,17 @@ class _MembershipInvitationConfirmationCardWidgetState
           Row(
             children: [
               Container(
-                width: BaseSize.w32,
-                height: BaseSize.w32,
+                width: BaseSize.w40,
+                height: BaseSize.w40,
                 decoration: BoxDecoration(
-                  color: BaseColor.yellow[100],
+                  color: BaseColor.primary[100],
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  AppIcons.schedule,
-                  size: BaseSize.w16,
-                  color: BaseColor.yellow[800],
+                  AppIcons.handshake,
+                  size: BaseSize.w18,
+                  color: BaseColor.primary[700],
                 ),
               ),
               Gap.w12,
@@ -152,72 +215,45 @@ class _MembershipInvitationConfirmationCardWidgetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Membership invitation',
-                      style: BaseTypography.bodyMedium.copyWith(
+                      l10n.dashboard_membershipInvitation_title,
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.neutral[700],
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.black,
                       ),
                     ),
                     Gap.h4,
                     Text(
-                      'From $inviterName',
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.neutral[700],
+                      inviterName,
+                      style: BaseTypography.labelLarge.copyWith(
+                        color: BaseColor.textPrimary,
+                        fontWeight: FontWeight.w800,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    Gap.h8,
+                    _buildInfoRow(icon: AppIcons.church, text: churchName),
                     Gap.h4,
-                    Text(
-                      subtitle,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.neutral[700],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    _buildInfoRow(icon: AppIcons.group, text: columnName),
                   ],
-                ),
-              ),
-              Gap.w8,
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w8,
-                  vertical: BaseSize.h4,
-                ),
-                decoration: BoxDecoration(
-                  color: BaseColor.yellow[100],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                ),
-                child: Text(
-                  l10n.status_pending,
-                  style: BaseTypography.labelSmall.copyWith(
-                    color: BaseColor.yellow[800],
-                    fontWeight: FontWeight.w700,
-                  ),
                 ),
               ),
             ],
           ),
           Gap.h12,
-          Row(
+          Wrap(
+            spacing: BaseSize.w8,
+            runSpacing: BaseSize.h8,
             children: [
-              Expanded(
-                child: Text(
-                  inv.baptize ? l10n.lbl_baptized : l10n.membership_notBaptized,
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral[700],
-                  ),
-                ),
+              _buildStatusChip(
+                isActive: inv.baptize,
+                text: inv.baptize
+                    ? l10n.lbl_baptized
+                    : l10n.membership_notBaptized,
               ),
-              Expanded(
-                child: Text(
-                  inv.sidi ? l10n.lbl_sidi : l10n.membership_notSidi,
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral[700],
-                  ),
-                  textAlign: TextAlign.end,
-                ),
+              _buildStatusChip(
+                isActive: inv.sidi,
+                text: inv.sidi ? l10n.lbl_sidi : l10n.membership_notSidi,
               ),
             ],
           ),

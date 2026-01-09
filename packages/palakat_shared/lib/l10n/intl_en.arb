@@ -373,6 +373,18 @@
   "dashboard_membersChange": "Members this month",
   "dashboard_overview": "Overview",
   "dashboard_statistics": "Statistics",
+  "dashboard_membershipInvitation_title": "Membership invitation",
+  "@dashboard_membershipInvitation_title": {
+    "description": "Dashboard card title for a pending membership invitation"
+  },
+  "dashboard_membershipInvitation_snackbarApproved": "Invitation approved",
+  "@dashboard_membershipInvitation_snackbarApproved": {
+    "description": "Snackbar text shown after approving a membership invitation"
+  },
+  "dashboard_membershipInvitation_snackbarRejected": "Invitation rejected",
+  "@dashboard_membershipInvitation_snackbarRejected": {
+    "description": "Snackbar text shown after rejecting a membership invitation"
+  },
   "msg_pressBackToExit": "Press back again to exit",
 
   "memberCount": "{count, plural, =0{No members} =1{1 member} other{{count} members}}",

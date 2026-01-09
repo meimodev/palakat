@@ -22,6 +22,7 @@ model Church {
   location                Location                 @relation(fields: [locationId], references: [id])
   columns                 Column[]
   memberships             Membership[]
+  membershipInvitations   MembershipInvitation[]
   membershipPositions     MembershipPosition[]
   revenues                Revenue[]
   expenses                Expense[]
@@ -564,8 +565,10 @@ model MembershipInvitation {
   @@index([inviterId])
   @@index([inviteeId])
   @@index([inviteeId, status])
+  @@index([status])
   @@index([churchId])
   @@index([columnId])
+  @@index([createdAt])
 }
 
 model FinancialAccountNumber {

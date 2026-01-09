@@ -10,6 +10,7 @@ import '../../features/auth/application/super_admin_auth_controller.dart';
 import '../../features/auth/presentation/signin_screen.dart';
 import '../../features/churches/presentation/church_editor_screen.dart';
 import '../../features/churches/presentation/churches_list_screen.dart';
+import '../../features/membership_invitations/presentation/membership_invitations_list_screen.dart';
 import '../../features/songs/presentation/song_editor_screen.dart';
 import '../../features/songs/presentation/songs_list_screen.dart';
 import '../layout/app_scaffold.dart';
@@ -103,6 +104,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '/churches',
             name: 'churches',
             builder: (context, state) => const ChurchesListScreen(),
+          ),
+          GoRoute(
+            path: '/membership-invitations',
+            name: 'membership_invitations',
+            builder: (context, state) =>
+                const MembershipInvitationsListScreen(),
           ),
           GoRoute(
             path: '/churches/new',

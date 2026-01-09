@@ -404,6 +404,7 @@ export const ModelName = {
   Report: 'Report',
   Document: 'Document',
   ChurchRequest: 'ChurchRequest',
+  MembershipInvitation: 'MembershipInvitation',
   FinancialAccountNumber: 'FinancialAccountNumber',
   Notification: 'Notification',
   Article: 'Article',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
+    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1908,6 +1909,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MembershipInvitation: {
+      payload: Prisma.$MembershipInvitationPayload<ExtArgs>
+      fields: Prisma.MembershipInvitationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MembershipInvitationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MembershipInvitationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        findFirst: {
+          args: Prisma.MembershipInvitationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MembershipInvitationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        findMany: {
+          args: Prisma.MembershipInvitationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>[]
+        }
+        create: {
+          args: Prisma.MembershipInvitationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        createMany: {
+          args: Prisma.MembershipInvitationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MembershipInvitationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>[]
+        }
+        delete: {
+          args: Prisma.MembershipInvitationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        update: {
+          args: Prisma.MembershipInvitationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        deleteMany: {
+          args: Prisma.MembershipInvitationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MembershipInvitationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MembershipInvitationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>[]
+        }
+        upsert: {
+          args: Prisma.MembershipInvitationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipInvitationPayload>
+        }
+        aggregate: {
+          args: Prisma.MembershipInvitationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMembershipInvitation>
+        }
+        groupBy: {
+          args: Prisma.MembershipInvitationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipInvitationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MembershipInvitationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipInvitationCountAggregateOutputType> | number
+        }
+      }
+    }
     FinancialAccountNumber: {
       payload: Prisma.$FinancialAccountNumberPayload<ExtArgs>
       fields: Prisma.FinancialAccountNumberFieldRefs
@@ -2621,6 +2696,24 @@ export const ChurchRequestScalarFieldEnum = {
 export type ChurchRequestScalarFieldEnum = (typeof ChurchRequestScalarFieldEnum)[keyof typeof ChurchRequestScalarFieldEnum]
 
 
+export const MembershipInvitationScalarFieldEnum = {
+  id: 'id',
+  inviterId: 'inviterId',
+  inviteeId: 'inviteeId',
+  churchId: 'churchId',
+  columnId: 'columnId',
+  baptize: 'baptize',
+  sidi: 'sidi',
+  status: 'status',
+  rejectedReason: 'rejectedReason',
+  rejectedAt: 'rejectedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MembershipInvitationScalarFieldEnum = (typeof MembershipInvitationScalarFieldEnum)[keyof typeof MembershipInvitationScalarFieldEnum]
+
+
 export const FinancialAccountNumberScalarFieldEnum = {
   id: 'id',
   accountNumber: 'accountNumber',
@@ -3074,6 +3167,20 @@ export type ListEnumRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'MembershipInvitationStatus'
+ */
+export type EnumMembershipInvitationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipInvitationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MembershipInvitationStatus[]'
+ */
+export type ListEnumMembershipInvitationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipInvitationStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'NotificationType'
  */
 export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
@@ -3243,6 +3350,7 @@ export type GlobalOmitConfig = {
   report?: Prisma.ReportOmit
   document?: Prisma.DocumentOmit
   churchRequest?: Prisma.ChurchRequestOmit
+  membershipInvitation?: Prisma.MembershipInvitationOmit
   financialAccountNumber?: Prisma.FinancialAccountNumberOmit
   notification?: Prisma.NotificationOmit
   article?: Prisma.ArticleOmit

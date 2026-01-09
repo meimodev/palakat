@@ -223,6 +223,7 @@ export type ColumnWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   memberships?: Prisma.MembershipListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
+  membershipInvitations?: Prisma.MembershipInvitationListRelationFilter
 }
 
 export type ColumnOrderByWithRelationInput = {
@@ -234,6 +235,7 @@ export type ColumnOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
   activities?: Prisma.ActivityOrderByRelationAggregateInput
+  membershipInvitations?: Prisma.MembershipInvitationOrderByRelationAggregateInput
 }
 
 export type ColumnWhereUniqueInput = Prisma.AtLeast<{
@@ -249,6 +251,7 @@ export type ColumnWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   memberships?: Prisma.MembershipListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
+  membershipInvitations?: Prisma.MembershipInvitationListRelationFilter
 }, "id" | "churchId_name">
 
 export type ColumnOrderByWithAggregationInput = {
@@ -282,6 +285,7 @@ export type ColumnCreateInput = {
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutColumnInput
   activities?: Prisma.ActivityCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnUncheckedCreateInput = {
@@ -292,6 +296,7 @@ export type ColumnUncheckedCreateInput = {
   churchId?: number | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutColumnInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnUpdateInput = {
@@ -301,6 +306,7 @@ export type ColumnUpdateInput = {
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutColumnNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnUncheckedUpdateInput = {
@@ -311,6 +317,7 @@ export type ColumnUncheckedUpdateInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutColumnNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnCreateManyInput = {
@@ -389,6 +396,11 @@ export type ColumnNullableScalarRelationFilter = {
   isNot?: Prisma.ColumnWhereInput | null
 }
 
+export type ColumnScalarRelationFilter = {
+  is?: Prisma.ColumnWhereInput
+  isNot?: Prisma.ColumnWhereInput
+}
+
 export type ColumnCreateNestedManyWithoutChurchInput = {
   create?: Prisma.XOR<Prisma.ColumnCreateWithoutChurchInput, Prisma.ColumnUncheckedCreateWithoutChurchInput> | Prisma.ColumnCreateWithoutChurchInput[] | Prisma.ColumnUncheckedCreateWithoutChurchInput[]
   connectOrCreate?: Prisma.ColumnCreateOrConnectWithoutChurchInput | Prisma.ColumnCreateOrConnectWithoutChurchInput[]
@@ -463,12 +475,27 @@ export type ColumnUpdateOneWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ColumnUpdateToOneWithWhereWithoutActivitiesInput, Prisma.ColumnUpdateWithoutActivitiesInput>, Prisma.ColumnUncheckedUpdateWithoutActivitiesInput>
 }
 
+export type ColumnCreateNestedOneWithoutMembershipInvitationsInput = {
+  create?: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedCreateWithoutMembershipInvitationsInput>
+  connectOrCreate?: Prisma.ColumnCreateOrConnectWithoutMembershipInvitationsInput
+  connect?: Prisma.ColumnWhereUniqueInput
+}
+
+export type ColumnUpdateOneRequiredWithoutMembershipInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedCreateWithoutMembershipInvitationsInput>
+  connectOrCreate?: Prisma.ColumnCreateOrConnectWithoutMembershipInvitationsInput
+  upsert?: Prisma.ColumnUpsertWithoutMembershipInvitationsInput
+  connect?: Prisma.ColumnWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ColumnUpdateToOneWithWhereWithoutMembershipInvitationsInput, Prisma.ColumnUpdateWithoutMembershipInvitationsInput>, Prisma.ColumnUncheckedUpdateWithoutMembershipInvitationsInput>
+}
+
 export type ColumnCreateWithoutChurchInput = {
   name: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutColumnInput
   activities?: Prisma.ActivityCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnUncheckedCreateWithoutChurchInput = {
@@ -478,6 +505,7 @@ export type ColumnUncheckedCreateWithoutChurchInput = {
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutColumnInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnCreateOrConnectWithoutChurchInput = {
@@ -523,6 +551,7 @@ export type ColumnCreateWithoutMembershipsInput = {
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
   activities?: Prisma.ActivityCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnUncheckedCreateWithoutMembershipsInput = {
@@ -532,6 +561,7 @@ export type ColumnUncheckedCreateWithoutMembershipsInput = {
   updatedAt?: Date | string
   churchId?: number | null
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnCreateOrConnectWithoutMembershipsInput = {
@@ -556,6 +586,7 @@ export type ColumnUpdateWithoutMembershipsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnUncheckedUpdateWithoutMembershipsInput = {
@@ -565,6 +596,7 @@ export type ColumnUncheckedUpdateWithoutMembershipsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnCreateWithoutActivitiesInput = {
@@ -573,6 +605,7 @@ export type ColumnCreateWithoutActivitiesInput = {
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnUncheckedCreateWithoutActivitiesInput = {
@@ -582,6 +615,7 @@ export type ColumnUncheckedCreateWithoutActivitiesInput = {
   updatedAt?: Date | string
   churchId?: number | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutColumnInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutColumnInput
 }
 
 export type ColumnCreateOrConnectWithoutActivitiesInput = {
@@ -606,6 +640,7 @@ export type ColumnUpdateWithoutActivitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnUncheckedUpdateWithoutActivitiesInput = {
@@ -615,6 +650,61 @@ export type ColumnUncheckedUpdateWithoutActivitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutColumnNestedInput
+}
+
+export type ColumnCreateWithoutMembershipInvitationsInput = {
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutColumnInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutColumnInput
+}
+
+export type ColumnUncheckedCreateWithoutMembershipInvitationsInput = {
+  id?: number
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  churchId?: number | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutColumnInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutColumnInput
+}
+
+export type ColumnCreateOrConnectWithoutMembershipInvitationsInput = {
+  where: Prisma.ColumnWhereUniqueInput
+  create: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedCreateWithoutMembershipInvitationsInput>
+}
+
+export type ColumnUpsertWithoutMembershipInvitationsInput = {
+  update: Prisma.XOR<Prisma.ColumnUpdateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedUpdateWithoutMembershipInvitationsInput>
+  create: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedCreateWithoutMembershipInvitationsInput>
+  where?: Prisma.ColumnWhereInput
+}
+
+export type ColumnUpdateToOneWithWhereWithoutMembershipInvitationsInput = {
+  where?: Prisma.ColumnWhereInput
+  data: Prisma.XOR<Prisma.ColumnUpdateWithoutMembershipInvitationsInput, Prisma.ColumnUncheckedUpdateWithoutMembershipInvitationsInput>
+}
+
+export type ColumnUpdateWithoutMembershipInvitationsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutColumnNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutColumnNestedInput
+}
+
+export type ColumnUncheckedUpdateWithoutMembershipInvitationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutColumnNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnCreateManyChurchInput = {
@@ -630,6 +720,7 @@ export type ColumnUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutColumnNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnUncheckedUpdateWithoutChurchInput = {
@@ -639,6 +730,7 @@ export type ColumnUncheckedUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutColumnNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutColumnNestedInput
+  membershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutColumnNestedInput
 }
 
 export type ColumnUncheckedUpdateManyWithoutChurchInput = {
@@ -656,11 +748,13 @@ export type ColumnUncheckedUpdateManyWithoutChurchInput = {
 export type ColumnCountOutputType = {
   memberships: number
   activities: number
+  membershipInvitations: number
 }
 
 export type ColumnCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | ColumnCountOutputTypeCountMembershipsArgs
   activities?: boolean | ColumnCountOutputTypeCountActivitiesArgs
+  membershipInvitations?: boolean | ColumnCountOutputTypeCountMembershipInvitationsArgs
 }
 
 /**
@@ -687,6 +781,13 @@ export type ColumnCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.ActivityWhereInput
 }
 
+/**
+ * ColumnCountOutputType without action
+ */
+export type ColumnCountOutputTypeCountMembershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MembershipInvitationWhereInput
+}
+
 
 export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -697,6 +798,7 @@ export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   church?: boolean | Prisma.Column$churchArgs<ExtArgs>
   memberships?: boolean | Prisma.Column$membershipsArgs<ExtArgs>
   activities?: boolean | Prisma.Column$activitiesArgs<ExtArgs>
+  membershipInvitations?: boolean | Prisma.Column$membershipInvitationsArgs<ExtArgs>
   _count?: boolean | Prisma.ColumnCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["column"]>
 
@@ -731,6 +833,7 @@ export type ColumnInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   church?: boolean | Prisma.Column$churchArgs<ExtArgs>
   memberships?: boolean | Prisma.Column$membershipsArgs<ExtArgs>
   activities?: boolean | Prisma.Column$activitiesArgs<ExtArgs>
+  membershipInvitations?: boolean | Prisma.Column$membershipInvitationsArgs<ExtArgs>
   _count?: boolean | Prisma.ColumnCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ColumnIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -746,6 +849,7 @@ export type $ColumnPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     church: Prisma.$ChurchPayload<ExtArgs> | null
     memberships: Prisma.$MembershipPayload<ExtArgs>[]
     activities: Prisma.$ActivityPayload<ExtArgs>[]
+    membershipInvitations: Prisma.$MembershipInvitationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1150,6 +1254,7 @@ export interface Prisma__ColumnClient<T, Null = never, ExtArgs extends runtime.T
   church<T extends Prisma.Column$churchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Column$churchArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   memberships<T extends Prisma.Column$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Column$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activities<T extends Prisma.Column$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Column$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  membershipInvitations<T extends Prisma.Column$membershipInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Column$membershipInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1644,6 +1749,30 @@ export type Column$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ActivityScalarFieldEnum | Prisma.ActivityScalarFieldEnum[]
+}
+
+/**
+ * Column.membershipInvitations
+ */
+export type Column$membershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipInvitation
+   */
+  select?: Prisma.MembershipInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MembershipInvitation
+   */
+  omit?: Prisma.MembershipInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInvitationInclude<ExtArgs> | null
+  where?: Prisma.MembershipInvitationWhereInput
+  orderBy?: Prisma.MembershipInvitationOrderByWithRelationInput | Prisma.MembershipInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.MembershipInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MembershipInvitationScalarFieldEnum | Prisma.MembershipInvitationScalarFieldEnum[]
 }
 
 /**

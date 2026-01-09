@@ -1677,6 +1677,319 @@ export class RpcRouterService {
         return { message: 'OK', data: res };
       }
 
+      case 'admin.membershipInvitation.list': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+
+        const query = this.withPagination(payload) as any;
+
+        const status = (query.status ?? '').toString().trim().toUpperCase();
+        const search = (query.search ?? '').toString().trim();
+        const startDateRaw = (query.startDate ?? '').toString().trim();
+        const endDateRaw = (query.endDate ?? '').toString().trim();
+
+        const where: any = {};
+
+        if (status) {
+          if (
+            status !== 'PENDING' &&
+            status !== 'APPROVED' &&
+            status !== 'REJECTED'
+          ) {
+            throw new BadRequestException('Invalid status');
+          }
+          where.status = status;
+        }
+
+        const start = startDateRaw ? new Date(startDateRaw) : null;
+        const end = endDateRaw ? new Date(endDateRaw) : null;
+
+        if (start && !isNaN(start.getTime())) {
+          where.createdAt = { ...(where.createdAt ?? {}), gte: start };
+        }
+        if (end && !isNaN(end.getTime())) {
+          where.createdAt = { ...(where.createdAt ?? {}), lte: end };
+        }
+
+        if (search && search.length >= 3) {
+          where.OR = [
+            { inviter: { name: { contains: search, mode: 'insensitive' } } },
+            { inviter: { phone: { contains: search, mode: 'insensitive' } } },
+            { invitee: { name: { contains: search, mode: 'insensitive' } } },
+            { invitee: { phone: { contains: search, mode: 'insensitive' } } },
+            { church: { name: { contains: search, mode: 'insensitive' } } },
+            { column: { name: { contains: search, mode: 'insensitive' } } },
+          ];
+        }
+
+        const accountSelect = {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            email: true,
+            isActive: true,
+            claimed: true,
+            gender: true,
+            maritalStatus: true,
+            dob: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        } as const;
+
+        const [total, data] = await (this.prisma as any).$transaction([
+          (this.prisma as any).membershipInvitation.count({ where }),
+          (this.prisma as any).membershipInvitation.findMany({
+            where,
+            skip: query.skip,
+            take: query.take,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              inviter: accountSelect,
+              invitee: accountSelect,
+              church: { select: { id: true, name: true } },
+              column: { select: { id: true, name: true, churchId: true } },
+            },
+          }),
+        ]);
+
+        return this.normalizePaginatedList(query, {
+          message: 'OK',
+          data,
+          total,
+        });
+      }
+
+      case 'admin.membershipInvitation.get': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+        const id = payload.id as number;
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+
+        const accountSelect = {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            email: true,
+            isActive: true,
+            claimed: true,
+            gender: true,
+            maritalStatus: true,
+            dob: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        } as const;
+
+        const inv = await (this.prisma as any).membershipInvitation.findUnique({
+          where: { id },
+          include: {
+            inviter: accountSelect,
+            invitee: accountSelect,
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        if (!inv?.id) {
+          throw new NotFoundException('Invitation not found');
+        }
+
+        return { message: 'OK', data: inv };
+      }
+
+      case 'admin.membershipInvitation.approve': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+        const id = payload.id as number;
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+
+        const accountSelect = {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            email: true,
+            isActive: true,
+            claimed: true,
+            gender: true,
+            maritalStatus: true,
+            dob: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        } as const;
+
+        const invitation: any = await (
+          this.prisma as any
+        ).membershipInvitation.findUnique({
+          where: { id },
+          include: {
+            inviter: accountSelect,
+            invitee: accountSelect,
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        if (!invitation?.id) {
+          throw new NotFoundException('Invitation not found');
+        }
+        if (invitation.status !== 'PENDING') {
+          throw new ConflictException('Invitation already resolved');
+        }
+
+        const existingMembership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { accountId: invitation.inviteeId },
+          select: { id: true },
+        });
+        if (existingMembership?.id) {
+          throw new ConflictException('User already has a membership');
+        }
+
+        const updatedInvitation = await (this.prisma as any).$transaction(
+          async (tx: any) => {
+            const column: any = await tx.column.findUnique({
+              where: { id: invitation.columnId },
+              select: { id: true, churchId: true },
+            });
+            if (!column?.id) {
+              throw new BadRequestException('columnId does not exist');
+            }
+            if (
+              typeof column.churchId !== 'number' ||
+              column.churchId !== invitation.churchId
+            ) {
+              throw new BadRequestException(
+                'columnId belongs to a different church',
+              );
+            }
+
+            await tx.membership.create({
+              data: {
+                accountId: invitation.inviteeId,
+                churchId: invitation.churchId,
+                columnId: invitation.columnId,
+                baptize: invitation.baptize === true,
+                sidi: invitation.sidi === true,
+              },
+              select: { id: true },
+            });
+
+            return tx.membershipInvitation.update({
+              where: { id: invitation.id },
+              data: {
+                status: 'APPROVED',
+                rejectedAt: null,
+                rejectedReason: null,
+              },
+              include: {
+                inviter: accountSelect,
+                invitee: accountSelect,
+                church: { select: { id: true, name: true } },
+                column: { select: { id: true, name: true, churchId: true } },
+              },
+            });
+          },
+        );
+
+        return { message: 'OK', data: updatedInvitation };
+      }
+
+      case 'admin.membershipInvitation.reject': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+        const id = payload.id as number;
+        const rejectedReason =
+          (payload.rejectedReason as string | undefined) ??
+          (payload.reason as string | undefined) ??
+          (payload.dto?.rejectedReason as string | undefined) ??
+          (payload.dto?.reason as string | undefined);
+
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+
+        const accountSelect = {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            email: true,
+            isActive: true,
+            claimed: true,
+            gender: true,
+            maritalStatus: true,
+            dob: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        } as const;
+
+        const invitation: any = await (
+          this.prisma as any
+        ).membershipInvitation.findUnique({
+          where: { id },
+          select: { id: true, status: true },
+        });
+        if (!invitation?.id) {
+          throw new NotFoundException('Invitation not found');
+        }
+        if (invitation.status !== 'PENDING') {
+          throw new ConflictException('Invitation already resolved');
+        }
+
+        const trimmed =
+          typeof rejectedReason === 'string' ? rejectedReason.trim() : '';
+        const updated = await (this.prisma as any).membershipInvitation.update({
+          where: { id },
+          data: {
+            status: 'REJECTED',
+            rejectedAt: new Date(),
+            rejectedReason: trimmed.length > 0 ? trimmed : null,
+          },
+          include: {
+            inviter: accountSelect,
+            invitee: accountSelect,
+            church: { select: { id: true, name: true } },
+            column: { select: { id: true, name: true, churchId: true } },
+          },
+        });
+
+        return { message: 'OK', data: updated };
+      }
+
+      case 'admin.membershipInvitation.delete': {
+        const auth = this.requireUserId(client);
+        if (auth?.role !== 'SUPER_ADMIN') {
+          throw new ForbiddenException('Insufficient role');
+        }
+        const id = payload.id as number;
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+        await (this.prisma as any).membershipInvitation.delete({
+          where: { id },
+        });
+        return { message: 'OK' };
+      }
+
       // ===== Finance / Revenue / Expense =====
       case 'finance.list': {
         const user = this.requireUserId(client);

@@ -327,6 +327,8 @@ export type AccountWhereInput = {
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   churchRequest?: Prisma.XOR<Prisma.ChurchRequestNullableScalarRelationFilter, Prisma.ChurchRequestWhereInput> | null
   reviewedChurchRequests?: Prisma.ChurchRequestListRelationFilter
+  sentMembershipInvitations?: Prisma.MembershipInvitationListRelationFilter
+  receivedMembershipInvitations?: Prisma.MembershipInvitationListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
   articleLikes?: Prisma.ArticleLikeListRelationFilter
   cashMutationsCreated?: Prisma.CashMutationListRelationFilter
@@ -356,6 +358,8 @@ export type AccountOrderByWithRelationInput = {
   membership?: Prisma.MembershipOrderByWithRelationInput
   churchRequest?: Prisma.ChurchRequestOrderByWithRelationInput
   reviewedChurchRequests?: Prisma.ChurchRequestOrderByRelationAggregateInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationOrderByRelationAggregateInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationOrderByRelationAggregateInput
   articles?: Prisma.ArticleOrderByRelationAggregateInput
   articleLikes?: Prisma.ArticleLikeOrderByRelationAggregateInput
   cashMutationsCreated?: Prisma.CashMutationOrderByRelationAggregateInput
@@ -388,6 +392,8 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   churchRequest?: Prisma.XOR<Prisma.ChurchRequestNullableScalarRelationFilter, Prisma.ChurchRequestWhereInput> | null
   reviewedChurchRequests?: Prisma.ChurchRequestListRelationFilter
+  sentMembershipInvitations?: Prisma.MembershipInvitationListRelationFilter
+  receivedMembershipInvitations?: Prisma.MembershipInvitationListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
   articleLikes?: Prisma.ArticleLikeListRelationFilter
   cashMutationsCreated?: Prisma.CashMutationListRelationFilter
@@ -466,6 +472,8 @@ export type AccountCreateInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -495,6 +503,8 @@ export type AccountUncheckedCreateInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -523,6 +533,8 @@ export type AccountUpdateInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -552,6 +564,8 @@ export type AccountUncheckedUpdateInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -796,6 +810,34 @@ export type AccountUpdateOneRequiredWithoutChurchRequestNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutChurchRequestInput, Prisma.AccountUpdateWithoutChurchRequestInput>, Prisma.AccountUncheckedUpdateWithoutChurchRequestInput>
 }
 
+export type AccountCreateNestedOneWithoutSentMembershipInvitationsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutSentMembershipInvitationsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutSentMembershipInvitationsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountCreateNestedOneWithoutReceivedMembershipInvitationsInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReceivedMembershipInvitationsInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
+export type AccountUpdateOneRequiredWithoutSentMembershipInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutSentMembershipInvitationsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutSentMembershipInvitationsInput
+  upsert?: Prisma.AccountUpsertWithoutSentMembershipInvitationsInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutSentMembershipInvitationsInput, Prisma.AccountUpdateWithoutSentMembershipInvitationsInput>, Prisma.AccountUncheckedUpdateWithoutSentMembershipInvitationsInput>
+}
+
+export type AccountUpdateOneRequiredWithoutReceivedMembershipInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutReceivedMembershipInvitationsInput
+  upsert?: Prisma.AccountUpsertWithoutReceivedMembershipInvitationsInput
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutReceivedMembershipInvitationsInput, Prisma.AccountUpdateWithoutReceivedMembershipInvitationsInput>, Prisma.AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput>
+}
+
 export type AccountCreateNestedOneWithoutArticlesInput = {
   create?: Prisma.XOR<Prisma.AccountCreateWithoutArticlesInput, Prisma.AccountUncheckedCreateWithoutArticlesInput>
   connectOrCreate?: Prisma.AccountCreateOrConnectWithoutArticlesInput
@@ -860,6 +902,8 @@ export type AccountCreateWithoutMembershipInput = {
   updatedAt?: Date | string
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -888,6 +932,8 @@ export type AccountUncheckedCreateWithoutMembershipInput = {
   updatedAt?: Date | string
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -931,6 +977,8 @@ export type AccountUpdateWithoutMembershipInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -959,6 +1007,8 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -987,6 +1037,8 @@ export type AccountCreateWithoutCashMutationsCreatedInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
@@ -1015,6 +1067,8 @@ export type AccountUncheckedCreateWithoutCashMutationsCreatedInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1058,6 +1112,8 @@ export type AccountUpdateWithoutCashMutationsCreatedInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
@@ -1086,6 +1142,8 @@ export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1113,6 +1171,8 @@ export type AccountCreateWithoutReportsCreatedInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -1141,6 +1201,8 @@ export type AccountUncheckedCreateWithoutReportsCreatedInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1184,6 +1246,8 @@ export type AccountUpdateWithoutReportsCreatedInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -1212,6 +1276,8 @@ export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1238,6 +1304,8 @@ export type AccountCreateWithoutReviewedChurchRequestsInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -1266,6 +1334,8 @@ export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1298,6 +1368,8 @@ export type AccountCreateWithoutChurchRequestInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -1326,6 +1398,8 @@ export type AccountUncheckedCreateWithoutChurchRequestInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1369,6 +1443,8 @@ export type AccountUpdateWithoutReviewedChurchRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -1397,6 +1473,8 @@ export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1435,6 +1513,8 @@ export type AccountUpdateWithoutChurchRequestInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -1463,6 +1543,276 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
+}
+
+export type AccountCreateWithoutSentMembershipInvitationsInput = {
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
+}
+
+export type AccountUncheckedCreateWithoutSentMembershipInvitationsInput = {
+  id?: number
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
+}
+
+export type AccountCreateOrConnectWithoutSentMembershipInvitationsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutSentMembershipInvitationsInput>
+}
+
+export type AccountCreateWithoutReceivedMembershipInvitationsInput = {
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobCreateNestedManyWithoutRequestedByInput
+}
+
+export type AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput = {
+  id?: number
+  name: string
+  phone: string
+  email?: string | null
+  passwordHash?: string | null
+  role?: $Enums.AccountRole
+  isActive?: boolean
+  claimed?: boolean
+  failedLoginAttempts?: number
+  lockUntil?: Date | string | null
+  refreshTokenHash?: string | null
+  refreshTokenExpiresAt?: Date | string | null
+  refreshTokenJti?: string | null
+  gender: $Enums.Gender
+  maritalStatus: $Enums.MaritalStatus
+  dob: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
+  churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
+  articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
+  reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedCreateNestedManyWithoutRequestedByInput
+}
+
+export type AccountCreateOrConnectWithoutReceivedMembershipInvitationsInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput>
+}
+
+export type AccountUpsertWithoutSentMembershipInvitationsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedUpdateWithoutSentMembershipInvitationsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutSentMembershipInvitationsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutSentMembershipInvitationsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutSentMembershipInvitationsInput, Prisma.AccountUncheckedUpdateWithoutSentMembershipInvitationsInput>
+}
+
+export type AccountUpdateWithoutSentMembershipInvitationsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutSentMembershipInvitationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUncheckedUpdateManyWithoutRequestedByNestedInput
+}
+
+export type AccountUpsertWithoutReceivedMembershipInvitationsInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutReceivedMembershipInvitationsInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutReceivedMembershipInvitationsInput, Prisma.AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput>
+}
+
+export type AccountUpdateWithoutReceivedMembershipInvitationsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
+  articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
+  cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
+  reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
+  reportJobsRequested?: Prisma.ReportJobUpdateManyWithoutRequestedByNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokenJti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  dob?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
+  churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
+  reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1491,6 +1841,8 @@ export type AccountCreateWithoutArticlesInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
@@ -1519,6 +1871,8 @@ export type AccountUncheckedCreateWithoutArticlesInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1562,6 +1916,8 @@ export type AccountUpdateWithoutArticlesInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
@@ -1590,6 +1946,8 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1617,6 +1975,8 @@ export type AccountCreateWithoutArticleLikesInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportCreateNestedManyWithoutCreatedByInput
@@ -1645,6 +2005,8 @@ export type AccountUncheckedCreateWithoutArticleLikesInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
   reportsCreated?: Prisma.ReportUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1688,6 +2050,8 @@ export type AccountUpdateWithoutArticleLikesInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUpdateManyWithoutCreatedByNestedInput
@@ -1716,6 +2080,8 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
   reportsCreated?: Prisma.ReportUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1743,6 +2109,8 @@ export type AccountCreateWithoutReportJobsRequestedInput = {
   membership?: Prisma.MembershipCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationCreateNestedManyWithoutCreatedByInput
@@ -1771,6 +2139,8 @@ export type AccountUncheckedCreateWithoutReportJobsRequestedInput = {
   membership?: Prisma.MembershipUncheckedCreateNestedOneWithoutAccountInput
   churchRequest?: Prisma.ChurchRequestUncheckedCreateNestedOneWithoutRequesterInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedCreateNestedManyWithoutReviewedByInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedCreateNestedManyWithoutInviteeInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutAuthorInput
   articleLikes?: Prisma.ArticleLikeUncheckedCreateNestedManyWithoutAccountInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1814,6 +2184,8 @@ export type AccountUpdateWithoutReportJobsRequestedInput = {
   membership?: Prisma.MembershipUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUpdateManyWithoutCreatedByNestedInput
@@ -1842,6 +2214,8 @@ export type AccountUncheckedUpdateWithoutReportJobsRequestedInput = {
   membership?: Prisma.MembershipUncheckedUpdateOneWithoutAccountNestedInput
   churchRequest?: Prisma.ChurchRequestUncheckedUpdateOneWithoutRequesterNestedInput
   reviewedChurchRequests?: Prisma.ChurchRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+  sentMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedMembershipInvitations?: Prisma.MembershipInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutAuthorNestedInput
   articleLikes?: Prisma.ArticleLikeUncheckedUpdateManyWithoutAccountNestedInput
   cashMutationsCreated?: Prisma.CashMutationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1855,6 +2229,8 @@ export type AccountUncheckedUpdateWithoutReportJobsRequestedInput = {
 
 export type AccountCountOutputType = {
   reviewedChurchRequests: number
+  sentMembershipInvitations: number
+  receivedMembershipInvitations: number
   articles: number
   articleLikes: number
   cashMutationsCreated: number
@@ -1864,6 +2240,8 @@ export type AccountCountOutputType = {
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reviewedChurchRequests?: boolean | AccountCountOutputTypeCountReviewedChurchRequestsArgs
+  sentMembershipInvitations?: boolean | AccountCountOutputTypeCountSentMembershipInvitationsArgs
+  receivedMembershipInvitations?: boolean | AccountCountOutputTypeCountReceivedMembershipInvitationsArgs
   articles?: boolean | AccountCountOutputTypeCountArticlesArgs
   articleLikes?: boolean | AccountCountOutputTypeCountArticleLikesArgs
   cashMutationsCreated?: boolean | AccountCountOutputTypeCountCashMutationsCreatedArgs
@@ -1886,6 +2264,20 @@ export type AccountCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type AccountCountOutputTypeCountReviewedChurchRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ChurchRequestWhereInput
+}
+
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountSentMembershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MembershipInvitationWhereInput
+}
+
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountReceivedMembershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MembershipInvitationWhereInput
 }
 
 /**
@@ -1946,6 +2338,8 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   membership?: boolean | Prisma.Account$membershipArgs<ExtArgs>
   churchRequest?: boolean | Prisma.Account$churchRequestArgs<ExtArgs>
   reviewedChurchRequests?: boolean | Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>
+  sentMembershipInvitations?: boolean | Prisma.Account$sentMembershipInvitationsArgs<ExtArgs>
+  receivedMembershipInvitations?: boolean | Prisma.Account$receivedMembershipInvitationsArgs<ExtArgs>
   articles?: boolean | Prisma.Account$articlesArgs<ExtArgs>
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   cashMutationsCreated?: boolean | Prisma.Account$cashMutationsCreatedArgs<ExtArgs>
@@ -2022,6 +2416,8 @@ export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   membership?: boolean | Prisma.Account$membershipArgs<ExtArgs>
   churchRequest?: boolean | Prisma.Account$churchRequestArgs<ExtArgs>
   reviewedChurchRequests?: boolean | Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>
+  sentMembershipInvitations?: boolean | Prisma.Account$sentMembershipInvitationsArgs<ExtArgs>
+  receivedMembershipInvitations?: boolean | Prisma.Account$receivedMembershipInvitationsArgs<ExtArgs>
   articles?: boolean | Prisma.Account$articlesArgs<ExtArgs>
   articleLikes?: boolean | Prisma.Account$articleLikesArgs<ExtArgs>
   cashMutationsCreated?: boolean | Prisma.Account$cashMutationsCreatedArgs<ExtArgs>
@@ -2038,6 +2434,8 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     membership: Prisma.$MembershipPayload<ExtArgs> | null
     churchRequest: Prisma.$ChurchRequestPayload<ExtArgs> | null
     reviewedChurchRequests: Prisma.$ChurchRequestPayload<ExtArgs>[]
+    sentMembershipInvitations: Prisma.$MembershipInvitationPayload<ExtArgs>[]
+    receivedMembershipInvitations: Prisma.$MembershipInvitationPayload<ExtArgs>[]
     articles: Prisma.$ArticlePayload<ExtArgs>[]
     articleLikes: Prisma.$ArticleLikePayload<ExtArgs>[]
     cashMutationsCreated: Prisma.$CashMutationPayload<ExtArgs>[]
@@ -2460,6 +2858,8 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
   membership<T extends Prisma.Account$membershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$membershipArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   churchRequest<T extends Prisma.Account$churchRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$churchRequestArgs<ExtArgs>>): Prisma.Prisma__ChurchRequestClient<runtime.Types.Result.GetResult<Prisma.$ChurchRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   reviewedChurchRequests<T extends Prisma.Account$reviewedChurchRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$reviewedChurchRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChurchRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentMembershipInvitations<T extends Prisma.Account$sentMembershipInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$sentMembershipInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedMembershipInvitations<T extends Prisma.Account$receivedMembershipInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$receivedMembershipInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   articles<T extends Prisma.Account$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   articleLikes<T extends Prisma.Account$articleLikesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$articleLikesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticleLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cashMutationsCreated<T extends Prisma.Account$cashMutationsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$cashMutationsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashMutationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2959,6 +3359,54 @@ export type Account$reviewedChurchRequestsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.ChurchRequestScalarFieldEnum | Prisma.ChurchRequestScalarFieldEnum[]
+}
+
+/**
+ * Account.sentMembershipInvitations
+ */
+export type Account$sentMembershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipInvitation
+   */
+  select?: Prisma.MembershipInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MembershipInvitation
+   */
+  omit?: Prisma.MembershipInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInvitationInclude<ExtArgs> | null
+  where?: Prisma.MembershipInvitationWhereInput
+  orderBy?: Prisma.MembershipInvitationOrderByWithRelationInput | Prisma.MembershipInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.MembershipInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MembershipInvitationScalarFieldEnum | Prisma.MembershipInvitationScalarFieldEnum[]
+}
+
+/**
+ * Account.receivedMembershipInvitations
+ */
+export type Account$receivedMembershipInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipInvitation
+   */
+  select?: Prisma.MembershipInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MembershipInvitation
+   */
+  omit?: Prisma.MembershipInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInvitationInclude<ExtArgs> | null
+  where?: Prisma.MembershipInvitationWhereInput
+  orderBy?: Prisma.MembershipInvitationOrderByWithRelationInput | Prisma.MembershipInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.MembershipInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MembershipInvitationScalarFieldEnum | Prisma.MembershipInvitationScalarFieldEnum[]
 }
 
 /**
