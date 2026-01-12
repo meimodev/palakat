@@ -145,7 +145,8 @@ export const NotificationType = {
   CHURCH_REQUEST_APPROVED: 'CHURCH_REQUEST_APPROVED',
   CHURCH_REQUEST_REJECTED: 'CHURCH_REQUEST_REJECTED',
   REPORT_READY: 'REPORT_READY',
-  REPORT_FAILED: 'REPORT_FAILED'
+  REPORT_FAILED: 'REPORT_FAILED',
+  MEMBER_BIRTHDAY: 'MEMBER_BIRTHDAY'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

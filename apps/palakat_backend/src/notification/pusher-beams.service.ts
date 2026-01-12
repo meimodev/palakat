@@ -167,6 +167,10 @@ export class PusherBeamsService {
     return `membership.${membershipId}`;
   }
 
+  formatMembershipBirthdayInterest(membershipId: number): string {
+    return `membership.${membershipId}.birthday`;
+  }
+
   /**
    * Formats an account interest name for individual notifications.
    *

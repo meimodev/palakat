@@ -15,6 +15,7 @@ import 'package:palakat/core/services/notification_display_service_provider.dart
 import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/core/services/realtime_notification_listener.dart';
+import 'package:palakat/core/services/timezone_service.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
 import 'package:palakat_shared/core/models/result.dart';
@@ -253,6 +254,8 @@ void main() async {
 
   await LocalStorageService.initHive();
 
+  await TimeZoneService.initialize();
+
   await Jiffy.setLocale('id');
 
   // Initialize notification display service for background notification handling
@@ -269,7 +272,23 @@ void main() async {
     if (!_isAppInitialized) {
       // Store the data to be processed after app initialization
       _coldStartNotificationData = data;
+      return;
     }
+
+    final context =
+        navigatorKey.currentState?.context ??
+        navigatorKey.currentState?.overlay?.context ??
+        navigatorKey.currentContext;
+
+    if (context == null) {
+      _coldStartNotificationData = data;
+      return;
+    }
+
+    final navigationService = NotificationNavigationService(
+      GoRouter.of(context),
+    );
+    navigationService.handleNotificationTap(data);
   });
 
   runApp(

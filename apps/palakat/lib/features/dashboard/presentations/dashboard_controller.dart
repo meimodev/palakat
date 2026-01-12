@@ -1,4 +1,6 @@
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat/features/activity_alarm/services/activity_alarm_scheduler_provider.dart';
+import 'package:palakat/features/activity_alarm/services/activity_alarm_summary_provider.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
@@ -265,6 +267,23 @@ class DashboardController extends _$DashboardController {
           thisWeekAnnouncementsLoading: false,
           thisWeekAnnouncements: announcements,
         );
+
+        Future.microtask(() async {
+          try {
+            final nowLocal = DateTime.now();
+            final upcomingForAlarms = eventsAndServices
+                .where((a) => a.date.toLocal().isAfter(nowLocal))
+                .toList();
+            final scheduler = await ref.read(
+              activityAlarmSchedulerServiceProvider.future,
+            );
+            await scheduler.syncWeekAlarms(
+              membershipId: membershipId,
+              activities: upcomingForAlarms,
+            );
+            ref.invalidate(activityAlarmSummaryProvider);
+          } catch (_) {}
+        });
       },
       onFailure: (failure) {
         state = state.copyWith(

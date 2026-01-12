@@ -437,6 +437,8 @@ export const NotificationScalarFieldEnum = {
   type: 'type',
   recipient: 'recipient',
   activityId: 'activityId',
+  dedupeKey: 'dedupeKey',
+  data: 'data',
   isRead: 'isRead',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -314,6 +314,8 @@ enum NotificationType {
   reportReady,
   @JsonValue('REPORT_FAILED')
   reportFailed,
+  @JsonValue('MEMBER_BIRTHDAY')
+  memberBirthday,
 }
 
 /// Form field types for activity creation forms.

@@ -26,6 +26,40 @@ import { NotificationService } from '../notification/notification.service';
 export class ActivitiesService {
   private readonly logger = new Logger(ActivitiesService.name);
 
+  private normalizeDateInput(value: any): Date | null | undefined {
+    if (value === undefined) return undefined;
+    if (value === null) return null;
+
+    if (value instanceof Date) {
+      if (isNaN(value.getTime())) {
+        throw new BadRequestException('Invalid date');
+      }
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return undefined;
+
+      const hasTimezone =
+        trimmed.endsWith('Z') ||
+        /[+-]\d{2}:\d{2}$/.test(trimmed) ||
+        /[+-]\d{4}$/.test(trimmed);
+
+      const date = new Date(hasTimezone ? trimmed : trimmed + 'Z');
+      if (isNaN(date.getTime())) {
+        throw new BadRequestException('Invalid date');
+      }
+      return date;
+    }
+
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+      throw new BadRequestException('Invalid date');
+    }
+    return date;
+  }
+
   constructor(
     private prisma: PrismaService,
     private approverResolver: ApproverResolverService,
@@ -398,6 +432,13 @@ export class ActivitiesService {
       ...activityData
     } = createActivityDto;
 
+    const normalizedDate = this.normalizeDateInput((activityData as any).date);
+    if (normalizedDate === undefined) {
+      delete (activityData as any).date;
+    } else {
+      (activityData as any).date = normalizedDate;
+    }
+
     const isClientToken = Boolean(user?.clientId);
     let effectiveSupervisorId: number | undefined;
     let membership: {
@@ -744,6 +785,14 @@ export class ActivitiesService {
 
     // Build the update data
     const data: any = { ...updateData };
+    if ('date' in data) {
+      const normalizedUpdateDate = this.normalizeDateInput(data.date);
+      if (normalizedUpdateDate === undefined) {
+        delete data.date;
+      } else {
+        data.date = normalizedUpdateDate;
+      }
+    }
 
     if ((updateActivityDto as any).fileId === null) {
       data.file = { disconnect: true };

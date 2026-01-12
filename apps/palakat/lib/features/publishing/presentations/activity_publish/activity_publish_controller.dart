@@ -15,11 +15,7 @@ part 'activity_publish_controller.g.dart';
 class ActivityPublishController extends _$ActivityPublishController {
   @override
   ActivityPublishState build(ActivityType activityType) {
-    return ActivityPublishState(
-      type: activityType,
-      selectedReminder: Reminder.thirtyMinutes,
-      reminder: Reminder.thirtyMinutes.name,
-    );
+    return ActivityPublishState(type: activityType);
   }
 
   void onChangedPublishToColumnOnly(bool value) {
@@ -43,7 +39,6 @@ class ActivityPublishController extends _$ActivityPublishController {
       final locationError = validateLocation(state.location);
       final dateError = validateDate(state.date);
       final timeError = validateTime(state.time);
-      final reminderError = validateReminder(state.reminder);
       // final noteError = validateNote(state.note);
       final titleError = validateTitle(state.title);
 
@@ -51,7 +46,6 @@ class ActivityPublishController extends _$ActivityPublishController {
           locationError == null &&
           dateError == null &&
           timeError == null &&
-          reminderError == null &&
           // noteError == null &&
           titleError == null;
 
@@ -60,7 +54,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         errorPinpointLocation: null,
         errorDate: dateError,
         errorTime: timeError,
-        errorReminder: reminderError,
+        errorReminder: null,
         // errorNote: noteError,
         errorTitle: titleError,
         errorBipra: null,
@@ -113,9 +107,6 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   String? validateReminder(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Reminder is required';
-    }
     return null;
   }
 
@@ -161,7 +152,6 @@ class ActivityPublishController extends _$ActivityPublishController {
     return validateLocation(state.location) == null &&
         validateDate(state.date) == null &&
         validateTime(state.time) == null &&
-        validateReminder(state.reminder) == null &&
         validateNote(state.note) == null &&
         validateTitle(state.title) == null;
   }
@@ -480,10 +470,7 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   void onChangedReminder(String value) {
-    state = state.copyWith(
-      reminder: value,
-      errorReminder: validateReminder(value),
-    );
+    state = state.copyWith(reminder: value, errorReminder: null);
     _updateFormValidity();
   }
 
@@ -519,8 +506,7 @@ class ActivityPublishController extends _$ActivityPublishController {
     return validateTitle(state.title) == null &&
         validateLocation(state.location) == null &&
         validateDate(state.date) == null &&
-        validateTime(state.time) == null &&
-        validateReminder(state.reminder) == null;
+        validateTime(state.time) == null;
   }
 
   /// Checks if the ANNOUNCEMENT form has all required fields filled.
@@ -577,10 +563,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   void onSelectedReminder(Reminder? reminder) {
-    if (reminder == null) return;
     state = state.copyWith(
       selectedReminder: reminder,
-      reminder: reminder.name,
+      reminder: reminder?.name,
       errorReminder: null,
     );
     _updateFormValidity();

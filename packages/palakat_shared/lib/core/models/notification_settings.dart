@@ -11,6 +11,7 @@ abstract class NotificationSettingsModel with _$NotificationSettingsModel {
     @Default(true) bool activityUpdatesEnabled,
     @Default(true) bool approvalRequestsEnabled,
     @Default(true) bool generalAnnouncementsEnabled,
+    @Default(true) bool birthdayNotificationsEnabled,
     @Default(true) bool soundEnabled,
     @Default(true) bool vibrationEnabled,
   }) = _NotificationSettingsModel;

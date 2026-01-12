@@ -54,8 +54,13 @@ dependencies:
   # Push Notifications
   pusher_beams: ^1.1.0
   flutter_local_notifications: ^17.0.0
+  timezone: ^0.10.1
+  flutter_timezone: ^5.0.1
   permission_handler: ^11.0.0
   app_settings: ^5.0.0
+
+  just_audio: ^0.9.36
+  path_provider: ^2.1.5
   
   # Phone number utilities
   intl_phone_number_input: ^0.7.4

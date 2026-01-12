@@ -285,6 +285,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'General church announcements and updates';
 
   @override
+  String get notificationSettings_channel_birthdayNotifications_title =>
+      'Birthday Notifications';
+
+  @override
+  String get notificationSettings_channel_birthdayNotifications_subtitle =>
+      'Notifications about member birthdays';
+
+  @override
   String get notificationSettings_soundVibration_title => 'Sound & Vibration';
 
   @override

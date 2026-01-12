@@ -1,4 +1,5 @@
 export 'activity_widget.dart';
+export 'activity_alarm_info_card_widget.dart';
 export 'announcement_widget.dart';
 export 'articles_widget.dart';
 export 'birthdays_widget.dart';

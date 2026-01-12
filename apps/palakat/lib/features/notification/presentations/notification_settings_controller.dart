@@ -1,5 +1,6 @@
 import 'package:palakat_shared/core/models/notification_settings.dart';
 import 'package:palakat_shared/services.dart';
+import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'notification_settings_controller.g.dart';
@@ -43,6 +44,20 @@ class NotificationSettingsController extends _$NotificationSettingsController {
 
     final updated = current.copyWith(generalAnnouncementsEnabled: enabled);
     await _saveSettings(updated);
+  }
+
+  Future<void> updateBirthdayNotifications(bool enabled) async {
+    final current = state.value;
+    if (current == null) return;
+
+    final updated = current.copyWith(birthdayNotificationsEnabled: enabled);
+    await _saveSettings(updated);
+
+    try {
+      await ref
+          .read(pusherBeamsControllerProvider.notifier)
+          .setBirthdayNotificationsEnabled(enabled);
+    } catch (_) {}
   }
 
   /// Update sound preference

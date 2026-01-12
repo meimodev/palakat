@@ -578,6 +578,10 @@ abstract class AppLocalizations {
   /// **'General church announcements and updates'**
   String get notificationSettings_channel_generalAnnouncements_subtitle;
 
+  String get notificationSettings_channel_birthdayNotifications_title;
+
+  String get notificationSettings_channel_birthdayNotifications_subtitle;
+
   /// No description provided for @notificationSettings_soundVibration_title.
   ///
   /// In en, this message translates to:

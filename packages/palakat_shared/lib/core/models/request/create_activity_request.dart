@@ -4,6 +4,15 @@ import 'package:palakat_shared/core/constants/enums.dart';
 part 'create_activity_request.freezed.dart';
 part 'create_activity_request.g.dart';
 
+DateTime? _createActivityRequestDateFromJson(dynamic value) {
+  if (value == null) return null;
+  return DateTime.parse(value as String);
+}
+
+String? _createActivityRequestDateToJson(DateTime? value) {
+  return value?.toUtc().toIso8601String();
+}
+
 /// Finance data to create alongside activity
 @freezed
 abstract class CreateActivityFinance with _$CreateActivityFinance {
@@ -57,6 +66,10 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
     double? locationLongitude,
 
     /// Optional date for the activity (required for SERVICE/EVENT types)
+    @JsonKey(
+      fromJson: _createActivityRequestDateFromJson,
+      toJson: _createActivityRequestDateToJson,
+    )
     DateTime? date,
 
     /// Optional note for additional information

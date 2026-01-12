@@ -26,6 +26,8 @@ export 'dashboard/presentations/view_all/view_all_controller.dart';
 export 'dashboard/presentations/view_all/view_all_screen.dart';
 export 'dashboard/presentations/view_all/view_all_state.dart';
 export 'dashboard/presentations/widgets/widgets.dart';
+export 'activity_alarm/presentations/alarm_ring_screen.dart';
+export 'activity_alarm/presentations/alarm_settings_screen.dart';
 export 'finance/presentations/finance_create/finance_create_controller.dart';
 export 'finance/presentations/finance_create/finance_create_screen.dart';
 export 'finance/presentations/finance_create/finance_create_state.dart';

@@ -11,6 +11,7 @@ import 'package:palakat_shared/core/extension/account_extension.dart';
 import 'package:palakat_shared/core/models/account.dart';
 import 'package:palakat_shared/core/models/membership.dart';
 import 'package:palakat_shared/core/utils/interest_builder.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pusher_beams_controller.g.dart';
@@ -165,6 +166,19 @@ class PusherBeamsController extends _$PusherBeamsController {
       columnId: columnId,
     );
 
+    try {
+      final settings = await ref
+          .read(localStorageServiceProvider)
+          .loadNotificationSettings();
+      if (settings.birthdayNotificationsEnabled) {
+        interests.add(InterestBuilder.membershipBirthday(membershipId));
+      } else {
+        await _service!.unsubscribeFromInterests([
+          InterestBuilder.membershipBirthday(membershipId),
+        ]);
+      }
+    } catch (_) {}
+
     _log('Built ${interests.length} interests: ${interests.join(", ")}');
 
     // Subscribe to all interests
@@ -199,6 +213,46 @@ class PusherBeamsController extends _$PusherBeamsController {
     );
   }
 
+  Future<void> setBirthdayNotificationsEnabled(bool enabled) async {
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membershipId =
+        _registeredMembershipId ??
+        localStorage.currentMembership?.id ??
+        localStorage.currentAuth?.account.membership?.id;
+
+    if (membershipId == null) {
+      return;
+    }
+
+    if (_service == null) {
+      _inAppNotificationService = InAppNotificationService(
+        navigatorKey: navigatorKey,
+      );
+      final notificationDisplay = ref.read(
+        notificationDisplayServiceSyncProvider,
+      );
+      _service = PusherBeamsMobileService(
+        notificationDisplay: notificationDisplay,
+        inAppNotificationService: _inAppNotificationService,
+      );
+    }
+
+    if (!_service!.isInitialized) {
+      await _service!.initialize();
+      if (!_service!.isInitialized) {
+        return;
+      }
+    }
+
+    final interest = InterestBuilder.membershipBirthday(membershipId);
+
+    if (enabled) {
+      await _service!.subscribeToInterests([interest]);
+    } else {
+      await _service!.unsubscribeFromInterests([interest]);
+    }
+  }
+
   /// Sets up foreground notification handler to show in-app banners.
   ///
   /// When the app is in foreground and receives a notification,
@@ -228,8 +282,29 @@ class PusherBeamsController extends _$PusherBeamsController {
         return;
       }
 
-      final activityId = _parseIntValue(data['activityId']);
       final notificationType = notification.type;
+
+      if (notificationType == 'MEMBER_BIRTHDAY') {
+        final birthdayMembershipId =
+            _parseIntValue(data['birthdayMembershipId']) ??
+            _parseIntValue(data['membershipId']);
+        if (birthdayMembershipId == null) {
+          return;
+        }
+
+        final context = navigatorKey.currentContext;
+        if (context == null) {
+          return;
+        }
+
+        context.pushNamed(
+          AppRoute.memberDetail,
+          pathParameters: {'membershipId': birthdayMembershipId.toString()},
+        );
+        return;
+      }
+
+      final activityId = _parseIntValue(data['activityId']);
 
       if (activityId == null) {
         _log('No activityId in notification, skipping navigation');
@@ -242,7 +317,22 @@ class PusherBeamsController extends _$PusherBeamsController {
         return;
       }
 
-      if (notificationType == 'APPROVAL_REQUIRED' ||
+      if (notificationType == 'ACTIVITY_ALARM') {
+        _log('Navigating to alarm ring for activity $activityId');
+        context.pushNamed(
+          AppRoute.alarmRing,
+          pathParameters: {'activityId': activityId.toString()},
+          extra: RouteParam(
+            params: {
+              'title': data['title'],
+              'reminderName': data['reminderName'],
+              'reminderValue': data['reminderValue'],
+              'alarmKey': data['alarmKey'],
+              'notificationId': _parseIntValue(data['notificationId']),
+            },
+          ),
+        );
+      } else if (notificationType == 'APPROVAL_REQUIRED' ||
           notificationType == 'APPROVAL_CONFIRMED' ||
           notificationType == 'APPROVAL_REJECTED') {
         _log('Navigating to approval detail for activity $activityId');
@@ -284,8 +374,29 @@ class PusherBeamsController extends _$PusherBeamsController {
 
       try {
         // Extract deep link information from notification data
-        final activityId = _parseIntValue(notificationData['activityId']);
         final notificationType = notificationData['type'] as String?;
+
+        if (notificationType == 'MEMBER_BIRTHDAY') {
+          final birthdayMembershipId =
+              _parseIntValue(notificationData['birthdayMembershipId']) ??
+              _parseIntValue(notificationData['membershipId']);
+          if (birthdayMembershipId == null) {
+            return;
+          }
+
+          final context = navigatorKey.currentContext;
+          if (context == null) {
+            return;
+          }
+
+          context.pushNamed(
+            AppRoute.memberDetail,
+            pathParameters: {'membershipId': birthdayMembershipId.toString()},
+          );
+          return;
+        }
+
+        final activityId = _parseIntValue(notificationData['activityId']);
 
         _log(
           'Parsed notification: activityId=$activityId, type=$notificationType',
@@ -303,7 +414,24 @@ class PusherBeamsController extends _$PusherBeamsController {
           return;
         }
 
-        if (notificationType == 'APPROVAL_REQUIRED' ||
+        if (notificationType == 'ACTIVITY_ALARM') {
+          _log('Navigating to alarm ring for activity $activityId');
+          context.pushNamed(
+            AppRoute.alarmRing,
+            pathParameters: {'activityId': activityId.toString()},
+            extra: RouteParam(
+              params: {
+                'title': notificationData['title'],
+                'reminderName': notificationData['reminderName'],
+                'reminderValue': notificationData['reminderValue'],
+                'alarmKey': notificationData['alarmKey'],
+                'notificationId': _parseIntValue(
+                  notificationData['notificationId'],
+                ),
+              },
+            ),
+          );
+        } else if (notificationType == 'APPROVAL_REQUIRED' ||
             notificationType == 'APPROVAL_CONFIRMED' ||
             notificationType == 'APPROVAL_REJECTED') {
           // Navigate to approval detail screen

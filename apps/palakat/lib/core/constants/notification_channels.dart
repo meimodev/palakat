@@ -50,11 +50,31 @@ class NotificationChannels {
     playSound: false,
   );
 
+  static const activityAlarms = NotificationChannel(
+    id: 'activity_alarms',
+    name: 'Activity Alarms',
+    description: 'Alarm notifications for upcoming church activities',
+    importance: Importance.max,
+    enableVibration: true,
+    playSound: true,
+  );
+
+  static const birthdayNotifications = NotificationChannel(
+    id: 'birthday_notifications',
+    name: 'Birthday Notifications',
+    description: 'Notifications about member birthdays',
+    importance: Importance.defaultImportance,
+    enableVibration: false,
+    playSound: true,
+  );
+
   /// Get all notification channels
   static List<NotificationChannel> get all => [
     activityUpdates,
     approvalRequests,
     generalAnnouncements,
+    activityAlarms,
+    birthdayNotifications,
   ];
 
   /// Map notification type to appropriate channel ID
@@ -62,6 +82,10 @@ class NotificationChannels {
     switch (notificationType) {
       case 'APPROVAL_REQUIRED':
         return approvalRequests.id;
+      case 'ACTIVITY_ALARM':
+        return activityAlarms.id;
+      case 'MEMBER_BIRTHDAY':
+        return birthdayNotifications.id;
       case 'ACTIVITY_CREATED':
       case 'APPROVAL_CONFIRMED':
       case 'APPROVAL_REJECTED':

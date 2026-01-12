@@ -36,6 +36,9 @@ class InterestBuilder {
   /// Pattern: membership.{membershipId}
   static String membership(int membershipId) => 'membership.$membershipId';
 
+  static String membershipBirthday(int membershipId) =>
+      'membership.$membershipId.birthday';
+
   /// Format individual account interest
   /// Pattern: account.{accountId}
   static String account(int accountId) => 'account.$accountId';

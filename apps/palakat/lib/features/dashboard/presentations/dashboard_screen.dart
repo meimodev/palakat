@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/activity_alarm/services/exact_alarm_permission_service_provider.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -12,16 +13,44 @@ import 'package:palakat_shared/core/extension/date_time_extension.dart';
 
 import 'widgets/widgets.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(canScheduleExactAlarmsProvider);
+      ref.invalidate(canUseFullScreenIntentProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
     final thisWeekBirthdaysAsync = ref.watch(thisWeekBirthdaysProvider);
     final thisWeekBirthdays =
         thisWeekBirthdaysAsync.value ?? const <BirthdayItem>[];
+    final canExactAsync = ref.watch(canScheduleExactAlarmsProvider);
+    final canFullScreenAsync = ref.watch(canUseFullScreenIntentProvider);
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -123,6 +152,151 @@ class DashboardScreen extends ConsumerWidget {
                   },
                 ),
               ),
+              Gap.h12,
+              if (state.account != null) const ActivityAlarmInfoCardWidget(),
+              if (state.account != null)
+                canExactAsync.when(
+                  data: (canExact) {
+                    if (canExact) return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: BaseSize.w16,
+                        vertical: BaseSize.h12,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(BaseSize.w12),
+                        decoration: BoxDecoration(
+                          color: BaseColor.yellow[50],
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusMd,
+                          ),
+                          border: Border.all(color: BaseColor.yellow[200]!),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  AppIcons.warning,
+                                  color: BaseColor.yellow[800],
+                                  size: BaseSize.w18,
+                                ),
+                                Gap.w8,
+                                Expanded(
+                                  child: Text(
+                                    'Allow exact alarms',
+                                    style: BaseTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: BaseColor.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Gap.h8,
+                            Text(
+                              'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
+                              style: BaseTypography.bodySmall.toSecondary,
+                            ),
+                            Gap.h12,
+                            OutlinedButton(
+                              onPressed: () async {
+                                final service = ref.read(
+                                  exactAlarmPermissionServiceProvider,
+                                );
+                                await service.requestExactAlarmPermission();
+                                ref.invalidate(canScheduleExactAlarmsProvider);
+                              },
+                              child: Text(
+                                'Open settings',
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: BaseColor.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (error, stackTrace) => const SizedBox.shrink(),
+                ),
+              if (state.account != null)
+                canFullScreenAsync.when(
+                  data: (canUseFullScreenIntent) {
+                    if (canUseFullScreenIntent) return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: BaseSize.w16,
+                        vertical: BaseSize.h12,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(BaseSize.w12),
+                        decoration: BoxDecoration(
+                          color: BaseColor.yellow[50],
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusMd,
+                          ),
+                          border: Border.all(color: BaseColor.yellow[200]!),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  AppIcons.warning,
+                                  color: BaseColor.yellow[800],
+                                  size: BaseSize.w18,
+                                ),
+                                Gap.w8,
+                                Expanded(
+                                  child: Text(
+                                    'Allow full-screen alarms',
+                                    style: BaseTypography.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: BaseColor.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Gap.h8,
+                            Text(
+                              'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
+                              style: BaseTypography.bodySmall.toSecondary,
+                            ),
+                            Gap.h12,
+                            OutlinedButton(
+                              onPressed: () async {
+                                final service = ref.read(
+                                  exactAlarmPermissionServiceProvider,
+                                );
+                                await service
+                                    .requestFullScreenIntentPermission();
+                                ref.invalidate(canUseFullScreenIntentProvider);
+                              },
+                              child: Text(
+                                'Open settings',
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: BaseColor.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (error, stackTrace) => const SizedBox.shrink(),
+                ),
               Gap.h16,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

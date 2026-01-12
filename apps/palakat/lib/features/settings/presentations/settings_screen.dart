@@ -127,6 +127,24 @@ class SettingsScreen extends ConsumerWidget {
                 : null,
           ),
           Gap.h12,
+          _SettingsMenuItem(
+            icon: AppIcons.notificationActive,
+            iconBackgroundColor: hasMembership
+                ? BaseColor.yellow[100]!
+                : BaseColor.neutral20,
+            iconColor: hasMembership
+                ? BaseColor.yellow[800]!
+                : BaseColor.neutral50,
+            title: 'Activity Alarms',
+            subtitle: hasMembership ? null : l10n.settings_noMembership,
+            enabled: hasMembership,
+            onTap: hasMembership
+                ? () {
+                    context.pushNamed(AppRoute.alarmSettings);
+                  }
+                : null,
+          ),
+          Gap.h12,
           // Language Settings - Requirements: 4.1
           _SettingsCard(
             icon: FontAwesomeIcons.language,

@@ -162,6 +162,8 @@
   "notificationSettings_channel_approvalRequests_subtitle": "Notifikasi yang memerlukan persetujuan Anda",
   "notificationSettings_channel_generalAnnouncements_title": "Pengumuman Umum",
   "notificationSettings_channel_generalAnnouncements_subtitle": "Pengumuman dan pembaruan gereja",
+  "notificationSettings_channel_birthdayNotifications_title": "Notifikasi Ulang Tahun",
+  "notificationSettings_channel_birthdayNotifications_subtitle": "Notifikasi tentang ulang tahun anggota",
   "notificationSettings_soundVibration_title": "Suara & Getaran",
   "notificationSettings_sound_title": "Suara",
   "notificationSettings_sound_subtitle": "Putar suara saat notifikasi masuk",

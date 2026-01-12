@@ -255,6 +255,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
               onChanged: (value) =>
                   controller.updateGeneralAnnouncements(value),
             ),
+            Gap.h12,
+            _buildToggleTile(
+              title:
+                  l10n.notificationSettings_channel_birthdayNotifications_title,
+              subtitle: l10n
+                  .notificationSettings_channel_birthdayNotifications_subtitle,
+              value: settings.birthdayNotificationsEnabled,
+              onChanged: (value) =>
+                  controller.updateBirthdayNotifications(value),
+            ),
             Gap.h16,
             Divider(color: BaseColor.neutral30),
             Gap.h16,

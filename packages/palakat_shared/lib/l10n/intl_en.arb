@@ -95,6 +95,8 @@
   "notificationSettings_channel_approvalRequests_subtitle": "Notifications requiring your approval",
   "notificationSettings_channel_generalAnnouncements_title": "General Announcements",
   "notificationSettings_channel_generalAnnouncements_subtitle": "General church announcements and updates",
+  "notificationSettings_channel_birthdayNotifications_title": "Birthday Notifications",
+  "notificationSettings_channel_birthdayNotifications_subtitle": "Notifications about member birthdays",
   "notificationSettings_soundVibration_title": "Sound & Vibration",
   "notificationSettings_sound_title": "Sound",
   "notificationSettings_sound_subtitle": "Play sound when notifications arrive",

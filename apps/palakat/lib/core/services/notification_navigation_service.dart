@@ -53,6 +53,21 @@ class NotificationNavigationService {
 
     // Route based on notification type
     switch (type) {
+      case 'ACTIVITY_ALARM':
+        router.pushNamed(
+          AppRoute.alarmRing,
+          pathParameters: {'activityId': parsedActivityId.toString()},
+          extra: RouteParam(
+            params: {
+              'title': data['title'],
+              'reminderName': data['reminderName'],
+              'reminderValue': data['reminderValue'],
+              'alarmKey': data['alarmKey'],
+              'notificationId': _parseActivityId(data['notificationId']),
+            },
+          ),
+        );
+        break;
       case 'ACTIVITY_CREATED': // Req 3.1
         debugPrint(
           '🔔 [NotificationNavigationService] Navigating to activity detail',

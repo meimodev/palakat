@@ -259,6 +259,21 @@ While automated tests cover most scenarios, some flows require manual testing:
 - [ ] App checks for tokens on launch
 - [ ] Invalid tokens trigger re-authentication
 
+### Activity Alarms
+
+- [ ] Create/ensure at least one **Event** or **Service** has a `reminder`
+- [ ] (Android 12+) If prompted, allow **Exact alarms** for Palakat in system settings
+- [ ] Open app (signed in + has membership) and verify alarms are scheduled (Dashboard "Alarms scheduled" card appears)
+- [ ] Tap **Manage** on the dashboard card and verify Activity Alarms screen opens
+- [ ] Toggle **Enable activity alarms** OFF and verify scheduled alarms are cancelled (dashboard card disappears)
+- [ ] Toggle **Enable activity alarms** ON and verify alarms re-schedule
+- [ ] Disable a single activity alarm via per-activity toggle and verify it does not trigger
+- [ ] Wait for an alarm time and verify:
+  - [ ] Notification appears
+  - [ ] Tapping notification opens Alarm Ring screen
+  - [ ] Alarm sound loops until **Dismiss / Stop**
+  - [ ] **View activity** opens activity detail screen
+
 ### Accessibility
 
 - [ ] Screen reader announces state changes

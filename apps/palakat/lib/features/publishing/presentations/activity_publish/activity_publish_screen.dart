@@ -980,148 +980,71 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    final hasError =
-        state.errorReminder != null && state.errorReminder!.isNotEmpty;
+    final l10n = context.l10n;
+    final options = <Reminder?>[null, ...Reminder.values];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          context.l10n.lbl_reminder,
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.neutral[800],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Gap.h6,
-        Container(
-          decoration: BoxDecoration(
-            color: BaseColor.yellow[50],
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            border: Border.all(
-              color: hasError
-                  ? BaseColor.error.withValues(alpha: 0.5)
-                  : BaseColor.yellow[200]!,
-            ),
-          ),
+    return InputWidget<Reminder?>.dropdown(
+      label: '${l10n.lbl_reminder} ${l10n.lbl_optional}',
+      hint: l10n.lbl_na,
+      currentInputValue: state.selectedReminder,
+      options: options,
+      errorText: state.errorReminder,
+      optionLabel: (r) =>
+          r == null ? l10n.lbl_na : _getReminderLabel(context, r),
+      onChanged: controller.onSelectedReminder,
+      onPressedWithResult: () async {
+        return await _showEnumBottomSheet<Reminder?>(
+          context,
+          title: l10n.lbl_reminder,
+          options: options,
+          current: state.selectedReminder,
+          optionLabel: (r) =>
+              r == null ? l10n.lbl_na : _getReminderLabel(context, r),
+        );
+      },
+    );
+  }
+
+  static Future<T?> _showEnumBottomSheet<T>(
+    BuildContext context, {
+    required String title,
+    required List<T> options,
+    required T current,
+    required String Function(T) optionLabel,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) {
+        return SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
-              Container(
+              Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w12,
+                  horizontal: BaseSize.w16,
                   vertical: BaseSize.h8,
                 ),
-                decoration: BoxDecoration(
-                  color: BaseColor.yellow[100],
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(BaseSize.radiusMd),
-                    topRight: Radius.circular(BaseSize.radiusMd),
+                child: Text(
+                  title,
+                  style: BaseTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    FaIcon(
-                      AppIcons.notificationsActive,
-                      size: BaseSize.w16,
-                      color: BaseColor.yellow[800],
-                    ),
-                    Gap.w6,
-                    Text(
-                      context.l10n.publish_reminderSubtitle,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.yellow[800],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              ),
+              ...options.map(
+                (o) => ListTile(
+                  title: Text(optionLabel(o)),
+                  trailing: o == current ? const Icon(Icons.check) : null,
+                  onTap: () => Navigator.of(context).pop<T>(o),
                 ),
               ),
-              // Reminder options
-              Padding(
-                padding: EdgeInsets.all(BaseSize.w8),
-                child: Wrap(
-                  spacing: BaseSize.w8,
-                  runSpacing: BaseSize.h8,
-                  children: Reminder.values.map((reminder) {
-                    final isSelected = state.selectedReminder == reminder;
-                    return GestureDetector(
-                      onTap: () => controller.onSelectedReminder(reminder),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w12,
-                          vertical: BaseSize.h8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? BaseColor.yellow[600]
-                              : BaseColor.white,
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusSm,
-                          ),
-                          border: Border.all(
-                            color: isSelected
-                                ? BaseColor.yellow[700]!
-                                : BaseColor.yellow[300]!,
-                            width: isSelected ? 1.5 : 1,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: BaseColor.yellow[300]!.withValues(
-                                      alpha: 0.5,
-                                    ),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FaIcon(
-                              isSelected
-                                  ? AppIcons.checkCircle
-                                  : AppIcons.accessTime,
-                              size: BaseSize.w14,
-                              color: isSelected
-                                  ? Colors.white
-                                  : BaseColor.yellow[700],
-                            ),
-                            Gap.w6,
-                            Text(
-                              _getReminderLabel(context, reminder),
-                              style: BaseTypography.bodySmall.copyWith(
-                                color: isSelected
-                                    ? Colors.white
-                                    : BaseColor.yellow[800],
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+              SizedBox(height: BaseSize.h12),
             ],
           ),
-        ),
-        if (hasError)
-          Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
-            child: Text(
-              state.errorReminder!,
-              textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
-            ),
-          ),
-      ],
+        );
+      },
     );
   }
 

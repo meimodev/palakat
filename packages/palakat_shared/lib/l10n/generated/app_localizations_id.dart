@@ -287,6 +287,14 @@ class AppLocalizationsId extends AppLocalizations {
       'Pengumuman dan pembaruan gereja';
 
   @override
+  String get notificationSettings_channel_birthdayNotifications_title =>
+      'Notifikasi Ulang Tahun';
+
+  @override
+  String get notificationSettings_channel_birthdayNotifications_subtitle =>
+      'Notifikasi tentang ulang tahun anggota';
+
+  @override
   String get notificationSettings_soundVibration_title => 'Suara & Getaran';
 
   @override

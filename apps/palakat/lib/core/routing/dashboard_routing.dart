@@ -41,5 +41,28 @@ final dashboardRouting = GoRoute(
         );
       },
     ),
+    GoRoute(
+      path: 'alarm-ring/:activityId',
+      name: AppRoute.alarmRing,
+      builder: (context, state) {
+        final activityIdStr = state.pathParameters['activityId'];
+        final activityId = int.tryParse(activityIdStr ?? '');
+        final extra = state.extra as RouteParam?;
+        final params = extra?.params ?? const <String, dynamic>{};
+
+        if (activityId == null) {
+          return const DashboardScreen();
+        }
+
+        return AlarmRingScreen(
+          activityId: activityId,
+          title: params['title'] as String?,
+          reminderName: params['reminderName'] as String?,
+          reminderValue: params['reminderValue'] as String?,
+          alarmKey: params['alarmKey'] as String?,
+          notificationId: params['notificationId'] as int?,
+        );
+      },
+    ),
   ],
 );

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { PusherBeamsService } from './pusher-beams.service';
+import { BirthdayNotificationService } from './birthday-notification.service';
 import { NotificationService } from './notification.service';
 
 /**
@@ -17,7 +18,11 @@ import { NotificationService } from './notification.service';
  */
 @Module({
   imports: [ConfigModule, PrismaModule, RealtimeModule],
-  providers: [PusherBeamsService, NotificationService],
+  providers: [
+    PusherBeamsService,
+    NotificationService,
+    BirthdayNotificationService,
+  ],
   exports: [PusherBeamsService, NotificationService],
 })
 export class NotificationModule {}

@@ -28,6 +28,8 @@ class AppRoute {
   //Dashboard
   static const String dashboard = 'dashboard';
   static const String activityDetail = "activity-detail";
+  static const String alarmRing = 'alarm-ring';
+  static const String alarmSettings = 'alarm-settings';
 
   //Account
   static const String account = 'account';

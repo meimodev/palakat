@@ -456,6 +456,42 @@ class PusherBeamsMobileService {
     );
   }
 
+  Future<void> unsubscribeFromInterests(List<String> interests) async {
+    try {
+      final sdkReady = await _ensureSdkStarted();
+      if (!sdkReady) {
+        _log('SDK not ready, skipping unsubscription');
+        return;
+      }
+
+      if (interests.isEmpty) {
+        _log('No interests provided. Skipping unsubscription.');
+        return;
+      }
+
+      int successCount = 0;
+      int failureCount = 0;
+
+      for (final interest in interests) {
+        try {
+          await PusherBeams.instance.removeDeviceInterest(interest);
+          _log('✓ Unsubscribed from interest: $interest');
+          successCount++;
+        } catch (e, stackTrace) {
+          _log('✗ Failed to unsubscribe from interest $interest: $e');
+          _log('Stack trace: $stackTrace');
+          failureCount++;
+        }
+      }
+
+      _log(
+        'Unsubscription complete. Success: $successCount, Failed: $failureCount',
+      );
+    } catch (e) {
+      _log('Failed to unsubscribe from interests: $e');
+    }
+  }
+
   /// Ensures the Pusher Beams SDK is started before performing operations.
   ///
   /// This is needed because the SDK throws null check errors if methods are
