@@ -498,6 +498,12 @@ model Report {
   createdBy   Account?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   reportJob   ReportJob?
 
+  publicId       String?   @unique
+  verifyTokenHash String?
+  revokedAt      DateTime?
+  revokedReason  String?
+  fileSha256     String?
+
   @@index([churchId])
   @@index([generatedBy])
   @@index([type])
@@ -516,6 +522,12 @@ model Document {
   church        Church       @relation(fields: [churchId], references: [id])
   fileId        Int?         @unique
   file          FileManager? @relation(fields: [fileId], references: [id])
+
+  publicId       String?   @unique
+  verifyTokenHash String?
+  revokedAt      DateTime?
+  revokedReason  String?
+  fileSha256     String?
 
   @@index([churchId])
   @@index([accountNumber])

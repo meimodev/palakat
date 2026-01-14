@@ -11,7 +11,6 @@ import {
   Book,
   FinancialType,
   Gender,
-  GeneratedBy,
   MaritalStatus,
   PaymentMethod,
   PrismaClient,
@@ -55,7 +54,6 @@ const CONFIG = {
   extraAccountsWithoutMembership: 5,
   songsPerBook: 3,
   maxApproversPerActivity: 2,
-  reportsPerChurch: 2,
   documentsPerChurch: 3,
   approvalRulesPerChurch: 14, // Updated to match APPROVAL_RULE_VARIATIONS count
   defaultPassword: 'password',
@@ -341,10 +339,6 @@ const APPROVAL_STATUSES: ApprovalStatus[] = [
 const PAYMENT_METHODS: PaymentMethod[] = [
   PaymentMethod.CASH,
   PaymentMethod.CASHLESS,
-];
-const GENERATED_BY_VALUES: GeneratedBy[] = [
-  GeneratedBy.MANUAL,
-  GeneratedBy.SYSTEM,
 ];
 const BOOK_VALUES: Book[] = [Book.NKB, Book.NNBT, Book.KJ, Book.DSL];
 
@@ -1901,8 +1895,7 @@ async function seedFiles(churches: ChurchWithColumns[]) {
   const bucket = process.env.FIREBASE_STORAGE_BUCKET ?? 'seed-bucket';
 
   for (const church of churches) {
-    const totalFilesForChurch =
-      CONFIG.reportsPerChurch + CONFIG.documentsPerChurch + 10;
+    const totalFilesForChurch = CONFIG.documentsPerChurch + 10;
     filesByChurch[church.id] = [];
 
     for (let i = 0; i < totalFilesForChurch; i++) {
@@ -2010,51 +2003,6 @@ async function seedSongDbFile(churches: ChurchWithColumns[]) {
   );
 
   return file;
-}
-
-async function seedReports(
-  churches: ChurchWithColumns[],
-  filesByChurch: Record<number, { id: number }[]>,
-) {
-  console.log('📊 Creating reports...');
-
-  const reports = [];
-  const reportTypes = [
-    'Laporan Keuangan',
-    'Laporan Kegiatan',
-    'Laporan Jemaat',
-    'Laporan Kolom',
-    'Laporan Tahunan',
-  ];
-  for (const church of churches) {
-    const pool = filesByChurch[church.id] ?? [];
-    for (let i = 0; i < CONFIG.reportsPerChurch; i++) {
-      const reportType = randomElement(reportTypes);
-      const generatedBy = GENERATED_BY_VALUES[i % GENERATED_BY_VALUES.length];
-      const year = 2024 - Math.floor(seededRandom() * 3);
-      const month = Math.floor(seededRandom() * 12) + 1;
-      const file = pool.shift();
-      if (!file) {
-        throw new Error(
-          `Not enough files to seed reports for church ${church.id}`,
-        );
-      }
-
-      const report = await prisma.report.create({
-        data: {
-          name: `${reportType} ${church.name} ${year}-${String(month).padStart(2, '0')}`,
-          generatedBy,
-          churchId: church.id,
-          fileId: file.id,
-        },
-      });
-
-      reports.push(report);
-    }
-  }
-
-  console.log(`✅ Created ${reports.length} reports`);
-  return reports;
 }
 
 async function seedDocuments(
@@ -2493,7 +2441,6 @@ async function main() {
 
     // Create files, reports, and documents
     const filesByChurch = await seedFiles(mainChurches);
-    await seedReports(mainChurches, filesByChurch);
     await seedDocuments(mainChurches, filesByChurch);
     await seedAnnouncementAttachments(mainChurches, filesByChurch);
 

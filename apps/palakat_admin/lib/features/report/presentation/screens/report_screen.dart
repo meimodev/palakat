@@ -6,6 +6,7 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_admin/features/report/report.dart';
+import 'package:palakat_admin/core/utils/download_url.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -366,36 +367,78 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
           final l10n = ctx.l10n;
-          return IconButton(
-            onPressed: () async {
-              if (report.id != null) {
-                final controller = ref.read(reportControllerProvider.notifier);
-                final resolved = await controller.downloadReport(report.id!);
-                if (!ctx.mounted) return;
-                final url = resolved != null ? Uri.tryParse(resolved) : null;
-                if (url == null) {
-                  AppSnackbars.showError(
-                    ctx,
-                    title: l10n.msg_invalidUrl,
-                    message: l10n.msg_cannotOpenReportFile,
-                  );
-                  return;
-                }
-                AppSnackbars.showSuccess(
-                  ctx,
-                  title: l10n.msg_opening,
-                  message: l10n.msg_openingReport(report.name),
-                );
-                try {
-                  await launchUrl(url);
-                } catch (_) {
-                  // Swallow errors; optionally log if a logger is available
-                }
-              }
-            },
-            icon: const Icon(Icons.download),
-            color: theme.colorScheme.primary,
-            tooltip: l10n.tooltip_downloadReport,
+          final fileName = report.file.originalName;
+
+          Future<void> openReport({required LaunchMode mode}) async {
+            if (report.id == null) return;
+            final controller = ref.read(reportControllerProvider.notifier);
+            final resolved = await controller.downloadReport(report.id!);
+            if (!ctx.mounted) return;
+            final url = resolved != null ? Uri.tryParse(resolved) : null;
+            if (url == null) {
+              AppSnackbars.showError(
+                ctx,
+                title: l10n.msg_invalidUrl,
+                message: l10n.msg_cannotOpenReportFile,
+              );
+              return;
+            }
+            AppSnackbars.showSuccess(
+              ctx,
+              title: l10n.msg_opening,
+              message: l10n.msg_openingReport(report.name),
+            );
+            try {
+              await launchUrl(url, mode: mode);
+            } catch (_) {
+              // Swallow errors; optionally log if a logger is available
+            }
+          }
+
+          Future<void> downloadReport() async {
+            if (report.id == null) return;
+            final controller = ref.read(reportControllerProvider.notifier);
+            final resolved = await controller.downloadReport(report.id!);
+            if (!ctx.mounted) return;
+            final url = resolved != null ? Uri.tryParse(resolved) : null;
+            if (url == null) {
+              AppSnackbars.showError(
+                ctx,
+                title: l10n.msg_invalidUrl,
+                message: l10n.msg_cannotOpenReportFile,
+              );
+              return;
+            }
+            AppSnackbars.showSuccess(
+              ctx,
+              title: l10n.msg_opening,
+              message: l10n.msg_openingReport(report.name),
+            );
+            try {
+              await triggerBrowserDownload(url, filename: fileName);
+            } catch (_) {
+              // Swallow errors; optionally log if a logger is available
+            }
+          }
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (report.format == ReportFormat.pdf)
+                IconButton(
+                  onPressed: () => openReport(mode: LaunchMode.platformDefault),
+                  icon: const Icon(Icons.open_in_new),
+                  color: theme.colorScheme.primary,
+                  visualDensity: VisualDensity.compact,
+                ),
+              IconButton(
+                onPressed: downloadReport,
+                icon: const Icon(Icons.download),
+                color: theme.colorScheme.primary,
+                tooltip: l10n.tooltip_downloadReport,
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
           );
         },
       ),

@@ -21,6 +21,7 @@ class OperationCategoryCard extends StatelessWidget {
     this.isLoadingRecentReports = false,
     this.recentReportsError,
     this.onReportDownloadTap,
+    this.onReportViewTap,
     this.onRecentReportsRetry,
     this.pendingReportJobs,
     this.isLoadingPendingReportJobs = false,
@@ -46,6 +47,9 @@ class OperationCategoryCard extends StatelessWidget {
 
   /// Callback when download button is tapped for a report
   final ValueChanged<Report>? onReportDownloadTap;
+
+  /// Callback when view button is tapped for a report
+  final ValueChanged<Report>? onReportViewTap;
 
   /// Callback when retry button is tapped for recent reports
   final VoidCallback? onRecentReportsRetry;
@@ -153,6 +157,7 @@ class OperationCategoryCard extends StatelessWidget {
                   isLoading: isLoadingRecentReports,
                   error: recentReportsError,
                   onDownloadTap: (report) => onReportDownloadTap?.call(report),
+                  onViewTap: onReportViewTap,
                   onRetry: () => onRecentReportsRetry?.call(),
                   pendingJobs: pendingReportJobs ?? [],
                   isLoadingPendingJobs: isLoadingPendingReportJobs,

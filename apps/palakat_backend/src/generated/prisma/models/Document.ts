@@ -47,6 +47,11 @@ export type DocumentMinAggregateOutputType = {
   updatedAt: Date | null
   churchId: number | null
   fileId: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
 }
 
 export type DocumentMaxAggregateOutputType = {
@@ -58,6 +63,11 @@ export type DocumentMaxAggregateOutputType = {
   updatedAt: Date | null
   churchId: number | null
   fileId: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
 }
 
 export type DocumentCountAggregateOutputType = {
@@ -69,6 +79,11 @@ export type DocumentCountAggregateOutputType = {
   updatedAt: number
   churchId: number
   fileId: number
+  publicId: number
+  verifyTokenHash: number
+  revokedAt: number
+  revokedReason: number
+  fileSha256: number
   _all: number
 }
 
@@ -94,6 +109,11 @@ export type DocumentMinAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
 }
 
 export type DocumentMaxAggregateInputType = {
@@ -105,6 +125,11 @@ export type DocumentMaxAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
 }
 
 export type DocumentCountAggregateInputType = {
@@ -116,6 +141,11 @@ export type DocumentCountAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
   _all?: true
 }
 
@@ -214,6 +244,11 @@ export type DocumentGroupByOutputType = {
   updatedAt: Date
   churchId: number
   fileId: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
   _count: DocumentCountAggregateOutputType | null
   _avg: DocumentAvgAggregateOutputType | null
   _sum: DocumentSumAggregateOutputType | null
@@ -248,6 +283,11 @@ export type DocumentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
   fileId?: Prisma.IntNullableFilter<"Document"> | number | null
+  publicId?: Prisma.StringNullableFilter<"Document"> | string | null
+  verifyTokenHash?: Prisma.StringNullableFilter<"Document"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Document"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Document"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
 }
@@ -261,6 +301,11 @@ export type DocumentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   church?: Prisma.ChurchOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
 }
@@ -268,6 +313,7 @@ export type DocumentOrderByWithRelationInput = {
 export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   fileId?: number
+  publicId?: string
   AND?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   OR?: Prisma.DocumentWhereInput[]
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
@@ -277,9 +323,13 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
+  verifyTokenHash?: Prisma.StringNullableFilter<"Document"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Document"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Document"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
-}, "id" | "fileId">
+}, "id" | "fileId" | "publicId">
 
 export type DocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -290,6 +340,11 @@ export type DocumentOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DocumentCountOrderByAggregateInput
   _avg?: Prisma.DocumentAvgOrderByAggregateInput
   _max?: Prisma.DocumentMaxOrderByAggregateInput
@@ -309,6 +364,11 @@ export type DocumentScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   churchId?: Prisma.IntWithAggregatesFilter<"Document"> | number
   fileId?: Prisma.IntNullableWithAggregatesFilter<"Document"> | number | null
+  publicId?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  verifyTokenHash?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Document"> | Date | string | null
+  revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  fileSha256?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
 }
 
 export type DocumentCreateInput = {
@@ -317,6 +377,11 @@ export type DocumentCreateInput = {
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
 }
@@ -330,6 +395,11 @@ export type DocumentUncheckedCreateInput = {
   updatedAt?: Date | string
   churchId: number
   fileId?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type DocumentUpdateInput = {
@@ -338,6 +408,11 @@ export type DocumentUpdateInput = {
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
 }
@@ -351,6 +426,11 @@ export type DocumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DocumentCreateManyInput = {
@@ -362,6 +442,11 @@ export type DocumentCreateManyInput = {
   updatedAt?: Date | string
   churchId: number
   fileId?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type DocumentUpdateManyMutationInput = {
@@ -370,6 +455,11 @@ export type DocumentUpdateManyMutationInput = {
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DocumentUncheckedUpdateManyInput = {
@@ -381,6 +471,11 @@ export type DocumentUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DocumentListRelationFilter = {
@@ -407,6 +502,11 @@ export type DocumentCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type DocumentAvgOrderByAggregateInput = {
@@ -424,6 +524,11 @@ export type DocumentMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type DocumentMinOrderByAggregateInput = {
@@ -435,6 +540,11 @@ export type DocumentMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type DocumentSumOrderByAggregateInput = {
@@ -527,6 +637,11 @@ export type DocumentCreateWithoutChurchInput = {
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
 }
 
@@ -538,6 +653,11 @@ export type DocumentUncheckedCreateWithoutChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type DocumentCreateOrConnectWithoutChurchInput = {
@@ -578,6 +698,11 @@ export type DocumentScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
   fileId?: Prisma.IntNullableFilter<"Document"> | number | null
+  publicId?: Prisma.StringNullableFilter<"Document"> | string | null
+  verifyTokenHash?: Prisma.StringNullableFilter<"Document"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Document"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Document"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
 }
 
 export type DocumentCreateWithoutFileInput = {
@@ -586,6 +711,11 @@ export type DocumentCreateWithoutFileInput = {
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
 }
 
@@ -597,6 +727,11 @@ export type DocumentUncheckedCreateWithoutFileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type DocumentCreateOrConnectWithoutFileInput = {
@@ -621,6 +756,11 @@ export type DocumentUpdateWithoutFileInput = {
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
 }
 
@@ -632,6 +772,11 @@ export type DocumentUncheckedUpdateWithoutFileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DocumentCreateManyChurchInput = {
@@ -642,6 +787,11 @@ export type DocumentCreateManyChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type DocumentUpdateWithoutChurchInput = {
@@ -650,6 +800,11 @@ export type DocumentUpdateWithoutChurchInput = {
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
 }
 
@@ -661,6 +816,11 @@ export type DocumentUncheckedUpdateWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DocumentUncheckedUpdateManyWithoutChurchInput = {
@@ -671,6 +831,11 @@ export type DocumentUncheckedUpdateManyWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -684,6 +849,11 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -697,6 +867,11 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -710,6 +885,11 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -723,9 +903,14 @@ export type DocumentSelectScalar = {
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
@@ -754,6 +939,11 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     updatedAt: Date
     churchId: number
     fileId: number | null
+    publicId: string | null
+    verifyTokenHash: string | null
+    revokedAt: Date | null
+    revokedReason: string | null
+    fileSha256: string | null
   }, ExtArgs["result"]["document"]>
   composites: {}
 }
@@ -1187,6 +1377,11 @@ export interface DocumentFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly churchId: Prisma.FieldRef<"Document", 'Int'>
   readonly fileId: Prisma.FieldRef<"Document", 'Int'>
+  readonly publicId: Prisma.FieldRef<"Document", 'String'>
+  readonly verifyTokenHash: Prisma.FieldRef<"Document", 'String'>
+  readonly revokedAt: Prisma.FieldRef<"Document", 'DateTime'>
+  readonly revokedReason: Prisma.FieldRef<"Document", 'String'>
+  readonly fileSha256: Prisma.FieldRef<"Document", 'String'>
 }
     
 

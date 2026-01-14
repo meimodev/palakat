@@ -31,6 +31,7 @@ import { SongModule } from './song/song.module';
 import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.module';
 import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { VerifyModule } from './verify/verify.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { RealtimeModule } from './realtime/realtime.module';
     CashModule,
     FinanceModule,
     NotificationModule,
+    VerifyModule,
   ],
   providers: [AppService, Logger, PrismaExceptionFilter, HelperService],
   exports: [HelperService],

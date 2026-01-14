@@ -360,7 +360,12 @@ export const ReportScalarFieldEnum = {
   updatedAt: 'updatedAt',
   churchId: 'churchId',
   fileId: 'fileId',
-  createdById: 'createdById'
+  createdById: 'createdById',
+  publicId: 'publicId',
+  verifyTokenHash: 'verifyTokenHash',
+  revokedAt: 'revokedAt',
+  revokedReason: 'revokedReason',
+  fileSha256: 'fileSha256'
 } as const
 
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
@@ -374,7 +379,12 @@ export const DocumentScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId',
-  fileId: 'fileId'
+  fileId: 'fileId',
+  publicId: 'publicId',
+  verifyTokenHash: 'verifyTokenHash',
+  revokedAt: 'revokedAt',
+  revokedReason: 'revokedReason',
+  fileSha256: 'fileSha256'
 } as const
 
 export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]

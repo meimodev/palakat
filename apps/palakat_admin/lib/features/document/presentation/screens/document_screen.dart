@@ -261,54 +261,100 @@ class DocumentScreen extends ConsumerWidget {
           final theme = Theme.of(ctx);
           final l10n = ctx.l10n;
           final fileId = document.fileId;
-          if (fileId == null) {
-            return const SizedBox.shrink();
-          }
-          return IconButton(
-            onPressed: () async {
-              final fileRepo = ref.read(fileManagerRepositoryProvider);
-              final result = await fileRepo.resolveDownloadUrl(fileId: fileId);
-              if (!ctx.mounted) return;
 
-              String? resolved;
-              result.when(
-                onSuccess: (url) {
-                  resolved = url;
-                },
-                onFailure: (failure) {
-                  AppSnackbars.showError(
-                    ctx,
-                    title: l10n.msg_invalidUrl,
-                    message: failure.message,
-                  );
-                },
-              );
-              if (resolved == null) return;
+          Future<void> openFile(int id) async {
+            final fileRepo = ref.read(fileManagerRepositoryProvider);
+            final result = await fileRepo.resolveDownloadUrl(fileId: id);
+            if (!ctx.mounted) return;
 
-              final uri = Uri.tryParse(resolved!);
-              if (uri == null) {
+            String? resolved;
+            result.when(
+              onSuccess: (url) {
+                resolved = url;
+              },
+              onFailure: (failure) {
                 AppSnackbars.showError(
                   ctx,
                   title: l10n.msg_invalidUrl,
-                  message: l10n.msg_cannotOpenReportFile,
+                  message: failure.message,
                 );
-                return;
-              }
+              },
+            );
+            if (resolved == null) return;
 
-              AppSnackbars.showSuccess(
+            final uri = Uri.tryParse(resolved!);
+            if (uri == null) {
+              AppSnackbars.showError(
                 ctx,
-                title: l10n.msg_opening,
-                message: l10n.msg_openingReport(document.name),
+                title: l10n.msg_invalidUrl,
+                message: l10n.msg_cannotOpenReportFile,
               );
-              try {
-                await launchUrl(uri);
-              } catch (_) {
-                // ignore
-              }
-            },
-            icon: const Icon(Icons.download),
-            color: theme.colorScheme.primary,
-            tooltip: l10n.tooltip_downloadReport,
+              return;
+            }
+
+            AppSnackbars.showSuccess(
+              ctx,
+              title: l10n.msg_opening,
+              message: l10n.msg_openingReport(document.name),
+            );
+            try {
+              await launchUrl(uri);
+            } catch (_) {}
+          }
+
+          Future<void> generateSigned() async {
+            final docId = document.id;
+            if (docId == null) return;
+
+            final docRepo = ref.read(documentRepositoryProvider);
+            final res = await docRepo.generateSignedDocument(
+              documentId: docId,
+              regenerate: true,
+            );
+            if (!ctx.mounted) return;
+
+            int? generatedFileId;
+            res.when(
+              onSuccess: (payload) {
+                generatedFileId = payload.document.fileId;
+              },
+              onFailure: (failure) {
+                AppSnackbars.showError(
+                  ctx,
+                  title: l10n.msg_generateReportFailed,
+                  message: failure.message,
+                );
+              },
+            );
+
+            if (generatedFileId == null) return;
+
+            await ref.read(documentControllerProvider.notifier).refresh();
+
+            await openFile(generatedFileId!);
+          }
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () async {
+                  await generateSigned();
+                },
+                icon: const Icon(Icons.qr_code),
+                color: theme.colorScheme.primary,
+                tooltip: l10n.btn_generateReport,
+              ),
+              if (fileId != null)
+                IconButton(
+                  onPressed: () async {
+                    await openFile(fileId);
+                  },
+                  icon: const Icon(Icons.download),
+                  color: theme.colorScheme.primary,
+                  tooltip: l10n.tooltip_downloadReport,
+                ),
+            ],
           );
         },
       ),

@@ -139,6 +139,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           recentReportsError: state.recentReportsError,
           onReportDownloadTap: (report) =>
               _handleReportDownload(context, ref, report),
+          onReportViewTap: (report) => _handleReportView(context, ref, report),
           onRecentReportsRetry: () => controller.fetchReportData(),
           pendingReportJobs: state.pendingReportJobs,
           isLoadingPendingReportJobs: state.loadingPendingReportJobs,
@@ -228,6 +229,45 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
       },
     );
   }
+
+  Future<void> _handleReportView(
+    BuildContext context,
+    WidgetRef ref,
+    Report report,
+  ) async {
+    final l10n = context.l10n;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    if (report.format != ReportFormat.pdf) return;
+    if (report.id == null) return;
+
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final result = await reportRepository.downloadReport(reportId: report.id!);
+
+    result.when(
+      onSuccess: (url) async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        } else {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.err_somethingWentWrong),
+              backgroundColor: BaseColor.error,
+            ),
+          );
+        }
+      },
+      onFailure: (failure) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(failure.message),
+            backgroundColor: BaseColor.error,
+          ),
+        );
+      },
+    );
+  }
 }
 
 /// Empty state widget when no operations are available
@@ -287,6 +327,7 @@ class _OperationCategoryList extends StatelessWidget {
     this.isLoadingRecentReports = false,
     this.recentReportsError,
     this.onReportDownloadTap,
+    this.onReportViewTap,
     this.onRecentReportsRetry,
     this.pendingReportJobs,
     this.isLoadingPendingReportJobs = false,
@@ -299,6 +340,7 @@ class _OperationCategoryList extends StatelessWidget {
   final bool isLoadingRecentReports;
   final String? recentReportsError;
   final ValueChanged<Report>? onReportDownloadTap;
+  final ValueChanged<Report>? onReportViewTap;
   final VoidCallback? onRecentReportsRetry;
   final List<ReportJob>? pendingReportJobs;
   final bool isLoadingPendingReportJobs;
@@ -326,6 +368,7 @@ class _OperationCategoryList extends StatelessWidget {
               : false,
           recentReportsError: isReportsCategory ? recentReportsError : null,
           onReportDownloadTap: isReportsCategory ? onReportDownloadTap : null,
+          onReportViewTap: isReportsCategory ? onReportViewTap : null,
           onRecentReportsRetry: isReportsCategory ? onRecentReportsRetry : null,
           pendingReportJobs: isReportsCategory ? pendingReportJobs : null,
           isLoadingPendingReportJobs: isReportsCategory

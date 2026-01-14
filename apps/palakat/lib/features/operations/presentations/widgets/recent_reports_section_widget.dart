@@ -15,6 +15,7 @@ class RecentReportsSection extends StatelessWidget {
     required this.isLoading,
     required this.error,
     required this.onDownloadTap,
+    this.onViewTap,
     required this.onRetry,
     this.pendingJobs = const [],
     this.isLoadingPendingJobs = false,
@@ -31,6 +32,9 @@ class RecentReportsSection extends StatelessWidget {
 
   /// Callback when download button is tapped for a report
   final ValueChanged<Report> onDownloadTap;
+
+  /// Callback when view button is tapped for a report
+  final ValueChanged<Report>? onViewTap;
 
   /// Callback when retry button is tapped after error
   final VoidCallback onRetry;
@@ -83,7 +87,11 @@ class RecentReportsSection extends StatelessWidget {
         if (pendingJobs.isNotEmpty) _PendingJobsList(jobs: pendingJobs),
         // Completed reports
         if (reports.isNotEmpty)
-          _ReportsList(reports: reports, onDownloadTap: onDownloadTap),
+          _ReportsList(
+            reports: reports,
+            onDownloadTap: onDownloadTap,
+            onViewTap: onViewTap,
+          ),
       ],
     );
   }
@@ -117,10 +125,15 @@ class _SectionHeader extends StatelessWidget {
 
 /// List of report items
 class _ReportsList extends StatelessWidget {
-  const _ReportsList({required this.reports, required this.onDownloadTap});
+  const _ReportsList({
+    required this.reports,
+    required this.onDownloadTap,
+    required this.onViewTap,
+  });
 
   final List<Report> reports;
   final ValueChanged<Report> onDownloadTap;
+  final ValueChanged<Report>? onViewTap;
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +146,7 @@ class _ReportsList extends StatelessWidget {
               child: RecentReportItem(
                 report: report,
                 onDownloadTap: () => onDownloadTap(report),
+                onViewTap: onViewTap != null ? () => onViewTap!(report) : null,
               ),
             ),
           )
@@ -189,10 +203,12 @@ class RecentReportItem extends StatelessWidget {
     super.key,
     required this.report,
     required this.onDownloadTap,
+    this.onViewTap,
   });
 
   final Report report;
   final VoidCallback onDownloadTap;
+  final VoidCallback? onViewTap;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +271,20 @@ class RecentReportItem extends StatelessWidget {
             ),
           ),
           Gap.w8,
-          // Download button
+          if (report.format == ReportFormat.pdf && onViewTap != null) ...[
+            IconButton(
+              onPressed: onViewTap,
+              icon: Icon(AppIcons.openExternal),
+              iconSize: BaseSize.w20,
+              color: BaseColor.primary,
+              style: IconButton.styleFrom(
+                backgroundColor: BaseColor.primary.withValues(alpha: 0.1),
+                padding: EdgeInsets.all(BaseSize.w8),
+                minimumSize: Size(BaseSize.w36, BaseSize.w36),
+              ),
+            ),
+            Gap.w8,
+          ],
           IconButton(
             onPressed: onDownloadTap,
             icon: Icon(AppIcons.download),

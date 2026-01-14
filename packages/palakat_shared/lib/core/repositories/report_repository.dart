@@ -12,7 +12,10 @@ import '../utils/file_bytes_url.dart';
 part 'report_repository.g.dart';
 
 @riverpod
-ReportRepository reportRepository(Ref ref) => ReportRepository(ref);
+ReportRepository reportRepository(Ref ref) {
+  ref.keepAlive();
+  return ReportRepository(ref);
+}
 
 class ReportRepository {
   ReportRepository(this._ref);
@@ -201,6 +204,9 @@ class ReportRepository {
   }) async {
     try {
       final socket = _ref.read(socketServiceProvider);
+      final progress = _ref.read(
+        fileTransferProgressControllerProvider.notifier,
+      );
       final body = await socket.rpc('report.get', {'id': reportId});
       final Map<String, dynamic> reportJson =
           (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -209,10 +215,6 @@ class ReportRepository {
       }
 
       final report = Report.fromJson(reportJson);
-
-      final progress = _ref.read(
-        fileTransferProgressControllerProvider.notifier,
-      );
       final progressId = progress.start(
         direction: FileTransferDirection.download,
         totalBytes: 0,

@@ -35,6 +35,36 @@ class DocumentRepository {
     }
   }
 
+  Future<Result<({Document document, String? verificationUrl}), Failure>>
+  generateSignedDocument({
+    required int documentId,
+    bool regenerate = true,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('document.generate', {
+        'id': documentId,
+        'regenerate': regenerate,
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid generate document response payload'),
+        );
+      }
+
+      final verificationUrl = body['verificationUrl']?.toString();
+      return Result.success((
+        document: Document.fromJson(json),
+        verificationUrl: verificationUrl,
+      ));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   Future<Result<DocumentSettings, Failure>> getSettings() async {
     try {
       // Get churchId from authenticated user

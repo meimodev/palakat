@@ -51,6 +51,11 @@ export type ReportMinAggregateOutputType = {
   churchId: number | null
   fileId: number | null
   createdById: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
 }
 
 export type ReportMaxAggregateOutputType = {
@@ -64,6 +69,11 @@ export type ReportMaxAggregateOutputType = {
   churchId: number | null
   fileId: number | null
   createdById: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
 }
 
 export type ReportCountAggregateOutputType = {
@@ -78,6 +88,11 @@ export type ReportCountAggregateOutputType = {
   churchId: number
   fileId: number
   createdById: number
+  publicId: number
+  verifyTokenHash: number
+  revokedAt: number
+  revokedReason: number
+  fileSha256: number
   _all: number
 }
 
@@ -107,6 +122,11 @@ export type ReportMinAggregateInputType = {
   churchId?: true
   fileId?: true
   createdById?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
 }
 
 export type ReportMaxAggregateInputType = {
@@ -120,6 +140,11 @@ export type ReportMaxAggregateInputType = {
   churchId?: true
   fileId?: true
   createdById?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
 }
 
 export type ReportCountAggregateInputType = {
@@ -134,6 +159,11 @@ export type ReportCountAggregateInputType = {
   churchId?: true
   fileId?: true
   createdById?: true
+  publicId?: true
+  verifyTokenHash?: true
+  revokedAt?: true
+  revokedReason?: true
+  fileSha256?: true
   _all?: true
 }
 
@@ -235,6 +265,11 @@ export type ReportGroupByOutputType = {
   churchId: number
   fileId: number
   createdById: number | null
+  publicId: string | null
+  verifyTokenHash: string | null
+  revokedAt: Date | null
+  revokedReason: string | null
+  fileSha256: string | null
   _count: ReportCountAggregateOutputType | null
   _avg: ReportAvgAggregateOutputType | null
   _sum: ReportSumAggregateOutputType | null
@@ -272,6 +307,11 @@ export type ReportWhereInput = {
   churchId?: Prisma.IntFilter<"Report"> | number
   fileId?: Prisma.IntFilter<"Report"> | number
   createdById?: Prisma.IntNullableFilter<"Report"> | number | null
+  publicId?: Prisma.StringNullableFilter<"Report"> | string | null
+  verifyTokenHash?: Prisma.StringNullableFilter<"Report"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Report"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Report"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Report"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerScalarRelationFilter, Prisma.FileManagerWhereInput>
   createdBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
@@ -290,6 +330,11 @@ export type ReportOrderByWithRelationInput = {
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   church?: Prisma.ChurchOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
   createdBy?: Prisma.AccountOrderByWithRelationInput
@@ -299,6 +344,7 @@ export type ReportOrderByWithRelationInput = {
 export type ReportWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   fileId?: number
+  publicId?: string
   AND?: Prisma.ReportWhereInput | Prisma.ReportWhereInput[]
   OR?: Prisma.ReportWhereInput[]
   NOT?: Prisma.ReportWhereInput | Prisma.ReportWhereInput[]
@@ -311,11 +357,15 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Report"> | Date | string
   churchId?: Prisma.IntFilter<"Report"> | number
   createdById?: Prisma.IntNullableFilter<"Report"> | number | null
+  verifyTokenHash?: Prisma.StringNullableFilter<"Report"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Report"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Report"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Report"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerScalarRelationFilter, Prisma.FileManagerWhereInput>
   createdBy?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
   reportJob?: Prisma.XOR<Prisma.ReportJobNullableScalarRelationFilter, Prisma.ReportJobWhereInput> | null
-}, "id" | "fileId">
+}, "id" | "fileId" | "publicId">
 
 export type ReportOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -329,6 +379,11 @@ export type ReportOrderByWithAggregationInput = {
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReportCountOrderByAggregateInput
   _avg?: Prisma.ReportAvgOrderByAggregateInput
   _max?: Prisma.ReportMaxOrderByAggregateInput
@@ -351,6 +406,11 @@ export type ReportScalarWhereWithAggregatesInput = {
   churchId?: Prisma.IntWithAggregatesFilter<"Report"> | number
   fileId?: Prisma.IntWithAggregatesFilter<"Report"> | number
   createdById?: Prisma.IntNullableWithAggregatesFilter<"Report"> | number | null
+  publicId?: Prisma.StringNullableWithAggregatesFilter<"Report"> | string | null
+  verifyTokenHash?: Prisma.StringNullableWithAggregatesFilter<"Report"> | string | null
+  revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Report"> | Date | string | null
+  revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Report"> | string | null
+  fileSha256?: Prisma.StringNullableWithAggregatesFilter<"Report"> | string | null
 }
 
 export type ReportCreateInput = {
@@ -361,6 +421,11 @@ export type ReportCreateInput = {
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
@@ -379,6 +444,11 @@ export type ReportUncheckedCreateInput = {
   churchId: number
   fileId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
@@ -390,6 +460,11 @@ export type ReportUpdateInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
@@ -408,6 +483,11 @@ export type ReportUncheckedUpdateInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
@@ -423,6 +503,11 @@ export type ReportCreateManyInput = {
   churchId: number
   fileId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type ReportUpdateManyMutationInput = {
@@ -433,6 +518,11 @@ export type ReportUpdateManyMutationInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReportUncheckedUpdateManyInput = {
@@ -447,6 +537,11 @@ export type ReportUncheckedUpdateManyInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReportListRelationFilter = {
@@ -476,6 +571,11 @@ export type ReportCountOrderByAggregateInput = {
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type ReportAvgOrderByAggregateInput = {
@@ -496,6 +596,11 @@ export type ReportMaxOrderByAggregateInput = {
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type ReportMinOrderByAggregateInput = {
@@ -509,6 +614,11 @@ export type ReportMinOrderByAggregateInput = {
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
+  publicId?: Prisma.SortOrder
+  verifyTokenHash?: Prisma.SortOrder
+  revokedAt?: Prisma.SortOrder
+  revokedReason?: Prisma.SortOrder
+  fileSha256?: Prisma.SortOrder
 }
 
 export type ReportSumOrderByAggregateInput = {
@@ -670,6 +780,11 @@ export type ReportCreateWithoutChurchInput = {
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
   reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
@@ -686,6 +801,11 @@ export type ReportUncheckedCreateWithoutChurchInput = {
   updatedAt?: Date | string
   fileId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
@@ -730,6 +850,11 @@ export type ReportScalarWhereInput = {
   churchId?: Prisma.IntFilter<"Report"> | number
   fileId?: Prisma.IntFilter<"Report"> | number
   createdById?: Prisma.IntNullableFilter<"Report"> | number | null
+  publicId?: Prisma.StringNullableFilter<"Report"> | string | null
+  verifyTokenHash?: Prisma.StringNullableFilter<"Report"> | string | null
+  revokedAt?: Prisma.DateTimeNullableFilter<"Report"> | Date | string | null
+  revokedReason?: Prisma.StringNullableFilter<"Report"> | string | null
+  fileSha256?: Prisma.StringNullableFilter<"Report"> | string | null
 }
 
 export type ReportCreateWithoutCreatedByInput = {
@@ -740,6 +865,11 @@ export type ReportCreateWithoutCreatedByInput = {
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
@@ -756,6 +886,11 @@ export type ReportUncheckedCreateWithoutCreatedByInput = {
   updatedAt?: Date | string
   churchId: number
   fileId: number
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
@@ -793,6 +928,11 @@ export type ReportCreateWithoutFileInput = {
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
   reportJob?: Prisma.ReportJobCreateNestedOneWithoutReportInput
@@ -809,6 +949,11 @@ export type ReportUncheckedCreateWithoutFileInput = {
   updatedAt?: Date | string
   churchId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   reportJob?: Prisma.ReportJobUncheckedCreateNestedOneWithoutReportInput
 }
 
@@ -836,6 +981,11 @@ export type ReportUpdateWithoutFileInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
   reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
@@ -852,6 +1002,11 @@ export type ReportUncheckedUpdateWithoutFileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
@@ -863,6 +1018,11 @@ export type ReportCreateWithoutReportJobInput = {
   generatedBy: $Enums.GeneratedBy
   createdAt?: Date | string
   updatedAt?: Date | string
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutReportsInput
   file: Prisma.FileManagerCreateNestedOneWithoutReportInput
   createdBy?: Prisma.AccountCreateNestedOneWithoutReportsCreatedInput
@@ -880,6 +1040,11 @@ export type ReportUncheckedCreateWithoutReportJobInput = {
   churchId: number
   fileId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type ReportCreateOrConnectWithoutReportJobInput = {
@@ -906,6 +1071,11 @@ export type ReportUpdateWithoutReportJobInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
@@ -923,6 +1093,11 @@ export type ReportUncheckedUpdateWithoutReportJobInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReportCreateManyChurchInput = {
@@ -936,6 +1111,11 @@ export type ReportCreateManyChurchInput = {
   updatedAt?: Date | string
   fileId: number
   createdById?: number | null
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type ReportUpdateWithoutChurchInput = {
@@ -946,6 +1126,11 @@ export type ReportUpdateWithoutChurchInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   createdBy?: Prisma.AccountUpdateOneWithoutReportsCreatedNestedInput
   reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
@@ -962,6 +1147,11 @@ export type ReportUncheckedUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
@@ -976,6 +1166,11 @@ export type ReportUncheckedUpdateManyWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReportCreateManyCreatedByInput = {
@@ -989,6 +1184,11 @@ export type ReportCreateManyCreatedByInput = {
   updatedAt?: Date | string
   churchId: number
   fileId: number
+  publicId?: string | null
+  verifyTokenHash?: string | null
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  fileSha256?: string | null
 }
 
 export type ReportUpdateWithoutCreatedByInput = {
@@ -999,6 +1199,11 @@ export type ReportUpdateWithoutCreatedByInput = {
   generatedBy?: Prisma.EnumGeneratedByFieldUpdateOperationsInput | $Enums.GeneratedBy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutReportsNestedInput
   file?: Prisma.FileManagerUpdateOneRequiredWithoutReportNestedInput
   reportJob?: Prisma.ReportJobUpdateOneWithoutReportNestedInput
@@ -1015,6 +1220,11 @@ export type ReportUncheckedUpdateWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportJob?: Prisma.ReportJobUncheckedUpdateOneWithoutReportNestedInput
 }
 
@@ -1029,6 +1239,11 @@ export type ReportUncheckedUpdateManyWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.IntFieldUpdateOperationsInput | number
+  publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1045,6 +1260,11 @@ export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   churchId?: boolean
   fileId?: boolean
   createdById?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.Report$createdByArgs<ExtArgs>
@@ -1063,6 +1283,11 @@ export type ReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   churchId?: boolean
   fileId?: boolean
   createdById?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.Report$createdByArgs<ExtArgs>
@@ -1080,6 +1305,11 @@ export type ReportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   churchId?: boolean
   fileId?: boolean
   createdById?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.Report$createdByArgs<ExtArgs>
@@ -1097,9 +1327,14 @@ export type ReportSelectScalar = {
   churchId?: boolean
   fileId?: boolean
   createdById?: boolean
+  publicId?: boolean
+  verifyTokenHash?: boolean
+  revokedAt?: boolean
+  revokedReason?: boolean
+  fileSha256?: boolean
 }
 
-export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "format" | "params" | "generatedBy" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "createdById", ExtArgs["result"]["report"]>
+export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "format" | "params" | "generatedBy" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "createdById" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["report"]>
 export type ReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.FileManagerDefaultArgs<ExtArgs>
@@ -1137,6 +1372,11 @@ export type $ReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     churchId: number
     fileId: number
     createdById: number | null
+    publicId: string | null
+    verifyTokenHash: string | null
+    revokedAt: Date | null
+    revokedReason: string | null
+    fileSha256: string | null
   }, ExtArgs["result"]["report"]>
   composites: {}
 }
@@ -1575,6 +1815,11 @@ export interface ReportFieldRefs {
   readonly churchId: Prisma.FieldRef<"Report", 'Int'>
   readonly fileId: Prisma.FieldRef<"Report", 'Int'>
   readonly createdById: Prisma.FieldRef<"Report", 'Int'>
+  readonly publicId: Prisma.FieldRef<"Report", 'String'>
+  readonly verifyTokenHash: Prisma.FieldRef<"Report", 'String'>
+  readonly revokedAt: Prisma.FieldRef<"Report", 'DateTime'>
+  readonly revokedReason: Prisma.FieldRef<"Report", 'String'>
+  readonly fileSha256: Prisma.FieldRef<"Report", 'String'>
 }
     
 

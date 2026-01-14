@@ -2257,6 +2257,11 @@ export class RpcRouterService {
         return this.documentService.remove(id);
       }
 
+      case 'document.generate': {
+        const user = this.requireUserId(client);
+        return this.documentService.generate(payload, user);
+      }
+
       // ===== File Manager (temporary; WS streaming will replace resolveDownloadUrl/proxy) =====
       case 'file.list': {
         this.requireUserId(client);

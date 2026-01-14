@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import {
   DocumentInput,
   GeneratedBy,
@@ -7,11 +7,12 @@ import {
   ReportFormat,
   ReportGenerateType,
 } from '../generated/prisma/client';
-import PDFDocument from 'pdfkit';
+import PDFDocument = require('pdfkit');
 import { PassThrough } from 'stream';
 import { PrismaService } from '../prisma.service';
 import { ReportListQueryDto } from './dto/report-list.dto';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
+import * as QRCode from 'qrcode';
 import {
   renderPdfBulletinReportBuffer,
   renderPdfTableReportBuffer,
@@ -32,6 +33,58 @@ export class ReportService {
     private prisma: PrismaService,
     private firebaseAdmin: FirebaseAdminService,
   ) {}
+
+  private sha256Hex(input: string | Buffer): string {
+    return createHash('sha256').update(input).digest('hex');
+  }
+
+  private formatGeneratedAtForVerifyBlock(date: Date): string {
+    const weekdays = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    const weekday = weekdays[date.getDay()] ?? '';
+    const day = date.getDate();
+    const month = months[date.getMonth()] ?? '';
+    const year = date.getFullYear();
+
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const isPm = date.getHours() >= 12;
+    let hours = date.getHours() % 12;
+    if (hours === 0) hours = 12;
+
+    return `${weekday}, ${day} ${month} ${year} ${hours}:${minutes} ${
+      isPm ? 'PM' : 'AM'
+    }`;
+  }
+
+  private resolvePublicBaseUrl(): string {
+    const base = process.env.PUBLIC_BASE_URL;
+    if (base && base.trim().length) return base.trim().replace(/\/$/, '');
+
+    const port = process.env.PORT || '3000';
+    return `http://localhost:${port}`;
+  }
 
   private async resolveRequesterChurchId(user?: any): Promise<number> {
     const userId = user?.userId;
@@ -63,10 +116,16 @@ export class ReportService {
       line3?: string | null;
     };
     logoBuffer?: Buffer;
+    qrPngBuffer?: Buffer;
+    publicId?: string;
+    churchName?: string;
+    generatedAt?: Date;
   }): Promise<Buffer> {
+    const generatedAt = params.generatedAt ?? new Date();
     const doc = new PDFDocument({
       size: 'A4',
       margin: 48,
+      bufferPages: true,
       info: {
         Title: params.title,
       },
@@ -127,12 +186,85 @@ export class ReportService {
       doc
         .fontSize(10)
         .fillColor('#444444')
-        .text(`Generated at: ${new Date().toISOString()}`);
+        .text(`Generated at: ${generatedAt.toISOString()}`);
       doc.moveDown();
 
       doc.fillColor('#000000').fontSize(12);
       for (const line of params.lines) {
         doc.text(line);
+      }
+
+      if (params.qrPngBuffer && params.publicId) {
+        doc.moveDown();
+
+        const availableWidth =
+          doc.page.width - doc.page.margins.left - doc.page.margins.right;
+        const padding = 10;
+        const qrSize = 96;
+        const boxHeight = qrSize + padding * 2;
+
+        const bottomLimit = doc.page.height - doc.page.margins.bottom;
+        if (doc.y + boxHeight + 12 > bottomLimit) {
+          doc.addPage();
+        }
+
+        const range =
+          typeof doc.bufferedPageRange === 'function'
+            ? doc.bufferedPageRange()
+            : { start: 0, count: 1 };
+        const totalPages = (range.start ?? 0) + (range.count ?? 1);
+
+        const x = doc.page.margins.left;
+        const y = doc.y;
+
+        doc
+          .rect(x, y, availableWidth, boxHeight)
+          .strokeColor('#DDDDDD')
+          .lineWidth(1)
+          .stroke();
+
+        const qrX = x + padding;
+        const qrY = y + padding;
+        try {
+          doc.image(params.qrPngBuffer, qrX, qrY, {
+            width: qrSize,
+            height: qrSize,
+          });
+        } catch {}
+
+        const textX = qrX + qrSize + 12;
+        const textWidth = Math.max(0, x + availableWidth - padding - textX);
+
+        const churchName = (params.churchName ?? '').trim();
+        const generatedLabel = `Generated: ${this.formatGeneratedAtForVerifyBlock(
+          generatedAt,
+        )}`;
+        const pagesLabel = `Total pages: ${totalPages}`;
+
+        doc.fontSize(11).fillColor('#0f172a');
+        doc.text(churchName || 'Report verification', textX, qrY, {
+          width: textWidth,
+          lineBreak: false,
+          ellipsis: true,
+        });
+
+        doc.fontSize(8).fillColor('#475569');
+        doc.text(generatedLabel, textX, doc.y + 6, {
+          width: textWidth,
+        });
+        doc.text(pagesLabel, textX, doc.y + 2, {
+          width: textWidth,
+        });
+
+        doc.fontSize(8).fillColor('#64748b');
+        doc.text(`/verify/report/${params.publicId}`, textX, doc.y + 8, {
+          width: textWidth,
+        });
+        doc.text(`Code: ${params.publicId}`, textX, doc.y + 2, {
+          width: textWidth,
+        });
+
+        doc.y = y + boxHeight + 12;
       }
 
       doc.end();
@@ -357,6 +489,12 @@ export class ReportService {
       include: { logoFile: true },
     });
 
+    const church = await this.prisma.church.findUnique({
+      where: { id: churchId },
+      select: { name: true },
+    });
+    const churchName = church?.name ?? undefined;
+
     const logoBuffer = await this.tryDownloadLogoBuffer(
       letterhead?.logoFile ?? undefined,
     );
@@ -380,6 +518,36 @@ export class ReportService {
     ]
       .filter((x) => !!x)
       .join(' ');
+
+    const generatedAt = new Date();
+
+    const signPdf = format === ReportFormat.PDF;
+    let publicId: string | undefined;
+    let verifyTokenHash: string | undefined;
+    let qrPngBuffer: Buffer | undefined;
+
+    if (signPdf) {
+      publicId = randomUUID();
+      const token = randomBytes(32).toString('base64url');
+      verifyTokenHash = this.sha256Hex(token);
+
+      const baseUrl = this.resolvePublicBaseUrl();
+      let verificationUrl: string;
+      try {
+        const u = new URL(`/verify/report/${publicId}`, baseUrl);
+        u.searchParams.set('t', token);
+        verificationUrl = u.toString();
+      } catch {
+        throw new BadRequestException('PUBLIC_BASE_URL is invalid');
+      }
+
+      qrPngBuffer = await QRCode.toBuffer(verificationUrl, {
+        type: 'png',
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        width: 256,
+      });
+    }
 
     let buffer: Buffer | undefined;
 
@@ -445,6 +613,10 @@ export class ReportService {
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
+              generatedAt,
+              qrPngBuffer,
+              publicId,
+              churchName,
             });
     }
 
@@ -507,6 +679,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       } else if (financialSubtype === FinancialReportSubtype.EXPENSE) {
         const expenses = await this.prisma.expense.findMany({
@@ -566,6 +742,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       } else {
         const accounts = await this.prisma.cashAccount.findMany({
@@ -750,6 +930,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       }
     }
@@ -857,6 +1041,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       } else if (congregationSubtype === CongregationReportSubtype.HUT_JEMAAT) {
         const where: Prisma.MembershipWhereInput = {
@@ -918,6 +1106,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       } else {
         const memberships = await this.prisma.membership.findMany({
@@ -967,6 +1159,10 @@ export class ReportService {
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
+                generatedAt,
+                qrPngBuffer,
+                publicId,
+                churchName,
               });
       }
     }
@@ -1035,6 +1231,10 @@ export class ReportService {
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
+              generatedAt,
+              qrPngBuffer,
+              publicId,
+              churchName,
             });
     }
 
@@ -1216,7 +1416,13 @@ export class ReportService {
             lines,
             letterhead: letterheadInfo,
             logoBuffer,
+            generatedAt,
+            qrPngBuffer,
+            publicId,
+            churchName,
           }));
+
+    const fileSha256 = signPdf ? this.sha256Hex(buffer) : undefined;
 
     const sizeInKB = Number((buffer.length / 1024).toFixed(2));
 
@@ -1241,6 +1447,7 @@ export class ReportService {
           churchId: String(churchId),
           reportType: String(type),
           reportFormat: String(format),
+          reportPublicId: publicId ? String(publicId) : '',
           reportInput: input ? String(input) : '',
           reportCongregationSubtype: congregationSubtype
             ? String(congregationSubtype)
@@ -1292,6 +1499,9 @@ export class ReportService {
         churchId,
         fileId: file.id,
         createdById: userId ?? null,
+        publicId,
+        verifyTokenHash,
+        fileSha256,
       },
       include: {
         church: true,

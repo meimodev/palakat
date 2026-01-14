@@ -214,6 +214,99 @@ function renderPdfLetterhead(params: {
   doc.moveDown();
 }
 
+function renderPdfVerifyBlock(params: {
+  doc: any;
+  qrPngBuffer: Buffer;
+  publicId: string;
+  churchName?: string;
+  generatedAt: Date;
+  totalPages: number;
+}): number {
+  const { doc } = params;
+
+  const availableWidth =
+    doc.page.width - doc.page.margins.left - doc.page.margins.right;
+
+  const padding = 10;
+  const qrSize = 96;
+  const minTextHeight = 40;
+  const boxHeight = Math.max(qrSize, minTextHeight) + padding * 2;
+
+  const x = doc.page.margins.left;
+  const y = doc.y;
+
+  doc.save();
+  doc
+    .rect(x, y, availableWidth, boxHeight)
+    .strokeColor('#DDDDDD')
+    .lineWidth(1)
+    .stroke();
+
+  const qrX = x + padding;
+  const qrY = y + padding;
+
+  try {
+    doc.image(params.qrPngBuffer, qrX, qrY, {
+      width: qrSize,
+      height: qrSize,
+    });
+  } catch (e) {
+    doc
+      .rect(qrX, qrY, qrSize, qrSize)
+      .strokeColor('#FF4D4F')
+      .lineWidth(1)
+      .stroke();
+    doc
+      .fontSize(7)
+      .fillColor('#FF4D4F')
+      .text('QR render failed', qrX + 6, qrY + 6, {
+        width: qrSize - 12,
+      });
+    doc
+      .fontSize(6)
+      .fillColor('#FF4D4F')
+      .text(String((e as any)?.message ?? e ?? ''), qrX + 6, doc.y + 2, {
+        width: qrSize - 12,
+        height: qrSize - 12,
+      });
+  }
+
+  const textX = qrX + qrSize + 12;
+  const textWidth = Math.max(0, x + availableWidth - padding - textX);
+
+  const churchName = (params.churchName ?? '').trim();
+  const generatedLabel = `Generated: ${formatGeneratedAtForFooter(
+    params.generatedAt,
+  )}`;
+  const pagesLabel = `Total pages: ${params.totalPages}`;
+
+  doc.fontSize(11).fillColor('#0f172a');
+  doc.text(churchName || 'Report verification', textX, qrY, {
+    width: textWidth,
+    lineBreak: false,
+    ellipsis: true,
+  });
+
+  doc.fontSize(8).fillColor('#475569');
+  doc.text(generatedLabel, textX, doc.y + 6, {
+    width: textWidth,
+  });
+  doc.text(pagesLabel, textX, doc.y + 2, {
+    width: textWidth,
+  });
+
+  doc.fontSize(8).fillColor('#64748b');
+  doc.text(`Verify: /verify/report/${params.publicId}`, textX, doc.y + 8, {
+    width: textWidth,
+  });
+  doc.text(`Code: ${params.publicId}`, textX, doc.y + 2, {
+    width: textWidth,
+  });
+
+  doc.restore();
+  return boxHeight;
+}
+
 function formatPdfCellValue(value: unknown): string {
   if (value == null) return '';
   if (value instanceof Date) return value.toISOString();
@@ -245,6 +338,9 @@ export async function renderPdfTableReportBuffer(params: {
   letterhead?: ReportLetterhead;
   logoBuffer?: Buffer;
   generatedAt?: Date;
+  qrPngBuffer?: Buffer;
+  publicId?: string;
+  churchName?: string;
 }): Promise<Buffer> {
   const generatedAt = params.generatedAt ?? new Date();
 
@@ -376,6 +472,32 @@ export async function renderPdfTableReportBuffer(params: {
     }
 
     doc.y = y + 12;
+  }
+
+  if (params.qrPngBuffer && params.publicId) {
+    const blockHeight = 96 + 10 * 2;
+    const bottomLimit = doc.page.height - doc.page.margins.bottom;
+    if (doc.y + blockHeight + 12 > bottomLimit) {
+      doc.addPage();
+      doc.y = doc.page.margins.top;
+      renderPageHeader();
+    }
+
+    const range =
+      typeof doc.bufferedPageRange === 'function'
+        ? doc.bufferedPageRange()
+        : { start: 0, count: 1 };
+    const totalPages = (range.start ?? 0) + (range.count ?? 1);
+
+    const boxHeight = renderPdfVerifyBlock({
+      doc,
+      qrPngBuffer: params.qrPngBuffer,
+      publicId: params.publicId,
+      churchName: params.churchName ?? params.letterhead?.title ?? undefined,
+      generatedAt,
+      totalPages,
+    });
+    doc.y = doc.y + boxHeight + 12;
   }
 
   applyPdfFooter({ doc, generatedAt });
@@ -524,6 +646,9 @@ export async function renderPdfBulletinReportBuffer(params: {
   letterhead?: ReportLetterhead;
   logoBuffer?: Buffer;
   generatedAt?: Date;
+  qrPngBuffer?: Buffer;
+  publicId?: string;
+  churchName?: string;
 }): Promise<Buffer> {
   const generatedAt = params.generatedAt ?? new Date();
 
@@ -583,6 +708,27 @@ export async function renderPdfBulletinReportBuffer(params: {
     }
 
     doc.moveDown();
+  }
+
+  if (params.qrPngBuffer && params.publicId) {
+    const blockHeight = 96 + 10 * 2;
+    ensureSpace(blockHeight + 12);
+
+    const range =
+      typeof doc.bufferedPageRange === 'function'
+        ? doc.bufferedPageRange()
+        : { start: 0, count: 1 };
+    const totalPages = (range.start ?? 0) + (range.count ?? 1);
+
+    const boxHeight = renderPdfVerifyBlock({
+      doc,
+      qrPngBuffer: params.qrPngBuffer,
+      publicId: params.publicId,
+      churchName: params.churchName ?? params.letterhead?.title ?? undefined,
+      generatedAt,
+      totalPages,
+    });
+    doc.y = doc.y + boxHeight + 12;
   }
 
   applyPdfFooter({ doc, generatedAt });
