@@ -109,5 +109,10 @@ final operationsRouting = GoRoute(
       name: AppRoute.memberInvite,
       builder: (context, state) => const MemberInviteScreen(),
     ),
+    GoRoute(
+      path: 'member-create',
+      name: AppRoute.memberCreate,
+      builder: (context, state) => const MemberCreateScreen(),
+    ),
   ],
 );

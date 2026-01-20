@@ -9,6 +9,7 @@ export 'auth_repository.dart';
 export 'billing_repository.dart';
 export 'church_repository.dart';
 export 'church_letterhead_repository.dart';
+export 'church_permission_policy_repository.dart';
 export 'church_request_repository.dart';
 export 'document_repository.dart';
 export 'expense_repository.dart';

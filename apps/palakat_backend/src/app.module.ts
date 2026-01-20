@@ -32,6 +32,7 @@ import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.mo
 import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { VerifyModule } from './verify/verify.module';
+import { ChurchPermissionPolicyModule } from './church-permission-policy/church-permission-policy.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { VerifyModule } from './verify/verify.module';
     ApproverModule,
     ChurchModule,
     ChurchLetterheadModule,
+    ChurchPermissionPolicyModule,
     SongModule,
     ColumnModule,
     SongPartModule,

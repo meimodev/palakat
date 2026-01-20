@@ -10,4 +10,5 @@ export 'presentation/screens/church_screen.dart';
 export 'presentation/widgets/column_edit_drawer.dart';
 export 'presentation/widgets/info_edit_drawer.dart';
 export 'presentation/widgets/location_edit_drawer.dart';
+export 'presentation/widgets/permission_policy_edit_drawer.dart';
 export 'presentation/widgets/position_edit_drawer.dart';

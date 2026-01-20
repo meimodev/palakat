@@ -53,6 +53,15 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     );
   }
 
+  void _openPermissionPolicyDrawer() {
+    DrawerUtils.showDrawer(
+      context: context,
+      drawer: PermissionPolicyEditDrawer(
+        onClose: () => DrawerUtils.closeDrawer(context),
+      ),
+    );
+  }
+
   void _openLocationEditDrawer(Church church) {
     DrawerUtils.showDrawer(
       context: context,
@@ -312,6 +321,43 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             const SizedBox(height: 24),
 
             _buildPositionManagementSection(theme),
+            const SizedBox(height: 24),
+
+            _buildPermissionPolicySection(theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionPolicySection(ThemeData theme) {
+    final enabled = state.church.hasValue;
+
+    return ExpandableSurfaceCard(
+      title: 'Operations access control',
+      subtitle: 'Configure which positions can access Operations features',
+      initiallyExpanded: true,
+      trailing: ElevatedButton.icon(
+        onPressed: enabled ? _openPermissionPolicyDrawer : null,
+        icon: const Icon(Icons.security),
+        label: Text(context.l10n.btn_edit),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Publishing is open to all members. Other Operations features can be restricted by position.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),

@@ -41,7 +41,6 @@ normalize_choice() {
 }
 
 # Parse command line arguments
-START_BACKEND=true
 SKIP_DOCKER=false
 SKIP_SEED=false
 INTERACTIVE_MODE=false
@@ -52,7 +51,6 @@ show_help() {
     echo "Start the Palakat backend with Docker, database setup, and seeding"
     echo ""
     echo "Options:"
-    echo "  --no-start        Don't start the backend after setup"
     echo "  --skip-docker     Skip Docker startup (if already running)"
     echo "  --skip-seed       Skip database seeding"
     echo "  --interactive     Use interactive mode to choose options"
@@ -60,7 +58,6 @@ show_help() {
     echo ""
     echo "Examples:"
     echo "  $0                         # Interactive mode (asks questions)"
-    echo "  $0 --no-start              # Setup only, don't start backend"
     echo "  $0 --skip-docker           # Skip Docker (if already running)"
     echo "  $0 --skip-seed             # Setup without seeding"
 }
@@ -72,10 +69,6 @@ fi
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --no-start)
-            START_BACKEND=false
-            shift
-            ;;
         --skip-docker)
             SKIP_DOCKER=true
             shift
@@ -134,15 +127,7 @@ ask_interactive_options() {
     fi
     echo ""
 
-    # Ask about starting backend
-    read -p "$(echo -e ${YELLOW}❓ Start the backend server after setup? [Y/n]:${NC} )" start_choice
-    start_choice=$(normalize_choice "${start_choice:-Y}")
-    if [[ "$start_choice" == "n" || "$start_choice" == "no" ]]; then
-        START_BACKEND=false
-        print_info "Will not start the backend server"
-    else
-        print_info "Will start the backend server"
-    fi
+    print_info "Will start the backend server"
     echo ""
 }
 
@@ -432,14 +417,6 @@ seed_database() {
 
 # Start backend server
 start_backend_server() {
-    if [ "$START_BACKEND" = false ]; then
-        print_section "Backend Setup Complete"
-        print_info "Backend server not started (--no-start flag)"
-        print_info "To start the backend manually, run:"
-        print_info "  cd apps/palakat_backend && pnpm run start:dev"
-        return
-    fi
-
     print_section "Starting Backend Server"
 
     cd "$BACKEND_DIR"

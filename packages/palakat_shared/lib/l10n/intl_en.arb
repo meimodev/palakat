@@ -126,6 +126,8 @@
   "operationsItem_view_members_desc": "View current church members and their details",
   "operationsItem_invite_member_title": "Invite Member",
   "operationsItem_invite_member_desc": "Send invitation to add new members to the church",
+  "operationsItem_new_member_title": "New Member",
+  "operationsItem_new_member_desc": "Register a new member without requiring a phone number",
   "operations_noOperationsAvailable": "No operations available",
 
   "approval_title": "Approvals",

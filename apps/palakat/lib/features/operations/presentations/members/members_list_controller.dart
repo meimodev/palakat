@@ -74,7 +74,7 @@ class MembersListState {
     if (q.isEmpty) return memberships;
     return memberships.where((m) {
       final name = m.account?.name.toLowerCase() ?? '';
-      final phone = m.account?.phone.toLowerCase() ?? '';
+      final phone = m.account?.phone?.toLowerCase() ?? '';
       return name.contains(q) || phone.contains(q);
     }).toList();
   }

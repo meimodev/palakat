@@ -264,7 +264,7 @@ export type AccountGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type AccountGroupByOutputType = {
   id: number
   name: string
-  phone: string
+  phone: string | null
   email: string | null
   passwordHash: string | null
   role: $Enums.AccountRole
@@ -308,7 +308,7 @@ export type AccountWhereInput = {
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   id?: Prisma.IntFilter<"Account"> | number
   name?: Prisma.StringFilter<"Account"> | string
-  phone?: Prisma.StringFilter<"Account"> | string
+  phone?: Prisma.StringNullableFilter<"Account"> | string | null
   email?: Prisma.StringNullableFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
   role?: Prisma.EnumAccountRoleFilter<"Account"> | $Enums.AccountRole
@@ -339,7 +339,7 @@ export type AccountWhereInput = {
 export type AccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -404,7 +404,7 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
 export type AccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -433,7 +433,7 @@ export type AccountScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AccountScalarWhereWithAggregatesInput | Prisma.AccountScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Account"> | number
   name?: Prisma.StringWithAggregatesFilter<"Account"> | string
-  phone?: Prisma.StringWithAggregatesFilter<"Account"> | string
+  phone?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   role?: Prisma.EnumAccountRoleWithAggregatesFilter<"Account"> | $Enums.AccountRole
@@ -453,7 +453,7 @@ export type AccountScalarWhereWithAggregatesInput = {
 
 export type AccountCreateInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -484,7 +484,7 @@ export type AccountCreateInput = {
 export type AccountUncheckedCreateInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -514,7 +514,7 @@ export type AccountUncheckedCreateInput = {
 
 export type AccountUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -545,7 +545,7 @@ export type AccountUpdateInput = {
 export type AccountUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -576,7 +576,7 @@ export type AccountUncheckedUpdateInput = {
 export type AccountCreateManyInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -596,7 +596,7 @@ export type AccountCreateManyInput = {
 
 export type AccountUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -617,7 +617,7 @@ export type AccountUpdateManyMutationInput = {
 export type AccountUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -884,7 +884,7 @@ export type AccountUpdateOneRequiredWithoutReportJobsRequestedNestedInput = {
 
 export type AccountCreateWithoutMembershipInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -914,7 +914,7 @@ export type AccountCreateWithoutMembershipInput = {
 export type AccountUncheckedCreateWithoutMembershipInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -959,7 +959,7 @@ export type AccountUpdateToOneWithWhereWithoutMembershipInput = {
 
 export type AccountUpdateWithoutMembershipInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -989,7 +989,7 @@ export type AccountUpdateWithoutMembershipInput = {
 export type AccountUncheckedUpdateWithoutMembershipInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1018,7 +1018,7 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
 
 export type AccountCreateWithoutCashMutationsCreatedInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1048,7 +1048,7 @@ export type AccountCreateWithoutCashMutationsCreatedInput = {
 export type AccountUncheckedCreateWithoutCashMutationsCreatedInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1093,7 +1093,7 @@ export type AccountUpdateToOneWithWhereWithoutCashMutationsCreatedInput = {
 
 export type AccountUpdateWithoutCashMutationsCreatedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1123,7 +1123,7 @@ export type AccountUpdateWithoutCashMutationsCreatedInput = {
 export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1152,7 +1152,7 @@ export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
 
 export type AccountCreateWithoutReportsCreatedInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1182,7 +1182,7 @@ export type AccountCreateWithoutReportsCreatedInput = {
 export type AccountUncheckedCreateWithoutReportsCreatedInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1227,7 +1227,7 @@ export type AccountUpdateToOneWithWhereWithoutReportsCreatedInput = {
 
 export type AccountUpdateWithoutReportsCreatedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1257,7 +1257,7 @@ export type AccountUpdateWithoutReportsCreatedInput = {
 export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1286,7 +1286,7 @@ export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
 
 export type AccountCreateWithoutReviewedChurchRequestsInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1316,7 +1316,7 @@ export type AccountCreateWithoutReviewedChurchRequestsInput = {
 export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1350,7 +1350,7 @@ export type AccountCreateOrConnectWithoutReviewedChurchRequestsInput = {
 
 export type AccountCreateWithoutChurchRequestInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1380,7 +1380,7 @@ export type AccountCreateWithoutChurchRequestInput = {
 export type AccountUncheckedCreateWithoutChurchRequestInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1425,7 +1425,7 @@ export type AccountUpdateToOneWithWhereWithoutReviewedChurchRequestsInput = {
 
 export type AccountUpdateWithoutReviewedChurchRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1455,7 +1455,7 @@ export type AccountUpdateWithoutReviewedChurchRequestsInput = {
 export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1495,7 +1495,7 @@ export type AccountUpdateToOneWithWhereWithoutChurchRequestInput = {
 
 export type AccountUpdateWithoutChurchRequestInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1525,7 +1525,7 @@ export type AccountUpdateWithoutChurchRequestInput = {
 export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1554,7 +1554,7 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
 
 export type AccountCreateWithoutSentMembershipInvitationsInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1584,7 +1584,7 @@ export type AccountCreateWithoutSentMembershipInvitationsInput = {
 export type AccountUncheckedCreateWithoutSentMembershipInvitationsInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1618,7 +1618,7 @@ export type AccountCreateOrConnectWithoutSentMembershipInvitationsInput = {
 
 export type AccountCreateWithoutReceivedMembershipInvitationsInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1648,7 +1648,7 @@ export type AccountCreateWithoutReceivedMembershipInvitationsInput = {
 export type AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1693,7 +1693,7 @@ export type AccountUpdateToOneWithWhereWithoutSentMembershipInvitationsInput = {
 
 export type AccountUpdateWithoutSentMembershipInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1723,7 +1723,7 @@ export type AccountUpdateWithoutSentMembershipInvitationsInput = {
 export type AccountUncheckedUpdateWithoutSentMembershipInvitationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1763,7 +1763,7 @@ export type AccountUpdateToOneWithWhereWithoutReceivedMembershipInvitationsInput
 
 export type AccountUpdateWithoutReceivedMembershipInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1793,7 +1793,7 @@ export type AccountUpdateWithoutReceivedMembershipInvitationsInput = {
 export type AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1822,7 +1822,7 @@ export type AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput = {
 
 export type AccountCreateWithoutArticlesInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1852,7 +1852,7 @@ export type AccountCreateWithoutArticlesInput = {
 export type AccountUncheckedCreateWithoutArticlesInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1897,7 +1897,7 @@ export type AccountUpdateToOneWithWhereWithoutArticlesInput = {
 
 export type AccountUpdateWithoutArticlesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1927,7 +1927,7 @@ export type AccountUpdateWithoutArticlesInput = {
 export type AccountUncheckedUpdateWithoutArticlesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -1956,7 +1956,7 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
 
 export type AccountCreateWithoutArticleLikesInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -1986,7 +1986,7 @@ export type AccountCreateWithoutArticleLikesInput = {
 export type AccountUncheckedCreateWithoutArticleLikesInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -2031,7 +2031,7 @@ export type AccountUpdateToOneWithWhereWithoutArticleLikesInput = {
 
 export type AccountUpdateWithoutArticleLikesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -2061,7 +2061,7 @@ export type AccountUpdateWithoutArticleLikesInput = {
 export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -2090,7 +2090,7 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
 
 export type AccountCreateWithoutReportJobsRequestedInput = {
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -2120,7 +2120,7 @@ export type AccountCreateWithoutReportJobsRequestedInput = {
 export type AccountUncheckedCreateWithoutReportJobsRequestedInput = {
   id?: number
   name: string
-  phone: string
+  phone?: string | null
   email?: string | null
   passwordHash?: string | null
   role?: $Enums.AccountRole
@@ -2165,7 +2165,7 @@ export type AccountUpdateToOneWithWhereWithoutReportJobsRequestedInput = {
 
 export type AccountUpdateWithoutReportJobsRequestedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -2195,7 +2195,7 @@ export type AccountUpdateWithoutReportJobsRequestedInput = {
 export type AccountUncheckedUpdateWithoutReportJobsRequestedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAccountRoleFieldUpdateOperationsInput | $Enums.AccountRole
@@ -2445,7 +2445,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
-    phone: string
+    phone: string | null
     email: string | null
     passwordHash: string | null
     role: $Enums.AccountRole

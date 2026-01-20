@@ -46,6 +46,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   Widget build(BuildContext context) {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
+    final errorMsg = state.errorMessage?.trim() ?? '';
+    final errorLower = errorMsg.toLowerCase();
+    final isDisconnectedError =
+        errorLower == 'disconnected' || errorLower.contains('disconnect');
     final thisWeekBirthdaysAsync = ref.watch(thisWeekBirthdaysProvider);
     final thisWeekBirthdays =
         thisWeekBirthdaysAsync.value ?? const <BirthdayItem>[];
@@ -131,8 +135,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 loading: state.membershipLoading,
                 hasError:
                     state.errorMessage != null &&
-                    state.membershipLoading == false,
-                errorMessage: state.errorMessage,
+                    state.membershipLoading == false &&
+                    !isDisconnectedError,
+                errorMessage: isDisconnectedError ? null : state.errorMessage,
                 onRetry: () => controller.fetchData(),
                 shimmerPlaceholder: PalakatShimmerPlaceholders.membershipCard(),
                 child: MembershipCardWidget(

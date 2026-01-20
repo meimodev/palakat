@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Church: 'Church',
+  ChurchPermissionPolicy: 'ChurchPermissionPolicy',
   ChurchLetterhead: 'ChurchLetterhead',
   Column: 'Column',
   Membership: 'Membership',
@@ -108,6 +109,17 @@ export const ChurchScalarFieldEnum = {
 } as const
 
 export type ChurchScalarFieldEnum = (typeof ChurchScalarFieldEnum)[keyof typeof ChurchScalarFieldEnum]
+
+
+export const ChurchPermissionPolicyScalarFieldEnum = {
+  id: 'id',
+  churchId: 'churchId',
+  policy: 'policy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChurchPermissionPolicyScalarFieldEnum = (typeof ChurchPermissionPolicyScalarFieldEnum)[keyof typeof ChurchPermissionPolicyScalarFieldEnum]
 
 
 export const ChurchLetterheadScalarFieldEnum = {
@@ -511,6 +523,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: 'JsonNull'
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullableJsonNullValueInput = {

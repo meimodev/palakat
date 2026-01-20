@@ -37,6 +37,7 @@ import { RevenueService } from '../revenue/revenue.service';
 import { SongService } from '../song/song.service';
 import { SongPartService } from '../song-part/song-part.service';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
+import { ChurchPermissionPolicyService } from '../church-permission-policy/church-permission-policy.service';
 import { RpcRequest, RpcResponse } from './realtime.types';
 import { mapErrorToRpc } from './realtime.utils';
 import { RealtimeEmitterService } from './realtime-emitter.service';
@@ -171,6 +172,10 @@ export class RpcRouterService {
 
   private get firebaseAdmin(): FirebaseAdminService {
     return this.moduleRef.get(FirebaseAdminService, { strict: false });
+  }
+
+  private get churchPermissionPolicyService(): ChurchPermissionPolicyService {
+    return this.moduleRef.get(ChurchPermissionPolicyService, { strict: false });
   }
 
   private get realtimeEmitter(): RealtimeEmitterService {
@@ -434,6 +439,86 @@ export class RpcRouterService {
     return membership.id;
   }
 
+  private async resolveRequesterChurchIdForUser(
+    userId: number,
+  ): Promise<number> {
+    const membership = await (this.prisma as any).membership.findUnique({
+      where: { accountId: userId },
+      select: {
+        churchId: true,
+        column: {
+          select: {
+            churchId: true,
+          },
+        },
+      },
+    });
+
+    const churchId = membership?.churchId ?? membership?.column?.churchId;
+    if (!churchId) {
+      throw new BadRequestException(
+        'Account does not have an active membership',
+      );
+    }
+    return churchId;
+  }
+
+  private async requireOperationPermission(
+    client: any,
+    permission: string,
+  ): Promise<{
+    user: { userId: number; role?: string; aud?: string };
+    churchId: number;
+  }> {
+    const user = this.requireUserId(client);
+
+    const res: any =
+      await this.churchPermissionPolicyService.getEffectivePermissions(user);
+    const perms = res?.data?.permissions;
+    const allowed = Array.isArray(perms) && perms.includes(permission);
+    if (!allowed) {
+      throw new ForbiddenException('Insufficient permission');
+    }
+
+    const churchId =
+      typeof res?.data?.churchId === 'number'
+        ? (res.data.churchId as number)
+        : await this.resolveRequesterChurchIdForUser(user.userId);
+
+    return { user, churchId };
+  }
+
+  private async requireAnyOperationPermission(
+    client: any,
+    permissions: string[],
+  ): Promise<{
+    user: { userId: number; role?: string; aud?: string };
+    churchId: number;
+    allowedPermission: string;
+  }> {
+    const user = this.requireUserId(client);
+
+    const res: any =
+      await this.churchPermissionPolicyService.getEffectivePermissions(user);
+    const perms = res?.data?.permissions;
+
+    const allowedPermission =
+      Array.isArray(perms) && Array.isArray(permissions)
+        ? permissions.find((p) => perms.includes(p))
+        : undefined;
+
+    if (!allowedPermission) {
+      throw new ForbiddenException('Insufficient permission');
+    }
+
+    const churchId =
+      typeof res?.data?.churchId === 'number'
+        ? (res.data.churchId as number)
+        : await this.resolveRequesterChurchIdForUser(user.userId);
+
+    return { user, churchId, allowedPermission };
+  }
+
   private withPagination<T extends Record<string, any> | undefined>(
     query: T,
   ): T {
@@ -683,6 +768,11 @@ export class RpcRouterService {
       case 'auth.signOut': {
         const user = this.requireUserId(client);
         return this.authService.signOut(user.userId);
+      }
+
+      case 'auth.permissions.get': {
+        const user = this.requireUserId(client);
+        return this.churchPermissionPolicyService.getEffectivePermissions(user);
       }
 
       case 'auth.signingClient': {
@@ -1087,8 +1177,13 @@ export class RpcRouterService {
       }
 
       case 'account.list': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.members.read',
+        );
+
         const query = this.withPagination(payload) as any;
+        query.churchId = churchId;
         const res: any = await this.accountService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
@@ -1099,6 +1194,64 @@ export class RpcRouterService {
         const data: any = {
           ...rest,
           ...(membership ? { membership } : {}),
+        };
+
+        if (data.dob && !data.dob.toString().endsWith('Z')) {
+          data.dob = data.dob.toString() + 'Z';
+        }
+
+        const transformed = transformToIdArrays(data, [
+          'church',
+          'column',
+          'membershipPositions',
+        ]);
+        return this.accountService.create(transformed);
+      }
+
+      case 'member.create': {
+        const { user } = await this.requireOperationPermission(
+          client,
+          'ops.members.invite',
+        );
+
+        const requesterMembership: any = await (
+          this.prisma as any
+        ).membership.findUnique({
+          where: { accountId: user.userId },
+          select: {
+            churchId: true,
+            columnId: true,
+            column: { select: { churchId: true } },
+          },
+        });
+
+        const derivedChurchId =
+          requesterMembership?.churchId ??
+          requesterMembership?.column?.churchId;
+        const derivedColumnId = requesterMembership?.columnId;
+
+        if (!derivedChurchId || !derivedColumnId) {
+          throw new BadRequestException(
+            'Account does not have an active membership column',
+          );
+        }
+
+        const { membership, ...rest } = (payload ?? {}) as any;
+        const baseMembership =
+          membership && typeof membership === 'object'
+            ? ((membership as any).create ?? membership)
+            : {};
+        const normalizedMembership = {
+          ...(baseMembership && typeof baseMembership === 'object'
+            ? baseMembership
+            : {}),
+          churchId: derivedChurchId,
+          columnId: derivedColumnId,
+        };
+
+        const data: any = {
+          ...rest,
+          membership: normalizedMembership,
         };
 
         if (data.dob && !data.dob.toString().endsWith('Z')) {
@@ -1151,8 +1304,13 @@ export class RpcRouterService {
       }
 
       case 'membership.list': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.members.read',
+        );
+
         const query = this.withPagination(payload) as any;
+        query.churchId = churchId;
         const res: any = await this.membershipService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
@@ -1183,7 +1341,7 @@ export class RpcRouterService {
 
       // ===== Membership Invitations =====
       case 'membershipInvitation.preview': {
-        this.requireUserId(client);
+        await this.requireOperationPermission(client, 'ops.members.invite');
 
         const identifier =
           (payload.identifier as string | undefined) ??
@@ -1327,7 +1485,10 @@ export class RpcRouterService {
       }
 
       case 'membershipInvitation.create': {
-        const user = this.requireUserId(client);
+        const { user, churchId: requesterChurchId } =
+          await this.requireOperationPermission(client, 'ops.members.invite');
+
+        payload.churchId = requesterChurchId;
         const inviteeId = payload.inviteeId as number;
         const churchId = payload.churchId as number;
         const columnId = payload.columnId as number;
@@ -1354,12 +1515,24 @@ export class RpcRouterService {
           this.prisma as any
         ).membership.findUnique({
           where: { id: inviterMembershipId },
-          select: { id: true, churchId: true, columnId: true },
+          select: {
+            id: true,
+            churchId: true,
+            columnId: true,
+            column: {
+              select: {
+                churchId: true,
+              },
+            },
+          },
         });
         if (!inviterMembership?.id) {
           throw new BadRequestException('Invalid inviter membership');
         }
-        if (inviterMembership.churchId !== churchId) {
+
+        const inviterChurchId =
+          inviterMembership?.churchId ?? inviterMembership?.column?.churchId;
+        if (inviterChurchId !== churchId) {
           throw new ForbiddenException('Invalid church scope');
         }
         if (inviterMembership.columnId !== columnId) {
@@ -1992,99 +2165,187 @@ export class RpcRouterService {
 
       // ===== Finance / Revenue / Expense =====
       case 'finance.list': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const query = this.withPagination(payload) as any;
         const res: any = await this.financeService.findAll(query, user);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'finance.overview': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         return this.financeService.getOverview(user);
       }
 
       case 'revenue.list': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.revenue.create',
+        );
         const query = this.withPagination(payload) as any;
+        query.churchId = churchId;
         const res: any = await this.revenueService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'revenue.get': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.revenue.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.revenueService.findOne(id);
+        const res: any = await this.revenueService.findOne(id);
+        const recordChurchId = res?.data?.churchId;
+        if (typeof recordChurchId !== 'number' || recordChurchId !== churchId) {
+          throw new ForbiddenException('Invalid church scope');
+        }
+        return res;
       }
 
       case 'revenue.create': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.revenue.create',
+        );
+        payload.churchId = churchId;
         return this.revenueService.create(payload);
       }
 
       case 'revenue.update': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.revenue.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.revenueService.update(id, payload.dto ?? {});
+
+        const exists = await (this.prisma as any).revenue.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!exists) throw new ForbiddenException('Invalid church scope');
+
+        const dto = { ...(payload.dto ?? {}) };
+        delete (dto as any).churchId;
+        return this.revenueService.update(id, dto);
       }
 
       case 'revenue.delete': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.revenue.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
+
+        const exists = await (this.prisma as any).revenue.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!exists) throw new ForbiddenException('Invalid church scope');
+
         return this.revenueService.remove(id);
       }
 
       case 'expense.list': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.expense.create',
+        );
         const query = this.withPagination(payload) as any;
+        query.churchId = churchId;
         const res: any = await this.expenseService.findAll(query);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'expense.get': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.expense.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.expenseService.findOne(id);
+        const res: any = await this.expenseService.findOne(id);
+        const recordChurchId = res?.data?.churchId;
+        if (typeof recordChurchId !== 'number' || recordChurchId !== churchId) {
+          throw new ForbiddenException('Invalid church scope');
+        }
+        return res;
       }
 
       case 'expense.create': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.expense.create',
+        );
+        payload.churchId = churchId;
         return this.expenseService.create(payload);
       }
 
       case 'expense.update': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.expense.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.expenseService.update(id, payload.dto ?? {});
+
+        const exists = await (this.prisma as any).expense.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!exists) throw new ForbiddenException('Invalid church scope');
+
+        const dto = { ...(payload.dto ?? {}) };
+        delete (dto as any).churchId;
+        return this.expenseService.update(id, dto);
       }
 
       case 'expense.delete': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireOperationPermission(
+          client,
+          'ops.finance.expense.create',
+        );
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
+
+        const exists = await (this.prisma as any).expense.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!exists) throw new ForbiddenException('Invalid church scope');
+
         return this.expenseService.remove(id);
       }
 
       // ===== Cash =====
       case 'cashAccount.list': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const query = this.withPagination(payload) as any;
         const res: any = await this.cashAccountService.findAll(query, user);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'cashAccount.get': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2092,12 +2353,18 @@ export class RpcRouterService {
       }
 
       case 'cashAccount.create': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         return this.cashAccountService.create(payload, user);
       }
 
       case 'cashAccount.update': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2105,7 +2372,10 @@ export class RpcRouterService {
       }
 
       case 'cashAccount.delete': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2113,14 +2383,20 @@ export class RpcRouterService {
       }
 
       case 'cashMutation.list': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const query = this.withPagination(payload) as any;
         const res: any = await this.cashMutationService.findAll(query, user);
         return this.normalizePaginatedList(query, res);
       }
 
       case 'cashMutation.get': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2128,17 +2404,26 @@ export class RpcRouterService {
       }
 
       case 'cashMutation.create': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         return this.cashMutationService.create(payload, user);
       }
 
       case 'cashMutation.transfer': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         return this.cashMutationService.transfer(payload, user);
       }
 
       case 'cashMutation.delete': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
@@ -2192,7 +2477,10 @@ export class RpcRouterService {
       }
 
       case 'report.generate': {
-        const user = this.requireUserId(client);
+        const { user } = await this.requireOperationPermission(
+          client,
+          'ops.report.generate',
+        );
         return this.reportQueueService.createJob(payload, user);
       }
 
@@ -2829,6 +3117,33 @@ export class RpcRouterService {
         return this.churchLetterheadService.setLogoFile(logoFileId, user);
       }
 
+      case 'churchPermissionPolicy.getMe': {
+        const user = this.requireUserId(client);
+        return this.churchPermissionPolicyService.getMe(user);
+      }
+
+      case 'churchPermissionPolicy.updateMe': {
+        const user = this.requireUserId(client);
+        const updated = await this.churchPermissionPolicyService.updateMe(
+          payload,
+          user,
+        );
+
+        const churchId = (updated as any)?.data?.churchId;
+        if (typeof churchId === 'number') {
+          this.realtimeEmitter.emitToRoom(
+            `church.${churchId}`,
+            'permissions.updated',
+            {
+              churchId,
+              policyUpdatedAt: (updated as any)?.data?.updatedAt ?? null,
+            },
+          );
+        }
+
+        return updated;
+      }
+
       case 'church.get': {
         this.requireUserId(client);
         const id = payload.id as number;
@@ -3068,11 +3383,11 @@ export class RpcRouterService {
 
       // ===== Financial Account Numbers =====
       case 'financialAccountNumber.list': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const query = this.withPagination(payload) as any;
-        const churchId = query.churchId as number;
-        if (typeof churchId !== 'number')
-          throw new BadRequestException('churchId is required');
         const { churchId: _c, ...restQuery } = query;
         const res: any = await this.financialAccountNumberService.findAll(
           restQuery,
@@ -3082,11 +3397,11 @@ export class RpcRouterService {
       }
 
       case 'financialAccountNumber.available': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const query = this.withPagination(payload) as any;
-        const churchId = query.churchId as number;
-        if (typeof churchId !== 'number')
-          throw new BadRequestException('churchId is required');
         const { churchId: _c, ...restQuery } = query;
         const res: any =
           await this.financialAccountNumberService.getAvailableAccounts(
@@ -3097,18 +3412,26 @@ export class RpcRouterService {
       }
 
       case 'financialAccountNumber.get': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.financialAccountNumberService.findOne(id);
+        const res: any = await this.financialAccountNumberService.findOne(id);
+        const recordChurchId = res?.data?.churchId;
+        if (typeof recordChurchId !== 'number' || recordChurchId !== churchId) {
+          throw new ForbiddenException('Invalid church scope');
+        }
+        return res;
       }
 
       case 'financialAccountNumber.create': {
-        this.requireUserId(client);
-        const churchId = payload.churchId as number;
-        if (typeof churchId !== 'number')
-          throw new BadRequestException('churchId is required');
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         return this.financialAccountNumberService.create(
           payload.dto ?? payload,
           churchId,
@@ -3116,18 +3439,43 @@ export class RpcRouterService {
       }
 
       case 'financialAccountNumber.update': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.financialAccountNumberService.update(id, payload.dto ?? {});
+        const existing = await (
+          this.prisma as any
+        ).financialAccountNumber.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!existing) throw new ForbiddenException('Invalid church scope');
+
+        const dto = { ...(payload.dto ?? {}) };
+        delete (dto as any).churchId;
+        return this.financialAccountNumberService.update(id, dto);
       }
 
       case 'financialAccountNumber.delete': {
-        this.requireUserId(client);
+        const { churchId } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+        ]);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
+
+        const existing = await (
+          this.prisma as any
+        ).financialAccountNumber.findFirst({
+          where: { id, churchId },
+          select: { id: true },
+        });
+        if (!existing) throw new ForbiddenException('Invalid church scope');
+
         return this.financialAccountNumberService.remove(id);
       }
 

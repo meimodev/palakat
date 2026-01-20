@@ -36,6 +36,25 @@ class MembershipRepository {
     }
   }
 
+  Future<Result<Account, Failure>> createMember({
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('member.create', data);
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid create member response payload'),
+        );
+      }
+      return Result.success(Account.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   Future<Result<Map<String, int>, Failure>> fetchCounts(
     GetFetchAccountsRequest request,
   ) async {

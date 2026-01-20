@@ -43,16 +43,24 @@ export class ReportQueueService {
 
     const membership = await this.prisma.membership.findUnique({
       where: { accountId: userId },
-      select: { churchId: true },
+      select: {
+        churchId: true,
+        column: {
+          select: {
+            churchId: true,
+          },
+        },
+      },
     });
 
-    if (!membership?.churchId) {
+    const churchId = membership?.churchId ?? membership?.column?.churchId;
+    if (!churchId) {
       throw new BadRequestException(
         'Account does not have an active membership',
       );
     }
 
-    return membership.churchId;
+    return churchId;
   }
 
   async createJob(dto: ReportGenerateDto, user: any) {

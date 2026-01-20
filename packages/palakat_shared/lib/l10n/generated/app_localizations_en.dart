@@ -388,6 +388,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send invitation to add new members to the church';
 
   @override
+  String get operationsItem_new_member_title => 'New Member';
+
+  @override
+  String get operationsItem_new_member_desc =>
+      'Register a new member without requiring a phone number';
+
+  @override
   String get operations_noOperationsAvailable => 'No operations available';
 
   @override

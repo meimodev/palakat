@@ -13,6 +13,41 @@ part 'dashboard_controller.g.dart';
 class DashboardController extends _$DashboardController {
   @override
   DashboardState build() {
+    final socket = ref.read(socketServiceProvider);
+    void onSocketStatusChanged() {
+      if (socket.connectionStatus != SocketConnectionStatus.connected) {
+        return;
+      }
+
+      final msg = state.errorMessage?.trim().toLowerCase() ?? '';
+      final hasDisconnectError =
+          msg == 'disconnected' || msg.contains('disconnect');
+
+      if (hasDisconnectError) {
+        clearError();
+      }
+
+      if (state.account != null &&
+          !state.thisWeekActivitiesLoading &&
+          !state.thisWeekAnnouncementsLoading &&
+          (hasDisconnectError ||
+              (state.thisWeekActivities.isEmpty &&
+                  state.thisWeekAnnouncements.isEmpty))) {
+        Future.microtask(() async {
+          await Future.wait([
+            fetchThisWeekActivities(),
+            fetchChurchRequest(),
+            fetchPendingMembershipInvitation(),
+          ]);
+        });
+      }
+    }
+
+    socket.connectionStatusListenable.addListener(onSocketStatusChanged);
+    ref.onDispose(() {
+      socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
+    });
+
     // Initialize and fetch data
     Future.microtask(() => _initializeAndFetchData());
     return const DashboardState();
@@ -86,7 +121,11 @@ class DashboardController extends _$DashboardController {
       result.when(
         onSuccess: (account) {
           if (account != null) {
-            state = state.copyWith(account: account, membershipLoading: false);
+            state = state.copyWith(
+              account: account,
+              membershipLoading: false,
+              errorMessage: null,
+            );
 
             Future.microtask(() async {
               await Future.wait([
@@ -266,6 +305,7 @@ class DashboardController extends _$DashboardController {
           thisWeekActivities: eventsAndServices,
           thisWeekAnnouncementsLoading: false,
           thisWeekAnnouncements: announcements,
+          errorMessage: null,
         );
 
         Future.microtask(() async {
@@ -286,12 +326,16 @@ class DashboardController extends _$DashboardController {
         });
       },
       onFailure: (failure) {
+        final msg = failure.message.trim().toLowerCase();
+        final isDisconnected =
+            msg == 'disconnected' || msg.contains('disconnect');
+
         state = state.copyWith(
           thisWeekActivitiesLoading: false,
           thisWeekActivities: [],
           thisWeekAnnouncementsLoading: false,
           thisWeekAnnouncements: [],
-          errorMessage: failure.message,
+          errorMessage: isDisconnected ? null : failure.message,
         );
       },
     );

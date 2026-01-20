@@ -220,7 +220,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
         cellBuilder: (ctx, account) {
           final theme = Theme.of(ctx);
           return SelectableText(
-            account.phone.formattedPhone,
+            account.phone?.formattedPhone ?? '-',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

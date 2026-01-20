@@ -28,9 +28,9 @@ class AccountController extends _$AccountController {
   }
 
   /// Format phone number with dashes (XXXX-XXXX-XXXX)
-  String _formatPhoneNumber(String phone) {
+  String _formatPhoneNumber(String? phone) {
     // Remove all non-digit characters
-    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    final digits = (phone ?? '').replaceAll(RegExp(r'\D'), '');
 
     // Limit to 13 digits
     final limitedDigits = digits.length > 13 ? digits.substring(0, 13) : digits;

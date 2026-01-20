@@ -750,6 +750,18 @@ abstract class AppLocalizations {
   /// **'Send invitation to add new members to the church'**
   String get operationsItem_invite_member_desc;
 
+  /// No description provided for @operationsItem_new_member_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Member'**
+  String get operationsItem_new_member_title;
+
+  /// No description provided for @operationsItem_new_member_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Register a new member without requiring a phone number'**
+  String get operationsItem_new_member_desc;
+
   /// No description provided for @operations_noOperationsAvailable.
   ///
   /// In en, this message translates to:

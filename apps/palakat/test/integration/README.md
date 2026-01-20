@@ -192,6 +192,30 @@ While automated tests cover most scenarios, some flows require manual testing:
 - [ ] New user navigates to registration screen
 - [ ] Registration completes and user is signed in
 
+### Operations Permissions & Access Control
+
+- [ ] Sign in as a normal member (non-admin position) and verify:
+  - [ ] Publishing (create activity) is available
+  - [ ] Viewing members/birthdays is available
+  - [ ] Invite member is not available (if policy requires positions)
+  - [ ] Finance screens/actions are not available (if policy requires positions)
+  - [ ] Report generation is not available (if policy requires positions)
+- [ ] Sign in as an allowed church admin (e.g. Ketua Majelis / Sekretaris / Pengurus Harian) and verify:
+  - [ ] Admin app: Church screen → “Operations access control” drawer opens
+  - [ ] Admin app: Update the policy (positions for Invite/Reports/Finance) and save
+  - [ ] Admin app: Save succeeds and drawer closes
+- [ ] Realtime refresh:
+  - [ ] Keep the Palakat app open on Operations screen
+  - [ ] Change the policy from Admin app
+  - [ ] Palakat app refreshes its gated UI shortly after (no restart required)
+- [ ] Backend enforcement (negative tests):
+  - [ ] With a user that does NOT have `ops.members.invite`, attempting to invite a member fails with Forbidden
+  - [ ] With a user that does NOT have `ops.report.generate`, attempting to generate a report fails with Forbidden
+  - [ ] With a user that does NOT have finance permissions, attempting to access finance/cash endpoints fails with Forbidden
+- [ ] Backend scoping:
+  - [ ] Finance list (revenue/expense) only returns items for the signed-in user’s church
+  - [ ] Financial account numbers list/available/create/update/delete only affects the signed-in user’s church
+
 ### Report Generation & Download
 
 - [ ] Open Report Generate screen (Admin and Mobile)

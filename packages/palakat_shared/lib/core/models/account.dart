@@ -13,7 +13,7 @@ abstract class Account with _$Account {
   factory Account({
     int? id,
     required String name,
-    required String phone,
+    String? phone,
     String? email,
     @Default(Gender.male) Gender gender,
     @Default(MaritalStatus.single) MaritalStatus maritalStatus,

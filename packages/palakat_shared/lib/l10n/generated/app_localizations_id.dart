@@ -390,6 +390,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Kirim undangan untuk menambahkan anggota baru ke gereja';
 
   @override
+  String get operationsItem_new_member_title => 'Anggota Baru';
+
+  @override
+  String get operationsItem_new_member_desc =>
+      'Daftarkan anggota baru tanpa nomor telepon';
+
+  @override
   String get operations_noOperationsAvailable => 'Tidak ada operasi tersedia';
 
   @override

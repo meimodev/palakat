@@ -196,6 +196,8 @@
   "operationsItem_view_members_desc": "Lihat anggota gereja saat ini dan detailnya",
   "operationsItem_invite_member_title": "Undang Anggota",
   "operationsItem_invite_member_desc": "Kirim undangan untuk menambahkan anggota baru ke gereja",
+  "operationsItem_new_member_title": "Anggota Baru",
+  "operationsItem_new_member_desc": "Daftarkan anggota baru tanpa nomor telepon",
   "operations_noOperationsAvailable": "Tidak ada operasi tersedia",
 
   "approval_title": "Persetujuan",

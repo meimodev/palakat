@@ -26,6 +26,8 @@ AppLocalizations _l10n() {
 @riverpod
 class OperationsController extends _$OperationsController {
   AuthRepository get _authRepository => ref.read(authRepositoryProvider);
+  ChurchPermissionPolicyRepository get _permissionRepository =>
+      ref.read(churchPermissionPolicyRepositoryProvider);
   ActivityRepository get _activityRepository =>
       ref.read(activityRepositoryProvider);
   ReportRepository get _reportRepository => ref.read(reportRepositoryProvider);
@@ -44,6 +46,10 @@ class OperationsController extends _$OperationsController {
           e.name == 'reportJob.updated' ||
           e.name == 'report.ready') {
         Future.microtask(() => fetchReportData());
+      }
+
+      if (e.name == 'permissions.updated') {
+        Future.microtask(() => fetchMembership());
       }
     });
 
@@ -68,26 +74,37 @@ class OperationsController extends _$OperationsController {
 
   Future<void> fetchMembership() async {
     final result = await _authRepository.getSignedInAccount();
-    result.when(
-      onSuccess: (account) {
-        final membership = account!.membership;
-        final categories = _buildCategories(membership);
-        final expansionState = _initializeCategoryExpansionState(categories);
 
-        state = state.copyWith(
-          membership: membership,
-          accountName: account.name,
-          categories: categories,
-          categoryExpansionState: expansionState,
-          loadingScreen: false,
-        );
-      },
-      onFailure: (failure) {
-        state = state.copyWith(
-          loadingScreen: false,
-          errorMessage: failure.message,
-        );
-      },
+    Account? account;
+    Failure? failure;
+    result.when(onSuccess: (a) => account = a, onFailure: (f) => failure = f);
+
+    if (failure != null) {
+      state = state.copyWith(
+        loadingScreen: false,
+        errorMessage: failure!.message,
+      );
+      return;
+    }
+
+    final membership = account?.membership;
+
+    final permsRes = await _permissionRepository.fetchMyPermissions();
+    Set<String> permissions = <String>{};
+    permsRes.when(
+      onSuccess: (p) => permissions = p.permissions.toSet(),
+      onFailure: (_) => permissions = <String>{},
+    );
+
+    final categories = _buildCategories(membership, permissions);
+    final expansionState = _initializeCategoryExpansionState(categories);
+
+    state = state.copyWith(
+      membership: membership,
+      accountName: account?.name,
+      categories: categories,
+      categoryExpansionState: expansionState,
+      loadingScreen: false,
     );
   }
 
@@ -227,10 +244,17 @@ class OperationsController extends _$OperationsController {
   /// Builds the list of operation categories based on user's membership positions.
   /// Categories: Publishing, Financial, Reports
   /// _Requirements: 4.1, 4.2, 4.3_
-  List<OperationCategory> _buildCategories(Membership? membership) {
+  List<OperationCategory> _buildCategories(
+    Membership? membership,
+    Set<String> permissions,
+  ) {
     final l10n = _l10n();
-    final positions = membership?.membershipPositions ?? [];
-    final hasPositions = positions.isNotEmpty;
+    final canPublish = permissions.contains('ops.activity.create');
+    final canMembersRead = permissions.contains('ops.members.read');
+    final canMembersInvite = permissions.contains('ops.members.invite');
+    final canReportGenerate = permissions.contains('ops.report.generate');
+    final canRevenueCreate = permissions.contains('ops.finance.revenue.create');
+    final canExpenseCreate = permissions.contains('ops.finance.expense.create');
 
     // Publishing category - available to all users with positions
     final publishingOperations = <OperationItem>[
@@ -241,7 +265,7 @@ class OperationsController extends _$OperationsController {
         icon: AppIcons.handshake,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.service},
-        isEnabled: hasPositions,
+        isEnabled: canPublish,
       ),
       OperationItem(
         id: 'publish_event',
@@ -250,7 +274,7 @@ class OperationsController extends _$OperationsController {
         icon: AppIcons.event,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.event},
-        isEnabled: hasPositions,
+        isEnabled: canPublish,
       ),
       OperationItem(
         id: 'publish_announcement',
@@ -259,7 +283,7 @@ class OperationsController extends _$OperationsController {
         icon: AppIcons.announcement,
         routeName: AppRoute.activityPublish,
         routeParams: {RouteParamKey.activityType: ActivityType.announcement},
-        isEnabled: hasPositions,
+        isEnabled: canPublish,
       ),
     ];
 
@@ -276,7 +300,7 @@ class OperationsController extends _$OperationsController {
           RouteParamKey.financeType: FinanceType.revenue,
           RouteParamKey.isStandalone: true,
         },
-        isEnabled: hasPositions,
+        isEnabled: canRevenueCreate,
       ),
       OperationItem(
         id: 'add_expense',
@@ -288,7 +312,7 @@ class OperationsController extends _$OperationsController {
           RouteParamKey.financeType: FinanceType.expense,
           RouteParamKey.isStandalone: true,
         },
-        isEnabled: hasPositions,
+        isEnabled: canExpenseCreate,
       ),
     ];
 
@@ -303,7 +327,7 @@ class OperationsController extends _$OperationsController {
         routeParams: {
           RouteParamKey.reportType: ReportGenerateType.incomingDocument,
         },
-        isEnabled: hasPositions,
+        isEnabled: canReportGenerate,
       ),
       OperationItem(
         id: 'report_congregation',
@@ -314,7 +338,7 @@ class OperationsController extends _$OperationsController {
         routeParams: {
           RouteParamKey.reportType: ReportGenerateType.congregation,
         },
-        isEnabled: hasPositions,
+        isEnabled: canReportGenerate,
       ),
       OperationItem(
         id: 'report_activity',
@@ -323,7 +347,7 @@ class OperationsController extends _$OperationsController {
         icon: AppIcons.event,
         routeName: AppRoute.reportGenerate,
         routeParams: {RouteParamKey.reportType: ReportGenerateType.activity},
-        isEnabled: hasPositions,
+        isEnabled: canReportGenerate,
       ),
       OperationItem(
         id: 'report_financial',
@@ -332,7 +356,7 @@ class OperationsController extends _$OperationsController {
         icon: AppIcons.wallet,
         routeName: AppRoute.reportGenerate,
         routeParams: {RouteParamKey.reportType: ReportGenerateType.financial},
-        isEnabled: hasPositions,
+        isEnabled: canReportGenerate,
       ),
     ];
 
@@ -344,7 +368,7 @@ class OperationsController extends _$OperationsController {
         description: l10n.operationsItem_view_members_desc,
         icon: AppIcons.group,
         routeName: AppRoute.membersList,
-        isEnabled: hasPositions,
+        isEnabled: canMembersRead,
       ),
       OperationItem(
         id: 'member_birthdays',
@@ -352,7 +376,7 @@ class OperationsController extends _$OperationsController {
         description: 'View member birthdays',
         icon: AppIcons.birthday,
         routeName: AppRoute.memberBirthdays,
-        isEnabled: hasPositions,
+        isEnabled: canMembersRead,
       ),
       OperationItem(
         id: 'invite_member',
@@ -360,7 +384,15 @@ class OperationsController extends _$OperationsController {
         description: l10n.operationsItem_invite_member_desc,
         icon: AppIcons.addCircle,
         routeName: AppRoute.memberInvite,
-        isEnabled: hasPositions,
+        isEnabled: canMembersInvite,
+      ),
+      OperationItem(
+        id: 'new_member',
+        title: l10n.operationsItem_new_member_title,
+        description: l10n.operationsItem_new_member_desc,
+        icon: AppIcons.addCircle,
+        routeName: AppRoute.memberCreate,
+        isEnabled: canMembersInvite,
       ),
     ];
 

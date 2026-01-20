@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Church: 'Church',
+  ChurchPermissionPolicy: 'ChurchPermissionPolicy',
   ChurchLetterhead: 'ChurchLetterhead',
   Column: 'Column',
   Membership: 'Membership',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
+    modelProps: "church" | "churchPermissionPolicy" | "churchLetterhead" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -500,6 +501,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ChurchCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ChurchCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChurchPermissionPolicy: {
+      payload: Prisma.$ChurchPermissionPolicyPayload<ExtArgs>
+      fields: Prisma.ChurchPermissionPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChurchPermissionPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChurchPermissionPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.ChurchPermissionPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChurchPermissionPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.ChurchPermissionPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.ChurchPermissionPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.ChurchPermissionPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ChurchPermissionPolicyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>[]
+        }
+        delete: {
+          args: Prisma.ChurchPermissionPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        update: {
+          args: Prisma.ChurchPermissionPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.ChurchPermissionPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChurchPermissionPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ChurchPermissionPolicyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>[]
+        }
+        upsert: {
+          args: Prisma.ChurchPermissionPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChurchPermissionPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.ChurchPermissionPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChurchPermissionPolicy>
+        }
+        groupBy: {
+          args: Prisma.ChurchPermissionPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChurchPermissionPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChurchPermissionPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChurchPermissionPolicyCountAggregateOutputType> | number
         }
       }
     }
@@ -2407,6 +2482,17 @@ export const ChurchScalarFieldEnum = {
 export type ChurchScalarFieldEnum = (typeof ChurchScalarFieldEnum)[keyof typeof ChurchScalarFieldEnum]
 
 
+export const ChurchPermissionPolicyScalarFieldEnum = {
+  id: 'id',
+  churchId: 'churchId',
+  policy: 'policy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChurchPermissionPolicyScalarFieldEnum = (typeof ChurchPermissionPolicyScalarFieldEnum)[keyof typeof ChurchPermissionPolicyScalarFieldEnum]
+
+
 export const ChurchLetterheadScalarFieldEnum = {
   id: 'id',
   churchId: 'churchId',
@@ -2810,6 +2896,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
@@ -2888,6 +2981,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -3123,20 +3230,6 @@ export type ListEnumReportFormatFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
  * Reference to a field of type 'GeneratedBy'
  */
 export type EnumGeneratedByFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeneratedBy'>
@@ -3343,6 +3436,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   church?: Prisma.ChurchOmit
+  churchPermissionPolicy?: Prisma.ChurchPermissionPolicyOmit
   churchLetterhead?: Prisma.ChurchLetterheadOmit
   column?: Prisma.ColumnOmit
   membership?: Prisma.MembershipOmit

@@ -126,7 +126,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
         _nameController.text = latest.name;
         _emailController.text = latest.email ?? '';
         // Format phone number for display
-        final phoneDigits = _normalizePhoneDigits(latest.phone);
+        final phoneDigits = _normalizePhoneDigits(latest.phone ?? '');
         _phoneController.text = _formatLocalPhone(phoneDigits);
         _isBaptized = latest.membership?.baptize ?? false;
         _isSidi = latest.membership?.sidi ?? false;

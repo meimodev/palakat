@@ -16,6 +16,7 @@ model Church {
   description             String?
   documentAccountNumber   String?
   letterhead              ChurchLetterhead?
+  permissionPolicy        ChurchPermissionPolicy?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   locationId              Int                      @unique
@@ -37,6 +38,17 @@ model Church {
   reportJobs              ReportJob[]
 
   @@index([name])
+}
+
+model ChurchPermissionPolicy {
+  id        Int      @id @default(autoincrement())
+  churchId  Int      @unique
+  church    Church   @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  policy    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([churchId])
 }
 
 model ChurchLetterhead {
@@ -106,7 +118,7 @@ model MembershipPosition {
 model Account {
   id                    Int            @id @default(autoincrement())
   name                  String
-  phone                 String         @unique
+  phone                 String?        @unique
   email                 String?        @unique
   passwordHash          String?
   role                  AccountRole    @default(USER)

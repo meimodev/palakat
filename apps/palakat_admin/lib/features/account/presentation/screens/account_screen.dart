@@ -435,7 +435,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             Row(
                               children: [
                                 Text(
-                                  _currentAccount.phone,
+                                  _currentAccount.phone ?? '-',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),

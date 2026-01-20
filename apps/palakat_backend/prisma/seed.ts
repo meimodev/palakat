@@ -879,34 +879,15 @@ async function seedExtraMembersForChurches(
 
 // Extended position names to ensure we have enough for all approval rule variations
 const EXTENDED_POSITION_NAMES = [
-  // Original positions
-  'Penatua PKB',
-  'Penatua Kolom',
-  'Wakil Ketua',
+  'Ketua Jemaat',
+  'Wakil Ketua Jemaat',
   'Sekretaris',
   'Bendahara',
-  'Anggota Majelis',
-  'Ketua Komisi',
-  'Koordinator Ibadah',
-  'Koordinator Pemuda',
-  'Koordinator Anak',
-  'Diaken',
-  'Pengurus Harian',
-  // Additional positions for more approval rule coverage
-  'Ketua Bidang Keuangan',
-  'Wakil Bendahara',
-  'Koordinator Diakonia',
-  'Koordinator Musik',
-  'Koordinator Multimedia',
-  'Ketua Bidang Pelayanan',
-  'Sekretaris Bidang',
-  'Anggota Komisi Keuangan',
-  'Anggota Komisi Pelayanan',
-  'Koordinator Kegiatan',
-  'Ketua Bidang Pembangunan',
-  'Koordinator Persekutuan',
-  'Ketua Bidang Pendidikan',
-  'Koordinator Sekolah Minggu',
+  'Penatua Kaum Bapa',
+  'Penatua Kaum Ibu',
+  'Penatua Pemuda',
+  'Penatua Remaja',
+  'Penatua Anak Sekolah Minggu',
 ];
 
 async function seedMembershipPositions(memberships: MembershipWithChurch[]) {
@@ -928,30 +909,43 @@ async function seedMembershipPositions(memberships: MembershipWithChurch[]) {
     usedPositionsByChurch.set(churchId, new Set<string>());
   }
 
-  // Create positions ensuring good coverage
+  const membershipsByChurch = new Map<number, MembershipWithChurch[]>();
   for (const membership of membershipsWithPositions) {
-    const usedPositions = usedPositionsByChurch.get(membership.churchId)!;
+    const list = membershipsByChurch.get(membership.churchId) ?? [];
+    list.push(membership);
+    membershipsByChurch.set(membership.churchId, list);
+  }
 
-    // Try to assign 1-3 positions per membership
-    const numPositions = Math.floor(seededRandom() * 3) + 1;
+  for (const churchId of churchIds) {
+    const churchMemberships = membershipsByChurch.get(churchId) ?? [];
+    if (churchMemberships.length === 0) {
+      continue;
+    }
 
-    for (let i = 0; i < numPositions; i++) {
-      // Find an unused position name for this church
-      let positionName: string | null = null;
+    const columnCount = await prisma.column.count({
+      where: { churchId },
+    });
 
-      // First try to find an unused position from the extended list
-      for (const name of EXTENDED_POSITION_NAMES) {
-        if (!usedPositions.has(name)) {
-          positionName = name;
-          break;
-        }
-      }
+    const positionNames = [
+      ...EXTENDED_POSITION_NAMES,
+      ...Array.from(
+        { length: columnCount },
+        (_, i) => `Penatua Kolom ${i + 1}`,
+      ),
+      ...Array.from({ length: columnCount }, (_, i) => `Syamas Kolom ${i + 1}`),
+    ];
 
-      // If all positions are used, skip
-      if (!positionName) {
+    const usedPositions = usedPositionsByChurch.get(churchId)!;
+    let membershipIndex = 0;
+
+    for (const positionName of positionNames) {
+      if (usedPositions.has(positionName)) {
         continue;
       }
 
+      const membership =
+        churchMemberships[membershipIndex % churchMemberships.length];
+      membershipIndex++;
       usedPositions.add(positionName);
 
       const position = await prisma.membershipPosition.create({

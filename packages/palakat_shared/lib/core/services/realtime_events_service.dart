@@ -36,6 +36,8 @@ class RealtimeEventsService {
     _listen('reportJob.updated');
     _listen('report.ready');
 
+    _listen('permissions.updated');
+
     _listen('songDb.updated');
   }
 

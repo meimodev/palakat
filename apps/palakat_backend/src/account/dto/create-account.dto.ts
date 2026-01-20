@@ -84,10 +84,11 @@ export class CreateAccountDto {
   @IsNotEmpty()
   name!: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   // Keep generic validation; E.164 might be too strict for local numbers
-  phone!: string;
+  phone?: string | null;
 
   @IsOptional()
   @IsEmail()

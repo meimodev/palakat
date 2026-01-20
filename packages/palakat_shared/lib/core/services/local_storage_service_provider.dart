@@ -7,7 +7,7 @@ import 'package:palakat_shared/core/services/local_storage_service.dart';
 
 part 'local_storage_service_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 LocalStorageService localStorageService(Ref ref) {
   // Ensure this provider is kept alive to avoid creating multiple AuthService instances
   // which could lead to losing the cached _auth between reads.
