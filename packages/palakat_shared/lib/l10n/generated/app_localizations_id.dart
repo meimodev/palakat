@@ -2457,10 +2457,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get dateRangePreset_thisMonth => 'Bulan Ini';
 
   @override
+  String get dateRangePreset_thisYear => 'Tahun Ini';
+
+  @override
   String get dateRangePreset_lastWeek => 'Minggu Lalu';
 
   @override
   String get dateRangePreset_lastMonth => 'Bulan Lalu';
+
+  @override
+  String get dateRangePreset_lastYear => 'Tahun Lalu';
 
   @override
   String get dateRangePreset_custom => 'Rentang Kustom';

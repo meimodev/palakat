@@ -15,7 +15,6 @@ model Church {
   email                   String?
   description             String?
   documentAccountNumber   String?
-  letterhead              ChurchLetterhead?
   permissionPolicy        ChurchPermissionPolicy?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
@@ -47,22 +46,6 @@ model ChurchPermissionPolicy {
   policy    Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([churchId])
-}
-
-model ChurchLetterhead {
-  id         Int         @id @default(autoincrement())
-  churchId   Int         @unique
-  church     Church      @relation(fields: [churchId], references: [id], onDelete: Cascade)
-  logoFileId Int?        @unique
-  logoFile   FileManager? @relation("ChurchLetterheadLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
-  title      String?
-  line1      String?
-  line2      String?
-  line3      String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
 
   @@index([churchId])
 }
@@ -486,7 +469,6 @@ model FileManager {
   report    Report?
   document  Document?
   activity  Activity?
-  churchLetterheadLogo ChurchLetterhead? @relation("ChurchLetterheadLogo")
 
   @@unique([bucket, path])
   @@index([churchId])

@@ -29,8 +29,10 @@ class DateRangePresetInput extends StatelessWidget {
       DateRangePreset.today,
       DateRangePreset.thisWeek,
       DateRangePreset.thisMonth,
+      DateRangePreset.thisYear,
       DateRangePreset.lastWeek,
       DateRangePreset.lastMonth,
+      DateRangePreset.lastYear,
       DateRangePreset.custom,
     ],
   });
@@ -235,8 +237,10 @@ class DateRangePresetInput extends StatelessWidget {
       case DateRangePreset.today:
       case DateRangePreset.thisWeek:
       case DateRangePreset.thisMonth:
+      case DateRangePreset.thisYear:
       case DateRangePreset.lastWeek:
       case DateRangePreset.lastMonth:
+      case DateRangePreset.lastYear:
         final range = preset.getDateRange();
         if (range == null) return false;
         onPresetChanged?.call(preset);

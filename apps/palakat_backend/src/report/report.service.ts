@@ -26,6 +26,7 @@ import {
   FinancialReportSubtype,
   ReportGenerateDto,
 } from './dto/report-generate.dto';
+import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
 
 @Injectable()
 export class ReportService {
@@ -33,6 +34,31 @@ export class ReportService {
     private prisma: PrismaService,
     private firebaseAdmin: FirebaseAdminService,
   ) {}
+
+  private formatIndonesianDate(date?: Date | null): string {
+    if (!date) return '';
+
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const monthName = months[date.getUTCMonth()] ?? '';
+    const year = String(date.getUTCFullYear());
+
+    return `${day} ${monthName} ${year}`.trim();
+  }
 
   private sha256Hex(input: string | Buffer): string {
     return createHash('sha256').update(input).digest('hex');
@@ -280,9 +306,37 @@ export class ReportService {
       line2?: string | null;
       line3?: string | null;
     };
+    logoBuffer?: Buffer;
   }): Promise<Buffer> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ExcelJS = require('exceljs');
+
+    const detectXlsxImageExtension = (
+      buffer: Buffer,
+    ): 'png' | 'jpeg' | undefined => {
+      if (buffer.length >= 8) {
+        if (
+          buffer[0] === 0x89 &&
+          buffer[1] === 0x50 &&
+          buffer[2] === 0x4e &&
+          buffer[3] === 0x47 &&
+          buffer[4] === 0x0d &&
+          buffer[5] === 0x0a &&
+          buffer[6] === 0x1a &&
+          buffer[7] === 0x0a
+        ) {
+          return 'png';
+        }
+      }
+
+      if (buffer.length >= 3) {
+        if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+          return 'jpeg';
+        }
+      }
+
+      return;
+    };
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Palakat';
@@ -297,12 +351,43 @@ export class ReportService {
       params.letterhead?.line3,
     ].filter((x) => !!x && String(x).trim().length) as string[];
 
-    for (const line of headerLines) {
-      sheet.addRow([line]);
+    const logoExt = params.logoBuffer
+      ? detectXlsxImageExtension(params.logoBuffer)
+      : undefined;
+    const hasLogo = !!logoExt && !!params.logoBuffer?.length;
+
+    const headerRowsCount = hasLogo
+      ? Math.max(headerLines.length, 4)
+      : headerLines.length;
+    for (let i = 0; i < headerRowsCount; i++) {
+      const line = headerLines[i] ?? '';
+      const row = sheet.addRow([line]);
+      if (hasLogo) {
+        if (i < 4) row.height = 18;
+        row.getCell(1).alignment = {
+          vertical: 'middle',
+          indent: 12,
+        };
+      }
     }
 
-    if (headerLines.length) {
+    if (headerRowsCount) {
       sheet.addRow([]);
+    }
+
+    if (hasLogo && logoExt && params.logoBuffer) {
+      try {
+        const imageId = workbook.addImage({
+          buffer: params.logoBuffer,
+          extension: logoExt,
+        });
+        sheet.addImage(imageId, {
+          tl: { col: 0, row: 0 },
+          ext: { width: 72, height: 72 },
+        });
+      } catch {
+        // ignore
+      }
     }
 
     sheet.addRow([params.title]);
@@ -315,25 +400,6 @@ export class ReportService {
 
     const buffer = (await workbook.xlsx.writeBuffer()) as ArrayBuffer;
     return Buffer.from(buffer);
-  }
-
-  private async tryDownloadLogoBuffer(
-    logoFile?: {
-      bucket?: string;
-      path?: string;
-    } | null,
-  ): Promise<Buffer | undefined> {
-    if (!logoFile?.bucket || !logoFile?.path) return;
-
-    try {
-      const bucket = this.firebaseAdmin.bucket(logoFile.bucket);
-      const object = bucket.file(logoFile.path);
-      if (typeof object.download !== 'function') return;
-      const [buf] = await object.download();
-      return buf as Buffer;
-    } catch {
-      return;
-    }
   }
 
   async getReports(query: ReportListQueryDto, user?: any) {
@@ -484,40 +550,49 @@ export class ReportService {
         ? (dto.financialSubtype ?? FinancialReportSubtype.REVENUE)
         : dto.financialSubtype;
 
-    const letterhead = await this.prisma.churchLetterhead.findUnique({
-      where: { churchId },
-      include: { logoFile: true },
-    });
-
     const church = await this.prisma.church.findUnique({
       where: { id: churchId },
-      select: { name: true },
+      select: {
+        name: true,
+        phoneNumber: true,
+        email: true,
+        location: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     const churchName = church?.name ?? undefined;
 
-    const logoBuffer = await this.tryDownloadLogoBuffer(
-      letterhead?.logoFile ?? undefined,
-    );
-
-    const letterheadInfo = letterhead
-      ? {
-          title: letterhead.title,
-          line1: letterhead.line1,
-          line2: letterhead.line2,
-          line3: letterhead.line3,
-        }
+    const letterheadInfo = church?.name
+      ? buildGmimLetterhead({
+          churchName: church.name,
+          locationName: church.location?.name,
+          phoneNumber: church.phoneNumber,
+          email: church.email,
+        })
       : undefined;
+    const logoBuffer = getGmimLogoBuffer();
 
-    const title = [
-      'Report',
-      type,
-      type === ReportGenerateType.CONGREGATION
-        ? congregationSubtype
-        : undefined,
-      type === ReportGenerateType.FINANCIAL ? financialSubtype : undefined,
-    ]
-      .filter((x) => !!x)
-      .join(' ');
+    const isDocumentReport =
+      type === ReportGenerateType.INCOMING_DOCUMENT ||
+      type === ReportGenerateType.OUTCOMING_DOCUMENT;
+
+    const title = isDocumentReport
+      ? type === ReportGenerateType.INCOMING_DOCUMENT
+        ? 'Laporan Dokumen Masuk'
+        : 'Laporan Dokumen Keluar'
+      : [
+          'Report',
+          type,
+          type === ReportGenerateType.CONGREGATION
+            ? congregationSubtype
+            : undefined,
+          type === ReportGenerateType.FINANCIAL ? financialSubtype : undefined,
+        ]
+          .filter((x) => !!x)
+          .join(' ');
 
     const generatedAt = new Date();
 
@@ -593,7 +668,7 @@ export class ReportService {
             return {
               name: d.name,
               accountNumber: d.accountNumber,
-              createdAt: d.createdAt,
+              createdAt: this.formatIndonesianDate(d.createdAt),
               fileName,
             };
           }),
@@ -604,12 +679,14 @@ export class ReportService {
         format === ReportFormat.XLSX
           ? await renderXlsxTableReportBuffer({
               title,
+              titleAlign: 'center',
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
             })
           : await renderPdfTableReportBuffer({
               title,
+              titleAlign: 'center',
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
@@ -1124,24 +1201,36 @@ export class ReportService {
         const sections: TableSection[] = [
           {
             columns: [
-              { header: 'Name', key: 'name', weight: 3 },
-              { header: 'Phone', key: 'phone', weight: 2 },
-              { header: 'Email', key: 'email', weight: 3 },
-              { header: 'DOB', key: 'dob', weight: 2 },
-              { header: 'Column', key: 'column', weight: 2 },
-              { header: 'Baptize', key: 'baptize', weight: 1, align: 'center' },
-              { header: 'Sidi', key: 'sidi', weight: 1, align: 'center' },
-              { header: 'Joined At', key: 'createdAt', weight: 2 },
+              { header: 'nama', key: 'nama', weight: 4 },
+              { header: 'telepon', key: 'telepon', weight: 2 },
+              { header: 'lahir', key: 'lahir', weight: 2 },
+              { header: 'jenis', key: 'jenis', weight: 2 },
+              { header: 'menikah', key: 'menikah', weight: 1, align: 'center' },
+              { header: 'baptis', key: 'baptis', weight: 1, align: 'center' },
+              { header: 'sidi', key: 'sidi', weight: 1, align: 'center' },
+              { header: 'kolom', key: 'kolom', weight: 2 },
+              {
+                header: 'terhubung aplikasi',
+                key: 'terhubungAplikasi',
+                weight: 2,
+                align: 'center',
+              },
             ],
             rows: memberships.map((m) => ({
-              name: m.account?.name,
-              phone: m.account?.phone,
-              email: m.account?.email,
-              dob: m.account?.dob,
-              column: m.column?.name ?? '',
-              baptize: m.baptize,
+              nama: m.account?.name,
+              telepon: m.account?.phone,
+              lahir: this.formatIndonesianDate(m.account?.dob),
+              jenis:
+                m.account?.gender === 'MALE'
+                  ? 'Laki-laki'
+                  : m.account?.gender === 'FEMALE'
+                    ? 'perempuan'
+                    : '',
+              menikah: m.account?.maritalStatus === 'MARRIED',
+              kolom: m.column?.name ?? '',
+              baptis: m.baptize,
               sidi: m.sidi,
-              createdAt: m.createdAt,
+              terhubungAplikasi: m.account?.claimed === true,
             })),
           },
         ];
@@ -1160,6 +1249,7 @@ export class ReportService {
                 letterhead: letterheadInfo,
                 logoBuffer,
                 generatedAt,
+                layout: 'landscape',
                 qrPngBuffer,
                 publicId,
                 churchName,
@@ -1410,6 +1500,7 @@ export class ReportService {
             title,
             lines,
             letterhead: letterheadInfo,
+            logoBuffer,
           })
         : await this.renderPdfBuffer({
             title,

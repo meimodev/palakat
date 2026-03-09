@@ -13,6 +13,7 @@ import {
   renderPdfSignedDocumentBuffer,
   type DocumentSection,
 } from './document-renderer';
+import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
 
 @Injectable()
 export class DocumentService {
@@ -43,25 +44,6 @@ export class DocumentService {
 
   private sha256Hex(input: string | Buffer): string {
     return createHash('sha256').update(input).digest('hex');
-  }
-
-  private async tryDownloadLogoBuffer(
-    logoFile?: {
-      bucket?: string;
-      path?: string;
-    } | null,
-  ): Promise<Buffer | undefined> {
-    if (!logoFile?.bucket || !logoFile?.path) return;
-
-    try {
-      const bucket = this.firebaseAdmin.bucket(logoFile.bucket);
-      const object = bucket.file(logoFile.path);
-      if (typeof object.download !== 'function') return;
-      const [buf] = await object.download();
-      return buf as Buffer;
-    } catch {
-      return;
-    }
   }
 
   private resolvePublicBaseUrl(): string {
@@ -251,27 +233,34 @@ export class DocumentService {
       width: 256,
     });
 
-    const letterhead = await (this.prisma as any).churchLetterhead.findUnique({
-      where: { churchId },
-      include: { logoFile: true },
+    const church = await this.prisma.church.findUnique({
+      where: { id: churchId },
+      select: {
+        name: true,
+        phoneNumber: true,
+        email: true,
+        location: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
-    const logoBuffer = await this.tryDownloadLogoBuffer(
-      letterhead?.logoFile ?? undefined,
-    );
+    const logoBuffer = getGmimLogoBuffer();
 
     const pdfBuffer = await renderPdfSignedDocumentBuffer({
       title,
       name: created.name,
       accountNumber: created.accountNumber,
       sections: normalizedSections,
-      letterhead: letterhead
-        ? {
-            title: letterhead.title,
-            line1: letterhead.line1,
-            line2: letterhead.line2,
-            line3: letterhead.line3,
-          }
+      letterhead: church?.name
+        ? buildGmimLetterhead({
+            churchName: church.name,
+            locationName: church.location?.name,
+            phoneNumber: church.phoneNumber,
+            email: church.email,
+          })
         : undefined,
       logoBuffer,
       qrPngBuffer,

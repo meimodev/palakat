@@ -2725,6 +2725,10 @@
   "@dateRangePreset_thisMonth": {
     "description": "Date range preset for this month"
   },
+  "dateRangePreset_thisYear": "Tahun Ini",
+  "@dateRangePreset_thisYear": {
+    "description": "Date range preset for this year"
+  },
   "dateRangePreset_lastWeek": "Minggu Lalu",
   "@dateRangePreset_lastWeek": {
     "description": "Date range preset for last week"
@@ -2732,6 +2736,10 @@
   "dateRangePreset_lastMonth": "Bulan Lalu",
   "@dateRangePreset_lastMonth": {
     "description": "Date range preset for last month"
+  },
+  "dateRangePreset_lastYear": "Tahun Lalu",
+  "@dateRangePreset_lastYear": {
+    "description": "Date range preset for last year"
   },
   "dateRangePreset_custom": "Rentang Kustom",
   "@dateRangePreset_custom": {

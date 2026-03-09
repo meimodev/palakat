@@ -20,7 +20,6 @@ import { CashMutationService } from '../cash/cash-mutation.service';
 import { ChurchService } from '../church/church.service';
 import { ChurchRequestService } from '../church-request/church-request.service';
 import { ColumnService } from '../column/column.service';
-import { ChurchLetterheadService } from '../church-letterhead/church-letterhead.service';
 import { DocumentService } from '../document/document.service';
 import { ExpenseService } from '../expense/expense.service';
 import { FileService } from '../file/file.service';
@@ -152,10 +151,6 @@ export class RpcRouterService {
 
   private get churchRequestService(): ChurchRequestService {
     return this.moduleRef.get(ChurchRequestService, { strict: false });
-  }
-
-  private get churchLetterheadService(): ChurchLetterheadService {
-    return this.moduleRef.get(ChurchLetterheadService, { strict: false });
   }
 
   private get activitiesService(): ActivitiesService {
@@ -651,31 +646,27 @@ export class RpcRouterService {
 
         const now = new Date();
 
-        const utcDay = now.getUTCDay();
-        const daysSinceMonday = (utcDay + 6) % 7;
+        const day = now.getDay();
+        const daysSinceMonday = (day + 6) % 7;
 
         const startDate = new Date(
-          Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate() - daysSinceMonday,
-            0,
-            0,
-            0,
-            0,
-          ),
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - daysSinceMonday,
+          0,
+          0,
+          0,
+          0,
         );
 
         const endDate = new Date(
-          Date.UTC(
-            startDate.getUTCFullYear(),
-            startDate.getUTCMonth(),
-            startDate.getUTCDate() + 6,
-            23,
-            59,
-            59,
-            999,
-          ),
+          startDate.getFullYear(),
+          startDate.getMonth(),
+          startDate.getDate() + 6,
+          23,
+          59,
+          59,
+          999,
         );
 
         const query: any = {
@@ -3098,25 +3089,6 @@ export class RpcRouterService {
       }
 
       // ===== Church Letterhead =====
-      case 'churchLetterhead.getMe': {
-        const user = this.requireUserId(client);
-        return this.churchLetterheadService.getMe(user);
-      }
-
-      case 'churchLetterhead.updateMe': {
-        const user = this.requireUserId(client);
-        return this.churchLetterheadService.updateMe(payload, user);
-      }
-
-      case 'churchLetterhead.setLogo': {
-        const user = this.requireUserId(client);
-        const logoFileId = payload.logoFileId as number;
-        if (typeof logoFileId !== 'number') {
-          throw new BadRequestException('logoFileId is required');
-        }
-        return this.churchLetterheadService.setLogoFile(logoFileId, user);
-      }
-
       case 'churchPermissionPolicy.getMe': {
         const user = this.requireUserId(client);
         return this.churchPermissionPolicyService.getMe(user);

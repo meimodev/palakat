@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'column.dart';
-import 'church_letterhead.dart';
 import 'membership.dart';
 import 'member_position.dart';
 import 'location.dart';
@@ -17,7 +16,6 @@ abstract class Church with _$Church {
     String? phoneNumber,
     String? email,
     String? description,
-    ChurchLetterhead? letterhead,
     int? locationId,
     Location? location,
     @Default([]) List<Column> columns,

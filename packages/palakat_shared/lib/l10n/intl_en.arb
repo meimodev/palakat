@@ -1050,8 +1050,10 @@
   "dateRangePreset_today": "Today",
   "dateRangePreset_thisWeek": "This Week",
   "dateRangePreset_thisMonth": "This Month",
+  "dateRangePreset_thisYear": "This Year",
   "dateRangePreset_lastWeek": "Last Week",
   "dateRangePreset_lastMonth": "Last Month",
+  "dateRangePreset_lastYear": "Previous Year",
   "dateRangePreset_custom": "Custom Range",
 
   "msg_saved": "Saved successfully",

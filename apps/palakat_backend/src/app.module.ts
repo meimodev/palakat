@@ -28,7 +28,6 @@ import { ReportModule } from './report/report.module';
 import { RevenueModule } from './revenue/revenue.module';
 import { SongPartModule } from './song-part/song-part.module';
 import { SongModule } from './song/song.module';
-import { ChurchLetterheadModule } from './church-letterhead/church-letterhead.module';
 import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { VerifyModule } from './verify/verify.module';
@@ -47,7 +46,6 @@ import { ChurchPermissionPolicyModule } from './church-permission-policy/church-
     ActivitiesModule,
     ApproverModule,
     ChurchModule,
-    ChurchLetterheadModule,
     ChurchPermissionPolicyModule,
     SongModule,
     ColumnModule,

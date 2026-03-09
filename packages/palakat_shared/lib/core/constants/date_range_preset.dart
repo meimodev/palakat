@@ -16,8 +16,10 @@ enum DateRangePreset {
   today,
   thisWeek,
   thisMonth,
+  thisYear,
   lastWeek,
   lastMonth,
+  lastYear,
   custom;
 
   String get displayName {
@@ -31,10 +33,14 @@ enum DateRangePreset {
         return l10n.dateRangePreset_thisWeek;
       case DateRangePreset.thisMonth:
         return l10n.dateRangePreset_thisMonth;
+      case DateRangePreset.thisYear:
+        return l10n.dateRangePreset_thisYear;
       case DateRangePreset.lastWeek:
         return l10n.dateRangePreset_lastWeek;
       case DateRangePreset.lastMonth:
         return l10n.dateRangePreset_lastMonth;
+      case DateRangePreset.lastYear:
+        return l10n.dateRangePreset_lastYear;
       case DateRangePreset.custom:
         return l10n.dateRangePreset_custom;
     }
@@ -75,6 +81,15 @@ enum DateRangePreset {
         ).subtract(const Duration(seconds: 1));
         return DateTimeRange(start: startOfMonth, end: endOfMonth);
 
+      case DateRangePreset.thisYear:
+        final startOfYear = DateTime(now.year, 1, 1);
+        final endOfYear = DateTime(
+          now.year + 1,
+          1,
+          1,
+        ).subtract(const Duration(seconds: 1));
+        return DateTimeRange(start: startOfYear, end: endOfYear);
+
       case DateRangePreset.lastWeek:
         // Start from Monday of last week
         final startOfThisWeek = today.subtract(Duration(days: now.weekday - 1));
@@ -94,6 +109,15 @@ enum DateRangePreset {
           1,
         ).subtract(const Duration(seconds: 1));
         return DateTimeRange(start: startOfLastMonth, end: endOfLastMonth);
+
+      case DateRangePreset.lastYear:
+        final startOfLastYear = DateTime(now.year - 1, 1, 1);
+        final endOfLastYear = DateTime(
+          now.year,
+          1,
+          1,
+        ).subtract(const Duration(seconds: 1));
+        return DateTimeRange(start: startOfLastYear, end: endOfLastYear);
 
       case DateRangePreset.custom:
         // Custom range should be handled separately

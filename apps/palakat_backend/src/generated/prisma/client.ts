@@ -48,11 +48,6 @@ export type Church = Prisma.ChurchModel
  */
 export type ChurchPermissionPolicy = Prisma.ChurchPermissionPolicyModel
 /**
- * Model ChurchLetterhead
- * 
- */
-export type ChurchLetterhead = Prisma.ChurchLetterheadModel
-/**
  * Model Column
  * 
  */

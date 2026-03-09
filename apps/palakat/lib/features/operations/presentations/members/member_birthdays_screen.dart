@@ -47,8 +47,10 @@ class MemberBirthdaysScreen extends ConsumerWidget {
                 DateRangePreset.allTime,
                 DateRangePreset.thisWeek,
                 DateRangePreset.thisMonth,
+                DateRangePreset.thisYear,
                 DateRangePreset.lastWeek,
                 DateRangePreset.lastMonth,
+                DateRangePreset.lastYear,
                 DateRangePreset.custom,
               ],
               onChanged: (s, e) {

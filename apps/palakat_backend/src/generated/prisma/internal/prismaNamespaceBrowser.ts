@@ -53,7 +53,6 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Church: 'Church',
   ChurchPermissionPolicy: 'ChurchPermissionPolicy',
-  ChurchLetterhead: 'ChurchLetterhead',
   Column: 'Column',
   Membership: 'Membership',
   MembershipPosition: 'MembershipPosition',
@@ -120,21 +119,6 @@ export const ChurchPermissionPolicyScalarFieldEnum = {
 } as const
 
 export type ChurchPermissionPolicyScalarFieldEnum = (typeof ChurchPermissionPolicyScalarFieldEnum)[keyof typeof ChurchPermissionPolicyScalarFieldEnum]
-
-
-export const ChurchLetterheadScalarFieldEnum = {
-  id: 'id',
-  churchId: 'churchId',
-  logoFileId: 'logoFileId',
-  title: 'title',
-  line1: 'line1',
-  line2: 'line2',
-  line3: 'line3',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ChurchLetterheadScalarFieldEnum = (typeof ChurchLetterheadScalarFieldEnum)[keyof typeof ChurchLetterheadScalarFieldEnum]
 
 
 export const ColumnScalarFieldEnum = {

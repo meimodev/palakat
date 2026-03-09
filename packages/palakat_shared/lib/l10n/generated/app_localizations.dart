@@ -4560,6 +4560,12 @@ abstract class AppLocalizations {
   /// **'This Month'**
   String get dateRangePreset_thisMonth;
 
+  /// No description provided for @dateRangePreset_thisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get dateRangePreset_thisYear;
+
   /// No description provided for @dateRangePreset_lastWeek.
   ///
   /// In en, this message translates to:
@@ -4571,6 +4577,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last Month'**
   String get dateRangePreset_lastMonth;
+
+  /// No description provided for @dateRangePreset_lastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Year'**
+  String get dateRangePreset_lastYear;
 
   /// No description provided for @dateRangePreset_custom.
   ///

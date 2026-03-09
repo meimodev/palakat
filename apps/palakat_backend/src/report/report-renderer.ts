@@ -311,8 +311,44 @@ function formatPdfCellValue(value: unknown): string {
   if (value == null) return '';
   if (value instanceof Date) return value.toISOString();
   if (typeof value === 'number') return String(value);
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'boolean') return '';
   return String(value);
+}
+
+function drawPdfBooleanMark(params: {
+  doc: any;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  value: boolean;
+}): void {
+  const { doc, x, y, width, height, value } = params;
+
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  const size = Math.max(4, Math.min(width, height) * 0.35);
+
+  doc.save();
+  doc.strokeColor('#000000').lineWidth(1.5);
+
+  if (value) {
+    const x1 = cx - size * 0.6;
+    const y1 = cy + size * 0.05;
+    const x2 = cx - size * 0.15;
+    const y2 = cy + size * 0.5;
+    const x3 = cx + size * 0.75;
+    const y3 = cy - size * 0.55;
+
+    doc.moveTo(x1, y1).lineTo(x2, y2).lineTo(x3, y3).stroke();
+  } else {
+    doc
+      .moveTo(cx - size * 0.8, cy)
+      .lineTo(cx + size * 0.8, cy)
+      .stroke();
+  }
+
+  doc.restore();
 }
 
 function buildColumnWidths(params: {
@@ -334,10 +370,12 @@ function buildColumnWidths(params: {
 
 export async function renderPdfTableReportBuffer(params: {
   title: string;
+  titleAlign?: 'left' | 'center' | 'right';
   sections: TableSection[];
   letterhead?: ReportLetterhead;
   logoBuffer?: Buffer;
   generatedAt?: Date;
+  layout?: 'portrait' | 'landscape';
   qrPngBuffer?: Buffer;
   publicId?: string;
   churchName?: string;
@@ -346,6 +384,7 @@ export async function renderPdfTableReportBuffer(params: {
 
   const doc = new PDFDocument({
     size: 'A4',
+    layout: params.layout ?? 'portrait',
     bufferPages: true,
     margins: { top: 48, left: 48, right: 48, bottom: 72 },
     info: {
@@ -374,7 +413,10 @@ export async function renderPdfTableReportBuffer(params: {
 
   renderPageHeader();
 
-  doc.fontSize(18).fillColor('#000000').text(params.title, { align: 'left' });
+  doc
+    .fontSize(18)
+    .fillColor('#000000')
+    .text(params.title, { align: params.titleAlign ?? 'left' });
   doc.moveDown();
 
   for (const section of params.sections) {
@@ -395,12 +437,23 @@ export async function renderPdfTableReportBuffer(params: {
     const headerFontSize = 10;
     const bodyFontSize = 9;
 
+    doc.fontSize(headerFontSize).fillColor('#000000');
+    const headerHeight = columns.reduce(
+      (max, col, i) => {
+        const w = Math.max(0, colWidths[i] - padding * 2);
+        const h = doc.heightOfString(col.header ?? '', {
+          width: w,
+          align: col.align ?? 'left',
+        });
+        return Math.max(max, h + padding * 2 + 2);
+      },
+      headerFontSize + padding * 2 + 2,
+    );
+
     const renderTableHeader = (y: number) => {
       let x = doc.page.margins.left;
 
       doc.fontSize(headerFontSize).fillColor('#000000');
-
-      const headerHeight = headerFontSize + padding * 2 + 2;
       for (let i = 0; i < columns.length; i++) {
         const col = columns[i];
         const w = colWidths[i];
@@ -423,7 +476,10 @@ export async function renderPdfTableReportBuffer(params: {
     doc.fontSize(bodyFontSize).fillColor('#000000');
 
     for (const row of section.rows) {
-      const cells = columns.map((c) => formatPdfCellValue(row[c.key]));
+      const cellValues = columns.map((c) => row[c.key]);
+      const cells = cellValues.map((v) =>
+        typeof v === 'boolean' ? '' : formatPdfCellValue(v),
+      );
 
       let rowHeight = bodyFontSize + padding * 2 + 2;
       for (let i = 0; i < columns.length; i++) {
@@ -458,12 +514,24 @@ export async function renderPdfTableReportBuffer(params: {
           .lineWidth(0.5)
           .stroke();
 
-        doc
-          .fillColor('#000000')
-          .text(cells[i] ?? '', x + padding, y + padding, {
+        const value = cellValues[i];
+        if (typeof value === 'boolean') {
+          drawPdfBooleanMark({
+            doc,
+            x: x + padding,
+            y: y + padding,
             width: w - padding * 2,
-            align: col.align ?? 'left',
+            height: rowHeight - padding * 2,
+            value,
           });
+        } else {
+          doc
+            .fillColor('#000000')
+            .text(cells[i] ?? '', x + padding, y + padding, {
+              width: w - padding * 2,
+              align: col.align ?? 'left',
+            });
+        }
 
         x += w;
       }
@@ -510,12 +578,13 @@ function formatXlsxCellValue(value: unknown): string | number | Date {
   if (value == null) return '';
   if (value instanceof Date) return value;
   if (typeof value === 'number') return value;
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'boolean') return value ? '✓' : '-';
   return String(value);
 }
 
 export async function renderXlsxTableReportBuffer(params: {
   title: string;
+  titleAlign?: 'left' | 'center' | 'right';
   sections: TableSection[];
   letterhead?: ReportLetterhead;
   logoBuffer?: Buffer;
@@ -578,6 +647,19 @@ export async function renderXlsxTableReportBuffer(params: {
 
   const titleRow = sheet.addRow([params.title]);
   titleRow.font = { bold: true, size: 16 };
+  if (params.titleAlign === 'center') {
+    const maxColumns = Math.max(
+      1,
+      ...(params.sections ?? []).map((s) => s.columns.length),
+    );
+    if (maxColumns > 1) {
+      sheet.mergeCells(titleRow.number, 1, titleRow.number, maxColumns);
+    }
+    titleRow.getCell(1).alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+  }
 
   sheet.addRow([]);
 
@@ -595,8 +677,10 @@ export async function renderXlsxTableReportBuffer(params: {
 
     const header = section.columns.map((c) => c.header);
     const headerRow = sheet.addRow(header);
+    headerRow.height = 30;
 
-    headerRow.eachCell((cell) => {
+    headerRow.eachCell((cell, colNumber) => {
+      const col = section.columns[colNumber - 1];
       cell.font = { bold: true };
       cell.fill = {
         type: 'pattern',
@@ -609,7 +693,11 @@ export async function renderXlsxTableReportBuffer(params: {
         bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } },
         right: { style: 'thin', color: { argb: 'FFDDDDDD' } },
       };
-      cell.alignment = { vertical: 'middle' };
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: col?.align ?? 'left',
+        wrapText: true,
+      };
     });
 
     for (const row of section.rows) {
@@ -642,6 +730,7 @@ export async function renderXlsxTableReportBuffer(params: {
 
 export async function renderPdfBulletinReportBuffer(params: {
   title: string;
+  titleAlign?: 'left' | 'center' | 'right';
   sections: BulletinSection[];
   letterhead?: ReportLetterhead;
   logoBuffer?: Buffer;
@@ -682,7 +771,10 @@ export async function renderPdfBulletinReportBuffer(params: {
 
   renderPageHeader();
 
-  doc.fontSize(18).fillColor('#000000').text(params.title, { align: 'left' });
+  doc
+    .fontSize(18)
+    .fillColor('#000000')
+    .text(params.title, { align: params.titleAlign ?? 'left' });
   doc.moveDown();
 
   const ensureSpace = (height: number) => {

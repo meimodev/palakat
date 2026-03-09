@@ -2453,10 +2453,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateRangePreset_thisMonth => 'This Month';
 
   @override
+  String get dateRangePreset_thisYear => 'This Year';
+
+  @override
   String get dateRangePreset_lastWeek => 'Last Week';
 
   @override
   String get dateRangePreset_lastMonth => 'Last Month';
+
+  @override
+  String get dateRangePreset_lastYear => 'Previous Year';
 
   @override
   String get dateRangePreset_custom => 'Custom Range';
