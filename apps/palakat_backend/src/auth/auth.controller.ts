@@ -73,7 +73,7 @@ export class AuthController {
 
   @Post('sign-in')
   async signIn(@Body() dto: SignInDto) {
-    return this.authService.signIn(dto);
+    return this.authService.adminSignIn(dto);
   }
 
   @Post('super-admin/sign-in')

@@ -139,6 +139,7 @@ class OperationCategoryCard extends StatelessWidget {
                     (operation) => _ReportTypeTile(
                       title: operation.title,
                       icon: operation.icon,
+                      isEnabled: operation.isEnabled,
                       onTap: () => onOperationTap(operation),
                     ),
                   )
@@ -208,59 +209,74 @@ class _ReportTypeTile extends StatelessWidget {
   const _ReportTypeTile({
     required this.title,
     required this.icon,
+    required this.isEnabled,
     required this.onTap,
   });
 
   final String title;
   final IconData icon;
+  final bool isEnabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: BaseColor.surfaceLight,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.w12),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        splashColor: BaseColor.primary.withValues(alpha: 0.08),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h8,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: BaseSize.w28,
-                height: BaseSize.w28,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(BaseSize.w8),
-                ),
-                child: Icon(icon, color: BaseColor.primary, size: BaseSize.w14),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: BaseSize.w8),
-                  child: Text(
-                    title,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
-                      height: 1.1,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+    return Opacity(
+      opacity: isEnabled ? 1.0 : OperationItemCard.disabledOpacity,
+      child: Material(
+        color: BaseColor.surfaceLight,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.w12),
+          side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        ),
+        child: InkWell(
+          onTap: isEnabled ? onTap : null,
+          splashColor: BaseColor.primary.withValues(alpha: 0.08),
+          highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: BaseSize.w12,
+              vertical: BaseSize.h8,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: BaseSize.w28,
+                  height: BaseSize.w28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isEnabled
+                        ? BaseColor.primary.withValues(alpha: 0.12)
+                        : BaseColor.neutral[100],
+                    borderRadius: BorderRadius.circular(BaseSize.w8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isEnabled
+                        ? BaseColor.primary
+                        : BaseColor.textDisabled,
+                    size: BaseSize.w14,
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: BaseSize.w8),
+                    child: Text(
+                      title,
+                      style: BaseTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: isEnabled
+                            ? BaseColor.textPrimary
+                            : BaseColor.textDisabled,
+                        height: 1.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -411,6 +411,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (account.role !== AccountRole.ADMIN) {
+      throw new ForbiddenException('Admin account required');
+    }
+
     if (!account.isActive) {
       throw new ForbiddenException('Account is inactive');
     }
@@ -490,6 +494,10 @@ export class AuthService {
         account: sanitizedAccount,
       },
     };
+  }
+
+  async adminSignIn(payload: { identifier: string; password: string }) {
+    return this.signIn(payload);
   }
 
   private async issueTokens(accountId: number): Promise<{

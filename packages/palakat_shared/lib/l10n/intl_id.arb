@@ -397,6 +397,40 @@
   "@admin_church_subtitle": {
     "description": "Admin screen subtitle for church profile"
   },
+  "churchOperationsPermission_publishActivities_title": "Publikasikan Kegiatan",
+  "churchOperationsPermission_publishActivities_desc": "Buat kegiatan ibadah, acara, dan pengumuman.",
+  "churchOperationsAccess_title": "Kontrol akses Operasi",
+  "churchOperationsAccess_subtitle": "Atur jabatan yang dapat mengakses fitur Operasi",
+  "churchOperationsAccess_description": "Tetapkan jabatan gereja untuk setiap fitur Operasi. Anggota di luar jabatan yang dipilih tidak akan bisa mengakses fitur tersebut.",
+  "churchOperationsAccess_emptyPositions": "Tambahkan jabatan gereja terlebih dahulu sebelum mengatur kontrol akses Operasi.",
+  "churchOperationsAccess_featureColumn": "Fitur",
+  "churchOperationsAccess_assignedPositionsColumn": "Jabatan yang ditetapkan",
+  "churchOperationsAccess_actionColumn": "Tindakan",
+  "churchOperationsAccess_noPositionsAssigned": "Belum ada jabatan yang ditetapkan",
+  "churchOperationsAccess_moreSummary": "{visible} +{count} lagi",
+  "@churchOperationsAccess_moreSummary": {
+    "placeholders": {
+      "visible": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "churchOperationsAccess_assignedCount": "{count, plural, =1{1 jabatan ditetapkan} other{{count} jabatan ditetapkan}}",
+  "@churchOperationsAccess_assignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "churchOperationsAccess_needsConfiguration": "Perlu dikonfigurasi",
+  "churchOperationsAccess_configured": "Terkonfigurasi",
+  "churchOperationsAccess_needsSetup": "Perlu disiapkan",
+  "churchOperationsAccess_onlySelectedPositions": "Hanya anggota dengan jabatan yang dipilih yang dapat mengakses fitur ini.",
+  "churchOperationsAccess_selectPositionError": "Pilih minimal satu jabatan sebelum menyimpan.",
 
   "btn_continue": "Lanjutkan",
   "@btn_continue": {
@@ -664,6 +698,10 @@
   "lbl_template": "Template",
   "@lbl_template": {
     "description": "Label for template"
+  },
+  "lbl_format": "Format",
+  "@lbl_format": {
+    "description": "Label for format"
   },
   "lbl_na": "N/A",
   "@lbl_na": {
@@ -2928,6 +2966,14 @@
   "msg_saveFailed": "Gagal menyimpan",
   "@msg_saveFailed": {
     "description": "Error message for save failure"
+  },
+  "msg_saveMemberFailed": "Gagal menyimpan anggota",
+  "@msg_saveMemberFailed": {
+    "description": "Error message for member save failure"
+  },
+  "msg_deleteMemberFailed": "Gagal menghapus anggota",
+  "@msg_deleteMemberFailed": {
+    "description": "Error message for member delete failure"
   },
   "msg_createFailed": "Gagal membuat",
   "@msg_createFailed": {

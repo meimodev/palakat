@@ -2,17 +2,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
 
-import '../services/alarm_tone_service.dart';
-
 class AlarmRingScreen extends ConsumerStatefulWidget {
   const AlarmRingScreen({
     super.key,
     required this.activityId,
+    this.alarmAtUtcIso,
     this.title,
     this.reminderName,
     this.reminderValue,
@@ -21,6 +21,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
   });
 
   final int activityId;
+  final String? alarmAtUtcIso;
   final String? title;
   final String? reminderName;
   final String? reminderValue;
@@ -54,9 +55,9 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
 
   Future<void> _start() async {
     try {
-      final path = await AlarmToneService().ensureToneFilePath();
-      await _player.setFilePath(path);
+      await _player.setAsset('assets/alarm.mp3');
       await _player.setLoopMode(LoopMode.one);
+      await _player.setVolume(1);
       await _player.play();
     } catch (_) {
     } finally {
@@ -81,12 +82,41 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     super.dispose();
   }
 
+  Future<void> _dismissAndClose() async {
+    await _stop();
+    await _cancelAlarmNotification();
+    if (!mounted) return;
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    context.goNamed(AppRoute.home);
+  }
+
+  Future<void> _openActivity() async {
+    await _stop();
+    await _cancelAlarmNotification();
+    if (!mounted) return;
+
+    context.pushNamed(
+      AppRoute.activityDetail,
+      pathParameters: {'activityId': widget.activityId.toString()},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final title = widget.title?.trim().isNotEmpty == true
         ? widget.title!.trim()
         : 'Activity';
     final reminderText = widget.reminderName ?? widget.reminderValue;
+    final alarmAt =
+        DateTime.tryParse(widget.alarmAtUtcIso ?? '')?.toLocal() ??
+        DateTime.now();
+    final timeText = DateFormat('HH:mm').format(alarmAt);
+    final dayText = DateFormat('EEE, d MMM').format(alarmAt);
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
@@ -94,113 +124,192 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
         unawaited(_cancelAlarmNotification());
       },
       child: Scaffold(
-        backgroundColor: BaseColor.white,
-        appBar: AppBar(
-          backgroundColor: BaseColor.white,
-          elevation: 0,
-          automaticallyImplyLeading: true,
-          title: Text(
-            'Alarm',
-            style: BaseTypography.titleMedium.copyWith(
-              fontWeight: FontWeight.w700,
-              color: BaseColor.black,
-            ),
-          ),
-        ),
+        backgroundColor: const Color(0xFF08101D),
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
+            padding: EdgeInsets.fromLTRB(
+              BaseSize.w20,
+              BaseSize.h12,
+              BaseSize.w20,
+              BaseSize.h20,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  padding: EdgeInsets.all(BaseSize.w16),
-                  decoration: BoxDecoration(
-                    color: BaseColor.yellow[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    border: Border.all(color: BaseColor.yellow[200]!),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: BaseSize.w12,
+                      vertical: BaseSize.h8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(BaseSize.radiusXl),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.10),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          AppIcons.notificationActive,
+                          color: const Color(0xFFFFD54F),
+                          size: BaseSize.w16,
+                        ),
+                        Gap.w8,
+                        Text(
+                          'Alarm ringing',
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: BaseColor.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: BaseSize.w48,
-                        height: BaseSize.w48,
-                        decoration: BoxDecoration(
-                          color: BaseColor.yellow[100],
-                          shape: BoxShape.circle,
-                        ),
+                        width: BaseSize.customWidth(88),
+                        height: BaseSize.customWidth(88),
                         alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0x1AFFFFFF),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
+                        ),
                         child: Icon(
                           AppIcons.notificationActive,
-                          size: BaseSize.w24,
-                          color: BaseColor.yellow[700],
+                          size: BaseSize.w36,
+                          color: const Color(0xFFFFD54F),
                         ),
                       ),
-                      Gap.w12,
-                      Expanded(
+                      Gap.h24,
+                      Text(
+                        timeText,
+                        textAlign: TextAlign.center,
+                        style: BaseTypography.headlineLarge.copyWith(
+                          color: BaseColor.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 72,
+                          letterSpacing: -2,
+                        ),
+                      ),
+                      Gap.h8,
+                      Text(
+                        dayText,
+                        textAlign: TextAlign.center,
+                        style: BaseTypography.titleLarge.copyWith(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Gap.h24,
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(BaseSize.w18),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusLg,
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.10),
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              title,
-                              style: BaseTypography.titleMedium.copyWith(
+                              'Activity',
+                              style: BaseTypography.bodySmall.copyWith(
+                                color: Colors.white.withValues(alpha: 0.64),
                                 fontWeight: FontWeight.w700,
-                                color: BaseColor.black,
+                              ),
+                            ),
+                            Gap.h8,
+                            Text(
+                              title,
+                              style: BaseTypography.headlineSmall.copyWith(
+                                color: BaseColor.white,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             if (reminderText != null &&
                                 reminderText.trim().isNotEmpty) ...[
-                              Gap.h4,
-                              Text(
-                                reminderText,
-                                style: BaseTypography.bodySmall.copyWith(
-                                  color: BaseColor.neutral[700],
-                                  fontWeight: FontWeight.w600,
+                              Gap.h16,
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: BaseSize.w12,
+                                  vertical: BaseSize.h8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0x14FFD54F),
+                                  borderRadius: BorderRadius.circular(
+                                    BaseSize.radiusXl,
+                                  ),
+                                ),
+                                child: Text(
+                                  reminderText,
+                                  style: BaseTypography.bodyMedium.copyWith(
+                                    color: const Color(0xFFFFE082),
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ],
                           ],
                         ),
                       ),
+                      Gap.h20,
+                      if (_starting)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: BaseSize.w18,
+                              height: BaseSize.w18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: const Color(0xFFFFD54F),
+                              ),
+                            ),
+                            Gap.customGapWidth(10),
+                            Text(
+                              'Starting alarm audio...',
+                              style: BaseTypography.bodyMedium.copyWith(
+                                color: Colors.white.withValues(alpha: 0.72),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
-                Gap.h16,
-                if (_starting)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: BaseSize.h8),
-                      child: SizedBox(
-                        width: BaseSize.w24,
-                        height: BaseSize.w24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: BaseColor.yellow[700],
-                        ),
-                      ),
-                    ),
-                  ),
-                const Spacer(),
                 ElevatedButton(
-                  onPressed: () async {
-                    await _stop();
-                    await _cancelAlarmNotification();
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: _dismissAndClose,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BaseColor.red[600],
                     foregroundColor: BaseColor.white,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(
-                      vertical: BaseSize.customHeight(14),
+                      vertical: BaseSize.customHeight(16),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                     ),
                   ),
                   child: Text(
-                    'Dismiss / Stop',
+                    'Dismiss alarm',
                     style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: BaseColor.white,
@@ -209,31 +318,23 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                 ),
                 Gap.customGapHeight(10),
                 OutlinedButton(
-                  onPressed: () async {
-                    await _stop();
-                    await _cancelAlarmNotification();
-                    if (!context.mounted) return;
-                    context.pushNamed(
-                      AppRoute.activityDetail,
-                      pathParameters: {
-                        'activityId': widget.activityId.toString(),
-                      },
-                    );
-                  },
+                  onPressed: _openActivity,
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(
-                      vertical: BaseSize.customHeight(14),
+                      vertical: BaseSize.customHeight(16),
                     ),
-                    side: BorderSide(color: BaseColor.neutral[300]!),
+                    side: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                     ),
                   ),
                   child: Text(
                     'View activity',
                     style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: BaseColor.black,
+                      color: BaseColor.white,
                     ),
                   ),
                 ),

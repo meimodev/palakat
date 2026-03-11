@@ -578,8 +578,16 @@ abstract class AppLocalizations {
   /// **'General church announcements and updates'**
   String get notificationSettings_channel_generalAnnouncements_subtitle;
 
+  /// No description provided for @notificationSettings_channel_birthdayNotifications_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday Notifications'**
   String get notificationSettings_channel_birthdayNotifications_title;
 
+  /// No description provided for @notificationSettings_channel_birthdayNotifications_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications about member birthdays'**
   String get notificationSettings_channel_birthdayNotifications_subtitle;
 
   /// No description provided for @notificationSettings_soundVibration_title.
@@ -1080,6 +1088,108 @@ abstract class AppLocalizations {
   /// **'Manage your church\'s public information and columns.'**
   String get admin_church_subtitle;
 
+  /// No description provided for @churchOperationsPermission_publishActivities_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish activities'**
+  String get churchOperationsPermission_publishActivities_title;
+
+  /// No description provided for @churchOperationsPermission_publishActivities_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create service, event, and announcement activities.'**
+  String get churchOperationsPermission_publishActivities_desc;
+
+  /// No description provided for @churchOperationsAccess_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations access control'**
+  String get churchOperationsAccess_title;
+
+  /// No description provided for @churchOperationsAccess_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure which positions can access Operations features'**
+  String get churchOperationsAccess_subtitle;
+
+  /// No description provided for @churchOperationsAccess_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign church positions to each Operations feature. Members outside the selected positions will not be able to access that feature.'**
+  String get churchOperationsAccess_description;
+
+  /// No description provided for @churchOperationsAccess_emptyPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Add church positions first before configuring Operations access control.'**
+  String get churchOperationsAccess_emptyPositions;
+
+  /// No description provided for @churchOperationsAccess_featureColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature'**
+  String get churchOperationsAccess_featureColumn;
+
+  /// No description provided for @churchOperationsAccess_assignedPositionsColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned positions'**
+  String get churchOperationsAccess_assignedPositionsColumn;
+
+  /// No description provided for @churchOperationsAccess_actionColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get churchOperationsAccess_actionColumn;
+
+  /// No description provided for @churchOperationsAccess_noPositionsAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No positions assigned'**
+  String get churchOperationsAccess_noPositionsAssigned;
+
+  /// No description provided for @churchOperationsAccess_moreSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{visible} +{count} more'**
+  String churchOperationsAccess_moreSummary(String visible, int count);
+
+  /// No description provided for @churchOperationsAccess_assignedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 position assigned} other{{count} positions assigned}}'**
+  String churchOperationsAccess_assignedCount(int count);
+
+  /// No description provided for @churchOperationsAccess_needsConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs configuration'**
+  String get churchOperationsAccess_needsConfiguration;
+
+  /// No description provided for @churchOperationsAccess_configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured'**
+  String get churchOperationsAccess_configured;
+
+  /// No description provided for @churchOperationsAccess_needsSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs setup'**
+  String get churchOperationsAccess_needsSetup;
+
+  /// No description provided for @churchOperationsAccess_onlySelectedPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Only members with the selected positions can access this feature.'**
+  String get churchOperationsAccess_onlySelectedPositions;
+
+  /// No description provided for @churchOperationsAccess_selectPositionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one position before saving.'**
+  String get churchOperationsAccess_selectPositionError;
+
   /// No description provided for @btn_continue.
   ///
   /// In en, this message translates to:
@@ -1487,6 +1597,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Template'**
   String get lbl_template;
+
+  /// No description provided for @lbl_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get lbl_format;
 
   /// No description provided for @lbl_na.
   ///
@@ -4811,6 +4927,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to delete'**
   String get msg_deleteFailed;
+
+  /// No description provided for @msg_saveMemberFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save member'**
+  String get msg_saveMemberFailed;
+
+  /// No description provided for @msg_deleteMemberFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete member'**
+  String get msg_deleteMemberFailed;
 
   /// No description provided for @msg_createApprovalRuleFailed.
   ///

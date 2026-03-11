@@ -87,13 +87,19 @@ class OperationsController extends _$OperationsController {
       return;
     }
 
-    final membership = account?.membership;
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membership = localStorage.currentMembership ?? account?.membership;
 
-    final permsRes = await _permissionRepository.fetchMyPermissions();
-    Set<String> permissions = <String>{};
-    permsRes.when(
-      onSuccess: (p) => permissions = p.permissions.toSet(),
-      onFailure: (_) => permissions = <String>{},
+    final policyRes = await _permissionRepository.fetchMyPolicy();
+    ChurchPermissionPolicyRecord? policy;
+    policyRes.when(
+      onSuccess: (value) => policy = value,
+      onFailure: (_) => policy = null,
+    );
+
+    final permissions = _resolvePermissionsForMembership(
+      membership: membership,
+      policy: policy,
     );
 
     final categories = _buildCategories(membership, permissions);
@@ -422,6 +428,60 @@ class OperationsController extends _$OperationsController {
         operations: membershipOperations,
       ),
     ];
+  }
+
+  Set<String> _resolvePermissionsForMembership({
+    required Membership? membership,
+    required ChurchPermissionPolicyRecord? policy,
+  }) {
+    if (membership == null || policy == null) {
+      return <String>{};
+    }
+
+    final grantsRaw = policy.policy['grants'];
+    if (grantsRaw is! Map) {
+      return <String>{};
+    }
+
+    final membershipPositionIds = membership.membershipPositions
+        .map((position) => position.id)
+        .whereType<int>()
+        .toSet();
+
+    if (membershipPositionIds.isEmpty) {
+      return <String>{};
+    }
+
+    final permissions = <String>{};
+
+    for (final entry in grantsRaw.entries) {
+      final permissionKey = entry.key?.toString();
+      final grant = entry.value;
+
+      if (permissionKey == null || grant is! Map) {
+        continue;
+      }
+
+      final mode = grant['mode']?.toString();
+      if (mode != 'positionsAny') {
+        continue;
+      }
+
+      final rawPositionIds = grant['positionIds'];
+      if (rawPositionIds is! List) {
+        continue;
+      }
+
+      final grantPositionIds = rawPositionIds
+          .map((value) => value is int ? value : int.tryParse('$value'))
+          .whereType<int>();
+
+      if (grantPositionIds.any(membershipPositionIds.contains)) {
+        permissions.add(permissionKey);
+      }
+    }
+
+    return permissions;
   }
 
   /// Initializes the category expansion state map.

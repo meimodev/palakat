@@ -3538,6 +3538,10 @@ export class RpcRouterService {
       }
 
       case 'activity.create': {
+        const auth = client?.data?.user;
+        if (!auth?.clientId) {
+          await this.requireOperationPermission(client, 'ops.activity.create');
+        }
         return this.activitiesService.create(
           payload,
           this.getAuthContext(client),

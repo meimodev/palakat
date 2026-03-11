@@ -13,16 +13,12 @@ export type OperationPermissionKey =
   | 'ops.finance.revenue.create'
   | 'ops.finance.expense.create';
 
-type GrantMode = 'member' | 'positionsAny';
+type GrantMode = 'positionsAny';
 
-type PermissionGrant =
-  | {
-      mode: 'member';
-    }
-  | {
-      mode: 'positionsAny';
-      positionIds: number[];
-    };
+type PermissionGrant = {
+  mode: GrantMode;
+  positionIds: number[];
+};
 
 type ChurchPermissionPolicyV1 = {
   version: 1;
@@ -40,22 +36,28 @@ const ALL_PERMISSIONS: OperationPermissionKey[] = [
   'ops.finance.expense.create',
 ];
 
-const DEFAULT_POSITION_NAMES: Partial<
-  Record<OperationPermissionKey, { mode: 'positionsAny'; names: string[] }>
-> = {
-  'ops.members.invite': { mode: 'positionsAny', names: ['Sekretaris'] },
-  'ops.report.generate': {
-    mode: 'positionsAny',
-    names: ['Sekretaris', 'Bendahara'],
-  },
-  'ops.finance.revenue.create': {
-    mode: 'positionsAny',
-    names: ['Bendahara'],
-  },
-  'ops.finance.expense.create': {
-    mode: 'positionsAny',
-    names: ['Bendahara'],
-  },
+const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
+  'ops.activity.create': ['Ketua Majelis', 'Sekretaris', 'Pengurus Harian'],
+  'ops.members.read': ['Ketua Majelis', 'Sekretaris', 'Pengurus Harian'],
+  'ops.members.invite': ['Ketua Majelis', 'Sekretaris', 'Pengurus Harian'],
+  'ops.report.generate': [
+    'Ketua Majelis',
+    'Sekretaris',
+    'Pengurus Harian',
+    'Bendahara',
+  ],
+  'ops.finance.revenue.create': [
+    'Ketua Majelis',
+    'Sekretaris',
+    'Pengurus Harian',
+    'Bendahara',
+  ],
+  'ops.finance.expense.create': [
+    'Ketua Majelis',
+    'Sekretaris',
+    'Pengurus Harian',
+    'Bendahara',
+  ],
 };
 
 @Injectable()
@@ -117,8 +119,8 @@ export class ChurchPermissionPolicyService {
     return {
       version: POLICY_VERSION,
       grants: {
-        'ops.activity.create': { mode: 'member' },
-        'ops.members.read': { mode: 'member' },
+        'ops.activity.create': { mode: 'positionsAny', positionIds: [] },
+        'ops.members.read': { mode: 'positionsAny', positionIds: [] },
         'ops.members.invite': { mode: 'positionsAny', positionIds: [] },
         'ops.report.generate': { mode: 'positionsAny', positionIds: [] },
         'ops.finance.revenue.create': { mode: 'positionsAny', positionIds: [] },
@@ -127,51 +129,74 @@ export class ChurchPermissionPolicyService {
     };
   }
 
-  private async buildDefaultPolicyForChurch(
+  private parsePositionIds(value: unknown): number[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return Array.from(
+      new Set(
+        value
+          .map((entry) =>
+            typeof entry === 'number' ? entry : Number.parseInt(`${entry}`, 10),
+          )
+          .filter((entry) => Number.isFinite(entry)),
+      ),
+    );
+  }
+
+  private async resolveDefaultPositionIdsByPermission(
     churchId: number,
-  ): Promise<ChurchPermissionPolicyV1> {
-    const byName = await (this.prisma as any).membershipPosition.findMany({
+  ): Promise<Record<OperationPermissionKey, number[]>> {
+    const namesToFind = Array.from(
+      new Set(Object.values(DEFAULT_POSITION_NAMES).flatMap((names) => names)),
+    );
+
+    const matches = await (this.prisma as any).membershipPosition.findMany({
       where: {
         churchId,
         name: {
-          in: Array.from(
-            new Set(
-              Object.values(DEFAULT_POSITION_NAMES)
-                .flatMap((v) => v?.names ?? [])
-                .filter((n) => n && n.trim().length > 0),
-            ),
-          ),
+          in: namesToFind,
         },
       },
       select: { id: true, name: true },
     });
 
-    const idByName = new Map<string, number>();
-    for (const p of byName ?? []) {
-      const name = (p?.name ?? '').toString().trim();
-      if (!name) continue;
-      if (typeof p?.id !== 'number') continue;
-      idByName.set(name, p.id);
+    const idsByName = new Map<string, number>();
+    for (const match of matches ?? []) {
+      const name = (match?.name ?? '').toString().trim();
+      if (!name || typeof match?.id !== 'number') continue;
+      idsByName.set(name, match.id);
     }
 
+    return ALL_PERMISSIONS.reduce(
+      (acc, key) => {
+        acc[key] = DEFAULT_POSITION_NAMES[key]
+          .map((name) => idsByName.get(name))
+          .filter((id): id is number => typeof id === 'number');
+        return acc;
+      },
+      {} as Record<OperationPermissionKey, number[]>,
+    );
+  }
+
+  private async buildDefaultPolicyForChurch(
+    churchId: number,
+  ): Promise<ChurchPermissionPolicyV1> {
     const base = this.buildEmptyPolicy();
+    const defaults = await this.resolveDefaultPositionIdsByPermission(churchId);
 
     for (const key of ALL_PERMISSIONS) {
-      if (key === 'ops.activity.create') continue;
-      const def = DEFAULT_POSITION_NAMES[key];
-      if (!def) continue;
-
-      const ids = def.names
-        .map((n) => idByName.get(n))
-        .filter((id): id is number => typeof id === 'number');
-
-      base.grants[key] = { mode: 'positionsAny', positionIds: ids };
+      base.grants[key] = {
+        mode: 'positionsAny',
+        positionIds: defaults[key] ?? [],
+      };
     }
 
     return base;
   }
 
-  private normalizePolicy(input: any): ChurchPermissionPolicyV1 {
+  private normalizeIncomingPolicy(input: any): ChurchPermissionPolicyV1 {
     if (!input || typeof input !== 'object') {
       throw new BadRequestException('Invalid policy');
     }
@@ -190,36 +215,71 @@ export class ChurchPermissionPolicyService {
 
     for (const key of ALL_PERMISSIONS) {
       const grant = (grantsRaw as any)[key];
-      if (!grant || typeof grant !== 'object') continue;
-
-      if (key === 'ops.activity.create' || key === 'ops.members.read') {
-        policy.grants[key] = { mode: 'member' };
-        continue;
+      if (!grant || typeof grant !== 'object') {
+        throw new BadRequestException(`Missing grant for ${key}`);
       }
 
-      const mode = (grant as any).mode;
-      if (mode === 'positionsAny') {
-        const idsRaw = (grant as any).positionIds;
-        const ids = Array.isArray(idsRaw)
-          ? idsRaw
-              .map((v) => (typeof v === 'number' ? v : Number(v)))
-              .filter((v) => Number.isFinite(v))
-          : [];
-
-        policy.grants[key] = { mode: 'positionsAny', positionIds: ids };
-      } else if (mode === 'member') {
-        policy.grants[key] = { mode: 'member' };
+      if ((grant as any).mode !== 'positionsAny') {
+        throw new BadRequestException(`Invalid grant mode for ${key}`);
       }
+
+      const ids = this.parsePositionIds((grant as any).positionIds);
+      if (ids.length === 0) {
+        throw new BadRequestException(
+          `At least one position is required for ${key}`,
+        );
+      }
+
+      policy.grants[key] = { mode: 'positionsAny', positionIds: ids };
     }
 
     return policy;
+  }
+
+  private async normalizeStoredPolicy(
+    input: any,
+    churchId: number,
+  ): Promise<{ policy: ChurchPermissionPolicyV1; changed: boolean }> {
+    const fallbackPolicy = await this.buildDefaultPolicyForChurch(churchId);
+
+    if (!input || typeof input !== 'object') {
+      return { policy: fallbackPolicy, changed: true };
+    }
+
+    const grantsRaw = (input as any).grants;
+    if (!grantsRaw || typeof grantsRaw !== 'object') {
+      return { policy: fallbackPolicy, changed: true };
+    }
+
+    const policy = this.buildEmptyPolicy();
+    let changed = (input as any).version !== POLICY_VERSION;
+
+    for (const key of ALL_PERMISSIONS) {
+      const grant = (grantsRaw as any)[key];
+      if (
+        grant &&
+        typeof grant === 'object' &&
+        (grant as any).mode === 'positionsAny'
+      ) {
+        policy.grants[key] = {
+          mode: 'positionsAny',
+          positionIds: this.parsePositionIds((grant as any).positionIds),
+        };
+        continue;
+      }
+
+      policy.grants[key] = fallbackPolicy.grants[key];
+      changed = true;
+    }
+
+    return { policy, changed };
   }
 
   private async assertCanManagePolicy(user: {
     userId: number;
     role?: string;
   }): Promise<{ churchId: number }> {
-    if (user?.role === 'SUPER_ADMIN') {
+    if (user?.role === 'ADMIN') {
       const membership = await (this.prisma as any).membership.findUnique({
         where: { accountId: user.userId },
         select: {
@@ -261,10 +321,24 @@ export class ChurchPermissionPolicyService {
       this.prisma as any
     ).churchPermissionPolicy.findUnique({
       where: { churchId },
-      select: { id: true },
+      select: { id: true, policy: true },
     });
 
-    if (existing?.id) return;
+    if (existing?.id) {
+      const normalized = await this.normalizeStoredPolicy(
+        existing.policy,
+        churchId,
+      );
+      if (!normalized.changed) return;
+
+      await (this.prisma as any).churchPermissionPolicy.update({
+        where: { churchId },
+        data: {
+          policy: normalized.policy as any,
+        },
+      });
+      return;
+    }
 
     const policy = await this.buildDefaultPolicyForChurch(churchId);
 
@@ -292,7 +366,7 @@ export class ChurchPermissionPolicyService {
   async updateMe(payload: any, user: { userId: number; role?: string }) {
     const { churchId } = await this.assertCanManagePolicy(user);
 
-    const normalized = this.normalizePolicy(payload?.policy);
+    const normalized = this.normalizeIncomingPolicy(payload?.policy);
 
     const grant = normalized.grants;
     const positionIds = Array.from(
@@ -333,7 +407,7 @@ export class ChurchPermissionPolicyService {
   }
 
   async getEffectivePermissions(user: { userId: number; role?: string }) {
-    if (user?.role === 'SUPER_ADMIN') {
+    if (user?.role === 'ADMIN') {
       return {
         message: 'OK',
         data: {
@@ -351,7 +425,9 @@ export class ChurchPermissionPolicyService {
       select: { policy: true, updatedAt: true },
     });
 
-    const policy = this.normalizePolicy(row?.policy);
+    const policy = (
+      await this.normalizeStoredPolicy(row?.policy, requester.churchId)
+    ).policy;
 
     const membershipPositionIds = new Set(requester.positionIds);
     const permissions: OperationPermissionKey[] = [];
@@ -359,11 +435,6 @@ export class ChurchPermissionPolicyService {
     for (const key of ALL_PERMISSIONS) {
       const grant = policy.grants[key];
       if (!grant) continue;
-
-      if (grant.mode === 'member') {
-        permissions.push(key);
-        continue;
-      }
 
       if (
         grant.mode === 'positionsAny' &&

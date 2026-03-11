@@ -46,13 +46,14 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      Future.microtask(_refreshExactAlarmPermissionAndResync);
+      Future.microtask(_refreshAlarmPermissionsOnResume);
     }
   }
 
-  Future<void> _refreshExactAlarmPermissionAndResync() async {
+  Future<void> _refreshAlarmPermissionsOnResume() async {
     try {
       ref.invalidate(canScheduleExactAlarmsProvider);
+      ref.invalidate(canUseFullScreenIntentProvider);
 
       final membershipId = _membershipId;
       if (membershipId == null) return;
@@ -203,6 +204,9 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final canExactAsync = ref.watch(canScheduleExactAlarmsProvider);
+    final canFullScreenAsync = ref.watch(canUseFullScreenIntentProvider);
+
     return ScaffoldWidget(
       loading: _loading,
       child: Column(
@@ -275,6 +279,137 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                 ),
               ),
             ],
+            canExactAsync.when(
+              data: (canExact) {
+                if (canExact) return const SizedBox.shrink();
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  child: Container(
+                    padding: EdgeInsets.all(BaseSize.w12),
+                    decoration: BoxDecoration(
+                      color: BaseColor.yellow[50],
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      border: Border.all(color: BaseColor.yellow[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              AppIcons.warning,
+                              color: BaseColor.yellow[800],
+                              size: BaseSize.w18,
+                            ),
+                            Gap.w8,
+                            Expanded(
+                              child: Text(
+                                'Allow exact alarms',
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: BaseColor.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap.h8,
+                        Text(
+                          'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
+                          style: BaseTypography.bodySmall.toSecondary,
+                        ),
+                        Gap.h12,
+                        OutlinedButton(
+                          onPressed: () async {
+                            final service = ref.read(
+                              exactAlarmPermissionServiceProvider,
+                            );
+                            await service.requestExactAlarmPermission();
+                            ref.invalidate(canScheduleExactAlarmsProvider);
+                          },
+                          child: Text(
+                            'Open settings',
+                            style: BaseTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (error, stackTrace) => const SizedBox.shrink(),
+            ),
+            canFullScreenAsync.when(
+              data: (canUseFullScreenIntent) {
+                if (canUseFullScreenIntent) return const SizedBox.shrink();
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  child: Container(
+                    padding: EdgeInsets.all(BaseSize.w12),
+                    decoration: BoxDecoration(
+                      color: BaseColor.yellow[50],
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      border: Border.all(color: BaseColor.yellow[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              AppIcons.warning,
+                              color: BaseColor.yellow[800],
+                              size: BaseSize.w18,
+                            ),
+                            Gap.w8,
+                            Expanded(
+                              child: Text(
+                                'Allow full-screen alarms',
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: BaseColor.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap.h8,
+                        Text(
+                          'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
+                          style: BaseTypography.bodySmall.toSecondary,
+                        ),
+                        Gap.h12,
+                        OutlinedButton(
+                          onPressed: () async {
+                            final service = ref.read(
+                              exactAlarmPermissionServiceProvider,
+                            );
+                            await service.requestFullScreenIntentPermission();
+                            ref.invalidate(canUseFullScreenIntentProvider);
+                          },
+                          child: Text(
+                            'Open settings',
+                            style: BaseTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (error, stackTrace) => const SizedBox.shrink(),
+            ),
+            Gap.h16,
             Gap.h16,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),

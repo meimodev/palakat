@@ -219,6 +219,40 @@
   "admin_documentDirectory_subtitle": "A record of all approved church documents.",
   "admin_church_title": "Church Profile",
   "admin_church_subtitle": "Manage your church's public information and columns.",
+  "churchOperationsPermission_publishActivities_title": "Publish activities",
+  "churchOperationsPermission_publishActivities_desc": "Create service, event, and announcement activities.",
+  "churchOperationsAccess_title": "Operations access control",
+  "churchOperationsAccess_subtitle": "Configure which positions can access Operations features",
+  "churchOperationsAccess_description": "Assign church positions to each Operations feature. Members outside the selected positions will not be able to access that feature.",
+  "churchOperationsAccess_emptyPositions": "Add church positions first before configuring Operations access control.",
+  "churchOperationsAccess_featureColumn": "Feature",
+  "churchOperationsAccess_assignedPositionsColumn": "Assigned positions",
+  "churchOperationsAccess_actionColumn": "Action",
+  "churchOperationsAccess_noPositionsAssigned": "No positions assigned",
+  "churchOperationsAccess_moreSummary": "{visible} +{count} more",
+  "@churchOperationsAccess_moreSummary": {
+    "placeholders": {
+      "visible": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "churchOperationsAccess_assignedCount": "{count, plural, =1{1 position assigned} other{{count} positions assigned}}",
+  "@churchOperationsAccess_assignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "churchOperationsAccess_needsConfiguration": "Needs configuration",
+  "churchOperationsAccess_configured": "Configured",
+  "churchOperationsAccess_needsSetup": "Needs setup",
+  "churchOperationsAccess_onlySelectedPositions": "Only members with the selected positions can access this feature.",
+  "churchOperationsAccess_selectPositionError": "Select at least one position before saving.",
 
   "btn_continue": "Continue",
   "btn_cancel": "Cancel",
@@ -289,6 +323,7 @@
   "lbl_noAccountNumbers": "No account numbers available",
   "lbl_churchNotAvailable": "Church information not available",
   "lbl_template": "Template",
+  "lbl_format": "Format",
   "lbl_na": "N/A",
   "lbl_unknown": "Unknown",
   "lbl_you": "You",
@@ -1155,6 +1190,8 @@
   "msg_createFailed": "Failed to create",
   "msg_updateFailed": "Failed to update",
   "msg_deleteFailed": "Failed to delete",
+  "msg_saveMemberFailed": "Failed to save member",
+  "msg_deleteMemberFailed": "Failed to delete member",
   "msg_createApprovalRuleFailed": "Failed to create approval rule",
   "msg_updateApprovalRuleFailed": "Failed to update approval rule",
   "msg_deleteApprovalRuleFailed": "Failed to delete approval rule",

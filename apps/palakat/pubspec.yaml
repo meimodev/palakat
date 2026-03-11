@@ -96,6 +96,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/alarm.mp3
     - assets/images/
     - assets/icons/app/
     - .env

@@ -581,6 +581,76 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage your church\'s public information and columns.';
 
   @override
+  String get churchOperationsPermission_publishActivities_title =>
+      'Publish activities';
+
+  @override
+  String get churchOperationsPermission_publishActivities_desc =>
+      'Create service, event, and announcement activities.';
+
+  @override
+  String get churchOperationsAccess_title => 'Operations access control';
+
+  @override
+  String get churchOperationsAccess_subtitle =>
+      'Configure which positions can access Operations features';
+
+  @override
+  String get churchOperationsAccess_description =>
+      'Assign church positions to each Operations feature. Members outside the selected positions will not be able to access that feature.';
+
+  @override
+  String get churchOperationsAccess_emptyPositions =>
+      'Add church positions first before configuring Operations access control.';
+
+  @override
+  String get churchOperationsAccess_featureColumn => 'Feature';
+
+  @override
+  String get churchOperationsAccess_assignedPositionsColumn =>
+      'Assigned positions';
+
+  @override
+  String get churchOperationsAccess_actionColumn => 'Action';
+
+  @override
+  String get churchOperationsAccess_noPositionsAssigned =>
+      'No positions assigned';
+
+  @override
+  String churchOperationsAccess_moreSummary(String visible, int count) {
+    return '$visible +$count more';
+  }
+
+  @override
+  String churchOperationsAccess_assignedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count positions assigned',
+      one: '1 position assigned',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get churchOperationsAccess_needsConfiguration => 'Needs configuration';
+
+  @override
+  String get churchOperationsAccess_configured => 'Configured';
+
+  @override
+  String get churchOperationsAccess_needsSetup => 'Needs setup';
+
+  @override
+  String get churchOperationsAccess_onlySelectedPositions =>
+      'Only members with the selected positions can access this feature.';
+
+  @override
+  String get churchOperationsAccess_selectPositionError =>
+      'Select at least one position before saving.';
+
+  @override
   String get btn_continue => 'Continue';
 
   @override
@@ -789,6 +859,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_template => 'Template';
+
+  @override
+  String get lbl_format => 'Format';
 
   @override
   String get lbl_na => 'N/A';
@@ -2597,6 +2670,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_deleteFailed => 'Failed to delete';
+
+  @override
+  String get msg_saveMemberFailed => 'Failed to save member';
+
+  @override
+  String get msg_deleteMemberFailed => 'Failed to delete member';
 
   @override
   String get msg_createApprovalRuleFailed => 'Failed to create approval rule';

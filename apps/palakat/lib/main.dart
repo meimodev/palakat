@@ -16,9 +16,13 @@ import 'package:palakat/core/services/notification_navigation_service.dart';
 import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/core/services/realtime_notification_listener.dart';
 import 'package:palakat/core/services/timezone_service.dart';
+import 'package:palakat/features/activity_alarm/services/activity_alarm_scheduler_provider.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
+import 'package:palakat_shared/core/extension/approver_extension.dart';
+import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/result.dart';
+import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
 import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
@@ -269,26 +273,7 @@ void main() async {
   // Set up notification tap handler for cold start
   // This captures notification taps when the app is launched from a terminated state
   notificationService.setNotificationTapHandler((data) {
-    if (!_isAppInitialized) {
-      // Store the data to be processed after app initialization
-      _coldStartNotificationData = data;
-      return;
-    }
-
-    final context =
-        navigatorKey.currentState?.context ??
-        navigatorKey.currentState?.overlay?.context ??
-        navigatorKey.currentContext;
-
-    if (context == null) {
-      _coldStartNotificationData = data;
-      return;
-    }
-
-    final navigationService = NotificationNavigationService(
-      GoRouter.of(context),
-    );
-    navigationService.handleNotificationTap(data);
+    _coldStartNotificationData = data;
   });
 
   runApp(
@@ -357,6 +342,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     super.initState();
 
     ref.read(realtimeNotificationListenerProvider);
+    _registerNotificationTapHandler();
 
     _localeSubscription = ref.listenManual(localeControllerProvider, (
       prev,
@@ -373,7 +359,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     _isAppInitialized = true;
 
     // Handle cold start notification after app initialization
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshNotificationLaunchRouting();
       _handleColdStartNotification();
       _initializePermissionFlow();
     });
@@ -393,7 +380,57 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // Detect return from settings (app resumed)
     // Requirements: 6.5
     if (state == AppLifecycleState.resumed) {
-      _handleReturnFromSettings();
+      unawaited(_handleAppResumed());
+    }
+  }
+
+  void _registerNotificationTapHandler() {
+    final notificationService = ref.read(
+      notificationDisplayServiceSyncProvider,
+    );
+    notificationService?.setNotificationTapHandler(_onNotificationTapped);
+  }
+
+  void _onNotificationTapped(Map<String, dynamic> data) {
+    if (!_isAppInitialized) {
+      _coldStartNotificationData = data;
+      return;
+    }
+
+    _routeNotificationTap(data);
+  }
+
+  void _routeNotificationTap(Map<String, dynamic> data) {
+    final normalized = _extractDeepLinkData(data);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        _coldStartNotificationData = normalized;
+        return;
+      }
+
+      try {
+        final router = ref.read(goRouterProvider);
+        final navigationService = NotificationNavigationService(router);
+        navigationService.handleNotificationTap(normalized);
+      } catch (_) {
+        _coldStartNotificationData = normalized;
+      }
+    });
+  }
+
+  Future<void> _handleAppResumed() async {
+    await _refreshNotificationLaunchRouting();
+    _handleColdStartNotification();
+    await _handleReturnFromSettings();
+  }
+
+  Future<void> _refreshNotificationLaunchRouting() async {
+    try {
+      final service = ref.read(notificationDisplayServiceSyncProvider);
+      await service?.refreshLaunchDetails();
+    } catch (e) {
+      debugPrint('[NotificationLaunch] Failed to refresh launch details: $e');
     }
   }
 
@@ -454,21 +491,84 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       // Refresh permission state provider
       ref.read(permissionStateProvider.notifier).refresh();
     }
+
+    await _refreshActivityAlarmsOnResume();
+  }
+
+  Future<void> _refreshActivityAlarmsOnResume() async {
+    final localStorage = ref.read(localStorageServiceProvider);
+    final membershipId =
+        localStorage.currentMembership?.id ??
+        localStorage.currentAuth?.account.membership?.id;
+
+    if (membershipId == null) {
+      return;
+    }
+
+    try {
+      final scheduler = await ref.read(
+        activityAlarmSchedulerServiceProvider.future,
+      );
+      final enabled = await scheduler.isEnabled(membershipId);
+      if (!enabled) {
+        return;
+      }
+
+      final homeRepo = ref.read(homeRepositoryProvider);
+      final dashboardResult = await homeRepo.getHomeDashboard();
+
+      var activities = <Activity>[];
+      var didLoadActivities = false;
+      dashboardResult.when(
+        onSuccess: (response) {
+          didLoadActivities = true;
+          final nowLocal = DateTime.now();
+          activities =
+              response.data.thisWeekActivities
+                  .where(
+                    (activity) =>
+                        activity.approvers.approvalStatus ==
+                        ApprovalStatus.approved,
+                  )
+                  .where(
+                    (activity) =>
+                        (activity.activityType == ActivityType.event ||
+                            activity.activityType == ActivityType.service) &&
+                        activity.reminder != null,
+                  )
+                  .where(
+                    (activity) => activity.date.toLocal().isAfter(nowLocal),
+                  )
+                  .toList()
+                ..sort((a, b) => a.date.compareTo(b.date));
+        },
+        onFailure: (failure) {
+          debugPrint(
+            '[ActivityAlarm] Resume sync skipped because dashboard fetch failed: ${failure.message}',
+          );
+        },
+      );
+
+      if (!didLoadActivities) {
+        return;
+      }
+
+      await scheduler.syncWeekAlarms(
+        membershipId: membershipId,
+        activities: activities,
+      );
+    } catch (e) {
+      debugPrint('[ActivityAlarm] Resume sync failed: $e');
+    }
   }
 
   void _handleColdStartNotification() {
     if (_coldStartNotificationData != null) {
-      final router = ref.read(goRouterProvider);
-      final navigationService = NotificationNavigationService(router);
-
-      // Extract deep link data from notification payload
       final data = _extractDeepLinkData(_coldStartNotificationData!);
-
-      // Navigate to the appropriate screen
-      navigationService.handleNotificationTap(data);
 
       // Clear the cold start data
       _coldStartNotificationData = null;
+      _routeNotificationTap(data);
     }
   }
 

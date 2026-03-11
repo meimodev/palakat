@@ -584,6 +584,76 @@ class AppLocalizationsId extends AppLocalizations {
       'Kelola informasi publik dan kolom gereja Anda.';
 
   @override
+  String get churchOperationsPermission_publishActivities_title =>
+      'Publikasikan Kegiatan';
+
+  @override
+  String get churchOperationsPermission_publishActivities_desc =>
+      'Buat kegiatan ibadah, acara, dan pengumuman.';
+
+  @override
+  String get churchOperationsAccess_title => 'Kontrol akses Operasi';
+
+  @override
+  String get churchOperationsAccess_subtitle =>
+      'Atur jabatan yang dapat mengakses fitur Operasi';
+
+  @override
+  String get churchOperationsAccess_description =>
+      'Tetapkan jabatan gereja untuk setiap fitur Operasi. Anggota di luar jabatan yang dipilih tidak akan bisa mengakses fitur tersebut.';
+
+  @override
+  String get churchOperationsAccess_emptyPositions =>
+      'Tambahkan jabatan gereja terlebih dahulu sebelum mengatur kontrol akses Operasi.';
+
+  @override
+  String get churchOperationsAccess_featureColumn => 'Fitur';
+
+  @override
+  String get churchOperationsAccess_assignedPositionsColumn =>
+      'Jabatan yang ditetapkan';
+
+  @override
+  String get churchOperationsAccess_actionColumn => 'Tindakan';
+
+  @override
+  String get churchOperationsAccess_noPositionsAssigned =>
+      'Belum ada jabatan yang ditetapkan';
+
+  @override
+  String churchOperationsAccess_moreSummary(String visible, int count) {
+    return '$visible +$count lagi';
+  }
+
+  @override
+  String churchOperationsAccess_assignedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jabatan ditetapkan',
+      one: '1 jabatan ditetapkan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get churchOperationsAccess_needsConfiguration => 'Perlu dikonfigurasi';
+
+  @override
+  String get churchOperationsAccess_configured => 'Terkonfigurasi';
+
+  @override
+  String get churchOperationsAccess_needsSetup => 'Perlu disiapkan';
+
+  @override
+  String get churchOperationsAccess_onlySelectedPositions =>
+      'Hanya anggota dengan jabatan yang dipilih yang dapat mengakses fitur ini.';
+
+  @override
+  String get churchOperationsAccess_selectPositionError =>
+      'Pilih minimal satu jabatan sebelum menyimpan.';
+
+  @override
   String get btn_continue => 'Lanjutkan';
 
   @override
@@ -791,6 +861,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_template => 'Template';
+
+  @override
+  String get lbl_format => 'Format';
 
   @override
   String get lbl_na => 'N/A';
@@ -2602,6 +2675,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_deleteFailed => 'Gagal menghapus';
+
+  @override
+  String get msg_saveMemberFailed => 'Gagal menyimpan anggota';
+
+  @override
+  String get msg_deleteMemberFailed => 'Gagal menghapus anggota';
 
   @override
   String get msg_createApprovalRuleFailed => 'Gagal membuat aturan persetujuan';

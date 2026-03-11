@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
+import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
@@ -21,7 +22,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     // Mock current account data
     _currentAccount = Account(
       id: 1,
-      name: 'Admin User',
+      name: '',
       email: 'admin@palakat.com',
       phone: '+62 812-3456-7890',
       dob: DateTime.now(),
@@ -58,9 +59,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
+  String _displayAccountName(BuildContext context) {
+    final name = _currentAccount.name.trim();
+    return name.isEmpty ? context.l10n.lbl_adminUser : name;
+  }
+
   void _openEditAccountDrawer() {
     final l10n = context.l10n;
-    final nameCtrl = TextEditingController(text: _currentAccount.name);
+    final nameCtrl = TextEditingController(text: _displayAccountName(context));
     final phoneCtrl = TextEditingController(text: _currentAccount.phone);
     final posCtrl = TextEditingController(
       text:
@@ -357,14 +363,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             child: Text(l10n.btn_cancel),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              // Note: Admin sign out flow integration pending.
-              AppSnackbars.showSuccess(
-                context,
-                title: l10n.msg_saved,
-                message: l10n.msg_signedOut,
-              );
+              await ref.read(authControllerProvider.notifier).signOut();
             },
             child: Text(l10n.btn_signOut),
           ),
@@ -413,7 +414,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         radius: 40,
                         backgroundColor: theme.colorScheme.primary,
                         child: Text(
-                          _getNameInitials(_currentAccount.name),
+                          _getNameInitials(_displayAccountName(context)),
                           style: theme.textTheme.headlineMedium?.copyWith(
                             color: theme.colorScheme.onPrimary,
                             fontWeight: FontWeight.w600,
@@ -426,7 +427,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _currentAccount.name,
+                              _displayAccountName(context),
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -456,7 +457,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         child: _buildInfoField(
                           theme,
                           l10n.lbl_fullName,
-                          _currentAccount.name,
+                          _displayAccountName(context),
                         ),
                       ),
                       const SizedBox(width: 24),

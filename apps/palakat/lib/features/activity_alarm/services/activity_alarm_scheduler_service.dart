@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:palakat/core/constants/notification_channels.dart';
 import 'package:palakat/core/models/notification_payload.dart';
 import 'package:palakat/core/services/notification_display_service.dart';
@@ -109,6 +110,49 @@ class ActivityAlarmSchedulerService {
     await _repo.saveScheduled(membershipId, scheduled);
   }
 
+  Future<DateTime> scheduleSmokeTestAlarm({
+    required int activityId,
+    required String title,
+  }) async {
+    await TimeZoneService.initialize();
+
+    final scheduledAt = DateTime.now().add(const Duration(seconds: 10));
+    final alarmAtUtcIso = scheduledAt.toUtc().toIso8601String();
+    final alarmKey = 'smoke:activity:$activityId';
+    final notificationId = _notificationId(alarmKey);
+
+    await _display.cancelNotification(notificationId);
+
+    await _display.scheduleNotification(
+      payload: NotificationPayload(
+        title: title,
+        body: '10 second smoke test',
+        data: {
+          'type': 'ACTIVITY_ALARM',
+          'activityId': activityId.toString(),
+          'alarmKey': alarmKey,
+          'title': title,
+          'alarmAtUtcIso': alarmAtUtcIso,
+          'reminderName': 'smokeTest',
+          'reminderValue': '10 second smoke test',
+          'notificationId': notificationId.toString(),
+        },
+      ),
+      channelId: NotificationChannels.activityAlarms.id,
+      scheduledAt: scheduledAt,
+      id: notificationId,
+      fullScreenIntent: Platform.isAndroid,
+    );
+
+    if (kDebugMode) {
+      debugPrint(
+        '[ActivityAlarmSchedulerService] Smoke test alarm scheduled (activityId=$activityId, notificationId=$notificationId, scheduledAt=$scheduledAt)',
+      );
+    }
+
+    return scheduledAt;
+  }
+
   Future<ActivityAlarmSyncResult> syncWeekAlarms({
     required int membershipId,
     required List<Activity> activities,
@@ -214,6 +258,7 @@ class ActivityAlarmSchedulerService {
                 'activityId': desiredRecord.activityId.toString(),
                 'alarmKey': desiredRecord.alarmKey,
                 'title': desiredRecord.title,
+                'alarmAtUtcIso': desiredRecord.alarmAtUtcIso,
                 'reminderName': _reminderNameForValue(
                   desiredRecord.reminderValue,
                 ),
@@ -236,6 +281,12 @@ class ActivityAlarmSchedulerService {
 
     await _repo.saveScheduled(membershipId, nextScheduled);
     await _repo.saveLastSyncAt(membershipId, nowUtc);
+
+    if (kDebugMode) {
+      debugPrint(
+        '[ActivityAlarmSchedulerService] Sync complete (membershipId=$membershipId, desired=${desired.length}, scheduled=$scheduledCount, cancelled=$cancelledCount, existing=${existing.length})',
+      );
+    }
 
     return ActivityAlarmSyncResult(
       scheduledCount: scheduledCount,

@@ -6,17 +6,17 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as notifications;
-import 'package:go_router/go_router.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants/notification_channels.dart';
 import '../models/notification_payload.dart';
-import '../routing/app_routing.dart';
 
 /// Abstract interface for displaying system notifications
 abstract class NotificationDisplayService {
   /// Initialize notification channels (Android)
   Future<void> initializeChannels();
+
+  Future<void> refreshLaunchDetails();
 
   /// Display a system notification
   Future<void> displayNotification({
@@ -60,12 +60,18 @@ abstract class NotificationDisplayService {
 }
 
 /// Implementation of NotificationDisplayService using flutter_local_notifications
-class NotificationDisplayServiceImpl implements NotificationDisplayService {
+class NotificationDisplayServiceImpl
+    with WidgetsBindingObserver
+    implements NotificationDisplayService {
   final notifications.FlutterLocalNotificationsPlugin _plugin;
   void Function(Map<String, dynamic> data)? _tapHandler;
   Map<String, dynamic>? _pendingTapData;
+  Map<String, dynamic>? _pendingAlarmResumeData;
   int _notificationIdCounter = 0;
   final Map<int, Timer> _foregroundAlarmTimers = <int, Timer>{};
+  String? _lastNavigationToken;
+  DateTime? _lastNavigationAt;
+  bool _isObservingLifecycle = false;
 
   NotificationDisplayServiceImpl({
     notifications.FlutterLocalNotificationsPlugin? plugin,
@@ -87,11 +93,21 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
       iOS: iosSettings,
     );
 
+    if (!_isObservingLifecycle) {
+      WidgetsBinding.instance.addObserver(this);
+      _isObservingLifecycle = true;
+    }
+
     await _plugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
+    await refreshLaunchDetails();
+  }
+
+  @override
+  Future<void> refreshLaunchDetails() async {
     try {
       final launchDetails = await _plugin.getNotificationAppLaunchDetails();
       if (launchDetails?.didNotificationLaunchApp ?? false) {
@@ -104,27 +120,54 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
   }
 
   void _onNotificationTapped(notifications.NotificationResponse response) {
+    final data = _responseDataFromNotificationResponse(response);
+    _clearPendingAlarmResumeDataIfMatches(data);
+
+    if (_shouldBufferAlarmNavigationUntilResumed(data)) {
+      _pendingAlarmResumeData = Map<String, dynamic>.from(data);
+      if (kDebugMode) {
+        debugPrint(
+          '[NotificationDisplayService] Buffering alarm notification until app resumes. data=$data',
+        );
+      }
+      return;
+    }
+
+    _dispatchTapData(data);
+  }
+
+  Map<String, dynamic> _responseDataFromNotificationResponse(
+    notifications.NotificationResponse response,
+  ) {
     Map<String, dynamic> data = <String, dynamic>{};
 
     if (response.payload != null && response.payload!.isNotEmpty) {
-      // Try to decode the payload
       try {
         data = _decodePayloadData(response.payload!);
       } catch (_) {
-        // If decoding fails, pass empty data
         data = <String, dynamic>{};
       }
     }
 
-    if (_tapHandler != null) {
-      _tapHandler!(data);
+    return data;
+  }
+
+  void _dispatchTapData(Map<String, dynamic> data) {
+    final normalized = Map<String, dynamic>.from(data);
+    if (_shouldSkipDuplicateNavigation(normalized)) {
       return;
     }
 
-    _pendingTapData = data;
+    if (_tapHandler != null) {
+      _markNavigationDispatched(normalized);
+      _tapHandler!(normalized);
+      return;
+    }
+
+    _pendingTapData = normalized;
     if (kDebugMode) {
       debugPrint(
-        '[NotificationDisplayService] Notification tap received before handler was set; buffering. data=$data',
+        '[NotificationDisplayService] Notification tap received before handler was set; buffering. data=$normalized',
       );
     }
   }
@@ -474,9 +517,24 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
     if (pending != null) {
       _pendingTapData = null;
       try {
-        handler(pending);
+        _dispatchTapData(pending);
       } catch (_) {}
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+
+    final pending = _pendingAlarmResumeData;
+    if (pending == null) {
+      return;
+    }
+
+    _pendingAlarmResumeData = null;
+    _dispatchTapData(pending);
   }
 
   @override
@@ -564,15 +622,20 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
 
   @override
   void dispose() {
-    // Clear any handlers
     _tapHandler = null;
+    _pendingTapData = null;
+    _pendingAlarmResumeData = null;
 
     for (final timer in _foregroundAlarmTimers.values) {
       timer.cancel();
     }
     _foregroundAlarmTimers.clear();
 
-    // Reset notification ID counter
+    if (_isObservingLifecycle) {
+      WidgetsBinding.instance.removeObserver(this);
+      _isObservingLifecycle = false;
+    }
+
     _notificationIdCounter = 0;
   }
 
@@ -600,33 +663,80 @@ class NotificationDisplayServiceImpl implements NotificationDisplayService {
 
       final lifecycleState = SchedulerBinding.instance.lifecycleState;
       if (lifecycleState != AppLifecycleState.resumed) {
+        _pendingAlarmResumeData = Map<String, dynamic>.from(data);
         return;
       }
 
-      final context = navigatorKey.currentContext;
-      if (context == null) {
-        return;
-      }
-
-      try {
-        GoRouter.of(context).pushNamed(
-          AppRoute.alarmRing,
-          pathParameters: {'activityId': activityId.toString()},
-          extra: RouteParam(
-            params: {
-              'title': data['title'],
-              'reminderName': data['reminderName'],
-              'reminderValue': data['reminderValue'],
-              'alarmKey': data['alarmKey'],
-              'notificationId': int.tryParse(
-                data['notificationId']?.toString() ?? '',
-              ),
-            },
-          ),
-        );
-      } catch (_) {
-        // Ignore navigation errors
-      }
+      _dispatchTapData(data);
     });
+  }
+
+  bool _shouldBufferAlarmNavigationUntilResumed(Map<String, dynamic> data) {
+    if (!Platform.isAndroid) {
+      return false;
+    }
+
+    final type = data['type']?.toString();
+    if (type != 'ACTIVITY_ALARM') {
+      return false;
+    }
+
+    final lifecycleState = SchedulerBinding.instance.lifecycleState;
+    return lifecycleState != AppLifecycleState.resumed;
+  }
+
+  String? _navigationToken(Map<String, dynamic> data) {
+    final type = data['type']?.toString();
+    if (type == null || type.isEmpty) {
+      return null;
+    }
+
+    final activityId = data['activityId']?.toString() ?? '';
+    if (type == 'ACTIVITY_ALARM') {
+      final alarmKey = data['alarmKey']?.toString() ?? '';
+      final notificationId = data['notificationId']?.toString() ?? '';
+      final alarmAtUtcIso = data['alarmAtUtcIso']?.toString() ?? '';
+      return '$type|$activityId|$alarmKey|$notificationId|$alarmAtUtcIso';
+    }
+
+    return '$type|$activityId';
+  }
+
+  bool _shouldSkipDuplicateNavigation(Map<String, dynamic> data) {
+    final token = _navigationToken(data);
+    final lastNavigationAt = _lastNavigationAt;
+    if (token == null || lastNavigationAt == null) {
+      return false;
+    }
+
+    return token == _lastNavigationToken &&
+        DateTime.now().difference(lastNavigationAt) <
+            const Duration(seconds: 5);
+  }
+
+  void _markNavigationDispatched(Map<String, dynamic> data) {
+    final token = _navigationToken(data);
+    if (token == null) {
+      return;
+    }
+
+    _lastNavigationToken = token;
+    _lastNavigationAt = DateTime.now();
+  }
+
+  void _clearPendingAlarmResumeDataIfMatches(Map<String, dynamic> data) {
+    final pending = _pendingAlarmResumeData;
+    if (pending == null) {
+      return;
+    }
+
+    final token = _navigationToken(data);
+    if (token == null) {
+      return;
+    }
+
+    if (_navigationToken(pending) == token) {
+      _pendingAlarmResumeData = null;
+    }
   }
 }

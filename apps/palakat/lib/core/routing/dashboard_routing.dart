@@ -56,6 +56,7 @@ final dashboardRouting = GoRoute(
 
         return AlarmRingScreen(
           activityId: activityId,
+          alarmAtUtcIso: params['alarmAtUtcIso'] as String?,
           title: params['title'] as String?,
           reminderName: params['reminderName'] as String?,
           reminderValue: params['reminderValue'] as String?,

@@ -20,6 +20,57 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
   AppLocalizations get l10n => context.l10n;
 
+  bool _permissionPolicyLoading = false;
+  String? _permissionPolicyErrorMessage;
+  ChurchPermissionPolicyRecord? _permissionPolicyRecord;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPermissionPolicy();
+  }
+
+  Future<void> _loadPermissionPolicy() async {
+    if (mounted) {
+      setState(() {
+        _permissionPolicyLoading = true;
+        _permissionPolicyErrorMessage = null;
+      });
+    }
+
+    try {
+      final repo = ref.read(churchPermissionPolicyRepositoryProvider);
+      final res = await repo.fetchMyPolicy();
+
+      if (!mounted) return;
+
+      res.when(
+        onSuccess: (record) {
+          setState(() {
+            _permissionPolicyRecord = record;
+            _permissionPolicyErrorMessage = null;
+          });
+        },
+        onFailure: (failure) {
+          setState(() {
+            _permissionPolicyErrorMessage = failure.message;
+          });
+        },
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _permissionPolicyErrorMessage = context.l10n.err_loadFailed;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _permissionPolicyLoading = false;
+        });
+      }
+    }
+  }
+
   void _openEditDrawer(Church church) {
     DrawerUtils.showDrawer(
       context: context,
@@ -53,10 +104,26 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     );
   }
 
-  void _openPermissionPolicyDrawer() {
+  void _openPermissionPolicyDrawer(
+    OperationPermissionDefinition definition,
+    List<MemberPosition> availablePositions,
+  ) {
+    final record = _permissionPolicyRecord;
+    if (record == null) return;
+
     DrawerUtils.showDrawer(
       context: context,
       drawer: PermissionPolicyEditDrawer(
+        definition: definition,
+        record: record,
+        availablePositions: availablePositions,
+        onSaved: (updatedRecord) {
+          if (!mounted) return;
+          setState(() {
+            _permissionPolicyRecord = updatedRecord;
+            _permissionPolicyErrorMessage = null;
+          });
+        },
         onClose: () => DrawerUtils.closeDrawer(context),
       ),
     );
@@ -332,34 +399,210 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
   Widget _buildPermissionPolicySection(ThemeData theme) {
     final enabled = state.church.hasValue;
+    final positionsAsync = state.positions;
+    final availablePositions = positionsAsync.value ?? const <MemberPosition>[];
+    final l10n = context.l10n;
+    final permissionDefinitions = buildOperationPermissionDefinitions(l10n);
+    final selections = resolvePermissionSelections(
+      policy: _permissionPolicyRecord?.policy,
+      availablePositions: availablePositions,
+    );
+    final hasError =
+        _permissionPolicyErrorMessage != null || positionsAsync.hasError;
 
     return ExpandableSurfaceCard(
-      title: 'Operations access control',
-      subtitle: 'Configure which positions can access Operations features',
+      title: l10n.churchOperationsAccess_title,
+      subtitle: l10n.churchOperationsAccess_subtitle,
       initiallyExpanded: true,
-      trailing: ElevatedButton.icon(
-        onPressed: enabled ? _openPermissionPolicyDrawer : null,
-        icon: const Icon(Icons.security),
-        label: Text(context.l10n.btn_edit),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
-        ),
+      trailing: IconButton(
+        onPressed: enabled && !_permissionPolicyLoading
+            ? _loadPermissionPolicy
+            : null,
+        icon: const Icon(Icons.refresh),
+        tooltip: context.l10n.btn_retry,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Publishing is open to all members. Other Operations features can be restricted by position.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: _permissionPolicyLoading || positionsAsync.isLoading
+            ? const SizedBox(
+                height: 120,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : hasError
+            ? _cardError(
+                theme: theme,
+                error:
+                    _permissionPolicyErrorMessage ??
+                    positionsAsync.error ??
+                    context.l10n.err_loadFailed,
+                onRetry: () {
+                  _loadPermissionPolicy();
+                  final churchId = state.church.value?.id;
+                  if (churchId != null) {
+                    churchController.fetchPositions(churchId);
+                  }
+                },
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.churchOperationsAccess_description,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (availablePositions.isEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer.withValues(
+                          alpha: 0.35,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        l10n.churchOperationsAccess_emptyPositions,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  AppTable<OperationPermissionDefinition>(
+                    loading: false,
+                    data: permissionDefinitions,
+                    columns: [
+                      AppTableColumn<OperationPermissionDefinition>(
+                        title: l10n.churchOperationsAccess_featureColumn,
+                        flex: 4,
+                        cellBuilder: (ctx, row) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                row.category,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                row.title,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                row.description,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      AppTableColumn<OperationPermissionDefinition>(
+                        title: l10n.churchOperationsAccess_assignedPositionsColumn,
+                        flex: 3,
+                        cellBuilder: (ctx, row) {
+                          final assigned =
+                              selections[row.key] ?? const <MemberPosition>[];
+                          final configured = assigned.isNotEmpty;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                formatPermissionAssignmentSummary(assigned, l10n),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: configured
+                                      ? theme.colorScheme.onSurface
+                                      : theme.colorScheme.error,
+                                  fontWeight: configured
+                                      ? FontWeight.w500
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                configured
+                                    ? l10n.churchOperationsAccess_assignedCount(
+                                        assigned.length,
+                                      )
+                                    : l10n.churchOperationsAccess_needsConfiguration,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      AppTableColumn<OperationPermissionDefinition>(
+                        title: l10n.tbl_status,
+                        flex: 2,
+                        cellBuilder: (ctx, row) {
+                          final assigned =
+                              selections[row.key] ?? const <MemberPosition>[];
+                          final configured = assigned.isNotEmpty;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: configured
+                                  ? theme.colorScheme.primaryContainer
+                                  : theme.colorScheme.errorContainer,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              configured
+                                  ? l10n.churchOperationsAccess_configured
+                                  : l10n.churchOperationsAccess_needsSetup,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: configured
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : theme.colorScheme.onErrorContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      AppTableColumn<OperationPermissionDefinition>(
+                        title: l10n.churchOperationsAccess_actionColumn,
+                        flex: 2,
+                        cellBuilder: (ctx, row) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton.icon(
+                              onPressed:
+                                  _permissionPolicyRecord == null ||
+                                      availablePositions.isEmpty
+                                  ? null
+                                  : () => _openPermissionPolicyDrawer(
+                                      row,
+                                      availablePositions,
+                                    ),
+                              icon: const Icon(Icons.edit_outlined, size: 18),
+                              label: Text(context.l10n.btn_edit),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -347,7 +347,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         },
       ),
       AppTableColumn<Report>(
-        title: 'Format',
+        title: context.l10n.lbl_format,
         flex: 1,
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);

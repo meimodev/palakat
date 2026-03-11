@@ -381,7 +381,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
           ),
           const SizedBox(height: 12),
           LabeledField(
-            label: 'Format',
+            label: l10n.lbl_format,
             child: DropdownButtonFormField<ReportFormat>(
               value: _format,
               decoration: const InputDecoration(

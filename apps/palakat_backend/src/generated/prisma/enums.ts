@@ -19,6 +19,7 @@ export type Gender = (typeof Gender)[keyof typeof Gender]
 
 export const AccountRole = {
   USER: 'USER',
+  ADMIN: 'ADMIN',
   SUPER_ADMIN: 'SUPER_ADMIN'
 } as const
 

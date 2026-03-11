@@ -67,16 +67,18 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
     dynamic error, {
     required String operation,
   }) {
+    final l10n = context.l10n;
+    final isDelete = operation == 'delete';
     final msg = error is AppError
         ? error.userMessage
-        : 'Failed to $operation member';
+        : isDelete
+        ? l10n.msg_deleteMemberFailed
+        : l10n.msg_saveMemberFailed;
     final code = error is AppError ? error.statusCode : null;
 
     AppSnackbars.showError(
       context,
-      title: operation == 'delete'
-          ? context.l10n.msg_deleteFailed
-          : context.l10n.msg_saveFailed,
+      title: isDelete ? l10n.msg_deleteFailed : l10n.msg_saveFailed,
       message: msg,
       statusCode: code,
     );

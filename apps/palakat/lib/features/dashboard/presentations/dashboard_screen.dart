@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -5,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/activity_alarm/services/activity_alarm_summary_provider.dart';
 import 'package:palakat/features/activity_alarm/services/exact_alarm_permission_service_provider.dart';
+import 'package:palakat/features/activity_alarm/services/activity_alarm_scheduler_provider.dart';
 import 'package:palakat/features/dashboard/presentations/dashboard_controller.dart';
 import 'package:palakat/features/notification/presentations/widgets/notification_permission_banner.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -22,6 +25,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with WidgetsBindingObserver {
+  bool _isSchedulingSmokeTest = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +47,60 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     }
   }
 
+  Future<void> _scheduleSmokeTestAlarm({
+    required int activityId,
+    required String title,
+  }) async {
+    if (_isSchedulingSmokeTest) {
+      return;
+    }
+
+    setState(() {
+      _isSchedulingSmokeTest = true;
+    });
+
+    try {
+      final scheduler = await ref.read(
+        activityAlarmSchedulerServiceProvider.future,
+      );
+      final scheduledAt = await scheduler.scheduleSmokeTestAlarm(
+        activityId: activityId,
+        title: title,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      final secondText = scheduledAt.second.toString().padLeft(2, '0');
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'Smoke test alarm scheduled for ${scheduledAt.HHmm}:$secondText',
+            ),
+          ),
+        );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text('Failed to schedule smoke test alarm: $e')),
+        );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSchedulingSmokeTest = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = ref.read(dashboardControllerProvider.notifier);
@@ -55,6 +114,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         thisWeekBirthdaysAsync.value ?? const <BirthdayItem>[];
     final canExactAsync = ref.watch(canScheduleExactAlarmsProvider);
     final canFullScreenAsync = ref.watch(canUseFullScreenIntentProvider);
+    final alarmSummaryAsync = ref.watch(activityAlarmSummaryProvider);
+    final alarmSummary = alarmSummaryAsync.asData?.value;
+    final alarmScheduledCount = alarmSummary?.enabled == true
+        ? alarmSummary?.scheduledCount ?? 0
+        : 0;
+    int? smokeTestActivityId;
+    var smokeTestActivityTitle = 'Alarm smoke test';
+
+    for (final activity in state.thisWeekActivities) {
+      final id = activity.id;
+      if (id == null) {
+        continue;
+      }
+      smokeTestActivityId = id;
+      smokeTestActivityTitle = activity.title;
+      break;
+    }
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -81,6 +157,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   ),
                   Row(
                     children: [
+                      if (state.account != null)
+                        Badge.count(
+                          count: alarmScheduledCount,
+                          isLabelVisible: alarmScheduledCount > 0,
+                          backgroundColor: BaseColor.red,
+                          textColor: BaseColor.white,
+                          offset: const Offset(-2, 2),
+                          child: IconButton(
+                            onPressed: () =>
+                                context.pushNamed(AppRoute.alarmSettings),
+                            icon: FaIcon(
+                              AppIcons.notificationActive,
+                              size: BaseSize.w22,
+                              color: BaseColor.yellow[800],
+                            ),
+                            tooltip: 'Activity alarms',
+                            style: IconButton.styleFrom(
+                              backgroundColor: BaseColor.yellow[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (state.account != null) Gap.w8,
                       if (state.account != null)
                         IconButton(
                           onPressed: () => context.pushNamed(AppRoute.settings),
@@ -158,7 +259,74 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 ),
               ),
               Gap.h12,
-              if (state.account != null) const ActivityAlarmInfoCardWidget(),
+              if (kDebugMode && state.account != null)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    BaseSize.w16,
+                    BaseSize.h12,
+                    BaseSize.w16,
+                    0,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(BaseSize.w12),
+                    decoration: BoxDecoration(
+                      color: BaseColor.teal[50],
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      border: Border.all(color: BaseColor.teal[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              AppIcons.notificationActive,
+                              color: BaseColor.teal[700],
+                              size: BaseSize.w18,
+                            ),
+                            Gap.w8,
+                            Expanded(
+                              child: Text(
+                                'Alarm smoke test',
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: BaseColor.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap.h8,
+                        Text(
+                          smokeTestActivityId == null
+                              ? 'Load at least one dashboard activity to test the alarm flow.'
+                              : 'Schedules an activity alarm to ring in 10 seconds using the current device notification flow.',
+                          style: BaseTypography.bodySmall.toSecondary,
+                        ),
+                        Gap.h12,
+                        OutlinedButton(
+                          onPressed:
+                              smokeTestActivityId == null ||
+                                  _isSchedulingSmokeTest
+                              ? null
+                              : () => _scheduleSmokeTestAlarm(
+                                  activityId: smokeTestActivityId!,
+                                  title: smokeTestActivityTitle,
+                                ),
+                          child: Text(
+                            _isSchedulingSmokeTest
+                                ? 'Scheduling...'
+                                : 'Test alarm in 10 seconds',
+                            style: BaseTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               if (state.account != null)
                 canExactAsync.when(
                   data: (canExact) {

@@ -84,7 +84,7 @@ export class ActivitiesService {
     } = query;
 
     const isClientToken = Boolean(user?.clientId);
-    const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+    const isAdmin = user?.role === 'ADMIN';
     let requesterMembership: {
       id: number;
       churchId: number;
@@ -189,7 +189,7 @@ export class ActivitiesService {
       where.columnId = columnId;
     }
 
-    if (!isClientToken && requesterMembership && !isSuperAdmin) {
+    if (!isClientToken && requesterMembership && !isAdmin) {
       const allowedAudience: any[] = [{ columnId: null }];
       if (requesterMembership.columnId !== null) {
         allowedAudience.push({ columnId: requesterMembership.columnId });

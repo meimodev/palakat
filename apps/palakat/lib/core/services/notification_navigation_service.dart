@@ -60,6 +60,7 @@ class NotificationNavigationService {
           extra: RouteParam(
             params: {
               'title': data['title'],
+              'alarmAtUtcIso': data['alarmAtUtcIso'],
               'reminderName': data['reminderName'],
               'reminderValue': data['reminderValue'],
               'alarmKey': data['alarmKey'],
