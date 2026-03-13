@@ -93,23 +93,22 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
   Future<void> _archive() async {
     final id = widget.articleId;
     if (id == null) return;
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Archive this article?'),
-          content: const Text(
-            'This will hide the article from the public app. You can still edit it later.',
-          ),
+          title: Text(l10n.dlg_confirmAction_title),
+          content: Text(l10n.dlg_articleArchive_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Archive'),
+              child: Text(l10n.btn_archive),
             ),
           ],
         );
@@ -125,7 +124,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Archived')));
+        ).showSnackBar(SnackBar(content: Text(l10n.msg_archived)));
         context.go('/articles');
       }
     } finally {
@@ -176,7 +175,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Saved')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_saved)));
       }
     } catch (e) {
       if (mounted) {
@@ -205,7 +204,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Published')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_published)));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -224,7 +223,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Unpublished')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_unpublished)));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -235,7 +234,9 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
     final id = widget.articleId ?? _loaded?.id;
     if (id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Save draft first to upload cover.')),
+        SnackBar(
+          content: Text(context.l10n.dlg_articleCoverUploadRequiresDraft_content),
+        ),
       );
       return;
     }
@@ -292,7 +293,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Cover uploaded')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_coverUploaded)));
         setState(() {});
       }
     } catch (e) {
@@ -312,164 +313,209 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
     final isNew = widget.articleId == null;
     final status = _loaded?.status;
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    String articleTypeLabel(String value) {
+      switch (value) {
+        case 'PREACHING_MATERIAL':
+          return l10n.articleType_preachingMaterial;
+        case 'GAME_INSTRUCTION':
+          return l10n.articleType_gameInstruction;
+        default:
+          return value;
+      }
+    }
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Text(
-              isNew ? 'New Article' : 'Edit Article',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const Spacer(),
-            if (!isNew) ...[
-              OutlinedButton(
-                onPressed: _loading ? null : _archive,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final actions = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (!isNew)
+                  OutlinedButton(
+                    onPressed: _loading ? null : _archive,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.error,
+                    ),
+                    child: Text(l10n.btn_archive),
+                  ),
+                if (!isNew)
+                  OutlinedButton(
+                    onPressed: _loading ? null : _unpublish,
+                    child: Text(l10n.btn_unpublish),
+                  ),
+                FilledButton(
+                  onPressed: _loading ? null : _publish,
+                  child: Text(l10n.btn_publish),
                 ),
-                child: const Text('Archive'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: _loading ? null : _unpublish,
-                child: const Text('Unpublish'),
-              ),
-              const SizedBox(width: 8),
-            ],
-            FilledButton(
-              onPressed: _loading ? null : _publish,
-              child: const Text('Publish'),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: _loading ? null : _saveDraft,
-              child: const Text('Save'),
-            ),
-          ],
+                ElevatedButton(
+                  onPressed: _loading ? null : _saveDraft,
+                  child: Text(l10n.btn_save),
+                ),
+              ],
+            );
+
+            if (constraints.maxWidth < 760) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    isNew ? 'New Article' : 'Edit Article',
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  actions,
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    isNew ? 'New Article' : 'Edit Article',
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Flexible(child: actions),
+              ],
+            );
+          },
         ),
         if (status != null) ...[
           const SizedBox(height: 8),
-          Text('Status: $status'),
+          Text('${l10n.tbl_status}: $status'),
         ],
         const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Type',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _articleTypeOptions.map((opt) {
-                                final selected = _type == opt.value;
-                                return ChoiceChip(
-                                  avatar: Icon(
-                                    opt.icon,
-                                    size: 18,
-                                    color: selected
-                                        ? theme.colorScheme.onSecondaryContainer
-                                        : theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                  label: Text(opt.label),
-                                  selected: selected,
-                                  onSelected: _loading
-                                      ? null
-                                      : (v) {
-                                          if (!v) return;
-                                          setState(() => _type = opt.value);
-                                        },
-                                );
-                              }).toList(),
-                            ),
-                          ],
+        SurfaceCard(
+          title: l10n.articles_title,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final typeSelector = Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.lbl_type,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton.icon(
-                        onPressed: _loading ? null : _uploadCover,
-                        icon: const Icon(Icons.upload),
-                        label: const Text('Upload cover'),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _articleTypeOptions.map((opt) {
+                            final selected = _type == opt.value;
+                            return ChoiceChip(
+                              avatar: Icon(
+                                opt.icon,
+                                size: 18,
+                                color: selected
+                                    ? theme.colorScheme.onSecondaryContainer
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                              label: Text(articleTypeLabel(opt.value)),
+                              selected: selected,
+                              onSelected: _loading
+                                  ? null
+                                  : (v) {
+                                      if (!v) return;
+                                      setState(() => _type = opt.value);
+                                    },
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    );
+
+                    final uploadButton = OutlinedButton.icon(
+                      onPressed: _loading ? null : _uploadCover,
+                      icon: const Icon(Icons.upload),
+                      label: Text(l10n.btn_uploadCover),
+                    );
+
+                    if (constraints.maxWidth < 720) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          typeSelector,
+                          const SizedBox(height: 12),
+                          uploadButton,
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: typeSelector),
+                        const SizedBox(width: 12),
+                        uploadButton,
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _titleController,
+                  decoration: InputDecoration(labelText: l10n.lbl_title),
+                  enabled: !_loading,
+                  textInputAction: TextInputAction.next,
+                  validator: (v) => Validators.required(
+                    l10n.validation_requiredField,
+                  ).asFormFieldValidator(v),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _slugController,
+                  decoration: const InputDecoration(labelText: 'Slug'),
+                  enabled: !_loading,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _excerptController,
+                  decoration: const InputDecoration(labelText: 'Excerpt'),
+                  enabled: !_loading,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _contentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Content (Markdown)',
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                    enabled: !_loading,
-                    textInputAction: TextInputAction.next,
-                    validator: (v) => Validators.required(
-                      'Title is required',
-                    ).asFormFieldValidator(v),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _slugController,
-                    decoration: const InputDecoration(labelText: 'Slug'),
-                    enabled: !_loading,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _excerptController,
-                    decoration: const InputDecoration(labelText: 'Excerpt'),
-                    enabled: !_loading,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _contentController,
-                    decoration: const InputDecoration(
-                      labelText: 'Content (Markdown)',
-                    ),
-                    minLines: 10,
-                    maxLines: 20,
-                    enabled: !_loading,
-                    onChanged: (_) => setState(() {}),
-                    validator: (v) => Validators.required(
-                      'Content is required',
-                    ).asFormFieldValidator(v),
-                  ),
-                  const SizedBox(height: 12),
-                  if (_coverImageUrl != null && _coverImageUrl!.isNotEmpty) ...[
-                    Text('Cover URL: $_coverImageUrl'),
-                  ],
+                  minLines: 10,
+                  maxLines: 20,
+                  enabled: !_loading,
+                  onChanged: (_) => setState(() {}),
+                  validator: (v) => Validators.required(
+                    l10n.validation_requiredField,
+                  ).asFormFieldValidator(v),
+                ),
+                const SizedBox(height: 12),
+                if (_coverImageUrl != null && _coverImageUrl!.isNotEmpty) ...[
+                  Text(l10n.lbl_coverUrl(_coverImageUrl!)),
                 ],
-              ),
+              ],
             ),
           ),
         ),
         const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Preview', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 12),
-                MarkdownBody(data: _contentController.text),
-              ],
-            ),
-          ),
+        SurfaceCard(
+          title: 'Preview',
+          child: MarkdownBody(data: _contentController.text),
         ),
         if (_loading) ...[
           const SizedBox(height: 12),
@@ -481,7 +527,10 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

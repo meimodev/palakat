@@ -379,7 +379,8 @@ class OperationsController extends _$OperationsController {
       OperationItem(
         id: 'member_birthdays',
         title: l10n.tbl_birth,
-        description: 'View member birthdays',
+        description:
+            l10n.notificationSettings_channel_birthdayNotifications_subtitle,
         icon: AppIcons.birthday,
         routeName: AppRoute.memberBirthdays,
         isEnabled: canMembersRead,

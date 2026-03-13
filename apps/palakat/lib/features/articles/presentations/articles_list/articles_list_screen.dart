@@ -51,7 +51,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.titleSecondary(
-            title: 'Articles',
+            title: context.l10n.articles_title,
             onBack: () => context.pop(),
           ),
           Gap.h16,
@@ -178,9 +178,9 @@ class _SearchAndFilterBar extends StatelessWidget {
         case null:
           return l10n.filter_activityType_allTitle;
         case ArticleType.preachingMaterial:
-          return 'Preaching Material';
+          return l10n.articleType_preachingMaterial;
         case ArticleType.gameInstruction:
-          return 'Game Instruction';
+          return l10n.articleType_gameInstruction;
       }
     }
 
@@ -267,7 +267,13 @@ class _ArticleListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final title = (article.title?.trim().isNotEmpty == true)
+        ? article.title!
+        : l10n.article_titleFallback;
+    final publishedText =
+        (article.publishedAt ?? article.createdAt)?.toFromNow ??
+        l10n.lbl_notSpecified;
 
     IconData iconForArticleType(ArticleType? type) {
       switch (type) {
@@ -280,111 +286,116 @@ class _ArticleListItem extends StatelessWidget {
       }
     }
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: BaseColor.neutral20, width: 1),
-        ),
-        padding: EdgeInsets.all(BaseSize.w12),
-        child: Row(
-          children: [
-            if (article.coverImageUrl != null &&
-                article.coverImageUrl!.trim().isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: ImageNetworkWidget(
-                  imageUrl: article.coverImageUrl!,
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.primary[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        side: BorderSide(color: BaseColor.neutral20, width: 1),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w12),
+          child: Row(
+            children: [
+              if (article.coverImageUrl != null &&
+                  article.coverImageUrl!.trim().isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  child: ImageNetworkWidget(
+                    imageUrl: article.coverImageUrl!,
+                    width: BaseSize.w56,
+                    height: BaseSize.w56,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              else
+                Container(
                   width: BaseSize.w56,
                   height: BaseSize.w56,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              Container(
-                width: BaseSize.w56,
-                height: BaseSize.w56,
-                decoration: BoxDecoration(
-                  color: BaseColor.teal[50],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  iconForArticleType(article.type),
-                  size: BaseSize.w20,
-                  color: BaseColor.teal[600],
-                ),
-              ),
-            Gap.w12,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article.title ?? '-',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary[50],
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
-                  if (article.excerpt != null &&
-                      article.excerpt!.trim().isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.only(top: BaseSize.h6),
-                      child: Text(
-                        article.excerpt!,
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.secondaryText,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    iconForArticleType(article.type),
+                    size: BaseSize.w20,
+                    color: BaseColor.primary,
+                  ),
+                ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: BaseTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h8),
-                    child: Row(
-                      children: [
-                        FaIcon(
-                          AppIcons.time,
-                          size: BaseSize.w12,
-                          color: BaseColor.secondaryText,
+                    if (article.excerpt != null &&
+                        article.excerpt!.trim().isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: BaseSize.h6),
+                        child: Text(
+                          article.excerpt!,
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: BaseColor.secondaryText,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        Gap.w6,
-                        Expanded(
-                          child: Text(
-                            (article.publishedAt ?? article.createdAt)
-                                    ?.toFromNow ??
-                                '-',
+                      ),
+                    Padding(
+                      padding: EdgeInsets.only(top: BaseSize.h8),
+                      child: Row(
+                        children: [
+                          FaIcon(
+                            AppIcons.time,
+                            size: BaseSize.w12,
+                            color: BaseColor.secondaryText,
+                          ),
+                          Gap.w6,
+                          Expanded(
+                            child: Text(
+                              publishedText,
+                              style: BaseTypography.labelSmall.copyWith(
+                                color: BaseColor.secondaryText,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Gap.w12,
+                          FaIcon(
+                            FontAwesomeIcons.heart,
+                            size: BaseSize.w12,
+                            color: BaseColor.secondaryText,
+                          ),
+                          Gap.w6,
+                          Text(
+                            (article.likesCount ?? 0).toString(),
                             style: BaseTypography.labelSmall.copyWith(
                               color: BaseColor.secondaryText,
                             ),
                           ),
-                        ),
-                        Gap.w12,
-                        FaIcon(
-                          FontAwesomeIcons.heart,
-                          size: BaseSize.w12,
-                          color: BaseColor.secondaryText,
-                        ),
-                        Gap.w6,
-                        Text(
-                          (article.likesCount ?? 0).toString(),
-                          style: BaseTypography.labelSmall.copyWith(
-                            color: BaseColor.secondaryText,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -405,36 +416,53 @@ class _EmptyState extends StatelessWidget {
     final l10n = context.l10n;
 
     return Center(
-      child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FaIcon(
-              hasActiveFilters ? AppIcons.searchOff : AppIcons.article,
-              size: BaseSize.w48,
-              color: BaseColor.textSecondary,
-            ),
-            Gap.h12,
-            Text(
-              hasActiveFilters
-                  ? l10n.noData_matchingCriteria
-                  : l10n.noData_available,
-              textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textSecondary,
-                fontWeight: FontWeight.w600,
+      child: Material(
+        color: BaseColor.surfaceMedium,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+          side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: BaseSize.w56,
+                height: BaseSize.w56,
+                decoration: BoxDecoration(
+                  color: BaseColor.primary[50],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  hasActiveFilters ? AppIcons.searchOff : AppIcons.article,
+                  size: BaseSize.w24,
+                  color: BaseColor.primary,
+                ),
               ),
-            ),
-            if (hasActiveFilters) ...[
               Gap.h12,
-              ButtonWidget.outlined(
-                text: l10n.btn_clear,
-                onTap: onClearFilters,
-                isShrink: true,
+              Text(
+                hasActiveFilters
+                    ? l10n.noData_matchingCriteria
+                    : l10n.noData_available,
+                textAlign: TextAlign.center,
+                style: BaseTypography.titleMedium.copyWith(
+                  color: BaseColor.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
+              if (hasActiveFilters) ...[
+                Gap.h12,
+                ButtonWidget.outlined(
+                  text: l10n.btn_clear,
+                  onTap: onClearFilters,
+                  isShrink: true,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -51,6 +51,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     required int activityId,
     required String title,
   }) async {
+    final l10n = context.l10n;
+
     if (_isSchedulingSmokeTest) {
       return;
     }
@@ -78,7 +80,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         ..showSnackBar(
           SnackBar(
             content: Text(
-              'Smoke test alarm scheduled for ${scheduledAt.HHmm}:$secondText',
+              l10n.dashboard_smokeTest_scheduledSnack(
+                '${scheduledAt.HHmm}:$secondText',
+              ),
             ),
           ),
         );
@@ -90,7 +94,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(content: Text('Failed to schedule smoke test alarm: $e')),
+          SnackBar(
+            content: Text(
+              l10n.dashboard_smokeTest_failedSnack(e.toString()),
+            ),
+          ),
         );
     } finally {
       if (mounted) {
@@ -105,6 +113,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   Widget build(BuildContext context) {
     final controller = ref.read(dashboardControllerProvider.notifier);
     final state = ref.watch(dashboardControllerProvider);
+    final l10n = context.l10n;
     final errorMsg = state.errorMessage?.trim() ?? '';
     final errorLower = errorMsg.toLowerCase();
     final isDisconnectedError =
@@ -120,7 +129,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         ? alarmSummary?.scheduledCount ?? 0
         : 0;
     int? smokeTestActivityId;
-    var smokeTestActivityTitle = 'Alarm smoke test';
+    var smokeTestActivityTitle = l10n.dashboard_smokeTest_title;
 
     for (final activity in state.thisWeekActivities) {
       final id = activity.id;
@@ -147,14 +156,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    context.l10n.dashboard_title,
-                    style: BaseTypography.headlineLarge.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
-                      letterSpacing: -0.5,
+                  Expanded(
+                    child: Text(
+                      l10n.dashboard_title,
+                      style: BaseTypography.headlineLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  Gap.w8,
                   Row(
                     children: [
                       if (state.account != null)
@@ -172,11 +186,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                               size: BaseSize.w22,
                               color: BaseColor.yellow[800],
                             ),
-                            tooltip: 'Activity alarms',
+                            tooltip: l10n.dashboard_alarmSettings_tooltip,
                             style: IconButton.styleFrom(
                               backgroundColor: BaseColor.yellow[50],
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  BaseSize.radiusMd,
+                                ),
                               ),
                             ),
                           ),
@@ -194,7 +210,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                           style: IconButton.styleFrom(
                             backgroundColor: BaseColor.primary[50],
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusMd,
+                              ),
                             ),
                           ),
                         ),
@@ -258,141 +276,48 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   },
                 ),
               ),
+              if (state.account != null && alarmScheduledCount > 0) ...[
+                Gap.h12,
+                const ActivityAlarmInfoCardWidget(),
+              ],
               Gap.h12,
               if (kDebugMode && state.account != null)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    BaseSize.w16,
-                    BaseSize.h12,
-                    BaseSize.w16,
-                    0,
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(BaseSize.w12),
-                    decoration: BoxDecoration(
-                      color: BaseColor.teal[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      border: Border.all(color: BaseColor.teal[200]!),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              AppIcons.notificationActive,
-                              color: BaseColor.teal[700],
-                              size: BaseSize.w18,
-                            ),
-                            Gap.w8,
-                            Expanded(
-                              child: Text(
-                                'Alarm smoke test',
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: BaseColor.black,
-                                ),
-                              ),
-                            ),
-                          ],
+                DashboardNoticeCardWidget(
+                  icon: AppIcons.notificationActive,
+                  title: l10n.dashboard_smokeTest_title,
+                  message: smokeTestActivityId == null
+                      ? l10n.dashboard_smokeTest_emptyMessage
+                      : l10n.dashboard_smokeTest_readyMessage,
+                  actionLabel: _isSchedulingSmokeTest
+                      ? l10n.dashboard_smokeTest_loadingAction
+                      : l10n.dashboard_smokeTest_action,
+                  onPressedAction:
+                      smokeTestActivityId == null || _isSchedulingSmokeTest
+                      ? null
+                      : () => _scheduleSmokeTestAlarm(
+                          activityId: smokeTestActivityId!,
+                          title: smokeTestActivityTitle,
                         ),
-                        Gap.h8,
-                        Text(
-                          smokeTestActivityId == null
-                              ? 'Load at least one dashboard activity to test the alarm flow.'
-                              : 'Schedules an activity alarm to ring in 10 seconds using the current device notification flow.',
-                          style: BaseTypography.bodySmall.toSecondary,
-                        ),
-                        Gap.h12,
-                        OutlinedButton(
-                          onPressed:
-                              smokeTestActivityId == null ||
-                                  _isSchedulingSmokeTest
-                              ? null
-                              : () => _scheduleSmokeTestAlarm(
-                                  activityId: smokeTestActivityId!,
-                                  title: smokeTestActivityTitle,
-                                ),
-                          child: Text(
-                            _isSchedulingSmokeTest
-                                ? 'Scheduling...'
-                                : 'Test alarm in 10 seconds',
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  tone: DashboardNoticeTone.primary,
                 ),
               if (state.account != null)
                 canExactAsync.when(
                   data: (canExact) {
                     if (canExact) return const SizedBox.shrink();
 
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w16,
-                        vertical: BaseSize.h12,
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(BaseSize.w12),
-                        decoration: BoxDecoration(
-                          color: BaseColor.yellow[50],
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusMd,
-                          ),
-                          border: Border.all(color: BaseColor.yellow[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  AppIcons.warning,
-                                  color: BaseColor.yellow[800],
-                                  size: BaseSize.w18,
-                                ),
-                                Gap.w8,
-                                Expanded(
-                                  child: Text(
-                                    'Allow exact alarms',
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      color: BaseColor.black,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap.h8,
-                            Text(
-                              'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
-                              style: BaseTypography.bodySmall.toSecondary,
-                            ),
-                            Gap.h12,
-                            OutlinedButton(
-                              onPressed: () async {
-                                final service = ref.read(
-                                  exactAlarmPermissionServiceProvider,
-                                );
-                                await service.requestExactAlarmPermission();
-                                ref.invalidate(canScheduleExactAlarmsProvider);
-                              },
-                              child: Text(
-                                'Open settings',
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: BaseColor.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    return DashboardNoticeCardWidget(
+                      icon: AppIcons.warning,
+                      title: l10n.dashboard_alarmPermission_exact_title,
+                      message: l10n.dashboard_alarmPermission_exact_message,
+                      actionLabel: l10n.notificationPermission_btn_enableInSettings,
+                      onPressedAction: () async {
+                        final service = ref.read(
+                          exactAlarmPermissionServiceProvider,
+                        );
+                        await service.requestExactAlarmPermission();
+                        ref.invalidate(canScheduleExactAlarmsProvider);
+                      },
+                      tone: DashboardNoticeTone.warning,
                     );
                   },
                   loading: () => const SizedBox.shrink(),
@@ -403,68 +328,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   data: (canUseFullScreenIntent) {
                     if (canUseFullScreenIntent) return const SizedBox.shrink();
 
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w16,
-                        vertical: BaseSize.h12,
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.all(BaseSize.w12),
-                        decoration: BoxDecoration(
-                          color: BaseColor.yellow[50],
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusMd,
-                          ),
-                          border: Border.all(color: BaseColor.yellow[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  AppIcons.warning,
-                                  color: BaseColor.yellow[800],
-                                  size: BaseSize.w18,
-                                ),
-                                Gap.w8,
-                                Expanded(
-                                  child: Text(
-                                    'Allow full-screen alarms',
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      color: BaseColor.black,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap.h8,
-                            Text(
-                              'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
-                              style: BaseTypography.bodySmall.toSecondary,
-                            ),
-                            Gap.h12,
-                            OutlinedButton(
-                              onPressed: () async {
-                                final service = ref.read(
-                                  exactAlarmPermissionServiceProvider,
-                                );
-                                await service
-                                    .requestFullScreenIntentPermission();
-                                ref.invalidate(canUseFullScreenIntentProvider);
-                              },
-                              child: Text(
-                                'Open settings',
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: BaseColor.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    return DashboardNoticeCardWidget(
+                      icon: AppIcons.warning,
+                      title: l10n.dashboard_alarmPermission_fullScreen_title,
+                      message: l10n.dashboard_alarmPermission_fullScreen_message,
+                      actionLabel: l10n.notificationPermission_btn_enableInSettings,
+                      onPressedAction: () async {
+                        final service = ref.read(
+                          exactAlarmPermissionServiceProvider,
+                        );
+                        await service.requestFullScreenIntentPermission();
+                        ref.invalidate(canUseFullScreenIntentProvider);
+                      },
+                      tone: DashboardNoticeTone.warning,
                     );
                   },
                   loading: () => const SizedBox.shrink(),

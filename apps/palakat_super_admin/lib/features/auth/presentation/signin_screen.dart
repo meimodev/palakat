@@ -92,6 +92,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final asyncAuth = ref.watch(superAdminAuthControllerProvider);
     final isLoading = asyncAuth.isLoading;
+    final l10n = context.l10n;
 
     Future<void> submit() async {
       if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -137,12 +138,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       Row(
                         children: [
                           Text(
-                            'Palakat',
+                            l10n.appTitle,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(width: 8),
                           Chip(
-                            label: const Text('SUPER ADMIN'),
+                            label: Text(l10n.app_superAdminTitle),
                             visualDensity: VisualDensity.compact,
                           ),
                         ],
@@ -150,9 +151,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _phoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Super Admin Phone',
-                        ),
+                        decoration: InputDecoration(labelText: l10n.lbl_phone),
                         enabled: !isLoading,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.phone,
@@ -161,14 +160,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           _PhoneInputFormatter(),
                         ],
                         validator: (v) => Validators.required(
-                          'Phone is required',
+                          l10n.validation_requiredField,
                         ).asFormFieldValidator(v),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
-                          labelText: 'Super Admin Password',
+                          labelText: l10n.lbl_password,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscure
@@ -183,7 +182,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         enabled: !isLoading,
                         onFieldSubmitted: (_) => submit(),
                         validator: (v) => Validators.required(
-                          'Password is required',
+                          l10n.validation_passwordRequired,
                         ).asFormFieldValidator(v),
                       ),
                       if (errorText != null) ...[
@@ -206,7 +205,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text('Sign in'),
+                            : Text(l10n.btn_signIn),
                       ),
                     ],
                   ),

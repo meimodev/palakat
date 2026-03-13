@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
@@ -17,12 +16,14 @@ import 'package:palakat/core/services/permission_manager_service_provider.dart';
 import 'package:palakat/core/services/realtime_notification_listener.dart';
 import 'package:palakat/core/services/timezone_service.dart';
 import 'package:palakat/features/activity_alarm/services/activity_alarm_scheduler_provider.dart';
+import 'package:palakat/features/authentication/presentations/widgets/widgets.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
 import 'package:palakat_shared/core/extension/approver_extension.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/core/widgets/button/button_widget.dart';
 import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
 import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/core/models/permission_state.dart';
@@ -147,7 +148,7 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
       padding: EdgeInsets.only(
         left: BaseSize.w24,
         right: BaseSize.w24,
-        top: BaseSize.w24,
+        top: BaseSize.w16,
         bottom: BaseSize.w24 + bottomPadding,
       ),
       child: Column(
@@ -165,82 +166,42 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
             ),
           ),
           Gap.h16,
-          Center(
-            child: Container(
-              width: BaseSize.w56,
-              height: BaseSize.w56,
-              decoration: BoxDecoration(
-                color: BaseColor.teal[50],
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: FaIcon(
-                AppIcons.security,
-                size: BaseSize.w28,
-                color: BaseColor.teal[700],
-              ),
-            ),
-          ),
-          Gap.h16,
-          Text(
-            title,
-            style: BaseTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.bold,
-              color: BaseColor.black,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Gap.h12,
-          Text(
-            message,
-            style: BaseTypography.bodyMedium.toSecondary,
-            textAlign: TextAlign.center,
-          ),
-          Gap.h24,
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onCancel,
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                    side: BorderSide(color: BaseColor.neutral40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    ),
-                  ),
-                  child: Text(
-                    cancelLabel,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: BaseColor.secondaryText,
-                    ),
-                  ),
+          AuthSurfaceCard(
+            icon: AppIcons.security,
+            title: title,
+            centeredHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  message,
+                  style: BaseTypography.bodyMedium.toSecondary,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              Gap.w12,
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: onConfirm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: BaseColor.teal[600],
-                    foregroundColor: BaseColor.white,
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                Gap.h24,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ButtonWidget.outlined(
+                        text: cancelLabel,
+                        onTap: onCancel,
+                        outlineColor: BaseColor.neutral40,
+                        textColor: BaseColor.secondaryText,
+                        focusColor: BaseColor.neutral20,
+                        overlayColor: BaseColor.neutral10,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    confirmLabel,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: BaseColor.white,
+                    Gap.w12,
+                    Expanded(
+                      child: ButtonWidget.primary(
+                        text: confirmLabel,
+                        onTap: onConfirm,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Gap.h8,
         ],

@@ -40,131 +40,157 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final controller = ref.read(membershipControllerProvider.notifier);
     final state = ref.watch(membershipControllerProvider);
 
     return ScaffoldWidget(
+      disableSingleChildScrollView: true,
       loading: state.loading,
-      persistBottomWidget: Padding(
-        padding: EdgeInsets.only(
-          bottom: BaseSize.h24,
-          left: BaseSize.w12,
-          right: BaseSize.w12,
-          top: BaseSize.h6,
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ScreenTitleWidget.primary(
-            title: context.l10n.membership_title,
+            title: l10n.membership_title,
             leadIcon: AppIcons.back,
-            leadIconColor: Colors.black,
+            leadIconColor: BaseColor.textPrimary,
             onPressedLeadIcon: context.pop,
           ),
           Gap.h16,
-          Material(
-            color: BaseColor.cardBackground1,
-            elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
-            surfaceTintColor: BaseColor.blue[50],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w16),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: BaseSize.w32,
-                        height: BaseSize.w32,
-                        decoration: BoxDecoration(
-                          color: BaseColor.blue[100],
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          AppIcons.church,
-                          size: BaseSize.w16,
-                          color: BaseColor.blue[700],
-                        ),
-                      ),
-                      Gap.w12,
-                      Expanded(
-                        child: Text(
-                          context.l10n.membership_churchMembership_title,
-                          style: BaseTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: BaseColor.black,
+                  if (state.errorMessage != null &&
+                      state.errorMessage!.trim().isNotEmpty) ...[
+                    ErrorDisplayWidget(
+                      message: state.errorMessage!,
+                      padding: EdgeInsets.zero,
+                      onRetry: () async {
+                        if (widget.membershipId != null) {
+                          await controller.fetchMembership(
+                            widget.membershipId!,
+                          );
+                        }
+                        await controller.fetchMyChurchRequest();
+                      },
+                    ),
+                    Gap.h16,
+                  ],
+                  Material(
+                    color: BaseColor.cardBackground1,
+                    elevation: 1,
+                    shadowColor: Colors.black.withValues(alpha: 0.05),
+                    surfaceTintColor: BaseColor.primary[50],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(BaseSize.w16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: BaseSize.w40,
+                                height: BaseSize.w40,
+                                decoration: BoxDecoration(
+                                  color: BaseColor.primary[50],
+                                  borderRadius: BorderRadius.circular(
+                                    BaseSize.radiusMd,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  AppIcons.church,
+                                  size: BaseSize.w18,
+                                  color: BaseColor.primary,
+                                ),
+                              ),
+                              Gap.w12,
+                              Expanded(
+                                child: Text(
+                                  l10n.membership_churchMembership_title,
+                                  style: BaseTypography.titleMedium.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: BaseColor.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          Gap.h16,
+                          _buildChurchRequestInfo(state, context),
+                          Gap.h12,
+                          InputWidget<model.Church>.dropdown(
+                            label: l10n.nav_church,
+                            hint: l10n.nav_church,
+                            currentInputValue: state.church,
+                            errorText: state.errorChurch,
+                            endIcon: Icon(AppIcons.chevronDown, size: 20),
+                            onChanged: controller.onChangedChurch,
+                            optionLabel: (model.Church option) => option.name,
+                            onPressedWithResult: () async =>
+                                await showDialogChurchPickerWidget(
+                                  context: context,
+                                ),
+                          ),
+                          Gap.h12,
+                          InputWidget<model.Column>.dropdown(
+                            label: l10n.lbl_selectColumn,
+                            hint: state.church == null
+                                ? l10n.lbl_selectChurchFirst
+                                : l10n.lbl_selectColumn,
+                            currentInputValue: state.column,
+                            errorText: state.errorColumn,
+                            endIcon: Icon(AppIcons.chevronDown, size: 20),
+                            onChanged: controller.onChangedColumn,
+                            optionLabel: (model.Column? option) =>
+                                option?.name ?? '',
+                            onPressedWithResult: state.church == null
+                                ? null
+                                : () async =>
+                                      await showDialogColumnPickerWidget(
+                                        context: context,
+                                        churchId: state.church!.id,
+                                      ),
+                          ),
+                          Gap.h12,
+                          InputWidget<bool>.binaryOption(
+                            currentInputValue: state.baptize,
+                            options: const [true, false],
+                            label: l10n.lbl_baptized,
+                            onChanged: controller.onChangedBaptize,
+                            optionLabel: (bool option) => option
+                                ? l10n.lbl_baptized
+                                : l10n.membership_notBaptized,
+                            errorText: state.errorBaptize,
+                          ),
+                          Gap.h12,
+                          InputWidget<bool>.binaryOption(
+                            currentInputValue: state.sidi,
+                            options: const [true, false],
+                            label: l10n.lbl_sidi,
+                            onChanged: controller.onChangedSidi,
+                            optionLabel: (bool option) => option
+                                ? l10n.lbl_sidi
+                                : l10n.membership_notSidi,
+                            errorText: state.errorSidi,
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   Gap.h16,
-                  _buildChurchRequestInfo(state, context),
-                  Gap.h12,
-                  InputWidget<model.Church>.dropdown(
-                    label: context.l10n.nav_church,
-                    hint: context.l10n.nav_church,
-                    currentInputValue: state.church,
-                    errorText: state.errorChurch,
-                    endIcon: Icon(AppIcons.chevronDown, size: 20),
-                    onChanged: controller.onChangedChurch,
-                    optionLabel: (model.Church option) => option.name,
-                    onPressedWithResult: () async =>
-                        await showDialogChurchPickerWidget(context: context),
-                  ),
-                  Gap.h12,
-                  InputWidget<model.Column>.dropdown(
-                    label: context.l10n.lbl_selectColumn,
-                    hint: state.church == null
-                        ? context.l10n.lbl_selectChurchFirst
-                        : context.l10n.lbl_selectColumn,
-                    currentInputValue: state.column,
-                    errorText: state.errorColumn,
-                    endIcon: Icon(AppIcons.chevronDown, size: 20),
-                    onChanged: controller.onChangedColumn,
-                    optionLabel: (model.Column? option) => option?.name ?? '',
-                    onPressedWithResult: state.church == null
-                        ? null
-                        : () async => await showDialogColumnPickerWidget(
-                            context: context,
-                            churchId: state.church!.id,
-                          ),
-                  ),
-                  Gap.h12,
-                  InputWidget<bool>.binaryOption(
-                    currentInputValue: state.baptize,
-                    options: const [true, false],
-                    label: context.l10n.lbl_baptized,
-                    onChanged: controller.onChangedBaptize,
-                    optionLabel: (bool option) => option
-                        ? context.l10n.lbl_baptized
-                        : context.l10n.membership_notBaptized,
-                    errorText: state.errorBaptize,
-                  ),
-                  Gap.h12,
-                  InputWidget<bool>.binaryOption(
-                    currentInputValue: state.sidi,
-                    options: const [true, false],
-                    label: context.l10n.lbl_sidi,
-                    onChanged: controller.onChangedSidi,
-                    optionLabel: (bool option) => option
-                        ? context.l10n.lbl_sidi
-                        : context.l10n.membership_notSidi,
-                    errorText: state.errorSidi,
-                  ),
                 ],
               ),
             ),
           ),
-          Gap.h16,
           ButtonWidget.primary(
-            text: context.l10n.btn_submit,
+            text: l10n.btn_submit,
             onTap: () async {
               final result = await controller.submit();
               if (context.mounted) {
@@ -199,7 +225,6 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
         message: context.l10n.membership_churchNotRegisteredInfo,
         actionText: context.l10n.churchRequest_title,
         onActionPressed: () {
-          context.pop(); // Close membership screen
           _showChurchRequestBottomSheet(context);
         },
       );
@@ -249,7 +274,12 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
     if (msg.trim().isEmpty) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _showChurchRequestBottomSheet(

@@ -24,26 +24,25 @@ class _ArticleTypeOption {
   final IconData icon;
 }
 
-const _articleTypeOptions = <_ArticleTypeOption>[
-  _ArticleTypeOption(
-    value: 'PREACHING_MATERIAL',
-    label: 'Preaching material',
-    icon: Icons.menu_book_outlined,
-  ),
-  _ArticleTypeOption(
-    value: 'GAME_INSTRUCTION',
-    label: 'Game instruction',
-    icon: Icons.sports_esports_outlined,
-  ),
-];
-
 Widget _articleTypeChip(BuildContext context, String type) {
   final theme = Theme.of(context);
+  final l10n = context.l10n;
   _ArticleTypeOption? opt;
-  try {
-    opt = _articleTypeOptions.firstWhere((o) => o.value == type);
-  } catch (_) {
-    opt = null;
+  switch (type) {
+    case 'PREACHING_MATERIAL':
+      opt = _ArticleTypeOption(
+        value: type,
+        label: l10n.articleType_preachingMaterial,
+        icon: Icons.menu_book_outlined,
+      );
+      break;
+    case 'GAME_INSTRUCTION':
+      opt = _ArticleTypeOption(
+        value: type,
+        label: l10n.articleType_gameInstruction,
+        icon: Icons.sports_esports_outlined,
+      );
+      break;
   }
 
   if (opt == null) {
@@ -57,6 +56,20 @@ Widget _articleTypeChip(BuildContext context, String type) {
   );
 }
 
+String _articleStatusLabel(BuildContext context, String status) {
+  final l10n = context.l10n;
+  switch (status.trim().toUpperCase()) {
+  case 'DRAFT':
+  return l10n.status_draft;
+  case 'PUBLISHED':
+  return l10n.status_published;
+  case 'ARCHIVED':
+  return l10n.status_archived;
+  default:
+  return status;
+  }
+}
+
 class ArticlesListScreen extends ConsumerWidget {
   const ArticlesListScreen({super.key});
 
@@ -66,19 +79,22 @@ class ArticlesListScreen extends ConsumerWidget {
     final state = ref.watch(articlesControllerProvider);
     final asyncItems = state.items;
     final items = asyncItems.asData?.value;
+    final l10n = context.l10n;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Articles', style: Theme.of(context).textTheme.headlineMedium),
+        Text(
+          l10n.articles_title,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Manage Articles',
-          subtitle: 'Create, publish, and organize global articles.',
+          title: l10n.articles_title,
           trailing: ElevatedButton.icon(
             onPressed: () => context.go('/articles/new'),
             icon: const Icon(Icons.add),
-            label: const Text('New'),
+            label: Text(l10n.btn_add),
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -91,38 +107,40 @@ class ArticlesListScreen extends ConsumerWidget {
             onRetry: controller.refresh,
             onRowTap: (row) => context.go('/articles/${row.id}'),
             filtersConfig: AppTableFiltersConfig(
-              searchHint: 'Search title / excerpt / slug',
+              searchHint: l10n.hint_searchByTitleDescription,
               onSearchChanged: controller.onChangedSearch,
-              dropdownLabel: 'Status',
-              dropdownOptions: const {
-                'DRAFT': 'Draft',
-                'PUBLISHED': 'Published',
-                'ARCHIVED': 'Archived',
+              dropdownLabel: l10n.tbl_status,
+              dropdownOptions: {
+                'DRAFT': l10n.status_draft,
+                'PUBLISHED': l10n.status_published,
+                'ARCHIVED': l10n.status_archived,
               },
               dropdownValue: state.status,
               onDropdownChanged: controller.onChangedStatus,
-              actionLabel: 'Type',
+              actionLabel: l10n.filter_type,
               actionIcon: Icons.filter_alt_outlined,
               onActionPressed: () async {
                 final picked = await showDialog<String?>(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: const Text('Filter by type'),
+                      title: Text(l10n.filter_type),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ListTile(
-                            title: const Text('All'),
+                            title: Text(
+                              l10n.filter_allWithLabel(l10n.lbl_type),
+                            ),
                             onTap: () => Navigator.of(context).pop(null),
                           ),
                           ListTile(
-                            title: const Text('Preaching material'),
+                            title: Text(l10n.articleType_preachingMaterial),
                             onTap: () =>
                                 Navigator.of(context).pop('PREACHING_MATERIAL'),
                           ),
                           ListTile(
-                            title: const Text('Game instruction'),
+                            title: Text(l10n.articleType_gameInstruction),
                             onTap: () =>
                                 Navigator.of(context).pop('GAME_INSTRUCTION'),
                           ),
@@ -147,7 +165,7 @@ class ArticlesListScreen extends ConsumerWidget {
                   ),
             columns: [
               AppTableColumn<ArticleModel>(
-                title: 'Title',
+                title: l10n.tbl_title,
                 flex: 4,
                 cellBuilder: (context, row) => Text(
                   row.title,
@@ -156,7 +174,7 @@ class ArticlesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ArticleModel>(
-                title: 'Type',
+                title: l10n.tbl_type,
                 flex: 2,
                 cellBuilder: (context, row) => Align(
                   alignment: Alignment.centerLeft,
@@ -164,12 +182,13 @@ class ArticlesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ArticleModel>(
-                title: 'Status',
+                title: l10n.tbl_status,
                 flex: 2,
-                cellBuilder: (context, row) => Text(row.status),
+                cellBuilder: (context, row) =>
+                    Text(_articleStatusLabel(context, row.status)),
               ),
               AppTableColumn<ArticleModel>(
-                title: 'Published',
+                title: l10n.tbl_published,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   _formatDate(row.publishedAt),
@@ -178,7 +197,7 @@ class ArticlesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ArticleModel>(
-                title: 'Updated',
+                title: l10n.lbl_updatedAt,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   _formatDate(row.updatedAt),

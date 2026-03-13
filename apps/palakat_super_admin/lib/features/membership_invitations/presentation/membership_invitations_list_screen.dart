@@ -10,14 +10,15 @@ String _formatDate(DateTime? value) {
   return DateFormat('d MMM yyyy').format(value.toLocal());
 }
 
-String _statusLabel(MembershipInvitationStatus status) {
+String _statusLabel(BuildContext context, MembershipInvitationStatus status) {
+  final l10n = context.l10n;
   switch (status) {
     case MembershipInvitationStatus.pending:
-      return 'PENDING';
+      return l10n.status_pending;
     case MembershipInvitationStatus.approved:
-      return 'APPROVED';
+      return l10n.status_approved;
     case MembershipInvitationStatus.rejected:
-      return 'REJECTED';
+      return l10n.status_rejected;
   }
 }
 
@@ -33,25 +34,29 @@ MembershipInvitationStatus? _apiToStatus(String? value) {
   return null;
 }
 
-StatusChip _statusChip(MembershipInvitationStatus status) {
+StatusChip _statusChip(
+  BuildContext context,
+  MembershipInvitationStatus status,
+) {
+  final l10n = context.l10n;
   switch (status) {
     case MembershipInvitationStatus.pending:
       return StatusChip(
-        label: 'PENDING',
+        label: l10n.status_pending,
         background: Colors.orange.shade100,
         foreground: Colors.orange.shade900,
         icon: Icons.schedule,
       );
     case MembershipInvitationStatus.approved:
       return StatusChip(
-        label: 'APPROVED',
+        label: l10n.status_approved,
         background: Colors.green.shade100,
         foreground: Colors.green.shade800,
         icon: Icons.check_circle_outline,
       );
     case MembershipInvitationStatus.rejected:
       return StatusChip(
-        label: 'REJECTED',
+        label: l10n.status_rejected,
         background: Colors.red.shade100,
         foreground: Colors.red.shade900,
         icon: Icons.cancel_outlined,
@@ -66,8 +71,9 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
     BuildContext context, {
     required String title,
     required String content,
-    String confirmLabel = 'Confirm',
+    String? confirmLabel,
   }) {
+    final l10n = context.l10n;
     return showDialog<bool>(
       context: context,
       builder: (context) {
@@ -77,11 +83,11 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text(confirmLabel),
+              child: Text(confirmLabel ?? l10n.btn_confirm),
             ),
           ],
         );
@@ -91,25 +97,28 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
 
   Future<String?> _promptRejectReason(BuildContext context) async {
     final controller = TextEditingController();
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Reject invitation'),
+          title: Text(l10n.btn_reject),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: 'Reason (optional)'),
+            decoration: InputDecoration(
+              labelText: '${l10n.lbl_note} ${l10n.lbl_optional}',
+            ),
             minLines: 2,
             maxLines: 4,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Reject'),
+              child: Text(l10n.btn_reject),
             ),
           ],
         );
@@ -128,18 +137,18 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
     final state = ref.watch(membershipInvitationsControllerProvider);
     final asyncItems = state.items;
     final items = asyncItems.asData?.value;
+    final l10n = context.l10n;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Membership Invitations',
+          l10n.dashboard_membershipInvitation_title,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Manage Membership Invitations',
-          subtitle: 'Approve or reject member invitations across all churches.',
+          title: l10n.dashboard_membershipInvitation_title,
           child: AppTable<MembershipInvitation>(
             loading: asyncItems.isLoading,
             data: items?.data ?? const [],
@@ -157,56 +166,56 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                     onNext: items.pagination.hasNext ? controller.onNext : null,
                   ),
             filtersConfig: AppTableFiltersConfig(
-              searchHint: 'Search inviter / invitee / church / column / phone',
+              searchHint: l10n.dashboard_membershipInvitation_searchHint,
               onSearchChanged: controller.onChangedSearch,
               dateRangePreset: state.dateRangePreset,
               customDateRange: state.customDateRange,
               onDateRangePresetChanged: controller.onChangedDateRangePreset,
               onCustomDateRangeSelected: controller.onCustomDateRangeSelected,
               useRootNavigatorForDateRangePicker: true,
-              dropdownLabel: 'Status',
-              dropdownOptions: const {
-                'PENDING': 'PENDING',
-                'APPROVED': 'APPROVED',
-                'REJECTED': 'REJECTED',
+              dropdownLabel: l10n.tbl_status,
+              dropdownOptions: {
+                'PENDING': l10n.status_pending,
+                'APPROVED': l10n.status_approved,
+                'REJECTED': l10n.status_rejected,
               },
               dropdownValue: state.status == null
                   ? null
-                  : _statusLabel(state.status!),
+                  : _statusLabel(context, state.status!),
               onDropdownChanged: (value) =>
                   controller.onChangedStatus(_apiToStatus(value)),
             ),
             columns: [
               AppTableColumn<MembershipInvitation>(
-                title: 'ID',
+                title: l10n.tbl_id,
                 flex: 1,
                 cellBuilder: (context, row) => Text('${row.id ?? '-'}'),
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Status',
+                title: l10n.tbl_status,
                 flex: 2,
-                cellBuilder: (context, row) => _statusChip(row.status),
+                cellBuilder: (context, row) => _statusChip(context, row.status),
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Church',
+                title: l10n.nav_church,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
-                  row.church?.name ?? '- ',
+                  row.church?.name ?? '-',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Column',
+                title: l10n.lbl_columnName,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
-                  row.column?.name ?? '- ',
+                  row.column?.name ?? '-',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Inviter',
+                title: l10n.dashboard_membershipInvitation_inviter,
                 flex: 4,
                 cellBuilder: (context, row) {
                   final name = row.inviter?.name ?? '-';
@@ -219,7 +228,7 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                 },
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Invitee',
+                title: l10n.dashboard_membershipInvitation_invitee,
                 flex: 4,
                 cellBuilder: (context, row) {
                   final name = row.invitee?.name ?? '-';
@@ -232,12 +241,12 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                 },
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Requested',
+                title: l10n.tbl_requestDate,
                 flex: 2,
                 cellBuilder: (context, row) => Text(_formatDate(row.createdAt)),
               ),
               AppTableColumn<MembershipInvitation>(
-                title: 'Actions',
+                title: l10n.churchOperationsAccess_actionColumn,
                 flex: 3,
                 cellAlignment: Alignment.centerRight,
                 headerAlignment: Alignment.centerRight,
@@ -248,26 +257,30 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
 
                   return Wrap(
                     spacing: 4,
+                    runSpacing: 4,
                     children: [
                       IconButton(
-                        tooltip: 'Approve',
+                        tooltip: l10n.btn_approve,
                         icon: const Icon(Icons.check_circle_outline),
                         onPressed: (!isPending || id == null)
                             ? null
                             : () async {
                                 final ok = await _confirm(
                                   context,
-                                  title: 'Approve invitation',
-                                  content:
-                                      'Approve this invitation and create a membership for the invitee?',
-                                  confirmLabel: 'Approve',
+                                  title: l10n.btn_approve,
+                                  content: l10n.dashboard_membershipInvitation_confirmApprove,
+                                  confirmLabel: l10n.btn_approve,
                                 );
                                 if (ok != true) return;
                                 try {
                                   await controller.approve(id);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Approved')),
+                                      SnackBar(
+                                        content: Text(
+                                          l10n.dashboard_membershipInvitation_snackbarApproved,
+                                        ),
+                                      ),
                                     );
                                   }
                                 } catch (e) {
@@ -280,7 +293,7 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                               },
                       ),
                       IconButton(
-                        tooltip: 'Reject',
+                        tooltip: l10n.btn_reject,
                         icon: const Icon(Icons.cancel_outlined),
                         onPressed: (!isPending || id == null)
                             ? null
@@ -296,7 +309,11 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                   );
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Rejected')),
+                                      SnackBar(
+                                        content: Text(
+                                          l10n.dashboard_membershipInvitation_snackbarRejected,
+                                        ),
+                                      ),
                                     );
                                   }
                                 } catch (e) {
@@ -309,24 +326,23 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                               },
                       ),
                       IconButton(
-                        tooltip: 'Delete',
+                        tooltip: l10n.btn_delete,
                         icon: const Icon(Icons.delete_outline),
                         onPressed: id == null
                             ? null
                             : () async {
                                 final ok = await _confirm(
                                   context,
-                                  title: 'Delete invitation',
-                                  content:
-                                      'Delete this invitation? This cannot be undone.',
-                                  confirmLabel: 'Delete',
+                                  title: l10n.btn_delete,
+                                  content: l10n.dashboard_membershipInvitation_confirmDelete,
+                                  confirmLabel: l10n.btn_delete,
                                 );
                                 if (ok != true) return;
                                 try {
                                   await controller.delete(id);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Deleted')),
+                                      SnackBar(content: Text(l10n.msg_deleted)),
                                     );
                                   }
                                 } catch (e) {
@@ -351,7 +367,10 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

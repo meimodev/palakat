@@ -254,6 +254,222 @@ abstract class AppLocalizations {
   /// **'Download song database'**
   String get songBook_downloadRequiredButton;
 
+  /// No description provided for @songBook_databaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Song database'**
+  String get songBook_databaseTitle;
+
+  /// No description provided for @songBook_versionFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'v-'**
+  String get songBook_versionFallback;
+
+  /// No description provided for @songBook_songsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} songs'**
+  String songBook_songsCount(int count);
+
+  /// No description provided for @songBook_booksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books'**
+  String songBook_booksCount(int count);
+
+  /// No description provided for @songBook_updateAvailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get songBook_updateAvailableTitle;
+
+  /// No description provided for @songBook_updateAvailableSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer song database is available.'**
+  String get songBook_updateAvailableSubtitle;
+
+  /// No description provided for @songBook_updateAvailableSubtitleWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String songBook_updateAvailableSubtitleWithDate(String date);
+
+  /// No description provided for @songBook_updateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get songBook_updateAction;
+
+  /// No description provided for @songBook_updatingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating...'**
+  String get songBook_updatingAction;
+
+  /// No description provided for @songDetail_informationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Song information'**
+  String get songDetail_informationTitle;
+
+  /// No description provided for @songDetail_field_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get songDetail_field_book;
+
+  /// No description provided for @songDetail_field_author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get songDetail_field_author;
+
+  /// No description provided for @songDetail_field_baseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Base note'**
+  String get songDetail_field_baseNote;
+
+  /// No description provided for @songDetail_field_publisher.
+  ///
+  /// In en, this message translates to:
+  /// **'Publisher'**
+  String get songDetail_field_publisher;
+
+  /// No description provided for @songDetail_videoFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get songDetail_videoFallback;
+
+  /// No description provided for @songDetail_openVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open video'**
+  String get songDetail_openVideo;
+
+  /// No description provided for @songs_manageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the published songs.json used by the mobile app.'**
+  String get songs_manageSubtitle;
+
+  /// No description provided for @songs_publishAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish songs.json'**
+  String get songs_publishAction;
+
+  /// No description provided for @songs_localDraftPendingPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Local draft pending publish'**
+  String get songs_localDraftPendingPublish;
+
+  /// No description provided for @songs_discardDraftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard local draft?'**
+  String get songs_discardDraftTitle;
+
+  /// No description provided for @songs_discardDraftContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload will discard your local draft changes that have not been published.'**
+  String get songs_discardDraftContent;
+
+  /// No description provided for @songs_discardDraftAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard & Reload'**
+  String get songs_discardDraftAction;
+
+  /// No description provided for @songEditor_localDraftInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Edits are saved locally and uploaded when you publish songs.json.'**
+  String get songEditor_localDraftInfo;
+
+  /// No description provided for @songEditor_deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this song?'**
+  String get songEditor_deleteTitle;
+
+  /// No description provided for @songEditor_idHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ID (e.g. KJ-1)'**
+  String get songEditor_idHint;
+
+  /// No description provided for @songEditor_bookIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Book ID (e.g. kj)'**
+  String get songEditor_bookIdHint;
+
+  /// No description provided for @songEditor_bookNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Name'**
+  String get songEditor_bookNameHint;
+
+  /// No description provided for @songEditor_subtitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle'**
+  String get songEditor_subtitleHint;
+
+  /// No description provided for @songEditor_urlImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'urlImage'**
+  String get songEditor_urlImageHint;
+
+  /// No description provided for @songEditor_urlVideoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'urlVideo'**
+  String get songEditor_urlVideoHint;
+
+  /// No description provided for @songEditor_compositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition'**
+  String get songEditor_compositionTitle;
+
+  /// No description provided for @songEditor_noCompositionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No composition yet.'**
+  String get songEditor_noCompositionYet;
+
+  /// No description provided for @songEditor_contentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get songEditor_contentHint;
+
+  /// No description provided for @songEditor_definitionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Definition'**
+  String get songEditor_definitionTitle;
+
+  /// No description provided for @songEditor_noDefinitionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No definition yet.'**
+  String get songEditor_noDefinitionYet;
+
+  /// No description provided for @songEditor_editPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {part}'**
+  String songEditor_editPart(String part);
+
   /// No description provided for @articles_title.
   ///
   /// In en, this message translates to:
@@ -1334,6 +1550,18 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get btn_remove;
 
+  /// No description provided for @btn_uploadCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload cover'**
+  String get btn_uploadCover;
+
+  /// No description provided for @lbl_coverUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover URL: {url}'**
+  String lbl_coverUrl(String url);
+
   /// No description provided for @btn_create.
   ///
   /// In en, this message translates to:
@@ -1375,6 +1603,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update Password'**
   String get btn_updatePassword;
+
+  /// No description provided for @btn_archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get btn_archive;
+
+  /// No description provided for @btn_publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get btn_publish;
+
+  /// No description provided for @btn_unpublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get btn_unpublish;
 
   /// No description provided for @lbl_email.
   ///
@@ -1495,6 +1741,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To'**
   String get lbl_to;
+
+  /// No description provided for @lbl_songsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'songs_count={songsCount}, books_count={booksCount}, updatedAt={updatedAt}'**
+  String lbl_songsCount(int songsCount, int booksCount, String updatedAt);
 
   /// No description provided for @lbl_search.
   ///
@@ -1712,6 +1964,18 @@ abstract class AppLocalizations {
   /// **'Draft'**
   String get status_draft;
 
+  /// No description provided for @status_published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get status_published;
+
+  /// No description provided for @status_archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get status_archived;
+
   /// No description provided for @status_completed.
   ///
   /// In en, this message translates to:
@@ -1844,8 +2108,16 @@ abstract class AppLocalizations {
   /// **'Your account is temporarily locked. Please wait 5 minutes and try again.'**
   String get err_accountLocked;
 
+  /// No description provided for @err_accountInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is inactive. Please contact a super admin.'**
   String get err_accountInactive;
 
+  /// No description provided for @err_adminAccountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This account cannot sign in to Palakat Admin.'**
   String get err_adminAccountRequired;
 
   /// No description provided for @err_statusWithCode.
@@ -1919,6 +2191,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summary of your church activities.'**
   String get dashboard_subtitle;
+
+  /// No description provided for @dashboard_alarmSettings_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity alarms'**
+  String get dashboard_alarmSettings_tooltip;
+
+  /// No description provided for @dashboard_alarmSummary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms scheduled'**
+  String get dashboard_alarmSummary_title;
+
+  /// No description provided for @dashboard_alarmSummary_message.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 reminder is set on your phone} other{{count} reminders are set on your phone}}'**
+  String dashboard_alarmSummary_message(int count);
+
+  /// No description provided for @dashboard_alarmSummary_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage alarms'**
+  String get dashboard_alarmSummary_action;
+
+  /// No description provided for @dashboard_smokeTest_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm smoke test'**
+  String get dashboard_smokeTest_title;
+
+  /// No description provided for @dashboard_smokeTest_emptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Load at least one dashboard activity to test the alarm flow.'**
+  String get dashboard_smokeTest_emptyMessage;
+
+  /// No description provided for @dashboard_smokeTest_readyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedules an activity alarm to ring in 10 seconds using the current device notification flow.'**
+  String get dashboard_smokeTest_readyMessage;
+
+  /// No description provided for @dashboard_smokeTest_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Test alarm in 10 seconds'**
+  String get dashboard_smokeTest_action;
+
+  /// No description provided for @dashboard_smokeTest_loadingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduling...'**
+  String get dashboard_smokeTest_loadingAction;
+
+  /// No description provided for @dashboard_smokeTest_scheduledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Smoke test alarm scheduled for {time}'**
+  String dashboard_smokeTest_scheduledSnack(String time);
+
+  /// No description provided for @dashboard_smokeTest_failedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to schedule smoke test alarm: {error}'**
+  String dashboard_smokeTest_failedSnack(String error);
+
+  /// No description provided for @dashboard_alarmPermission_exact_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow exact alarms'**
+  String get dashboard_alarmPermission_exact_title;
+
+  /// No description provided for @dashboard_alarmPermission_exact_message.
+  ///
+  /// In en, this message translates to:
+  /// **'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.'**
+  String get dashboard_alarmPermission_exact_message;
+
+  /// No description provided for @dashboard_alarmPermission_fullScreen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow full-screen alarms'**
+  String get dashboard_alarmPermission_fullScreen_title;
+
+  /// No description provided for @dashboard_alarmPermission_fullScreen_message.
+  ///
+  /// In en, this message translates to:
+  /// **'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.'**
+  String get dashboard_alarmPermission_fullScreen_message;
 
   /// Dashboard recent activity label
   ///
@@ -2010,11 +2372,17 @@ abstract class AppLocalizations {
   /// **'Statistics'**
   String get dashboard_statistics;
 
-  /// Dashboard card title for a pending membership invitation
+  /// No description provided for @dashboard_membershipInvitation_title.
   ///
   /// In en, this message translates to:
-  /// **'Membership invitation'**
+  /// **'Membership Invitation'**
   String get dashboard_membershipInvitation_title;
+
+  /// No description provided for @dashboard_membershipInvitation_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review invitations that connect people to churches and columns.'**
+  String get dashboard_membershipInvitation_subtitle;
 
   /// Snackbar text shown after approving a membership invitation
   ///
@@ -2027,6 +2395,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invitation rejected'**
   String get dashboard_membershipInvitation_snackbarRejected;
+
+  /// No description provided for @dashboard_membershipInvitation_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search inviter / invitee / church / column / phone'**
+  String get dashboard_membershipInvitation_searchHint;
+
+  /// No description provided for @dashboard_membershipInvitation_inviter.
+  ///
+  /// In en, this message translates to:
+  /// **'Inviter'**
+  String get dashboard_membershipInvitation_inviter;
+
+  /// No description provided for @dashboard_membershipInvitation_invitee.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitee'**
+  String get dashboard_membershipInvitation_invitee;
+
+  /// No description provided for @dashboard_membershipInvitation_confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this invitation and create a membership for the invitee?'**
+  String get dashboard_membershipInvitation_confirmApprove;
+
+  /// No description provided for @dashboard_membershipInvitation_confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this invitation? This cannot be undone.'**
+  String get dashboard_membershipInvitation_confirmDelete;
 
   /// No description provided for @msg_pressBackToExit.
   ///
@@ -3132,6 +3530,12 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get lbl_notes;
 
+  /// No description provided for @lbl_reviewedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed At'**
+  String get lbl_reviewedAt;
+
   /// No description provided for @lbl_paidDate.
   ///
   /// In en, this message translates to:
@@ -3582,6 +3986,18 @@ abstract class AppLocalizations {
   /// **'Request Church Registration'**
   String get churchRequest_title;
 
+  /// No description provided for @app_superAdminTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SUPER ADMIN'**
+  String get app_superAdminTitle;
+
+  /// No description provided for @app_adminTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ADMIN'**
+  String get app_adminTitle;
+
   /// Status label when church registration request is under review
   ///
   /// In en, this message translates to:
@@ -3593,6 +4009,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On Progress'**
   String get churchRequest_status_onProgress;
+
+  /// No description provided for @churchEditor_addTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Church'**
+  String get churchEditor_addTitle;
+
+  /// No description provided for @churchEditor_editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Church'**
+  String get churchEditor_editTitle;
+
+  /// No description provided for @churchEditor_deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Church?'**
+  String get churchEditor_deleteTitle;
 
   /// Short status message when church registration request is under review
   ///
@@ -4001,6 +4435,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Title'**
   String get tbl_title;
+
+  /// No description provided for @tbl_published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get tbl_published;
+
+  /// No description provided for @tbl_id.
+  ///
+  /// In en, this message translates to:
+  /// **'ID'**
+  String get tbl_id;
+
+  /// No description provided for @tbl_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle'**
+  String get tbl_subtitle;
 
   /// No description provided for @tbl_type.
   ///
@@ -4518,11 +4970,29 @@ abstract class AppLocalizations {
   /// **'Confirm Action'**
   String get dlg_confirmAction_title;
 
+  /// No description provided for @dlg_articleArchive_content.
+  ///
+  /// In en, this message translates to:
+  /// **'This will hide the article from the public app. You can still edit it later.'**
+  String get dlg_articleArchive_content;
+
+  /// No description provided for @dlg_articleCoverUploadRequiresDraft_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft first to upload cover.'**
+  String get dlg_articleCoverUploadRequiresDraft_content;
+
   /// No description provided for @dlg_confirmDelete_title.
   ///
   /// In en, this message translates to:
   /// **'Confirm Delete'**
   String get dlg_confirmDelete_title;
+
+  /// No description provided for @dlg_confirmDelete_content.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get dlg_confirmDelete_content;
 
   /// No description provided for @filter_allStatus.
   ///
@@ -4733,6 +5203,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deleted successfully'**
   String get msg_deleted;
+
+  /// No description provided for @msg_archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get msg_archived;
+
+  /// No description provided for @msg_published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get msg_published;
+
+  /// No description provided for @msg_unpublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublished'**
+  String get msg_unpublished;
+
+  /// No description provided for @msg_coverUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover uploaded'**
+  String get msg_coverUploaded;
+
+  /// No description provided for @msg_publishedSongsJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Published songs.json at {updatedAt}'**
+  String msg_publishedSongsJson(String updatedAt);
+
+  /// No description provided for @msg_publishedSongsJsonWithoutDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Published songs.json'**
+  String get msg_publishedSongsJsonWithoutDate;
 
   /// No description provided for @msg_approvalRuleCreated.
   ///

@@ -12,6 +12,7 @@ class SuperAdminSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final route = GoRouterState.of(context).uri.toString();
     const displayName = 'Super Admin';
+    final l10n = context.l10n;
 
     return Drawer(
       elevation: 0,
@@ -44,14 +45,14 @@ class SuperAdminSidebar extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Palakat',
+                            l10n.appTitle,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 4),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Chip(
-                              label: const Text('SUPER ADMIN'),
+                              label: Text(l10n.app_superAdminTitle),
                               visualDensity: VisualDensity.compact,
                             ),
                           ),
@@ -68,35 +69,35 @@ class SuperAdminSidebar extends ConsumerWidget {
                   children: [
                     _NavItem(
                       icon: Icons.church_outlined,
-                      label: 'Church Requests',
+                      label: l10n.churchRequest_title,
                       selected: route.startsWith('/church-requests'),
                       onTap: () => context.go('/church-requests'),
                       color: Colors.deepOrange,
                     ),
                     _NavItem(
                       icon: Icons.apartment_outlined,
-                      label: 'Churches',
+                      label: l10n.nav_church,
                       selected: route.startsWith('/churches'),
                       onTap: () => context.go('/churches'),
                       color: Colors.blueGrey,
                     ),
                     _NavItem(
                       icon: Icons.article_outlined,
-                      label: 'Articles',
+                      label: l10n.nav_articles,
                       selected: route.startsWith('/articles'),
                       onTap: () => context.go('/articles'),
                       color: Colors.indigo,
                     ),
                     _NavItem(
                       icon: Icons.library_music_outlined,
-                      label: 'Songs',
+                      label: l10n.nav_songs,
                       selected: route.startsWith('/songs'),
                       onTap: () => context.go('/songs'),
                       color: Colors.teal,
                     ),
                     _NavItem(
                       icon: Icons.mail_outline,
-                      label: 'Membership Invitations',
+                      label: l10n.dashboard_membershipInvitation_title,
                       selected: route.startsWith('/membership-invitations'),
                       onTap: () => context.go('/membership-invitations'),
                       color: Colors.purple,
@@ -118,7 +119,7 @@ class SuperAdminSidebar extends ConsumerWidget {
                 ),
                 title: const Text(displayName),
                 trailing: IconButton(
-                  tooltip: 'Sign out',
+                  tooltip: l10n.btn_signOut,
                   icon: const Icon(Icons.logout),
                   onPressed: () async {
                     await ref

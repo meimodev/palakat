@@ -99,8 +99,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 child: Text(
                   l10n.approvalDetail_title,
                   style: BaseTypography.headlineSmall.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: BaseColor.primaryText,
+                    fontWeight: FontWeight.w700,
+                    color: BaseColor.textPrimary,
                   ),
                 ),
               ),
@@ -222,73 +222,70 @@ class ApprovalDetailScreen extends ConsumerWidget {
       approvalDetailControllerProvider(activityId: activityId).notifier,
     );
 
-    return Container(
+    return Material(
       key: const Key('action_buttons_container'),
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        border: Border(
-          top: BorderSide(
-            color: BaseColor.teal.shade600.withValues(alpha: 0.12),
-            width: 1,
+      color: BaseColor.white,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
           ),
         ),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: BaseSize.h12,
-        horizontal: BaseSize.w12,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildActionButton(
-                key: const Key('reject_button'),
-                text: l10n.btn_reject,
-                icon: AppIcons.close,
-                color: BaseColor.red.shade500,
-                isLoading: isLoading,
-                onTap: () async {
-                  // Show confirmation bottom sheet
-                  final confirmed = await showApprovalConfirmationBottomSheet(
-                    context: context,
-                    isApprove: false,
-                    activityTitle: activityTitle,
-                  );
-                  if (confirmed != true || !context.mounted) return;
+        padding: EdgeInsets.symmetric(
+          vertical: BaseSize.h12,
+          horizontal: BaseSize.w12,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  key: const Key('reject_button'),
+                  text: l10n.btn_reject,
+                  icon: AppIcons.close,
+                  color: BaseColor.red.shade500,
+                  isLoading: isLoading,
+                  onTap: () async {
+                    final confirmed = await showApprovalConfirmationBottomSheet(
+                      context: context,
+                      isApprove: false,
+                      activityTitle: activityTitle,
+                    );
+                    if (confirmed != true || !context.mounted) return;
 
-                  final success = await controller.rejectActivity(approverId);
-                  if (success && context.mounted) {
-                    context.pop(true); // Return true to indicate action taken
-                  }
-                },
+                    final success = await controller.rejectActivity(approverId);
+                    if (success && context.mounted) {
+                      context.pop(true);
+                    }
+                  },
+                ),
               ),
-            ),
-            Gap.w12,
-            Expanded(
-              child: _buildActionButton(
-                key: const Key('approve_button'),
-                text: l10n.btn_approve,
-                icon: AppIcons.approve,
-                color: BaseColor.green.shade600,
-                isLoading: isLoading,
-                onTap: () async {
-                  // Show confirmation bottom sheet
-                  final confirmed = await showApprovalConfirmationBottomSheet(
-                    context: context,
-                    isApprove: true,
-                    activityTitle: activityTitle,
-                  );
-                  if (confirmed != true || !context.mounted) return;
+              Gap.w12,
+              Expanded(
+                child: _buildActionButton(
+                  key: const Key('approve_button'),
+                  text: l10n.btn_approve,
+                  icon: AppIcons.approve,
+                  color: BaseColor.green.shade600,
+                  isLoading: isLoading,
+                  onTap: () async {
+                    final confirmed = await showApprovalConfirmationBottomSheet(
+                      context: context,
+                      isApprove: true,
+                      activityTitle: activityTitle,
+                    );
+                    if (confirmed != true || !context.mounted) return;
 
-                  final success = await controller.approveActivity(approverId);
-                  if (success && context.mounted) {
-                    context.pop(true); // Return true to indicate action taken
-                  }
-                },
+                    final success = await controller.approveActivity(approverId);
+                    if (success && context.mounted) {
+                      context.pop(true);
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -336,7 +333,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     Text(
                       text,
                       style: BaseTypography.labelSmall.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: color,
                       ),
                     ),
@@ -356,7 +353,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -393,8 +392,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                       Text(
                         activity.title,
                         style: BaseTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: BaseColor.black,
+                          fontWeight: FontWeight.w700,
+                          color: BaseColor.textPrimary,
                         ),
                       ),
                       Gap.h4,
@@ -433,7 +432,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.green[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -467,8 +468,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     l10n.tbl_approvers,
                     style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -479,7 +480,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: BaseColor.green[50],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                     border: Border.all(color: BaseColor.green[200]!, width: 1),
                   ),
                   child: Text(
@@ -531,7 +532,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.blue[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -565,8 +568,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     l10n.approvalDetail_activitySummary_title,
                     style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -636,7 +639,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: baseColor[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -670,8 +675,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     l10n.approvalDetail_financialData_title,
                     style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -682,7 +687,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: baseColor[50],
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                     border: Border.all(color: baseColor[200]!, width: 1),
                   ),
                   child: Text(
@@ -767,7 +772,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.red[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -801,8 +808,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     l10n.card_location_title,
                     style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -865,7 +872,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.yellow[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -899,8 +908,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     l10n.lbl_note,
                     style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -920,7 +929,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   child: Text(
                     activity.note ?? "-",
                     style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.black,
+                      color: BaseColor.textPrimary,
                       height: 1.5,
                     ),
                   ),
@@ -959,7 +968,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
               Text(
                 value,
                 style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.black,
+                  color: BaseColor.textPrimary,
                 ),
               ),
             ],
@@ -988,7 +997,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: baseColor.withValues(alpha: 0.1),
         border: Border.all(color: baseColor.withValues(alpha: 0.3), width: 1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1016,7 +1025,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: BaseColor.teal.shade50,
         border: Border.all(color: BaseColor.teal.shade200, width: 1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       ),
       child: Text(
         bipra.name,
@@ -1044,7 +1053,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.blue[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: InkWell(
         onTap: () {
           // Navigate to activity detail with read-only context flag (Req 6.2)
@@ -1089,7 +1100,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     Text(
                       l10n.approvalDetail_viewActivityDetails_title,
                       style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: BaseColor.blue[700],
                       ),
                     ),

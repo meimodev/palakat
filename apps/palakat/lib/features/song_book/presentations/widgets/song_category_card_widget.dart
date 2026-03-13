@@ -204,6 +204,8 @@ class _CategoryHeader extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: BaseColor.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       category.title,

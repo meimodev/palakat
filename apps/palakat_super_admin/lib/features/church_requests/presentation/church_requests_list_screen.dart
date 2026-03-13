@@ -11,45 +11,47 @@ String _formatDate(DateTime? value) {
   return DateFormat('d MMM yyyy').format(value.toLocal());
 }
 
-String _statusLabel(RequestStatus status) {
+String _statusLabel(BuildContext context, RequestStatus status) {
+  final l10n = context.l10n;
   switch (status) {
     case RequestStatus.todo:
-      return 'TODO';
+      return l10n.churchRequest_status_onReview;
     case RequestStatus.doing:
-      return 'DOING';
+      return l10n.churchRequest_status_onProgress;
     case RequestStatus.done:
-      return 'DONE';
+      return l10n.status_completed;
     case RequestStatus.rejected:
-      return 'REJECTED';
+      return l10n.status_rejected;
   }
 }
 
-StatusChip _statusChip(RequestStatus status) {
+StatusChip _statusChip(BuildContext context, RequestStatus status) {
+  final l10n = context.l10n;
   switch (status) {
     case RequestStatus.todo:
       return StatusChip(
-        label: 'TODO',
+        label: l10n.churchRequest_status_onReview,
         background: Colors.orange.shade100,
         foreground: Colors.orange.shade900,
         icon: Icons.schedule,
       );
     case RequestStatus.doing:
       return StatusChip(
-        label: 'DOING',
+        label: l10n.churchRequest_status_onProgress,
         background: Colors.blue.shade100,
         foreground: Colors.blue.shade900,
         icon: Icons.sync,
       );
     case RequestStatus.done:
       return StatusChip(
-        label: 'DONE',
+        label: l10n.status_completed,
         background: Colors.green.shade100,
         foreground: Colors.green.shade900,
         icon: Icons.check_circle,
       );
     case RequestStatus.rejected:
       return StatusChip(
-        label: 'REJECTED',
+        label: l10n.status_rejected,
         background: Colors.red.shade100,
         foreground: Colors.red.shade900,
         icon: Icons.cancel,
@@ -82,18 +84,19 @@ class ChurchRequestsListScreen extends ConsumerWidget {
     final state = ref.watch(churchRequestsControllerProvider);
     final asyncItems = state.items;
     final items = asyncItems.asData?.value;
+    final l10n = context.l10n;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Church Requests',
+          l10n.churchRequest_title,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Manage Church Requests',
-          subtitle: 'Review, approve, or reject church registration requests.',
+          title: l10n.churchRequest_title,
+          subtitle: l10n.churchRequest_churchInformation,
           child: AppTable<ChurchRequest>(
             loading: asyncItems.isLoading,
             data: items?.data ?? const [],
@@ -106,18 +109,18 @@ class ChurchRequestsListScreen extends ConsumerWidget {
               }
             },
             filtersConfig: AppTableFiltersConfig(
-              searchHint: 'Search church name / address / contact',
+              searchHint: l10n.hint_searchByTitleDescription,
               onSearchChanged: controller.onChangedSearch,
-              dropdownLabel: 'Status',
-              dropdownOptions: const {
-                'TODO': 'TODO',
-                'DOING': 'DOING',
-                'DONE': 'DONE',
-                'REJECTED': 'REJECTED',
+              dropdownLabel: l10n.tbl_status,
+              dropdownOptions: {
+                'TODO': l10n.churchRequest_status_onReview,
+                'DOING': l10n.churchRequest_status_onProgress,
+                'DONE': l10n.status_completed,
+                'REJECTED': l10n.status_rejected,
               },
               dropdownValue: state.status == null
                   ? null
-                  : _statusLabel(state.status!),
+                  : _statusLabel(context, state.status!),
               onDropdownChanged: (v) =>
                   controller.onChangedStatus(_apiToStatus(v)),
             ),
@@ -134,7 +137,7 @@ class ChurchRequestsListScreen extends ConsumerWidget {
                   ),
             columns: [
               AppTableColumn<ChurchRequest>(
-                title: 'Church',
+                title: l10n.nav_church,
                 flex: 4,
                 cellBuilder: (context, row) => Text(
                   row.churchName,
@@ -143,7 +146,7 @@ class ChurchRequestsListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ChurchRequest>(
-                title: 'Contact',
+                title: l10n.lbl_contactPerson,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
                   row.contactPerson,
@@ -152,7 +155,7 @@ class ChurchRequestsListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ChurchRequest>(
-                title: 'Phone',
+                title: l10n.tbl_phone,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   row.contactPhone,
@@ -161,15 +164,15 @@ class ChurchRequestsListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<ChurchRequest>(
-                title: 'Status',
+                title: l10n.tbl_status,
                 flex: 2,
                 cellBuilder: (context, row) => Align(
                   alignment: Alignment.centerLeft,
-                  child: _statusChip(row.status),
+                  child: _statusChip(context, row.status),
                 ),
               ),
               AppTableColumn<ChurchRequest>(
-                title: 'Submitted',
+                title: l10n.tbl_requestDate,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   _formatDate(row.createdAt),
@@ -186,7 +189,10 @@ class ChurchRequestsListScreen extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

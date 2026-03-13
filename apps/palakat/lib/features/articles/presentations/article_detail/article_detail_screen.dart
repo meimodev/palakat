@@ -61,7 +61,32 @@ class ArticleDetailScreen extends ConsumerWidget {
                 onRetry: () => controller.fetchArticle(),
                 shimmerPlaceholder: _buildShimmerPlaceholder(),
                 child: article == null
-                    ? Center(child: Text(l10n.noData_available))
+                    ? Center(
+                        child: Material(
+                          color: BaseColor.surfaceMedium,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusLg,
+                            ),
+                            side: BorderSide(
+                              color: BaseColor.neutral[200]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(BaseSize.w24),
+                            child: Text(
+                              l10n.noData_available,
+                              textAlign: TextAlign.center,
+                              style: BaseTypography.titleMedium.copyWith(
+                                color: BaseColor.textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
                     : _Content(article: article),
               ),
             ),
@@ -93,7 +118,10 @@ class _Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = article.title ?? '-';
+    final l10n = context.l10n;
+    final title = (article.title?.trim().isNotEmpty == true)
+        ? article.title!
+        : l10n.article_titleFallback;
     final excerpt = article.excerpt;
     final coverUrl = article.coverImageUrl;
     final publishedAt = article.publishedAt;
@@ -106,8 +134,15 @@ class _Content extends StatelessWidget {
       padding: EdgeInsets.only(bottom: BaseSize.h16),
       children: [
         if (coverUrl != null && coverUrl.trim().isNotEmpty)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+          Material(
+            color: BaseColor.cardBackground1,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.05),
+            surfaceTintColor: BaseColor.primary[50],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            ),
+            clipBehavior: Clip.hardEdge,
             child: ImageNetworkWidget(
               imageUrl: coverUrl,
               height: BaseSize.customHeight(200),
@@ -118,8 +153,8 @@ class _Content extends StatelessWidget {
         Text(
           title,
           style: BaseTypography.headlineSmall.copyWith(
-            fontWeight: FontWeight.bold,
-            color: BaseColor.black,
+            fontWeight: FontWeight.w700,
+            color: BaseColor.textPrimary,
           ),
         ),
         if (effectiveDate != null) ...[
@@ -156,10 +191,21 @@ class _Content extends StatelessWidget {
         if (content != null && content.trim().isNotEmpty)
           MarkdownBody(data: content, selectable: true)
         else
-          Text(
-            context.l10n.noData_available,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.secondaryText,
+          Material(
+            color: BaseColor.surfaceMedium,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+              side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w16),
+              child: Text(
+                context.l10n.noData_available,
+                style: BaseTypography.bodyMedium.copyWith(
+                  color: BaseColor.textPrimary,
+                ),
+              ),
             ),
           ),
       ],

@@ -128,11 +128,11 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
         ),
         Gap.h6,
         // Input field with Rp prefix
-        Container(
-          decoration: BoxDecoration(
-            color: BaseColor.white,
+        Material(
+          color: BaseColor.white,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            border: Border.all(
+            side: BorderSide(
               color: hasError
                   ? BaseColor.error.withValues(alpha: 0.5)
                   : BaseColor.neutral[300]!,
@@ -147,7 +147,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                   vertical: BaseSize.h12,
                 ),
                 decoration: BoxDecoration(
-                  color: BaseColor.neutral[100],
+                  color: BaseColor.surfaceMedium,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(BaseSize.radiusMd),
                     bottomLeft: Radius.circular(BaseSize.radiusMd),

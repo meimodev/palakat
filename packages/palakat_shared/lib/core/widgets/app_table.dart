@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -91,38 +93,65 @@ class AppTable<T> extends StatelessWidget {
           filters!,
           const SizedBox(height: 12),
         ],
-        _Header<T>(
-          columns: columns,
-          sortConfig: sortConfig,
-          decoration: headerDecoration ?? _defaultHeaderDecoration(theme),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final availableWidth = constraints.hasBoundedWidth
+                ? constraints.maxWidth
+                : 0.0;
+            final tableMinWidth = math.max(
+              columns.length * 140.0 + (onRowTap != null ? 20.0 : 0.0),
+              availableWidth,
+            );
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: tableMinWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Header<T>(
+                      columns: columns,
+                      sortConfig: sortConfig,
+                      decoration:
+                          headerDecoration ?? _defaultHeaderDecoration(theme),
+                    ),
+                    if (loading) ...[
+                      _ShimmerLoadingPlaceholder(columns: columns),
+                    ] else if (errorText != null) ...[
+                      _ErrorPlaceholder(message: errorText!, onRetry: onRetry),
+                    ] else if (data.isEmpty) ...[
+                      if (emptyBuilder != null)
+                        emptyBuilder!(context)
+                      else
+                        _EmptyPlaceholder(),
+                    ] else ...[
+                      ...List.generate(data.length, (index) {
+                        final item = data[index];
+                        final row = _Row<T>(
+                          item: item,
+                          columns: columns,
+                          onTap: onRowTap,
+                          decoration: rowDecoration,
+                        );
+                        if (!showDividers) return row;
+                        return Column(
+                          children: [
+                            row,
+                            Divider(
+                              height: 1,
+                              color: theme.colorScheme.outlineVariant,
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
         ),
-        if (loading) ...[
-          _ShimmerLoadingPlaceholder(columns: columns),
-        ] else if (errorText != null) ...[
-          _ErrorPlaceholder(message: errorText!, onRetry: onRetry),
-        ] else if (data.isEmpty) ...[
-          if (emptyBuilder != null)
-            emptyBuilder!(context)
-          else
-            _EmptyPlaceholder(),
-        ] else ...[
-          ...List.generate(data.length, (index) {
-            final item = data[index];
-            final row = _Row<T>(
-              item: item,
-              columns: columns,
-              onTap: onRowTap,
-              decoration: rowDecoration,
-            );
-            if (!showDividers) return row;
-            return Column(
-              children: [
-                row,
-                Divider(height: 1, color: theme.colorScheme.outlineVariant),
-              ],
-            );
-          }),
-        ],
         if (pagination != null && !loading && errorText == null) ...[
           const SizedBox(height: 12),
           PaginationBar(
@@ -609,147 +638,162 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final children = <Widget>[];
-    // Search field
-    if (widget.config.searchHint != null) {
-      children.add(
-        Expanded(
-          child: SearchField(
-            controller: _searchController,
-            hint: widget.config.searchHint,
-            debounceMilliseconds: 400,
-            onSearch: widget.config.onSearchChanged,
-          ),
-        ),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : 1200.0;
+        final stacked = availableWidth < 720;
+        final children = <Widget>[];
 
-    // Spacing between widgets
-    void addSpacer() {
-      if (children.isNotEmpty) {
-        children.add(const SizedBox(width: 8));
-      }
-    }
+        Widget withWidth(Widget child, {double? preferredWidth}) {
+          final resolvedWidth = stacked
+              ? availableWidth
+              : preferredWidth == null
+              ? null
+              : math.min(preferredWidth, availableWidth);
+          return SizedBox(width: resolvedWidth, child: child);
+        }
 
-    // Date range preset dropdown
-    if (widget.config.onDateRangePresetChanged != null) {
-      addSpacer();
-
-      final preset = widget.config.dateRangePreset ?? DateRangePreset.allTime;
-      final effectiveRange = preset == DateRangePreset.custom
-          ? widget.config.customDateRange
-          : preset.getDateRange();
-
-      final allowedPresets = widget.config.onCustomDateRangeSelected == null
-          ? DateRangePreset.values
-                .where((p) => p != DateRangePreset.custom)
-                .toList()
-          : DateRangePreset.values;
-
-      children.add(
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 240),
-          child: DateRangePresetInput(
-            label: '',
-            hint: l10n.lbl_dateRange,
-            preset: preset,
-            start: effectiveRange?.start,
-            end: effectiveRange?.end,
-            allowedPresets: allowedPresets,
-            useRootNavigator: widget.config.useRootNavigatorForDateRangePicker,
-            onPresetChanged: widget.config.onDateRangePresetChanged,
-            onCustomDateRangeSelected: widget.config.onCustomDateRangeSelected,
-            onChanged: (start, end) {},
-          ),
-        ),
-      );
-    }
-
-    // Generic dropdown
-    if (widget.config.dropdownOptions != null &&
-        widget.config.dropdownOptions!.isNotEmpty) {
-      addSpacer();
-      children.add(
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 220),
-          child: DropdownButtonFormField<String?>(
-            isExpanded: true,
-            value: widget.config.dropdownValue,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: widget.config.dropdownLabel,
+        if (widget.config.searchHint != null) {
+          children.add(
+            withWidth(
+              SearchField(
+                controller: _searchController,
+                hint: widget.config.searchHint,
+                debounceMilliseconds: 400,
+                onSearch: widget.config.onSearchChanged,
+              ),
+              preferredWidth: 320,
             ),
-            items: [
-              DropdownMenuItem<String?>(
-                value: null,
-                child: Text(
-                  l10n.filter_allWithLabel(
-                    widget.config.dropdownLabel ?? l10n.filter_items,
+          );
+        }
+
+        if (widget.config.onDateRangePresetChanged != null) {
+          final preset =
+              widget.config.dateRangePreset ?? DateRangePreset.allTime;
+          final effectiveRange = preset == DateRangePreset.custom
+              ? widget.config.customDateRange
+              : preset.getDateRange();
+
+          final allowedPresets = widget.config.onCustomDateRangeSelected == null
+              ? DateRangePreset.values
+                    .where((p) => p != DateRangePreset.custom)
+                    .toList()
+              : DateRangePreset.values;
+
+          children.add(
+            withWidth(
+              DateRangePresetInput(
+                label: '',
+                hint: l10n.lbl_dateRange,
+                preset: preset,
+                start: effectiveRange?.start,
+                end: effectiveRange?.end,
+                allowedPresets: allowedPresets,
+                useRootNavigator:
+                    widget.config.useRootNavigatorForDateRangePicker,
+                onPresetChanged: widget.config.onDateRangePresetChanged,
+                onCustomDateRangeSelected:
+                    widget.config.onCustomDateRangeSelected,
+                onChanged: (start, end) {},
+              ),
+              preferredWidth: 240,
+            ),
+          );
+        }
+
+        if (widget.config.dropdownOptions != null &&
+            widget.config.dropdownOptions!.isNotEmpty) {
+          children.add(
+            withWidth(
+              DropdownButtonFormField<String?>(
+                isExpanded: true,
+                value: widget.config.dropdownValue,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: widget.config.dropdownLabel,
+                ),
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text(
+                      l10n.filter_allWithLabel(
+                        widget.config.dropdownLabel ?? l10n.filter_items,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  ...widget.config.dropdownOptions!.entries.map(
+                    (entry) => DropdownMenuItem<String?>(
+                      value: entry.key,
+                      child: Text(entry.value, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+                ],
+                onChanged: widget.config.onDropdownChanged,
               ),
-              ...widget.config.dropdownOptions!.entries.map(
-                (entry) => DropdownMenuItem<String?>(
-                  value: entry.key,
-                  child: Text(entry.value, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-            ],
-            onChanged: widget.config.onDropdownChanged,
-          ),
-        ),
-      );
-    }
-
-    // Position dropdown
-    if (widget.config.positionOptions != null &&
-        widget.config.positionOptions!.isNotEmpty) {
-      addSpacer();
-      children.add(
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 220),
-          child: DropdownButtonFormField<MemberPosition?>(
-            isExpanded: true,
-            value: widget.config.positionValue,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              preferredWidth: 220,
             ),
-            items: [
-              DropdownMenuItem<MemberPosition?>(
-                value: null,
-                child: Text(
-                  l10n.filter_allPositions,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              ...widget.config.positionOptions!.map(
-                (p) => DropdownMenuItem<MemberPosition?>(
-                  value: p,
-                  child: Text(p.name, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-            ],
-            onChanged: widget.config.onPositionChanged,
-          ),
-        ),
-      );
-    }
+          );
+        }
 
-    // Action button
-    if (widget.config.onActionPressed != null &&
-        widget.config.actionLabel != null) {
-      addSpacer();
-      children.add(
-        FilledButton.icon(
-          onPressed: widget.config.onActionPressed,
-          icon: Icon(widget.config.actionIcon ?? Icons.add, size: 18),
-          label: Text(widget.config.actionLabel!),
-        ),
-      );
-    }
+        if (widget.config.positionOptions != null &&
+            widget.config.positionOptions!.isNotEmpty) {
+          children.add(
+            withWidth(
+              DropdownButtonFormField<MemberPosition?>(
+                isExpanded: true,
+                value: widget.config.positionValue,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem<MemberPosition?>(
+                    value: null,
+                    child: Text(
+                      l10n.filter_allPositions,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  ...widget.config.positionOptions!.map(
+                    (p) => DropdownMenuItem<MemberPosition?>(
+                      value: p,
+                      child: Text(p.name, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+                ],
+                onChanged: widget.config.onPositionChanged,
+              ),
+              preferredWidth: 220,
+            ),
+          );
+        }
 
-    return Row(children: children);
+        if (widget.config.onActionPressed != null &&
+            widget.config.actionLabel != null) {
+          children.add(
+            withWidth(
+              FilledButton.icon(
+                onPressed: widget.config.onActionPressed,
+                icon: Icon(widget.config.actionIcon ?? Icons.add, size: 18),
+                label: Text(widget.config.actionLabel!),
+              ),
+            ),
+          );
+        }
+
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: children,
+        );
+      },
+    );
   }
 }

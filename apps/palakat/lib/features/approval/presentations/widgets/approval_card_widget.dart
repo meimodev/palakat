@@ -81,8 +81,8 @@ class ApprovalCardWidget extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: BaseColor.teal[50],
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: _getStatusBorderColor(overall), width: 1.5),
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: _getStatusBorderColor(overall), width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
@@ -115,8 +115,8 @@ class ApprovalCardWidget extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: BaseTypography.titleLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: BaseColor.black,
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
                 ),
               ),
               Gap.h12,
@@ -143,7 +143,8 @@ class ApprovalCardWidget extends StatelessWidget {
                       approval.supervisor.account?.name ??
                           context.l10n.lbl_unknown,
                       style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        color: BaseColor.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -281,7 +282,7 @@ class _ActivityTypeBadge extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -326,7 +327,7 @@ class _FinancialIndicatorBadge extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

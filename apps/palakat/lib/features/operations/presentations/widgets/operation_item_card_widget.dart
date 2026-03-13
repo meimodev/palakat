@@ -24,7 +24,7 @@ class OperationItemCard extends StatelessWidget {
   static const double disabledOpacity = 0.5;
 
   /// Border radius for the card (Requirement 3.3 - 16px)
-  static const double borderRadius = 16.0;
+  static final double borderRadius = BaseSize.radiusLg;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +34,10 @@ class OperationItemCard extends StatelessWidget {
     return Opacity(
       opacity: operation.isEnabled ? 1.0 : disabledOpacity,
       child: Material(
-        color: BaseColor.surfaceLight,
-        elevation: 0,
-        shadowColor: BaseColor.shadow.withValues(alpha: 0.1),
+        color: BaseColor.cardBackground1,
+        elevation: 1,
+        shadowColor: Colors.black.withValues(alpha: 0.05),
+        surfaceTintColor: BaseColor.primary[50],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
@@ -77,7 +78,7 @@ class OperationItemCard extends StatelessWidget {
                     color: operation.isEnabled
                         ? BaseColor.textSecondary
                         : BaseColor.textDisabled,
-                    size: BaseSize.w24,
+                    size: BaseSize.w18,
                   ),
                 ],
               ),
@@ -144,7 +145,7 @@ class _OperationIcon extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isEnabled ? BaseColor.primary[50] : BaseColor.neutral[100],
-        borderRadius: BorderRadius.circular(BaseSize.w12),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Icon(
         icon,
@@ -177,7 +178,7 @@ class _OperationContent extends StatelessWidget {
         Text(
           title,
           style: BaseTypography.titleMedium.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: isEnabled ? BaseColor.textPrimary : BaseColor.textDisabled,
           ),
           maxLines: 1,

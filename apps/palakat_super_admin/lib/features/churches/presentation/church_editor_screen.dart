@@ -84,7 +84,9 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
   String? _validateOptionalDouble(String? input) {
     final trimmed = (input ?? '').trim();
     if (trimmed.isEmpty) return null;
-    if (double.tryParse(trimmed) == null) return 'Must be a number';
+    if (double.tryParse(trimmed) == null) {
+      return context.l10n.validation_invalidNumber;
+    }
     return null;
   }
 
@@ -179,7 +181,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Saved')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_updated)));
         setState(() {});
       }
     } catch (e) {
@@ -196,21 +198,22 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
   Future<void> _deleteChurch() async {
     final id = widget.churchId;
     if (id == null) return;
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete this church?'),
-          content: const Text('This action cannot be undone.'),
+          title: Text(l10n.churchEditor_deleteTitle),
+          content: Text(l10n.dlg_confirmDelete_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
+              child: Text(l10n.btn_delete),
             ),
           ],
         );
@@ -226,7 +229,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Deleted')));
+        ).showSnackBar(SnackBar(content: Text(l10n.msg_deleted)));
         context.go('/churches');
       }
     } finally {
@@ -243,6 +246,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
   Widget build(BuildContext context) {
     final isNew = widget.churchId == null;
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final columns = List<cm.Column>.from(_loaded?.columns ?? const []);
     columns.sort((a, b) => a.name.compareTo(b.name));
@@ -252,218 +256,230 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
     );
     positions.sort((a, b) => a.name.compareTo(b.name));
 
+    Widget buildFieldPair(Widget first, Widget second) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 720) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [first, const SizedBox(height: 12), second],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: first),
+              const SizedBox(width: 12),
+              Expanded(child: second),
+            ],
+          );
+        },
+      );
+    }
+
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Text(
-              isNew ? 'New Church' : 'Edit Church',
-              style: theme.textTheme.headlineMedium,
-            ),
-            const Spacer(),
-            if (!isNew) ...[
-              OutlinedButton(
-                onPressed: _loading ? null : _deleteChurch,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final actions = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (!isNew)
+                  OutlinedButton(
+                    onPressed: _loading ? null : _deleteChurch,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.error,
+                    ),
+                    child: Text(l10n.btn_delete),
+                  ),
+                FilledButton(
+                  onPressed: _loading ? null : _save,
+                  child: Text(l10n.btn_save),
                 ),
-                child: const Text('Delete'),
-              ),
-              const SizedBox(width: 8),
-            ],
-            ElevatedButton(
-              onPressed: _loading ? null : _save,
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
+              ],
+            );
+
+            if (constraints.maxWidth < 760) {
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Church profile', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    enabled: !_loading,
-                    validator: (v) => Validators.required(
-                      'Name is required',
-                    ).asFormFieldValidator(v),
+                  Text(
+                    isNew
+                        ? l10n.churchEditor_addTitle
+                        : l10n.churchEditor_editTitle,
+                    style: theme.textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone number (optional)',
-                          ),
-                          enabled: !_loading,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email (optional)',
-                          ),
-                          enabled: !_loading,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _documentAccountNumberController,
-                    decoration: const InputDecoration(
-                      labelText: 'Document account number (optional)',
-                    ),
-                    enabled: !_loading,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description (optional)',
-                    ),
-                    enabled: !_loading,
-                    minLines: 2,
-                    maxLines: 4,
-                  ),
+                  actions,
                 ],
-              ),
-            ),
-          ),
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    isNew
+                        ? l10n.churchEditor_addTitle
+                        : l10n.churchEditor_editTitle,
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Flexible(child: actions),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+        SurfaceCard(
+          title: l10n.card_basicInfo_title,
+          subtitle: l10n.card_basicInfo_subtitle,
+          child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Location', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 12),
                 TextFormField(
-                  controller: _locationNameController,
-                  decoration: const InputDecoration(labelText: 'Location name'),
+                  controller: _nameController,
+                  decoration: InputDecoration(labelText: l10n.lbl_name),
                   enabled: !_loading,
                   validator: (v) => Validators.required(
-                    'Location name is required',
+                    l10n.validation_requiredField,
                   ).asFormFieldValidator(v),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _latitudeController,
-                        decoration: const InputDecoration(
-                          labelText: 'Latitude (optional)',
-                        ),
-                        enabled: !_loading,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                          decimal: true,
-                        ),
-                        validator: _validateOptionalDouble,
-                      ),
+                buildFieldPair(
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      labelText: l10n.lbl_phoneNumberOptional,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _longitudeController,
-                        decoration: const InputDecoration(
-                          labelText: 'Longitude (optional)',
-                        ),
-                        enabled: !_loading,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                          decimal: true,
-                        ),
-                        validator: _validateOptionalDouble,
-                      ),
+                    enabled: !_loading,
+                  ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: l10n.lbl_emailOptional,
                     ),
-                  ],
+                    enabled: !_loading,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _documentAccountNumberController,
+                  decoration: InputDecoration(
+                    labelText: '${l10n.lbl_accountNumber} ${l10n.lbl_optional}',
+                  ),
+                  enabled: !_loading,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    labelText: l10n.lbl_descriptionOptional,
+                  ),
+                  enabled: !_loading,
+                  minLines: 2,
+                  maxLines: 4,
                 ),
               ],
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        SurfaceCard(
+          title: l10n.card_location_title,
+          subtitle: l10n.card_location_subtitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _locationNameController,
+                decoration: InputDecoration(
+                  labelText: l10n.publish_lblLocationName,
+                ),
+                enabled: !_loading,
+                validator: (v) => Validators.required(
+                  l10n.validation_requiredField,
+                ).asFormFieldValidator(v),
+              ),
+              const SizedBox(height: 12),
+              buildFieldPair(
+                TextFormField(
+                  controller: _latitudeController,
+                  decoration: InputDecoration(
+                    labelText: '${l10n.lbl_latitude} ${l10n.lbl_optional}',
+                  ),
+                  enabled: !_loading,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: true,
+                    decimal: true,
+                  ),
+                  validator: _validateOptionalDouble,
+                ),
+                TextFormField(
+                  controller: _longitudeController,
+                  decoration: InputDecoration(
+                    labelText: '${l10n.lbl_longitude} ${l10n.lbl_optional}',
+                  ),
+                  enabled: !_loading,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: true,
+                    decimal: true,
+                  ),
+                  validator: _validateOptionalDouble,
+                ),
+              ),
+            ],
+          ),
+        ),
         if (!isNew) ...[
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Columns (read-only)',
-                    style: theme.textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  AppTable<cm.Column>(
-                    loading: _loading && _loaded == null,
-                    data: columns,
-                    columns: [
-                      AppTableColumn<cm.Column>(
-                        title: 'Name',
-                        flex: 3,
-                        cellBuilder: (context, row) => Text(row.name),
-                      ),
-                      AppTableColumn<cm.Column>(
-                        title: 'Created',
-                        flex: 2,
-                        cellBuilder: (context, row) =>
-                            Text(_formatDate(context, row.createdAt)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          SurfaceCard(
+            title: l10n.card_columnManagement_title,
+            subtitle: l10n.card_columnManagement_subtitle,
+            child: AppTable<cm.Column>(
+              loading: _loading && _loaded == null,
+              data: columns,
+              columns: [
+                AppTableColumn<cm.Column>(
+                  title: l10n.lbl_columnName,
+                  flex: 3,
+                  cellBuilder: (context, row) => Text(row.name),
+                ),
+                AppTableColumn<cm.Column>(
+                  title: l10n.lbl_createdAt,
+                  flex: 2,
+                  cellBuilder: (context, row) =>
+                      Text(_formatDate(context, row.createdAt)),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Membership Positions (read-only)',
-                    style: theme.textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  AppTable<MemberPosition>(
-                    loading: _loading && _loaded == null,
-                    data: positions,
-                    columns: [
-                      AppTableColumn<MemberPosition>(
-                        title: 'Name',
-                        flex: 3,
-                        cellBuilder: (context, row) => Text(row.name),
-                      ),
-                      AppTableColumn<MemberPosition>(
-                        title: 'Created',
-                        flex: 2,
-                        cellBuilder: (context, row) =>
-                            Text(_formatDate(context, row.createdAt)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          SurfaceCard(
+            title: l10n.card_positionManagement_title,
+            subtitle: l10n.card_positionManagement_subtitle,
+            child: AppTable<MemberPosition>(
+              loading: _loading && _loaded == null,
+              data: positions,
+              columns: [
+                AppTableColumn<MemberPosition>(
+                  title: l10n.tbl_name,
+                  flex: 3,
+                  cellBuilder: (context, row) => Text(row.name),
+                ),
+                AppTableColumn<MemberPosition>(
+                  title: l10n.lbl_createdAt,
+                  flex: 2,
+                  cellBuilder: (context, row) =>
+                      Text(_formatDate(context, row.createdAt)),
+                ),
+              ],
             ),
           ),
         ],
@@ -477,7 +493,10 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

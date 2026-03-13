@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/extensions.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/models.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'activity_publish_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class ActivityPublishController extends _$ActivityPublishController {
@@ -83,7 +93,7 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   String? validateLocation(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Location is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
@@ -94,14 +104,14 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   String? validateDate(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Date is required';
+      return _l10n().validation_dateRequired;
     }
     return null;
   }
 
   String? validateTime(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Time is required';
+      return _l10n().validation_timeRequired;
     }
     return null;
   }
@@ -112,28 +122,28 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   String? validateNote(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Note is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Title is required';
+      return _l10n().validation_titleRequired;
     }
     return null;
   }
 
   String? validateDescription(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Description is required';
+      return _l10n().validation_descriptionRequired;
     }
     return null;
   }
 
   String? validateFile(String? value) {
     if (value == null || value.isEmpty) {
-      return 'File is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
@@ -179,7 +189,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       if (membership == null || membership.id == null) {
         state = state.copyWith(
           loading: false,
-          errorMessage: 'Session expired. Please sign in again.',
+          errorMessage: _l10n().err_unauthorized,
         );
         return false;
       }
@@ -190,7 +200,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         if (churchId == null) {
           state = state.copyWith(
             loading: false,
-            errorMessage: 'Invalid church context',
+            errorMessage: _l10n().err_somethingWentWrong,
           );
           return false;
         }
@@ -227,10 +237,13 @@ class ActivityPublishController extends _$ActivityPublishController {
           if (data is Map && data['id'] is int) {
             fileId = data['id'] as int;
           } else {
-            progress.fail(progressId, errorMessage: 'Invalid upload response');
+            progress.fail(
+              progressId,
+              errorMessage: _l10n().err_somethingWentWrong,
+            );
             state = state.copyWith(
               loading: false,
-              errorMessage: 'Invalid upload response',
+              errorMessage: _l10n().err_somethingWentWrong,
             );
             return false;
           }
@@ -325,7 +338,7 @@ class ActivityPublishController extends _$ActivityPublishController {
       // Handle unexpected errors
       state = state.copyWith(
         loading: false,
-        errorMessage: 'Something went wrong. Please try again.',
+        errorMessage: _l10n().err_somethingWentWrong,
       );
       return false;
     }

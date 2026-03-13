@@ -46,7 +46,7 @@ class ApprovalStatusPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -56,8 +56,8 @@ class ApprovalStatusPill extends StatelessWidget {
           Text(
             label,
             style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.black,
-              fontWeight: FontWeight.bold,
+              color: color,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

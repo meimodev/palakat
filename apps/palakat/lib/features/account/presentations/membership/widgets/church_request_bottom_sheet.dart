@@ -94,8 +94,8 @@ class _ChurchRequestBottomSheetState
                   child: Text(
                     l10n.churchRequest_title,
                     style: BaseTypography.titleLarge.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
                     ),
                   ),
                 ),
@@ -113,50 +113,18 @@ class _ChurchRequestBottomSheetState
             child: Text(
               l10n.churchRequest_description,
               style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.neutral[600],
+                color: BaseColor.textSecondary,
               ),
             ),
           ),
           Gap.h16,
           // Error message display
-          if (_errorMessage != null) ...[
+          if (_errorMessage != null && _errorMessage!.trim().isNotEmpty) ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: Container(
-                padding: EdgeInsets.all(BaseSize.w12),
-                decoration: BoxDecoration(
-                  color: BaseColor.red.shade50,
-                  border: Border.all(color: BaseColor.red.shade200, width: 1),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FaIcon(
-                      AppIcons.error,
-                      size: BaseSize.w20,
-                      color: BaseColor.red.shade700,
-                    ),
-                    Gap.w8,
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.red.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () => setState(() => _errorMessage = null),
-                      child: FaIcon(
-                        AppIcons.close,
-                        size: BaseSize.w16,
-                        color: BaseColor.red.shade700,
-                      ),
-                    ),
-                  ],
-                ),
+              child: ErrorDisplayWidget(
+                message: _errorMessage!,
+                padding: EdgeInsets.zero,
               ),
             ),
             Gap.h12,
@@ -176,8 +144,8 @@ class _ChurchRequestBottomSheetState
                     Text(
                       l10n.churchRequest_churchInformation,
                       style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: BaseColor.black,
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
                       ),
                     ),
                     Gap.h12,
@@ -264,38 +232,50 @@ class _ChurchRequestBottomSheetState
     final localStorage = ref.watch(localStorageServiceProvider);
     final account = localStorage.currentAuth?.account;
 
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.blue.shade50,
-        border: Border.all(color: BaseColor.blue.shade200, width: 1),
+    return Material(
+      color: BaseColor.primary[50],
+      elevation: 0,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        side: BorderSide(color: BaseColor.primary[100]!, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              FaIcon(
-                AppIcons.person,
-                size: BaseSize.w20,
-                color: BaseColor.blue.shade700,
-              ),
-              Gap.w8,
-              Text(
-                l10n.churchRequest_requesterInformation,
-                style: BaseTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: BaseColor.blue.shade700,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: BaseSize.w36,
+                  height: BaseSize.w36,
+                  decoration: BoxDecoration(
+                    color: BaseColor.white,
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    AppIcons.person,
+                    size: BaseSize.w18,
+                    color: BaseColor.primary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Gap.h8,
-          _buildInfoRow(l10n.lbl_name, account?.name ?? l10n.lbl_na),
-          Gap.h4,
-          _buildInfoRow(l10n.lbl_phone, account?.phone ?? l10n.lbl_na),
-        ],
+                Gap.w8,
+                Text(
+                  l10n.churchRequest_requesterInformation,
+                  style: BaseTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: BaseColor.primary,
+                  ),
+                ),
+              ],
+            ),
+            Gap.h8,
+            _buildInfoRow(l10n.lbl_name, account?.name ?? l10n.lbl_na),
+            Gap.h4,
+            _buildInfoRow(l10n.lbl_phone, account?.phone ?? l10n.lbl_na),
+          ],
+        ),
       ),
     );
   }
@@ -319,7 +299,7 @@ class _ChurchRequestBottomSheetState
           child: Text(
             value,
             style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.black,
+              color: BaseColor.textPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),

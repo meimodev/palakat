@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
@@ -19,6 +20,25 @@ class _ChurchRequestDetailScreenState
   ChurchRequest? _request;
   bool _loading = false;
 
+  String _statusLabel(BuildContext context, RequestStatus status) {
+    final l10n = context.l10n;
+    switch (status) {
+      case RequestStatus.todo:
+        return l10n.churchRequest_status_onReview;
+      case RequestStatus.doing:
+        return l10n.churchRequest_status_onProgress;
+      case RequestStatus.done:
+        return l10n.status_completed;
+      case RequestStatus.rejected:
+        return l10n.status_rejected;
+    }
+  }
+
+  String _formatDateTime(DateTime? value) {
+    if (value == null) return '-';
+    return DateFormat('d MMM yyyy, HH:mm').format(value.toLocal());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,15 +58,16 @@ class _ChurchRequestDetailScreenState
 
   Future<void> _approve() async {
     final noteController = TextEditingController();
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Approve request'),
+          title: Text(l10n.btn_approve),
           content: TextField(
             controller: noteController,
-            decoration: const InputDecoration(
-              labelText: 'Decision note (optional)',
+            decoration: InputDecoration(
+              labelText: '${l10n.lbl_note} ${l10n.lbl_optional}',
             ),
             minLines: 2,
             maxLines: 4,
@@ -54,11 +75,11 @@ class _ChurchRequestDetailScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Approve'),
+              child: Text(l10n.btn_approve),
             ),
           ],
         );
@@ -74,7 +95,7 @@ class _ChurchRequestDetailScreenState
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Approved')));
+      ).showSnackBar(SnackBar(content: Text(l10n.status_approved)));
       await _load();
     } catch (e) {
       if (mounted) {
@@ -89,27 +110,26 @@ class _ChurchRequestDetailScreenState
 
   Future<void> _reject() async {
     final noteController = TextEditingController();
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Reject request'),
+          title: Text(l10n.btn_reject),
           content: TextField(
             controller: noteController,
-            decoration: const InputDecoration(
-              labelText: 'Decision note (required)',
-            ),
+            decoration: InputDecoration(labelText: l10n.lbl_note),
             minLines: 2,
             maxLines: 4,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Reject'),
+              child: Text(l10n.btn_reject),
             ),
           ],
         );
@@ -125,7 +145,7 @@ class _ChurchRequestDetailScreenState
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Rejected')));
+      ).showSnackBar(SnackBar(content: Text(l10n.status_rejected)));
       await _load();
     } catch (e) {
       if (mounted) {
@@ -141,78 +161,87 @@ class _ChurchRequestDetailScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final request = _request;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              child: Text(
-                'Church Request #${widget.id}',
-                style: theme.textTheme.headlineMedium,
-              ),
+            Text(
+              '${l10n.churchRequest_title} #${widget.id}',
+              style: theme.textTheme.headlineMedium,
             ),
             if (_loading)
-              const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
           ],
         ),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Request details',
-          subtitle: 'Review submission and decide approval status.',
+          title: l10n.churchRequest_title,
+          subtitle: l10n.churchRequest_churchInformation,
           trailing: Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
               OutlinedButton.icon(
                 onPressed: _loading ? null : _reject,
                 icon: const Icon(Icons.cancel_outlined),
-                label: const Text('Reject'),
+                label: Text(l10n.btn_reject),
               ),
               FilledButton.icon(
                 onPressed: _loading ? null : _approve,
                 icon: const Icon(Icons.check_circle_outline),
-                label: const Text('Approve'),
+                label: Text(l10n.btn_approve),
               ),
             ],
           ),
           child: request == null
               ? const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text('Loading...'),
+                  child: Center(child: CircularProgressIndicator()),
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Row(label: 'Status', value: request.status.name),
-                    _Row(label: 'Church Name', value: request.churchName),
-                    _Row(label: 'Address', value: request.churchAddress),
-                    _Row(label: 'Contact Person', value: request.contactPerson),
-                    _Row(label: 'Contact Phone', value: request.contactPhone),
                     _Row(
-                      label: 'Decision Note',
+                      label: l10n.tbl_status,
+                      value: _statusLabel(context, request.status),
+                    ),
+                    _Row(label: l10n.lbl_churchName, value: request.churchName),
+                    _Row(
+                      label: l10n.lbl_churchAddress,
+                      value: request.churchAddress,
+                    ),
+                    _Row(
+                      label: l10n.lbl_contactPerson,
+                      value: request.contactPerson,
+                    ),
+                    _Row(label: l10n.lbl_phone, value: request.contactPhone),
+                    _Row(
+                      label: l10n.lbl_note,
                       value: request.decisionNote ?? '-',
                       multiline: true,
                     ),
                     _Row(
-                      label: 'Reviewed At',
-                      value: request.reviewedAt?.toIso8601String() ?? '-',
+                      label: l10n.lbl_reviewedAt,
+                      value: _formatDateTime(request.reviewedAt),
                     ),
                     _Row(
-                      label: 'Requester',
+                      label: l10n.lbl_name,
                       value: request.requester?.name ?? '-',
                     ),
                     _Row(
-                      label: 'Requester Phone',
+                      label: l10n.lbl_phone,
                       value: request.requester?.phone ?? '-',
                     ),
                   ],
@@ -224,7 +253,10 @@ class _ChurchRequestDetailScreenState
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },
@@ -248,24 +280,33 @@ class _Row extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: multiline
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 160,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = multiline || constraints.maxWidth < 560;
+          final labelWidget = Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
-        ],
+          );
+          final valueWidget = Text(value, style: theme.textTheme.bodyMedium);
+
+          if (stacked) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [labelWidget, const SizedBox(height: 4), valueWidget],
+            );
+          }
+
+          return Row(
+            children: [
+              SizedBox(width: 160, child: labelWidget),
+              const SizedBox(width: 12),
+              Expanded(child: valueWidget),
+            ],
+          );
+        },
       ),
     );
   }

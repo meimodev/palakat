@@ -1,10 +1,21 @@
+import 'package:flutter/widgets.dart' show Locale;
+import 'package:intl/intl.dart' as intl;
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/models/models.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/repositories.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'membership_controller.g.dart';
+
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
 
 @riverpod
 class MembershipController extends _$MembershipController {
@@ -82,6 +93,7 @@ class MembershipController extends _$MembershipController {
     state = state.copyWith(loading: true, errorMessage: null);
 
     try {
+      final l10n = _l10n();
       final membershipRepo = ref.read(membershipRepositoryProvider);
 
       final result = await membershipRepo.getMembership(membershipId);
@@ -91,7 +103,7 @@ class MembershipController extends _$MembershipController {
         onFailure: (failure) {
           state = state.copyWith(
             loading: false,
-            errorMessage: 'Failed to load membership: ${failure.message}',
+            errorMessage: '${l10n.err_loadFailed}: ${failure.message}',
           );
           return;
         },
@@ -111,9 +123,10 @@ class MembershipController extends _$MembershipController {
         sidi: membership.sidi,
       );
     } catch (e) {
+      final l10n = _l10n();
       state = state.copyWith(
         loading: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage: '${l10n.err_somethingWentWrong}: ${e.toString()}',
       );
     }
   }
@@ -149,28 +162,28 @@ class MembershipController extends _$MembershipController {
 
   String? validateChurch(Church? value) {
     if (value == null) {
-      return 'Church Number is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
 
   String? validateColumn(Column? value) {
     if (value == null) {
-      return 'Column is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
 
   String? validateBaptize(bool? value) {
     if (value == null) {
-      return 'Baptize is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
 
   String? validateSidi(bool? value) {
     if (value == null) {
-      return 'Sidi is required';
+      return _l10n().validation_requiredField;
     }
     return null;
   }
@@ -232,7 +245,7 @@ class MembershipController extends _$MembershipController {
     await validateForm();
 
     if (!state.isFormValid) {
-      return Result.failure(Failure('Please fill all required fields'));
+      return Result.failure(Failure(_l10n().publish_fillAllRequiredFields));
     }
 
     state = state.copyWith(loading: true, errorMessage: null);
@@ -288,15 +301,16 @@ class MembershipController extends _$MembershipController {
         return Result.success(membership);
       } else {
         return Result.failure(
-          Failure(state.errorMessage ?? 'Failed to save membership'),
+          Failure(state.errorMessage ?? _l10n().err_somethingWentWrong),
         );
       }
     } catch (e) {
+      final l10n = _l10n();
       state = state.copyWith(
         loading: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage: '${l10n.err_somethingWentWrong}: ${e.toString()}',
       );
-      return Result.failure(Failure('An unexpected error occurred'));
+      return Result.failure(Failure(l10n.err_somethingWentWrong));
     }
   }
 

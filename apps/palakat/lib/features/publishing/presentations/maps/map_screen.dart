@@ -126,6 +126,8 @@ class _MapScreenState extends State<MapScreen> {
         SnackBar(
           content: Text(l10n.map_locationAccessError),
           duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: BaseColor.error,
         ),
       );
     }
@@ -277,28 +279,27 @@ class _MapScreenState extends State<MapScreen> {
               Gap.w12,
               // Title
               Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w16,
-                    vertical: BaseSize.h12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: BaseColor.white,
+                child: Material(
+                  color: BaseColor.white,
+                  elevation: 1,
+                  shadowColor: Colors.black.withValues(alpha: 0.05),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.shadow.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
                   ),
-                  child: Text(
-                    _isPinPointMode
-                        ? l10n.map_selectLocationTitle
-                        : l10n.card_location_title,
-                    style: BaseTypography.titleMedium.toBold.copyWith(
-                      color: BaseColor.neutral90,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: BaseSize.w16,
+                      vertical: BaseSize.h12,
+                    ),
+                    child: Text(
+                      _isPinPointMode
+                          ? l10n.map_selectLocationTitle
+                          : l10n.card_location_title,
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -378,19 +379,12 @@ class _MapScreenState extends State<MapScreen> {
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 200),
         opacity: _isInitialized ? 1.0 : 0.0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: BaseColor.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(BaseSize.radiusLg),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: BaseColor.shadow.withValues(alpha: 0.1),
-                blurRadius: 16,
-                offset: const Offset(0, -4),
-              ),
-            ],
+        child: Material(
+          color: BaseColor.white,
+          elevation: 4,
+          shadowColor: Colors.black.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(BaseSize.radiusLg),
           ),
           child: SafeArea(
             top: false,

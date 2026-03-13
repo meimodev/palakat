@@ -27,21 +27,17 @@ class FinanceSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(
+    return Material(
+      color: BaseColor.white,
+      elevation: 1,
+      shadowColor: _accentColor.withValues(alpha: 0.05),
+      surfaceTintColor: _accentColor.withValues(alpha: 0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(
           color: _accentColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: _accentColor.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,8 +59,8 @@ class FinanceSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: _accentColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusMd - 1),
-          topRight: Radius.circular(BaseSize.radiusMd - 1),
+          topLeft: Radius.circular(BaseSize.radiusLg - 1),
+          topRight: Radius.circular(BaseSize.radiusLg - 1),
         ),
       ),
       child: Row(

@@ -183,102 +183,105 @@ class _MembershipInvitationConfirmationCardWidgetState
     final churchName = inv.church?.name ?? l10n.lbl_na;
     final columnName = inv.column?.name ?? l10n.lbl_na;
 
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.yellow[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: BaseColor.yellow[200]!, width: 1),
+    return Material(
+      color: BaseColor.yellow[50],
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        side: BorderSide(color: BaseColor.yellow[200]!, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
-                decoration: BoxDecoration(
-                  color: BaseColor.primary[100],
-                  shape: BoxShape.circle,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary[100],
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    AppIcons.handshake,
+                    size: BaseSize.w18,
+                    color: BaseColor.primary[700],
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Icon(
-                  AppIcons.handshake,
-                  size: BaseSize.w18,
-                  color: BaseColor.primary[700],
-                ),
-              ),
-              Gap.w12,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.dashboard_membershipInvitation_title,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.neutral[700],
-                        fontWeight: FontWeight.w700,
+                Gap.w12,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.dashboard_membershipInvitation_title,
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.neutral[700],
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    Gap.h4,
-                    Text(
-                      inviterName,
-                      style: BaseTypography.labelLarge.copyWith(
-                        color: BaseColor.textPrimary,
-                        fontWeight: FontWeight.w800,
+                      Gap.h4,
+                      Text(
+                        inviterName,
+                        style: BaseTypography.labelLarge.copyWith(
+                          color: BaseColor.textPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Gap.h8,
-                    _buildInfoRow(icon: AppIcons.church, text: churchName),
-                    Gap.h4,
-                    _buildInfoRow(icon: AppIcons.group, text: columnName),
-                  ],
+                      Gap.h8,
+                      _buildInfoRow(icon: AppIcons.church, text: churchName),
+                      Gap.h4,
+                      _buildInfoRow(icon: AppIcons.group, text: columnName),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Gap.h12,
-          Wrap(
-            spacing: BaseSize.w8,
-            runSpacing: BaseSize.h8,
-            children: [
-              _buildStatusChip(
-                isActive: inv.baptize,
-                text: inv.baptize
-                    ? l10n.lbl_baptized
-                    : l10n.membership_notBaptized,
-              ),
-              _buildStatusChip(
-                isActive: inv.sidi,
-                text: inv.sidi ? l10n.lbl_sidi : l10n.membership_notSidi,
-              ),
-            ],
-          ),
-          Gap.h12,
-          Row(
-            children: [
-              Expanded(
-                child: ButtonWidget.outlined(
-                  text: l10n.btn_reject,
-                  isEnabled: !_loading,
-                  onTap: _loading ? null : _reject,
+              ],
+            ),
+            Gap.h12,
+            Wrap(
+              spacing: BaseSize.w8,
+              runSpacing: BaseSize.h8,
+              children: [
+                _buildStatusChip(
+                  isActive: inv.baptize,
+                  text: inv.baptize
+                      ? l10n.lbl_baptized
+                      : l10n.membership_notBaptized,
                 ),
-              ),
-              Gap.w12,
-              Expanded(
-                child: ButtonWidget.primary(
-                  text: l10n.btn_approve,
-                  isEnabled: !_loading,
-                  isLoading: _loading,
-                  onTap: _loading ? null : _approve,
+                _buildStatusChip(
+                  isActive: inv.sidi,
+                  text: inv.sidi ? l10n.lbl_sidi : l10n.membership_notSidi,
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            Gap.h12,
+            Row(
+              children: [
+                Expanded(
+                  child: ButtonWidget.outlined(
+                    text: l10n.btn_reject,
+                    isEnabled: !_loading,
+                    onTap: _loading ? null : _reject,
+                  ),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: ButtonWidget.primary(
+                    text: l10n.btn_approve,
+                    isEnabled: !_loading,
+                    isLoading: _loading,
+                    onTap: _loading ? null : _approve,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

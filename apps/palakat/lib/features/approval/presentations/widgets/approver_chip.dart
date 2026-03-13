@@ -55,7 +55,7 @@ class ApproverChip extends StatelessWidget {
                         style: BaseTypography.bodyMedium.copyWith(
                           color: isCurrentUser
                               ? BaseColor.teal.shade800
-                              : BaseColor.black,
+                              : BaseColor.textPrimary,
                           fontWeight: isCurrentUser
                               ? FontWeight.w700
                               : FontWeight.w600,
@@ -71,7 +71,7 @@ class ApproverChip extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: BaseColor.teal.shade600,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                         ),
                         child: Text(
                           context.l10n.lbl_you,
@@ -114,17 +114,19 @@ class ApproverChip extends StatelessWidget {
 
     // Highlight container when this is the current user
     if (isCurrentUser) {
-      return Container(
-        padding: EdgeInsets.symmetric(
-          vertical: BaseSize.h8,
-          horizontal: BaseSize.w8,
+      return Material(
+        color: BaseColor.teal.shade50,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          side: BorderSide(color: BaseColor.teal.shade200, width: 1),
         ),
-        decoration: BoxDecoration(
-          color: BaseColor.teal.shade100,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: BaseColor.teal.shade300, width: 1.5),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: BaseSize.h8,
+            horizontal: BaseSize.w8,
+          ),
+          child: buildContent(),
         ),
-        child: buildContent(),
       );
     }
 

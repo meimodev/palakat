@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
@@ -53,7 +55,11 @@ class QuickStatCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: iconBackgroundColor ?? theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    color:
+                        iconBackgroundColor ??
+                        theme.colorScheme.primaryContainer.withValues(
+                          alpha: 0.3,
+                        ),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
@@ -88,27 +94,33 @@ class QuickStatCard extends StatelessWidget {
       );
     }
 
-    return Container(
-      width: width,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : width;
+        final resolvedWidth = math.min(width, availableWidth);
+
+        return Container(
+          width: resolvedWidth,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: isLoading
-          ? LoadingShimmer(
-              isLoading: true,
-              child: buildContent(),
-            )
-          : buildContent(),
+          child: isLoading
+              ? LoadingShimmer(isLoading: true, child: buildContent())
+              : buildContent(),
+        );
+      },
     );
   }
 

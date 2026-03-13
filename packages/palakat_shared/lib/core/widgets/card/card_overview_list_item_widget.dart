@@ -120,6 +120,8 @@ class CardOverviewListItemWidget extends StatelessWidget {
                       ),
                       child: Text(
                         type.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: BaseTypography.labelSmall.copyWith(
                           color: chipFg,
                           fontWeight: FontWeight.w600,

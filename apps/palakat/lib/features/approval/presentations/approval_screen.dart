@@ -284,8 +284,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               Text(
                 title,
                 style: BaseTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: BaseColor.primaryText,
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
                 ),
               ),
               Gap.w8,
@@ -296,12 +296,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: color.shade100,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
                 child: Text(
                   filteredActivities.length.toString(),
                   style: BaseTypography.labelSmall.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: color.shade700,
                   ),
                 ),
@@ -394,6 +394,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               SnackBar(
                 content: Text(l10n.approval_snackbarApproved(activity.title)),
                 backgroundColor: BaseColor.green.shade600,
+                behavior: SnackBarBehavior.floating,
               ),
             );
           }
@@ -420,6 +421,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               SnackBar(
                 content: Text(l10n.approval_snackbarRejected(activity.title)),
                 backgroundColor: BaseColor.red.shade500,
+                behavior: SnackBarBehavior.floating,
               ),
             );
           }
@@ -462,39 +464,51 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w24),
-      decoration: BoxDecoration(
-        color: BaseColor.cardBackground1,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BaseColor.neutral20, width: 1),
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FaIcon(
-            AppIcons.approval,
-            size: BaseSize.w48,
-            color: BaseColor.secondaryText,
-          ),
-          Gap.h12,
-          Text(
-            context.l10n.approval_emptyTitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.titleMedium.copyWith(
-              color: BaseColor.secondaryText,
-              fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: BaseSize.w56,
+              height: BaseSize.w56,
+              decoration: BoxDecoration(
+                color: BaseColor.primary[50],
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+              ),
+              alignment: Alignment.center,
+              child: FaIcon(
+                AppIcons.approval,
+                size: BaseSize.w24,
+                color: BaseColor.primary,
+              ),
             ),
-          ),
-          Gap.h4,
-          Text(
-            context.l10n.approval_emptySubtitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.secondaryText,
+            Gap.h12,
+            Text(
+              context.l10n.approval_emptyTitle,
+              textAlign: TextAlign.center,
+              style: BaseTypography.titleMedium.copyWith(
+                color: BaseColor.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+            Gap.h4,
+            Text(
+              context.l10n.approval_emptySubtitle,
+              textAlign: TextAlign.center,
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -504,46 +518,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     String message,
     ApprovalController controller,
   ) {
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w24),
-      decoration: BoxDecoration(
-        color: BaseColor.red.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BaseColor.red.shade200, width: 1),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FaIcon(
-            AppIcons.error,
-            size: BaseSize.w48,
-            color: BaseColor.red.shade500,
-          ),
-          Gap.h12,
-          Text(
-            context.l10n.approval_errorTitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.titleMedium.copyWith(
-              color: BaseColor.red.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Gap.h4,
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.red.shade600,
-            ),
-          ),
-          Gap.h16,
-          ButtonWidget.primary(
-            text: context.l10n.btn_retry,
-            onTap: () => controller.fetchData(),
-            buttonSize: ButtonSize.small,
-          ),
-        ],
-      ),
+    return ErrorDisplayWidget(
+      message: message,
+      onRetry: () => controller.fetchData(),
+      padding: EdgeInsets.zero,
     );
   }
 }

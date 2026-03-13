@@ -51,10 +51,7 @@ class ApprovalDetailController extends _$ApprovalDetailController {
     bool success = false;
     result.when(
       onSuccess: (_) {
-        state = state.copyWith(
-          isActionLoading: false,
-          successMessage: 'Activity approved successfully',
-        );
+        state = state.copyWith(isActionLoading: false);
         success = true;
       },
       onFailure: (failure) {
@@ -81,10 +78,7 @@ class ApprovalDetailController extends _$ApprovalDetailController {
     bool success = false;
     result.when(
       onSuccess: (_) {
-        state = state.copyWith(
-          isActionLoading: false,
-          successMessage: 'Activity rejected successfully',
-        );
+        state = state.copyWith(isActionLoading: false);
         success = true;
       },
       onFailure: (failure) {

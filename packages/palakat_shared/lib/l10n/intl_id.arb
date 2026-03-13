@@ -82,6 +82,99 @@
   "songBook_downloadRequiredTitle": "Perlu unduh data",
   "songBook_downloadRequiredSubtitle": "Untuk menggunakan Buku Lagu, Anda perlu mengunduh database lagu terlebih dahulu. Data ini akan disimpan di perangkat Anda untuk penggunaan offline.",
   "songBook_downloadRequiredButton": "Unduh database lagu",
+  "songBook_databaseTitle": "Database lagu",
+  "songBook_versionFallback": "v-",
+  "songBook_songsCount": "{count} lagu",
+  "@songBook_songsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "songBook_booksCount": "{count} buku",
+  "@songBook_booksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "songBook_updateAvailableTitle": "Pembaruan tersedia",
+  "songBook_updateAvailableSubtitle": "Database lagu yang lebih baru tersedia.",
+  "songBook_updateAvailableSubtitleWithDate": "Diperbarui {date}",
+  "@songBook_updateAvailableSubtitleWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "songBook_updateAction": "Perbarui",
+  "songBook_updatingAction": "Memperbarui...",
+  "songDetail_informationTitle": "Informasi lagu",
+  "songDetail_field_book": "Buku",
+  "songDetail_field_author": "Penulis",
+  "songDetail_field_baseNote": "Nada dasar",
+  "songDetail_field_publisher": "Penerbit",
+  "songDetail_videoFallback": "Video",
+  "songDetail_openVideo": "Buka video",
+  "songs_manageSubtitle": "Kelola songs.json yang dipublikasikan dan digunakan oleh aplikasi seluler.",
+  "songs_publishAction": "Publikasikan songs.json",
+  "songs_localDraftPendingPublish": "Draf lokal menunggu dipublikasikan",
+  "songs_discardDraftTitle": "Buang draf lokal?",
+  "songs_discardDraftContent": "Muat ulang akan membuang perubahan draf lokal Anda yang belum dipublikasikan.",
+  "songs_discardDraftAction": "Buang & Muat Ulang",
+  "songEditor_localDraftInfo": "Perubahan disimpan secara lokal dan diunggah saat Anda memublikasikan songs.json.",
+  "songEditor_deleteTitle": "Hapus lagu ini?",
+  "songEditor_idHint": "ID (cth: KJ-1)",
+  "@songEditor_idHint": {
+    "description": "Hint text for song ID input"
+  },
+  "songEditor_bookIdHint": "ID Buku (cth: kj)",
+  "@songEditor_bookIdHint": {
+    "description": "Hint text for song book ID input"
+  },
+  "songEditor_bookNameHint": "Nama Buku",
+  "@songEditor_bookNameHint": {
+    "description": "Hint text for song book name input"
+  },
+  "songEditor_subtitleHint": "Subjudul",
+  "@songEditor_subtitleHint": {
+    "description": "Hint text for song subtitle input"
+  },
+  "songEditor_urlImageHint": "urlImage",
+  "@songEditor_urlImageHint": {
+    "description": "Hint text for image URL input"
+  },
+  "songEditor_urlVideoHint": "urlVideo",
+  "@songEditor_urlVideoHint": {
+    "description": "Hint text for video URL input"
+  },
+  "songEditor_compositionTitle": "Komposisi",
+  "@songEditor_compositionTitle": {
+    "description": "Title for song composition section"
+  },
+  "songEditor_noCompositionYet": "Belum ada komposisi.",
+  "@songEditor_noCompositionYet": {
+    "description": "Message when song composition is empty"
+  },
+  "songEditor_contentHint": "Konten",
+  "@songEditor_contentHint": {
+    "description": "Hint text for song part content input"
+  },
+  "songEditor_definitionTitle": "Definisi",
+  "@songEditor_definitionTitle": {
+    "description": "Title for song definition section"
+  },
+  "songEditor_noDefinitionYet": "Belum ada definisi.",
+  "@songEditor_noDefinitionYet": {
+    "description": "Message when song definition is empty"
+  },
+  "songEditor_editPart": "Ubah {part}",
+  "@songEditor_editPart": {
+    "description": "Title for edit song part dialog"
+  },
   "articles_title": "Artikel",
   "@articles_title": {
     "description": "Title for articles list screen"
@@ -496,6 +589,18 @@
   "@btn_back": {
     "description": "Button text for back"
   },
+  "btn_archive": "Arsipkan",
+  "@btn_archive": {
+    "description": "Archive button label"
+  },
+  "btn_publish": "Publikasikan",
+  "@btn_publish": {
+    "description": "Publish button label"
+  },
+  "btn_unpublish": "Batalkan Publikasi",
+  "@btn_unpublish": {
+    "description": "Unpublish button label"
+  },
   "btn_addAccountNumber": "Tambah Nomor Akun",
   "@btn_addAccountNumber": {
     "description": "Button text for add account number"
@@ -527,6 +632,14 @@
   "btn_remove": "Hapus",
   "@btn_remove": {
     "description": "Button text for remove"
+  },
+  "btn_uploadCover": "Unggah sampul",
+  "@btn_uploadCover": {
+    "description": "Button text for upload cover"
+  },
+  "lbl_coverUrl": "URL Sampul: {url}",
+  "@lbl_coverUrl": {
+    "description": "Label for cover URL with parameter"
   },
   "btn_create": "Buat",
   "@btn_create": {
@@ -648,6 +761,10 @@
   "lbl_to": "Ke",
   "@lbl_to": {
     "description": "Label for to field"
+  },
+  "lbl_songsCount": "jumlah_lagu={songsCount}, jumlah_buku={booksCount}, diperbarui={updatedAt}",
+  "@lbl_songsCount": {
+    "description": "Label displaying summary counts for songs database"
   },
   "lbl_search": "Cari",
   "@lbl_search": {
@@ -786,6 +903,14 @@
   "status_draft": "Draf",
   "@status_draft": {
     "description": "Status label for draft"
+  },
+  "status_published": "Dipublikasikan",
+  "@status_published": {
+    "description": "Status label for published"
+  },
+  "status_archived": "Diarsipkan",
+  "@status_archived": {
+    "description": "Status label for archived"
   },
   "status_completed": "Selesai",
   "@status_completed": {
@@ -960,6 +1085,42 @@
   "@dashboard_subtitle": {
     "description": "Dashboard subtitle"
   },
+  "dashboard_alarmSettings_tooltip": "Alarm kegiatan",
+  "dashboard_alarmSummary_title": "Alarm terjadwal",
+  "dashboard_alarmSummary_message": "{count, plural, =1{1 pengingat sudah diatur di ponsel Anda} other{{count} pengingat sudah diatur di ponsel Anda}}",
+  "@dashboard_alarmSummary_message": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboard_alarmSummary_action": "Kelola alarm",
+  "dashboard_smokeTest_title": "Uji alarm",
+  "dashboard_smokeTest_emptyMessage": "Muat setidaknya satu kegiatan di beranda untuk menguji alur alarm.",
+  "dashboard_smokeTest_readyMessage": "Menjadwalkan alarm kegiatan berbunyi dalam 10 detik menggunakan alur notifikasi perangkat saat ini.",
+  "dashboard_smokeTest_action": "Uji alarm dalam 10 detik",
+  "dashboard_smokeTest_loadingAction": "Menjadwalkan...",
+  "dashboard_smokeTest_scheduledSnack": "Alarm uji dijadwalkan pada {time}",
+  "@dashboard_smokeTest_scheduledSnack": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboard_smokeTest_failedSnack": "Gagal menjadwalkan alarm uji: {error}",
+  "@dashboard_smokeTest_failedSnack": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboard_alarmPermission_exact_title": "Izinkan alarm presisi",
+  "dashboard_alarmPermission_exact_message": "Agar alarm berbunyi tepat waktu, Android mungkin meminta Anda mengizinkan alarm presisi untuk Palakat.",
+  "dashboard_alarmPermission_fullScreen_title": "Izinkan alarm layar penuh",
+  "dashboard_alarmPermission_fullScreen_message": "Agar layar alarm dapat tampil di atas layar kunci, Android mungkin meminta Anda mengizinkan intent layar penuh untuk Palakat.",
   "dashboard_totalMembers": "Total Anggota",
   "@dashboard_totalMembers": {
     "description": "Dashboard total members label"
@@ -992,13 +1153,37 @@
   "@dashboard_membershipInvitation_title": {
     "description": "Judul kartu beranda untuk undangan keanggotaan yang tertunda"
   },
+  "dashboard_membershipInvitation_subtitle": "Tinjau undangan yang menghubungkan orang ke gereja dan kolom.",
+  "@dashboard_membershipInvitation_subtitle": {
+    "description": "Subtitle for membership invitations dashboard/list context"
+  },
   "dashboard_membershipInvitation_snackbarApproved": "Undangan disetujui",
   "@dashboard_membershipInvitation_snackbarApproved": {
     "description": "Teks snackbar setelah menyetujui undangan keanggotaan"
   },
   "dashboard_membershipInvitation_snackbarRejected": "Undangan ditolak",
   "@dashboard_membershipInvitation_snackbarRejected": {
-    "description": "Teks snackbar setelah menolak undangan keanggotaan"
+    "description": "Snackbar text shown after rejecting a membership invitation"
+  },
+  "dashboard_membershipInvitation_searchHint": "Cari pengundang / yang diundang / gereja / kolom / telepon",
+  "@dashboard_membershipInvitation_searchHint": {
+    "description": "Search hint for membership invitations list"
+  },
+  "dashboard_membershipInvitation_inviter": "Pengundang",
+  "@dashboard_membershipInvitation_inviter": {
+    "description": "Column title for invitation sender"
+  },
+  "dashboard_membershipInvitation_invitee": "Yang Diundang",
+  "@dashboard_membershipInvitation_invitee": {
+    "description": "Column title for invitation recipient"
+  },
+  "dashboard_membershipInvitation_confirmApprove": "Setujui undangan ini dan buat keanggotaan untuk yang diundang?",
+  "@dashboard_membershipInvitation_confirmApprove": {
+    "description": "Confirmation content for approving a membership invitation"
+  },
+  "dashboard_membershipInvitation_confirmDelete": "Hapus undangan ini? Tindakan ini tidak dapat dibatalkan.",
+  "@dashboard_membershipInvitation_confirmDelete": {
+    "description": "Confirmation content for deleting a membership invitation"
   },
   "msg_pressBackToExit": "Tekan kembali untuk keluar",
   "@msg_pressBackToExit": {
@@ -1721,6 +1906,10 @@
   "@lbl_notes": {
     "description": "Label for notes field"
   },
+  "lbl_reviewedAt": "Ditinjau Pada",
+  "@lbl_reviewedAt": {
+    "description": "Label for reviewed at field"
+  },
   "lbl_paidDate": "Tanggal Bayar",
   "@lbl_paidDate": {
     "description": "Label for paid date field"
@@ -2014,6 +2203,14 @@
   "@churchRequest_title": {
     "description": "Title for church registration request bottom sheet"
   },
+  "app_superAdminTitle": "SUPER ADMIN",
+  "@app_superAdminTitle": {
+    "description": "Label for the super admin app/role chip"
+  },
+  "app_adminTitle": "ADMIN",
+  "@app_adminTitle": {
+    "description": "Label for the admin app/role chip"
+  },
   "churchRequest_status_onReview": "Dalam Tinjauan",
   "@churchRequest_status_onReview": {
     "description": "Status label when church registration request is under review"
@@ -2021,6 +2218,18 @@
   "churchRequest_status_onProgress": "Sedang Diproses",
   "@churchRequest_status_onProgress": {
     "description": "Status label when church registration request is being processed"
+  },
+  "churchEditor_addTitle": "Tambah Gereja",
+  "@churchEditor_addTitle": {
+    "description": "Title for adding a new church"
+  },
+  "churchEditor_editTitle": "Ubah Gereja",
+  "@churchEditor_editTitle": {
+    "description": "Title for editing an existing church"
+  },
+  "churchEditor_deleteTitle": "Hapus Gereja?",
+  "@churchEditor_deleteTitle": {
+    "description": "Title for church deletion confirmation dialog"
   },
   "churchRequest_statusMessage_onReview": "Permintaan Anda sedang ditinjau dan akan segera diproses.",
   "@churchRequest_statusMessage_onReview": {
@@ -2304,9 +2513,21 @@
   "@dlg_confirmAction_title": {
     "description": "Generic title for action confirmation dialog"
   },
+  "dlg_articleArchive_content": "Ini akan menyembunyikan artikel dari aplikasi publik. Anda masih dapat mengeditnya nanti.",
+  "@dlg_articleArchive_content": {
+    "description": "Confirmation content for archiving an article"
+  },
+  "dlg_articleCoverUploadRequiresDraft_content": "Simpan draf terlebih dahulu untuk mengunggah sampul.",
+  "@dlg_articleCoverUploadRequiresDraft_content": {
+    "description": "Message shown when cover upload requires a saved draft first"
+  },
   "dlg_confirmDelete_title": "Konfirmasi Hapus",
   "@dlg_confirmDelete_title": {
     "description": "Generic title for delete confirmation dialog"
+  },
+  "dlg_confirmDelete_content": "Tindakan ini tidak dapat dibatalkan.",
+  "@dlg_confirmDelete_content": {
+    "description": "Content for delete confirmation dialog warning about irreversible action"
   },
 
   "tbl_billId": "ID Tagihan",
@@ -2368,6 +2589,18 @@
   "tbl_title": "Judul",
   "@tbl_title": {
     "description": "Table column header for title"
+  },
+  "tbl_published": "Dipublikasikan",
+  "@tbl_published": {
+    "description": "Table column header for published date/status context"
+  },
+  "tbl_id": "ID",
+  "@tbl_id": {
+    "description": "Table column header for ID"
+  },
+  "tbl_subtitle": "Subjudul",
+  "@tbl_subtitle": {
+    "description": "Table column header for subtitle"
   },
   "tbl_type": "Jenis",
   "@tbl_type": {
@@ -2807,6 +3040,30 @@
   "msg_deleted": "Berhasil dihapus",
   "@msg_deleted": {
     "description": "Success message for deleted operation"
+  },
+  "msg_archived": "Diarsipkan",
+  "@msg_archived": {
+    "description": "Success message for archived operation"
+  },
+  "msg_published": "Dipublikasikan",
+  "@msg_published": {
+    "description": "Success message for published operation"
+  },
+  "msg_unpublished": "Publikasi dibatalkan",
+  "@msg_unpublished": {
+    "description": "Success message for unpublished operation"
+  },
+  "msg_coverUploaded": "Sampul berhasil diunggah",
+  "@msg_coverUploaded": {
+    "description": "Success message for cover upload"
+  },
+  "msg_publishedSongsJson": "Berhasil mempublikasikan songs.json pada {updatedAt}",
+  "@msg_publishedSongsJson": {
+    "description": "Success message for publishing songs.json with timestamp"
+  },
+  "msg_publishedSongsJsonWithoutDate": "Berhasil mempublikasikan songs.json",
+  "@msg_publishedSongsJsonWithoutDate": {
+    "description": "Success message for publishing songs.json without timestamp"
   },
   "msg_approvalRuleCreated": "Aturan persetujuan berhasil dibuat",
   "@msg_approvalRuleCreated": {

@@ -311,20 +311,22 @@ class ButtonWidget extends StatelessWidget {
       children: [
         if (icon != null && isIconLeading) ...[icon!, Gap.w8],
         maxLines != null
-            ? Expanded(
-                child: AutoSizeText(
-                  text,
-                  style: _getTextStyle(),
-                  textAlign: TextAlign.center,
-                  maxLines: maxLines,
-                ),
-              )
-            : Text(
-                text,
-                style: _getTextStyle(),
-                textAlign: TextAlign.center,
-                maxLines: maxLines,
-              ),
+        ? Expanded(
+        child: AutoSizeText(
+        text,
+        style: _getTextStyle(),
+        textAlign: TextAlign.center,
+        maxLines: maxLines,
+        ),
+        )
+        : Flexible(
+        child: Text(
+          text,
+          style: _getTextStyle(),
+          textAlign: TextAlign.center,
+            maxLines: maxLines,
+                      ),
+                    ),
         if (icon != null && !isIconLeading) ...[
           spacer ? const Spacer() : Gap.w8,
           icon!,

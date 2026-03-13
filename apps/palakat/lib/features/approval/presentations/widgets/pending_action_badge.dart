@@ -15,51 +15,53 @@ class PendingActionBadge extends StatelessWidget {
     final l10n = context.l10n;
 
     if (count == 0) {
-      return Container(
-        padding: EdgeInsets.all(BaseSize.w16),
-        decoration: BoxDecoration(
-          color: BaseColor.green.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: BaseColor.green.shade200, width: 1),
+      return Material(
+        color: BaseColor.green.shade50,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+          side: BorderSide(color: BaseColor.green.shade200, width: 1),
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(BaseSize.w8),
-              decoration: BoxDecoration(
-                color: BaseColor.green.shade100,
-                shape: BoxShape.circle,
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(BaseSize.w8),
+                decoration: BoxDecoration(
+                  color: BaseColor.green.shade100,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.success,
+                  size: BaseSize.w24,
+                  color: BaseColor.green.shade600,
+                ),
               ),
-              alignment: Alignment.center,
-              child: FaIcon(
-                AppIcons.success,
-                size: BaseSize.w24,
-                color: BaseColor.green.shade600,
-              ),
-            ),
-            Gap.w12,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.approval_allCaughtUpTitle,
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: BaseColor.green.shade700,
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.approval_allCaughtUpTitle,
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.green.shade700,
+                      ),
                     ),
-                  ),
-                  Gap.h4,
-                  Text(
-                    l10n.approval_allCaughtUpSubtitle,
-                    style: BaseTypography.bodySmall.copyWith(
-                      color: BaseColor.green.shade600,
+                    Gap.h4,
+                    Text(
+                      l10n.approval_allCaughtUpSubtitle,
+                      style: BaseTypography.bodySmall.copyWith(
+                        color: BaseColor.green.shade600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
@@ -72,7 +74,7 @@ class PendingActionBadge extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
         boxShadow: [
           BoxShadow(
             color: BaseColor.teal.shade500.withValues(alpha: 0.3),
@@ -94,7 +96,7 @@ class PendingActionBadge extends StatelessWidget {
             child: Text(
               count.toString(),
               style: BaseTypography.headlineSmall.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
             ),
@@ -107,7 +109,7 @@ class PendingActionBadge extends StatelessWidget {
                 Text(
                   l10n.approval_sectionPendingYourAction,
                   style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),

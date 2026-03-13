@@ -39,9 +39,11 @@ class CardDatePreviewWidget extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       elevation: today ? 2 : 1,
       shadowColor: Colors.black.withValues(alpha: 0.08),
-      surfaceTintColor: today ? BaseColor.teal[300] : BaseColor.teal[50],
+      surfaceTintColor: today ? BaseColor.primary[200] : BaseColor.primary[50],
       color: today ? Colors.transparent : BaseColor.cardBackground1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
       child: Container(
         decoration: today
             ? BoxDecoration(
@@ -50,7 +52,7 @@ class CardDatePreviewWidget extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [BaseColor.blue[600]!, BaseColor.teal[500]!],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
               )
             : null,
         child: InkWell(
@@ -73,7 +75,7 @@ class CardDatePreviewWidget extends StatelessWidget {
                     color: today
                         ? Colors.white.withValues(alpha: 0.9)
                         : BaseColor.secondaryText,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Gap.h4,
@@ -81,8 +83,8 @@ class CardDatePreviewWidget extends StatelessWidget {
                 Text(
                   date.day.toString(),
                   style: BaseTypography.headlineSmall.copyWith(
-                    color: today ? Colors.white : BaseColor.black,
-                    fontWeight: FontWeight.bold,
+                    color: today ? Colors.white : BaseColor.textPrimary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 // Event counters
@@ -221,7 +223,7 @@ class CardDatePreviewWidget extends StatelessWidget {
             label,
             style: BaseTypography.labelSmall.copyWith(
               color: fg,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/account/presentations/membership/membership_controller.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/widgets/search_field.dart';
-import 'package:palakat_shared/core/widgets/dialog/dialog_custom_widget.dart';
-import 'package:palakat_shared/core/widgets/card/card_church.dart';
 
 /// Shows a dialog for selecting a church.
 ///
@@ -79,9 +78,9 @@ class _DialogChurchPickerWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: [
-        // Search field
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: BaseSize.w16,
@@ -89,30 +88,84 @@ class _DialogChurchPickerWidgetState
           ),
           child: SearchField(
             controller: _searchController,
-            hint: context.l10n.lbl_searchChurches,
+            hint: l10n.lbl_searchChurches,
             debounceMilliseconds: 500,
             unfocusOnSearch: true,
             prefixIcon: FaIcon(AppIcons.search),
             clearIcon: FaIcon(AppIcons.clear),
             onSearch: _onSearchChanged,
             onChanged: null,
+            borderRadius: BaseSize.radiusMd,
           ),
         ),
         Gap.h8,
-        // Church list
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? Center(
+                  child: LoadingShimmer(
+                    isLoading: true,
+                    child: Column(
+                      children: [
+                        PalakatShimmerPlaceholders.listItemCard(),
+                        Gap.h8,
+                        PalakatShimmerPlaceholders.listItemCard(),
+                        Gap.h8,
+                        PalakatShimmerPlaceholders.listItemCard(),
+                      ],
+                    ),
+                  ),
+                )
               : _churches.isEmpty
               ? Center(
-                  child: Text(
-                    context.l10n.lbl_noChurchesFound,
-                    style: BaseTypography.bodyMedium.toSecondary,
+                  child: Material(
+                    color: BaseColor.surfaceMedium,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                      side: BorderSide(
+                        color: BaseColor.neutral[200]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(BaseSize.w24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: BaseSize.w56,
+                            height: BaseSize.w56,
+                            decoration: BoxDecoration(
+                              color: BaseColor.primary[50],
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusLg,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: FaIcon(
+                              AppIcons.searchOff,
+                              size: BaseSize.w24,
+                              color: BaseColor.primary,
+                            ),
+                          ),
+                          Gap.h12,
+                          Text(
+                            l10n.lbl_noChurchesFound,
+                            textAlign: TextAlign.center,
+                            style: BaseTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 )
               : ListView.separated(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(bottom: BaseSize.w12),
                   itemCount: _churches.length,
                   separatorBuilder: (context, index) => Gap.h6,
                   itemBuilder: (context, index) {

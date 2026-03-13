@@ -23,9 +23,6 @@ class SongItemCard extends StatelessWidget {
 
   final String? searchQuery;
 
-  /// Border radius for the card (12px as per design spec)
-  static const double borderRadius = 12.0;
-
   String _normalize(String value) {
     return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
   }
@@ -74,9 +71,10 @@ class SongItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final snippet = _lyricsSnippet();
+    final borderRadius = BaseSize.radiusMd;
     return Material(
       color: BaseColor.surfaceLight,
-      elevation: 0.5,
+      elevation: 0,
       shadowColor: BaseColor.shadow.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -106,7 +104,12 @@ class SongItemCard extends StatelessWidget {
                   snippet: snippet,
                 ),
               ),
-              const SizedBox.shrink(),
+              Gap.w8,
+              Icon(
+                AppIcons.forward,
+                color: BaseColor.textSecondary,
+                size: BaseSize.w24,
+              ),
             ],
           ),
         ),
@@ -120,8 +123,8 @@ class _SongIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: BaseSize.w32,
-      height: BaseSize.w32,
+      width: BaseSize.w48,
+      height: BaseSize.w48,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: BaseColor.primary[50],
@@ -130,7 +133,7 @@ class _SongIcon extends StatelessWidget {
       child: FaIcon(
         AppIcons.musicNote,
         color: BaseColor.primary,
-        size: BaseSize.w16,
+        size: BaseSize.w24,
       ),
     );
   }

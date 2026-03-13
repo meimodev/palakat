@@ -27,6 +27,70 @@
   "songBook_downloadRequiredTitle": "Download required",
   "songBook_downloadRequiredSubtitle": "To use Song Book, you need to download the song database first. This will be saved on your device for offline use.",
   "songBook_downloadRequiredButton": "Download song database",
+  "songBook_databaseTitle": "Song database",
+  "songBook_versionFallback": "v-",
+  "songBook_songsCount": "{count} songs",
+  "@songBook_songsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "songBook_booksCount": "{count} books",
+  "@songBook_booksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "songBook_updateAvailableTitle": "Update available",
+  "songBook_updateAvailableSubtitle": "A newer song database is available.",
+  "songBook_updateAvailableSubtitleWithDate": "Updated {date}",
+  "@songBook_updateAvailableSubtitleWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "songBook_updateAction": "Update",
+  "songBook_updatingAction": "Updating...",
+  "songDetail_informationTitle": "Song information",
+  "songDetail_field_book": "Book",
+  "songDetail_field_author": "Author",
+  "songDetail_field_baseNote": "Base note",
+  "songDetail_field_publisher": "Publisher",
+  "songDetail_videoFallback": "Video",
+  "songDetail_openVideo": "Open video",
+  "songs_manageSubtitle": "Edit the published songs.json used by the mobile app.",
+  "songs_publishAction": "Publish songs.json",
+  "songs_localDraftPendingPublish": "Local draft pending publish",
+  "songs_discardDraftTitle": "Discard local draft?",
+  "songs_discardDraftContent": "Reload will discard your local draft changes that have not been published.",
+  "songs_discardDraftAction": "Discard & Reload",
+  "songEditor_localDraftInfo": "Edits are saved locally and uploaded when you publish songs.json.",
+  "songEditor_deleteTitle": "Delete this song?",
+  "songEditor_idHint": "ID (e.g. KJ-1)",
+  "songEditor_bookIdHint": "Book ID (e.g. kj)",
+  "songEditor_bookNameHint": "Book Name",
+  "songEditor_subtitleHint": "Subtitle",
+  "songEditor_urlImageHint": "urlImage",
+  "songEditor_urlVideoHint": "urlVideo",
+  "songEditor_compositionTitle": "Composition",
+  "songEditor_noCompositionYet": "No composition yet.",
+  "songEditor_contentHint": "Content",
+  "songEditor_definitionTitle": "Definition",
+  "songEditor_noDefinitionYet": "No definition yet.",
+  "songEditor_editPart": "Edit {part}",
+  "@songEditor_editPart": {
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
   "articles_title": "Articles",
   "article_titleFallback": "Article",
   "article_likesCount": "{count, plural, =0{0 likes} =1{1 like} other{{count} likes}}",
@@ -278,6 +342,15 @@
   "btn_reject": "Reject",
   "btn_export": "Export",
   "btn_remove": "Remove",
+  "btn_uploadCover": "Upload cover",
+  "lbl_coverUrl": "Cover URL: {url}",
+  "@lbl_coverUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "btn_create": "Create",
   "btn_update": "Update",
   "btn_transfer": "Transfer",
@@ -285,6 +358,9 @@
   "btn_viewAll": "View All",
   "btn_saveChanges": "Save Changes",
   "btn_updatePassword": "Update Password",
+  "btn_archive": "Archive",
+  "btn_publish": "Publish",
+  "btn_unpublish": "Unpublish",
 
   "lbl_email": "Email",
   "lbl_phone": "Phone Number",
@@ -306,6 +382,20 @@
   "lbl_balance": "Balance",
   "lbl_from": "From",
   "lbl_to": "To",
+  "lbl_songsCount": "songs_count={songsCount}, books_count={booksCount}, updatedAt={updatedAt}",
+  "@lbl_songsCount": {
+    "placeholders": {
+      "songsCount": {
+        "type": "int"
+      },
+      "booksCount": {
+        "type": "int"
+      },
+      "updatedAt": {
+        "type": "String"
+      }
+    }
+  },
   "lbl_search": "Search",
   "lbl_generationType": "Generation Type",
   "lbl_scope": "Scope",
@@ -357,6 +447,8 @@
   "status_pending": "Pending",
   "status_rejected": "Rejected",
   "status_draft": "Draft",
+  "status_published": "Published",
+  "status_archived": "Archived",
   "status_completed": "Completed",
   "status_cancelled": "Cancelled",
   "status_active": "Active",
@@ -396,6 +488,42 @@
 
   "dashboard_title": "Dashboard",
   "dashboard_subtitle": "Summary of your church activities.",
+  "dashboard_alarmSettings_tooltip": "Activity alarms",
+  "dashboard_alarmSummary_title": "Alarms scheduled",
+  "dashboard_alarmSummary_message": "{count, plural, =1{1 reminder is set on your phone} other{{count} reminders are set on your phone}}",
+  "@dashboard_alarmSummary_message": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboard_alarmSummary_action": "Manage alarms",
+  "dashboard_smokeTest_title": "Alarm smoke test",
+  "dashboard_smokeTest_emptyMessage": "Load at least one dashboard activity to test the alarm flow.",
+  "dashboard_smokeTest_readyMessage": "Schedules an activity alarm to ring in 10 seconds using the current device notification flow.",
+  "dashboard_smokeTest_action": "Test alarm in 10 seconds",
+  "dashboard_smokeTest_loadingAction": "Scheduling...",
+  "dashboard_smokeTest_scheduledSnack": "Smoke test alarm scheduled for {time}",
+  "@dashboard_smokeTest_scheduledSnack": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboard_smokeTest_failedSnack": "Failed to schedule smoke test alarm: {error}",
+  "@dashboard_smokeTest_failedSnack": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboard_alarmPermission_exact_title": "Allow exact alarms",
+  "dashboard_alarmPermission_exact_message": "To trigger alarms on time, Android may require you to allow exact alarms for Palakat.",
+  "dashboard_alarmPermission_fullScreen_title": "Allow full-screen alarms",
+  "dashboard_alarmPermission_fullScreen_message": "To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.",
   "dashboard_recentActivity": "Recent Activity",
   "@dashboard_recentActivity": {
     "description": "Dashboard recent activity label"
@@ -414,10 +542,8 @@
   "dashboard_membersChange": "Members this month",
   "dashboard_overview": "Overview",
   "dashboard_statistics": "Statistics",
-  "dashboard_membershipInvitation_title": "Membership invitation",
-  "@dashboard_membershipInvitation_title": {
-    "description": "Dashboard card title for a pending membership invitation"
-  },
+  "dashboard_membershipInvitation_title": "Membership Invitation",
+  "dashboard_membershipInvitation_subtitle": "Review invitations that connect people to churches and columns.",
   "dashboard_membershipInvitation_snackbarApproved": "Invitation approved",
   "@dashboard_membershipInvitation_snackbarApproved": {
     "description": "Snackbar text shown after approving a membership invitation"
@@ -426,6 +552,12 @@
   "@dashboard_membershipInvitation_snackbarRejected": {
     "description": "Snackbar text shown after rejecting a membership invitation"
   },
+  "dashboard_membershipInvitation_searchHint": "Search inviter / invitee / church / column / phone",
+  "dashboard_membershipInvitation_inviter": "Inviter",
+  "dashboard_membershipInvitation_invitee": "Invitee",
+  "dashboard_membershipInvitation_confirmApprove": "Approve this invitation and create a membership for the invitee?",
+  "dashboard_membershipInvitation_confirmDelete": "Delete this invitation? This cannot be undone.",
+
   "msg_pressBackToExit": "Press back again to exit",
 
   "memberCount": "{count, plural, =0{No members} =1{1 member} other{{count} members}}",
@@ -689,6 +821,7 @@
   "lbl_method": "Method",
   "lbl_transactionId": "Transaction ID",
   "lbl_notes": "Notes",
+  "lbl_reviewedAt": "Reviewed At",
   "lbl_paidDate": "Paid Date",
   "lbl_payments": "Payments",
   "lbl_bill": "Bill",
@@ -777,6 +910,8 @@
   "@churchRequest_title": {
     "description": "Title for church registration request bottom sheet"
   },
+  "app_superAdminTitle": "SUPER ADMIN",
+  "app_adminTitle": "ADMIN",
   "churchRequest_status_onReview": "On Review",
   "@churchRequest_status_onReview": {
     "description": "Status label when church registration request is under review"
@@ -785,6 +920,9 @@
   "@churchRequest_status_onProgress": {
     "description": "Status label when church registration request is being processed"
   },
+  "churchEditor_addTitle": "Add Church",
+  "churchEditor_editTitle": "Edit Church",
+  "churchEditor_deleteTitle": "Delete Church?",
   "churchRequest_statusMessage_onReview": "Your request is under review and will be processed soon.",
   "@churchRequest_statusMessage_onReview": {
     "description": "Short status message when church registration request is under review"
@@ -928,6 +1066,9 @@
   "tbl_approvalDate": "Approval Date",
   "tbl_paymentMethod": "Payment Method",
   "tbl_title": "Title",
+  "tbl_published": "Published",
+  "tbl_id": "ID",
+  "tbl_subtitle": "Subtitle",
   "tbl_type": "Type",
   "tbl_currency": "Currency",
   "tbl_openingBalance": "Opening Balance",
@@ -1031,7 +1172,10 @@
     "description": "Title for selecting finance type dialog"
   },
   "dlg_confirmAction_title": "Confirm Action",
+  "dlg_articleArchive_content": "This will hide the article from the public app. You can still edit it later.",
+  "dlg_articleCoverUploadRequiresDraft_content": "Save draft first to upload cover.",
   "dlg_confirmDelete_title": "Confirm Delete",
+  "dlg_confirmDelete_content": "This action cannot be undone.",
 
   "filter_allStatus": "All Status",
   "filter_allActivityTypes": "All activity types",
@@ -1097,6 +1241,19 @@
   "msg_created": "Created successfully",
   "msg_updated": "Updated successfully",
   "msg_deleted": "Deleted successfully",
+  "msg_archived": "Archived",
+  "msg_published": "Published",
+  "msg_unpublished": "Unpublished",
+  "msg_coverUploaded": "Cover uploaded",
+  "msg_publishedSongsJson": "Published songs.json at {updatedAt}",
+  "@msg_publishedSongsJson": {
+    "placeholders": {
+      "updatedAt": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_publishedSongsJsonWithoutDate": "Published songs.json",
   "msg_approvalRuleCreated": "Approval rule created successfully",
   "msg_approvalRuleUpdated": "Approval rule updated successfully",
   "msg_approvalRuleDeleted": "Approval rule deleted successfully",

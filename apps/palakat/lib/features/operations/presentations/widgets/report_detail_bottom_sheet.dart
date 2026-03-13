@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 
@@ -13,13 +14,10 @@ class ReportDetailBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg),
-          topRight: Radius.circular(BaseSize.radiusLg),
-        ),
+    return Material(
+      color: BaseColor.white,
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(BaseSize.radiusLg),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -50,7 +48,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                     color: _getGenerationTypeColor(
                       report.generatedBy,
                     ).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
                   child: Icon(
                     _getGenerationTypeIcon(report.generatedBy),
@@ -66,7 +64,8 @@ class ReportDetailBottomSheet extends StatelessWidget {
                       Text(
                         report.name,
                         style: BaseTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
+                          color: BaseColor.textPrimary,
                         ),
                       ),
                       Gap.h4,
@@ -77,7 +76,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                               )
                             : l10n.msg_noGenerationDate,
                         style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.neutral60,
+                          color: BaseColor.textSecondary,
                         ),
                       ),
                     ],
@@ -105,21 +104,21 @@ class ReportDetailBottomSheet extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n.btn_close),
+                  child: ButtonWidget.outlined(
+                    text: l10n.btn_close,
+                    onTap: () => Navigator.of(context).pop(),
                   ),
                 ),
                 Gap.w12,
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: ButtonWidget.primary(
+                    text: l10n.btn_export,
+                    onTap: () {
                       // Note: Export functionality pending.
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.msg_exportComingSoon)),
                       );
                     },
-                    child: Text(l10n.btn_export),
                   ),
                 ),
               ],
@@ -137,46 +136,50 @@ class ReportDetailBottomSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Report Details Card
-        Container(
-          padding: EdgeInsets.all(BaseSize.w16),
-          decoration: BoxDecoration(
-            color: BaseColor.neutral10,
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        Material(
+          color: BaseColor.surfaceMedium,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
           ),
-          child: Column(
-            children: [
-              _buildInfoRow(l10n.tbl_reportName, report.name),
-              Gap.h12,
-              _buildInfoRow(
-                l10n.lbl_generationType,
-                _getGenerationTypeLabel(context, report.generatedBy),
-              ),
-              Gap.h12,
-              if (report.church != null)
-                _buildInfoRow(l10n.nav_church, report.church!.name),
-              if (report.church != null) Gap.h12,
-              _buildInfoRow(l10n.tbl_file, _getFileName(context, report.file)),
-              Gap.h12,
-              if (report.createdAt != null)
-                _buildInfoRow(
-                  l10n.lbl_createdAt,
-                  _formatDate(context, report.createdAt!),
-                ),
-              if (report.updatedAt != null) ...[
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w16),
+            child: Column(
+              children: [
+                _buildInfoRow(l10n.tbl_reportName, report.name),
                 Gap.h12,
                 _buildInfoRow(
-                  l10n.lbl_updatedAt,
-                  _formatDate(context, report.updatedAt!),
+                  l10n.lbl_generationType,
+                  _getGenerationTypeLabel(context, report.generatedBy),
                 ),
+                Gap.h12,
+                if (report.church != null)
+                  _buildInfoRow(l10n.nav_church, report.church!.name),
+                if (report.church != null) Gap.h12,
+                _buildInfoRow(l10n.tbl_file, _getFileName(context, report.file)),
+                Gap.h12,
+                if (report.createdAt != null)
+                  _buildInfoRow(
+                    l10n.lbl_createdAt,
+                    _formatDate(context, report.createdAt!),
+                  ),
+                if (report.updatedAt != null) ...[
+                  Gap.h12,
+                  _buildInfoRow(
+                    l10n.lbl_updatedAt,
+                    _formatDate(context, report.updatedAt!),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         Gap.h16,
         Text(
           l10n.msg_downloadReportToViewDetails,
           style: BaseTypography.bodySmall.copyWith(
-            color: BaseColor.neutral60,
+            color: BaseColor.textSecondary,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -191,7 +194,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.neutral60),
+          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.textSecondary),
         ),
         Gap.w16,
         Flexible(
@@ -199,6 +202,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
             value,
             style: BaseTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
+              color: BaseColor.textPrimary,
             ),
             textAlign: TextAlign.right,
           ),
@@ -210,9 +214,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
   Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return const Color(0xFF3B82F6); // Blue
+        return BaseColor.blue[600]!; // Blue
       case GeneratedBy.system:
-        return const Color(0xFF10B981); // Green
+        return BaseColor.green[600]!; // Green
     }
   }
 

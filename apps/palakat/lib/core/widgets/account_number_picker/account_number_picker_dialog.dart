@@ -293,7 +293,7 @@ class _AccountNumberCard extends StatelessWidget {
       shape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         side: BorderSide(
-          color: isSelected ? BaseColor.primary : BaseColor.neutral30,
+          color: isSelected ? BaseColor.primary : BaseColor.neutral[300]!,
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -313,8 +313,8 @@ class _AccountNumberCard extends StatelessWidget {
                     Text(
                       account.accountNumber,
                       style: BaseTypography.titleMedium.copyWith(
-                        color: BaseColor.black,
-                        fontWeight: FontWeight.w600,
+                        color: BaseColor.textPrimary,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     if (account.description != null &&

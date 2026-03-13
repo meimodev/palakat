@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/widgets/supervised_activity_item_widget.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
-import 'package:palakat_shared/widgets.dart';
 
 /// Expandable card widget displaying supervised activities on the Operations screen.
 /// Shows up to 3 most recent activities when expanded.
@@ -62,17 +61,12 @@ class SupervisedActivitiesSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.surfaceMedium,
-        borderRadius: BorderRadius.circular(BaseSize.w16),
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -176,7 +170,7 @@ class _ExpandableHeader extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                 ),
                 child: Icon(
                   AppIcons.event,
@@ -190,7 +184,7 @@ class _ExpandableHeader extends StatelessWidget {
                 child: Text(
                   context.l10n.supervisedActivities_title,
                   style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: BaseColor.textPrimary,
                   ),
                 ),
@@ -225,7 +219,7 @@ class _ExpandableHeader extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: BaseColor.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.w12),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Text(
                     '$activityCount',
@@ -290,81 +284,10 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: BaseColor.red[50],
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: BaseColor.red[200]!, width: 1),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: BaseSize.w32,
-                  height: BaseSize.w32,
-                  decoration: BoxDecoration(
-                    color: BaseColor.red[100],
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    AppIcons.error,
-                    size: BaseSize.w16,
-                    color: BaseColor.red[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        context.l10n.error_loadingActivities,
-                        style: BaseTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: BaseColor.red[900],
-                        ),
-                      ),
-                      Gap.h4,
-                      Text(
-                        message,
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.red[800],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Gap.h12,
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: Icon(AppIcons.refresh, size: BaseSize.w14),
-              label: Text(context.l10n.btn_retry),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: BaseColor.red[700],
-                side: BorderSide(color: BaseColor.red[300]!, width: 1),
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w12,
-                  vertical: BaseSize.h8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ErrorDisplayWidget(
+      message: message,
+      onRetry: onRetry,
+      padding: EdgeInsets.zero,
     );
   }
 }

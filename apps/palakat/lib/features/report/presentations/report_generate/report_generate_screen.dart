@@ -126,14 +126,14 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
           ScreenTitleWidget.primary(
             title: l10n.drawer_generateReport_title,
             leadIcon: AppIcons.back,
-            leadIconColor: Colors.black,
+            leadIconColor: BaseColor.textPrimary,
             onPressedLeadIcon: context.pop,
           ),
           Gap.h16,
           Text(
             l10n.msg_reportGenerationMayTakeAWhile,
             style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.neutral60,
+              color: BaseColor.textSecondary,
             ),
           ),
           Gap.h16,
@@ -424,30 +424,33 @@ class _DateRangePreview extends StatelessWidget {
             format.format(effective.end),
           );
 
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.neutral10,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.neutral30),
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.calendar_today,
-            size: BaseSize.w16,
-            color: BaseColor.neutral70,
-          ),
-          Gap.w8,
-          Expanded(
-            child: Text(
-              text,
-              style: BaseTypography.bodySmall.copyWith(
-                color: BaseColor.neutral70,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_today,
+              size: BaseSize.w16,
+              color: BaseColor.primary,
+            ),
+            Gap.w8,
+            Expanded(
+              child: Text(
+                text,
+                style: BaseTypography.bodySmall.copyWith(
+                  color: BaseColor.textPrimary,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -464,40 +467,56 @@ class _CooldownBanner extends StatelessWidget {
     final minutes = (remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final seconds = (remainingSeconds % 60).toString().padLeft(2, '0');
 
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.yellow.shade50,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.yellow.shade200),
+    return Material(
+      color: BaseColor.yellow.shade50,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.yellow.shade200),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(AppIcons.pending, color: BaseColor.warning, size: BaseSize.w18),
-          Gap.w8,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.msg_slowDown,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: BaseColor.warning,
-                  ),
-                ),
-                Gap.h4,
-                Text(
-                  '${l10n.msg_tryAgainLater} ($minutes:$seconds)',
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral70,
-                  ),
-                ),
-              ],
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: BaseSize.w36,
+              height: BaseSize.w36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: BaseColor.yellow.shade100,
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              ),
+              child: Icon(
+                AppIcons.pending,
+                color: BaseColor.warning,
+                size: BaseSize.w18,
+              ),
             ),
-          ),
-        ],
+            Gap.w12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.msg_slowDown,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.warning,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    '${l10n.msg_tryAgainLater} ($minutes:$seconds)',
+                    style: BaseTypography.bodySmall.copyWith(
+                      color: BaseColor.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -510,33 +529,6 @@ class _ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.red.shade50,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.red.shade200),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            AppIcons.error,
-            color: BaseColor.red.shade700,
-            size: BaseSize.w18,
-          ),
-          Gap.w8,
-          Expanded(
-            child: Text(
-              message,
-              style: BaseTypography.bodySmall.copyWith(
-                color: BaseColor.red.shade700,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return ErrorDisplayWidget(message: message, padding: EdgeInsets.zero);
   }
 }

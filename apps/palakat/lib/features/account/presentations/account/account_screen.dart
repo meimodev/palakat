@@ -89,7 +89,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ScreenTitleWidget.primary(
               title: l10n.nav_account,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.black,
+              leadIconColor: BaseColor.textPrimary,
               onPressedLeadIcon: () async {
                 if (_isFromSignIn) {
                   final shouldPop = await _showBackConfirmation(context);
@@ -106,10 +106,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Material(
               color: BaseColor.cardBackground1,
               elevation: 1,
-              shadowColor: BaseColor.black.withValues(alpha: 0.05),
+              shadowColor: Colors.black.withValues(alpha: 0.05),
               surfaceTintColor: BaseColor.primary[50],
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
               ),
               child: Padding(
                 padding: EdgeInsets.all(BaseSize.w16),
@@ -137,8 +137,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           child: Text(
                             l10n.account_personalInformation_title,
                             style: BaseTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: BaseColor.black,
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.textPrimary,
                             ),
                           ),
                         ),
@@ -234,9 +234,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     Material(
                       color: BaseColor.primary[50],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                         side: BorderSide(
-                          color: BaseColor.primary[200] ?? BaseColor.neutral40,
+                          color: BaseColor.primary[200] ?? BaseColor.neutral[300]!,
                         ),
                       ),
                       child: CheckboxListTile(
@@ -259,7 +259,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           l10n.account_claim_title,
                           style: BaseTypography.bodyMedium.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BaseColor.black,
+                            color: BaseColor.textPrimary,
                           ),
                         ),
                         subtitle: Text(
@@ -414,8 +414,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Text(
               l10n.auth_cancelRegistration_title,
               style: BaseTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                color: BaseColor.black,
+                fontWeight: FontWeight.w700,
+                color: BaseColor.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -433,7 +433,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     onPressed: () => Navigator.of(context).pop(false),
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                      side: BorderSide(color: BaseColor.neutral40),
+                      side: BorderSide(color: BaseColor.neutral[300]!),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                       ),
@@ -529,8 +529,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Text(
               l10n.account_claimConfirm_title,
               style: BaseTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                color: BaseColor.black,
+                fontWeight: FontWeight.w700,
+                color: BaseColor.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -550,7 +550,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     onPressed: () => Navigator.of(context).pop(false),
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                      side: BorderSide(color: BaseColor.neutral40),
+                      side: BorderSide(color: BaseColor.neutral[300]!),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                       ),
@@ -599,6 +599,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     if (msg.trim().isEmpty) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }

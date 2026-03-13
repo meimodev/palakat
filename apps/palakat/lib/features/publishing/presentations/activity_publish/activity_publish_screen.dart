@@ -156,11 +156,14 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     required List<Widget> children,
     String? subtitle,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.neutral[200]!),
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.primary[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -169,10 +172,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           Container(
             padding: EdgeInsets.all(BaseSize.w12),
             decoration: BoxDecoration(
-              color: BaseColor.neutral[50],
+              color: BaseColor.surfaceMedium,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusMd),
-                topRight: Radius.circular(BaseSize.radiusMd),
+                topLeft: Radius.circular(BaseSize.radiusLg),
+                topRight: Radius.circular(BaseSize.radiusLg),
               ),
             ),
             child: Row(
@@ -265,8 +268,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return Material(
       color: BaseColor.primary[50],
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: BaseColor.primary[200] ?? BaseColor.neutral40),
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(
+          color: BaseColor.primary[200] ?? BaseColor.neutral[300]!,
+        ),
       ),
       child: SwitchListTile(
         value: hasColumn ? state.publishToColumnOnly : false,
@@ -275,7 +280,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           context.l10n.publish_publishToColumnOnly_title,
           style: BaseTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
-            color: BaseColor.black,
+            color: BaseColor.textPrimary,
           ),
         ),
         subtitle: Text(
@@ -429,7 +434,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             bipra.abv,
             style: BaseTypography.bodyMedium.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -1120,130 +1125,133 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   }
 
   Widget _buildPublisherSection(ActivityPublishState state) {
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.neutral[50],
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.neutral[200]!),
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Avatar
-              Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
-                decoration: BoxDecoration(
-                  color: BaseColor.primary[100],
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.person,
-                  color: BaseColor.primary[600],
-                  size: BaseSize.w20,
-                ),
-              ),
-              Gap.w12,
-              // Author name and church
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      state.authorName ?? context.l10n.loading_please_wait,
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: BaseColor.textPrimary,
-                      ),
-                    ),
-                    Gap.h4,
-                    Row(
-                      children: [
-                        FaIcon(
-                          AppIcons.church,
-                          size: BaseSize.w12,
-                          color: BaseColor.neutral[500],
-                        ),
-                        Gap.w4,
-                        Flexible(
-                          child: Text(
-                            state.churchName ?? '',
-                            style: BaseTypography.bodySmall.copyWith(
-                              color: BaseColor.neutral[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Date
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w8,
-                  vertical: BaseSize.h4,
-                ),
-                decoration: BoxDecoration(
-                  color: BaseColor.neutral[100],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                ),
-                child: Text(
-                  state.currentDate ?? '',
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.neutral[700],
-                    fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Avatar
+                Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary[100],
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    AppIcons.person,
+                    color: BaseColor.primary[600],
+                    size: BaseSize.w20,
                   ),
                 ),
-              ),
-            ],
-          ),
-          // Positions
-          if (state.authorPositions.isNotEmpty) ...[
-            Gap.h8,
-            Wrap(
-              spacing: BaseSize.w6,
-              runSpacing: BaseSize.h4,
-              children: state.authorPositions.map((position) {
-                return Container(
+                Gap.w12,
+                // Author name and church
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.authorName ?? context.l10n.loading_please_wait,
+                        style: BaseTypography.titleMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: BaseColor.textPrimary,
+                        ),
+                      ),
+                      Gap.h4,
+                      Row(
+                        children: [
+                          FaIcon(
+                            AppIcons.church,
+                            size: BaseSize.w12,
+                            color: BaseColor.neutral[500],
+                          ),
+                          Gap.w4,
+                          Flexible(
+                            child: Text(
+                              state.churchName ?? '',
+                              style: BaseTypography.bodySmall.copyWith(
+                                color: BaseColor.neutral[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Date
+                Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: BaseSize.w8,
                     vertical: BaseSize.h4,
                   ),
                   decoration: BoxDecoration(
-                    color: BaseColor.blue[50],
+                    color: BaseColor.neutral[100],
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                    border: Border.all(color: BaseColor.blue[200]!),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FaIcon(
-                        AppIcons.badgeOutlined,
-                        size: BaseSize.w12,
-                        color: BaseColor.blue[700],
-                      ),
-                      Gap.w4,
-                      Text(
-                        position,
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.blue[700],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    state.currentDate ?? '',
+                    style: BaseTypography.bodySmall.copyWith(
+                      color: BaseColor.neutral[700],
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                );
-              }).toList(),
+                ),
+              ],
             ),
+            // Positions
+            if (state.authorPositions.isNotEmpty) ...[
+              Gap.h8,
+              Wrap(
+                spacing: BaseSize.w6,
+                runSpacing: BaseSize.h4,
+                children: state.authorPositions.map((position) {
+                  return Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: BaseSize.w8,
+                      vertical: BaseSize.h4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: BaseColor.blue[50],
+                      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                      border: Border.all(color: BaseColor.blue[200]!),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FaIcon(
+                          AppIcons.badgeOutlined,
+                          size: BaseSize.w12,
+                          color: BaseColor.blue[700],
+                        ),
+                        Gap.w4,
+                        Text(
+                          position,
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: BaseColor.blue[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -1255,30 +1263,28 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     // Requirements: 5.7, 5.8, 5.9 - Enable/disable submit button based on validation
     final isEnabled = state.isFormValid && !state.loading;
 
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
-        left: BaseSize.w12,
-        right: BaseSize.w12,
-        top: BaseSize.h12,
-      ),
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+    return Material(
+      color: BaseColor.white,
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
+          left: BaseSize.w12,
+          right: BaseSize.w12,
+          top: BaseSize.h12,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
           ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: ButtonWidget.primary(
-          text: '${context.l10n.btn_create} ${widget.type.displayName}',
-          isLoading: state.loading,
-          isEnabled: isEnabled,
-          onTap: isEnabled ? () => _handleSubmit(controller) : null,
+        ),
+        child: SafeArea(
+          top: false,
+          child: ButtonWidget.primary(
+            text: '${context.l10n.btn_create} ${widget.type.displayName}',
+            isLoading: state.loading,
+            isEnabled: isEnabled,
+            onTap: isEnabled ? () => _handleSubmit(controller) : null,
+          ),
         ),
       ),
     );
@@ -1345,42 +1351,42 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return GestureDetector(
-      onTap: () => _handleAddFinance(controller, context),
-      child: Container(
-        padding: EdgeInsets.all(BaseSize.w16),
-        decoration: BoxDecoration(
-          color: BaseColor.neutral[50],
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          border: Border.all(
-            color: BaseColor.neutral[300]!,
-            style: BorderStyle.solid,
+    return Material(
+      color: BaseColor.surfaceMedium,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[300]!, width: 1),
+      ),
+      child: InkWell(
+        onTap: () => _handleAddFinance(controller, context),
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        child: Padding(
+          padding: EdgeInsets.all(BaseSize.w16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(BaseSize.w8),
+                decoration: BoxDecoration(
+                  color: BaseColor.primary[100],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                ),
+                child: FaIcon(
+                  AppIcons.add,
+                  size: BaseSize.w20,
+                  color: BaseColor.primary[600],
+                ),
+              ),
+              Gap.w12,
+              Text(
+                context.l10n.publish_addFinancialRecord,
+                style: BaseTypography.bodyMedium.copyWith(
+                  color: BaseColor.primary[700],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(BaseSize.w8),
-              decoration: BoxDecoration(
-                color: BaseColor.primary[100],
-                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-              ),
-              child: FaIcon(
-                AppIcons.add,
-                size: BaseSize.w20,
-                color: BaseColor.primary[600],
-              ),
-            ),
-            Gap.w12,
-            Text(
-              context.l10n.publish_addFinancialRecord,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.primary[700],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -130,11 +130,13 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     required List<Widget> children,
     String? subtitle,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.neutral[200]!),
+    return Material(
+      color: BaseColor.white,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,10 +145,10 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
           Container(
             padding: EdgeInsets.all(BaseSize.w12),
             decoration: BoxDecoration(
-              color: BaseColor.neutral[50],
+              color: BaseColor.surfaceMedium,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusMd),
-                topRight: Radius.circular(BaseSize.radiusMd),
+                topLeft: Radius.circular(BaseSize.radiusLg),
+                topRight: Radius.circular(BaseSize.radiusLg),
               ),
             ),
             child: Row(
@@ -275,49 +277,47 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
         ? '${l10n.btn_create} ${widget.financeType.displayName}'
         : '${l10n.btn_add} ${widget.financeType.displayName}';
 
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
-        left: BaseSize.w12,
-        right: BaseSize.w12,
-        top: BaseSize.h12,
-      ),
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+    return Material(
+      color: BaseColor.white,
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
+          left: BaseSize.w12,
+          right: BaseSize.w12,
+          top: BaseSize.h12,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
           ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Helper text for embedded mode to clarify the action
-            // Requirements: 4.4
-            if (!widget.isStandalone) ...[
-              Text(
-                l10n.publish_financialRecordSubtitle,
-                style: BaseTypography.bodySmall.copyWith(
-                  color: BaseColor.neutral60,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Helper text for embedded mode to clarify the action
+              // Requirements: 4.4
+              if (!widget.isStandalone) ...[
+                Text(
+                  l10n.publish_financialRecordSubtitle,
+                  style: BaseTypography.bodySmall.copyWith(
+                    color: BaseColor.neutral60,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
+                Gap.h8,
+              ],
+              // Prominent button with clear labeling
+              // Requirements: 4.1
+              ButtonWidget.primary(
+                text: buttonText,
+                isLoading: state.loading,
+                onTap: () => _handleSubmit(controller),
               ),
-              Gap.h8,
             ],
-            // Prominent button with clear labeling
-            // Requirements: 4.1
-            ButtonWidget.primary(
-              text: buttonText,
-              isLoading: state.loading,
-              onTap: () => _handleSubmit(controller),
-            ),
-          ],
+          ),
         ),
       ),
     );

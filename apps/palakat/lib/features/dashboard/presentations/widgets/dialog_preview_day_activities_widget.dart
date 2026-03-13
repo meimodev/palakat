@@ -44,9 +44,24 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (activities.isEmpty && birthdays.isEmpty) {
       return Center(
-        child: Text(
-          context.l10n.noData_activities,
-          textAlign: TextAlign.center,
+        child: Material(
+          color: BaseColor.surfaceMedium,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w24),
+            child: Text(
+              context.l10n.noData_activities,
+              textAlign: TextAlign.center,
+              style: BaseTypography.titleMedium.copyWith(
+                color: BaseColor.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -76,7 +91,7 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                   shadowColor: Colors.black.withValues(alpha: 0.05),
                   surfaceTintColor: BaseColor.yellow[50],
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: InkWell(
@@ -88,11 +103,13 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                       child: Row(
                         children: [
                           Container(
-                            width: BaseSize.w32,
-                            height: BaseSize.w32,
+                            width: BaseSize.w36,
+                            height: BaseSize.w36,
                             decoration: BoxDecoration(
                               color: BaseColor.yellow[100],
-                              shape: BoxShape.circle,
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusMd,
+                              ),
                             ),
                             alignment: Alignment.center,
                             child: Icon(
@@ -112,8 +129,8 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: BaseTypography.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: BaseColor.black,
+                                    fontWeight: FontWeight.w700,
+                                    color: BaseColor.textPrimary,
                                   ),
                                 ),
                                 Gap.h6,
@@ -124,7 +141,9 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: BaseColor.yellow[50],
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(
+                                      BaseSize.radiusSm,
+                                    ),
                                     border: Border.all(
                                       color: BaseColor.yellow[200]!,
                                       width: 1,
@@ -144,7 +163,7 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                           Gap.w8,
                           Icon(
                             Icons.chevron_right,
-                            size: BaseSize.w20,
+                            size: BaseSize.w18,
                             color: BaseColor.secondaryText,
                           ),
                         ],

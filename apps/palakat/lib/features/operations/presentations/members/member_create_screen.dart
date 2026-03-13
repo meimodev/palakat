@@ -6,7 +6,6 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
 import 'package:palakat/features/operations/presentations/members/member_create_controller.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 
 class MemberCreateScreen extends ConsumerWidget {

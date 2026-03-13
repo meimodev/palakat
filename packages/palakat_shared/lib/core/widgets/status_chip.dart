@@ -87,17 +87,19 @@ class StatusChip extends StatelessWidget {
                 if (!iconOnly) const SizedBox(width: 6),
               ],
               if (!iconOnly)
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxLabelWidth),
-                  child: Text(
-                    label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: foreground,
-                      fontWeight: resolvedWeight,
-                      fontSize: resolvedFontSize,
-                      letterSpacing: 0.2,
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxLabelWidth),
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: foreground,
+                        fontWeight: resolvedWeight,
+                        fontSize: resolvedFontSize,
+                        letterSpacing: 0.2,
+                      ),
                     ),
                   ),
                 ),

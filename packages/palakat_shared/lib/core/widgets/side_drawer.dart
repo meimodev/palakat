@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
@@ -31,9 +33,14 @@ class SideDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final viewportWidth = MediaQuery.of(context).size.width;
+    final resolvedWidth = math.min(
+      width,
+      math.max(320, viewportWidth * (viewportWidth < 600 ? 0.96 : 0.92)),
+    );
     return Material(
       child: Container(
-        width: width,
+        width: resolvedWidth.toDouble(),
         height: double.infinity,
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,

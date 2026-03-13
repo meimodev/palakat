@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// A widget for displaying segment/section titles with count and optional "View All" action.
 ///
@@ -125,26 +126,28 @@ class SegmentTitleWidget extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: primaryColor.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  count.toString(),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: primaryColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 4,
               ),
+              decoration: BoxDecoration(
+              color: primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+              color: primaryColor.withValues(alpha: 0.2),
+              width: 1,
+              ),
+              ),
+              child: Text(
+              count.toString(),
+              style: theme.textTheme.labelMedium?.copyWith(
+              color: primaryColor,
+              fontWeight: FontWeight.w600,
+              ),
+                maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  ),
+                ),
             ],
           ),
         ),
@@ -157,11 +160,15 @@ class SegmentTitleWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  "View All",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: primaryColor,
-                    fontWeight: FontWeight.w600,
+                Flexible(
+                  child: Text(
+                    context.l10n.btn_viewAll,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 4),

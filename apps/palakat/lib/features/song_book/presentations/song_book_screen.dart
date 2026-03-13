@@ -39,6 +39,7 @@ class _SongDbMetaHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return FutureBuilder(
       future: metaFuture,
       builder: (context, snapshot) {
@@ -49,70 +50,76 @@ class _SongDbMetaHeader extends StatelessWidget {
         final booksCount = meta?.booksCount;
 
         final updatedText = updatedAt == null
-            ? '-'
+            ? l10n.lbl_notSpecified
             : _formatDate(context, updatedAt);
 
-        return Container(
-          padding: EdgeInsets.all(BaseSize.w16),
-          decoration: BoxDecoration(
-            color: BaseColor.surfaceMedium,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+        return Material(
+          color: BaseColor.surfaceMedium,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: BaseSize.w32,
-                    height: BaseSize.w32,
-                    decoration: BoxDecoration(
-                      color: BaseColor.primary[50],
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: FaIcon(
-                      AppIcons.info,
-                      size: BaseSize.w16,
-                      color: BaseColor.primary,
-                    ),
-                  ),
-                  Gap.w12,
-                  Expanded(
-                    child: Text(
-                      'Song database',
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: BaseSize.w40,
+                      height: BaseSize.w40,
+                      decoration: BoxDecoration(
+                        color: BaseColor.primary[50],
+                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      ),
+                      alignment: Alignment.center,
+                      child: FaIcon(
+                        AppIcons.info,
+                        size: BaseSize.w18,
+                        color: BaseColor.primary,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Gap.h12,
-              Wrap(
-                spacing: BaseSize.w8,
-                runSpacing: BaseSize.w8,
-                children: [
-                  _SongDbMetaChip(
-                    icon: AppIcons.info,
-                    label: version == null || version.trim().isEmpty
-                        ? 'v-'
-                        : 'v${version.trim()}',
-                  ),
-                  _SongDbMetaChip(
-                    icon: AppIcons.music,
-                    label: '${songsCount ?? 0} songs',
-                  ),
-                  _SongDbMetaChip(
-                    icon: AppIcons.reader,
-                    label: '${booksCount ?? 0} books',
-                  ),
-                  _SongDbMetaChip(icon: AppIcons.calendar, label: updatedText),
-                ],
-              ),
-            ],
+                    Gap.w12,
+                    Expanded(
+                      child: Text(
+                        l10n.songBook_databaseTitle,
+                        style: BaseTypography.titleMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: BaseColor.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gap.h12,
+                Wrap(
+                  spacing: BaseSize.w8,
+                  runSpacing: BaseSize.w8,
+                  children: [
+                    _SongDbMetaChip(
+                      icon: AppIcons.info,
+                      label: version == null || version.trim().isEmpty
+                          ? l10n.songBook_versionFallback
+                          : 'v${version.trim()}',
+                    ),
+                    _SongDbMetaChip(
+                      icon: AppIcons.music,
+                      label: l10n.songBook_songsCount(songsCount ?? 0),
+                    ),
+                    _SongDbMetaChip(
+                      icon: AppIcons.reader,
+                      label: l10n.songBook_booksCount(booksCount ?? 0),
+                    ),
+                    _SongDbMetaChip(
+                      icon: AppIcons.calendar,
+                      label: updatedText,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -174,68 +181,76 @@ class _SongDbUpdateBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return FutureBuilder(
       future: remoteMetaFuture,
       builder: (context, snapshot) {
         final meta = snapshot.data;
         final updatedAt = meta?.updatedAt;
         final subtitle = updatedAt == null
-            ? 'A newer song database is available.'
-            : 'Updated ${_formatDate(context, updatedAt)}';
+            ? l10n.songBook_updateAvailableSubtitle
+            : l10n.songBook_updateAvailableSubtitleWithDate(
+                _formatDate(context, updatedAt),
+              );
 
-        return Container(
-          padding: EdgeInsets.all(BaseSize.w16),
-          decoration: BoxDecoration(
-            color: BaseColor.primary[50],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BaseColor.primary[100]!, width: 1),
+        return Material(
+          color: BaseColor.primary[50],
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            side: BorderSide(color: BaseColor.primary[100]!, width: 1),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: BaseSize.w32,
-                height: BaseSize.w32,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w16),
+            child: Row(
+              children: [
+                Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
+                  decoration: BoxDecoration(
+                    color: BaseColor.white,
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    AppIcons.refresh,
+                    size: BaseSize.w18,
+                    color: BaseColor.primary,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.refresh,
-                  size: BaseSize.w16,
-                  color: BaseColor.primary,
-                ),
-              ),
-              Gap.w12,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Update available',
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+                Gap.w12,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.songBook_updateAvailableTitle,
+                        style: BaseTypography.titleMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: BaseColor.textPrimary,
+                        ),
                       ),
-                    ),
-                    Gap.h4,
-                    Text(
-                      subtitle,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.textSecondary,
-                        fontWeight: FontWeight.w600,
+                      Gap.h4,
+                      Text(
+                        subtitle,
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Gap.w12,
-              ButtonWidget.outlined(
-                text: isUpdating ? 'Updating…' : 'Update',
-                onTap: isUpdating ? null : onTapUpdate,
-                isShrink: true,
-              ),
-            ],
+                Gap.w12,
+                ButtonWidget.outlined(
+                  text: isUpdating
+                      ? l10n.songBook_updatingAction
+                      : l10n.songBook_updateAction,
+                  onTap: isUpdating ? null : onTapUpdate,
+                  isShrink: true,
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -437,7 +452,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                 size: 20,
                 color: BaseColor.primary,
               ),
-              borderRadius: 8,
+              borderRadius: BaseSize.radiusMd,
             ),
             // 16px = 2 * 8px grid spacing (Requirement 2.4)
             Gap.h16,
@@ -475,61 +490,73 @@ class _DownloadRequiredState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: BaseSize.w48,
-              height: BaseSize.w48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: BaseColor.primary[50],
-                shape: BoxShape.circle,
-              ),
-              child: FaIcon(
-                AppIcons.download,
-                size: BaseSize.w24,
-                color: BaseColor.primary,
-              ),
-            ),
-            Gap.h12,
-            Text(
-              l10n.songBook_downloadRequiredTitle,
-              textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Gap.h8,
-            Text(
-              l10n.songBook_downloadRequiredSubtitle,
-              textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
-              ),
-            ),
-            if (errorMessage != null && errorMessage!.trim().isNotEmpty) ...[
-              Gap.h12,
-              Text(
-                errorMessage!,
-                textAlign: TextAlign.center,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.error,
-                  fontWeight: FontWeight.w600,
+        child: Material(
+          color: BaseColor.surfaceMedium,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(BaseSize.w20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: BaseSize.w56,
+                  height: BaseSize.w56,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary[50],
+                    borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  ),
+                  child: FaIcon(
+                    AppIcons.download,
+                    size: BaseSize.w24,
+                    color: BaseColor.primary,
+                  ),
                 ),
-              ),
-            ],
-            Gap.h16,
-            SizedBox(
-              width: double.infinity,
-              child: ButtonWidget.primary(
-                text: l10n.songBook_downloadRequiredButton,
-                isLoading: isDownloading,
-                onTap: isDownloading ? null : onTapDownload,
-              ),
+                Gap.h16,
+                Text(
+                  l10n.songBook_downloadRequiredTitle,
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.titleMedium.copyWith(
+                    color: BaseColor.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Gap.h8,
+                Text(
+                  l10n.songBook_downloadRequiredSubtitle,
+                  textAlign: TextAlign.center,
+                  style: BaseTypography.bodyMedium.copyWith(
+                    color: BaseColor.textSecondary,
+                  ),
+                ),
+                if (errorMessage != null &&
+                    errorMessage!.trim().isNotEmpty) ...[
+                  Gap.h12,
+                  Text(
+                    errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                Gap.h16,
+                SizedBox(
+                  width: double.infinity,
+                  child: ButtonWidget.primary(
+                    text: l10n.songBook_downloadRequiredButton,
+                    isLoading: isDownloading,
+                    onTap: isDownloading ? null : onTapDownload,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -577,14 +604,17 @@ class _SongBookGridCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: BaseColor.surfaceMedium,
-      borderRadius: BorderRadius.circular(16),
+      elevation: 0,
+      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        splashColor: BaseColor.primary.withValues(alpha: 0.08),
+        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
         child: Container(
           padding: EdgeInsets.all(BaseSize.w12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
             border: Border.all(color: BaseColor.neutral[200]!, width: 1),
           ),
           child: Column(
@@ -593,16 +623,16 @@ class _SongBookGridCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: BaseSize.w32,
-                    height: BaseSize.w32,
+                    width: BaseSize.w40,
+                    height: BaseSize.w40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: BaseColor.primary[50],
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                     ),
                     child: FaIcon(
                       AppIcons.libraryMusic,
-                      size: BaseSize.w16,
+                      size: BaseSize.w18,
                       color: BaseColor.primary,
                     ),
                   ),
@@ -647,51 +677,51 @@ class _EmptySearchStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      // 24px = 3 * 8px grid spacing (Requirement 2.4)
-      padding: EdgeInsets.all(BaseSize.w24),
-      decoration: BoxDecoration(
-        color: BaseColor.surfaceMedium,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Teal accent icon (Requirement 2.2)
-          Container(
-            width: BaseSize.w48,
-            height: BaseSize.w48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: BaseColor.primary[50],
-              shape: BoxShape.circle,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: BaseSize.w56,
+              height: BaseSize.w56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: BaseColor.primary[50],
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+              ),
+              child: FaIcon(
+                AppIcons.searchOff,
+                size: BaseSize.w24,
+                color: BaseColor.primary,
+              ),
             ),
-            child: FaIcon(
-              AppIcons.searchOff,
-              size: BaseSize.w24,
-              color: BaseColor.primary,
+            Gap.h12,
+            Text(
+              l10n.songBook_emptyTitle,
+              textAlign: TextAlign.center,
+              style: BaseTypography.titleMedium.copyWith(
+                color: BaseColor.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          // 12px spacing
-          Gap.h12,
-          Text(
-            l10n.songBook_emptyTitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.titleMedium.copyWith(
-              color: BaseColor.textSecondary,
-              fontWeight: FontWeight.w600,
+            Gap.h4,
+            Text(
+              l10n.songBook_emptySubtitle,
+              textAlign: TextAlign.center,
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.textSecondary,
+              ),
             ),
-          ),
-          Gap.h4,
-          Text(
-            l10n.songBook_emptySubtitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.textSecondary,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

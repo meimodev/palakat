@@ -62,17 +62,12 @@ class OperationCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.surfaceMedium,
-        borderRadius: BorderRadius.circular(BaseSize.w16),
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -223,10 +218,13 @@ class _ReportTypeTile extends StatelessWidget {
     return Opacity(
       opacity: isEnabled ? 1.0 : OperationItemCard.disabledOpacity,
       child: Material(
-        color: BaseColor.surfaceLight,
+        color: BaseColor.cardBackground1,
+        elevation: 1,
+        shadowColor: Colors.black.withValues(alpha: 0.05),
+        surfaceTintColor: BaseColor.primary[50],
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.w12),
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
           side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
         ),
         child: InkWell(
@@ -248,7 +246,7 @@ class _ReportTypeTile extends StatelessWidget {
                     color: isEnabled
                         ? BaseColor.primary.withValues(alpha: 0.12)
                         : BaseColor.neutral[100],
-                    borderRadius: BorderRadius.circular(BaseSize.w8),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Icon(
                     icon,
@@ -324,7 +322,7 @@ class _CategoryHeader extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                 ),
                 child: Icon(
                   category.icon,
@@ -338,7 +336,7 @@ class _CategoryHeader extends StatelessWidget {
                 child: Text(
                   _categoryTitle(context, category),
                   style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: BaseColor.textPrimary,
                   ),
                 ),
@@ -351,7 +349,7 @@ class _CategoryHeader extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
                 child: Text(
                   '${category.operations.length}',

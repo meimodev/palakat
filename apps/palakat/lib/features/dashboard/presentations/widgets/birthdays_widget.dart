@@ -106,7 +106,7 @@ class BirthdaysWidget extends ConsumerWidget {
                 title: '${l10n.tbl_birth} - ${l10n.dateRangeFilter_thisWeek}',
                 titleStyle: BaseTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.black,
+                  color: BaseColor.textPrimary,
                 ),
                 leadingIcon: AppIcons.birthday,
                 leadingBg: BaseColor.yellow[50],
@@ -135,7 +135,7 @@ class BirthdaysWidget extends ConsumerWidget {
                     shadowColor: Colors.black.withValues(alpha: 0.05),
                     surfaceTintColor: BaseColor.yellow[50],
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                     ),
                     clipBehavior: Clip.hardEdge,
                     child: InkWell(
@@ -152,11 +152,13 @@ class BirthdaysWidget extends ConsumerWidget {
                         child: Row(
                           children: [
                             Container(
-                              width: BaseSize.w36,
-                              height: BaseSize.w36,
+                              width: BaseSize.w40,
+                              height: BaseSize.w40,
                               decoration: BoxDecoration(
                                 color: BaseColor.yellow[100],
-                                shape: BoxShape.circle,
+                                borderRadius: BorderRadius.circular(
+                                  BaseSize.radiusMd,
+                                ),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
@@ -176,7 +178,7 @@ class BirthdaysWidget extends ConsumerWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: BaseTypography.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: BaseColor.black,
+                                      color: BaseColor.textPrimary,
                                     ),
                                   ),
                                   Gap.h4,

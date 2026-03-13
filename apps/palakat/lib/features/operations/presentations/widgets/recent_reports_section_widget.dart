@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/widgets/loading/shimmer_widgets.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/report.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
-import 'package:palakat_shared/widgets.dart';
 
 /// Section widget displaying recent reports created by the current user.
 /// Shows pending/processing jobs at the top, then completed reports with download buttons.
@@ -114,7 +113,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      context.l10n.card_recentActivity_title,
+      context.l10n.card_reportHistory_title,
       style: BaseTypography.labelLarge.copyWith(
         fontWeight: FontWeight.w600,
         color: BaseColor.textSecondary,
@@ -164,35 +163,10 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
-      decoration: BoxDecoration(
-        color: BaseColor.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(BaseSize.w8),
-      ),
-      child: Row(
-        children: [
-          Icon(AppIcons.error, color: BaseColor.error, size: BaseSize.w16),
-          Gap.w8,
-          Expanded(
-            child: Text(
-              message,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
-            ),
-          ),
-          TextButton(
-            onPressed: onRetry,
-            style: TextButton.styleFrom(
-              foregroundColor: BaseColor.error,
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(l10n.btn_retry),
-          ),
-        ],
-      ),
+    return ErrorDisplayWidget(
+      message: message,
+      onRetry: onRetry,
+      padding: EdgeInsets.zero,
     );
   }
 }
@@ -218,86 +192,97 @@ class RecentReportItem extends StatelessWidget {
         ? '${createdAt.day}/${createdAt.month}/${createdAt.year}'
         : l10n.msg_noGenerationDate;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
+    return Material(
+      color: BaseColor.cardBackground1,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
+      surfaceTintColor: BaseColor.primary[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      decoration: BoxDecoration(
-        color: BaseColor.surfaceLight,
-        borderRadius: BorderRadius.circular(BaseSize.w8),
-        border: Border.all(color: BaseColor.neutral[200]!, width: 1),
-      ),
-      child: Row(
-        children: [
-          // Report icon based on format
-          Container(
-            width: BaseSize.w32,
-            height: BaseSize.w32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _getFormatColor(report.format).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(BaseSize.w8),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w12,
+          vertical: BaseSize.h8,
+        ),
+        child: Row(
+          children: [
+            // Report icon based on format
+            Container(
+              width: BaseSize.w36,
+              height: BaseSize.w36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _getFormatColor(report.format).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              ),
+              child: Icon(
+                _getFormatIcon(report.format),
+                color: _getFormatColor(report.format),
+                size: BaseSize.w16,
+              ),
             ),
-            child: Icon(
-              _getFormatIcon(report.format),
-              color: _getFormatColor(report.format),
-              size: BaseSize.w16,
-            ),
-          ),
-          Gap.w12,
-          // Report details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  report.name,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: BaseColor.textPrimary,
+            Gap.w12,
+            // Report details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    report.name,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  dateText,
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.textSecondary,
+                  Text(
+                    dateText,
+                    style: BaseTypography.bodySmall.copyWith(
+                      color: BaseColor.textSecondary,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Gap.w8,
-          if (report.format == ReportFormat.pdf && onViewTap != null) ...[
-            IconButton(
-              onPressed: onViewTap,
-              icon: Icon(AppIcons.openExternal),
-              iconSize: BaseSize.w20,
-              color: BaseColor.primary,
-              style: IconButton.styleFrom(
-                backgroundColor: BaseColor.primary.withValues(alpha: 0.1),
-                padding: EdgeInsets.all(BaseSize.w8),
-                minimumSize: Size(BaseSize.w36, BaseSize.w36),
+                ],
               ),
             ),
             Gap.w8,
-          ],
-          IconButton(
-            onPressed: onDownloadTap,
-            icon: Icon(AppIcons.download),
-            iconSize: BaseSize.w20,
-            color: BaseColor.primary,
-            tooltip: l10n.tooltip_downloadReport,
-            style: IconButton.styleFrom(
-              backgroundColor: BaseColor.primary.withValues(alpha: 0.1),
-              padding: EdgeInsets.all(BaseSize.w8),
-              minimumSize: Size(BaseSize.w36, BaseSize.w36),
+            if (report.format == ReportFormat.pdf && onViewTap != null) ...[
+              IconButton(
+                onPressed: onViewTap,
+                icon: Icon(AppIcons.openExternal),
+                iconSize: BaseSize.w18,
+                color: BaseColor.primary,
+                style: IconButton.styleFrom(
+                  backgroundColor: BaseColor.primary[50],
+                  padding: EdgeInsets.all(BaseSize.w8),
+                  minimumSize: Size(BaseSize.w40, BaseSize.w40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  ),
+                ),
+              ),
+              Gap.w8,
+            ],
+            IconButton(
+              onPressed: onDownloadTap,
+              icon: Icon(AppIcons.download),
+              iconSize: BaseSize.w18,
+              color: BaseColor.primary,
+              tooltip: l10n.tooltip_downloadReport,
+              style: IconButton.styleFrom(
+                backgroundColor: BaseColor.primary[50],
+                padding: EdgeInsets.all(BaseSize.w8),
+                minimumSize: Size(BaseSize.w40, BaseSize.w40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -359,79 +344,82 @@ class _PendingJobItem extends StatelessWidget {
 
     final statusInfo = _getStatusInfo(context, job.status);
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
+    return Material(
+      color: statusInfo.backgroundColor,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        side: BorderSide(color: statusInfo.borderColor, width: 1),
       ),
-      decoration: BoxDecoration(
-        color: statusInfo.backgroundColor,
-        borderRadius: BorderRadius.circular(BaseSize.w8),
-        border: Border.all(color: statusInfo.borderColor, width: 1),
-      ),
-      child: Row(
-        children: [
-          // Status icon
-          Container(
-            width: BaseSize.w32,
-            height: BaseSize.w32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: statusInfo.iconBackgroundColor,
-              borderRadius: BorderRadius.circular(BaseSize.w8),
-            ),
-            child: statusInfo.isAnimated
-                ? SizedBox(
-                    width: BaseSize.w16,
-                    height: BaseSize.w16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: statusInfo.iconColor,
-                    ),
-                  )
-                : Icon(
-                    statusInfo.icon,
-                    color: statusInfo.iconColor,
-                    size: BaseSize.w16,
-                  ),
-          ),
-          Gap.w12,
-          // Job details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _getJobName(context, job),
-                  style: BaseTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: BaseColor.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      statusInfo.statusText,
-                      style: BaseTypography.bodySmall.copyWith(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w12,
+          vertical: BaseSize.h8,
+        ),
+        child: Row(
+          children: [
+            // Status icon
+            Container(
+              width: BaseSize.w36,
+              height: BaseSize.w36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: statusInfo.iconBackgroundColor,
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              ),
+              child: statusInfo.isAnimated
+                  ? SizedBox(
+                      width: BaseSize.w16,
+                      height: BaseSize.w16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
                         color: statusInfo.iconColor,
-                        fontWeight: FontWeight.w500,
                       ),
+                    )
+                  : Icon(
+                      statusInfo.icon,
+                      color: statusInfo.iconColor,
+                      size: BaseSize.w16,
                     ),
-                    Text(
-                      ' • $dateText',
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
-          ),
-        ],
+            Gap.w12,
+            // Job details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _getJobName(context, job),
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        statusInfo.statusText,
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: statusInfo.iconColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        ' • $dateText',
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

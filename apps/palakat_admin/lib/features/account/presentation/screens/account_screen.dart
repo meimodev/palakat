@@ -24,7 +24,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       membership: const Membership(membershipPositions: []),
     );
 
-    final cachedAccount = ref.read(authControllerProvider).asData?.value?.account;
+    final cachedAccount = ref
+        .read(authControllerProvider)
+        .asData
+        ?.value
+        ?.account;
     if (cachedAccount != null) {
       _currentAccount = cachedAccount;
     }
@@ -98,7 +102,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   void _openEditAccountDrawer() {
     final l10n = context.l10n;
     final currentAccount =
-        ref.read(authControllerProvider).asData?.value?.account ?? _currentAccount;
+        ref.read(authControllerProvider).asData?.value?.account ??
+        _currentAccount;
     final nameCtrl = TextEditingController(
       text: _displayAccountName(context, currentAccount),
     );
@@ -155,9 +160,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: emailCtrl,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
           const SizedBox(height: 16),
           Text(
@@ -542,9 +545,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compact = constraints.maxWidth < 640;
+
+                      final avatar = CircleAvatar(
                         radius: 40,
                         backgroundColor: theme.colorScheme.primary,
                         child: Text(
@@ -554,29 +559,53 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      );
+
+                      final textBlock = Column(
+                        crossAxisAlignment: compact
+                            ? CrossAxisAlignment.center
+                            : CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayName,
+                            textAlign: compact
+                                ? TextAlign.center
+                                : TextAlign.start,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _displayValue(activeAccount.phone),
+                            textAlign: compact
+                                ? TextAlign.center
+                                : TextAlign.start,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      );
+
+                      if (compact) {
+                        return Column(
                           children: [
-                            Text(
-                              displayName,
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _displayValue(activeAccount.phone),
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
+                            avatar,
+                            const SizedBox(height: 16),
+                            textBlock,
                           ],
-                        ),
-                      ),
-                    ],
+                        );
+                      }
+
+                      return Row(
+                        children: [
+                          avatar,
+                          const SizedBox(width: 20),
+                          Expanded(child: textBlock),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                   LayoutBuilder(
@@ -732,7 +761,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: [
-                          const Icon(Icons.logout, color: Colors.red),
+                          Icon(Icons.logout, color: theme.colorScheme.error),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(

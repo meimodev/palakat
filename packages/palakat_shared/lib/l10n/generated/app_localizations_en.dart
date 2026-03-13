@@ -88,6 +88,126 @@ class AppLocalizationsEn extends AppLocalizations {
   String get songBook_downloadRequiredButton => 'Download song database';
 
   @override
+  String get songBook_databaseTitle => 'Song database';
+
+  @override
+  String get songBook_versionFallback => 'v-';
+
+  @override
+  String songBook_songsCount(int count) {
+    return '$count songs';
+  }
+
+  @override
+  String songBook_booksCount(int count) {
+    return '$count books';
+  }
+
+  @override
+  String get songBook_updateAvailableTitle => 'Update available';
+
+  @override
+  String get songBook_updateAvailableSubtitle =>
+      'A newer song database is available.';
+
+  @override
+  String songBook_updateAvailableSubtitleWithDate(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String get songBook_updateAction => 'Update';
+
+  @override
+  String get songBook_updatingAction => 'Updating...';
+
+  @override
+  String get songDetail_informationTitle => 'Song information';
+
+  @override
+  String get songDetail_field_book => 'Book';
+
+  @override
+  String get songDetail_field_author => 'Author';
+
+  @override
+  String get songDetail_field_baseNote => 'Base note';
+
+  @override
+  String get songDetail_field_publisher => 'Publisher';
+
+  @override
+  String get songDetail_videoFallback => 'Video';
+
+  @override
+  String get songDetail_openVideo => 'Open video';
+
+  @override
+  String get songs_manageSubtitle =>
+      'Edit the published songs.json used by the mobile app.';
+
+  @override
+  String get songs_publishAction => 'Publish songs.json';
+
+  @override
+  String get songs_localDraftPendingPublish => 'Local draft pending publish';
+
+  @override
+  String get songs_discardDraftTitle => 'Discard local draft?';
+
+  @override
+  String get songs_discardDraftContent =>
+      'Reload will discard your local draft changes that have not been published.';
+
+  @override
+  String get songs_discardDraftAction => 'Discard & Reload';
+
+  @override
+  String get songEditor_localDraftInfo =>
+      'Edits are saved locally and uploaded when you publish songs.json.';
+
+  @override
+  String get songEditor_deleteTitle => 'Delete this song?';
+
+  @override
+  String get songEditor_idHint => 'ID (e.g. KJ-1)';
+
+  @override
+  String get songEditor_bookIdHint => 'Book ID (e.g. kj)';
+
+  @override
+  String get songEditor_bookNameHint => 'Book Name';
+
+  @override
+  String get songEditor_subtitleHint => 'Subtitle';
+
+  @override
+  String get songEditor_urlImageHint => 'urlImage';
+
+  @override
+  String get songEditor_urlVideoHint => 'urlVideo';
+
+  @override
+  String get songEditor_compositionTitle => 'Composition';
+
+  @override
+  String get songEditor_noCompositionYet => 'No composition yet.';
+
+  @override
+  String get songEditor_contentHint => 'Content';
+
+  @override
+  String get songEditor_definitionTitle => 'Definition';
+
+  @override
+  String get songEditor_noDefinitionYet => 'No definition yet.';
+
+  @override
+  String songEditor_editPart(String part) {
+    return 'Edit $part';
+  }
+
+  @override
   String get articles_title => 'Articles';
 
   @override
@@ -724,6 +844,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btn_remove => 'Remove';
 
   @override
+  String get btn_uploadCover => 'Upload cover';
+
+  @override
+  String lbl_coverUrl(String url) {
+    return 'Cover URL: $url';
+  }
+
+  @override
   String get btn_create => 'Create';
 
   @override
@@ -743,6 +871,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btn_updatePassword => 'Update Password';
+
+  @override
+  String get btn_archive => 'Archive';
+
+  @override
+  String get btn_publish => 'Publish';
+
+  @override
+  String get btn_unpublish => 'Unpublish';
 
   @override
   String get lbl_email => 'Email';
@@ -803,6 +940,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_to => 'To';
+
+  @override
+  String lbl_songsCount(int songsCount, int booksCount, String updatedAt) {
+    return 'songs_count=$songsCount, books_count=$booksCount, updatedAt=$updatedAt';
+  }
 
   @override
   String get lbl_search => 'Search';
@@ -922,6 +1064,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get status_draft => 'Draft';
 
   @override
+  String get status_published => 'Published';
+
+  @override
+  String get status_archived => 'Archived';
+
+  @override
   String get status_completed => 'Completed';
 
   @override
@@ -1039,6 +1187,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_subtitle => 'Summary of your church activities.';
 
   @override
+  String get dashboard_alarmSettings_tooltip => 'Activity alarms';
+
+  @override
+  String get dashboard_alarmSummary_title => 'Alarms scheduled';
+
+  @override
+  String dashboard_alarmSummary_message(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reminders are set on your phone',
+      one: '1 reminder is set on your phone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboard_alarmSummary_action => 'Manage alarms';
+
+  @override
+  String get dashboard_smokeTest_title => 'Alarm smoke test';
+
+  @override
+  String get dashboard_smokeTest_emptyMessage =>
+      'Load at least one dashboard activity to test the alarm flow.';
+
+  @override
+  String get dashboard_smokeTest_readyMessage =>
+      'Schedules an activity alarm to ring in 10 seconds using the current device notification flow.';
+
+  @override
+  String get dashboard_smokeTest_action => 'Test alarm in 10 seconds';
+
+  @override
+  String get dashboard_smokeTest_loadingAction => 'Scheduling...';
+
+  @override
+  String dashboard_smokeTest_scheduledSnack(String time) {
+    return 'Smoke test alarm scheduled for $time';
+  }
+
+  @override
+  String dashboard_smokeTest_failedSnack(String error) {
+    return 'Failed to schedule smoke test alarm: $error';
+  }
+
+  @override
+  String get dashboard_alarmPermission_exact_title => 'Allow exact alarms';
+
+  @override
+  String get dashboard_alarmPermission_exact_message =>
+      'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.';
+
+  @override
+  String get dashboard_alarmPermission_fullScreen_title =>
+      'Allow full-screen alarms';
+
+  @override
+  String get dashboard_alarmPermission_fullScreen_message =>
+      'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.';
+
+  @override
   String get dashboard_recentActivity => 'Recent Activity';
 
   @override
@@ -1087,7 +1297,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_statistics => 'Statistics';
 
   @override
-  String get dashboard_membershipInvitation_title => 'Membership invitation';
+  String get dashboard_membershipInvitation_title => 'Membership Invitation';
+
+  @override
+  String get dashboard_membershipInvitation_subtitle =>
+      'Review invitations that connect people to churches and columns.';
 
   @override
   String get dashboard_membershipInvitation_snackbarApproved =>
@@ -1096,6 +1310,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dashboard_membershipInvitation_snackbarRejected =>
       'Invitation rejected';
+
+  @override
+  String get dashboard_membershipInvitation_searchHint =>
+      'Search inviter / invitee / church / column / phone';
+
+  @override
+  String get dashboard_membershipInvitation_inviter => 'Inviter';
+
+  @override
+  String get dashboard_membershipInvitation_invitee => 'Invitee';
+
+  @override
+  String get dashboard_membershipInvitation_confirmApprove =>
+      'Approve this invitation and create a membership for the invitee?';
+
+  @override
+  String get dashboard_membershipInvitation_confirmDelete =>
+      'Delete this invitation? This cannot be undone.';
 
   @override
   String get msg_pressBackToExit => 'Press back again to exit';
@@ -1710,6 +1942,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_notes => 'Notes';
 
   @override
+  String get lbl_reviewedAt => 'Reviewed At';
+
+  @override
   String get lbl_paidDate => 'Paid Date';
 
   @override
@@ -1949,10 +2184,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get churchRequest_title => 'Request Church Registration';
 
   @override
+  String get app_superAdminTitle => 'SUPER ADMIN';
+
+  @override
+  String get app_adminTitle => 'ADMIN';
+
+  @override
   String get churchRequest_status_onReview => 'On Review';
 
   @override
   String get churchRequest_status_onProgress => 'On Progress';
+
+  @override
+  String get churchEditor_addTitle => 'Add Church';
+
+  @override
+  String get churchEditor_editTitle => 'Edit Church';
+
+  @override
+  String get churchEditor_deleteTitle => 'Delete Church?';
 
   @override
   String get churchRequest_statusMessage_onReview =>
@@ -2180,6 +2430,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tbl_title => 'Title';
+
+  @override
+  String get tbl_published => 'Published';
+
+  @override
+  String get tbl_id => 'ID';
+
+  @override
+  String get tbl_subtitle => 'Subtitle';
 
   @override
   String get tbl_type => 'Type';
@@ -2447,7 +2706,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dlg_confirmAction_title => 'Confirm Action';
 
   @override
+  String get dlg_articleArchive_content =>
+      'This will hide the article from the public app. You can still edit it later.';
+
+  @override
+  String get dlg_articleCoverUploadRequiresDraft_content =>
+      'Save draft first to upload cover.';
+
+  @override
   String get dlg_confirmDelete_title => 'Confirm Delete';
+
+  @override
+  String get dlg_confirmDelete_content => 'This action cannot be undone.';
 
   @override
   String get filter_allStatus => 'All Status';
@@ -2559,6 +2829,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_deleted => 'Deleted successfully';
+
+  @override
+  String get msg_archived => 'Archived';
+
+  @override
+  String get msg_published => 'Published';
+
+  @override
+  String get msg_unpublished => 'Unpublished';
+
+  @override
+  String get msg_coverUploaded => 'Cover uploaded';
+
+  @override
+  String msg_publishedSongsJson(String updatedAt) {
+    return 'Published songs.json at $updatedAt';
+  }
+
+  @override
+  String get msg_publishedSongsJsonWithoutDate => 'Published songs.json';
 
   @override
   String get msg_approvalRuleCreated => 'Approval rule created successfully';

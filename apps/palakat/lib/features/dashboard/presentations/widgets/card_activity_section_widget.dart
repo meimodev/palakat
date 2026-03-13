@@ -39,8 +39,8 @@ class CardActivitySectionWidget extends StatelessWidget {
               child: Text(
                 title,
                 style: BaseTypography.titleMedium.copyWith(
-                  fontWeight: today ? FontWeight.bold : FontWeight.w600,
-                  color: BaseColor.black,
+                  fontWeight: today ? FontWeight.w700 : FontWeight.w600,
+                  color: BaseColor.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -54,7 +54,7 @@ class CardActivitySectionWidget extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: today ? BaseColor.teal[100] : BaseColor.teal[50],
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                 border: Border.all(
                   color: today ? BaseColor.teal[300]! : BaseColor.teal[200]!,
                   width: 1,
@@ -73,30 +73,43 @@ class CardActivitySectionWidget extends StatelessWidget {
         Gap.h12,
         // List of activities
         if (totalCount == 0)
-          Container(
-            padding: EdgeInsets.all(BaseSize.w16),
-            decoration: BoxDecoration(
-              color: BaseColor.cardBackground1,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BaseColor.neutral20, width: 1),
+          Material(
+            color: BaseColor.surfaceMedium,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+              side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FaIcon(
-                  AppIcons.eventBusy,
-                  size: BaseSize.w24,
-                  color: BaseColor.secondaryText,
-                ),
-                Gap.h8,
-                Text(
-                  context.l10n.noData_activities,
-                  textAlign: TextAlign.center,
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.secondaryText,
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: BaseSize.w56,
+                    height: BaseSize.w56,
+                    decoration: BoxDecoration(
+                      color: BaseColor.primary[50],
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                    ),
+                    alignment: Alignment.center,
+                    child: FaIcon(
+                      AppIcons.eventBusy,
+                      size: BaseSize.w24,
+                      color: BaseColor.primary,
+                    ),
                   ),
-                ),
-              ],
+                  Gap.h12,
+                  Text(
+                    context.l10n.noData_activities,
+                    textAlign: TextAlign.center,
+                    style: BaseTypography.titleMedium.copyWith(
+                      color: BaseColor.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         else
@@ -119,7 +132,7 @@ class CardActivitySectionWidget extends StatelessWidget {
                   shadowColor: Colors.black.withValues(alpha: 0.05),
                   surfaceTintColor: BaseColor.yellow[50],
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: InkWell(
@@ -131,11 +144,13 @@ class CardActivitySectionWidget extends StatelessWidget {
                       child: Row(
                         children: [
                           Container(
-                            width: BaseSize.w32,
-                            height: BaseSize.w32,
+                            width: BaseSize.w36,
+                            height: BaseSize.w36,
                             decoration: BoxDecoration(
                               color: BaseColor.yellow[100],
-                              shape: BoxShape.circle,
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusMd,
+                              ),
                             ),
                             alignment: Alignment.center,
                             child: Icon(
@@ -155,8 +170,8 @@ class CardActivitySectionWidget extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: BaseTypography.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: BaseColor.black,
+                                    fontWeight: FontWeight.w700,
+                                    color: BaseColor.textPrimary,
                                   ),
                                 ),
                                 Gap.h6,
@@ -167,7 +182,9 @@ class CardActivitySectionWidget extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: BaseColor.yellow[50],
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(
+                                      BaseSize.radiusSm,
+                                    ),
                                     border: Border.all(
                                       color: BaseColor.yellow[200]!,
                                       width: 1,
@@ -187,7 +204,7 @@ class CardActivitySectionWidget extends StatelessWidget {
                           Gap.w8,
                           Icon(
                             Icons.chevron_right,
-                            size: BaseSize.w20,
+                            size: BaseSize.w18,
                             color: BaseColor.secondaryText,
                           ),
                         ],

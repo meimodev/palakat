@@ -194,13 +194,16 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     final l10n = context.l10n;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    // Show loading indicator
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.err_loadFailed),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    if (report.id == null) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.err_somethingWentWrong),
+          backgroundColor: BaseColor.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     final reportRepository = ref.read(reportRepositoryProvider);
     final result = await reportRepository.downloadReport(reportId: report.id!);
@@ -215,6 +218,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             SnackBar(
               content: Text(l10n.err_somethingWentWrong),
               backgroundColor: BaseColor.error,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -224,6 +228,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           SnackBar(
             content: Text(failure.message),
             backgroundColor: BaseColor.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       },
@@ -254,6 +259,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             SnackBar(
               content: Text(l10n.err_somethingWentWrong),
               backgroundColor: BaseColor.error,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -263,6 +269,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           SnackBar(
             content: Text(failure.message),
             backgroundColor: BaseColor.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       },
@@ -277,40 +284,51 @@ class _EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      // 8px grid spacing - 24px = 3 * 8px (Requirement 3.4)
-      padding: EdgeInsets.all(BaseSize.w24),
-      decoration: BoxDecoration(
-        color: BaseColor.surfaceMedium,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+    return Material(
+      color: BaseColor.surfaceMedium,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            AppIcons.workOff,
-            size: BaseSize.w48,
-            color: BaseColor.textSecondary,
-          ),
-          Gap.h12,
-          Text(
-            l10n.noData_positions,
-            textAlign: TextAlign.center,
-            style: BaseTypography.titleMedium.copyWith(
-              color: BaseColor.textSecondary,
-              fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: BaseSize.w56,
+              height: BaseSize.w56,
+              decoration: BoxDecoration(
+                color: BaseColor.primary[50],
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                AppIcons.workOff,
+                size: BaseSize.w24,
+                color: BaseColor.primary,
+              ),
             ),
-          ),
-          Gap.h4,
-          Text(
-            l10n.operations_noPositionsSubtitle,
-            textAlign: TextAlign.center,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.textSecondary,
+            Gap.h12,
+            Text(
+              l10n.noData_positions,
+              textAlign: TextAlign.center,
+              style: BaseTypography.titleMedium.copyWith(
+                color: BaseColor.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+            Gap.h4,
+            Text(
+              l10n.operations_noPositionsSubtitle,
+              textAlign: TextAlign.center,
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

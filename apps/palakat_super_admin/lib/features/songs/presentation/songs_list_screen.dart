@@ -28,19 +28,18 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = context.l10n;
         return AlertDialog(
-          title: const Text('Discard local draft?'),
-          content: const Text(
-            'Reload will discard your local draft changes that have not been published.',
-          ),
+          title: Text(l10n.songs_discardDraftTitle),
+          content: Text(l10n.songs_discardDraftContent),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Discard & Reload'),
+              child: Text(l10n.songs_discardDraftAction),
             ),
           ],
         );
@@ -60,12 +59,11 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
       final res = await controller.saveSongDb();
       final updatedAt = res['updatedAt'];
       if (context.mounted) {
+        final msg = updatedAt != null
+            ? context.l10n.msg_publishedSongsJson(updatedAt.toString())
+            : context.l10n.msg_publishedSongsJsonWithoutDate;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Published songs.json${updatedAt != null ? ' at $updatedAt' : ''}',
-            ),
-          ),
+          SnackBar(content: Text(msg)),
         );
       }
     } catch (e) {
@@ -87,6 +85,7 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
     final db = asyncDb.asData?.value;
     final songs = controller.pagedSongs();
     final total = controller.totalFilteredCount();
+    final l10n = context.l10n;
 
     final bookOptions = db == null || db.books.isEmpty
         ? null
@@ -98,11 +97,11 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Songs', style: Theme.of(context).textTheme.headlineMedium),
+        Text(l10n.nav_songs, style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Manage Songs',
-          subtitle: 'Edit the published songs.json used by the mobile app.',
+          title: l10n.songBook_title,
+          subtitle: l10n.songs_manageSubtitle,
           trailing: Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -118,7 +117,7 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.refresh),
-                label: const Text('Reload'),
+                label: Text(l10n.btn_retry),
               ),
               ElevatedButton.icon(
                 onPressed: _saving || asyncDb.isLoading
@@ -131,12 +130,12 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.cloud_upload_outlined),
-                label: const Text('Publish songs.json'),
+                label: Text(l10n.songs_publishAction),
               ),
               ElevatedButton.icon(
                 onPressed: () => context.go('/songs/new'),
                 icon: const Icon(Icons.add),
-                label: const Text('New'),
+                label: Text(l10n.btn_add),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -151,9 +150,9 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
             onRetry: controller.refresh,
             onRowTap: (row) => context.go('/songs/${row.id}'),
             filtersConfig: AppTableFiltersConfig(
-              searchHint: 'Search title / lyrics',
+              searchHint: l10n.songBook_searchHint,
               onSearchChanged: controller.onChangedSearch,
-              dropdownLabel: 'Book',
+              dropdownLabel: l10n.songDetail_field_book,
               dropdownOptions: bookOptions,
               dropdownValue: state.bookIdFilter.isEmpty
                   ? null
@@ -173,12 +172,12 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                   ),
             columns: [
               AppTableColumn<Song>(
-                title: 'ID',
+                title: l10n.tbl_id,
                 flex: 2,
                 cellBuilder: (context, row) => Text(row.id),
               ),
               AppTableColumn<Song>(
-                title: 'Title',
+                title: l10n.tbl_title,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
                   row.title,
@@ -187,7 +186,7 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                 ),
               ),
               AppTableColumn<Song>(
-                title: 'Sub Title',
+                title: l10n.tbl_subtitle,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
                   row.subTitle,
@@ -196,7 +195,7 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                 ),
               ),
               AppTableColumn<Song>(
-                title: 'Book',
+                title: l10n.songDetail_field_book,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   row.bookId.isNotEmpty ? row.bookId : row.bookName,
@@ -210,13 +209,17 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
         if (db != null) ...[
           const SizedBox(height: 12),
           Text(
-            'songs_count=${db.songsCount}, books_count=${db.booksCount}, updatedAt=${db.updatedAt?.toIso8601String() ?? ""}',
+            l10n.lbl_songsCount(
+              db.songsCount,
+              db.booksCount,
+              db.updatedAt?.toIso8601String() ?? "",
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           if (state.hasDraft) ...[
             const SizedBox(height: 4),
             Text(
-              'Local draft pending publish',
+              l10n.songs_localDraftPendingPublish,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -227,7 +230,10 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

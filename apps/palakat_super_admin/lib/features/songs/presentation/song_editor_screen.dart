@@ -87,7 +87,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Saved locally')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.msg_updated)));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -102,21 +102,22 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
   Future<void> _deleteSong() async {
     final id = widget.songId;
     if (id == null || id.trim().isEmpty) return;
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete this song?'),
-          content: const Text('This action cannot be undone.'),
+          title: Text(l10n.songEditor_deleteTitle),
+          content: Text(l10n.dlg_confirmDelete_content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
+              child: Text(l10n.btn_delete),
             ),
           ],
         );
@@ -132,7 +133,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Deleted')));
+      ).showSnackBar(SnackBar(content: Text(l10n.msg_deleted)));
       context.go('/songs');
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -180,17 +181,18 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
 
   Future<void> _addCompositionItem() async {
     SongPartType type = SongPartType.verse;
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add part type'),
+          title: Text('${l10n.btn_add} ${l10n.lbl_type}'),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
             child: DropdownButtonFormField<SongPartType>(
               value: type,
-              decoration: const InputDecoration(labelText: 'Type'),
+              decoration: InputDecoration(labelText: l10n.lbl_type),
               items: SongPartType.values
                   .map(
                     (t) => DropdownMenuItem<SongPartType>(
@@ -208,11 +210,11 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Save'),
+              child: Text(l10n.btn_save),
             ),
           ],
         );
@@ -231,17 +233,18 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
     if (index < 0 || index >= _parts.length) return;
     final part = _parts[index];
     final contentController = TextEditingController(text: part.content);
+    final l10n = context.l10n;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit ${part.type.name}'),
+          title: Text(l10n.songEditor_editPart(part.type.name)),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
             child: TextFormField(
               controller: contentController,
-              decoration: const InputDecoration(labelText: 'Content'),
+              decoration: InputDecoration(labelText: l10n.songEditor_contentHint),
               minLines: 6,
               maxLines: 12,
             ),
@@ -249,11 +252,11 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.btn_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Save'),
+              child: Text(l10n.btn_save),
             ),
           ],
         );
@@ -310,6 +313,8 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
   Widget build(BuildContext context) {
     final songsState = ref.watch(songsControllerProvider);
     final controller = ref.read(songsControllerProvider.notifier);
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
 
     final asyncDb = songsState.songDb;
     final isNew = widget.songId == null;
@@ -330,7 +335,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       }
     }
 
-    final title = isNew ? 'New Song' : 'Edit Song';
+    final title = isNew ? '${l10n.btn_add} ${l10n.nav_songs}' : l10n.nav_songs;
     final canEdit = asyncDb.hasValue;
 
     if (!canEdit) {
@@ -341,16 +346,36 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       );
     }
 
+    Widget buildFieldPair(Widget first, Widget second) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 720) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [first, const SizedBox(height: 12), second],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: first),
+              const SizedBox(width: 12),
+              Expanded(child: second),
+            ],
+          );
+        },
+      );
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: Theme.of(context).textTheme.headlineMedium),
+          Text(title, style: theme.textTheme.headlineMedium),
           const SizedBox(height: 16),
           SurfaceCard(
-            title: 'Song',
-            subtitle:
-                'Edits are saved locally and uploaded when you publish songs.json.',
+            title: l10n.songDetail_informationTitle,
+            subtitle: l10n.songEditor_localDraftInfo,
             trailing: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -364,13 +389,13 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.save),
-                  label: const Text('Save'),
+                  label: Text(l10n.btn_save),
                 ),
                 if (!isNew)
                   FilledButton.tonalIcon(
                     onPressed: _loading ? null : _deleteSong,
                     icon: const Icon(Icons.delete_outline),
-                    label: const Text('Delete'),
+                    label: Text(l10n.btn_delete),
                   ),
               ],
             ),
@@ -381,122 +406,97 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                 children: [
                   TextFormField(
                     controller: _idController,
-                    decoration: const InputDecoration(
-                      labelText: 'ID (e.g. KJ-1)',
+                    decoration: InputDecoration(
+                      labelText: l10n.songEditor_idHint,
                     ),
                     enabled: isNew,
                     validator: (v) {
                       final value = (v ?? '').trim();
-                      if (value.isEmpty) return 'ID is required';
+                      if (value.isEmpty) return l10n.validation_requiredField;
                       return null;
                     },
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _bookIdController,
-                          decoration: const InputDecoration(
-                            labelText: 'Book ID (e.g. kj)',
-                          ),
-                        ),
+                  buildFieldPair(
+                    TextFormField(
+                      controller: _bookIdController,
+                      decoration: InputDecoration(
+                        labelText: l10n.songEditor_bookIdHint,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _bookNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Book Name',
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    TextFormField(
+                      controller: _bookNameController,
+                      decoration: InputDecoration(labelText: l10n.songEditor_bookNameHint),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
+                    decoration: InputDecoration(labelText: l10n.lbl_title),
                     validator: (v) {
                       final value = (v ?? '').trim();
-                      if (value.isEmpty) return 'Title is required';
+                      if (value.isEmpty) return l10n.validation_requiredField;
                       return null;
                     },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _subTitleController,
-                    decoration: const InputDecoration(labelText: 'Sub Title'),
+                    decoration: InputDecoration(labelText: l10n.songEditor_subtitleHint),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _authorController,
-                          decoration: const InputDecoration(
-                            labelText: 'Author',
-                          ),
-                        ),
+                  buildFieldPair(
+                    TextFormField(
+                      controller: _authorController,
+                      decoration: InputDecoration(
+                        labelText: l10n.songDetail_field_author,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _publisherController,
-                          decoration: const InputDecoration(
-                            labelText: 'Publisher',
-                          ),
-                        ),
+                    ),
+                    TextFormField(
+                      controller: _publisherController,
+                      decoration: InputDecoration(
+                        labelText: l10n.songDetail_field_publisher,
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _baseNoteController,
-                    decoration: const InputDecoration(labelText: 'Base Note'),
+                    decoration: InputDecoration(
+                      labelText: l10n.songDetail_field_baseNote,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _urlImageController,
-                          decoration: const InputDecoration(
-                            labelText: 'urlImage',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _urlVideoController,
-                          decoration: const InputDecoration(
-                            labelText: 'urlVideo',
-                          ),
-                        ),
-                      ),
-                    ],
+                  buildFieldPair(
+                    TextFormField(
+                      controller: _urlImageController,
+                      decoration: InputDecoration(labelText: l10n.songEditor_urlImageHint),
+                    ),
+                    TextFormField(
+                      controller: _urlVideoController,
+                      decoration: InputDecoration(labelText: l10n.songEditor_urlVideoHint),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
-                          'Composition',
-                          style: Theme.of(context).textTheme.titleMedium,
+                          l10n.songEditor_compositionTitle,
+                          style: theme.textTheme.titleMedium,
                         ),
                       ),
                       FilledButton.icon(
                         onPressed: _loading ? null : _addCompositionItem,
                         icon: const Icon(Icons.add),
-                        label: const Text('Add'),
+                        label: Text(l10n.btn_add),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   if (_composition.isEmpty)
                     Text(
-                      'No composition yet.',
+                      l10n.songEditor_noCompositionYet,
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else
@@ -504,69 +504,94 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                       final t = _composition[i];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            SizedBox(width: 56, child: Text('${i + 1}.')),
-                            Expanded(
-                              child: DropdownButtonFormField<SongPartType>(
-                                value: t,
-                                decoration: const InputDecoration(
-                                  labelText: 'Type',
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final dropdown =
+                                DropdownButtonFormField<SongPartType>(
+                                  value: t,
+                                  decoration: InputDecoration(
+                                    labelText: l10n.lbl_type,
+                                  ),
+                                  items: SongPartType.values
+                                      .map(
+                                        (v) => DropdownMenuItem<SongPartType>(
+                                          value: v,
+                                          child: Text(v.name),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: _loading
+                                      ? null
+                                      : (value) {
+                                          if (value == null) return;
+                                          setState(() {
+                                            final nextComposition = [
+                                              ..._composition,
+                                            ];
+                                            nextComposition[i] = value;
+                                            _composition = nextComposition;
+                                            _syncDefinitionFromComposition();
+                                          });
+                                        },
+                                );
+
+                            final actions = Wrap(
+                              spacing: 4,
+                              children: [
+                                IconButton(
+                                  onPressed: _loading || i == 0
+                                      ? null
+                                      : () => _swapPart(i, i - 1),
+                                  icon: const Icon(Icons.arrow_upward),
                                 ),
-                                items: SongPartType.values
-                                    .map(
-                                      (v) => DropdownMenuItem<SongPartType>(
-                                        value: v,
-                                        child: Text(v.name),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: _loading
-                                    ? null
-                                    : (value) {
-                                        if (value == null) return;
-                                        setState(() {
-                                          final nextComposition = [
-                                            ..._composition,
-                                          ];
-                                          nextComposition[i] = value;
-                                          _composition = nextComposition;
-                                          _syncDefinitionFromComposition();
-                                        });
-                                      },
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: _loading || i == 0
-                                  ? null
-                                  : () => _swapPart(i, i - 1),
-                              icon: const Icon(Icons.arrow_upward),
-                            ),
-                            IconButton(
-                              onPressed:
-                                  _loading || i == _composition.length - 1
-                                  ? null
-                                  : () => _swapPart(i, i + 1),
-                              icon: const Icon(Icons.arrow_downward),
-                            ),
-                            IconButton(
-                              onPressed: _loading ? null : () => _removeAt(i),
-                              icon: const Icon(Icons.delete_outline),
-                            ),
-                          ],
+                                IconButton(
+                                  onPressed:
+                                      _loading || i == _composition.length - 1
+                                      ? null
+                                      : () => _swapPart(i, i + 1),
+                                  icon: const Icon(Icons.arrow_downward),
+                                ),
+                                IconButton(
+                                  onPressed: _loading
+                                      ? null
+                                      : () => _removeAt(i),
+                                  icon: const Icon(Icons.delete_outline),
+                                ),
+                              ],
+                            );
+
+                            if (constraints.maxWidth < 720) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('${i + 1}.'),
+                                  const SizedBox(height: 8),
+                                  dropdown,
+                                  const SizedBox(height: 8),
+                                  actions,
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              children: [
+                                SizedBox(width: 56, child: Text('${i + 1}.')),
+                                Expanded(child: dropdown),
+                                const SizedBox(width: 8),
+                                actions,
+                              ],
+                            );
+                          },
                         ),
                       );
                     }),
 
                   const SizedBox(height: 20),
-                  Text(
-                    'Definition',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text(l10n.songEditor_definitionTitle, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
                   if (_parts.isEmpty)
                     Text(
-                      'No definition yet.',
+                      l10n.songEditor_noDefinitionYet,
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else
@@ -574,31 +599,50 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                       final p = _parts[i];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    p.type.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final summary = Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p.type.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(p.content),
-                                ],
-                              ),
-                            ),
-                            IconButton(
+                                ),
+                                const SizedBox(height: 4),
+                                Text(p.content),
+                              ],
+                            );
+
+                            final editButton = IconButton(
                               onPressed: _loading
                                   ? null
                                   : () => _editPartContent(i),
                               icon: const Icon(Icons.edit_outlined),
-                            ),
-                          ],
+                            );
+
+                            if (constraints.maxWidth < 720) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  summary,
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: editButton,
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(child: summary),
+                                editButton,
+                              ],
+                            );
+                          },
                         ),
                       );
                     }),
@@ -609,7 +653,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
           const SizedBox(height: 16),
           TextButton(
             onPressed: () => context.go('/songs'),
-            child: const Text('Back to list'),
+            child: Text(l10n.btn_back),
           ),
         ],
       ),

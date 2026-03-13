@@ -26,20 +26,21 @@ class CardAnnouncementWidget extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.yellow[50],
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      ),
       child: InkWell(
         onTap: onPressedCard,
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w16),
           child: Row(
             children: [
-              // Document icon in circle
               Container(
                 width: BaseSize.w40,
                 height: BaseSize.w40,
                 decoration: BoxDecoration(
                   color: BaseColor.yellow[100],
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   boxShadow: [
                     BoxShadow(
                       color: BaseColor.yellow[200]!.withValues(alpha: 0.3),
@@ -65,7 +66,8 @@ class CardAnnouncementWidget extends StatelessWidget {
                     Text(
                       title,
                       style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -74,7 +76,7 @@ class CardAnnouncementWidget extends StatelessWidget {
                     Text(
                       publishedOn.EEEEddMMMyyyy,
                       style: BaseTypography.labelMedium.copyWith(
-                        color: BaseColor.yellow[700],
+                        color: BaseColor.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -83,12 +85,13 @@ class CardAnnouncementWidget extends StatelessWidget {
               ),
               if (canDownload) ...[
                 Gap.w12,
-                // Download button
                 Material(
                   color: BaseColor.yellow[50],
-                  elevation: 2,
-                  shadowColor: Colors.black.withValues(alpha: 0.1),
-                  shape: const CircleBorder(),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    side: BorderSide(color: BaseColor.yellow[200]!, width: 1),
+                  ),
                   clipBehavior: Clip.hardEdge,
                   child: InkWell(
                     onTap: onPressedDownload,
@@ -98,7 +101,7 @@ class CardAnnouncementWidget extends StatelessWidget {
                       alignment: Alignment.center,
                       child: FaIcon(
                         AppIcons.download,
-                        size: BaseSize.w20,
+                        size: BaseSize.w18,
                         color: BaseColor.yellow[700],
                       ),
                     ),

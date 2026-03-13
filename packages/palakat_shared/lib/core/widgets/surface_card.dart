@@ -35,26 +35,47 @@ class SurfaceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null || subtitle != null || trailing != null) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final titleBlock = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (title != null)
+                      Text(title!, style: theme.textTheme.titleLarge),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                );
+
+                if (trailing == null || constraints.maxWidth >= 560) {
+                  return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (title != null)
-                        Text(title!, style: theme.textTheme.titleLarge),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
+                      Expanded(child: titleBlock),
+                      if (trailing != null) ...[
+                        const SizedBox(width: 12),
+                        Flexible(child: trailing!),
+                      ],
                     ],
-                  ),
-                ),
-                if (trailing != null) trailing!,
-              ],
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    titleBlock,
+                    if (trailing != null) ...[
+                      const SizedBox(height: 12),
+                      trailing!,
+                    ],
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 12),
           ],

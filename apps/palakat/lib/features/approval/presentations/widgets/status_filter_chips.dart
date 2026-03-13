@@ -132,12 +132,12 @@ class _FilterChip extends StatelessWidget {
                     color: isSelected
                         ? Colors.white.withValues(alpha: 0.2)
                         : color.shade100,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Text(
                     count.toString(),
                     style: BaseTypography.labelSmall.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: isSelected ? Colors.white : color.shade700,
                     ),
                   ),

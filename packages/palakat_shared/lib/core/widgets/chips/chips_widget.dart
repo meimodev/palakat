@@ -38,32 +38,36 @@ class ChipsWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            SizedBox(
-              width: 12,
-              height: 12,
-              child: icon.svg(
-                width: 12.0,
-                height: 12.0,
-                colorFilter: ColorFilter.mode(
-                  theme.colorScheme.onSurfaceVariant,
-                  BlendMode.srcIn,
-                ),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+      if (icon != null) ...[
+      SizedBox(
+      width: 12,
+      height: 12,
+      child: icon.svg(
+      width: 12.0,
+      height: 12.0,
+      colorFilter: ColorFilter.mode(
+      theme.colorScheme.onSurfaceVariant,
+      BlendMode.srcIn,
+      ),
+      ),
+      ),
+      const SizedBox(width: 4),
+      ],
+      Flexible(
+      child: Text(
+        title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.labelMedium?.copyWith(
+            color: primaryColor,
+              fontWeight: FontWeight.w600,
+              ),
               ),
             ),
-            const SizedBox(width: 4),
           ],
-          Text(
-            title,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: primaryColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+        ),
     );
   }
 }

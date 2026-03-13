@@ -14,19 +14,23 @@ class ChurchesListScreen extends ConsumerWidget {
     final state = ref.watch(churchesControllerProvider);
     final asyncItems = state.items;
     final items = asyncItems.asData?.value;
+    final l10n = context.l10n;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Churches', style: Theme.of(context).textTheme.headlineMedium),
+        Text(
+          l10n.nav_church,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
         const SizedBox(height: 16),
         SurfaceCard(
-          title: 'Manage Churches',
-          subtitle: 'Create and update church profiles and their locations.',
+          title: l10n.nav_church,
+          subtitle: l10n.admin_church_subtitle,
           trailing: ElevatedButton.icon(
             onPressed: () => context.go('/churches/new'),
             icon: const Icon(Icons.add),
-            label: const Text('New'),
+            label: Text(l10n.btn_add),
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -39,7 +43,7 @@ class ChurchesListScreen extends ConsumerWidget {
             onRetry: controller.refresh,
             onRowTap: (row) => context.go('/churches/${row.id}'),
             filtersConfig: AppTableFiltersConfig(
-              searchHint: 'Search church name',
+              searchHint: l10n.lbl_searchChurches,
               onSearchChanged: controller.onChangedSearch,
             ),
             pagination: items == null
@@ -55,7 +59,7 @@ class ChurchesListScreen extends ConsumerWidget {
                   ),
             columns: [
               AppTableColumn<Church>(
-                title: 'Name',
+                title: l10n.tbl_name,
                 flex: 4,
                 cellBuilder: (context, row) => Text(
                   row.name,
@@ -64,7 +68,7 @@ class ChurchesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<Church>(
-                title: 'Phone',
+                title: l10n.tbl_phone,
                 flex: 2,
                 cellBuilder: (context, row) => Text(
                   row.phoneNumber?.toString() ?? '-',
@@ -73,7 +77,7 @@ class ChurchesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<Church>(
-                title: 'Email',
+                title: l10n.lbl_email,
                 flex: 3,
                 cellBuilder: (context, row) => Text(
                   row.email?.toString() ?? '-',
@@ -82,7 +86,7 @@ class ChurchesListScreen extends ConsumerWidget {
                 ),
               ),
               AppTableColumn<Church>(
-                title: 'Location',
+                title: l10n.card_location_title,
                 flex: 4,
                 cellBuilder: (context, row) => Text(
                   row.location?.name ?? '-',
@@ -99,7 +103,10 @@ class ChurchesListScreen extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedHeight) {
-          return SingleChildScrollView(child: content);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: content,
+          );
         }
         return content;
       },

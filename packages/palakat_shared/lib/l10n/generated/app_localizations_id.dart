@@ -88,6 +88,127 @@ class AppLocalizationsId extends AppLocalizations {
   String get songBook_downloadRequiredButton => 'Unduh database lagu';
 
   @override
+  String get songBook_databaseTitle => 'Database lagu';
+
+  @override
+  String get songBook_versionFallback => 'v-';
+
+  @override
+  String songBook_songsCount(int count) {
+    return '$count lagu';
+  }
+
+  @override
+  String songBook_booksCount(int count) {
+    return '$count buku';
+  }
+
+  @override
+  String get songBook_updateAvailableTitle => 'Pembaruan tersedia';
+
+  @override
+  String get songBook_updateAvailableSubtitle =>
+      'Database lagu yang lebih baru tersedia.';
+
+  @override
+  String songBook_updateAvailableSubtitleWithDate(String date) {
+    return 'Diperbarui $date';
+  }
+
+  @override
+  String get songBook_updateAction => 'Perbarui';
+
+  @override
+  String get songBook_updatingAction => 'Memperbarui...';
+
+  @override
+  String get songDetail_informationTitle => 'Informasi lagu';
+
+  @override
+  String get songDetail_field_book => 'Buku';
+
+  @override
+  String get songDetail_field_author => 'Penulis';
+
+  @override
+  String get songDetail_field_baseNote => 'Nada dasar';
+
+  @override
+  String get songDetail_field_publisher => 'Penerbit';
+
+  @override
+  String get songDetail_videoFallback => 'Video';
+
+  @override
+  String get songDetail_openVideo => 'Buka video';
+
+  @override
+  String get songs_manageSubtitle =>
+      'Kelola songs.json yang dipublikasikan dan digunakan oleh aplikasi seluler.';
+
+  @override
+  String get songs_publishAction => 'Publikasikan songs.json';
+
+  @override
+  String get songs_localDraftPendingPublish =>
+      'Draf lokal menunggu dipublikasikan';
+
+  @override
+  String get songs_discardDraftTitle => 'Buang draf lokal?';
+
+  @override
+  String get songs_discardDraftContent =>
+      'Muat ulang akan membuang perubahan draf lokal Anda yang belum dipublikasikan.';
+
+  @override
+  String get songs_discardDraftAction => 'Buang & Muat Ulang';
+
+  @override
+  String get songEditor_localDraftInfo =>
+      'Perubahan disimpan secara lokal dan diunggah saat Anda memublikasikan songs.json.';
+
+  @override
+  String get songEditor_deleteTitle => 'Hapus lagu ini?';
+
+  @override
+  String get songEditor_idHint => 'ID (cth: KJ-1)';
+
+  @override
+  String get songEditor_bookIdHint => 'ID Buku (cth: kj)';
+
+  @override
+  String get songEditor_bookNameHint => 'Nama Buku';
+
+  @override
+  String get songEditor_subtitleHint => 'Subjudul';
+
+  @override
+  String get songEditor_urlImageHint => 'urlImage';
+
+  @override
+  String get songEditor_urlVideoHint => 'urlVideo';
+
+  @override
+  String get songEditor_compositionTitle => 'Komposisi';
+
+  @override
+  String get songEditor_noCompositionYet => 'Belum ada komposisi.';
+
+  @override
+  String get songEditor_contentHint => 'Konten';
+
+  @override
+  String get songEditor_definitionTitle => 'Definisi';
+
+  @override
+  String get songEditor_noDefinitionYet => 'Belum ada definisi.';
+
+  @override
+  String songEditor_editPart(String part) {
+    return 'Ubah $part';
+  }
+
+  @override
   String get articles_title => 'Artikel';
 
   @override
@@ -727,6 +848,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get btn_remove => 'Hapus';
 
   @override
+  String get btn_uploadCover => 'Unggah sampul';
+
+  @override
+  String lbl_coverUrl(String url) {
+    return 'URL Sampul: $url';
+  }
+
+  @override
   String get btn_create => 'Buat';
 
   @override
@@ -746,6 +875,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get btn_updatePassword => 'Perbarui Kata Sandi';
+
+  @override
+  String get btn_archive => 'Arsipkan';
+
+  @override
+  String get btn_publish => 'Publikasikan';
+
+  @override
+  String get btn_unpublish => 'Batalkan Publikasi';
 
   @override
   String get lbl_email => 'Email';
@@ -806,6 +944,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_to => 'Ke';
+
+  @override
+  String lbl_songsCount(int songsCount, int booksCount, String updatedAt) {
+    return 'jumlah_lagu=$songsCount, jumlah_buku=$booksCount, diperbarui=$updatedAt';
+  }
 
   @override
   String get lbl_search => 'Cari';
@@ -924,6 +1067,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get status_draft => 'Draf';
 
   @override
+  String get status_published => 'Dipublikasikan';
+
+  @override
+  String get status_archived => 'Diarsipkan';
+
+  @override
   String get status_completed => 'Selesai';
 
   @override
@@ -1040,6 +1189,68 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashboard_subtitle => 'Ringkasan kegiatan gereja Anda.';
 
   @override
+  String get dashboard_alarmSettings_tooltip => 'Alarm kegiatan';
+
+  @override
+  String get dashboard_alarmSummary_title => 'Alarm terjadwal';
+
+  @override
+  String dashboard_alarmSummary_message(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pengingat sudah diatur di ponsel Anda',
+      one: '1 pengingat sudah diatur di ponsel Anda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboard_alarmSummary_action => 'Kelola alarm';
+
+  @override
+  String get dashboard_smokeTest_title => 'Uji alarm';
+
+  @override
+  String get dashboard_smokeTest_emptyMessage =>
+      'Muat setidaknya satu kegiatan di beranda untuk menguji alur alarm.';
+
+  @override
+  String get dashboard_smokeTest_readyMessage =>
+      'Menjadwalkan alarm kegiatan berbunyi dalam 10 detik menggunakan alur notifikasi perangkat saat ini.';
+
+  @override
+  String get dashboard_smokeTest_action => 'Uji alarm dalam 10 detik';
+
+  @override
+  String get dashboard_smokeTest_loadingAction => 'Menjadwalkan...';
+
+  @override
+  String dashboard_smokeTest_scheduledSnack(String time) {
+    return 'Alarm uji dijadwalkan pada $time';
+  }
+
+  @override
+  String dashboard_smokeTest_failedSnack(String error) {
+    return 'Gagal menjadwalkan alarm uji: $error';
+  }
+
+  @override
+  String get dashboard_alarmPermission_exact_title => 'Izinkan alarm presisi';
+
+  @override
+  String get dashboard_alarmPermission_exact_message =>
+      'Agar alarm berbunyi tepat waktu, Android mungkin meminta Anda mengizinkan alarm presisi untuk Palakat.';
+
+  @override
+  String get dashboard_alarmPermission_fullScreen_title =>
+      'Izinkan alarm layar penuh';
+
+  @override
+  String get dashboard_alarmPermission_fullScreen_message =>
+      'Agar layar alarm dapat tampil di atas layar kunci, Android mungkin meminta Anda mengizinkan intent layar penuh untuk Palakat.';
+
+  @override
   String get dashboard_recentActivity => 'Aktivitas Terbaru';
 
   @override
@@ -1093,12 +1304,34 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashboard_membershipInvitation_title => 'Undangan keanggotaan';
 
   @override
+  String get dashboard_membershipInvitation_subtitle =>
+      'Tinjau undangan yang menghubungkan orang ke gereja dan kolom.';
+
+  @override
   String get dashboard_membershipInvitation_snackbarApproved =>
       'Undangan disetujui';
 
   @override
   String get dashboard_membershipInvitation_snackbarRejected =>
       'Undangan ditolak';
+
+  @override
+  String get dashboard_membershipInvitation_searchHint =>
+      'Cari pengundang / yang diundang / gereja / kolom / telepon';
+
+  @override
+  String get dashboard_membershipInvitation_inviter => 'Pengundang';
+
+  @override
+  String get dashboard_membershipInvitation_invitee => 'Yang Diundang';
+
+  @override
+  String get dashboard_membershipInvitation_confirmApprove =>
+      'Setujui undangan ini dan buat keanggotaan untuk yang diundang?';
+
+  @override
+  String get dashboard_membershipInvitation_confirmDelete =>
+      'Hapus undangan ini? Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get msg_pressBackToExit => 'Tekan kembali untuk keluar';
@@ -1711,6 +1944,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_notes => 'Catatan';
 
   @override
+  String get lbl_reviewedAt => 'Ditinjau Pada';
+
+  @override
   String get lbl_paidDate => 'Tanggal Bayar';
 
   @override
@@ -1954,10 +2190,25 @@ class AppLocalizationsId extends AppLocalizations {
   String get churchRequest_title => 'Ajukan Pendaftaran Gereja';
 
   @override
+  String get app_superAdminTitle => 'SUPER ADMIN';
+
+  @override
+  String get app_adminTitle => 'ADMIN';
+
+  @override
   String get churchRequest_status_onReview => 'Dalam Tinjauan';
 
   @override
   String get churchRequest_status_onProgress => 'Sedang Diproses';
+
+  @override
+  String get churchEditor_addTitle => 'Tambah Gereja';
+
+  @override
+  String get churchEditor_editTitle => 'Ubah Gereja';
+
+  @override
+  String get churchEditor_deleteTitle => 'Hapus Gereja?';
 
   @override
   String get churchRequest_statusMessage_onReview =>
@@ -2185,6 +2436,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tbl_title => 'Judul';
+
+  @override
+  String get tbl_published => 'Dipublikasikan';
+
+  @override
+  String get tbl_id => 'ID';
+
+  @override
+  String get tbl_subtitle => 'Subjudul';
 
   @override
   String get tbl_type => 'Jenis';
@@ -2451,7 +2711,19 @@ class AppLocalizationsId extends AppLocalizations {
   String get dlg_confirmAction_title => 'Konfirmasi Tindakan';
 
   @override
+  String get dlg_articleArchive_content =>
+      'Ini akan menyembunyikan artikel dari aplikasi publik. Anda masih dapat mengeditnya nanti.';
+
+  @override
+  String get dlg_articleCoverUploadRequiresDraft_content =>
+      'Simpan draf terlebih dahulu untuk mengunggah sampul.';
+
+  @override
   String get dlg_confirmDelete_title => 'Konfirmasi Hapus';
+
+  @override
+  String get dlg_confirmDelete_content =>
+      'Tindakan ini tidak dapat dibatalkan.';
 
   @override
   String get filter_allStatus => 'Semua Status';
@@ -2563,6 +2835,27 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_deleted => 'Berhasil dihapus';
+
+  @override
+  String get msg_archived => 'Diarsipkan';
+
+  @override
+  String get msg_published => 'Dipublikasikan';
+
+  @override
+  String get msg_unpublished => 'Publikasi dibatalkan';
+
+  @override
+  String get msg_coverUploaded => 'Sampul berhasil diunggah';
+
+  @override
+  String msg_publishedSongsJson(String updatedAt) {
+    return 'Berhasil mempublikasikan songs.json pada $updatedAt';
+  }
+
+  @override
+  String get msg_publishedSongsJsonWithoutDate =>
+      'Berhasil mempublikasikan songs.json';
 
   @override
   String get msg_approvalRuleCreated => 'Aturan persetujuan berhasil dibuat';

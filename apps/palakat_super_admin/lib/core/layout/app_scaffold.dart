@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 import '../../features/auth/application/super_admin_auth_controller.dart';
 import 'super_admin_sidebar.dart';
@@ -11,7 +12,14 @@ class AppScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSmall = MediaQuery.of(context).size.width < 900;
+    final width = MediaQuery.of(context).size.width;
+    final isSmall = width < 900;
+    final horizontalPadding = isSmall
+        ? 12.0
+        : width > 1440
+        ? 24.0
+        : 16.0;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: isSmall
@@ -19,10 +27,10 @@ class AppScaffold extends ConsumerWidget {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Palakat'),
+                  Text(l10n.appTitle),
                   const SizedBox(width: 8),
                   Chip(
-                    label: const Text('SUPER ADMIN'),
+                    label: Text(l10n.app_superAdminTitle),
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
@@ -38,7 +46,7 @@ class AppScaffold extends ConsumerWidget {
               ),
               actions: [
                 IconButton(
-                  tooltip: 'Sign out',
+                  tooltip: l10n.btn_signOut,
                   icon: const Icon(Icons.logout),
                   onPressed: () async {
                     await ref
@@ -63,11 +71,17 @@ class AppScaffold extends ConsumerWidget {
           Expanded(
             child: _AnimatedContent(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
                   vertical: 16,
                 ),
-                child: child,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1440),
+                    child: child,
+                  ),
+                ),
               ),
             ),
           ),

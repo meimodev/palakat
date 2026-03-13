@@ -15,7 +15,13 @@ class AppScaffold extends StatefulWidget {
 class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width < 900;
+    final width = MediaQuery.of(context).size.width;
+    final isSmall = width < 900;
+    final horizontalPadding = isSmall
+        ? 12.0
+        : width > 1440
+        ? 24.0
+        : 16.0;
 
     return Scaffold(
       appBar: isSmall
@@ -42,18 +48,23 @@ class _AppScaffoldState extends State<AppScaffold> {
           Expanded(
             child: _AnimatedContent(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
                   vertical: 16,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Page content
-                    SizedBox.shrink(key: ValueKey('content_placeholder')),
-                    widget.child,
-                    const _AppFooter(),
-                  ],
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1440),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox.shrink(key: ValueKey('content_placeholder')),
+                        widget.child,
+                        const _AppFooter(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -222,10 +233,21 @@ class _AvatarMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final auth = ref.watch(authControllerProvider).asData?.value?.account;
+    final displayName = auth?.name.trim().isNotEmpty == true
+        ? auth!.name.trim()
+        : l10n.lbl_adminUser;
     return PopupMenuButton<String>(
-      icon: const CircleAvatar(
+      icon: CircleAvatar(
         radius: 16,
-        backgroundImage: NetworkImage('https://placehold.co/100x100.png'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Text(
+          displayName.initials,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -295,7 +317,10 @@ class _AppFooter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 32),
-        const Divider(height: 16, color: Colors.black54),
+        Divider(
+          height: 16,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
