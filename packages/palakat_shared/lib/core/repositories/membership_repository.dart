@@ -11,7 +11,10 @@ import '../services/socket_service.dart';
 part 'membership_repository.g.dart';
 
 @riverpod
-MembershipRepository membershipRepository(Ref ref) => MembershipRepository(ref);
+MembershipRepository membershipRepository(Ref ref) {
+  ref.keepAlive();
+  return MembershipRepository(ref);
+}
 
 class MembershipRepository {
   MembershipRepository(this._ref);

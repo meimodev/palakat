@@ -117,6 +117,21 @@ class AuthRepository {
     return Result.success(null);
   }
 
+  Future<Result<void, Failure>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _socket.rpc('auth.changePassword', {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      });
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   /// Clears all authentication data from local storage
   /// This includes tokens, account data, membership, permission state,
   /// and notification settings

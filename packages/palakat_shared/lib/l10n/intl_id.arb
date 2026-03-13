@@ -876,6 +876,14 @@
   "@err_accountLocked": {
     "description": "Error message for account locked (403)"
   },
+  "err_accountInactive": "Akun Anda tidak aktif. Silakan hubungi super admin.",
+  "@err_accountInactive": {
+    "description": "Error message for inactive account (403)"
+  },
+  "err_adminAccountRequired": "Akun ini tidak dapat masuk ke Palakat Admin.",
+  "@err_adminAccountRequired": {
+    "description": "Error message for non-admin account sign in attempt (403)"
+  },
   "err_statusWithCode": "{code} • {label}",
 
   "auth_welcomeBack": "Selamat Datang Kembali",

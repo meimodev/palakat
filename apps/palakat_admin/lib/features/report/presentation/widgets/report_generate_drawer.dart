@@ -81,8 +81,13 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
     try {
       if (widget.onGenerate != null) {
         final includeColumn =
-            widget.reportType == 'CONGREGATION' ||
-            widget.reportType == 'ACTIVITY';
+            (widget.reportType == 'CONGREGATION' ||
+                widget.reportType == 'ACTIVITY' ||
+                widget.reportType == 'FINANCIAL') &&
+            (widget.reportType != 'FINANCIAL' ||
+                _financialSubtype != FinancialReportSubtype.mutation) &&
+            (widget.reportType != 'CONGREGATION' ||
+                _congregationSubtype != CongregationReportSubtype.wartaJemaat);
         await widget.onGenerate!(
           effectiveRange,
           _format,
@@ -124,9 +129,16 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
         widget.reportType == 'OUTCOMING_DOCUMENT';
     final showCongregationSubtype = widget.reportType == 'CONGREGATION';
     final showColumnDropdown =
-        widget.reportType == 'CONGREGATION' || widget.reportType == 'ACTIVITY';
+        widget.reportType == 'CONGREGATION' ||
+        widget.reportType == 'ACTIVITY' ||
+        widget.reportType == 'FINANCIAL';
     final showActivityType = widget.reportType == 'ACTIVITY';
     final showFinancialSubtype = widget.reportType == 'FINANCIAL';
+    final enableColumnDropdown =
+        (widget.reportType != 'FINANCIAL' ||
+            _financialSubtype != FinancialReportSubtype.mutation) &&
+        (widget.reportType != 'CONGREGATION' ||
+            _congregationSubtype != CongregationReportSubtype.wartaJemaat);
 
     return SideDrawer(
       title: l10n.drawer_generateReport_title,
@@ -138,6 +150,43 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+
+          if (showColumnDropdown) ...[
+            LabeledField(
+              label: l10n.lbl_selectColumn,
+              child: DropdownButtonFormField<cm.Column?>(
+                value: _selectedColumn,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  prefixIcon: Icon(Icons.view_column_outlined, size: 18),
+                ),
+                items: [
+                  DropdownMenuItem<cm.Column?>(
+                    value: null,
+                    child: Text(l10n.approval_filterAll),
+                  ),
+                  ...availableColumns.map(
+                    (c) => DropdownMenuItem<cm.Column?>(
+                      value: c,
+                      child: Text(c.name),
+                    ),
+                  ),
+                ],
+                onChanged: enableColumnDropdown
+                    ? (value) {
+                        setState(() => _selectedColumn = value);
+                      }
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
           if (showDocumentInput) ...[
             LabeledField(
               label: l10n.lbl_documentInput,
@@ -199,45 +248,18 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 ],
                 onChanged: (value) {
                   if (value == null) return;
-                  setState(() => _congregationSubtype = value);
+                  setState(() {
+                    _congregationSubtype = value;
+                    if (value == CongregationReportSubtype.wartaJemaat) {
+                      _selectedColumn = null;
+                    }
+                  });
                 },
               ),
             ),
             const SizedBox(height: 16),
           ],
 
-          if (showColumnDropdown) ...[
-            LabeledField(
-              label: l10n.lbl_selectColumn,
-              child: DropdownButtonFormField<cm.Column?>(
-                value: _selectedColumn,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  prefixIcon: Icon(Icons.view_column_outlined, size: 18),
-                ),
-                items: [
-                  DropdownMenuItem<cm.Column?>(
-                    value: null,
-                    child: Text(l10n.approval_filterAll),
-                  ),
-                  ...availableColumns.map(
-                    (c) => DropdownMenuItem<cm.Column?>(
-                      value: c,
-                      child: Text(c.name),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedColumn = value);
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
 
           if (showActivityType) ...[
             LabeledField(
@@ -298,7 +320,12 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                     .toList(),
                 onChanged: (value) {
                   if (value == null) return;
-                  setState(() => _financialSubtype = value);
+                  setState(() {
+                    _financialSubtype = value;
+                    if (value == FinancialReportSubtype.mutation) {
+                      _selectedColumn = null;
+                    }
+                  });
                 },
               ),
             ),

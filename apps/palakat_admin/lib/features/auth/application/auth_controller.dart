@@ -84,6 +84,17 @@ class AuthController extends _$AuthController {
     );
   }
 
+  Future<Result<void, Failure>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) {
+    final repo = ref.read(authRepositoryProvider);
+    return repo.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+  }
+
   /// Unregisters all push notification interests.
   ///
   /// This is called before sign-out to unsubscribe from all device interests

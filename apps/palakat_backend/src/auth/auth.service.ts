@@ -500,6 +500,73 @@ export class AuthService {
     return this.signIn(payload);
   }
 
+  async changePassword(
+    accountId: number,
+    payload: { currentPassword: string; newPassword: string },
+  ) {
+    const currentPassword = payload.currentPassword ?? '';
+    const newPassword = payload.newPassword ?? '';
+
+    if (currentPassword.length === 0) {
+      throw new BadRequestException('Current password is required');
+    }
+    if (newPassword.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+
+    const account: any = await this.prisma.account.findUnique({
+      where: { id: accountId },
+      select: {
+        id: true,
+        passwordHash: true,
+        isActive: true,
+        lockUntil: true,
+      } as any,
+    } as any);
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    if (!account.isActive) {
+      throw new ForbiddenException('Account is inactive');
+    }
+    if (account.lockUntil && account.lockUntil > new Date()) {
+      throw new ForbiddenException('Account is locked. Try again later');
+    }
+    if (!account.passwordHash) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      account.passwordHash,
+    );
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const samePassword = await bcrypt.compare(newPassword, account.passwordHash);
+    if (samePassword) {
+      throw new BadRequestException(
+        'New password must be different from current password',
+      );
+    }
+
+    await this.prisma.account.update({
+      where: { id: accountId },
+      data: {
+        passwordHash: await bcrypt.hash(newPassword, 12),
+        failedLoginAttempts: 0,
+        lockUntil: null,
+      } as any,
+    } as any);
+
+    return {
+      message: 'Password changed',
+      data: true,
+    };
+  }
+
   private async issueTokens(accountId: number): Promise<{
     accessToken: string;
     refreshToken: string;

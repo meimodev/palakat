@@ -991,6 +991,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account is temporarily locked. Please wait 5 minutes and try again.';
 
   @override
+  String get err_accountInactive =>
+      'Your account is inactive. Please contact a super admin.';
+
+  @override
+  String get err_adminAccountRequired =>
+      'This account cannot sign in to Palakat Admin.';
+
+  @override
   String err_statusWithCode(Object code, Object label) {
     return '$code • $label';
   }

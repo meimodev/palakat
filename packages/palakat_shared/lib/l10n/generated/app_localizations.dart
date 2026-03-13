@@ -1844,6 +1844,10 @@ abstract class AppLocalizations {
   /// **'Your account is temporarily locked. Please wait 5 minutes and try again.'**
   String get err_accountLocked;
 
+  String get err_accountInactive;
+
+  String get err_adminAccountRequired;
+
   /// No description provided for @err_statusWithCode.
   ///
   /// In en, this message translates to:

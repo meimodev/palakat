@@ -50,10 +50,16 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
         state.reportType == ReportGenerateType.congregation;
     final showColumn =
         state.reportType == ReportGenerateType.congregation ||
-        state.reportType == ReportGenerateType.activity;
+        state.reportType == ReportGenerateType.activity ||
+        state.reportType == ReportGenerateType.financial;
     final showActivityType = state.reportType == ReportGenerateType.activity;
     final showFinancialSubtype =
         state.reportType == ReportGenerateType.financial;
+    final disableColumnSelection =
+        (state.reportType == ReportGenerateType.financial &&
+            state.financialSubtype == FinancialReportSubtype.mutation) ||
+        (state.reportType == ReportGenerateType.congregation &&
+            state.congregationSubtype == CongregationReportSubtype.wartaJemaat);
 
     return ScaffoldWidget(
       disableSingleChildScrollView: false,
@@ -216,26 +222,32 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
           ],
 
           if (showColumn) ...[
-            InputWidget<model.Column?>.dropdown(
-              label: l10n.lbl_selectColumn,
-              hint: l10n.approval_filterAll,
-              currentInputValue: state.selectedColumn,
-              options: const <model.Column?>[null],
-              optionLabel: (c) => c?.name ?? l10n.approval_filterAll,
-              onChanged: controller.setSelectedColumn,
-              onPressedWithResult: () async {
-                final churchId = state.churchId;
-                if (churchId == null) {
-                  _showSnackBar(context, l10n.lbl_selectChurchFirst);
-                  return null;
-                }
-                return await showDialogColumnPickerWidget(
-                  context: context,
-                  churchId: churchId,
-                );
-              },
+            Opacity(
+              opacity: disableColumnSelection ? 0.6 : 1,
+              child: IgnorePointer(
+                ignoring: disableColumnSelection,
+                child: InputWidget<model.Column?>.dropdown(
+                  label: l10n.lbl_selectColumn,
+                  hint: l10n.approval_filterAll,
+                  currentInputValue: state.selectedColumn,
+                  options: const <model.Column?>[null],
+                  optionLabel: (c) => c?.name ?? l10n.approval_filterAll,
+                  onChanged: controller.setSelectedColumn,
+                  onPressedWithResult: () async {
+                    final churchId = state.churchId;
+                    if (churchId == null) {
+                      _showSnackBar(context, l10n.lbl_selectChurchFirst);
+                      return null;
+                    }
+                    return await showDialogColumnPickerWidget(
+                      context: context,
+                      churchId: churchId,
+                    );
+                  },
+                ),
+              ),
             ),
-            if (state.selectedColumn != null) ...[
+            if (state.selectedColumn != null && !disableColumnSelection) ...[
               Gap.h8,
               Align(
                 alignment: Alignment.centerLeft,

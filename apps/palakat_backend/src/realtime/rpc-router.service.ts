@@ -761,6 +761,14 @@ export class RpcRouterService {
         return this.authService.signOut(user.userId);
       }
 
+      case 'auth.changePassword': {
+        const user = this.requireUserId(client);
+        return this.authService.changePassword(user.userId, {
+          currentPassword: payload.currentPassword,
+          newPassword: payload.newPassword,
+        });
+      }
+
       case 'auth.permissions.get': {
         const user = this.requireUserId(client);
         return this.churchPermissionPolicyService.getEffectivePermissions(user);

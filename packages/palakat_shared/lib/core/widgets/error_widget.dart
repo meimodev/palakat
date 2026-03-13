@@ -24,12 +24,14 @@ class CompactErrorWidget extends StatelessWidget {
     final serverMessage = _extractServerMessage(error);
     String primaryMessage = serverMessage ?? error.userMessage;
 
-    // Auth/sign-in specific edge cases using l10n
     if (isSignInContext && statusCode != null) {
-      if (statusCode == 401) {
-        primaryMessage = context.l10n.err_invalidCredentials;
-      } else if (statusCode == 403) {
-        primaryMessage = context.l10n.err_accountLocked;
+      final signInMessage = _signInMessage(
+        context,
+        statusCode,
+        serverMessage ?? error.message,
+      );
+      if (signInMessage != null) {
+        primaryMessage = signInMessage;
       }
     }
 
@@ -142,6 +144,30 @@ class CompactErrorWidget extends StatelessWidget {
       }
     }
     return l10n.err_statusWithCode(statusCode, label);
+  }
+
+  String? _signInMessage(
+    BuildContext context,
+    int statusCode,
+    String rawMessage,
+  ) {
+    final message = rawMessage.trim().toLowerCase();
+    if (statusCode == 401) {
+      return context.l10n.err_invalidCredentials;
+    }
+    if (statusCode != 403) {
+      return null;
+    }
+    if (message.contains('locked')) {
+      return context.l10n.err_accountLocked;
+    }
+    if (message.contains('inactive')) {
+      return context.l10n.err_accountInactive;
+    }
+    if (message.contains('admin') && message.contains('required')) {
+      return context.l10n.err_adminAccountRequired;
+    }
+    return null;
   }
 
   String? _extractServerMessage(AppError error) {

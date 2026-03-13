@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
-import 'package:palakat_shared/core/extension/string_extension.dart';
+import 'package:palakat_shared/core/models/auth_response.dart';
+import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
@@ -11,18 +12,7 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final route = GoRouterState.of(context).uri.toString();
     final l10n = context.l10n;
-    // Note: Implement auth controller integration in consuming app.
-    // final auth = ref.watch(authControllerProvider).asData?.value;
-    // final account = auth?.account;
-    final displayName = l10n.lbl_adminUser; // account?.name ?? 'Admin User';
-
-    // final church = ref
-    //     .read(authControllerProvider)
-    //     .value
-    //     ?.account
-    //     .membership
-    //     ?.church;
-    String? churchName;
+    final localStorage = ref.watch(localStorageServiceProvider);
 
     return Drawer(
       elevation: 0,
@@ -159,23 +149,56 @@ class AppSidebar extends ConsumerWidget {
                 ),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: Text(
-                    displayName.initials,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
+              ValueListenableBuilder<AuthResponse?>(
+                valueListenable: localStorage.currentAuthListenable,
+                builder: (context, auth, _) {
+                  final account = auth?.account;
+                  final membership =
+                      localStorage.currentMembership ?? account?.membership;
+                  final church = membership?.church;
+                  final displayNameValue = (account?.name ?? '').trim();
+                  final displayName = displayNameValue.isEmpty
+                      ? l10n.lbl_adminUser
+                      : displayNameValue;
+                  final phoneValue = (account?.phone ?? '').trim();
+                  final phone = phoneValue.isEmpty ? '-' : phoneValue;
+                  final churchNameValue = (church?.name ?? '').trim();
+                  final churchName = churchNameValue.isEmpty
+                      ? l10n.lbl_churchNotAvailable
+                      : churchNameValue;
+                  final churchId =
+                      church?.id?.toString() ??
+                      membership?.column?.churchId.toString() ??
+                      '-';
+
+                  return ListTile(
+                    title: Text(displayName),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          phone,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              churchName,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                            Text(
+                              l10n.lbl_hashId(churchId),
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                title: Text(displayName),
-                subtitle: Text(
-                  churchName ?? '',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                onTap: () => context.go('/account'),
+                    onTap: () => context.go('/account'),
+                  );
+                },
               ),
             ],
           ),
@@ -332,14 +355,7 @@ class _NavItemState extends State<_NavItem>
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  onTap: () {
-                    if (theme.platform == TargetPlatform.iOS ||
-                        theme.platform == TargetPlatform.android) {
-                      // Note: You might want to add haptic feedback here
-                      // HapticFeedback.lightImpact();
-                    }
-                    widget.onTap();
-                  },
+                  onTap: widget.onTap,
                 ),
               ),
             ),

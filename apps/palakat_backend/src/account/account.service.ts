@@ -507,6 +507,11 @@ export class AccountService {
           include: {
             column: true,
             membershipPositions: true,
+            church: {
+              include: {
+                location: true,
+              },
+            },
           },
         },
       },

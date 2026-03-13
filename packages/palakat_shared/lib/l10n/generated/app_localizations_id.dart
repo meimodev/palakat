@@ -992,6 +992,14 @@ class AppLocalizationsId extends AppLocalizations {
       'Akun Anda terkunci sementara. Silakan tunggu 5 menit dan coba lagi.';
 
   @override
+  String get err_accountInactive =>
+      'Akun Anda tidak aktif. Silakan hubungi super admin.';
+
+  @override
+  String get err_adminAccountRequired =>
+      'Akun ini tidak dapat masuk ke Palakat Admin.';
+
+  @override
   String err_statusWithCode(Object code, Object label) {
     return '$code • $label';
   }

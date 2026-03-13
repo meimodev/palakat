@@ -1,6 +1,7 @@
 import 'dart:developer' as dev show log;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/models/auth_tokens.dart';
@@ -28,6 +29,8 @@ class LocalStorageService {
   Locale? _locale;
   PermissionStateModel? _permissionState;
   NotificationSettingsModel? _notificationSettings;
+  final ValueNotifier<AuthResponse?> _currentAuthListenable =
+      ValueNotifier<AuthResponse?>(null);
 
   // Consider presence of cached AuthResponse as logged-in state
   bool get isAuthenticated => _auth != null;
@@ -35,6 +38,8 @@ class LocalStorageService {
   String? get refreshToken => _auth?.tokens.refreshToken;
   DateTime? get expiresAt => _auth?.tokens.expiresAt;
   AuthResponse? get currentAuth => _auth;
+  ValueListenable<AuthResponse?> get currentAuthListenable =>
+      _currentAuthListenable;
   Membership? get currentMembership => _membership;
   Locale? get currentLocale => _locale;
   PermissionStateModel? get currentPermissionState => _permissionState;
@@ -62,6 +67,7 @@ class LocalStorageService {
     await _ensureBoxOpen();
     final box = Hive.box(_kAuthBox);
     _auth = auth;
+    _currentAuthListenable.value = auth;
     await box.put(_kAuthKey, auth.toJson());
     dev.log('AuthService.saveAuth: saved auth to Hive', name: 'AuthService');
   }
@@ -76,6 +82,7 @@ class LocalStorageService {
     await _ensureBoxOpen();
     final box = Hive.box(_kAuthBox);
     _auth = null;
+    _currentAuthListenable.value = null;
     _membership = null;
     await box.delete(_kAuthKey);
     await box.delete(_kMembershipKey);
@@ -287,14 +294,19 @@ class LocalStorageService {
       try {
         final normalized = _normalizeJson(data) as Map<String, dynamic>;
         _auth = AuthResponse.fromJson(normalized);
+        _currentAuthListenable.value = _auth;
         dev.log('AuthService._loadFromBox: $_auth', name: 'AuthService');
       } catch (_) {
         _auth = null;
+        _currentAuthListenable.value = null;
         dev.log(
           'AuthService._loadFromBox: failed to parse cached auth, ignoring',
           name: 'AuthService',
         );
       }
+    } else {
+      _auth = null;
+      _currentAuthListenable.value = null;
     }
   }
 

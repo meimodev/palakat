@@ -76,7 +76,11 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     'financialSubtype': _financialReportSubtypeToApi(
                       financialSubtype,
                     ),
-                  if (columnId != null) 'columnId': columnId,
+                  if (columnId != null &&
+                      financialSubtype != FinancialReportSubtype.mutation &&
+                      congregationSubtype !=
+                          CongregationReportSubtype.wartaJemaat)
+                    'columnId': columnId,
                   if (range != null) 'startDate': range.start.toIso8601String(),
                   if (range != null) 'endDate': range.end.toIso8601String(),
                 });

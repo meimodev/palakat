@@ -188,10 +188,32 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     return state.dateRangePreset.getDateRange();
   }
 
+  bool _supportsColumnFilter({
+    required ReportGenerateType reportType,
+    required FinancialReportSubtype financialSubtype,
+    required CongregationReportSubtype congregationSubtype,
+  }) {
+    if (reportType == ReportGenerateType.congregation) {
+      return congregationSubtype != CongregationReportSubtype.wartaJemaat;
+    }
+
+    if (reportType == ReportGenerateType.activity) {
+      return true;
+    }
+
+    if (reportType == ReportGenerateType.financial) {
+      return financialSubtype != FinancialReportSubtype.mutation;
+    }
+
+    return false;
+  }
+
   void setReportType(ReportGenerateType type) {
-    final usesColumn =
-        type == ReportGenerateType.congregation ||
-        type == ReportGenerateType.activity;
+    final usesColumn = _supportsColumnFilter(
+      reportType: type,
+      financialSubtype: state.financialSubtype,
+      congregationSubtype: state.congregationSubtype,
+    );
     final usesActivityType = type == ReportGenerateType.activity;
 
     final isDocumentReport =
@@ -227,6 +249,11 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
   void setCongregationSubtype(CongregationReportSubtype subtype) {
     state = state.copyWith(
       congregationSubtype: subtype,
+      clearSelectedColumn: !_supportsColumnFilter(
+        reportType: state.reportType,
+        financialSubtype: state.financialSubtype,
+        congregationSubtype: subtype,
+      ),
       clearErrorMessage: true,
     );
   }
@@ -236,7 +263,15 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
   }
 
   void setFinancialSubtype(FinancialReportSubtype subtype) {
-    state = state.copyWith(financialSubtype: subtype, clearErrorMessage: true);
+    state = state.copyWith(
+      financialSubtype: subtype,
+      clearSelectedColumn: !_supportsColumnFilter(
+        reportType: state.reportType,
+        financialSubtype: subtype,
+        congregationSubtype: state.congregationSubtype,
+      ),
+      clearErrorMessage: true,
+    );
   }
 
   void setDateRangePreset(DateRangePreset preset) {
@@ -288,9 +323,11 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     try {
       final repo = ref.read(reportRepositoryProvider);
 
-      final includeColumn =
-          state.reportType == ReportGenerateType.congregation ||
-          state.reportType == ReportGenerateType.activity;
+      final includeColumn = _supportsColumnFilter(
+        reportType: state.reportType,
+        financialSubtype: state.financialSubtype,
+        congregationSubtype: state.congregationSubtype,
+      );
 
       final queueResult = await repo.queueReportGeneration(
         type: state.reportType,

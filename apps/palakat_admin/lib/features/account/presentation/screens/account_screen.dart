@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
@@ -12,31 +12,22 @@ class AccountScreen extends ConsumerStatefulWidget {
 
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   late Account _currentAccount;
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _positionController;
 
   @override
   void initState() {
     super.initState();
-    // Mock current account data
     _currentAccount = Account(
-      id: 1,
       name: '',
-      email: 'admin@palakat.com',
-      phone: '+62 812-3456-7890',
+      email: null,
+      phone: null,
       dob: DateTime.now(),
-      membership: Membership(
-        id: 0,
-        baptize: false,
-        sidi: false,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        membershipPositions: const [],
-      ),
+      membership: const Membership(membershipPositions: []),
     );
 
-    _initializeControllers();
+    final cachedAccount = ref.read(authControllerProvider).asData?.value?.account;
+    if (cachedAccount != null) {
+      _currentAccount = cachedAccount;
+    }
   }
 
   Future<void> _showSideDrawer({
@@ -59,24 +50,65 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     );
   }
 
-  String _displayAccountName(BuildContext context) {
-    final name = _currentAccount.name.trim();
+  String _displayAccountName(BuildContext context, Account account) {
+    final name = account.name.trim();
     return name.isEmpty ? context.l10n.lbl_adminUser : name;
+  }
+
+  String _displayValue(String? value) {
+    final normalized = value?.trim() ?? '';
+    return normalized.isEmpty ? '-' : normalized;
+  }
+
+  String _membershipPositionsText(Account account) {
+    final positions = account.membership?.membershipPositions ?? const [];
+    if (positions.isEmpty) {
+      return '-';
+    }
+    return positions.map((mp) => mp.name).join(' - ');
+  }
+
+  void _closeSideDrawer() {
+    DrawerUtils.closeDrawer(context);
+  }
+
+  void _handleAccountUpdateSuccess(Account updatedAccount) {
+    final l10n = context.l10n;
+    setState(() {
+      _currentAccount = updatedAccount;
+    });
+    DrawerUtils.closeDrawer(context);
+    AppSnackbars.showSuccess(
+      context,
+      title: l10n.msg_saved,
+      message: l10n.msg_accountUpdated,
+    );
+  }
+
+  void _handlePasswordChangeSuccess() {
+    final l10n = context.l10n;
+    DrawerUtils.closeDrawer(context);
+    AppSnackbars.showSuccess(
+      context,
+      title: l10n.msg_updated,
+      message: l10n.msg_passwordChanged,
+    );
   }
 
   void _openEditAccountDrawer() {
     final l10n = context.l10n;
-    final nameCtrl = TextEditingController(text: _displayAccountName(context));
-    final phoneCtrl = TextEditingController(text: _currentAccount.phone);
-    final posCtrl = TextEditingController(
-      text:
-          _currentAccount.membership?.membershipPositions
-              .map((mp) => mp.name)
-              .join(' - ') ??
-          '',
+    final currentAccount =
+        ref.read(authControllerProvider).asData?.value?.account ?? _currentAccount;
+    final nameCtrl = TextEditingController(
+      text: _displayAccountName(context, currentAccount),
     );
-
+    final phoneCtrl = TextEditingController(text: currentAccount.phone ?? '');
+    final emailCtrl = TextEditingController(text: currentAccount.email ?? '');
+    final posCtrl = TextEditingController(
+      text: _membershipPositionsText(currentAccount),
+    );
     final theme = Theme.of(context);
+    final isSaving = ValueNotifier<bool>(false);
 
     _showSideDrawer(
       title: l10n.drawer_editAccountInfo_title,
@@ -115,7 +147,21 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.lbl_position,
+            l10n.lbl_email,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: emailCtrl,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.lbl_positions,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -123,6 +169,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: posCtrl,
+            readOnly: true,
             decoration: InputDecoration(
               hintText: l10n.hint_enterYourPosition,
               border: const OutlineInputBorder(),
@@ -130,48 +177,97 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
         ],
       ),
-      footer: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.btn_cancel),
+      footer: ValueListenableBuilder<bool>(
+        valueListenable: isSaving,
+        builder: (context, saving, _) => Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: saving ? null : _closeSideDrawer,
+                child: Text(l10n.btn_cancel),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: () {
-                setState(() {
-                  _currentAccount = _currentAccount.copyWith(
-                    name: nameCtrl.text,
-                    phone: phoneCtrl.text,
-                    membership: _currentAccount.membership?.copyWith(
-                      membershipPositions: [
-                        ..._currentAccount.membership?.membershipPositions ??
-                            [],
-                        MemberPosition(
-                          name: posCtrl.text,
-                          id: 0,
-                          churchId: 0,
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                        ),
-                      ],
-                    ),
-                  );
-                });
-                Navigator.of(context).pop();
-                AppSnackbars.showSuccess(
-                  context,
-                  title: l10n.msg_saved,
-                  message: l10n.msg_accountUpdated,
-                );
-              },
-              child: Text(l10n.btn_saveChanges),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final accountId = currentAccount.id;
+                        if (accountId == null) {
+                          AppSnackbars.showError(
+                            this.context,
+                            title: l10n.err_error,
+                            message: l10n.msg_operationFailed,
+                          );
+                          return;
+                        }
+
+                        isSaving.value = true;
+                        final result = await ref
+                            .read(membershipRepositoryProvider)
+                            .updateAccount(
+                              accountId: accountId,
+                              update: {
+                                'name': nameCtrl.text.trim(),
+                                'phone': phoneCtrl.text.trim().isEmpty
+                                    ? null
+                                    : phoneCtrl.text.trim(),
+                                'email': emailCtrl.text.trim().isEmpty
+                                    ? null
+                                    : emailCtrl.text.trim(),
+                              },
+                            );
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        final currentContext = this.context;
+                        final currentL10n = currentContext.l10n;
+                        Account? updatedAccount;
+                        Failure? failure;
+                        result.when(
+                          onSuccess: (data) {
+                            updatedAccount = data;
+                            return null;
+                          },
+                          onFailure: (error) {
+                            failure = error;
+                          },
+                        );
+
+                        if (updatedAccount != null) {
+                          await ref
+                              .read(authControllerProvider.notifier)
+                              .updateCachedAccount(updatedAccount!);
+                          if (!mounted) {
+                            return;
+                          }
+                          _handleAccountUpdateSuccess(updatedAccount!);
+                        } else {
+                          AppSnackbars.showError(
+                            currentContext,
+                            title: currentL10n.err_error,
+                            message: failure?.message.isNotEmpty == true
+                                ? failure!.message
+                                : currentL10n.msg_operationFailed,
+                          );
+                        }
+
+                        isSaving.value = false;
+                      },
+                child: saving
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.btn_saveChanges),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -182,6 +278,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
     final theme = Theme.of(context);
+    final isSaving = ValueNotifier<bool>(false);
 
     _showSideDrawer(
       title: l10n.drawer_changePassword_title,
@@ -238,81 +335,118 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
         ],
       ),
-      footer: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.btn_cancel),
+      footer: ValueListenableBuilder<bool>(
+        valueListenable: isSaving,
+        builder: (context, saving, _) => Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: saving ? null : _closeSideDrawer,
+                child: Text(l10n.btn_cancel),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: () {
-                final newPass = newCtrl.text.trim();
-                final confirmPass = confirmCtrl.text.trim();
-                if (newPass.length < 6) {
-                  AppSnackbars.showError(
-                    context,
-                    title: l10n.err_error,
-                    message: l10n.msg_invalidPassword,
-                  );
-                  return;
-                }
-                if (newPass != confirmPass) {
-                  AppSnackbars.showError(
-                    context,
-                    title: l10n.err_error,
-                    message: l10n.msg_passwordMismatch,
-                  );
-                  return;
-                }
-                // Note: Password change API integration pending.
-                Navigator.of(context).pop();
-                AppSnackbars.showSuccess(
-                  context,
-                  title: l10n.msg_updated,
-                  message: l10n.msg_passwordChanged,
-                );
-              },
-              child: Text(l10n.btn_updatePassword),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final currentPass = currentCtrl.text;
+                        final newPass = newCtrl.text;
+                        final confirmPass = confirmCtrl.text;
+
+                        if (currentPass.isEmpty) {
+                          AppSnackbars.showError(
+                            this.context,
+                            title: l10n.err_error,
+                            message: l10n.hint_enterCurrentPassword,
+                          );
+                          return;
+                        }
+                        if (newPass.length < 6) {
+                          AppSnackbars.showError(
+                            context,
+                            title: l10n.err_error,
+                            message: l10n.msg_invalidPassword,
+                          );
+                          return;
+                        }
+                        if (newPass != confirmPass) {
+                          AppSnackbars.showError(
+                            context,
+                            title: l10n.err_error,
+                            message: l10n.msg_passwordMismatch,
+                          );
+                          return;
+                        }
+
+                        isSaving.value = true;
+                        final result = await ref
+                            .read(authControllerProvider.notifier)
+                            .changePassword(
+                              currentPassword: currentPass,
+                              newPassword: newPass,
+                            );
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        final currentContext = this.context;
+                        final currentL10n = currentContext.l10n;
+                        Failure? failure;
+                        var success = false;
+                        result.when(
+                          onSuccess: (_) {
+                            success = true;
+                            return null;
+                          },
+                          onFailure: (error) {
+                            failure = error;
+                          },
+                        );
+
+                        if (success) {
+                          _handlePasswordChangeSuccess();
+                        } else {
+                          AppSnackbars.showError(
+                            currentContext,
+                            title: currentL10n.err_error,
+                            message: failure?.message.isNotEmpty == true
+                                ? failure!.message
+                                : currentL10n.msg_operationFailed,
+                          );
+                        }
+
+                        isSaving.value = false;
+                      },
+                child: saving
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.btn_updatePassword),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  void _initializeControllers() {
-    _nameController = TextEditingController(text: _currentAccount.name);
-    _phoneController = TextEditingController(text: _currentAccount.phone);
-    _positionController = TextEditingController(
-      text:
-          _currentAccount.membership?.membershipPositions
-              .map((mp) => mp.name)
-              .join(' - ') ??
-          '',
-    );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _positionController.dispose();
-    super.dispose();
-  }
-
-  // Helper method to get name initials
   String _getNameInitials(String name) {
-    final words = name.trim().split(' ');
-    if (words.isEmpty) return 'U';
-    if (words.length == 1) return words[0][0].toUpperCase();
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return 'U';
+    }
+    final words = trimmed.split(' ');
+    if (words.length == 1) {
+      return words[0][0].toUpperCase();
+    }
     return '${words[0][0]}${words[words.length - 1][0]}'.toUpperCase();
   }
 
-  // Helper method to build info field widgets
   Widget _buildInfoField(
     ThemeData theme,
     String label,
@@ -378,6 +512,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final auth = ref.watch(authControllerProvider);
+    final activeAccount = auth.asData?.value?.account ?? _currentAccount;
+    final displayName = _displayAccountName(context, activeAccount);
 
     return Material(
       child: SingleChildScrollView(
@@ -395,8 +532,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Account Information Card
             SurfaceCard(
               title: l10n.card_accountInfo_title,
               subtitle: l10n.card_accountInfo_subtitle,
@@ -407,14 +542,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               child: Column(
                 children: [
-                  // Profile Overview Section
                   Row(
                     children: [
                       CircleAvatar(
                         radius: 40,
                         backgroundColor: theme.colorScheme.primary,
                         child: Text(
-                          _getNameInitials(_displayAccountName(context)),
+                          _getNameInitials(displayName),
                           style: theme.textTheme.headlineMedium?.copyWith(
                             color: theme.colorScheme.onPrimary,
                             fontWeight: FontWeight.w600,
@@ -427,21 +561,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _displayAccountName(context),
+                              displayName,
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  _currentAccount.phone ?? '-',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              _displayValue(activeAccount.phone),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
@@ -449,37 +579,86 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     ],
                   ),
                   const SizedBox(height: 32),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final firstRow = [
+                        Expanded(
+                          child: _buildInfoField(
+                            theme,
+                            l10n.lbl_fullName,
+                            displayName,
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: _buildInfoField(
+                            theme,
+                            l10n.lbl_phone,
+                            _displayValue(activeAccount.phone),
+                          ),
+                        ),
+                      ];
+                      final secondRow = [
+                        Expanded(
+                          child: _buildInfoField(
+                            theme,
+                            l10n.lbl_email,
+                            _displayValue(activeAccount.email),
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: _buildInfoField(
+                            theme,
+                            l10n.lbl_positions,
+                            _membershipPositionsText(activeAccount),
+                          ),
+                        ),
+                      ];
 
-                  // Account Information Fields
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildInfoField(
-                          theme,
-                          l10n.lbl_fullName,
-                          _displayAccountName(context),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: _buildInfoField(
-                          theme,
-                          l10n.lbl_position,
-                          _currentAccount.membership?.membershipPositions
-                                  .map((mp) => mp.name)
-                                  .join(' - ') ??
-                              '-',
-                        ),
-                      ),
-                    ],
+                      if (constraints.maxWidth < 640) {
+                        return Column(
+                          children: [
+                            _buildInfoField(
+                              theme,
+                              l10n.lbl_fullName,
+                              displayName,
+                            ),
+                            const SizedBox(height: 24),
+                            _buildInfoField(
+                              theme,
+                              l10n.lbl_phone,
+                              _displayValue(activeAccount.phone),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildInfoField(
+                              theme,
+                              l10n.lbl_email,
+                              _displayValue(activeAccount.email),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildInfoField(
+                              theme,
+                              l10n.lbl_positions,
+                              _membershipPositionsText(activeAccount),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        children: [
+                          Row(children: firstRow),
+                          const SizedBox(height: 24),
+                          Row(children: secondRow),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Security Settings Card
             SurfaceCard(
               title: l10n.card_securitySettings_title,
               subtitle: l10n.card_securitySettings_subtitle,
@@ -521,10 +700,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Language Settings Card - Requirements: 6.2
             SurfaceCard(
               title: l10n.card_languageSettings_title,
               subtitle: l10n.card_languageSettings_subtitle,
@@ -543,10 +719,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Account Actions Card
             SurfaceCard(
               title: l10n.card_accountActions_title,
               subtitle: l10n.card_accountActions_subtitle,
@@ -588,7 +761,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 24),
           ],
         ),

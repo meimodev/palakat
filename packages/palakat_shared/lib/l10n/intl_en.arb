@@ -380,6 +380,8 @@
   "err_validationError": "Validation error",
   "err_error": "Error",
   "err_accountLocked": "Your account is temporarily locked. Please wait 5 minutes and try again.",
+  "err_accountInactive": "Your account is inactive. Please contact a super admin.",
+  "err_adminAccountRequired": "This account cannot sign in to Palakat Admin.",
   "err_statusWithCode": "{code} • {label}",
 
   "auth_welcomeBack": "Welcome Back",
