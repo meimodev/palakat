@@ -8,6 +8,7 @@ import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
+import 'package:palakat/features/song_book/presentations/song_book_motion_widget.dart';
 import 'package:palakat_shared/palakat_shared.dart'
     hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
 
@@ -53,74 +54,51 @@ class _SongDbMetaHeader extends StatelessWidget {
             ? l10n.lbl_notSpecified
             : _formatDate(context, updatedAt);
 
-        return Material(
-          color: BaseColor.surfaceMedium,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: BaseSize.w40,
-                      height: BaseSize.w40,
-                      decoration: BoxDecoration(
-                        color: BaseColor.primary[50],
-                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      ),
-                      alignment: Alignment.center,
-                      child: FaIcon(
-                        AppIcons.info,
-                        size: BaseSize.w18,
-                        color: BaseColor.primary,
-                      ),
-                    ),
-                    Gap.w12,
-                    Expanded(
-                      child: Text(
-                        l10n.songBook_databaseTitle,
-                        style: BaseTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
+                FaIcon(
+                  AppIcons.info,
+                  size: BaseSize.w14,
+                  color: BaseColor.textSecondary,
                 ),
-                Gap.h12,
-                Wrap(
-                  spacing: BaseSize.w8,
-                  runSpacing: BaseSize.w8,
-                  children: [
-                    _SongDbMetaChip(
-                      icon: AppIcons.info,
-                      label: version == null || version.trim().isEmpty
-                          ? l10n.songBook_versionFallback
-                          : 'v${version.trim()}',
+                Gap.w8,
+                Expanded(
+                  child: Text(
+                    l10n.songBook_databaseTitle,
+                    style: BaseTypography.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textSecondary,
                     ),
-                    _SongDbMetaChip(
-                      icon: AppIcons.music,
-                      label: l10n.songBook_songsCount(songsCount ?? 0),
-                    ),
-                    _SongDbMetaChip(
-                      icon: AppIcons.reader,
-                      label: l10n.songBook_booksCount(booksCount ?? 0),
-                    ),
-                    _SongDbMetaChip(
-                      icon: AppIcons.calendar,
-                      label: updatedText,
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
+            Gap.h8,
+            Wrap(
+              spacing: BaseSize.w8,
+              runSpacing: BaseSize.w8,
+              children: [
+                _SongDbMetaChip(
+                  icon: AppIcons.info,
+                  label: version == null || version.trim().isEmpty
+                      ? l10n.songBook_versionFallback
+                      : 'v${version.trim()}',
+                ),
+                _SongDbMetaChip(
+                  icon: AppIcons.music,
+                  label: l10n.songBook_songsCount(songsCount ?? 0),
+                ),
+                _SongDbMetaChip(
+                  icon: AppIcons.reader,
+                  label: l10n.songBook_booksCount(booksCount ?? 0),
+                ),
+                _SongDbMetaChip(icon: AppIcons.calendar, label: updatedText),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -150,11 +128,15 @@ class _SongDbMetaChip extends StatelessWidget {
         children: [
           FaIcon(icon, size: BaseSize.w14, color: BaseColor.textSecondary),
           Gap.w8,
-          Text(
-            label,
-            style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.textSecondary,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              label,
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -200,57 +182,84 @@ class _SongDbUpdateBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(BaseSize.radiusMd),
             side: BorderSide(color: BaseColor.primary[100]!, width: 1),
           ),
-          child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
-            child: Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.white,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.refresh,
-                    size: BaseSize.w18,
-                    color: BaseColor.primary,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.songBook_updateAvailableTitle,
-                        style: BaseTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final shouldStack =
+                  constraints.maxWidth < 420 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.15;
+              final actionButton = ButtonWidget.outlined(
+                text: isUpdating
+                    ? l10n.songBook_updatingAction
+                    : l10n.songBook_updateAction,
+                onTap: isUpdating ? null : onTapUpdate,
+                isShrink: true,
+              );
+
+              return Padding(
+                padding: EdgeInsets.all(BaseSize.w12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: BaseSize.w32,
+                          height: BaseSize.w32,
+                          decoration: BoxDecoration(
+                            color: BaseColor.white,
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusMd,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: FaIcon(
+                            AppIcons.refresh,
+                            size: BaseSize.w14,
+                            color: BaseColor.primary,
+                          ),
                         ),
-                      ),
-                      Gap.h4,
-                      Text(
-                        subtitle,
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.textSecondary,
-                          fontWeight: FontWeight.w600,
+                        Gap.w10,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.songBook_updateAvailableTitle,
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: BaseColor.textPrimary,
+                                ),
+                                maxLines: shouldStack ? 2 : 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Gap.h4,
+                              Text(
+                                subtitle,
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  color: BaseColor.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: shouldStack ? 3 : 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
+                        if (!shouldStack) ...[Gap.w12, actionButton],
+                      ],
+                    ),
+                    if (shouldStack) ...[
+                      Gap.h12,
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: actionButton,
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                Gap.w12,
-                ButtonWidget.outlined(
-                  text: isUpdating
-                      ? l10n.songBook_updatingAction
-                      : l10n.songBook_updateAction,
-                  onTap: isUpdating ? null : onTapUpdate,
-                  isShrink: true,
-                ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
@@ -356,6 +365,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
         // Category cards list with 8px spacing (Requirement 2.4)
         _SongBookGrid(
           categories: state.categories,
+          songCountForCategory: controller.getSongCountForCategory,
           onBookTap: (category) => _openBook(controller, category),
         ),
       ],
@@ -384,21 +394,58 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
         ],
       ),
       child: state.filteredSongs.isEmpty
-          ? const _EmptySearchStateWidget()
+          ? SongBookAnimatedPresence(
+              visible: state.filteredSongs.isEmpty,
+              child: const _EmptySearchStateWidget(),
+            )
           : ListView.separated(
               itemCount: state.filteredSongs.length,
               // 8px grid spacing (Requirement 2.4)
-              separatorBuilder: (context, index) => Gap.h12,
+              separatorBuilder: (context, index) => Gap.h8,
               itemBuilder: (context, index) {
                 final song = state.filteredSongs[index];
                 // Use SongItemCard for consistent styling (Requirement 1.4)
-                return SongItemCard(
-                  song: song,
-                  searchQuery: state.searchQuery,
-                  onTap: () => _navigateToSongDetail(song),
+                return SongBookReveal(
+                  key: ValueKey('song-result-${song.id}'),
+                  delay: Duration(milliseconds: 60 + (index * 35)),
+                  child: SongItemCard(
+                    song: song,
+                    searchQuery: state.searchQuery,
+                    onTap: () => _navigateToSongDetail(song),
+                  ),
                 );
               },
             ),
+    );
+  }
+
+  Widget _buildBrowseView(SongBookController controller, SongBookState state) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildCategoryView(controller, state),
+          Gap.h16,
+          if (state.hasDbUpdate) ...[
+            SongBookReveal(
+              delay: const Duration(milliseconds: 60),
+              child: _SongDbUpdateBanner(
+                remoteMetaFuture: _remoteSongDbMetaFuture,
+                isUpdating: state.isDownloadingDb,
+                onTapUpdate: state.isDownloadingDb
+                    ? null
+                    : controller.downloadDbAndLoadSongs,
+              ),
+            ),
+            Gap.h12,
+          ],
+          SongBookReveal(
+            delay: const Duration(milliseconds: 110),
+            child: _SongDbMetaHeader(metaFuture: _songDbMetaFuture),
+          ),
+        ],
+      ),
     );
   }
 
@@ -407,6 +454,10 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
     final l10n = context.l10n;
     final controller = ref.read(songBookControllerProvider.notifier);
     final state = ref.watch(songBookControllerProvider);
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final reduceMotion =
+        (mediaQuery?.disableAnimations ?? false) ||
+        (mediaQuery?.accessibleNavigation ?? false);
 
     // Use state's isSearching for view transition (Requirement 3.4)
     // This ensures proper state management between category view and search results
@@ -417,53 +468,79 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleOnly(title: l10n.songBook_title),
+          SongBookReveal(
+            child: ScreenTitleWidget.titleOnly(title: l10n.songBook_title),
+          ),
           // 16px = 2 * 8px grid spacing (Requirement 2.4)
           Gap.h16,
           if (state.needsDownload)
-            _DownloadRequiredState(
-              isDownloading: state.isDownloadingDb,
-              errorMessage: state.errorMessage,
-              onTapDownload: controller.downloadDbAndLoadSongs,
+            Expanded(
+              child: SongBookReveal(
+                delay: const Duration(milliseconds: 60),
+                child: _DownloadRequiredState(
+                  isDownloading: state.isDownloadingDb,
+                  errorMessage: state.errorMessage,
+                  onTapDownload: controller.downloadDbAndLoadSongs,
+                ),
+              ),
             )
           else ...[
-            if (!isSearching) ...[
-              if (state.hasDbUpdate)
-                _SongDbUpdateBanner(
-                  remoteMetaFuture: _remoteSongDbMetaFuture,
-                  isUpdating: state.isDownloadingDb,
-                  onTapUpdate: state.isDownloadingDb
-                      ? null
-                      : controller.downloadDbAndLoadSongs,
+            SongBookReveal(
+              delay: const Duration(milliseconds: 50),
+              child: SearchField(
+                controller: _searchController,
+                hint: l10n.songBook_searchHint,
+                onSearch: (query) => _handleSearch(controller, query),
+                debounceMilliseconds: 500,
+                isLoading: state.isLoading && state.isSearching,
+                prefixIcon: FaIcon(
+                  AppIcons.search,
+                  size: 20,
+                  color: BaseColor.primary,
                 ),
-              if (state.hasDbUpdate) Gap.h12,
-              _SongDbMetaHeader(metaFuture: _songDbMetaFuture),
-              Gap.h16,
-            ],
-            // Search input field (Requirement 3.1, 3.5)
-            SearchField(
-              controller: _searchController,
-              hint: l10n.songBook_searchHint,
-              onSearch: (query) => _handleSearch(controller, query),
-              debounceMilliseconds: 500,
-              isLoading: state.isLoading && state.isSearching,
-              prefixIcon: FaIcon(
-                AppIcons.search,
-                size: 20,
-                color: BaseColor.primary,
+                borderRadius: BaseSize.radiusMd,
               ),
-              borderRadius: BaseSize.radiusMd,
             ),
-            // 16px = 2 * 8px grid spacing (Requirement 2.4)
-            Gap.h16,
-            // Conditional rendering: search results vs category view (Requirement 3.4)
+            Gap.h12,
             Expanded(
-              child: isSearching
-                  ? _buildSearchResultsView(controller, state)
-                  : SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: _buildCategoryView(controller, state),
+              child: AnimatedSwitcher(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 240),
+                reverseDuration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                transitionBuilder: (child, animation) {
+                  if (reduceMotion) {
+                    return child;
+                  }
+
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.03),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOutCubic,
+                            ),
+                          ),
+                      child: child,
                     ),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(isSearching ? 'song-search' : 'song-browse'),
+                  child: isSearching
+                      ? _buildSearchResultsView(controller, state)
+                      : _buildBrowseView(controller, state),
+                ),
+              ),
             ),
           ],
         ],
@@ -489,7 +566,7 @@ class _DownloadRequiredState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
+        padding: EdgeInsets.all(BaseSize.w20),
         child: Material(
           color: BaseColor.surfaceMedium,
           elevation: 0,
@@ -525,7 +602,7 @@ class _DownloadRequiredState extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                Gap.h8,
+                Gap.h6,
                 Text(
                   l10n.songBook_downloadRequiredSubtitle,
                   textAlign: TextAlign.center,
@@ -564,30 +641,73 @@ class _DownloadRequiredState extends StatelessWidget {
 }
 
 class _SongBookGrid extends StatelessWidget {
-  const _SongBookGrid({required this.categories, required this.onBookTap});
+  const _SongBookGrid({
+    required this.categories,
+    required this.songCountForCategory,
+    required this.onBookTap,
+  });
 
   final List<SongCategory> categories;
+  final int Function(String categoryId) songCountForCategory;
   final ValueChanged<SongCategory> onBookTap;
+
+  int _columnCount(double width, double textScale) {
+    final normalizedScale = textScale < 1.0
+        ? 1.0
+        : textScale > 1.3
+        ? 1.3
+        : textScale;
+    final effectiveWidth = width / normalizedScale;
+
+    if (effectiveWidth >= 900) return 3;
+    if (effectiveWidth >= 360) return 2;
+    return 1;
+  }
+
+  double _childAspectRatio(int columnCount, double textScale) {
+    final isLargeText = textScale > 1.1;
+
+    switch (columnCount) {
+      case 1:
+        return isLargeText ? 1.45 : 1.75;
+      case 2:
+        return isLargeText ? 1.0 : 1.18;
+      default:
+        return isLargeText ? 0.96 : 1.08;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     if (categories.isEmpty) return const SizedBox.shrink();
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: categories.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: BaseSize.w8,
-        crossAxisSpacing: BaseSize.w8,
-        childAspectRatio: 1.25,
-      ),
-      itemBuilder: (context, index) {
-        final category = categories[index];
-        return _SongBookGridCard(
-          category: category,
-          onTap: () => onBookTap(category),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(1);
+        final columnCount = _columnCount(constraints.maxWidth, textScale);
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: categories.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columnCount,
+            mainAxisSpacing: BaseSize.w8,
+            crossAxisSpacing: BaseSize.w8,
+            childAspectRatio: _childAspectRatio(columnCount, textScale),
+          ),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return SongBookReveal(
+              key: ValueKey('song-category-${category.id}'),
+              delay: Duration(milliseconds: 50 + (index * 35)),
+              child: _SongBookGridCard(
+                category: category,
+                songCount: songCountForCategory(category.id),
+                onTap: () => onBookTap(category),
+              ),
+            );
+          },
         );
       },
     );
@@ -595,75 +715,112 @@ class _SongBookGrid extends StatelessWidget {
 }
 
 class _SongBookGridCard extends StatelessWidget {
-  const _SongBookGridCard({required this.category, required this.onTap});
+  const _SongBookGridCard({
+    required this.category,
+    required this.songCount,
+    required this.onTap,
+  });
 
   final SongCategory category;
+  final int songCount;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: BaseColor.surfaceMedium,
-      elevation: 0,
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        splashColor: BaseColor.primary.withValues(alpha: 0.08),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
-        child: Container(
-          padding: EdgeInsets.all(BaseSize.w12),
-          decoration: BoxDecoration(
+    final l10n = context.l10n;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact =
+            constraints.maxWidth < 180 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+        return Material(
+          color: BaseColor.surfaceMedium,
+          elevation: 0,
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          child: InkWell(
+            onTap: onTap,
             borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            border: Border.all(color: BaseColor.neutral[200]!, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+            splashColor: BaseColor.primary.withValues(alpha: 0.08),
+            highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+            child: Container(
+              padding: EdgeInsets.all(BaseSize.w10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: BaseSize.w40,
-                    height: BaseSize.w40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: BaseColor.primary[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    ),
-                    child: FaIcon(
-                      AppIcons.libraryMusic,
-                      size: BaseSize.w18,
-                      color: BaseColor.primary,
-                    ),
-                  ),
-                  Gap.w8,
-                  Expanded(
-                    child: Text(
-                      category.abbreviation,
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: isCompact ? BaseSize.w32 : BaseSize.w36,
+                        height: isCompact ? BaseSize.w32 : BaseSize.w36,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: BaseColor.primary[50],
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusMd,
+                          ),
+                        ),
+                        child: FaIcon(
+                          AppIcons.libraryMusic,
+                          size: isCompact ? BaseSize.w14 : BaseSize.w16,
+                          color: BaseColor.primary,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      Gap.w6,
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            top: isCompact ? BaseSize.h4 : 0,
+                          ),
+                          child: Text(
+                            category.abbreviation,
+                            style:
+                                (isCompact
+                                        ? BaseTypography.bodyMedium
+                                        : BaseTypography.titleMedium)
+                                    .copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: BaseColor.textPrimary,
+                                    ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Gap.h8,
+                  Text(
+                    category.title,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.textSecondary,
+                      fontWeight: FontWeight.w600,
                     ),
+                    maxLines: isCompact ? 3 : 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Spacer(),
+                  Text(
+                    l10n.songBook_songsCount(songCount),
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: isCompact ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-              Gap.h8,
-              Text(
-                category.title,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -690,8 +847,8 @@ class _EmptySearchStateWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: BaseSize.w56,
-              height: BaseSize.w56,
+              width: BaseSize.w48,
+              height: BaseSize.w48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: BaseColor.primary[50],
@@ -699,7 +856,7 @@ class _EmptySearchStateWidget extends StatelessWidget {
               ),
               child: FaIcon(
                 AppIcons.searchOff,
-                size: BaseSize.w24,
+                size: BaseSize.w20,
                 color: BaseColor.primary,
               ),
             ),

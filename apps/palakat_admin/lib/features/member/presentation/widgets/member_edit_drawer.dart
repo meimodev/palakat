@@ -271,7 +271,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(context.l10n.btn_cancel),
             ),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () async {
                 Navigator.of(context).pop(); // close confirm dialog
                 setState(() {
@@ -292,9 +292,6 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   if (mounted) setState(() => _deleting = false);
                 }
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
               child: Text(context.l10n.btn_delete),
             ),
           ],
@@ -392,13 +389,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       hintText: context.l10n.hint_enterMemberName,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
                       fillColor: _isClaimed
                           ? theme.colorScheme.surfaceContainerHighest
-                          : theme.colorScheme.surface,
+                          : null,
                     ),
                     validator: (value) => Validators.required(
                       context.l10n.validation_nameRequired,
@@ -415,24 +408,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: context.l10n.hint_enterEmailAddress,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.error,
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
                       fillColor: _isClaimed
                           ? theme.colorScheme.surfaceContainerHighest
-                          : theme.colorScheme.surface,
+                          : null,
                       errorText: _emailError,
                       errorStyle: const TextStyle(fontSize: 12),
                     ),
@@ -458,24 +436,9 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     maxLength: 15,
                     decoration: InputDecoration(
                       hintText: context.l10n.auth_phoneHint,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.error,
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
                       fillColor: _isClaimed
                           ? theme.colorScheme.surfaceContainerHighest
-                          : theme.colorScheme.surface,
+                          : null,
                       errorText: _phoneError,
                       errorStyle: const TextStyle(fontSize: 12),
                     ),
@@ -586,22 +549,6 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                     value: _selectedColumn,
                     decoration: InputDecoration(
                       hintText: context.l10n.lbl_selectColumn,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: theme.colorScheme.error),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.error,
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                       errorText: _columnError,
                       errorStyle: const TextStyle(fontSize: 12),
                     ),
@@ -621,65 +568,91 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CheckboxListTile(
-                        title: Text(context.l10n.lbl_baptized),
-                        value: _isBaptized,
-                        onChanged: (value) =>
-                            setState(() => _isBaptized = value ?? false),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    Expanded(
-                      child: CheckboxListTile(
-                        title: Text(context.l10n.lbl_sidi),
-                        value: _isSidi,
-                        onChanged: (value) =>
-                            setState(() => _isSidi = value ?? false),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final baptizedTile = CheckboxListTile(
+                      title: Text(context.l10n.lbl_baptized),
+                      value: _isBaptized,
+                      onChanged: (value) =>
+                          setState(() => _isBaptized = value ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    );
+                    final sidiTile = CheckboxListTile(
+                      title: Text(context.l10n.lbl_sidi),
+                      value: _isSidi,
+                      onChanged: (value) =>
+                          setState(() => _isSidi = value ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    );
+
+                    if (constraints.maxWidth < 520) {
+                      return Column(children: [baptizedTile, sidiTile]);
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(child: baptizedTile),
+                        Expanded(child: sidiTile),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          if (widget.onDelete != null && widget.accountId != null) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _deleteMember,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                  side: BorderSide(color: theme.colorScheme.error),
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (widget.onDelete != null && widget.accountId != null) ...[
+                  FilledButton.tonal(
+                    onPressed: _deleteMember,
+                    child: Text(context.l10n.btn_delete),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    widget.accountId == null
+                        ? context.l10n.btn_create
+                        : context.l10n.btn_save,
+                  ),
                 ),
-                child: Text(context.l10n.btn_delete),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              if (widget.onDelete != null && widget.accountId != null) ...[
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: _deleteMember,
+                    child: Text(context.l10n.btn_delete),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    widget.accountId == null
+                        ? context.l10n.btn_create
+                        : context.l10n.btn_save,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: Text(
-                widget.accountId == null
-                    ? context.l10n.btn_create
-                    : context.l10n.btn_save,
-              ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

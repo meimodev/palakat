@@ -72,7 +72,6 @@ extension XTextStyle on TextStyle {
   TextStyle get toCardBackground1 => copyWith(color: BaseColor.cardBackground1);
   TextStyle get toCardBackground2 => copyWith(color: BaseColor.cardBackground2);
 
-
   /// [INFO]
   /// Extension for change font size
   ///
@@ -104,7 +103,6 @@ extension XTextStyle on TextStyle {
   TextStyle get toBold => copyWith(fontWeight: FontWeight.w700);
   TextStyle get toRegular => copyWith(fontWeight: FontWeight.w400);
 
-
   /// [INFO]
   /// Extension for change font style and decoration
   ///
@@ -128,14 +126,9 @@ extension XTextStyle on TextStyle {
 
   /// [INFO] Extension for shadow, decorationThicknes and change decorationColor
   TextStyle get underlineWithSpace => underline.copyWith(
-        shadows: [
-          const Shadow(
-            color: Colors.black,
-            offset: Offset(0, -8),
-          ),
-        ],
-        decorationThickness: 2,
-        color: Colors.transparent,
-        decorationColor: BaseColor.black,
-      );
+    shadows: [const Shadow(color: Colors.black, offset: Offset(0, -8))],
+    decorationThickness: 2,
+    color: Colors.transparent,
+    decorationColor: BaseColor.black,
+  );
 }

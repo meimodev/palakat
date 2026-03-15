@@ -121,7 +121,7 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(l10n.btn_cancel),
             ),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () async {
                 Navigator.of(context).pop(); // close confirm dialog
                 setState(() {
@@ -142,9 +142,6 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                   if (mounted) setState(() => _deleting = false);
                 }
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
               child: Text(l10n.btn_delete),
             ),
           ],
@@ -206,11 +203,6 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterColumnName,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     maxLength: 20,
                     validator: (value) => ChurchValidators.columnName()
@@ -270,34 +262,51 @@ class _ColumnEditDrawerState extends ConsumerState<ColumnEditDrawer> {
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          if (widget.onDelete != null && widget.columnId != null) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _deleteColumn,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                  side: BorderSide(color: theme.colorScheme.error),
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (widget.onDelete != null && widget.columnId != null) ...[
+                  FilledButton.tonal(
+                    onPressed: _deleteColumn,
+                    child: Text(l10n.btn_delete),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    widget.columnId == null ? l10n.btn_create : l10n.btn_save,
+                  ),
                 ),
-                child: Text(l10n.btn_delete),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              if (widget.onDelete != null && widget.columnId != null) ...[
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: _deleteColumn,
+                    child: Text(l10n.btn_delete),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    widget.columnId == null ? l10n.btn_create : l10n.btn_save,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: Text(
-                widget.columnId == null ? l10n.btn_create : l10n.btn_save,
-              ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

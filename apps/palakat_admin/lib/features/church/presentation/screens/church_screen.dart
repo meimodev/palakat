@@ -424,23 +424,11 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: _permissionPolicyLoading || positionsAsync.isLoading
-            ? const SizedBox(
-                height: 120,
-                child: Center(child: CircularProgressIndicator()),
-              )
+            ? const SizedBox(height: 120, child: AppLoadingWidget())
             : hasError
             ? _cardError(
-                theme: theme,
-                error:
-                    _permissionPolicyErrorMessage ??
-                    positionsAsync.error ??
-                    context.l10n.err_loadFailed,
                 onRetry: () {
                   _loadPermissionPolicy();
-                  final churchId = state.church.value?.id;
-                  if (churchId != null) {
-                    churchController.fetchPositions(churchId);
-                  }
                 },
               )
             : Column(
@@ -510,7 +498,8 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                         },
                       ),
                       AppTableColumn<OperationPermissionDefinition>(
-                        title: l10n.churchOperationsAccess_assignedPositionsColumn,
+                        title:
+                            l10n.churchOperationsAccess_assignedPositionsColumn,
                         flex: 3,
                         cellBuilder: (ctx, row) {
                           final assigned =
@@ -521,7 +510,10 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                formatPermissionAssignmentSummary(assigned, l10n),
+                                formatPermissionAssignmentSummary(
+                                  assigned,
+                                  l10n,
+                                ),
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: configured
                                       ? theme.colorScheme.onSurface
@@ -607,37 +599,13 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     );
   }
 
-  Widget _cardError({
-    required ThemeData theme,
-    required Object error,
-    required VoidCallback onRetry,
-  }) {
-    return Container(
+  Widget _cardError({required VoidCallback onRetry}) {
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.2),
-        ),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.error_loadingData,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.error,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(context.l10n.btn_retry),
-          ),
-        ],
+      child: ErrorDisplayWidget(
+        message: context.l10n.error_loadingData,
+        onRetry: onRetry,
+        padding: EdgeInsets.zero,
       ),
     );
   }
@@ -649,17 +617,12 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       title: l10n.card_basicInfo_title,
       subtitle: l10n.card_basicInfo_subtitle,
       initiallyExpanded: true,
-      trailing: ElevatedButton.icon(
+      trailing: FilledButton.icon(
         onPressed: infoAsync.hasValue
             ? () => _openEditDrawer(infoAsync.value!)
             : null,
         icon: const Icon(Icons.edit),
         label: Text(l10n.btn_edit),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
-        ),
       ),
       child: infoAsync.when(
         loading: () => LoadingShimmer(
@@ -692,45 +655,38 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
             ],
           ),
         ),
-        error: (e, st) => _cardError(
-          theme: theme,
-          error: e,
-          onRetry: () => churchController.fetchChurch(),
-        ),
-        data: (church) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            _buildInfoRow(l10n.lbl_churchName, church.name, theme),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoRow(
-                    l10n.lbl_phone,
-                    church.phoneNumber ?? l10n.lbl_na,
-                    theme,
-                  ),
+        error: (e, st) =>
+            _cardError(onRetry: () => churchController.fetchChurch()),
+        data: (church) => LayoutBuilder(
+          builder: (context, constraints) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildInfoRow(l10n.lbl_churchName, church.name, theme),
+              const SizedBox(height: 16),
+              _buildInfoPair(
+                maxWidth: constraints.maxWidth,
+                left: _buildInfoRow(
+                  l10n.lbl_phone,
+                  church.phoneNumber ?? l10n.lbl_na,
+                  theme,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildInfoRow(
-                    l10n.lbl_email,
-                    church.email ?? l10n.lbl_na,
-                    theme,
-                  ),
+                right: _buildInfoRow(
+                  l10n.lbl_email,
+                  church.email ?? l10n.lbl_na,
+                  theme,
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow(
-              l10n.lbl_descriptionOptional,
-              church.description ?? l10n.lbl_na,
-              theme,
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-          ],
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow(
+                l10n.lbl_descriptionOptional,
+                church.description ?? l10n.lbl_na,
+                theme,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -762,6 +718,24 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     );
   }
 
+  Widget _buildInfoPair({
+    required double maxWidth,
+    required Widget left,
+    required Widget right,
+  }) {
+    if (maxWidth < 720) {
+      return Column(children: [left, const SizedBox(height: 16), right]);
+    }
+
+    return Row(
+      children: [
+        Expanded(child: left),
+        const SizedBox(width: 16),
+        Expanded(child: right),
+      ],
+    );
+  }
+
   Widget _buildLocationSection(ThemeData theme) {
     final locationAsync = state.location;
 
@@ -769,17 +743,12 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       title: l10n.card_location_title,
       subtitle: l10n.card_location_subtitle,
       initiallyExpanded: true,
-      trailing: ElevatedButton.icon(
+      trailing: FilledButton.icon(
         onPressed: (state.church.hasValue && locationAsync.hasValue)
             ? () => _openLocationEditDrawer(state.church.value!)
             : null,
         icon: const Icon(Icons.edit_location_alt),
         label: Text(l10n.btn_edit),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
-        ),
       ),
       child: locationAsync.when(
         loading: () => LoadingShimmer(
@@ -811,40 +780,34 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           ),
         ),
         error: (e, st) => _cardError(
-          theme: theme,
-          error: e,
           onRetry: () => churchController.fetchLocation(
             state.location.value?.id ??
                 churchController.locallyStoredChurch.locationId!,
           ),
         ),
-        data: (location) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            _buildInfoRow(l10n.lbl_address, location.name, theme),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoRow(
-                    l10n.lbl_latitude,
-                    location.latitude?.toString() ?? l10n.lbl_na,
-                    theme,
-                  ),
+        data: (location) => LayoutBuilder(
+          builder: (context, constraints) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildInfoRow(l10n.lbl_address, location.name, theme),
+              const SizedBox(height: 16),
+              _buildInfoPair(
+                maxWidth: constraints.maxWidth,
+                left: _buildInfoRow(
+                  l10n.lbl_latitude,
+                  location.latitude?.toString() ?? l10n.lbl_na,
+                  theme,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildInfoRow(
-                    l10n.lbl_longitude,
-                    location.longitude?.toString() ?? l10n.lbl_na,
-                    theme,
-                  ),
+                right: _buildInfoRow(
+                  l10n.lbl_longitude,
+                  location.longitude?.toString() ?? l10n.lbl_na,
+                  theme,
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -857,15 +820,10 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       title: l10n.card_columnManagement_title,
       initiallyExpanded: true,
       subtitle: l10n.card_columnManagement_subtitle,
-      trailing: ElevatedButton.icon(
+      trailing: FilledButton.icon(
         onPressed: () => _openAddColumnDrawer(state.church.value!.id!),
         icon: const Icon(Icons.add),
         label: Text(l10n.btn_add),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
-        ),
       ),
       child: columnsAsync.when(
         loading: () => Container(
@@ -881,8 +839,6 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           ),
         ),
         error: (e, st) => _cardError(
-          theme: theme,
-          error: e,
           onRetry: () => churchController.fetchColumns(
             (state.church.value?.id ??
                 churchController.locallyStoredChurch.id)!,
@@ -917,33 +873,64 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                           ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 60,
-                                  child: Text(
-                                    l10n.lbl_hashId(column.id.toString()),
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    column.name,
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                            color: Colors.black54,
-                          ),
-                        ],
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compact = constraints.maxWidth < 520;
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: compact
+                                    ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            l10n.lbl_hashId(
+                                              column.id.toString(),
+                                            ),
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            column.name,
+                                            style: theme.textTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 60,
+                                            child: Text(
+                                              l10n.lbl_hashId(
+                                                column.id.toString(),
+                                              ),
+                                              style: theme.textTheme.bodyMedium,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              column.name,
+                                              style: theme.textTheme.bodyMedium,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -963,14 +950,10 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       title: l10n.card_positionManagement_title,
       initiallyExpanded: true,
       subtitle: l10n.card_positionManagement_subtitle,
-      trailing: ElevatedButton.icon(
+      trailing: FilledButton.icon(
         onPressed: _openAddPositionDrawer,
         icon: const Icon(Icons.add),
         label: Text(l10n.btn_add),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-        ),
       ),
       child: positionsAsync.when(
         loading: () => Container(
@@ -986,8 +969,6 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           ),
         ),
         error: (e, st) => _cardError(
-          theme: theme,
-          error: e,
           onRetry: () => churchController.fetchPositions(
             (state.church.value?.id ??
                 churchController.locallyStoredChurch.id)!,
@@ -1020,33 +1001,64 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
                           ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 60,
-                                  child: Text(
-                                    l10n.lbl_hashId(position.id.toString()),
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    position.name,
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                            color: Colors.black54,
-                          ),
-                        ],
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compact = constraints.maxWidth < 520;
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: compact
+                                    ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            l10n.lbl_hashId(
+                                              position.id.toString(),
+                                            ),
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            position.name,
+                                            style: theme.textTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 60,
+                                            child: Text(
+                                              l10n.lbl_hashId(
+                                                position.id.toString(),
+                                              ),
+                                              style: theme.textTheme.bodyMedium,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              position.name,
+                                              style: theme.textTheme.bodyMedium,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),

@@ -101,9 +101,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         height: height ?? BaseSize.customHeight(92),
         padding: EdgeInsets.all(BaseSize.w12),
@@ -169,9 +167,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.hardEdge,
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w12),
@@ -233,9 +229,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.yellow[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -309,9 +303,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -408,9 +400,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(BaseSize.w16),
         child: Column(
@@ -499,9 +489,7 @@ class PalakatShimmerPlaceholders {
       elevation: 1,
       shadowColor: Colors.black.withValues(alpha: 0.05),
       surfaceTintColor: BaseColor.teal[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         width: width,
         height: height,

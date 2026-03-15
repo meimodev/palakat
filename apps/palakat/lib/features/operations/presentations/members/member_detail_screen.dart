@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
@@ -47,9 +48,11 @@ class MemberDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: l10n.lbl_memberWithId(memberIdText, name),
-            onBack: () => context.pop(),
+          OperationsReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: l10n.lbl_memberWithId(memberIdText, name),
+              onBack: () => context.pop(),
+            ),
           ),
           Gap.h16,
           Expanded(
@@ -68,15 +71,29 @@ class MemberDetailScreen extends ConsumerWidget {
                 ],
               ),
               child: membership == null
-                  ? Center(child: Text(l10n.noData_available))
+                  ? OperationsAnimatedPresence(
+                      visible: true,
+                      child: Center(child: Text(l10n.noData_available)),
+                    )
                   : ListView(
                       padding: EdgeInsets.only(bottom: BaseSize.h16),
                       children: [
-                        _HeaderCard(membership: membership),
+                        OperationsReveal(
+                          delay: const Duration(milliseconds: 40),
+                          child: _HeaderCard(membership: membership),
+                        ),
                         Gap.h12,
-                        _AccountCard(membership: membership),
+                        OperationsReveal(
+                          delay: const Duration(milliseconds: 80),
+                          child: _AccountCard(membership: membership),
+                        ),
                         Gap.h12,
-                        MembershipPositionsCardWidget(membership: membership),
+                        OperationsReveal(
+                          delay: const Duration(milliseconds: 120),
+                          child: MembershipPositionsCardWidget(
+                            membership: membership,
+                          ),
+                        ),
                       ],
                     ),
             ),
@@ -159,9 +176,11 @@ class _HeaderCard extends StatelessWidget {
                         Gap.h4,
                         Text(
                           phone,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: BaseColor.textSecondary,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
@@ -362,7 +381,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: BaseTypography.bodySmall.copyWith(
+                style: BaseTypography.labelMedium.copyWith(
                   color: BaseColor.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -371,9 +390,11 @@ class _InfoRow extends StatelessWidget {
               Text(
                 value,
                 style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.black,
+                  color: BaseColor.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

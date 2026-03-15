@@ -122,95 +122,123 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 24,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 360;
+                final horizontalPadding = compact ? 20.0 : 28.0;
+
+                return Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 2,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 24,
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            l10n.appTitle,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(width: 8),
-                          Chip(
-                            label: Text(l10n.app_superAdminTitle),
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: _phoneController,
-                        decoration: InputDecoration(labelText: l10n.lbl_phone),
-                        enabled: !isLoading,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          _PhoneInputFormatter(),
-                        ],
-                        validator: (v) => Validators.required(
-                          l10n.validation_requiredField,
-                        ).asFormFieldValidator(v),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: l10n.lbl_password,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                          ),
-                        ),
-                        obscureText: _obscure,
-                        enabled: !isLoading,
-                        onFieldSubmitted: (_) => submit(),
-                        validator: (v) => Validators.required(
-                          l10n.validation_passwordRequired,
-                        ).asFormFieldValidator(v),
-                      ),
-                      if (errorText != null) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          errorText,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 18),
-                      FilledButton(
-                        onPressed: isLoading ? null : submit,
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                          if (compact)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.appTitle,
+                                  style: Theme.of(context).textTheme.titleLarge,
                                 ),
-                              )
-                            : Text(l10n.btn_signIn),
+                                const SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Chip(
+                                    label: Text(l10n.app_superAdminTitle),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                ),
+                              ],
+                            )
+                          else
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.appTitle,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Chip(
+                                  label: Text(l10n.app_superAdminTitle),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: _phoneController,
+                            decoration: InputDecoration(
+                              labelText: l10n.lbl_phone,
+                            ),
+                            enabled: !isLoading,
+                            textInputAction: TextInputAction.next,
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              _PhoneInputFormatter(),
+                            ],
+                            validator: (v) => Validators.required(
+                              l10n.validation_requiredField,
+                            ).asFormFieldValidator(v),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                              labelText: l10n.lbl_password,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _obscure = !_obscure),
+                              ),
+                            ),
+                            obscureText: _obscure,
+                            enabled: !isLoading,
+                            onFieldSubmitted: (_) => submit(),
+                            validator: (v) => Validators.required(
+                              l10n.validation_passwordRequired,
+                            ).asFormFieldValidator(v),
+                          ),
+                          if (errorText != null) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              errorText,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 18),
+                          FilledButton(
+                            onPressed: isLoading ? null : submit,
+                            child: isLoading
+                                ? const CompactLoadingWidget(size: 18)
+                                : Text(l10n.btn_signIn),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),

@@ -64,40 +64,13 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     );
   }
 
-  Widget _cardError({
-    required BuildContext context,
-    required ThemeData theme,
-    required Object error,
-    required VoidCallback onRetry,
-    required String message,
-  }) {
-    final l10n = context.l10n;
-    return Container(
+  Widget _cardError({required VoidCallback onRetry, required String message}) {
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.2),
-        ),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            message,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.error,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.btn_retry),
-          ),
-        ],
+      child: ErrorDisplayWidget(
+        message: message,
+        onRetry: onRetry,
+        padding: EdgeInsets.zero,
       ),
     );
   }
@@ -121,17 +94,19 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
             SurfaceCard(
               title: l10n.card_overdueBills_title,
               subtitle: l10n.card_overdueBills_subtitle,
-              child: Column(
-                children: [
-                  _BillingHeader(),
-                  const Divider(height: 1),
-                  ...overdueItems.map(
-                    (item) => _BillingRow(
-                      item: item,
-                      onTap: () => _showBillingItemDetail(item),
+              child: _BillingTableContainer(
+                child: Column(
+                  children: [
+                    _BillingHeader(),
+                    const Divider(height: 1),
+                    ...overdueItems.map(
+                      (item) => _BillingRow(
+                        item: item,
+                        onTap: () => _showBillingItemDetail(item),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -164,20 +139,23 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           ),
         ),
         error: (e, st) => _cardError(
-          context: context,
-          theme: theme,
-          error: e,
           onRetry: controller.fetchPaymentHistory,
           message: l10n.error_loadingBilling,
         ),
         data: (payments) {
           return Column(
             children: [
-              _PaymentHistoryHeader(),
-              const Divider(height: 1),
-              ...payments
-                  .take(10)
-                  .map((payment) => _PaymentHistoryRow(payment: payment)),
+              _PaymentHistoryTableContainer(
+                child: Column(
+                  children: [
+                    _PaymentHistoryHeader(),
+                    const Divider(height: 1),
+                    ...payments
+                        .take(10)
+                        .map((payment) => _PaymentHistoryRow(payment: payment)),
+                  ],
+                ),
+              ),
               if (payments.length > 10) ...[
                 const SizedBox(height: 8),
                 TextButton(
@@ -229,30 +207,17 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           ),
         ),
         error: (e, st) => _cardError(
-          context: context,
-          theme: theme,
-          error: e,
           onRetry: controller.fetchBillingItems,
           message: l10n.error_loadingBilling,
         ),
         data: (items) {
           return Column(
             children: [
-              // Search and Filters
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: SearchField(
-                      controller: _searchController,
-                      hint: l10n.hint_searchBillingItems,
-                      debounceMilliseconds: 300,
-                      onSearch: controller.updateSearchQuery,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  DropdownButton<BillingStatus?>(
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final statusFilter = DropdownButton<BillingStatus?>(
                     value: state.statusFilter,
+                    isExpanded: true,
                     hint: Text(l10n.filter_allStatus),
                     items: [
                       DropdownMenuItem(
@@ -267,9 +232,8 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                       ),
                     ],
                     onChanged: controller.updateStatusFilter,
-                  ),
-                  const SizedBox(width: 8),
-                  DateRangePresetInput(
+                  );
+                  final dateFilter = DateRangePresetInput(
                     label: '',
                     hint: l10n.lbl_dateRange,
                     start: selected?.start,
@@ -284,36 +248,77 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
                         DateTimeRange(start: start, end: end),
                       );
                     },
-                  ),
-                ],
+                  );
+
+                  if (constraints.maxWidth < 920) {
+                    return Column(
+                      children: [
+                        SearchField(
+                          controller: _searchController,
+                          hint: l10n.hint_searchBillingItems,
+                          debounceMilliseconds: 300,
+                          onSearch: controller.updateSearchQuery,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: statusFilter),
+                            const SizedBox(width: 8),
+                            Expanded(child: dateFilter),
+                          ],
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SearchField(
+                          controller: _searchController,
+                          hint: l10n.hint_searchBillingItems,
+                          debounceMilliseconds: 300,
+                          onSearch: controller.updateSearchQuery,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(child: statusFilter),
+                      const SizedBox(width: 8),
+                      Expanded(child: dateFilter),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 12),
-
-              // Table Header
-              _BillingHeader(),
-              const Divider(height: 1),
-
-              // Table Rows
-              if (paginatedItems.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    l10n.noData_billing,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                )
-              else
-                ...paginatedItems.map(
-                  (item) => _BillingRow(
-                    item: item,
-                    onTap: () => _showBillingItemDetail(item),
-                  ),
+              _BillingTableContainer(
+                child: Column(
+                  children: [
+                    _BillingHeader(),
+                    const Divider(height: 1),
+                    if (paginatedItems.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          l10n.noData_billing,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    else
+                      ...paginatedItems.map(
+                        (item) => _BillingRow(
+                          item: item,
+                          onTap: () => _showBillingItemDetail(item),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
 
               const SizedBox(height: 8),
-              // Pagination
               PaginationBar(
                 total: total,
                 pageSize: state.rowsPerPage,
@@ -387,15 +392,65 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
         title: l10n.drawer_paymentHistory_title,
         subtitle: l10n.drawer_paymentHistory_subtitle,
         onClose: () => DrawerUtils.closeDrawer(context),
-        width: 600,
-        content: Column(
-          children: [
-            _PaymentHistoryHeader(),
-            const Divider(height: 1),
-            ...payments.map((payment) => _PaymentHistoryRow(payment: payment)),
-          ],
+        width: MediaQuery.of(context).size.width < 720
+            ? MediaQuery.of(context).size.width - 24
+            : 600,
+        content: _PaymentHistoryTableContainer(
+          child: Column(
+            children: [
+              _PaymentHistoryHeader(),
+              const Divider(height: 1),
+              ...payments.map(
+                (payment) => _PaymentHistoryRow(payment: payment),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _BillingTableContainer extends StatelessWidget {
+  const _BillingTableContainer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minWidth = constraints.maxWidth < 760
+            ? 760.0
+            : constraints.maxWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(width: minWidth, child: child),
+        );
+      },
+    );
+  }
+}
+
+class _PaymentHistoryTableContainer extends StatelessWidget {
+  const _PaymentHistoryTableContainer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minWidth = constraints.maxWidth < 760
+            ? 760.0
+            : constraints.maxWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(width: minWidth, child: child),
+        );
+      },
     );
   }
 }
@@ -825,7 +880,6 @@ class _PaymentDialogState extends State<_PaymentDialog> {
               value: _paymentMethod,
               decoration: InputDecoration(
                 labelText: context.l10n.filter_paymentMethod,
-                border: const OutlineInputBorder(),
               ),
               items: PaymentMethod.values
                   .map(
@@ -843,7 +897,6 @@ class _PaymentDialogState extends State<_PaymentDialog> {
               decoration: InputDecoration(
                 labelText:
                     '${context.l10n.lbl_transactionId} ${context.l10n.lbl_optional}',
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -852,7 +905,6 @@ class _PaymentDialogState extends State<_PaymentDialog> {
               decoration: InputDecoration(
                 labelText:
                     '${context.l10n.lbl_notes} ${context.l10n.lbl_optional}',
-                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -864,7 +916,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(context.l10n.btn_cancel),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: () {
             Navigator.of(context).pop({
               'paymentMethod': _paymentMethod,

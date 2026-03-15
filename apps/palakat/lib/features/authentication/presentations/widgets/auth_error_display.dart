@@ -16,83 +16,69 @@ class AuthErrorDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 10 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: Material(
-        color: BaseColor.red[50],
-        elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.04),
-        surfaceTintColor: BaseColor.red[50],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-          side: BorderSide(color: BaseColor.red[200]!, width: 1),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: BaseSize.w36,
-                    height: BaseSize.w36,
-                    decoration: BoxDecoration(
-                      color: BaseColor.red[100],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      boxShadow: [
-                        BoxShadow(
-                          color: BaseColor.red[200]!.withValues(alpha: 0.28),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: FaIcon(
-                      AppIcons.error,
-                      size: BaseSize.w16,
-                      color: BaseColor.red[700],
-                    ),
-                  ),
-                  Gap.w12,
-                  Expanded(
-                    child: Text(
-                      message,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.red[800],
-                        fontWeight: FontWeight.w500,
+    return Material(
+      color: BaseColor.red[50],
+      elevation: 1,
+      shadowColor: Colors.black.withValues(alpha: 0.04),
+      surfaceTintColor: BaseColor.red[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        side: BorderSide(color: BaseColor.red[200]!, width: 1),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(BaseSize.w16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: BaseSize.w36,
+                  height: BaseSize.w36,
+                  decoration: BoxDecoration(
+                    color: BaseColor.red[100],
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    boxShadow: [
+                      BoxShadow(
+                        color: BaseColor.red[200]!.withValues(alpha: 0.28),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: FaIcon(
+                    AppIcons.error,
+                    size: BaseSize.w16,
+                    color: BaseColor.red[700],
+                  ),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: Text(
+                    message,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.red[800],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
-              if (onRetry != null) ...[
-                Gap.h12,
-                ButtonWidget.outlined(
-                  text: context.l10n.btn_retry,
-                  onTap: onRetry,
-                  buttonSize: ButtonSize.small,
-                  textColor: BaseColor.red[700]!,
-                  outlineColor: BaseColor.red[300]!,
-                  focusColor: BaseColor.red[100]!,
-                  overlayColor: BaseColor.red[50]!,
                 ),
               ],
+            ),
+            if (onRetry != null) ...[
+              Gap.h12,
+              ButtonWidget.outlined(
+                text: context.l10n.btn_retry,
+                onTap: onRetry,
+                buttonSize: ButtonSize.small,
+                textColor: BaseColor.red[700]!,
+                outlineColor: BaseColor.red[300]!,
+                focusColor: BaseColor.red[100]!,
+                overlayColor: BaseColor.red[50]!,
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );

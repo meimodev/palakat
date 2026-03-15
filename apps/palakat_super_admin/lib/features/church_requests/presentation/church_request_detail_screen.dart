@@ -93,15 +93,11 @@ class _ChurchRequestDetailScreenState
       final repo = ref.read(churchRequestsRepositoryProvider);
       await repo.approve(id: widget.id, decisionNote: noteController.text);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.status_approved)));
+      AppSnackbars.showSuccess(context, message: l10n.status_approved);
       await _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -127,7 +123,7 @@ class _ChurchRequestDetailScreenState
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(l10n.btn_cancel),
             ),
-            FilledButton(
+            FilledButton.tonal(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(l10n.btn_reject),
             ),
@@ -143,15 +139,11 @@ class _ChurchRequestDetailScreenState
       final repo = ref.read(churchRequestsRepositoryProvider);
       await repo.reject(id: widget.id, decisionNote: noteController.text);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.status_rejected)));
+      AppSnackbars.showSuccess(context, message: l10n.status_rejected);
       await _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -177,12 +169,7 @@ class _ChurchRequestDetailScreenState
               '${l10n.churchRequest_title} #${widget.id}',
               style: theme.textTheme.headlineMedium,
             ),
-            if (_loading)
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+            if (_loading) const CompactLoadingWidget(size: 18),
           ],
         ),
         const SizedBox(height: 16),
@@ -208,7 +195,7 @@ class _ChurchRequestDetailScreenState
           child: request == null
               ? const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: AppLoadingWidget(),
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -282,7 +269,10 @@ class _Row extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final stacked = multiline || constraints.maxWidth < 560;
+          final stacked = multiline || constraints.maxWidth < 680;
+          final labelWidth = (constraints.maxWidth * 0.28)
+              .clamp(120.0, 160.0)
+              .toDouble();
           final labelWidget = Text(
             label,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -301,7 +291,7 @@ class _Row extends StatelessWidget {
 
           return Row(
             children: [
-              SizedBox(width: 160, child: labelWidget),
+              SizedBox(width: labelWidth, child: labelWidget),
               const SizedBox(width: 12),
               Expanded(child: valueWidget),
             ],

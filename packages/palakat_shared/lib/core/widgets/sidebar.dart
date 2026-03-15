@@ -13,6 +13,7 @@ class AppSidebar extends ConsumerWidget {
     final route = GoRouterState.of(context).uri.toString();
     final l10n = context.l10n;
     final localStorage = ref.watch(localStorageServiceProvider);
+    final theme = Theme.of(context);
 
     return Drawer(
       elevation: 0,
@@ -41,9 +42,13 @@ class AppSidebar extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      l10n.appTitle_admin,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Expanded(
+                      child: Text(
+                        l10n.appTitle_admin,
+                        style: theme.textTheme.titleLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -78,10 +83,10 @@ class AppSidebar extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
                       child: Text(
                         l10n.nav_section_report,
-                        style: const TextStyle(
+                        style: theme.textTheme.labelMedium?.copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -103,10 +108,10 @@ class AppSidebar extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
                       child: Text(
                         l10n.nav_section_administration,
-                        style: const TextStyle(
+                        style: theme.textTheme.labelMedium?.copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -172,6 +177,7 @@ class AppSidebar extends ConsumerWidget {
                       '-';
 
                   return ListTile(
+                    isThreeLine: true,
                     title: Text(displayName),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,18 +185,26 @@ class AppSidebar extends ConsumerWidget {
                       children: [
                         Text(
                           phone,
-                          style: Theme.of(context).textTheme.labelSmall,
+                          style: theme.textTheme.labelSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 2),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              churchName,
-                              style: Theme.of(context).textTheme.labelSmall,
+                            Expanded(
+                              child: Text(
+                                churchName,
+                                style: theme.textTheme.labelSmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               l10n.lbl_hashId(churchId),
-                              style: Theme.of(context).textTheme.labelSmall,
+                              style: theme.textTheme.labelSmall,
                             ),
                           ],
                         ),

@@ -47,54 +47,65 @@ class FinanceScreen extends ConsumerWidget {
             SurfaceCard(
               title: l10n.lbl_balance,
               subtitle: subtitle,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final cardWidth = constraints.maxWidth < 560
+                      ? constraints.maxWidth
+                      : constraints.maxWidth < 860
+                      ? ((constraints.maxWidth - 16) / 2).clamp(220.0, 280.0)
+                      : 240.0;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      QuickStatCard(
-                        label: l10n.lbl_balance,
-                        value: (overview?.totalBalance ?? 0).toCurrency,
-                        icon: Icons.account_balance_wallet_outlined,
-                        iconColor: Colors.indigo.shade700,
-                        iconBackgroundColor: Colors.indigo.shade50,
-                        isLoading: overviewState.overview.isLoading,
-                        subtitle: subtitle,
-                        width: 240,
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          QuickStatCard(
+                            label: l10n.lbl_balance,
+                            value: (overview?.totalBalance ?? 0).toCurrency,
+                            icon: Icons.account_balance_wallet_outlined,
+                            iconColor: Colors.indigo.shade700,
+                            iconBackgroundColor: Colors.indigo.shade50,
+                            isLoading: overviewState.overview.isLoading,
+                            subtitle: subtitle,
+                            width: cardWidth.toDouble(),
+                          ),
+                          QuickStatCard(
+                            label:
+                                '${l10n.paymentMethod_cash} ${l10n.lbl_balance}',
+                            value: (overview?.cashBalance ?? 0).toCurrency,
+                            icon: Icons.payments_outlined,
+                            iconColor: Colors.green.shade700,
+                            iconBackgroundColor: Colors.green.shade50,
+                            isLoading: overviewState.overview.isLoading,
+                            subtitle: subtitle,
+                            width: cardWidth.toDouble(),
+                          ),
+                          QuickStatCard(
+                            label:
+                                '${l10n.paymentMethod_cashless} ${l10n.lbl_balance}',
+                            value: (overview?.cashlessBalance ?? 0).toCurrency,
+                            icon: Icons.credit_card_outlined,
+                            iconColor: Colors.purple.shade700,
+                            iconBackgroundColor: Colors.purple.shade50,
+                            isLoading: overviewState.overview.isLoading,
+                            subtitle: subtitle,
+                            width: cardWidth.toDouble(),
+                          ),
+                        ],
                       ),
-                      QuickStatCard(
-                        label: '${l10n.paymentMethod_cash} ${l10n.lbl_balance}',
-                        value: (overview?.cashBalance ?? 0).toCurrency,
-                        icon: Icons.payments_outlined,
-                        iconColor: Colors.green.shade700,
-                        iconBackgroundColor: Colors.green.shade50,
-                        isLoading: overviewState.overview.isLoading,
-                        subtitle: subtitle,
-                        width: 240,
-                      ),
-                      QuickStatCard(
-                        label:
-                            '${l10n.paymentMethod_cashless} ${l10n.lbl_balance}',
-                        value: (overview?.cashlessBalance ?? 0).toCurrency,
-                        icon: Icons.credit_card_outlined,
-                        iconColor: Colors.purple.shade700,
-                        iconBackgroundColor: Colors.purple.shade50,
-                        isLoading: overviewState.overview.isLoading,
-                        subtitle: subtitle,
-                        width: 240,
-                      ),
+                      if (overviewState.overview.hasError) ...[
+                        const SizedBox(height: 12),
+                        CompactErrorWidget(
+                          error: overviewState.overview.error as AppError,
+                          onRetry: overviewController.refresh,
+                        ),
+                      ],
                     ],
-                  ),
-                  if (overviewState.overview.hasError) ...[
-                    const SizedBox(height: 12),
-                    CompactErrorWidget(
-                      error: overviewState.overview.error as AppError,
-                      onRetry: overviewController.refresh,
-                    ),
-                  ],
-                ],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 24),
@@ -290,7 +301,8 @@ class _FinanceTypeChip extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final iconOnly = constraints.maxWidth.isFinite &&
+        final iconOnly =
+            constraints.maxWidth.isFinite &&
             constraints.maxWidth > 0 &&
             constraints.maxWidth < 80;
 

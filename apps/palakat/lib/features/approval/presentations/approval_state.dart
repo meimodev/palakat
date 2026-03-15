@@ -28,7 +28,8 @@ abstract class ApprovalState with _$ApprovalState {
     DateTime? filterStartDate,
     DateTime? filterEndDate,
     // Status filter
-    @Default(ApprovalFilterStatus.all) ApprovalFilterStatus statusFilter,
+    @Default(ApprovalFilterStatus.pendingMyAction)
+    ApprovalFilterStatus statusFilter,
     // Computed/derived list based on filters
     @Default(<Activity>[]) List<Activity> filteredApprovals,
     final String? errorMessage,

@@ -116,7 +116,7 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(l10n.btn_cancel),
             ),
-            FilledButton(
+            FilledButton.tonal(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(l10n.btn_reject),
             ),
@@ -275,19 +275,11 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                 try {
                                   await controller.approve(id);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          l10n.dashboard_membershipInvitation_snackbarApproved,
-                                        ),
-                                      ),
-                                    );
+                                    AppSnackbars.showSuccess(context, message: l10n.dashboard_membershipInvitation_snackbarApproved,);
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(e.toString())),
-                                    );
+                                    AppSnackbars.showError(context, message: e.toString());
                                   }
                                 }
                               },
@@ -308,19 +300,11 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                     rejectedReason: reason,
                                   );
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          l10n.dashboard_membershipInvitation_snackbarRejected,
-                                        ),
-                                      ),
-                                    );
+                                    AppSnackbars.showSuccess(context, message: l10n.dashboard_membershipInvitation_snackbarRejected,);
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(e.toString())),
-                                    );
+                                    AppSnackbars.showError(context, message: e.toString());
                                   }
                                 }
                               },
@@ -341,15 +325,11 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                 try {
                                   await controller.delete(id);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.msg_deleted)),
-                                    );
+                                    AppSnackbars.showSuccess(context, message: l10n.msg_deleted);
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(e.toString())),
-                                    );
+                                    AppSnackbars.showError(context, message: e.toString());
                                   }
                                 }
                               },

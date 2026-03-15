@@ -35,7 +35,7 @@ class OperationItemCard extends StatelessWidget {
       opacity: operation.isEnabled ? 1.0 : disabledOpacity,
       child: Material(
         color: BaseColor.cardBackground1,
-        elevation: 1,
+        elevation: 0,
         shadowColor: Colors.black.withValues(alpha: 0.05),
         surfaceTintColor: BaseColor.primary[50],
         shape: RoundedRectangleBorder(
@@ -53,35 +53,83 @@ class OperationItemCard extends StatelessWidget {
             // Tooltip on long-press (Requirement 5.2)
             message: description,
             preferBelow: true,
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w12),
-              child: Row(
-                children: [
-                  // Operation icon container
-                  _OperationIcon(
-                    icon: operation.icon,
-                    isEnabled: operation.isEnabled,
-                  ),
-                  Gap.w12,
-                  // Title and description
-                  Expanded(
-                    child: _OperationContent(
-                      title: title,
-                      description: description,
-                      isEnabled: operation.isEnabled,
-                    ),
-                  ),
-                  Gap.w8,
-                  // Chevron indicator
-                  Icon(
-                    AppIcons.forward,
-                    color: operation.isEnabled
-                        ? BaseColor.textSecondary
-                        : BaseColor.textDisabled,
-                    size: BaseSize.w18,
-                  ),
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact =
+                    constraints.maxWidth < 260 ||
+                    MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+                return Padding(
+                  padding: EdgeInsets.all(BaseSize.w10),
+                  child: isCompact
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Operation icon container
+                                _OperationIcon(
+                                  icon: operation.icon,
+                                  isEnabled: operation.isEnabled,
+                                  isCompact: isCompact,
+                                ),
+                                Gap.w10,
+                                // Title and description
+                                Expanded(
+                                  child: _OperationContent(
+                                    title: title,
+                                    description: description,
+                                    isEnabled: operation.isEnabled,
+                                    isCompact: isCompact,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Gap.h8,
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Icon(
+                                AppIcons.forward,
+                                color: operation.isEnabled
+                                    ? BaseColor.textSecondary
+                                    : BaseColor.textDisabled,
+                                size: BaseSize.w18,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            // Operation icon container
+                            _OperationIcon(
+                              icon: operation.icon,
+                              isEnabled: operation.isEnabled,
+                              isCompact: isCompact,
+                            ),
+                            Gap.w10,
+                            // Title and description
+                            Expanded(
+                              child: _OperationContent(
+                                title: title,
+                                description: description,
+                                isEnabled: operation.isEnabled,
+                                isCompact: isCompact,
+                              ),
+                            ),
+                            Gap.w6,
+                            // Chevron indicator
+                            Icon(
+                              AppIcons.forward,
+                              color: operation.isEnabled
+                                  ? BaseColor.textSecondary
+                                  : BaseColor.textDisabled,
+                              size: BaseSize.w18,
+                            ),
+                          ],
+                        ),
+                );
+              },
             ),
           ),
         ),
@@ -132,16 +180,21 @@ String _operationDescription(BuildContext context, OperationItem operation) {
 
 /// Icon container for the operation card
 class _OperationIcon extends StatelessWidget {
-  const _OperationIcon({required this.icon, required this.isEnabled});
+  const _OperationIcon({
+    required this.icon,
+    required this.isEnabled,
+    required this.isCompact,
+  });
 
   final IconData icon;
   final bool isEnabled;
+  final bool isCompact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: BaseSize.w48,
-      height: BaseSize.w48,
+      width: isCompact ? BaseSize.w36 : BaseSize.w40,
+      height: isCompact ? BaseSize.w36 : BaseSize.w40,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isEnabled ? BaseColor.primary[50] : BaseColor.neutral[100],
@@ -150,7 +203,7 @@ class _OperationIcon extends StatelessWidget {
       child: Icon(
         icon,
         color: isEnabled ? BaseColor.primary : BaseColor.textDisabled,
-        size: BaseSize.w24,
+        size: isCompact ? BaseSize.w18 : BaseSize.w20,
       ),
     );
   }
@@ -162,11 +215,13 @@ class _OperationContent extends StatelessWidget {
     required this.title,
     required this.description,
     required this.isEnabled,
+    required this.isCompact,
   });
 
   final String title;
   final String description;
   final bool isEnabled;
+  final bool isCompact;
 
   @override
   Widget build(BuildContext context) {
@@ -177,21 +232,27 @@ class _OperationContent extends StatelessWidget {
         // Title (Requirement 5.3)
         Text(
           title,
-          style: BaseTypography.titleMedium.copyWith(
-            fontWeight: FontWeight.w700,
-            color: isEnabled ? BaseColor.textPrimary : BaseColor.textDisabled,
-          ),
-          maxLines: 1,
+          style:
+              (isCompact
+                      ? BaseTypography.bodyMedium
+                      : BaseTypography.titleMedium)
+                  .copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: isEnabled
+                        ? BaseColor.textPrimary
+                        : BaseColor.textDisabled,
+                  ),
+          maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
         ),
         Gap.h4,
         // Description (Requirement 5.3)
         Text(
           description,
-          style: BaseTypography.bodySmall.copyWith(
+          style: BaseTypography.bodyMedium.copyWith(
             color: isEnabled ? BaseColor.textSecondary : BaseColor.textDisabled,
           ),
-          maxLines: 2,
+          maxLines: isCompact ? 3 : 2,
           overflow: TextOverflow.ellipsis,
         ),
       ],

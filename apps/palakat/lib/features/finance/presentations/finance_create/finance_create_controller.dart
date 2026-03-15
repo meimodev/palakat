@@ -294,7 +294,7 @@ class FinanceCreateController extends _$FinanceCreateController {
     } catch (e) {
       state = state.copyWith(
         loading: false,
-        errorMessage: 'Something went wrong. Please try again.',
+        errorMessage: 'err_somethingWentWrong',
       );
       return false;
     }

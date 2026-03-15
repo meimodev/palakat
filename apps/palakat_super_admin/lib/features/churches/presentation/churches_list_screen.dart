@@ -27,14 +27,10 @@ class ChurchesListScreen extends ConsumerWidget {
         SurfaceCard(
           title: l10n.nav_church,
           subtitle: l10n.admin_church_subtitle,
-          trailing: ElevatedButton.icon(
+          trailing: FilledButton.icon(
             onPressed: () => context.go('/churches/new'),
             icon: const Icon(Icons.add),
             label: Text(l10n.btn_add),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
           ),
           child: AppTable<Church>(
             loading: asyncItems.isLoading,

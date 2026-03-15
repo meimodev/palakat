@@ -47,6 +47,8 @@ class _DialogColumnPickerWidgetState
   List<model.Column> _columns = [];
   bool _isLoading = false;
   String _searchQuery = '';
+  String? _errorMessage;
+  int _latestRequestId = 0;
 
   @override
   void initState() {
@@ -65,20 +67,41 @@ class _DialogColumnPickerWidgetState
   Future<void> _fetchColumns() async {
     if (widget.churchId == null) return;
 
-    setState(() => _isLoading = true);
+    final requestId = ++_latestRequestId;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     final controller = ref.read(membershipControllerProvider.notifier);
-    final columns = await controller.fetchColumns(
+    final result = await controller.fetchColumns(
       churchId: widget.churchId!,
       searchQuery: _searchQuery,
     );
 
-    if (mounted) {
-      setState(() {
-        _columns = columns;
-        _isLoading = false;
-      });
+    if (!mounted || requestId != _latestRequestId) {
+      return;
     }
+
+    result.when(
+      onSuccess: (columns) {
+        setState(() {
+          _columns = columns;
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      },
+      onFailure: (failure) {
+        setState(() {
+          _columns = [];
+          _isLoading = false;
+          _errorMessage = failure.message.trim().isEmpty
+              ? context.l10n.err_loadFailed
+              : failure.message;
+        });
+      },
+    );
   }
 
   void _onSearchChanged(String query) {
@@ -148,6 +171,12 @@ class _DialogColumnPickerWidgetState
                       ],
                     ),
                   ),
+                )
+              : _errorMessage != null && _errorMessage!.trim().isNotEmpty
+              ? ErrorDisplayWidget(
+                  message: _errorMessage!,
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  onRetry: _fetchColumns,
                 )
               : _columns.isEmpty
               ? Center(

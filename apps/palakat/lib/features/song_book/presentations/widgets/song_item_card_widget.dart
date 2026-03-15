@@ -86,32 +86,73 @@ class SongItemCard extends StatelessWidget {
         // Ripple effect with primary color at 10% opacity (Requirement 4.1)
         splashColor: BaseColor.primary.withValues(alpha: 0.1),
         highlightColor: BaseColor.primary.withValues(alpha: 0.05),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.w10,
-          ),
-          child: Row(
-            children: [
-              // Song icon container
-              _SongIcon(),
-              Gap.w12,
-              // Title and subtitle
-              Expanded(
-                child: _SongContent(
-                  title: song.title,
-                  subtitle: song.subTitle,
-                  snippet: snippet,
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact =
+                constraints.maxWidth < 260 ||
+                MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: BaseSize.w10,
+                vertical: BaseSize.w8,
               ),
-              Gap.w8,
-              Icon(
-                AppIcons.forward,
-                color: BaseColor.textSecondary,
-                size: BaseSize.w24,
-              ),
-            ],
-          ),
+              child: isCompact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Song icon container
+                            _SongIcon(isCompact: isCompact),
+                            Gap.w10,
+                            // Title and subtitle
+                            Expanded(
+                              child: _SongContent(
+                                title: song.title,
+                                subtitle: song.subTitle,
+                                snippet: snippet,
+                                isCompact: isCompact,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap.h8,
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(
+                            AppIcons.forward,
+                            color: BaseColor.textSecondary,
+                            size: BaseSize.w20,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        // Song icon container
+                        _SongIcon(isCompact: isCompact),
+                        Gap.w10,
+                        // Title and subtitle
+                        Expanded(
+                          child: _SongContent(
+                            title: song.title,
+                            subtitle: song.subTitle,
+                            snippet: snippet,
+                            isCompact: isCompact,
+                          ),
+                        ),
+                        Gap.w6,
+                        Icon(
+                          AppIcons.forward,
+                          color: BaseColor.textSecondary,
+                          size: BaseSize.w20,
+                        ),
+                      ],
+                    ),
+            );
+          },
         ),
       ),
     );
@@ -120,11 +161,15 @@ class SongItemCard extends StatelessWidget {
 
 /// Icon container for the song card
 class _SongIcon extends StatelessWidget {
+  const _SongIcon({required this.isCompact});
+
+  final bool isCompact;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: BaseSize.w48,
-      height: BaseSize.w48,
+      width: isCompact ? BaseSize.w36 : BaseSize.w40,
+      height: isCompact ? BaseSize.w36 : BaseSize.w40,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: BaseColor.primary[50],
@@ -133,7 +178,7 @@ class _SongIcon extends StatelessWidget {
       child: FaIcon(
         AppIcons.musicNote,
         color: BaseColor.primary,
-        size: BaseSize.w24,
+        size: isCompact ? BaseSize.w18 : BaseSize.w20,
       ),
     );
   }
@@ -145,11 +190,13 @@ class _SongContent extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.snippet,
+    required this.isCompact,
   });
 
   final String title;
   final String subtitle;
   final String? snippet;
+  final bool isCompact;
 
   String _displayTitle(String value) {
     return value
@@ -167,31 +214,35 @@ class _SongContent extends StatelessWidget {
         // Title (e.g., "KJ NO.1")
         Text(
           _displayTitle(title),
-          style: BaseTypography.titleMedium.copyWith(
-            fontWeight: FontWeight.w600,
-            color: BaseColor.textPrimary,
-          ),
-          maxLines: 1,
+          style:
+              (isCompact
+                      ? BaseTypography.bodyMedium
+                      : BaseTypography.titleMedium)
+                  .copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BaseColor.textPrimary,
+                  ),
+          maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
         ),
         Gap.h4,
         // Subtitle (song name)
         Text(
           subtitle,
-          style: BaseTypography.bodySmall.copyWith(
+          style: BaseTypography.bodyMedium.copyWith(
             color: BaseColor.textSecondary,
           ),
-          maxLines: 1,
+          maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
         ),
         if (snippet != null && snippet!.trim().isNotEmpty) ...[
           Gap.h4,
           Text(
             snippet!,
-            style: BaseTypography.bodySmall.copyWith(
+            style: BaseTypography.bodyMedium.copyWith(
               color: BaseColor.textSecondary,
             ),
-            maxLines: 2,
+            maxLines: isCompact ? 2 : 1,
             overflow: TextOverflow.ellipsis,
           ),
         ],

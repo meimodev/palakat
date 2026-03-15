@@ -97,7 +97,7 @@ class _FinanceTypeCard extends StatelessWidget {
                   Gap.h4,
                   Text(
                     config.description,
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       color: config.descriptionColor,
                     ),
                   ),

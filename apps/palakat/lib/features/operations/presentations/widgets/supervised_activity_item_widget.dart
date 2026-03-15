@@ -114,7 +114,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                       children: [
                         Text(
                           activity.date.ddMmmmYyyy,
-                          style: BaseTypography.labelSmall.copyWith(
+                          style: BaseTypography.labelMedium.copyWith(
                             color: BaseColor.textSecondary,
                           ),
                         ),
@@ -130,7 +130,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                         Gap.w8,
                         Text(
                           statusInfo.label,
-                          style: BaseTypography.labelSmall.copyWith(
+                          style: BaseTypography.labelMedium.copyWith(
                             color: statusInfo.color,
                             fontWeight: FontWeight.w500,
                           ),
@@ -195,7 +195,7 @@ class _ActivityTypeBadge extends StatelessWidget {
       ),
       child: Text(
         activityType.displayName,
-        style: BaseTypography.labelSmall.copyWith(
+        style: BaseTypography.labelMedium.copyWith(
           color: _getBadgeColor(),
           fontWeight: FontWeight.w500,
         ),
@@ -235,11 +235,11 @@ class _FinanceTypeBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(financeType.icon, size: 10, color: financeType.color),
+          Icon(financeType.icon, size: 12, color: financeType.color),
           Gap.w4,
           Text(
             financeType.displayName,
-            style: BaseTypography.labelSmall.copyWith(
+            style: BaseTypography.labelMedium.copyWith(
               color: financeType.color,
               fontWeight: FontWeight.w500,
             ),

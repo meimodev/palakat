@@ -130,32 +130,38 @@ class _ActivityWidgetState extends State<ActivityWidget> {
                 SizedBox(width: BaseSize.customWidth(12)),
             itemBuilder: (context, index) {
               final day = thisWeekDates[index];
-              return CardDatePreviewWidget(
-                width: widget.cardsHeight,
-                height: cardHeight,
-                date: day,
-                announcementCount: announcements
-                    .where((a) => a.date.isSameDay(day))
-                    .length,
-                birthdayCount: birthdays
-                    .where((b) => b.date.isSameDay(day))
-                    .length,
-                eventCount: activities
-                    .where(
-                      (e) =>
-                          e.date.isSameDay(day) &&
-                          e.activityType == ActivityType.event,
-                    )
-                    .length,
-                serviceCount: activities
-                    .where(
-                      (e) =>
-                          e.date.isSameDay(day) &&
-                          e.activityType == ActivityType.service,
-                    )
-                    .length,
-                onPressedCardDatePreview: () =>
-                    widget.onPressedCardDatePreview(day),
+              return DashboardReveal(
+                key: ValueKey('dashboard-day-${day.toIso8601String()}'),
+                delay: Duration(milliseconds: 80 + (index * 45)),
+                duration: const Duration(milliseconds: 320),
+                offset: const Offset(0.08, 0),
+                child: CardDatePreviewWidget(
+                  width: widget.cardsHeight,
+                  height: cardHeight,
+                  date: day,
+                  announcementCount: announcements
+                      .where((a) => a.date.isSameDay(day))
+                      .length,
+                  birthdayCount: birthdays
+                      .where((b) => b.date.isSameDay(day))
+                      .length,
+                  eventCount: activities
+                      .where(
+                        (e) =>
+                            e.date.isSameDay(day) &&
+                            e.activityType == ActivityType.event,
+                      )
+                      .length,
+                  serviceCount: activities
+                      .where(
+                        (e) =>
+                            e.date.isSameDay(day) &&
+                            e.activityType == ActivityType.service,
+                      )
+                      .length,
+                  onPressedCardDatePreview: () =>
+                      widget.onPressedCardDatePreview(day),
+                ),
               );
             },
           ),

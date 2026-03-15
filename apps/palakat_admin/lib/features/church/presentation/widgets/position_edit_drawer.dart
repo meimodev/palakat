@@ -109,7 +109,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(l10n.btn_cancel),
             ),
-            TextButton(
+            FilledButton.tonal(
               onPressed: () async {
                 Navigator.of(context).pop();
                 setState(() {
@@ -129,9 +129,6 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                   if (mounted) setState(() => _deleting = false);
                 }
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
               child: Text(l10n.btn_delete),
             ),
           ],
@@ -184,11 +181,6 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterPositionName,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     maxLength: 20,
                     validator: (value) => ChurchValidators.positionName()
@@ -206,37 +198,7 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
                 titleSpacing: 16,
                 children: [
                   if ((_positionDetail?.positions ?? []).isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: theme.colorScheme.outlineVariant,
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 16,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              l10n.noData_members,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                    InfoBoxWidget(message: l10n.noData_members)
                   else ...[
                     Container(
                       decoration: BoxDecoration(
@@ -342,32 +304,47 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          if (widget.onDelete != null) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _deletePosition,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: BorderSide(color: Colors.red),
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (widget.onDelete != null) ...[
+                  FilledButton.tonal(
+                    onPressed: _deletePosition,
+                    child: Text(l10n.btn_delete),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(adding ? l10n.btn_create : l10n.btn_save),
                 ),
-                child: Text(l10n.btn_delete),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              if (widget.onDelete != null) ...[
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: _deletePosition,
+                    child: Text(l10n.btn_delete),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(adding ? l10n.btn_create : l10n.btn_save),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: Text(adding ? l10n.btn_create : l10n.btn_save),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

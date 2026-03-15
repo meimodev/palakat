@@ -62,15 +62,11 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
         final msg = updatedAt != null
             ? context.l10n.msg_publishedSongsJson(updatedAt.toString())
             : context.l10n.msg_publishedSongsJsonWithoutDate;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        AppSnackbars.showSuccess(context, message: msg);
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -106,40 +102,28 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              ElevatedButton.icon(
+              OutlinedButton.icon(
                 onPressed: asyncDb.isLoading
                     ? null
                     : () => _reload(context, discardDraft: state.hasDraft),
                 icon: asyncDb.isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const CompactLoadingWidget(size: 18)
                     : const Icon(Icons.refresh),
                 label: Text(l10n.btn_retry),
               ),
-              ElevatedButton.icon(
+              FilledButton.tonalIcon(
                 onPressed: _saving || asyncDb.isLoading
                     ? null
                     : () => _save(context),
                 icon: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const CompactLoadingWidget(size: 18)
                     : const Icon(Icons.cloud_upload_outlined),
                 label: Text(l10n.songs_publishAction),
               ),
-              ElevatedButton.icon(
+              FilledButton.icon(
                 onPressed: () => context.go('/songs/new'),
                 icon: const Icon(Icons.add),
                 label: Text(l10n.btn_add),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
               ),
             ],
           ),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/articles/presentations/article_detail/article_detail_controller.dart';
+import 'package:palakat/features/articles/presentations/articles_motion_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/article.dart';
 
@@ -46,9 +47,11 @@ class ArticleDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: article?.title ?? l10n.article_titleFallback,
-            onBack: () => context.pop(),
+          ArticlesReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: article?.title ?? l10n.article_titleFallback,
+              onBack: () => context.pop(),
+            ),
           ),
           Gap.h16,
           Expanded(
@@ -61,27 +64,30 @@ class ArticleDetailScreen extends ConsumerWidget {
                 onRetry: () => controller.fetchArticle(),
                 shimmerPlaceholder: _buildShimmerPlaceholder(),
                 child: article == null
-                    ? Center(
-                        child: Material(
-                          color: BaseColor.surfaceMedium,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              BaseSize.radiusLg,
+                    ? ArticlesAnimatedPresence(
+                        visible: article == null,
+                        child: Center(
+                          child: Material(
+                            color: BaseColor.surfaceMedium,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusLg,
+                              ),
+                              side: BorderSide(
+                                color: BaseColor.neutral[200]!,
+                                width: 1,
+                              ),
                             ),
-                            side: BorderSide(
-                              color: BaseColor.neutral[200]!,
-                              width: 1,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(BaseSize.w24),
-                            child: Text(
-                              l10n.noData_available,
-                              textAlign: TextAlign.center,
-                              style: BaseTypography.titleMedium.copyWith(
-                                color: BaseColor.textPrimary,
-                                fontWeight: FontWeight.w700,
+                            child: Padding(
+                              padding: EdgeInsets.all(BaseSize.w24),
+                              child: Text(
+                                l10n.noData_available,
+                                textAlign: TextAlign.center,
+                                style: BaseTypography.titleMedium.copyWith(
+                                  color: BaseColor.textPrimary,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ),
@@ -134,76 +140,95 @@ class _Content extends StatelessWidget {
       padding: EdgeInsets.only(bottom: BaseSize.h16),
       children: [
         if (coverUrl != null && coverUrl.trim().isNotEmpty)
-          Material(
-            color: BaseColor.cardBackground1,
-            elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
-            surfaceTintColor: BaseColor.primary[50],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: ImageNetworkWidget(
-              imageUrl: coverUrl,
-              height: BaseSize.customHeight(200),
-              fit: BoxFit.cover,
+          ArticlesReveal(
+            child: Material(
+              color: BaseColor.cardBackground1,
+              elevation: 1,
+              shadowColor: Colors.black.withValues(alpha: 0.05),
+              surfaceTintColor: BaseColor.primary[50],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: ImageNetworkWidget(
+                imageUrl: coverUrl,
+                height: BaseSize.customHeight(200),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         Gap.h16,
-        Text(
-          title,
-          style: BaseTypography.headlineSmall.copyWith(
-            fontWeight: FontWeight.w700,
-            color: BaseColor.textPrimary,
+        ArticlesReveal(
+          delay: const Duration(milliseconds: 40),
+          child: Text(
+            title,
+            style: BaseTypography.headlineSmall.copyWith(
+              fontWeight: FontWeight.w700,
+              color: BaseColor.textPrimary,
+            ),
           ),
         ),
         if (effectiveDate != null) ...[
           Gap.h8,
-          Row(
-            children: [
-              FaIcon(
-                AppIcons.time,
-                size: BaseSize.w14,
-                color: BaseColor.secondaryText,
-              ),
-              Gap.w8,
-              Expanded(
-                child: Text(
-                  effectiveDate.EEEEddMMMyyyyShort,
-                  style: BaseTypography.bodySmall.copyWith(
-                    color: BaseColor.secondaryText,
+          ArticlesReveal(
+            delay: const Duration(milliseconds: 80),
+            child: Row(
+              children: [
+                FaIcon(
+                  AppIcons.time,
+                  size: BaseSize.w14,
+                  color: BaseColor.secondaryText,
+                ),
+                Gap.w8,
+                Expanded(
+                  child: Text(
+                    effectiveDate.EEEEddMMMyyyyShort,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.secondaryText,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
         if (excerpt != null && excerpt.trim().isNotEmpty) ...[
           Gap.h12,
-          Text(
-            excerpt,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.secondaryText,
+          ArticlesReveal(
+            delay: const Duration(milliseconds: 120),
+            child: Text(
+              excerpt,
+              style: BaseTypography.bodyMedium.copyWith(
+                color: BaseColor.secondaryText,
+              ),
             ),
           ),
         ],
         Gap.h16,
         if (content != null && content.trim().isNotEmpty)
-          MarkdownBody(data: content, selectable: true)
+          ArticlesReveal(
+            delay: const Duration(milliseconds: 160),
+            child: MarkdownBody(data: content, selectable: true),
+          )
         else
-          Material(
-            color: BaseColor.surfaceMedium,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-              side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w16),
-              child: Text(
-                context.l10n.noData_available,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textPrimary,
+          ArticlesReveal(
+            delay: const Duration(milliseconds: 160),
+            child: Material(
+              color: BaseColor.surfaceMedium,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(BaseSize.w16),
+                child: Text(
+                  context.l10n.noData_available,
+                  style: BaseTypography.bodyMedium.copyWith(
+                    color: BaseColor.textPrimary,
+                  ),
                 ),
               ),
             ),
@@ -250,6 +275,8 @@ class _LikeBar extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: BaseColor.secondaryText,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           IconButton(

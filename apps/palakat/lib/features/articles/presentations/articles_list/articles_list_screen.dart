@@ -6,6 +6,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/articles/presentations/articles_list/articles_list_controller.dart';
+import 'package:palakat/features/articles/presentations/articles_motion_widget.dart';
 import 'package:palakat_shared/palakat_shared.dart'
     hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
 
@@ -50,24 +51,29 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: context.l10n.articles_title,
-            onBack: () => context.pop(),
+          ArticlesReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: context.l10n.articles_title,
+              onBack: () => context.pop(),
+            ),
           ),
-          Gap.h16,
-          _SearchAndFilterBar(
-            filterType: state.filterType,
-            onSearchChanged: (value) {
-              FocusScope.of(context).unfocus();
-              controller.setSearch(value);
-            },
-            onClearSearch: () => controller.setSearch(''),
-            onTypeChanged: controller.setTypeFilter,
-            onClearFilters: controller.clearFilters,
-            hasActiveFilters: state.hasActiveFilters,
-            isLoading: state.isLoading,
+          Gap.h8,
+          ArticlesReveal(
+            delay: const Duration(milliseconds: 50),
+            child: _SearchAndFilterBar(
+              filterType: state.filterType,
+              onSearchChanged: (value) {
+                FocusScope.of(context).unfocus();
+                controller.setSearch(value);
+              },
+              onClearSearch: () => controller.setSearch(''),
+              onTypeChanged: controller.setTypeFilter,
+              onClearFilters: controller.clearFilters,
+              hasActiveFilters: state.hasActiveFilters,
+              isLoading: state.isLoading,
+            ),
           ),
-          Gap.h16,
+          Gap.h8,
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
@@ -78,9 +84,12 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                 onRetry: () => controller.fetchArticles(refresh: true),
                 shimmerPlaceholder: _buildShimmerPlaceholder(),
                 child: state.articles.isEmpty
-                    ? _EmptyState(
-                        hasActiveFilters: state.hasActiveFilters,
-                        onClearFilters: controller.clearFilters,
+                    ? ArticlesAnimatedPresence(
+                        visible: state.articles.isEmpty,
+                        child: _EmptyState(
+                          hasActiveFilters: state.hasActiveFilters,
+                          onClearFilters: controller.clearFilters,
+                        ),
                       )
                     : RefreshIndicator(
                         onRefresh: () =>
@@ -93,18 +102,21 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                           itemCount:
                               state.articles.length +
                               (state.isLoadingMore ? 1 : 0),
-                          separatorBuilder: (_, _) => Gap.h12,
+                          separatorBuilder: (_, _) => Gap.h8,
                           itemBuilder: (context, index) {
                             if (index == state.articles.length) {
-                              return Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(BaseSize.w16),
-                                  child: SizedBox(
-                                    width: BaseSize.w24,
-                                    height: BaseSize.w24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: BaseColor.primary[700],
+                              return ArticlesAnimatedPresence(
+                                visible: state.isLoadingMore,
+                                child: Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(BaseSize.w16),
+                                    child: SizedBox(
+                                      width: BaseSize.w24,
+                                      height: BaseSize.w24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: BaseColor.primary[700],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -112,17 +124,23 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                             }
 
                             final article = state.articles[index];
-                            return _ArticleListItem(
-                              article: article,
-                              onTap: () {
-                                if (article.id == null) return;
-                                context.pushNamed(
-                                  AppRoute.articleDetail,
-                                  pathParameters: {
-                                    'articleId': article.id.toString(),
-                                  },
-                                );
-                              },
+                            return ArticlesReveal(
+                              key: ValueKey(
+                                'article-list-${article.id ?? index}',
+                              ),
+                              delay: Duration(milliseconds: 70 + (index * 35)),
+                              child: _ArticleListItem(
+                                article: article,
+                                onTap: () {
+                                  if (article.id == null) return;
+                                  context.pushNamed(
+                                    AppRoute.articleDetail,
+                                    pathParameters: {
+                                      'articleId': article.id.toString(),
+                                    },
+                                  );
+                                },
+                              ),
                             );
                           },
                         ),
@@ -140,9 +158,9 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
       child: Column(
         children: [
           PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
+          Gap.h8,
           PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
+          Gap.h8,
           PalakatShimmerPlaceholders.listItemCard(),
         ],
       ),
@@ -201,7 +219,7 @@ class _SearchAndFilterBar extends StatelessWidget {
             ),
             borderRadius: BaseSize.radiusMd,
           ),
-          Gap.h12,
+          Gap.h8,
           InputWidget<ArticleType?>.dropdown(
             label: l10n.lbl_type,
             hint: l10n.filter_activityType_allTitle,
@@ -243,16 +261,19 @@ class _SearchAndFilterBar extends StatelessWidget {
               );
             },
           ),
-          if (hasActiveFilters) ...[
-            Gap.h12,
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ButtonWidget.text(
-                text: l10n.btn_clear,
-                onTap: onClearFilters,
+          ArticlesAnimatedPresence(
+            visible: hasActiveFilters,
+            child: Padding(
+              padding: EdgeInsets.only(top: BaseSize.h8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ButtonWidget.text(
+                  text: l10n.btn_clear,
+                  onTap: onClearFilters,
+                ),
               ),
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -299,36 +320,36 @@ class _ArticleListItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
+          padding: EdgeInsets.all(BaseSize.w8),
           child: Row(
             children: [
               if (article.coverImageUrl != null &&
                   article.coverImageUrl!.trim().isNotEmpty)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   child: ImageNetworkWidget(
                     imageUrl: article.coverImageUrl!,
-                    width: BaseSize.w56,
-                    height: BaseSize.w56,
+                    width: BaseSize.w48,
+                    height: BaseSize.w48,
                     fit: BoxFit.cover,
                   ),
                 )
               else
                 Container(
-                  width: BaseSize.w56,
-                  height: BaseSize.w56,
+                  width: BaseSize.w48,
+                  height: BaseSize.w48,
                   decoration: BoxDecoration(
                     color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     iconForArticleType(article.type),
-                    size: BaseSize.w20,
+                    size: BaseSize.w18,
                     color: BaseColor.primary,
                   ),
                 ),
-              Gap.w12,
+              Gap.w10,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,8 +357,9 @@ class _ArticleListItem extends StatelessWidget {
                     Text(
                       title,
                       style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: BaseColor.textPrimary,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -345,50 +367,87 @@ class _ArticleListItem extends StatelessWidget {
                     if (article.excerpt != null &&
                         article.excerpt!.trim().isNotEmpty)
                       Padding(
-                        padding: EdgeInsets.only(top: BaseSize.h6),
+                        padding: EdgeInsets.only(top: BaseSize.h4),
                         child: Text(
                           article.excerpt!,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: BaseColor.secondaryText,
+                            height: 1.2,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     Padding(
-                      padding: EdgeInsets.only(top: BaseSize.h8),
-                      child: Row(
-                        children: [
-                          FaIcon(
-                            AppIcons.time,
-                            size: BaseSize.w12,
-                            color: BaseColor.secondaryText,
-                          ),
-                          Gap.w6,
-                          Expanded(
-                            child: Text(
-                              publishedText,
-                              style: BaseTypography.labelSmall.copyWith(
+                      padding: EdgeInsets.only(top: BaseSize.h6),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final shouldStackMeta =
+                              constraints.maxWidth < 220 ||
+                              MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+                          final publishedMeta = Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FaIcon(
+                                AppIcons.time,
+                                size: 12,
                                 color: BaseColor.secondaryText,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Gap.w12,
-                          FaIcon(
-                            FontAwesomeIcons.heart,
-                            size: BaseSize.w12,
-                            color: BaseColor.secondaryText,
-                          ),
-                          Gap.w6,
-                          Text(
-                            (article.likesCount ?? 0).toString(),
-                            style: BaseTypography.labelSmall.copyWith(
-                              color: BaseColor.secondaryText,
-                            ),
-                          ),
-                        ],
+                              Gap.w4,
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: shouldStackMeta
+                                      ? constraints.maxWidth > BaseSize.w16
+                                            ? constraints.maxWidth -
+                                                  BaseSize.w16
+                                            : constraints.maxWidth
+                                      : constraints.maxWidth * 0.6,
+                                ),
+                                child: Text(
+                                  publishedText,
+                                  style: BaseTypography.bodyMedium.copyWith(
+                                    color: BaseColor.secondaryText,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+
+                          final likesMeta = Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.heart,
+                                size: 12,
+                                color: BaseColor.secondaryText,
+                              ),
+                              Gap.w4,
+                              Text(
+                                (article.likesCount ?? 0).toString(),
+                                style: BaseTypography.bodyMedium.copyWith(
+                                  color: BaseColor.secondaryText,
+                                ),
+                              ),
+                            ],
+                          );
+
+                          if (shouldStackMeta) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [publishedMeta, Gap.h6, likesMeta],
+                            );
+                          }
+
+                          return Wrap(
+                            spacing: BaseSize.w8,
+                            runSpacing: BaseSize.h6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [publishedMeta, likesMeta],
+                          );
+                        },
                       ),
                     ),
                   ],

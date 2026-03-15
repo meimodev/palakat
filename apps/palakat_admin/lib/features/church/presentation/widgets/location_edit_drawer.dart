@@ -111,7 +111,6 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
 
     return SideDrawer(
@@ -138,11 +137,6 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                     maxLines: 2,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterChurchAddress,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     validator: (value) =>
                         ChurchValidators.address().asFormFieldValidator(value),
@@ -161,11 +155,6 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                         ),
                         decoration: InputDecoration(
                           hintText: l10n.hint_latitudeExample,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: theme.colorScheme.surface,
                         ),
                         validator: (value) => ChurchValidators.latitude()
                             .asFormFieldValidator(value),
@@ -182,11 +171,6 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
                         ),
                         decoration: InputDecoration(
                           hintText: l10n.hint_longitudeExample,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: theme.colorScheme.surface,
                         ),
                         validator: (value) => ChurchValidators.longitude()
                             .asFormFieldValidator(value),
@@ -202,12 +186,8 @@ class _ChurchLocationEditDrawerState extends ConsumerState<LocationEditDrawer> {
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButton(
+          FilledButton(
             onPressed: _saveChanges,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
             child: Text(l10n.btn_saveChanges),
           ),
         ],

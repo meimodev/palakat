@@ -23,6 +23,10 @@ class LocalStorageService {
   static const _kPermissionStateKey = 'permission_state';
   static const _kNotificationSettingsBox = 'notification_settings';
   static const _kNotificationSettingsKey = 'notification_settings';
+  static const _kDashboardCacheKey = 'dashboard.cache';
+  static const _kArticlesCacheKeyPrefix = 'articles.cache.';
+  static const _kPermissionPolicyCacheKey = 'permission_policy.cache';
+  static const _kActivitiesCacheKeyPrefix = 'activities.cache.';
 
   AuthResponse? _auth;
   Membership? _membership;
@@ -87,6 +91,9 @@ class LocalStorageService {
     await box.delete(_kAuthKey);
     await box.delete(_kMembershipKey);
     await box.delete(_kReportGenerateLastAtKey);
+    await box.delete(_kDashboardCacheKey);
+    await box.delete(_kPermissionPolicyCacheKey);
+    // Note: We don't clear articles cache on logout as they are public content
     dev.log(
       'LocalStorageService.clear: cleared all auth data from Hive',
       name: 'LocalStorageService',
@@ -404,5 +411,61 @@ class LocalStorageService {
       return value.map(_normalizeJson).toList();
     }
     return value;
+  }
+
+  Future<void> saveDashboardCache(Map<String, dynamic> json) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    await box.put(_kDashboardCacheKey, json);
+  }
+
+  Map<String, dynamic>? getDashboardCache() {
+    if (!Hive.isBoxOpen(_kAuthBox)) return null;
+    final box = Hive.box(_kAuthBox);
+    final value = box.get(_kDashboardCacheKey);
+    if (value is Map) return _normalizeJson(value) as Map<String, dynamic>;
+    return null;
+  }
+
+  Future<void> saveArticlesCache(String queryKey, Map<String, dynamic> json) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    await box.put('$_kArticlesCacheKeyPrefix$queryKey', json);
+  }
+
+  Map<String, dynamic>? getArticlesCache(String queryKey) {
+    if (!Hive.isBoxOpen(_kAuthBox)) return null;
+    final box = Hive.box(_kAuthBox);
+    final value = box.get('$_kArticlesCacheKeyPrefix$queryKey');
+    if (value is Map) return _normalizeJson(value) as Map<String, dynamic>;
+    return null;
+  }
+
+  Future<void> savePermissionPolicyCache(Map<String, dynamic> json) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    await box.put(_kPermissionPolicyCacheKey, json);
+  }
+
+  Map<String, dynamic>? getPermissionPolicyCache() {
+    if (!Hive.isBoxOpen(_kAuthBox)) return null;
+    final box = Hive.box(_kAuthBox);
+    final value = box.get(_kPermissionPolicyCacheKey);
+    if (value is Map) return _normalizeJson(value) as Map<String, dynamic>;
+    return null;
+  }
+
+  Future<void> saveActivitiesCache(String queryKey, Map<String, dynamic> json) async {
+    await _ensureBoxOpen();
+    final box = Hive.box(_kAuthBox);
+    await box.put('$_kActivitiesCacheKeyPrefix$queryKey', json);
+  }
+
+  Map<String, dynamic>? getActivitiesCache(String queryKey) {
+    if (!Hive.isBoxOpen(_kAuthBox)) return null;
+    final box = Hive.box(_kAuthBox);
+    final value = box.get('$_kActivitiesCacheKeyPrefix$queryKey');
+    if (value is Map) return _normalizeJson(value) as Map<String, dynamic>;
+    return null;
   }
 }

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:flutter/material.dart' hide Column;
+import 'package:flutter/material.dart' as material;
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 import '../../domain/cash_account.dart';
 
@@ -70,17 +70,17 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
       if (mounted) {
         final l10n = context.l10n;
         widget.onClose();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isEditMode ? l10n.msg_updated : l10n.msg_created),
-          ),
+        AppSnackbars.showSuccess(
+          context,
+          message: isEditMode ? l10n.msg_updated : l10n.msg_created,
         );
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.churchRequest_errorWithDetail('$e'))),
+        AppSnackbars.showError(
+          context,
+          message: l10n.churchRequest_errorWithDetail('$e'),
         );
       }
     } finally {
@@ -101,7 +101,7 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
       onClose: widget.onClose,
       content: Form(
         key: _formKey,
-        child: Column(
+        child: material.Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
@@ -113,7 +113,7 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return l10n.validation_required;
@@ -132,7 +132,7 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _currencyController,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
@@ -145,7 +145,7 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _openingBalanceController,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return null;
@@ -160,31 +160,34 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: _isLoading ? null : widget.onClose,
-              child: Text(l10n.btn_cancel),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: _isLoading ? null : _handleSave,
-              child: _isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    )
-                  : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
-            ),
-          ),
-        ],
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          final cancelButton = OutlinedButton(
+            onPressed: _isLoading ? null : widget.onClose,
+            child: Text(l10n.btn_cancel),
+          );
+          final saveButton = FilledButton(
+            onPressed: _isLoading ? null : _handleSave,
+            child: _isLoading
+                ? const CompactLoadingWidget(size: 20)
+                : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
+          );
+
+          if (constraints.maxWidth < 420) {
+            return material.Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [cancelButton, const SizedBox(height: 12), saveButton],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: cancelButton),
+              const SizedBox(width: 12),
+              Expanded(child: saveButton),
+            ],
+          );
+        },
       ),
     );
   }

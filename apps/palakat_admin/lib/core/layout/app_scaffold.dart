@@ -16,17 +16,22 @@ class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final isSmall = width < 900;
-    final horizontalPadding = isSmall
+    final isCompact = width < 640;
+    final isSmall = width < 960;
+    final horizontalPadding = isCompact
         ? 12.0
         : width > 1440
         ? 24.0
-        : 16.0;
+        : isSmall
+        ? 16.0
+        : 20.0;
+    final drawerWidth = width < 420 ? width - 24 : 320.0;
 
     return Scaffold(
       appBar: isSmall
           ? AppBar(
               title: Text(context.l10n.appTitle_admin),
+              titleSpacing: 8,
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
@@ -39,7 +44,9 @@ class _AppScaffoldState extends State<AppScaffold> {
               actions: [_AvatarMenu(onProfile: () => context.go('/account'))],
             )
           : null,
-      drawer: isSmall ? _AnimatedDrawer(sidebar: const AppSidebar()) : null,
+      drawer: isSmall
+          ? _AnimatedDrawer(sidebar: const AppSidebar(), width: drawerWidth)
+          : null,
       drawerEnableOpenDragGesture: true,
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,8 +83,9 @@ class _AppScaffoldState extends State<AppScaffold> {
 }
 
 class _AnimatedDrawer extends StatelessWidget {
-  const _AnimatedDrawer({required this.sidebar});
+  const _AnimatedDrawer({required this.sidebar, this.width});
   final Widget sidebar;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +97,7 @@ class _AnimatedDrawer extends StatelessWidget {
         ),
       ),
       child: Drawer(
+        width: width,
         elevation: 0,
         child: Container(
           decoration: BoxDecoration(
@@ -218,6 +227,14 @@ class _AnimatedContentState extends State<_AnimatedContent>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.child.key != widget.child.key) {
+      _controller.forward(from: 0);
+    }
   }
 
   @override

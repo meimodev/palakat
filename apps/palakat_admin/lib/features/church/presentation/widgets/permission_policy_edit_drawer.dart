@@ -80,7 +80,8 @@ Map<String, List<MemberPosition>> resolvePermissionSelections({
       return <MemberPosition>[];
     }
 
-    final ids = (grant['positionIds'] as List?)
+    final ids =
+        (grant['positionIds'] as List?)
             ?.map((value) => value is int ? value : int.tryParse('$value'))
             .whereType<int>()
             .toList(growable: false) ??
@@ -124,10 +125,7 @@ Map<String, dynamic> buildPermissionPolicyPayload(
         'ops.finance.revenue.create',
         'ops.finance.expense.create',
       ])
-        key: {
-          'mode': 'positionsAny',
-          'positionIds': ids(key),
-        },
+        key: {'mode': 'positionsAny', 'positionIds': ids(key)},
     },
   };
 }
@@ -145,10 +143,7 @@ String formatPermissionAssignmentSummary(
   }
 
   final visible = positions.take(2).map((position) => position.name).join(', ');
-  return l10n.churchOperationsAccess_moreSummary(
-    visible,
-    positions.length - 2,
-  );
+  return l10n.churchOperationsAccess_moreSummary(visible, positions.length - 2);
 }
 
 class PermissionPolicyEditDrawer extends ConsumerStatefulWidget {
@@ -289,7 +284,8 @@ class _PermissionPolicyEditDrawerState
           const SizedBox(height: 16),
           if (hasAvailablePositions)
             PositionSelector(
-              label: context.l10n.churchOperationsAccess_assignedPositionsColumn,
+              label:
+                  context.l10n.churchOperationsAccess_assignedPositionsColumn,
               availablePositions: widget.availablePositions,
               selectedPositions: _selectedPositions,
               onPositionsChanged: (positions) {
@@ -318,12 +314,8 @@ class _PermissionPolicyEditDrawerState
       footer: Row(
         children: [
           Expanded(
-            child: ElevatedButton(
+            child: FilledButton(
               onPressed: _saving || !hasAvailablePositions ? null : _save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
               child: Text(context.l10n.btn_saveChanges),
             ),
           ),

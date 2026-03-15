@@ -12,6 +12,8 @@ import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/services.dart';
 
+import 'activity_alarm_motion_widget.dart';
+
 class AlarmSettingsScreen extends ConsumerStatefulWidget {
   const AlarmSettingsScreen({super.key});
 
@@ -212,131 +214,149 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.primary(
-            title: 'Activity Alarms',
-            leadIcon: AppIcons.back,
-            leadIconColor: BaseColor.black,
-            onPressedLeadIcon: () => context.pop(),
+          ActivityAlarmReveal(
+            child: ScreenTitleWidget.primary(
+              title: 'Activity Alarms',
+              leadIcon: AppIcons.back,
+              leadIconColor: BaseColor.black,
+              onPressedLeadIcon: () => context.pop(),
+            ),
           ),
           Gap.h16,
           if (_membershipId == null)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: Text(
-                'No membership found.',
-                style: BaseTypography.bodyMedium.toSecondary,
-                textAlign: TextAlign.center,
+            const ActivityAlarmReveal(
+              delay: Duration(milliseconds: 40),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'No membership found.',
+                  textAlign: TextAlign.center,
+                ),
               ),
             )
           else ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: Container(
-                padding: EdgeInsets.all(BaseSize.w12),
-                decoration: BoxDecoration(
-                  color: BaseColor.primary[50],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  border: Border.all(color: BaseColor.primary[200]!),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Enable activity alarms',
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.black,
+            ActivityAlarmReveal(
+              delay: const Duration(milliseconds: 40),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                child: Container(
+                  padding: EdgeInsets.all(BaseSize.w12),
+                  decoration: BoxDecoration(
+                    color: BaseColor.primary[50],
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    border: Border.all(color: BaseColor.primary[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Enable activity alarms',
+                              style: BaseTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: BaseColor.black,
+                              ),
                             ),
-                          ),
-                          Gap.h4,
-                          Text(
-                            'Schedule reminders for this week on your phone.',
-                            style: BaseTypography.bodySmall.toSecondary,
-                          ),
-                        ],
+                            Gap.h4,
+                            Text(
+                              'Schedule reminders for this week on your phone.',
+                              style: BaseTypography.bodyMedium.toSecondary,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Switch(
-                      value: _enabled,
-                      onChanged: (value) => _setGlobalEnabled(value),
-                    ),
-                  ],
+                      Switch(
+                        value: _enabled,
+                        onChanged: (value) => _setGlobalEnabled(value),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            if (_error != null) ...[
-              Gap.h12,
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+            ActivityAlarmAnimatedPresence(
+              visible: _error != null,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  BaseSize.w16,
+                  BaseSize.h12,
+                  BaseSize.w16,
+                  0,
+                ),
                 child: Text(
-                  _error!,
-                  style: BaseTypography.bodySmall.copyWith(
+                  _error ?? '',
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.red[700],
                   ),
                 ),
               ),
-            ],
+            ),
             canExactAsync.when(
               data: (canExact) {
-                if (canExact) return const SizedBox.shrink();
-
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-                  child: Container(
-                    padding: EdgeInsets.all(BaseSize.w12),
-                    decoration: BoxDecoration(
-                      color: BaseColor.yellow[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      border: Border.all(color: BaseColor.yellow[200]!),
+                return ActivityAlarmAnimatedPresence(
+                  visible: !canExact,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      BaseSize.w16,
+                      BaseSize.h12,
+                      BaseSize.w16,
+                      0,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              AppIcons.warning,
-                              color: BaseColor.yellow[800],
-                              size: BaseSize.w18,
-                            ),
-                            Gap.w8,
-                            Expanded(
-                              child: Text(
-                                'Allow exact alarms',
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: BaseColor.black,
+                    child: Container(
+                      padding: EdgeInsets.all(BaseSize.w12),
+                      decoration: BoxDecoration(
+                        color: BaseColor.yellow[50],
+                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        border: Border.all(color: BaseColor.yellow[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                AppIcons.warning,
+                                color: BaseColor.yellow[800],
+                                size: BaseSize.w18,
+                              ),
+                              Gap.w8,
+                              Expanded(
+                                child: Text(
+                                  'Allow exact alarms',
+                                  style: BaseTypography.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: BaseColor.black,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Gap.h8,
-                        Text(
-                          'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
-                          style: BaseTypography.bodySmall.toSecondary,
-                        ),
-                        Gap.h12,
-                        OutlinedButton(
-                          onPressed: () async {
-                            final service = ref.read(
-                              exactAlarmPermissionServiceProvider,
-                            );
-                            await service.requestExactAlarmPermission();
-                            ref.invalidate(canScheduleExactAlarmsProvider);
-                          },
-                          child: Text(
-                            'Open settings',
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.black,
+                            ],
+                          ),
+                          Gap.h8,
+                          Text(
+                            'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
+                            style: BaseTypography.bodyMedium.toSecondary,
+                          ),
+                          Gap.h12,
+                          OutlinedButton(
+                            onPressed: () async {
+                              final service = ref.read(
+                                exactAlarmPermissionServiceProvider,
+                              );
+                              await service.requestExactAlarmPermission();
+                              ref.invalidate(canScheduleExactAlarmsProvider);
+                            },
+                            child: Text(
+                              'Open settings',
+                              style: BaseTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: BaseColor.black,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -346,62 +366,68 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
             ),
             canFullScreenAsync.when(
               data: (canUseFullScreenIntent) {
-                if (canUseFullScreenIntent) return const SizedBox.shrink();
-
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-                  child: Container(
-                    padding: EdgeInsets.all(BaseSize.w12),
-                    decoration: BoxDecoration(
-                      color: BaseColor.yellow[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      border: Border.all(color: BaseColor.yellow[200]!),
+                return ActivityAlarmAnimatedPresence(
+                  visible: !canUseFullScreenIntent,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      BaseSize.w16,
+                      BaseSize.h12,
+                      BaseSize.w16,
+                      0,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              AppIcons.warning,
-                              color: BaseColor.yellow[800],
-                              size: BaseSize.w18,
-                            ),
-                            Gap.w8,
-                            Expanded(
-                              child: Text(
-                                'Allow full-screen alarms',
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: BaseColor.black,
+                    child: Container(
+                      padding: EdgeInsets.all(BaseSize.w12),
+                      decoration: BoxDecoration(
+                        color: BaseColor.yellow[50],
+                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        border: Border.all(color: BaseColor.yellow[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                AppIcons.warning,
+                                color: BaseColor.yellow[800],
+                                size: BaseSize.w18,
+                              ),
+                              Gap.w8,
+                              Expanded(
+                                child: Text(
+                                  'Allow full-screen alarms',
+                                  style: BaseTypography.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: BaseColor.black,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Gap.h8,
-                        Text(
-                          'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
-                          style: BaseTypography.bodySmall.toSecondary,
-                        ),
-                        Gap.h12,
-                        OutlinedButton(
-                          onPressed: () async {
-                            final service = ref.read(
-                              exactAlarmPermissionServiceProvider,
-                            );
-                            await service.requestFullScreenIntentPermission();
-                            ref.invalidate(canUseFullScreenIntentProvider);
-                          },
-                          child: Text(
-                            'Open settings',
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.black,
+                            ],
+                          ),
+                          Gap.h8,
+                          Text(
+                            'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
+                            style: BaseTypography.bodyMedium.toSecondary,
+                          ),
+                          Gap.h12,
+                          OutlinedButton(
+                            onPressed: () async {
+                              final service = ref.read(
+                                exactAlarmPermissionServiceProvider,
+                              );
+                              await service.requestFullScreenIntentPermission();
+                              ref.invalidate(canUseFullScreenIntentProvider);
+                            },
+                            child: Text(
+                              'Open settings',
+                              style: BaseTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: BaseColor.black,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -409,25 +435,30 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
               loading: () => const SizedBox.shrink(),
               error: (error, stackTrace) => const SizedBox.shrink(),
             ),
-            Gap.h16,
-            Gap.h16,
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: Text(
-                'This week',
-                style: BaseTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: BaseColor.black,
+            Gap.customGapHeight(32),
+            ActivityAlarmReveal(
+              delay: const Duration(milliseconds: 80),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                child: Text(
+                  'This week',
+                  style: BaseTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: BaseColor.black,
+                  ),
                 ),
               ),
             ),
             Gap.h8,
             if (_activities.isEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-                child: Text(
-                  'No activities with reminders found.',
-                  style: BaseTypography.bodyMedium.toSecondary,
+              ActivityAlarmReveal(
+                delay: const Duration(milliseconds: 120),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  child: Text(
+                    'No activities with reminders found.',
+                    style: BaseTypography.bodyMedium.toSecondary,
+                  ),
                 ),
               )
             else
@@ -449,62 +480,68 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                   final isEnabled =
                       _enabled && !_disabledActivities.contains(id);
 
-                  return Material(
-                    color: BaseColor.cardBackground1,
-                    elevation: 1,
-                    shadowColor: BaseColor.black.withValues(alpha: 0.05),
-                    surfaceTintColor: BaseColor.primary[50],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                      onTap: () {
-                        context.pushNamed(
-                          AppRoute.activityDetail,
-                          pathParameters: {'activityId': id.toString()},
-                        );
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.all(BaseSize.w12),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    activity.title,
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: BaseColor.black,
-                                    ),
-                                  ),
-                                  Gap.h4,
-                                  Text(
-                                    '${dateLocal.ddMmmmYyyy} ${dateLocal.HHmm}',
-                                    style: BaseTypography.bodySmall.toSecondary,
-                                  ),
-                                  if (reminderText != null) ...[
-                                    Gap.h4,
+                  return ActivityAlarmReveal(
+                    key: ValueKey('alarm-activity-$id'),
+                    delay: Duration(milliseconds: 120 + (index * 40)),
+                    child: Material(
+                      color: BaseColor.cardBackground1,
+                      elevation: 1,
+                      shadowColor: BaseColor.black.withValues(alpha: 0.05),
+                      surfaceTintColor: BaseColor.primary[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        onTap: () {
+                          context.pushNamed(
+                            AppRoute.activityDetail,
+                            pathParameters: {'activityId': id.toString()},
+                          );
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(BaseSize.w12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      reminderText,
-                                      style: BaseTypography.bodySmall.copyWith(
-                                        color: BaseColor.neutral[700],
-                                        fontWeight: FontWeight.w600,
+                                      activity.title,
+                                      style: BaseTypography.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: BaseColor.black,
                                       ),
                                     ),
+                                    Gap.h4,
+                                    Text(
+                                      '${dateLocal.ddMmmmYyyy} ${dateLocal.HHmm}',
+                                      style:
+                                          BaseTypography.bodyMedium.toSecondary,
+                                    ),
+                                    if (reminderText != null) ...[
+                                      Gap.h4,
+                                      Text(
+                                        reminderText,
+                                        style: BaseTypography.bodyMedium
+                                            .copyWith(
+                                              color: BaseColor.neutral[700],
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
-                            ),
-                            Switch(
-                              value: isEnabled,
-                              onChanged: _enabled
-                                  ? (value) => _setActivityEnabled(id, value)
-                                  : null,
-                            ),
-                          ],
+                              Switch(
+                                value: isEnabled,
+                                onChanged: _enabled
+                                    ? (value) => _setActivityEnabled(id, value)
+                                    : null,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

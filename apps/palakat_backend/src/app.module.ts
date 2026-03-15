@@ -32,6 +32,7 @@ import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { VerifyModule } from './verify/verify.module';
 import { ChurchPermissionPolicyModule } from './church-permission-policy/church-permission-policy.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ChurchPermissionPolicyModule } from './church-permission-policy/church-
     FinanceModule,
     NotificationModule,
     VerifyModule,
+    HealthModule,
   ],
   providers: [AppService, Logger, PrismaExceptionFilter, HelperService],
   exports: [HelperService],

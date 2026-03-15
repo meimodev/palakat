@@ -69,14 +69,18 @@ class DashboardNoticeCardWidget extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: BaseColor.primaryText,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Gap.h4,
                       Text(
                         message,
-                        style: BaseTypography.bodySmall.copyWith(
+                        style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.secondaryText,
                           height: 1.35,
                         ),
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -101,6 +105,8 @@ class DashboardNoticeCardWidget extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     color: palette.action,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

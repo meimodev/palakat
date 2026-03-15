@@ -1,6 +1,7 @@
 export 'activity_widget.dart';
 export 'activity_alarm_info_card_widget.dart';
 export 'dashboard_notice_card_widget.dart';
+export 'dashboard_motion_widget.dart';
 export 'announcement_widget.dart';
 export 'articles_widget.dart';
 export 'birthdays_widget.dart';

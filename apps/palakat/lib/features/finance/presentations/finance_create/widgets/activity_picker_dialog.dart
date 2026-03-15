@@ -114,7 +114,10 @@ class _ActivityListItem extends StatelessWidget {
               children: [
                 Text(
                   activity.title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: BaseTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BaseColor.textPrimary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -130,7 +133,9 @@ class _ActivityListItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         dateStr,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: BaseTypography.bodyMedium.copyWith(
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                   ],
@@ -147,10 +152,9 @@ class _ActivityListItem extends StatelessWidget {
                   ),
                   child: Text(
                     activity.activityType.displayName,
-                    style: TextStyle(
+                    style: BaseTypography.labelMedium.copyWith(
                       color: _getActivityTypeColor(),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

@@ -127,15 +127,11 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                 if (_revenue!.activity != null) ...[
                   InfoSection(
                     title: l10n.section_activityInformation,
-                    action: IconButton(
+                    action: IconButton.filledTonal(
                       icon: const Icon(Icons.open_in_new, size: 18),
                       onPressed: _showActivityDetail,
                       tooltip: l10n.tooltip_viewActivityDetails,
                       style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        foregroundColor: Theme.of(context).colorScheme.primary,
                         padding: const EdgeInsets.all(8),
                         minimumSize: const Size(32, 32),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -184,29 +180,10 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
 
                 // Supervisor (only show if activity exists)
                 if (_revenue!.activity?.supervisor != null) ...[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  InfoSection(
+                    title: l10n.tbl_supervisor,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          l10n.tbl_supervisor,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                          ),
-                        ),
+                      SurfaceCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

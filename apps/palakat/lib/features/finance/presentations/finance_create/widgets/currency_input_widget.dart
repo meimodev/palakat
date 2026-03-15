@@ -178,7 +178,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                     ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w12,
+                      horizontal: BaseSize.w14,
                       vertical: BaseSize.h12,
                     ),
                   ),
@@ -190,13 +190,13 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
         // Error message
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: BaseSize.h6),
             child: Text(
               widget.errorText!,
               maxLines: 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],

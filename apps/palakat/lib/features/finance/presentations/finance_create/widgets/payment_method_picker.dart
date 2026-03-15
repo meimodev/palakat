@@ -69,7 +69,7 @@ class PaymentMethodPicker extends StatelessWidget {
               maxLines: 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -147,7 +147,7 @@ class _PaymentMethodCard extends StatelessWidget {
             // Description
             Text(
               config.description,
-              style: BaseTypography.bodySmall.copyWith(
+              style: BaseTypography.bodyMedium.copyWith(
                 color: isSelected
                     ? config.textColor.withValues(alpha: 0.8)
                     : BaseColor.neutral[500],
@@ -177,7 +177,7 @@ class _PaymentMethodCard extends StatelessWidget {
                     Gap.w4,
                     Text(
                       l10n.lbl_selected,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.labelMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),

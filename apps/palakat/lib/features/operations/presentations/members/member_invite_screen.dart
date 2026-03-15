@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/authentication/presentations/widgets/phone_input_formatter.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat/features/operations/presentations/members/member_invite_controller.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 
@@ -34,40 +35,56 @@ class MemberInviteScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: l10n.operationsItem_invite_member_title,
-            subTitle: state.scopeLabel,
-            onBack: () => Navigator.of(context).pop(),
+          OperationsReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: l10n.operationsItem_invite_member_title,
+              subTitle: state.scopeLabel,
+              onBack: () => Navigator.of(context).pop(),
+            ),
           ),
           Gap.h16,
-          if (state.errorMessage != null &&
-              state.errorMessage!.trim().isNotEmpty)
-            Padding(
+          OperationsAnimatedPresence(
+            visible:
+                state.errorMessage != null &&
+                state.errorMessage!.trim().isNotEmpty,
+            child: Padding(
               padding: EdgeInsets.only(bottom: BaseSize.h12),
-              child: ErrorDisplayWidget(message: state.errorMessage!),
+              child: ErrorDisplayWidget(message: state.errorMessage ?? ''),
             ),
-          InfoBoxWidget(message: l10n.operationsItem_invite_member_desc),
+          ),
+          OperationsReveal(
+            delay: const Duration(milliseconds: 40),
+            child: InfoBoxWidget(
+              message: l10n.operationsItem_invite_member_desc,
+            ),
+          ),
           Gap.h16,
-          InputWidget.text(
-            label: l10n.lbl_phone,
-            hint: l10n.auth_phoneHint,
-            textInputType: TextInputType.phone,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              PhoneInputFormatter(),
-            ],
-            onChanged: controller.setPhone,
-            endIcon: Icon(AppIcons.search, size: BaseSize.w16),
+          OperationsReveal(
+            delay: const Duration(milliseconds: 80),
+            child: InputWidget.text(
+              label: l10n.lbl_phone,
+              hint: l10n.auth_phoneHint,
+              textInputType: TextInputType.phone,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                PhoneInputFormatter(),
+              ],
+              onChanged: controller.setPhone,
+              endIcon: Icon(AppIcons.search, size: BaseSize.w16),
+            ),
           ),
           Gap.h12,
-          ButtonWidget.primary(
-            text: l10n.btn_submit,
-            isLoading: state.isSearching,
-            onTap: state.isSearching || state.isSubmitting
-                ? null
-                : () async {
-                    await controller.lookupByPhone();
-                  },
+          OperationsReveal(
+            delay: const Duration(milliseconds: 120),
+            child: ButtonWidget.primary(
+              text: l10n.btn_submit,
+              isLoading: state.isSearching,
+              onTap: state.isSearching || state.isSubmitting
+                  ? null
+                  : () async {
+                      await controller.lookupByPhone();
+                    },
+            ),
           ),
           Gap.h16,
           Expanded(
@@ -142,28 +159,37 @@ class _InviteResultSection extends StatelessWidget {
     final l10n = context.l10n;
 
     if (isSearching) {
-      return Column(
-        children: [
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.listItemCard(),
-        ],
+      return OperationsAnimatedPresence(
+        visible: true,
+        child: Column(
+          children: [
+            PalakatShimmerPlaceholders.listItemCard(),
+            Gap.h12,
+            PalakatShimmerPlaceholders.listItemCard(),
+          ],
+        ),
       );
     }
 
     if (accountName == null) {
       if (!hasSearched) {
-        return Center(
-          child: Padding(
-            padding: EdgeInsets.only(top: BaseSize.h12),
-            child: InfoBoxWidget(message: l10n.auth_enterPhoneNumber),
+        return OperationsAnimatedPresence(
+          visible: true,
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: BaseSize.h12),
+              child: InfoBoxWidget(message: l10n.auth_enterPhoneNumber),
+            ),
           ),
         );
       }
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.only(top: BaseSize.h12),
-          child: InfoBoxWidget(message: l10n.msg_notFound),
+      return OperationsAnimatedPresence(
+        visible: true,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: BaseSize.h12),
+            child: InfoBoxWidget(message: l10n.msg_notFound),
+          ),
         ),
       );
     }
@@ -171,140 +197,155 @@ class _InviteResultSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Material(
-          color: BaseColor.cardBackground1,
-          elevation: 1,
-          shadowColor: Colors.black.withValues(alpha: 0.05),
-          surfaceTintColor: BaseColor.blue[50],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(BaseSize.w12),
-            child: Row(
-              children: [
-                Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
-                  decoration: BoxDecoration(
-                    color: BaseColor.blue[100],
-                    shape: BoxShape.circle,
+        OperationsReveal(
+          delay: const Duration(milliseconds: 40),
+          child: Material(
+            color: BaseColor.cardBackground1,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.05),
+            surfaceTintColor: BaseColor.blue[50],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w12),
+              child: Row(
+                children: [
+                  Container(
+                    width: BaseSize.w36,
+                    height: BaseSize.w36,
+                    decoration: BoxDecoration(
+                      color: BaseColor.blue[100],
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      AppIcons.person,
+                      size: BaseSize.w16,
+                      color: BaseColor.blue[700],
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    AppIcons.person,
-                    size: BaseSize.w16,
-                    color: BaseColor.blue[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              accountName!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: BaseTypography.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: BaseColor.black,
-                              ),
-                            ),
-                          ),
-                          if (bipraLabel != null &&
-                              bipraLabel!.trim().isNotEmpty)
-                            Container(
-                              margin: EdgeInsets.only(left: BaseSize.w8),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: BaseSize.w8,
-                                vertical: BaseSize.h4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: BaseColor.teal[50],
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color:
-                                      BaseColor.teal[200] ??
-                                      BaseColor.neutral40,
-                                ),
-                              ),
+                  Gap.w12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                bipraLabel!,
-                                style: BaseTypography.labelSmall.copyWith(
-                                  color: BaseColor.teal[700],
+                                accountName!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: BaseTypography.bodyMedium.copyWith(
                                   fontWeight: FontWeight.w700,
+                                  color: BaseColor.black,
                                 ),
                               ),
                             ),
-                          if (claimed) ...[
-                            Gap.w8,
-                            Icon(
-                              AppIcons.verified,
-                              size: BaseSize.w16,
-                              color: BaseColor.green[700],
-                            ),
+                            if (bipraLabel != null &&
+                                bipraLabel!.trim().isNotEmpty)
+                              Container(
+                                margin: EdgeInsets.only(left: BaseSize.w8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: BaseSize.w8,
+                                  vertical: BaseSize.h4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: BaseColor.teal[50],
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color:
+                                        BaseColor.teal[200] ??
+                                        BaseColor.neutral40,
+                                  ),
+                                ),
+                                child: Text(
+                                  bipraLabel!,
+                                  style: BaseTypography.labelMedium.copyWith(
+                                    color: BaseColor.teal[700],
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            if (claimed) ...[
+                              Gap.w8,
+                              Icon(
+                                AppIcons.verified,
+                                size: BaseSize.w16,
+                                color: BaseColor.green[700],
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                      if (phone != null && phone!.trim().isNotEmpty) ...[
-                        Gap.h4,
-                        Text(
-                          phone!,
-                          style: BaseTypography.bodySmall.copyWith(
-                            color: BaseColor.textSecondary,
-                          ),
                         ),
+                        if (phone != null && phone!.trim().isNotEmpty) ...[
+                          Gap.h4,
+                          Text(
+                            phone!,
+                            style: BaseTypography.bodyMedium.copyWith(
+                              color: BaseColor.textSecondary,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
         if (infoMessage != null && infoMessage!.trim().isNotEmpty) ...[
           Gap.h12,
-          InfoBoxWidget(message: infoMessage!),
+          OperationsReveal(
+            delay: const Duration(milliseconds: 80),
+            child: InfoBoxWidget(message: infoMessage!),
+          ),
         ],
         Gap.h16,
-        AbsorbPointer(
-          absorbing: !canEditSacrament,
-          child: Opacity(
-            opacity: canEditSacrament ? 1 : 0.6,
-            child: InputWidget<bool>.binaryOption(
-              currentInputValue: baptize,
-              options: const [true, false],
-              label: l10n.lbl_baptized,
-              onChanged: onChangedBaptize,
-              optionLabel: (option) =>
-                  option ? l10n.lbl_baptized : l10n.membership_notBaptized,
+        OperationsReveal(
+          delay: const Duration(milliseconds: 120),
+          child: AbsorbPointer(
+            absorbing: !canEditSacrament,
+            child: Opacity(
+              opacity: canEditSacrament ? 1 : 0.6,
+              child: InputWidget<bool>.binaryOption(
+                currentInputValue: baptize,
+                options: const [true, false],
+                label: l10n.lbl_baptized,
+                onChanged: onChangedBaptize,
+                optionLabel: (option) =>
+                    option ? l10n.lbl_baptized : l10n.membership_notBaptized,
+              ),
             ),
           ),
         ),
         Gap.h12,
-        AbsorbPointer(
-          absorbing: !canEditSacrament,
-          child: Opacity(
-            opacity: canEditSacrament ? 1 : 0.6,
-            child: InputWidget<bool>.binaryOption(
-              currentInputValue: sidi,
-              options: const [true, false],
-              label: l10n.lbl_sidi,
-              onChanged: onChangedSidi,
-              optionLabel: (option) =>
-                  option ? l10n.lbl_sidi : l10n.membership_notSidi,
+        OperationsReveal(
+          delay: const Duration(milliseconds: 160),
+          child: AbsorbPointer(
+            absorbing: !canEditSacrament,
+            child: Opacity(
+              opacity: canEditSacrament ? 1 : 0.6,
+              child: InputWidget<bool>.binaryOption(
+                currentInputValue: sidi,
+                options: const [true, false],
+                label: l10n.lbl_sidi,
+                onChanged: onChangedSidi,
+                optionLabel: (option) =>
+                    option ? l10n.lbl_sidi : l10n.membership_notSidi,
+              ),
             ),
           ),
         ),
         Gap.h16,
-        ButtonWidget.primary(
-          text: inviteLabel,
-          isLoading: isSubmitting,
-          onTap: isSubmitting ? null : onPressedInvite,
+        OperationsReveal(
+          delay: const Duration(milliseconds: 200),
+          child: ButtonWidget.primary(
+            text: inviteLabel,
+            isLoading: isSubmitting,
+            onTap: isSubmitting ? null : onPressedInvite,
+          ),
         ),
       ],
     );

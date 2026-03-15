@@ -222,11 +222,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(context.l10n.btn_cancel),
           ),
-          TextButton(
+          FilledButton.tonal(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
             child: Text(context.l10n.btn_delete),
           ),
         ],
@@ -363,20 +360,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         hintText: context.l10n.hint_approvalRuleExample,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        filled: true,
-                        fillColor: theme.colorScheme.surface,
-                        errorBorder: _nameError != null
-                            ? OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: theme.colorScheme.error,
-                                  width: 1,
-                                ),
-                              )
-                            : null,
                       ),
                       onChanged: (_) {
                         // Clear error when user types
@@ -406,11 +389,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   controller: _descriptionController,
                   decoration: InputDecoration(
                     hintText: context.l10n.hint_describeApprovalRule,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: theme.colorScheme.surface,
                   ),
                   maxLines: 3,
                 ),
@@ -459,11 +437,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   value: _selectedActivityType,
                   decoration: InputDecoration(
                     hintText: context.l10n.hint_allActivityTypes,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: theme.colorScheme.surface,
                   ),
                   items: [
                     DropdownMenuItem<ActivityType?>(
@@ -503,11 +476,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   value: _selectedFinancialType,
                   decoration: InputDecoration(
                     hintText: context.l10n.hint_noFinancialFilter,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: theme.colorScheme.surface,
                   ),
                   items: [
                     DropdownMenuItem<FinanceType?>(
@@ -621,34 +589,51 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
           ),
         ],
       ),
-      footer: Row(
-        children: [
-          if (!_isNew && widget.onDelete != null) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _deleteRule,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                  side: BorderSide(color: theme.colorScheme.error),
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!_isNew && widget.onDelete != null) ...[
+                  FilledButton.tonal(
+                    onPressed: _deleteRule,
+                    child: Text(context.l10n.btn_delete),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    _isNew ? context.l10n.btn_create : context.l10n.btn_save,
+                  ),
                 ),
-                child: Text(context.l10n.btn_delete),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              if (!_isNew && widget.onDelete != null) ...[
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: _deleteRule,
+                    child: Text(context.l10n.btn_delete),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: _saveChanges,
+                  child: Text(
+                    _isNew ? context.l10n.btn_create : context.l10n.btn_save,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: Text(
-                _isNew ? context.l10n.btn_create : context.l10n.btn_save,
-              ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

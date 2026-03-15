@@ -75,7 +75,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
                                 _formatDate(context, report.createdAt!),
                               )
                             : l10n.msg_noGenerationDate,
-                        style: BaseTypography.bodySmall.copyWith(
+                        style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.textSecondary,
                         ),
                       ),
@@ -157,7 +157,10 @@ class ReportDetailBottomSheet extends StatelessWidget {
                 if (report.church != null)
                   _buildInfoRow(l10n.nav_church, report.church!.name),
                 if (report.church != null) Gap.h12,
-                _buildInfoRow(l10n.tbl_file, _getFileName(context, report.file)),
+                _buildInfoRow(
+                  l10n.tbl_file,
+                  _getFileName(context, report.file),
+                ),
                 Gap.h12,
                 if (report.createdAt != null)
                   _buildInfoRow(
@@ -178,7 +181,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
         Gap.h16,
         Text(
           l10n.msg_downloadReportToViewDetails,
-          style: BaseTypography.bodySmall.copyWith(
+          style: BaseTypography.bodyMedium.copyWith(
             color: BaseColor.textSecondary,
             fontStyle: FontStyle.italic,
           ),
@@ -194,7 +197,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.textSecondary),
+          style: BaseTypography.bodyMedium.copyWith(
+            color: BaseColor.textSecondary,
+          ),
         ),
         Gap.w16,
         Flexible(

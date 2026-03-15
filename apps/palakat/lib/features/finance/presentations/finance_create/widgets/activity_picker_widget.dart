@@ -60,7 +60,7 @@ class ActivityPickerWidget extends StatelessWidget {
             child: Text(
               errorText!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -135,25 +135,32 @@ class ActivityPickerWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Gap.h4,
-              Row(
+              Wrap(
+                spacing: BaseSize.w8,
+                runSpacing: BaseSize.h6,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  FaIcon(
-                    AppIcons.calendar,
-                    size: BaseSize.w12,
-                    color: BaseColor.blue[600],
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FaIcon(
+                        AppIcons.calendar,
+                        size: BaseSize.w14,
+                        color: BaseColor.blue[600],
+                      ),
+                      Gap.w6,
+                      Text(
+                        dateStr,
+                        style: BaseTypography.bodyMedium.copyWith(
+                          color: BaseColor.blue[600],
+                        ),
+                      ),
+                    ],
                   ),
-                  Gap.w4,
-                  Text(
-                    dateStr,
-                    style: BaseTypography.bodySmall.copyWith(
-                      color: BaseColor.blue[600],
-                    ),
-                  ),
-                  Gap.w8,
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w6,
-                      vertical: BaseSize.customHeight(2),
+                      horizontal: BaseSize.w8,
+                      vertical: BaseSize.h4,
                     ),
                     decoration: BoxDecoration(
                       color: BaseColor.blue[100],
@@ -161,9 +168,8 @@ class ActivityPickerWidget extends StatelessWidget {
                     ),
                     child: Text(
                       activity.activityType.displayName,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.labelMedium.copyWith(
                         color: BaseColor.blue[700],
-                        fontSize: 10,
                       ),
                     ),
                   ),
@@ -172,7 +178,7 @@ class ActivityPickerWidget extends StatelessWidget {
             ],
           ),
         ),
-        FaIcon(AppIcons.edit, size: BaseSize.w18, color: BaseColor.blue[600]),
+        FaIcon(AppIcons.edit, size: BaseSize.w20, color: BaseColor.blue[600]),
       ],
     );
   }

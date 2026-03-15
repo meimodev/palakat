@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Column;
+import 'package:flutter/material.dart' as material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/financial/financial.dart';
 import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
+import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/utils.dart';
 import 'package:palakat_admin/widgets.dart';
 
@@ -68,13 +69,13 @@ class _FinancialAccountListScreenState
 
     return Material(
       child: SingleChildScrollView(
-        child: Column(
+        child: material.Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
+                material.Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

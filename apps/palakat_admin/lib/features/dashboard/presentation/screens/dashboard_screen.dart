@@ -17,7 +17,6 @@ class DashboardScreen extends ConsumerWidget {
 
     final l10n = context.l10n;
 
-    final isNarrow = MediaQuery.of(context).size.width < 1000;
     final churchName = state.home.value?.data.membership.church?.name;
     final subtitle = churchName == null || churchName.trim().isEmpty
         ? l10n.dashboard_subtitle
@@ -31,15 +30,20 @@ class DashboardScreen extends ConsumerWidget {
     final announcementCount = home?.data.thisWeekAnnouncements.length ?? 0;
 
     return Material(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompactHeader = constraints.maxWidth < 720;
+          final isNarrow = constraints.maxWidth < 1100;
+          final pendingCardWidth = (constraints.maxWidth * 0.38)
+              .clamp(360.0, 520.0)
+              .toDouble();
+
+          return SingleChildScrollView(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
+                if (isCompactHeader)
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -53,119 +57,151 @@ class DashboardScreen extends ConsumerWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () => controller.refresh(),
+                            icon: const Icon(Icons.refresh),
+                            label: Text(l10n.tooltip_refresh),
+                          ),
+                          FilledButton.icon(
+                            onPressed: () => context.go('/activity'),
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.nav_activity),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.dashboard_title,
+                              style: theme.textTheme.headlineMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () => controller.refresh(),
+                            icon: const Icon(Icons.refresh),
+                            label: Text(l10n.tooltip_refresh),
+                          ),
+                          FilledButton.icon(
+                            onPressed: () => context.go('/activity'),
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.nav_activity),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 12),
+                const SizedBox(height: 16),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 16,
+                  runSpacing: 16,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: () => controller.refresh(),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(l10n.tooltip_refresh),
+                    QuickStatCard(
+                      label: l10n.approval_title,
+                      value: pendingTotal.toString(),
+                      icon: Icons.assignment_outlined,
+                      iconColor: Colors.blue.shade700,
+                      iconBackgroundColor: Colors.blue.shade50,
+                      isLoading: state.pendingApprovals.isLoading,
+                      width: 240,
                     ),
-                    FilledButton.icon(
-                      onPressed: () => context.go('/activity'),
-                      icon: const Icon(Icons.add),
-                      label: Text(l10n.nav_activity),
+                    QuickStatCard(
+                      label: l10n.section_schedule,
+                      value: scheduleCount.toString(),
+                      icon: Icons.event_outlined,
+                      iconColor: Colors.orange.shade700,
+                      iconBackgroundColor: Colors.orange.shade50,
+                      isLoading: state.home.isLoading,
+                      width: 240,
+                    ),
+                    QuickStatCard(
+                      label: l10n.activityType_announcement,
+                      value: announcementCount.toString(),
+                      icon: Icons.campaign_outlined,
+                      iconColor: Colors.purple.shade700,
+                      iconBackgroundColor: Colors.purple.shade50,
+                      isLoading: state.home.isLoading,
+                      width: 240,
                     ),
                   ],
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                QuickStatCard(
-                  label: l10n.approval_title,
-                  value: pendingTotal.toString(),
-                  icon: Icons.assignment_outlined,
-                  iconColor: Colors.blue.shade700,
-                  iconBackgroundColor: Colors.blue.shade50,
-                  isLoading: state.pendingApprovals.isLoading,
-                  width: 240,
-                ),
-                QuickStatCard(
-                  label: l10n.section_schedule,
-                  value: scheduleCount.toString(),
-                  icon: Icons.event_outlined,
-                  iconColor: Colors.orange.shade700,
-                  iconBackgroundColor: Colors.orange.shade50,
-                  isLoading: state.home.isLoading,
-                  width: 240,
-                ),
-                QuickStatCard(
-                  label: l10n.activityType_announcement,
-                  value: announcementCount.toString(),
-                  icon: Icons.campaign_outlined,
-                  iconColor: Colors.purple.shade700,
-                  iconBackgroundColor: Colors.purple.shade50,
-                  isLoading: state.home.isLoading,
-                  width: 240,
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            if (isNarrow)
-              Column(
-                children: [
-                  _PendingApprovalsCard(
-                    pendingApprovals: pendingApprovals,
-                    loading: state.pendingApprovals.isLoading,
-                    hasError: state.pendingApprovals.hasError,
-                    error: state.pendingApprovals.error,
-                    onRetry: controller.fetchPendingApprovals,
-                  ),
-                  const SizedBox(height: 16),
-                  _UpcomingCard(
-                    home: home,
-                    loading: state.home.isLoading,
-                    hasError: state.home.hasError,
-                    error: state.home.error,
-                    onRetry: controller.fetchHome,
-                  ),
-                ],
-              )
-            else
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _UpcomingCard(
+                const SizedBox(height: 16),
+                if (isNarrow)
+                  Column(
+                    children: [
+                      _PendingApprovalsCard(
+                        pendingApprovals: pendingApprovals,
+                        loading: state.pendingApprovals.isLoading,
+                        hasError: state.pendingApprovals.hasError,
+                        error: state.pendingApprovals.error,
+                        onRetry: controller.fetchPendingApprovals,
+                      ),
+                      const SizedBox(height: 16),
+                      _UpcomingCard(
+                        home: home,
+                        loading: state.home.isLoading,
+                        hasError: state.home.hasError,
+                        error: state.home.error,
+                        onRetry: controller.fetchHome,
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _UpcomingCard(
                           home: home,
                           loading: state.home.isLoading,
                           hasError: state.home.hasError,
                           error: state.home.error,
                           onRetry: controller.fetchHome,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: pendingCardWidth,
+                        child: _PendingApprovalsCard(
+                          pendingApprovals: pendingApprovals,
+                          loading: state.pendingApprovals.isLoading,
+                          hasError: state.pendingApprovals.hasError,
+                          error: state.pendingApprovals.error,
+                          onRetry: controller.fetchPendingApprovals,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    width: 520,
-                    child: _PendingApprovalsCard(
-                      pendingApprovals: pendingApprovals,
-                      loading: state.pendingApprovals.isLoading,
-                      hasError: state.pendingApprovals.hasError,
-                      error: state.pendingApprovals.error,
-                      onRetry: controller.fetchPendingApprovals,
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

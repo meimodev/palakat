@@ -240,15 +240,19 @@ class _ChurchRequestBottomSheetState
         side: BorderSide(color: BaseColor.primary[100]!, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w12),
+        padding: EdgeInsets.all(BaseSize.w14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final shouldStack =
+                    constraints.maxWidth < 260 ||
+                    MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+                final icon = Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.w40,
                   decoration: BoxDecoration(
                     color: BaseColor.white,
                     borderRadius: BorderRadius.circular(BaseSize.radiusMd),
@@ -256,23 +260,40 @@ class _ChurchRequestBottomSheetState
                   alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.person,
-                    size: BaseSize.w18,
+                    size: BaseSize.w20,
                     color: BaseColor.primary,
                   ),
-                ),
-                Gap.w8,
-                Text(
+                );
+
+                final title = Text(
                   l10n.churchRequest_requesterInformation,
                   style: BaseTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: BaseColor.primary,
                   ),
-                ),
-              ],
+                  maxLines: shouldStack ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                );
+
+                if (shouldStack) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [icon, Gap.h8, title],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    icon,
+                    Gap.w10,
+                    Expanded(child: title),
+                  ],
+                );
+              },
             ),
-            Gap.h8,
+            Gap.h10,
             _buildInfoRow(l10n.lbl_name, account?.name ?? l10n.lbl_na),
-            Gap.h4,
+            Gap.h6,
             _buildInfoRow(l10n.lbl_phone, account?.phone ?? l10n.lbl_na),
           ],
         ),
@@ -281,30 +302,44 @@ class _ChurchRequestBottomSheetState
   }
 
   Widget _buildInfoRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: BaseSize.w80,
-          child: Text(
-            '$label:',
-            style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.neutral[600],
-              fontWeight: FontWeight.w600,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldStack =
+            constraints.maxWidth < 240 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+        final labelWidget = Text(
+          '$label:',
+          style: BaseTypography.labelMedium.copyWith(
+            color: BaseColor.neutral[600],
+            fontWeight: FontWeight.w600,
           ),
-        ),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            value,
-            style: BaseTypography.bodySmall.copyWith(
-              color: BaseColor.textPrimary,
-              fontWeight: FontWeight.w600,
-            ),
+        );
+
+        final valueWidget = Text(
+          value,
+          style: BaseTypography.bodyMedium.copyWith(
+            color: BaseColor.textPrimary,
+            fontWeight: FontWeight.w600,
           ),
-        ),
-      ],
+        );
+
+        if (shouldStack) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [labelWidget, Gap.h4, valueWidget],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: BaseSize.w84, child: labelWidget),
+            Gap.w6,
+            Expanded(child: valueWidget),
+          ],
+        );
+      },
     );
   }
 

@@ -103,17 +103,40 @@ class ScaffoldWidget extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
-        body: Padding(
-          padding: EdgeInsets.only(
-            left: disablePadding ? 0 : BaseSize.w12,
-            right: disablePadding ? 0 : BaseSize.w12,
-          ),
-          child: Column(
-            children: [
-              Expanded(child: bodyContent),
-              persistBottomWidget ?? const SizedBox(),
-            ],
-          ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final horizontalPadding = disablePadding
+                ? 0.0
+                : constraints.maxWidth >= 768
+                ? BaseSize.w24
+                : BaseSize.w12;
+            final contentMaxWidth = disablePadding
+                ? constraints.maxWidth
+                : constraints.maxWidth >= 1024
+                ? 840.0
+                : constraints.maxWidth >= 768
+                ? 720.0
+                : constraints.maxWidth;
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: horizontalPadding,
+                    right: horizontalPadding,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(child: bodyContent),
+                      persistBottomWidget ?? const SizedBox(),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,

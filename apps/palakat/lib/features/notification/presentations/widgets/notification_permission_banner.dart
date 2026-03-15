@@ -84,7 +84,7 @@ class _NotificationPermissionBannerState
                           context
                               .l10n
                               .notificationSettings_permissionEnabledDesc,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: BaseColor.secondaryText,
                           ),
                         ),

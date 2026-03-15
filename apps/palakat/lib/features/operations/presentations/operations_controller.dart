@@ -104,11 +104,18 @@ class OperationsController extends _$OperationsController {
 
     final categories = _buildCategories(membership, permissions);
     final expansionState = _initializeCategoryExpansionState(categories);
+    final categoriesWithExpansion = categories
+        .map(
+          (category) => category.copyWith(
+            isExpanded: expansionState[category.id] ?? false,
+          ),
+        )
+        .toList();
 
     state = state.copyWith(
       membership: membership,
       accountName: account?.name,
-      categories: categories,
+      categories: categoriesWithExpansion,
       categoryExpansionState: expansionState,
       loadingScreen: false,
     );
@@ -490,7 +497,24 @@ class OperationsController extends _$OperationsController {
   Map<String, bool> _initializeCategoryExpansionState(
     List<OperationCategory> categories,
   ) {
-    return {for (final category in categories) category.id: false};
+    String? initialExpandedCategoryId;
+    for (final category in categories) {
+      if (category.operations.any((operation) => operation.isEnabled)) {
+        initialExpandedCategoryId = category.id;
+        break;
+      }
+    }
+
+    initialExpandedCategoryId ??= categories.isNotEmpty
+        ? categories.first.id
+        : null;
+
+    return {
+      for (final category in categories)
+        category.id:
+            initialExpandedCategoryId != null &&
+            category.id == initialExpandedCategoryId,
+    };
   }
 
   /// Toggles the expansion state of a category.

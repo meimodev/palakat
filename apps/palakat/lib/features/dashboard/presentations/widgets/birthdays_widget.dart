@@ -184,7 +184,7 @@ class BirthdaysWidget extends ConsumerWidget {
                                   Gap.h4,
                                   Text(
                                     item.date.ddMmmm,
-                                    style: BaseTypography.bodySmall.copyWith(
+                                    style: BaseTypography.bodyMedium.copyWith(
                                       color: BaseColor.textSecondary,
                                     ),
                                   ),

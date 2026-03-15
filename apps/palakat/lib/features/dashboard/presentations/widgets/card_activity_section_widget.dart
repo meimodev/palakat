@@ -35,7 +35,7 @@ class CardActivitySectionWidget extends StatelessWidget {
         // Section header with badge
         Row(
           children: [
-            Flexible(
+            Expanded(
               child: Text(
                 title,
                 style: BaseTypography.titleMedium.copyWith(
@@ -192,7 +192,7 @@ class CardActivitySectionWidget extends StatelessWidget {
                                   ),
                                   child: Text(
                                     context.l10n.tbl_birth,
-                                    style: BaseTypography.labelSmall.copyWith(
+                                    style: BaseTypography.labelMedium.copyWith(
                                       color: BaseColor.yellow[700],
                                       fontWeight: FontWeight.w600,
                                     ),

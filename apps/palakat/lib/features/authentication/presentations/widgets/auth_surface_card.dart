@@ -102,11 +102,7 @@ class _AuthHeaderIcon extends StatelessWidget {
         ],
       ),
       alignment: Alignment.center,
-      child: FaIcon(
-        icon,
-        size: iconSize,
-        color: BaseColor.teal[700],
-      ),
+      child: FaIcon(icon, size: iconSize, color: BaseColor.teal[700]),
     );
   }
 }

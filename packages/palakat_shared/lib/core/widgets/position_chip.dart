@@ -20,6 +20,9 @@ class PositionChip extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: theme.colorScheme.onSurfaceVariant,
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
       ),
     );
   }

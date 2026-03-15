@@ -102,16 +102,12 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
       if (mounted) {
         final l10n = context.l10n;
         widget.onClose();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.msg_created)));
+        AppSnackbars.showSuccess(context, message: l10n.msg_created);
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.churchRequest_errorWithDetail('$e'))),
-        );
+        AppSnackbars.showError(context, message: l10n.churchRequest_errorWithDetail('$e'));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -141,7 +137,7 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               value: _fromAccountId,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               items: widget.accounts
                   .map(
                     (a) =>
@@ -164,7 +160,7 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               value: _toAccountId,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               items: widget.accounts
                   .map(
                     (a) =>
@@ -190,7 +186,7 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -226,37 +222,44 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _noteController,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(),
               maxLines: 3,
             ),
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: _isLoading ? null : widget.onClose,
-              child: Text(l10n.btn_cancel),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: _isLoading ? null : _handleTransfer,
-              child: _isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    )
-                  : Text(l10n.btn_confirm),
-            ),
-          ),
-        ],
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          final cancelButton = OutlinedButton(
+            onPressed: _isLoading ? null : widget.onClose,
+            child: Text(l10n.btn_cancel),
+          );
+          final confirmButton = FilledButton(
+            onPressed: _isLoading ? null : _handleTransfer,
+            child: _isLoading
+                ? const CompactLoadingWidget(size: 20)
+                : Text(l10n.btn_confirm),
+          );
+
+          if (constraints.maxWidth < 420) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                cancelButton,
+                const SizedBox(height: 12),
+                confirmButton,
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: cancelButton),
+              const SizedBox(width: 12),
+              Expanded(child: confirmButton),
+            ],
+          );
+        },
       ),
     );
   }

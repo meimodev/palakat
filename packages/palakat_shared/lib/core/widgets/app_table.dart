@@ -105,8 +105,8 @@ class AppTable<T> extends StatelessWidget {
 
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: tableMinWidth),
+              child: SizedBox(
+                width: tableMinWidth,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

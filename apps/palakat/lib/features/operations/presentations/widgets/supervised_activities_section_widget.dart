@@ -86,7 +86,7 @@ class SupervisedActivitiesSection extends StatelessWidget {
               padding: EdgeInsets.only(
                 left: BaseSize.w8,
                 right: BaseSize.w8,
-                bottom: BaseSize.w12,
+                bottom: BaseSize.w10,
               ),
               child: _buildContent(),
             ),
@@ -160,13 +160,13 @@ class _ExpandableHeader extends StatelessWidget {
         splashColor: BaseColor.primary.withValues(alpha: 0.1),
         highlightColor: BaseColor.primary.withValues(alpha: 0.05),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(BaseSize.w12),
           child: Row(
             children: [
               // Category icon
               Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
+                width: BaseSize.w36,
+                height: BaseSize.w36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: BaseColor.primary.withValues(alpha: 0.15),
@@ -175,10 +175,10 @@ class _ExpandableHeader extends StatelessWidget {
                 child: Icon(
                   AppIcons.event,
                   color: BaseColor.primary,
-                  size: BaseSize.w24,
+                  size: BaseSize.w20,
                 ),
               ),
-              Gap.w12,
+              Gap.w10,
               // Title
               Expanded(
                 child: Text(
@@ -204,7 +204,7 @@ class _ExpandableHeader extends StatelessWidget {
                   ),
                   child: Text(
                     context.l10n.btn_viewAll,
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: BaseColor.primary[700],
                     ),
@@ -223,21 +223,21 @@ class _ExpandableHeader extends StatelessWidget {
                   ),
                   child: Text(
                     '$activityCount',
-                    style: BaseTypography.labelSmall.copyWith(
+                    style: BaseTypography.labelMedium.copyWith(
                       color: BaseColor.primary[700],
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               // Expand/collapse icon with animation
-              Gap.w8,
+              Gap.w6,
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   AppIcons.keyboardArrowDown,
                   color: BaseColor.primary,
-                  size: BaseSize.w24,
+                  size: BaseSize.w20,
                 ),
               ),
             ],
@@ -268,7 +268,7 @@ class _ActivitiesList extends StatelessWidget {
             activity: activities[i],
             onTap: () => onActivityTap(activities[i]),
           ),
-          if (i < activities.length - 1) Gap.h8,
+          if (i < activities.length - 1) Gap.h6,
         ],
       ],
     );

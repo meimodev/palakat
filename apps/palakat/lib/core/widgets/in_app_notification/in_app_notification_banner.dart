@@ -185,21 +185,21 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                                     children: [
                                       Text(
                                         widget.notification.title,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: BaseColor.textPrimary,
-                                        ),
+                                        style: BaseTypography.titleMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              color: BaseColor.textPrimary,
+                                            ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       SizedBox(height: 2.h),
                                       Text(
                                         widget.notification.body,
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          color: BaseColor.textSecondary,
-                                        ),
+                                        style: BaseTypography.bodyMedium
+                                            .copyWith(
+                                              color: BaseColor.textSecondary,
+                                            ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),

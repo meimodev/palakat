@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
@@ -11,16 +12,52 @@ final dashboardRouting = GoRoute(
     GoRoute(
       path: 'view-all',
       name: AppRoute.viewAll,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.activityType] as ActivityType?;
-        return ViewAllScreen(activityType: type);
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: ViewAllScreen(activityType: type),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: 'activity-detail/:activityId',
       name: AppRoute.activityDetail,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final activityIdStr = state.pathParameters['activityId'];
 
         assert(
@@ -34,10 +71,45 @@ final dashboardRouting = GoRoute(
         final params = (state.extra as RouteParam?)?.params;
         final isFromApprovalContext =
             params?[RouteParamKey.isFromApprovalContext] as bool? ?? false;
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
 
-        return ActivityDetailScreen(
-          activityId: activityId,
-          isFromApprovalContext: isFromApprovalContext,
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: ActivityDetailScreen(
+            activityId: activityId,
+            isFromApprovalContext: isFromApprovalContext,
+          ),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
         );
       },
     ),

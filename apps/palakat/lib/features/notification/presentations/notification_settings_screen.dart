@@ -145,7 +145,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                       isGranted
                           ? l10n.notificationSettings_permissionEnabledDesc
                           : l10n.notificationSettings_permissionDisabledDesc,
-                      style: BaseTypography.bodySmall.toSecondary,
+                      style: BaseTypography.bodyMedium.toSecondary,
                     ),
                     if (!isGranted) ...[
                       Gap.h16,
@@ -165,7 +165,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Text(
                 l10n.notificationSettings_errorLoadingPermissionStatus,
-                style: BaseTypography.bodySmall.toSecondary,
+                style: BaseTypography.bodyMedium.toSecondary,
               ),
             ),
           ],
@@ -226,7 +226,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             Gap.h16,
             Text(
               l10n.notificationSettings_preferences_subtitle,
-              style: BaseTypography.bodySmall.toSecondary,
+              style: BaseTypography.bodyMedium.toSecondary,
             ),
             Gap.h16,
             // Channel preferences
@@ -317,7 +317,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             color: BaseColor.black,
           ),
         ),
-        subtitle: Text(subtitle, style: BaseTypography.bodySmall.toSecondary),
+        subtitle: Text(subtitle, style: BaseTypography.bodyMedium.toSecondary),
         activeColor: BaseColor.primary[700],
         contentPadding: EdgeInsets.symmetric(
           horizontal: BaseSize.w16,

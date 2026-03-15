@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'palakat-e70af.firebasestorage.app',
     iosBundleId: 'com.meimodev.palakat.palakat',
   );
-
 }

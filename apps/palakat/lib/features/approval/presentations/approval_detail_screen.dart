@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/approval/presentations/approval_motion_widget.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
@@ -84,27 +85,29 @@ class ApprovalDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => context.pop(),
-                icon: FaIcon(
-                  AppIcons.back,
-                  size: BaseSize.w24,
-                  color: BaseColor.primary3,
-                ),
-              ),
-              Gap.w8,
-              Expanded(
-                child: Text(
-                  l10n.approvalDetail_title,
-                  style: BaseTypography.headlineSmall.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: BaseColor.textPrimary,
+          ApprovalReveal(
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => context.pop(),
+                  icon: FaIcon(
+                    AppIcons.back,
+                    size: BaseSize.w24,
+                    color: BaseColor.primary3,
                   ),
                 ),
-              ),
-            ],
+                Gap.w8,
+                Expanded(
+                  child: Text(
+                    l10n.approvalDetail_title,
+                    style: BaseTypography.headlineSmall.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Gap.h16,
           LoadingWrapper(
@@ -124,7 +127,10 @@ class ApprovalDetailScreen extends ConsumerWidget {
               ],
             ),
             child: activity == null
-                ? InfoBoxWidget(message: l10n.approvalDetail_notFound)
+                ? ApprovalAnimatedPresence(
+                    visible: true,
+                    child: InfoBoxWidget(message: l10n.approvalDetail_notFound),
+                  )
                 : _buildActivityDetails(context, ref, activity),
           ),
         ],
@@ -149,27 +155,40 @@ class ApprovalDetailScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Section 1: Header with activity title and type badge (Req 4.1)
-        _buildHeaderSection(context, activity),
+        ApprovalReveal(
+          delay: const Duration(milliseconds: 40),
+          child: _buildHeaderSection(context, activity),
+        ),
         Gap.h12,
-        // Section 2: Approval section with approvers and status badges (Req 4.2)
-        _buildApproversCard(context, activity),
+        ApprovalReveal(
+          delay: const Duration(milliseconds: 80),
+          child: _buildApproversCard(context, activity),
+        ),
         Gap.h12,
-        // Section 3: Activity summary - supervisor, date, description (Req 4.3)
-        _buildActivitySummaryCard(context, activity),
-        // Section 4: Financial section when hasRevenue or hasExpense is true (Req 4.4)
-        // **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
+        ApprovalReveal(
+          delay: const Duration(milliseconds: 120),
+          child: _buildActivitySummaryCard(context, activity),
+        ),
         if (activity.hasRevenue == true || activity.hasExpense == true) ...[
           Gap.h12,
-          _buildFinancialCard(context, activity),
+          ApprovalReveal(
+            delay: const Duration(milliseconds: 160),
+            child: _buildFinancialCard(context, activity),
+          ),
         ],
         if (activity.location != null) ...[
           Gap.h12,
-          _buildLocationCard(context, activity),
+          ApprovalReveal(
+            delay: const Duration(milliseconds: 200),
+            child: _buildLocationCard(context, activity),
+          ),
         ],
         if (activity.note?.trim().isNotEmpty ?? false) ...[
           Gap.h12,
-          _buildNoteCard(context, activity),
+          ApprovalReveal(
+            delay: const Duration(milliseconds: 240),
+            child: _buildNoteCard(context, activity),
+          ),
         ],
         if (overall == ApprovalStatus.unconfirmed &&
             activity.approvers.any(
@@ -178,18 +197,30 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   ap.membership?.id == currentMembershipId,
             )) ...[
           Gap.h12,
-          InfoBoxWidget(message: l10n.approvalDetail_waitingOthers),
+          ApprovalReveal(
+            delay: const Duration(milliseconds: 280),
+            child: InfoBoxWidget(message: l10n.approvalDetail_waitingOthers),
+          ),
         ],
         Gap.h12,
         if (overall == ApprovalStatus.unconfirmed) ...[
-          if (!isMinePending) ApprovalStatusPill(status: overall),
+          if (!isMinePending)
+            ApprovalReveal(
+              delay: const Duration(milliseconds: 300),
+              child: ApprovalStatusPill(status: overall),
+            ),
           if (!isMinePending) Gap.h8,
         ] else ...[
-          ApprovalStatusPill(status: overall),
+          ApprovalReveal(
+            delay: const Duration(milliseconds: 300),
+            child: ApprovalStatusPill(status: overall),
+          ),
         ],
-        // Section 8: View Activity Details button (Req 6.1, 6.2)
         Gap.h16,
-        _buildViewActivityDetailsButton(context, activity),
+        ApprovalReveal(
+          delay: const Duration(milliseconds: 340),
+          child: _buildViewActivityDetailsButton(context, activity),
+        ),
       ],
     );
   }
@@ -225,69 +256,179 @@ class ApprovalDetailScreen extends ConsumerWidget {
     return Material(
       key: const Key('action_buttons_container'),
       color: BaseColor.white,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-          ),
-        ),
-        padding: EdgeInsets.symmetric(
-          vertical: BaseSize.h12,
-          horizontal: BaseSize.w12,
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildActionButton(
-                  key: const Key('reject_button'),
-                  text: l10n.btn_reject,
-                  icon: AppIcons.close,
-                  color: BaseColor.red.shade500,
-                  isLoading: isLoading,
-                  onTap: () async {
-                    final confirmed = await showApprovalConfirmationBottomSheet(
-                      context: context,
-                      isApprove: false,
-                      activityTitle: activityTitle,
-                    );
-                    if (confirmed != true || !context.mounted) return;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final shouldStack =
+              constraints.maxWidth < 420 ||
+              MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
-                    final success = await controller.rejectActivity(approverId);
-                    if (success && context.mounted) {
-                      context.pop(true);
-                    }
-                  },
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
               ),
-              Gap.w12,
-              Expanded(
-                child: _buildActionButton(
-                  key: const Key('approve_button'),
-                  text: l10n.btn_approve,
-                  icon: AppIcons.approve,
-                  color: BaseColor.green.shade600,
-                  isLoading: isLoading,
-                  onTap: () async {
-                    final confirmed = await showApprovalConfirmationBottomSheet(
-                      context: context,
-                      isApprove: true,
-                      activityTitle: activityTitle,
-                    );
-                    if (confirmed != true || !context.mounted) return;
+            ),
+            padding: EdgeInsets.symmetric(
+              vertical: BaseSize.h12,
+              horizontal: BaseSize.w12,
+            ),
+            child: SafeArea(
+              top: false,
+              child: shouldStack
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildActionButton(
+                          key: const Key('reject_button'),
+                          text: l10n.btn_reject,
+                          icon: AppIcons.close,
+                          color: BaseColor.red.shade500,
+                          isLoading: isLoading,
+                          onTap: () async {
+                            final confirmed =
+                                await showApprovalConfirmationBottomSheet(
+                                  context: context,
+                                  isApprove: false,
+                                  activityTitle: activityTitle,
+                                );
+                            if (confirmed != true || !context.mounted) return;
 
-                    final success = await controller.approveActivity(approverId);
-                    if (success && context.mounted) {
-                      context.pop(true);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+                            final success = await controller.rejectActivity(
+                              approverId,
+                            );
+                            if (success && context.mounted) {
+                              context.pop(true);
+                            }
+                          },
+                        ),
+                        Gap.h12,
+                        _buildActionButton(
+                          key: const Key('approve_button'),
+                          text: l10n.btn_approve,
+                          icon: AppIcons.approve,
+                          color: BaseColor.green.shade600,
+                          isLoading: isLoading,
+                          onTap: () async {
+                            final confirmed =
+                                await showApprovalConfirmationBottomSheet(
+                                  context: context,
+                                  isApprove: true,
+                                  activityTitle: activityTitle,
+                                );
+                            if (confirmed != true || !context.mounted) return;
+
+                            final success = await controller.approveActivity(
+                              approverId,
+                            );
+                            if (success && context.mounted) {
+                              context.pop(true);
+                            }
+                          },
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: _buildActionButton(
+                            key: const Key('reject_button'),
+                            text: l10n.btn_reject,
+                            icon: AppIcons.close,
+                            color: BaseColor.red.shade500,
+                            isLoading: isLoading,
+                            onTap: () async {
+                              final confirmed =
+                                  await showApprovalConfirmationBottomSheet(
+                                    context: context,
+                                    isApprove: false,
+                                    activityTitle: activityTitle,
+                                  );
+                              if (confirmed != true || !context.mounted) return;
+
+                              final success = await controller.rejectActivity(
+                                approverId,
+                              );
+                              if (success && context.mounted) {
+                                context.pop(true);
+                              }
+                            },
+                          ),
+                        ),
+                        Gap.w12,
+                        Expanded(
+                          child: _buildActionButton(
+                            key: const Key('approve_button'),
+                            text: l10n.btn_approve,
+                            icon: AppIcons.approve,
+                            color: BaseColor.green.shade600,
+                            isLoading: isLoading,
+                            onTap: () async {
+                              final confirmed =
+                                  await showApprovalConfirmationBottomSheet(
+                                    context: context,
+                                    isApprove: true,
+                                    activityTitle: activityTitle,
+                                  );
+                              if (confirmed != true || !context.mounted) return;
+
+                              final success = await controller.approveActivity(
+                                approverId,
+                              );
+                              if (success && context.mounted) {
+                                context.pop(true);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required BuildContext context,
+    required Widget leading,
+    required Widget title,
+    Widget? trailing,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldStack =
+            constraints.maxWidth < 380 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+        if (shouldStack) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  leading,
+                  Gap.w12,
+                  Expanded(child: title),
+                ],
+              ),
+              if (trailing != null) ...[
+                Gap.h12,
+                Align(alignment: Alignment.centerLeft, child: trailing),
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            leading,
+            Gap.w12,
+            Expanded(child: title),
+            if (trailing != null) trailing,
+          ],
+        );
+      },
     );
   }
 
@@ -332,7 +473,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     Gap.w8,
                     Text(
                       text,
-                      style: BaseTypography.labelSmall.copyWith(
+                      style: BaseTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         color: color,
                       ),
@@ -361,58 +502,57 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w48,
-                  height: BaseSize.w48,
-                  decoration: BoxDecoration(
-                    color: BaseColor.teal[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.teal[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.event,
-                    size: BaseSize.w24,
-                    color: BaseColor.teal[700],
-                  ),
+            _buildSectionHeader(
+              context: context,
+              leading: Container(
+                width: BaseSize.w48,
+                height: BaseSize.w48,
+                decoration: BoxDecoration(
+                  color: BaseColor.teal[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.teal[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        activity.title,
-                        style: BaseTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
-                        ),
-                      ),
-                      Gap.h4,
-                      Text(
-                        '${context.l10n.lbl_activityId}: #${activity.id}',
-                        style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.secondaryText,
-                        ),
-                      ),
-                    ],
-                  ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.event,
+                  size: BaseSize.w24,
+                  color: BaseColor.teal[700],
                 ),
-              ],
+              ),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activity.title,
+                    style: BaseTypography.titleLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BaseColor.textPrimary,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Gap.h4,
+                  Text(
+                    '${context.l10n.lbl_activityId}: #${activity.id}',
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
             ),
             Gap.h12,
-            Row(
+            Wrap(
+              spacing: BaseSize.w8,
+              runSpacing: BaseSize.h8,
               children: [
                 _buildActivityTypeBadge(activity.activityType),
-                Gap.w8,
                 if (activity.bipra != null) _buildBipraBadge(activity.bipra!),
               ],
             ),
@@ -440,58 +580,54 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.green[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.green[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.approval,
-                    size: BaseSize.w20,
+            _buildSectionHeader(
+              context: context,
+              leading: Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.green[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.green[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.approval,
+                  size: BaseSize.w20,
+                  color: BaseColor.green[700],
+                ),
+              ),
+              title: Text(
+                l10n.tbl_approvers,
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
+                ),
+              ),
+              trailing: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: BaseSize.w10,
+                  vertical: BaseSize.h4,
+                ),
+                decoration: BoxDecoration(
+                  color: BaseColor.green[50],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  border: Border.all(color: BaseColor.green[200]!, width: 1),
+                ),
+                child: Text(
+                  activity.approvers.length.toString(),
+                  style: BaseTypography.labelMedium.copyWith(
                     color: BaseColor.green[700],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    l10n.tbl_approvers,
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w10,
-                    vertical: BaseSize.h4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: BaseColor.green[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                    border: Border.all(color: BaseColor.green[200]!, width: 1),
-                  ),
-                  child: Text(
-                    activity.approvers.length.toString(),
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.green[700],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
             Gap.h16,
             Column(
@@ -540,40 +676,36 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.blue[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.blue[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.info,
-                    size: BaseSize.w20,
-                    color: BaseColor.blue[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    l10n.approvalDetail_activitySummary_title,
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
+            _buildSectionHeader(
+              context: context,
+              leading: Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.blue[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.blue[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.info,
+                  size: BaseSize.w20,
+                  color: BaseColor.blue[700],
+                ),
+              ),
+              title: Text(
+                l10n.approvalDetail_activitySummary_title,
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
+                ),
+              ),
             ),
             Gap.h16,
             // Supervisor info
@@ -647,58 +779,54 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: baseColor[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: baseColor[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    isRevenue ? AppIcons.revenue : AppIcons.expense,
-                    size: BaseSize.w20,
+            _buildSectionHeader(
+              context: context,
+              leading: Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: baseColor[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: baseColor[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  isRevenue ? AppIcons.revenue : AppIcons.expense,
+                  size: BaseSize.w20,
+                  color: baseColor[700],
+                ),
+              ),
+              title: Text(
+                l10n.approvalDetail_financialData_title,
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
+                ),
+              ),
+              trailing: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: BaseSize.w10,
+                  vertical: BaseSize.h6,
+                ),
+                decoration: BoxDecoration(
+                  color: baseColor[50],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  border: Border.all(color: baseColor[200]!, width: 1),
+                ),
+                child: Text(
+                  financeType,
+                  style: BaseTypography.labelMedium.copyWith(
                     color: baseColor[700],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    l10n.approvalDetail_financialData_title,
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w10,
-                    vertical: BaseSize.h6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: baseColor[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                    border: Border.all(color: baseColor[200]!, width: 1),
-                  ),
-                  child: Text(
-                    financeType,
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: baseColor[700],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
             Gap.h16,
             // Amount
@@ -780,66 +908,63 @@ class ApprovalDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
-                  decoration: BoxDecoration(
-                    color: BaseColor.red[100],
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.red[200]!.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.mapPin,
-                    size: BaseSize.w20,
-                    color: BaseColor.red[700],
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    l10n.card_location_title,
-                    style: BaseTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
+            _buildSectionHeader(
+              context: context,
+              leading: Container(
+                width: BaseSize.w40,
+                height: BaseSize.w40,
+                decoration: BoxDecoration(
+                  color: BaseColor.red[100],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: BaseColor.red[200]!.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
+                  ],
                 ),
-                if (location != null)
-                  IconButton(
-                    tooltip: l10n.approvalDetail_viewOnMapTooltip,
-                    onPressed: () {
-                      context.pushNamed(
-                        AppRoute.publishingMap,
-                        extra: RouteParam(
-                          params: {
-                            RouteParamKey.mapOperationType:
-                                MapOperationType.read,
-                            RouteParamKey.location: location.toJson(),
-                          },
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.mapPin,
+                  size: BaseSize.w20,
+                  color: BaseColor.red[700],
+                ),
+              ),
+              title: Text(
+                l10n.card_location_title,
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
+                ),
+              ),
+              trailing: location != null
+                  ? IconButton(
+                      tooltip: l10n.approvalDetail_viewOnMapTooltip,
+                      onPressed: () {
+                        context.pushNamed(
+                          AppRoute.publishingMap,
+                          extra: RouteParam(
+                            params: {
+                              RouteParamKey.mapOperationType:
+                                  MapOperationType.read,
+                              RouteParamKey.location: location.toJson(),
+                            },
+                          ),
+                        );
+                      },
+                      icon: FaIcon(
+                        AppIcons.map,
+                        size: BaseSize.w20,
+                        color: BaseColor.primary3,
+                      ),
+                      style: ButtonStyle(
+                        overlayColor: WidgetStateProperty.all(
+                          BaseColor.primary2.withValues(alpha: 0.12),
                         ),
-                      );
-                    },
-                    icon: FaIcon(
-                      AppIcons.map,
-                      size: BaseSize.w20,
-                      color: BaseColor.primary3,
-                    ),
-                    style: ButtonStyle(
-                      overlayColor: WidgetStateProperty.all(
-                        BaseColor.primary2.withValues(alpha: 0.12),
                       ),
-                    ),
-                  ),
-              ],
+                    )
+                  : null,
             ),
             Gap.h16,
             _buildInfoRow(
@@ -948,33 +1073,74 @@ class ApprovalDetailScreen extends ConsumerWidget {
     required String label,
     required String value,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FaIcon(icon, size: BaseSize.w20, color: iconColor),
-        Gap.w12,
-        Expanded(
-          child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldStack =
+            constraints.maxWidth < 340 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+        if (shouldStack) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: BaseTypography.labelMedium.copyWith(
-                  color: BaseColor.secondaryText,
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                children: [
+                  FaIcon(icon, size: BaseSize.w20, color: iconColor),
+                  Gap.w12,
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: BaseTypography.labelMedium.copyWith(
+                        color: BaseColor.secondaryText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Gap.h4,
-              Text(
-                value,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textPrimary,
+              Gap.h8,
+              Padding(
+                padding: EdgeInsets.only(left: BaseSize.w32),
+                child: Text(
+                  value,
+                  style: BaseTypography.bodyMedium.copyWith(
+                    color: BaseColor.textPrimary,
+                  ),
                 ),
               ),
             ],
-          ),
-        ),
-      ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FaIcon(icon, size: BaseSize.w20, color: iconColor),
+            Gap.w12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: BaseTypography.labelMedium.copyWith(
+                      color: BaseColor.secondaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    value,
+                    style: BaseTypography.bodyMedium.copyWith(
+                      color: BaseColor.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1107,7 +1273,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                     Gap.h4,
                     Text(
                       l10n.approvalDetail_viewActivityDetails_subtitle,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.bodyMedium.copyWith(
                         color: BaseColor.secondaryText,
                       ),
                     ),

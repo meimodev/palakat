@@ -116,7 +116,7 @@ class _FilterChip extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: BaseTypography.bodySmall.copyWith(
+                style: BaseTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                   color: isSelected ? Colors.white : BaseColor.primaryText,
                 ),
@@ -136,7 +136,7 @@ class _FilterChip extends StatelessWidget {
                   ),
                   child: Text(
                     count.toString(),
-                    style: BaseTypography.labelSmall.copyWith(
+                    style: BaseTypography.labelMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: isSelected ? Colors.white : color.shade700,
                     ),

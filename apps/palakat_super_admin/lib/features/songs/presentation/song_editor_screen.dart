@@ -85,14 +85,10 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       if (widget.songId == null) {
         context.go('/songs/$id');
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.msg_updated)));
+      AppSnackbars.showSuccess(context, message: context.l10n.msg_updated);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -115,7 +111,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(l10n.btn_cancel),
             ),
-            FilledButton(
+            FilledButton.tonal(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(l10n.btn_delete),
             ),
@@ -131,9 +127,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
       final controller = ref.read(songsControllerProvider.notifier);
       await controller.deleteSong(id);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.msg_deleted)));
+      AppSnackbars.showSuccess(context, message: l10n.msg_deleted);
       context.go('/songs');
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -244,7 +238,9 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
             constraints: const BoxConstraints(maxWidth: 720),
             child: TextFormField(
               controller: contentController,
-              decoration: InputDecoration(labelText: l10n.songEditor_contentHint),
+              decoration: InputDecoration(
+                labelText: l10n.songEditor_contentHint,
+              ),
               minLines: 6,
               maxLines: 12,
             ),
@@ -341,7 +337,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
     if (!canEdit) {
       return Center(
         child: asyncDb.isLoading
-            ? const CircularProgressIndicator()
+            ? const AppLoadingWidget()
             : Text(asyncDb.error.toString()),
       );
     }
@@ -383,11 +379,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                 FilledButton.icon(
                   onPressed: _loading ? null : _save,
                   icon: _loading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
+                      ? const CompactLoadingWidget(size: 18)
                       : const Icon(Icons.save),
                   label: Text(l10n.btn_save),
                 ),
@@ -426,7 +418,9 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                     ),
                     TextFormField(
                       controller: _bookNameController,
-                      decoration: InputDecoration(labelText: l10n.songEditor_bookNameHint),
+                      decoration: InputDecoration(
+                        labelText: l10n.songEditor_bookNameHint,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -442,7 +436,9 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _subTitleController,
-                    decoration: InputDecoration(labelText: l10n.songEditor_subtitleHint),
+                    decoration: InputDecoration(
+                      labelText: l10n.songEditor_subtitleHint,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   buildFieldPair(
@@ -470,28 +466,59 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                   buildFieldPair(
                     TextFormField(
                       controller: _urlImageController,
-                      decoration: InputDecoration(labelText: l10n.songEditor_urlImageHint),
+                      decoration: InputDecoration(
+                        labelText: l10n.songEditor_urlImageHint,
+                      ),
                     ),
                     TextFormField(
                       controller: _urlVideoController,
-                      decoration: InputDecoration(labelText: l10n.songEditor_urlVideoHint),
+                      decoration: InputDecoration(
+                        labelText: l10n.songEditor_urlVideoHint,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          l10n.songEditor_compositionTitle,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                      FilledButton.icon(
-                        onPressed: _loading ? null : _addCompositionItem,
-                        icon: const Icon(Icons.add),
-                        label: Text(l10n.btn_add),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 560) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              l10n.songEditor_compositionTitle,
+                              style: theme.textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: FilledButton.icon(
+                                onPressed: _loading
+                                    ? null
+                                    : _addCompositionItem,
+                                icon: const Icon(Icons.add),
+                                label: Text(l10n.btn_add),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.songEditor_compositionTitle,
+                              style: theme.textTheme.titleMedium,
+                            ),
+                          ),
+                          FilledButton.icon(
+                            onPressed: _loading ? null : _addCompositionItem,
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.btn_add),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   if (_composition.isEmpty)
@@ -587,7 +614,10 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                     }),
 
                   const SizedBox(height: 20),
-                  Text(l10n.songEditor_definitionTitle, style: theme.textTheme.titleMedium),
+                  Text(
+                    l10n.songEditor_definitionTitle,
+                    style: theme.textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 8),
                   if (_parts.isEmpty)
                     Text(

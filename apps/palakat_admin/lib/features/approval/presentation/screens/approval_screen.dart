@@ -58,17 +58,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     return SurfaceCard(
       title: context.l10n.card_approvalRules_title,
       subtitle: context.l10n.card_approvalRules_subtitle,
-      trailing: ElevatedButton.icon(
+      trailing: FilledButton.icon(
         onPressed: rulesAsync.hasValue && positionsAsync.hasValue
             ? () => _showAddRuleDialog(context)
             : null,
         icon: const Icon(Icons.add),
         label: Text(context.l10n.btn_addRule),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.surfaceContainerHighest,
-        ),
       ),
       child: AppTable<ApprovalRule>(
         loading: rulesAsync.isLoading,

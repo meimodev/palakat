@@ -19,8 +19,9 @@ class ResponsiveOperationGrid extends StatelessWidget {
   /// Callback when an operation card is tapped
   final ValueChanged<OperationItem> onOperationTap;
 
-  /// Breakpoint for switching between 1 and 2 columns (Requirement 7.2, 7.3)
+  /// Breakpoint for switching between compact and multi-column layouts.
   static const double breakpoint = 600.0;
+  static const double largeBreakpoint = 960.0;
 
   /// Minimum touch target size in pixels (Requirement 7.4)
   static const double minTouchTarget = 48.0;
@@ -28,10 +29,11 @@ class ResponsiveOperationGrid extends StatelessWidget {
   /// Grid spacing following 8px grid system (Requirement 3.4)
   static const double gridSpacing = 8.0;
 
-  /// Returns the number of columns based on screen width
-  /// 2 columns when width > 600px, 1 column otherwise (Requirements 7.2, 7.3)
+  /// Returns the number of columns based on screen width.
   static int getColumnCount(double width) {
-    return width > breakpoint ? 2 : 1;
+    if (width >= largeBreakpoint) return 3;
+    if (width >= breakpoint) return 2;
+    return 1;
   }
 
   @override
@@ -63,8 +65,8 @@ class ResponsiveOperationGrid extends StatelessWidget {
       );
     }
 
-    // Multi-column layout - calculate item width for 2 columns with spacing
-    final itemWidth = (availableWidth - gridSpacing) / 2;
+    final totalSpacing = gridSpacing * (columnCount - 1);
+    final itemWidth = (availableWidth - totalSpacing) / columnCount;
 
     return Wrap(
       spacing: gridSpacing,

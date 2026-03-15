@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/supervised_activities_list_controller.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/supervised_activities_list_state.dart';
 import 'package:palakat/features/operations/presentations/supervised_activities_list/widgets/supervised_activity_list_item_widget.dart';
@@ -66,21 +67,26 @@ class _SupervisedActivitiesListScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: l10n.supervisedActivities_title,
-            subTitle: l10n.supervisedActivities_subtitle,
+          OperationsReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: l10n.supervisedActivities_title,
+              subTitle: l10n.supervisedActivities_subtitle,
+            ),
           ),
           Gap.h16,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: _FilterSection(
-              filterActivityType: state.filterActivityType,
-              filterStartDate: state.filterStartDate,
-              filterEndDate: state.filterEndDate,
-              hasActiveFilters: state.hasActiveFilters,
-              onActivityTypeChanged: controller.setActivityTypeFilter,
-              onDateRangeChanged: controller.setDateRangeFilter,
-              onClearFilters: controller.clearFilters,
+          OperationsReveal(
+            delay: const Duration(milliseconds: 40),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              child: _FilterSection(
+                filterActivityType: state.filterActivityType,
+                filterStartDate: state.filterStartDate,
+                filterEndDate: state.filterEndDate,
+                hasActiveFilters: state.hasActiveFilters,
+                onActivityTypeChanged: controller.setActivityTypeFilter,
+                onDateRangeChanged: controller.setDateRangeFilter,
+                onClearFilters: controller.clearFilters,
+              ),
             ),
           ),
           Gap.h16,
@@ -123,9 +129,12 @@ class _SupervisedActivitiesListScreenState
     SupervisedActivitiesListController controller,
   ) {
     if (state.activities.isEmpty) {
-      return _EmptyState(
-        hasActiveFilters: state.hasActiveFilters,
-        onClearFilters: controller.clearFilters,
+      return OperationsAnimatedPresence(
+        visible: true,
+        child: _EmptyState(
+          hasActiveFilters: state.hasActiveFilters,
+          onClearFilters: controller.clearFilters,
+        ),
       );
     }
 
@@ -136,15 +145,18 @@ class _SupervisedActivitiesListScreenState
       separatorBuilder: (_, _) => Gap.h12,
       itemBuilder: (context, index) {
         if (index == state.activities.length) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w16),
-              child: SizedBox(
-                width: BaseSize.w24,
-                height: BaseSize.w24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: BaseColor.primary[700],
+          return OperationsAnimatedPresence(
+            visible: true,
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(BaseSize.w16),
+                child: SizedBox(
+                  width: BaseSize.w24,
+                  height: BaseSize.w24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: BaseColor.primary[700],
+                  ),
                 ),
               ),
             ),
@@ -152,14 +164,17 @@ class _SupervisedActivitiesListScreenState
         }
 
         final activity = state.activities[index];
-        return SupervisedActivityListItemWidget(
-          activity: activity,
-          onTap: () {
-            context.pushNamed(
-              AppRoute.activityDetail,
-              pathParameters: {'activityId': activity.id.toString()},
-            );
-          },
+        return OperationsReveal(
+          delay: Duration(milliseconds: 40 + (index * 30)),
+          child: SupervisedActivityListItemWidget(
+            activity: activity,
+            onTap: () {
+              context.pushNamed(
+                AppRoute.activityDetail,
+                pathParameters: {'activityId': activity.id.toString()},
+              );
+            },
+          ),
         );
       },
     );
@@ -275,7 +290,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                 ),
                 Text(
                   l10n.filter_activityType_allSubtitle,
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.textSecondary,
                   ),
                 ),
@@ -317,7 +332,7 @@ class _ActivityTypeFilter extends StatelessWidget {
               ),
               Text(
                 _getActivityDescription(context, type),
-                style: BaseTypography.labelSmall.copyWith(
+                style: BaseTypography.bodyMedium.copyWith(
                   color: BaseColor.textSecondary,
                 ),
               ),
@@ -366,7 +381,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                 title: Text(l10n.filter_activityType_allTitle),
                 subtitle: Text(
                   l10n.filter_activityType_allSheetSubtitle,
-                  style: BaseTypography.bodySmall.toSecondary,
+                  style: BaseTypography.bodyMedium.toSecondary,
                 ),
                 trailing: currentValue == null
                     ? const Icon(AppIcons.check)
@@ -392,7 +407,7 @@ class _ActivityTypeFilter extends StatelessWidget {
                   title: Text(type.displayName),
                   subtitle: Text(
                     _getActivityDescription(context, type),
-                    style: BaseTypography.bodySmall.toSecondary,
+                    style: BaseTypography.bodyMedium.toSecondary,
                   ),
                   trailing: currentValue == type
                       ? const Icon(AppIcons.check)
@@ -472,7 +487,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
           Expanded(
             child: Text(
               l10n.filters_applied,
-              style: BaseTypography.bodySmall.copyWith(
+              style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.primary[700],
                 fontWeight: FontWeight.w500,
               ),
@@ -491,7 +506,7 @@ class _ActiveFilterIndicator extends StatelessWidget {
             ),
             child: Text(
               l10n.btn_clearAll,
-              style: BaseTypography.bodySmall.copyWith(
+              style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.primary[700],
                 fontWeight: FontWeight.w600,
               ),

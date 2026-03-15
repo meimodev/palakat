@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/approval/presentations/approval_controller.dart';
+import 'package:palakat/features/approval/presentations/approval_motion_widget.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
@@ -24,6 +25,7 @@ class ApprovalScreen extends ConsumerStatefulWidget {
 class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   // Track which activity is currently being processed
   int? _processingActivityId;
+  bool _showDateFilter = false;
 
   // Scroll controller for infinite scrolling
   late ScrollController _scrollController;
@@ -55,6 +57,9 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final controller = ref.read(approvalControllerProvider.notifier);
     final state = ref.watch(approvalControllerProvider);
     final l10n = context.l10n;
+    final hasActiveDateFilter =
+        state.filterStartDate != null || state.filterEndDate != null;
+    final showDateFilter = _showDateFilter || hasActiveDateFilter;
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -69,35 +74,97 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ScreenTitleWidget.titleOnly(title: l10n.approval_title),
-                  Gap.h16,
-                  // Pending action summary badge
-                  PendingActionBadge(count: state.pendingMyAction.length),
-                  Gap.h16,
-                  // Status filter chips
-                  StatusFilterChips(
-                    selectedFilter: state.statusFilter,
-                    onFilterChanged: (filter) {
-                      controller.setStatusFilter(filter);
-                    },
-                    pendingMyActionCount: state.pendingMyAction.length,
-                    pendingOthersCount: state.pendingOthers.length,
-                    approvedCount: state.approved.length,
-                    rejectedCount: state.rejected.length,
+                  ApprovalReveal(
+                    child: ScreenTitleWidget.titleOnly(
+                      title: l10n.approval_title,
+                    ),
                   ),
                   Gap.h16,
-                  // Date range filter
-                  DateRangePresetInput(
-                    label: l10n.approval_filterByDate,
-                    start: state.filterStartDate,
-                    end: state.filterEndDate,
-                    onChanged: (s, e) {
-                      if (s == null && e == null) {
-                        controller.clearDateFilter();
-                      } else {
-                        controller.setDateRange(start: s, end: e);
-                      }
-                    },
+                  ApprovalReveal(
+                    delay: const Duration(milliseconds: 40),
+                    child: PendingActionBadge(
+                      count: state.pendingMyAction.length,
+                    ),
+                  ),
+                  Gap.h16,
+                  ApprovalReveal(
+                    delay: const Duration(milliseconds: 80),
+                    child: StatusFilterChips(
+                      selectedFilter: state.statusFilter,
+                      onFilterChanged: (filter) {
+                        controller.setStatusFilter(filter);
+                      },
+                      pendingMyActionCount: state.pendingMyAction.length,
+                      pendingOthersCount: state.pendingOthers.length,
+                      approvedCount: state.approved.length,
+                      rejectedCount: state.rejected.length,
+                    ),
+                  ),
+                  Gap.h12,
+                  ApprovalReveal(
+                    delay: const Duration(milliseconds: 120),
+                    child: Wrap(
+                      spacing: BaseSize.w8,
+                      runSpacing: BaseSize.h8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _showDateFilter = !showDateFilter;
+                            });
+                          },
+                          icon: Icon(
+                            Icons.calendar_today,
+                            size: BaseSize.w16,
+                            color: BaseColor.primary,
+                          ),
+                          label: Text(l10n.approval_filterByDate),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: BaseColor.primary,
+                            side: BorderSide(color: BaseColor.neutral20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusMd,
+                              ),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: BaseSize.w12,
+                              vertical: BaseSize.h8,
+                            ),
+                          ),
+                        ),
+                        if (hasActiveDateFilter)
+                          ButtonWidget.text(
+                            text: l10n.btn_clear,
+                            onTap: () {
+                              controller.clearDateFilter();
+                              setState(() {
+                                _showDateFilter = false;
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                  ApprovalAnimatedPresence(
+                    visible: showDateFilter,
+                    child: Column(
+                      children: [
+                        Gap.h12,
+                        DateRangePresetInput(
+                          label: l10n.approval_filterByDate,
+                          start: state.filterStartDate,
+                          end: state.filterEndDate,
+                          onChanged: (s, e) {
+                            if (s == null && e == null) {
+                              controller.clearDateFilter();
+                            } else {
+                              controller.setDateRange(start: s, end: e);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   Gap.h16,
                 ],
@@ -130,7 +197,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   child: Center(
                     child: Text(
                       l10n.approval_noMoreApprovals,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.bodyMedium.copyWith(
                         color: BaseColor.secondaryText,
                       ),
                     ),
@@ -164,7 +231,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
     if (state.errorMessage != null) {
       return SliverToBoxAdapter(
-        child: _buildErrorState(context, state.errorMessage!, controller),
+        child: ApprovalAnimatedPresence(
+          visible: true,
+          child: _buildErrorState(context, state.errorMessage!, controller),
+        ),
       );
     }
 
@@ -183,69 +253,91 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ApprovalController controller,
   ) {
     final sections = <Widget>[];
+    var sectionIndex = 0;
 
     // Pending My Action section (shown first for prioritization)
     if (state.pendingMyAction.isNotEmpty) {
       sections.add(
-        _buildSection(
-          context,
-          context.l10n.approval_sectionPendingYourAction,
-          state.pendingMyAction,
-          state,
-          controller,
-          icon: AppIcons.pending,
-          color: BaseColor.teal,
+        ApprovalReveal(
+          delay: Duration(milliseconds: 40 + (sectionIndex * 40)),
+          child: _buildSection(
+            context,
+            context.l10n.approval_sectionPendingYourAction,
+            state.pendingMyAction,
+            state,
+            controller,
+            icon: AppIcons.pending,
+            color: BaseColor.teal,
+          ),
         ),
       );
+      sectionIndex++;
     }
 
     // Pending Others section
     if (state.pendingOthers.isNotEmpty) {
       sections.add(
-        _buildSection(
-          context,
-          context.l10n.approval_sectionPendingOthers,
-          state.pendingOthers,
-          state,
-          controller,
-          icon: AppIcons.inProgress,
-          color: BaseColor.yellow,
+        ApprovalReveal(
+          delay: Duration(milliseconds: 40 + (sectionIndex * 40)),
+          child: _buildSection(
+            context,
+            context.l10n.approval_sectionPendingOthers,
+            state.pendingOthers,
+            state,
+            controller,
+            icon: AppIcons.inProgress,
+            color: BaseColor.yellow,
+          ),
         ),
       );
+      sectionIndex++;
     }
 
     // Approved section
     if (state.approved.isNotEmpty) {
       sections.add(
-        _buildSection(
-          context,
-          context.l10n.status_approved,
-          state.approved,
-          state,
-          controller,
-          icon: AppIcons.success,
-          color: BaseColor.green,
+        ApprovalReveal(
+          delay: Duration(milliseconds: 40 + (sectionIndex * 40)),
+          child: _buildSection(
+            context,
+            context.l10n.status_approved,
+            state.approved,
+            state,
+            controller,
+            icon: AppIcons.success,
+            color: BaseColor.green,
+          ),
         ),
       );
+      sectionIndex++;
     }
 
     // Rejected section
     if (state.rejected.isNotEmpty) {
       sections.add(
-        _buildSection(
-          context,
-          context.l10n.status_rejected,
-          state.rejected,
-          state,
-          controller,
-          icon: AppIcons.reject,
-          color: BaseColor.red,
+        ApprovalReveal(
+          delay: Duration(milliseconds: 40 + (sectionIndex * 40)),
+          child: _buildSection(
+            context,
+            context.l10n.status_rejected,
+            state.rejected,
+            state,
+            controller,
+            icon: AppIcons.reject,
+            color: BaseColor.red,
+          ),
         ),
       );
+      sectionIndex++;
     }
 
     if (sections.isEmpty) {
-      return SliverToBoxAdapter(child: _buildEmptyState(context));
+      return SliverToBoxAdapter(
+        child: ApprovalAnimatedPresence(
+          visible: true,
+          child: _buildEmptyState(context),
+        ),
+      );
     }
 
     return SliverList(delegate: SliverChildListDelegate(sections));
@@ -277,19 +369,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section header
-          Row(
-            children: [
-              FaIcon(icon, size: BaseSize.w20, color: color.shade600),
-              Gap.w8,
-              Text(
-                title,
-                style: BaseTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: BaseColor.textPrimary,
-                ),
-              ),
-              Gap.w8,
-              Container(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final shouldStack =
+                  constraints.maxWidth < 340 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.1;
+              final countBadge = Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: BaseSize.w8,
                   vertical: BaseSize.h4,
@@ -300,13 +385,56 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                 ),
                 child: Text(
                   filteredActivities.length.toString(),
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.labelMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: color.shade700,
                   ),
                 ),
-              ),
-            ],
+              );
+
+              if (shouldStack) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        FaIcon(icon, size: BaseSize.w20, color: color.shade600),
+                        Gap.w8,
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: BaseTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Gap.h8,
+                    countBadge,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  FaIcon(icon, size: BaseSize.w20, color: color.shade600),
+                  Gap.w8,
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: BaseTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Gap.w8,
+                  countBadge,
+                ],
+              );
+            },
           ),
           Gap.h12,
           // Activity cards
@@ -328,15 +456,24 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ApprovalController controller,
   ) {
     if (activities.isEmpty) {
-      return SliverToBoxAdapter(child: _buildEmptyState(context));
+      return SliverToBoxAdapter(
+        child: ApprovalAnimatedPresence(
+          visible: true,
+          child: _buildEmptyState(context),
+        ),
+      );
     }
 
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         final activity = activities[index];
-        return Padding(
-          padding: EdgeInsets.only(bottom: BaseSize.h20),
-          child: _buildActivityCard(context, activity, state, controller),
+        return ApprovalReveal(
+          key: ValueKey('approval-flat-${activity.id ?? index}'),
+          delay: Duration(milliseconds: 40 + (index * 40)),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: BaseSize.h20),
+            child: _buildActivityCard(context, activity, state, controller),
+          ),
         );
       }, childCount: activities.length),
     );

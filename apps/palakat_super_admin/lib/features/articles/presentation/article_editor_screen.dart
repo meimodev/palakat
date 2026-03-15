@@ -122,9 +122,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       final repo = ref.read(articlesRepositoryProvider);
       await repo.archive(id);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.msg_archived)));
+        AppSnackbars.showSuccess(context, message: l10n.msg_archived);
         context.go('/articles');
       }
     } finally {
@@ -173,15 +171,11 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
 
       _loaded = saved;
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_saved)));
+        AppSnackbars.showSuccess(context, message: context.l10n.msg_saved);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -202,9 +196,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       await repo.publish(id);
       await _loadIfNeeded();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_published)));
+        AppSnackbars.showSuccess(context, message: context.l10n.msg_published);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -221,9 +213,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       await repo.unpublish(id);
       await _loadIfNeeded();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_unpublished)));
+        AppSnackbars.showSuccess(context, message: context.l10n.msg_unpublished);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -233,11 +223,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
   Future<void> _uploadCover() async {
     final id = widget.articleId ?? _loaded?.id;
     if (id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.dlg_articleCoverUploadRequiresDraft_content),
-        ),
-      );
+      AppSnackbars.showSuccess(context, message: context.l10n.dlg_articleCoverUploadRequiresDraft_content,);
       return;
     }
 
@@ -291,17 +277,13 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
       _coverImageUrl = updated.coverImageUrl;
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_coverUploaded)));
+        AppSnackbars.showSuccess(context, message: context.l10n.msg_coverUploaded);
         setState(() {});
       }
     } catch (e) {
       progress.fail(progressId, errorMessage: e.toString());
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -314,6 +296,9 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
     final status = _loaded?.status;
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final pageTitle = isNew
+        ? '${l10n.btn_add} ${l10n.article_titleFallback}'
+        : l10n.article_titleFallback;
 
     String articleTypeLabel(String value) {
       switch (value) {
@@ -336,11 +321,8 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
               runSpacing: 8,
               children: [
                 if (!isNew)
-                  OutlinedButton(
+                  FilledButton.tonal(
                     onPressed: _loading ? null : _archive,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: theme.colorScheme.error,
-                    ),
                     child: Text(l10n.btn_archive),
                   ),
                 if (!isNew)
@@ -352,7 +334,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
                   onPressed: _loading ? null : _publish,
                   child: Text(l10n.btn_publish),
                 ),
-                ElevatedButton(
+                FilledButton.tonal(
                   onPressed: _loading ? null : _saveDraft,
                   child: Text(l10n.btn_save),
                 ),
@@ -363,10 +345,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    isNew ? 'New Article' : 'Edit Article',
-                    style: theme.textTheme.headlineMedium,
-                  ),
+                  Text(pageTitle, style: theme.textTheme.headlineMedium),
                   const SizedBox(height: 12),
                   actions,
                 ],
@@ -377,10 +356,7 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    isNew ? 'New Article' : 'Edit Article',
-                    style: theme.textTheme.headlineMedium,
-                  ),
+                  child: Text(pageTitle, style: theme.textTheme.headlineMedium),
                 ),
                 const SizedBox(width: 16),
                 Flexible(child: actions),
@@ -393,129 +369,148 @@ class _ArticleEditorScreenState extends ConsumerState<ArticleEditorScreen> {
           Text('${l10n.tbl_status}: $status'),
         ],
         const SizedBox(height: 16),
-        SurfaceCard(
-          title: l10n.articles_title,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final typeSelector = Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.lbl_type,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _articleTypeOptions.map((opt) {
-                            final selected = _type == opt.value;
-                            return ChoiceChip(
-                              avatar: Icon(
-                                opt.icon,
-                                size: 18,
-                                color: selected
-                                    ? theme.colorScheme.onSecondaryContainer
-                                    : theme.colorScheme.onSurfaceVariant,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final editorCard = SurfaceCard(
+              title: l10n.articles_title,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final typeSelector = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.lbl_type,
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
                               ),
-                              label: Text(articleTypeLabel(opt.value)),
-                              selected: selected,
-                              onSelected: _loading
-                                  ? null
-                                  : (v) {
-                                      if (!v) return;
-                                      setState(() => _type = opt.value);
-                                    },
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    );
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _articleTypeOptions.map((opt) {
+                                final selected = _type == opt.value;
+                                return ChoiceChip(
+                                  avatar: Icon(
+                                    opt.icon,
+                                    size: 18,
+                                    color: selected
+                                        ? theme.colorScheme.onSecondaryContainer
+                                        : theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  label: Text(articleTypeLabel(opt.value)),
+                                  selected: selected,
+                                  onSelected: _loading
+                                      ? null
+                                      : (v) {
+                                          if (!v) return;
+                                          setState(() => _type = opt.value);
+                                        },
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        );
 
-                    final uploadButton = OutlinedButton.icon(
-                      onPressed: _loading ? null : _uploadCover,
-                      icon: const Icon(Icons.upload),
-                      label: Text(l10n.btn_uploadCover),
-                    );
+                        final uploadButton = OutlinedButton.icon(
+                          onPressed: _loading ? null : _uploadCover,
+                          icon: const Icon(Icons.upload),
+                          label: Text(l10n.btn_uploadCover),
+                        );
 
-                    if (constraints.maxWidth < 720) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          typeSelector,
-                          const SizedBox(height: 12),
-                          uploadButton,
-                        ],
-                      );
-                    }
+                        if (constraints.maxWidth < 720) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              typeSelector,
+                              const SizedBox(height: 12),
+                              uploadButton,
+                            ],
+                          );
+                        }
 
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: typeSelector),
-                        const SizedBox(width: 12),
-                        uploadButton,
-                      ],
-                    );
-                  },
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: typeSelector),
+                            const SizedBox(width: 12),
+                            uploadButton,
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(labelText: l10n.lbl_title),
+                      enabled: !_loading,
+                      textInputAction: TextInputAction.next,
+                      validator: (v) => Validators.required(
+                        l10n.validation_requiredField,
+                      ).asFormFieldValidator(v),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _slugController,
+                      decoration: const InputDecoration(labelText: 'Slug'),
+                      enabled: !_loading,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _excerptController,
+                      decoration: const InputDecoration(labelText: 'Excerpt'),
+                      enabled: !_loading,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _contentController,
+                      decoration: const InputDecoration(
+                        labelText: 'Content (Markdown)',
+                      ),
+                      minLines: 10,
+                      maxLines: 20,
+                      enabled: !_loading,
+                      onChanged: (_) => setState(() {}),
+                      validator: (v) => Validators.required(
+                        l10n.validation_requiredField,
+                      ).asFormFieldValidator(v),
+                    ),
+                    const SizedBox(height: 12),
+                    if (_coverImageUrl != null &&
+                        _coverImageUrl!.isNotEmpty) ...[
+                      Text(l10n.lbl_coverUrl(_coverImageUrl!)),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _titleController,
-                  decoration: InputDecoration(labelText: l10n.lbl_title),
-                  enabled: !_loading,
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => Validators.required(
-                    l10n.validation_requiredField,
-                  ).asFormFieldValidator(v),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _slugController,
-                  decoration: const InputDecoration(labelText: 'Slug'),
-                  enabled: !_loading,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _excerptController,
-                  decoration: const InputDecoration(labelText: 'Excerpt'),
-                  enabled: !_loading,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _contentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Content (Markdown)',
-                  ),
-                  minLines: 10,
-                  maxLines: 20,
-                  enabled: !_loading,
-                  onChanged: (_) => setState(() {}),
-                  validator: (v) => Validators.required(
-                    l10n.validation_requiredField,
-                  ).asFormFieldValidator(v),
-                ),
-                const SizedBox(height: 12),
-                if (_coverImageUrl != null && _coverImageUrl!.isNotEmpty) ...[
-                  Text(l10n.lbl_coverUrl(_coverImageUrl!)),
-                ],
+              ),
+            );
+            final previewCard = SurfaceCard(
+              title: 'Preview',
+              child: MarkdownBody(data: _contentController.text),
+            );
+
+            if (constraints.maxWidth < 1100) {
+              return Column(
+                children: [editorCard, const SizedBox(height: 16), previewCard],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 7, child: editorCard),
+                const SizedBox(width: 16),
+                Expanded(flex: 5, child: previewCard),
               ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        SurfaceCard(
-          title: 'Preview',
-          child: MarkdownBody(data: _contentController.text),
+            );
+          },
         ),
         if (_loading) ...[
           const SizedBox(height: 12),

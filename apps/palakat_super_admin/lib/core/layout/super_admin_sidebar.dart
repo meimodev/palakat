@@ -13,6 +13,7 @@ class SuperAdminSidebar extends ConsumerWidget {
     final route = GoRouterState.of(context).uri.toString();
     const displayName = 'Super Admin';
     final l10n = context.l10n;
+    final theme = Theme.of(context);
 
     return Drawer(
       elevation: 0,
@@ -46,7 +47,9 @@ class SuperAdminSidebar extends ConsumerWidget {
                         children: [
                           Text(
                             l10n.appTitle,
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: theme.textTheme.titleLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Align(
@@ -108,16 +111,20 @@ class SuperAdminSidebar extends ConsumerWidget {
               const Divider(height: 1),
               ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: theme.colorScheme.primary,
                   child: Text(
                     displayName.initials,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                title: const Text(displayName),
+                title: const Text(
+                  displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 trailing: IconButton(
                   tooltip: l10n.btn_signOut,
                   icon: const Icon(Icons.logout),
@@ -282,7 +289,11 @@ class _NavItemState extends State<_NavItem>
                           ? theme.colorScheme.onSurface
                           : theme.colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
-                    child: Text(widget.label),
+                    child: Text(
+                      widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

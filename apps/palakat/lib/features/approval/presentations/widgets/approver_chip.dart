@@ -31,84 +31,96 @@ class ApproverChip extends StatelessWidget {
   Widget build(BuildContext context) {
     // Base row content for both current user and other approvers
     Widget buildContent() {
-      return Row(
-        children: [
-          // Status badge in leading position for immediate visibility
-          ApproverStatusBadge(
-            status: status,
-            iconSize: BaseSize.w20,
-            showLabel: false,
-          ),
-          Gap.w12,
-          // Name with typography styling (font weight) for emphasis
-          // Current user gets additional visual distinction
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        name,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: isCurrentUser
-                              ? BaseColor.teal.shade800
-                              : BaseColor.textPrimary,
-                          fontWeight: isCurrentUser
-                              ? FontWeight.w700
-                              : FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    if (isCurrentUser) ...[
-                      Gap.w6,
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w6,
-                          vertical: BaseSize.customHeight(2),
-                        ),
-                        decoration: BoxDecoration(
-                          color: BaseColor.teal.shade600,
-                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                        ),
-                        child: Text(
-                          context.l10n.lbl_you,
-                          style: BaseTypography.labelSmall.copyWith(
-                            color: BaseColor.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                if (updatedAt != null && status != ApprovalStatus.unconfirmed)
-                  Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h4),
-                    child: Text(
-                      "${updatedAt!.slashDate} ${updatedAt!.HHmm}",
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: isCurrentUser
-                            ? BaseColor.teal.shade700
-                            : BaseColor.secondaryText,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // Status label on trailing for additional context
-          Text(
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final shouldStackStatus =
+              constraints.maxWidth < 340 ||
+              MediaQuery.textScalerOf(context).scale(1) > 1.1;
+          final statusLabel = Text(
             ApproverStatusBadge.getStatusLabelLocalized(context, status),
-            style: BaseTypography.bodySmall.copyWith(
+            style: BaseTypography.labelMedium.copyWith(
               color: ApproverStatusBadge.getStatusColor(status),
               fontWeight: FontWeight.w600,
             ),
-          ),
-        ],
+          );
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ApproverStatusBadge(
+                status: status,
+                iconSize: BaseSize.w22,
+                showLabel: false,
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Wrap(
+                      spacing: BaseSize.w6,
+                      runSpacing: BaseSize.h4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          name,
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: isCurrentUser
+                                ? BaseColor.teal.shade800
+                                : BaseColor.textPrimary,
+                            fontWeight: isCurrentUser
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                          ),
+                        ),
+                        if (isCurrentUser)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: BaseSize.w8,
+                              vertical: BaseSize.h4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: BaseColor.teal.shade600,
+                              borderRadius: BorderRadius.circular(
+                                BaseSize.radiusSm,
+                              ),
+                            ),
+                            child: Text(
+                              context.l10n.lbl_you,
+                              style: BaseTypography.labelMedium.copyWith(
+                                color: BaseColor.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (updatedAt != null &&
+                        status != ApprovalStatus.unconfirmed)
+                      Padding(
+                        padding: EdgeInsets.only(top: BaseSize.h6),
+                        child: Text(
+                          "${updatedAt!.slashDate} ${updatedAt!.HHmm}",
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: isCurrentUser
+                                ? BaseColor.teal.shade700
+                                : BaseColor.secondaryText,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    if (shouldStackStatus) ...[Gap.h8, statusLabel],
+                  ],
+                ),
+              ),
+              if (!shouldStackStatus) ...[
+                Gap.w12,
+                Flexible(child: statusLabel),
+              ],
+            ],
+          );
+        },
       );
     }
 

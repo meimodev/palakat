@@ -80,7 +80,7 @@ class ReportCardWidget extends StatelessWidget {
                               context,
                               report.generatedBy,
                             ),
-                            style: BaseTypography.bodySmall.copyWith(
+                            style: BaseTypography.bodyMedium.copyWith(
                               color: _getGenerationTypeColor(
                                 report.generatedBy,
                               ),
@@ -133,7 +133,7 @@ class ReportCardWidget extends StatelessWidget {
                 // File info
                 Text(
                   '${context.l10n.tbl_file}: ${_getFileName(context, report.file)}',
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.neutral60,
                   ),
                   maxLines: 2,
@@ -154,7 +154,7 @@ class ReportCardWidget extends StatelessWidget {
                       Gap.w4,
                       Text(
                         '${context.l10n.tbl_on} ${_formatDate(context, report.createdAt!)}',
-                        style: BaseTypography.bodySmall.copyWith(
+                        style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.neutral60,
                         ),
                       ),

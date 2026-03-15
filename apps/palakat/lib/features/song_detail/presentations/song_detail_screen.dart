@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/song_book/presentations/song_book_motion_widget.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +18,10 @@ class SongDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final state = ref.watch(songDetailControllerProvider(song));
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final reduceMotion =
+        (mediaQuery?.disableAnimations ?? false) ||
+        (mediaQuery?.accessibleNavigation ?? false);
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -24,126 +29,197 @@ class SongDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.primary(
-            title: song.title,
-            subTitle: song.subTitle,
-            leadIcon: AppIcons.back,
-            leadIconColor: BaseColor.black,
-            onPressedLeadIcon: () => Navigator.pop(context),
+          SongBookReveal(
+            child: ScreenTitleWidget.primary(
+              title: song.title,
+              subTitle: song.subTitle,
+              leadIcon: AppIcons.back,
+              leadIconColor: BaseColor.black,
+              onPressedLeadIcon: () => Navigator.pop(context),
+            ),
           ),
           Gap.h16,
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              child: state.when(
-                data: (songParts) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ...songParts.map(
-                      (songPart) => Padding(
-                        padding: EdgeInsets.only(bottom: BaseSize.h20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              _formatSongPartType(songPart.type),
-                              style: BaseTypography.bodySmall.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: BaseColor.neutral60,
-                              ),
+              child: AnimatedSwitcher(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 240),
+                reverseDuration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                transitionBuilder: (child, animation) {
+                  if (reduceMotion) {
+                    return child;
+                  }
+
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.03),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOutCubic,
                             ),
-                            Gap.h8,
-                            SelectableText(
-                              songPart.content,
-                              style: BaseTypography.bodyMedium.copyWith(
-                                color: BaseColor.black,
-                                height: 1.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                          ),
+                      child: child,
                     ),
-                    if (song.urlImage.isNotEmpty) ...[
-                      Material(
-                        color: BaseColor.cardBackground1,
-                        elevation: 1,
-                        shadowColor: Colors.black.withValues(alpha: 0.05),
-                        surfaceTintColor: BaseColor.primary[50],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: ImageNetworkWidget(
-                          imageUrl: song.urlImage,
-                          height: BaseSize.customHeight(300),
-                        ),
-                      ),
-                      Gap.h16,
-                    ],
-                    _SongInfoCard(song: song),
-                    Gap.h24,
-                  ],
-                ),
-                loading: () => LoadingShimmer(
-                  isLoading: true,
-                  child: Column(
-                    children: [
-                      PalakatShimmerPlaceholders.infoCard(),
-                      Gap.h12,
-                      PalakatShimmerPlaceholders.infoCard(),
-                      Gap.h12,
-                      PalakatShimmerPlaceholders.infoCard(),
-                    ],
-                  ),
-                ),
-                error: (err, stack) => Center(
-                  child: Material(
-                    color: BaseColor.cardBackground1,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                      side: BorderSide(color: BaseColor.neutral20, width: 1),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(BaseSize.w24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: BaseSize.w56,
-                            height: BaseSize.w56,
-                            decoration: BoxDecoration(
-                              color: BaseColor.red[50],
-                              borderRadius: BorderRadius.circular(
-                                BaseSize.radiusLg,
+                  );
+                },
+                child: state.when(
+                  data: (songParts) => KeyedSubtree(
+                    key: const ValueKey('song-detail-data'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ...songParts.asMap().entries.map(
+                          (entry) => SongBookReveal(
+                            key: ValueKey(
+                              'song-part-${entry.value.type.name}-${entry.key}',
+                            ),
+                            delay: Duration(
+                              milliseconds: 40 + (entry.key * 28),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.only(bottom: BaseSize.h20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    _formatSongPartType(entry.value.type),
+                                    style: BaseTypography.labelLarge.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: BaseColor.neutral60,
+                                    ),
+                                  ),
+                                  Gap.h8,
+                                  SelectableText(
+                                    entry.value.content,
+                                    style: BaseTypography.bodyMedium.copyWith(
+                                      color: BaseColor.black,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              AppIcons.error,
-                              size: BaseSize.w28,
-                              color: BaseColor.red[700],
+                          ),
+                        ),
+                        if (song.urlImage.isNotEmpty) ...[
+                          SongBookReveal(
+                            delay: Duration(
+                              milliseconds: 60 + (songParts.length * 28),
+                            ),
+                            child: Material(
+                              color: BaseColor.cardBackground1,
+                              elevation: 1,
+                              shadowColor: Colors.black.withValues(alpha: 0.05),
+                              surfaceTintColor: BaseColor.primary[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  BaseSize.radiusMd,
+                                ),
+                              ),
+                              clipBehavior: Clip.hardEdge,
+                              child: ImageNetworkWidget(
+                                imageUrl: song.urlImage,
+                                height: BaseSize.customHeight(300),
+                              ),
                             ),
                           ),
-                          Gap.h12,
-                          Text(
-                            l10n.songDetail_errorLoadingSong,
-                            textAlign: TextAlign.center,
-                            style: BaseTypography.titleMedium.copyWith(
-                              color: BaseColor.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Gap.h4,
-                          Text(
-                            err.toString(),
-                            textAlign: TextAlign.center,
-                            style: BaseTypography.bodyMedium.copyWith(
-                              color: BaseColor.secondaryText,
-                            ),
-                          ),
+                          Gap.h16,
                         ],
+                        SongBookReveal(
+                          delay: Duration(
+                            milliseconds: 90 + (songParts.length * 28),
+                          ),
+                          child: _SongInfoCard(song: song),
+                        ),
+                        Gap.h24,
+                      ],
+                    ),
+                  ),
+                  loading: () => KeyedSubtree(
+                    key: const ValueKey('song-detail-loading'),
+                    child: LoadingShimmer(
+                      isLoading: true,
+                      child: Column(
+                        children: [
+                          PalakatShimmerPlaceholders.infoCard(),
+                          Gap.h12,
+                          PalakatShimmerPlaceholders.infoCard(),
+                          Gap.h12,
+                          PalakatShimmerPlaceholders.infoCard(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  error: (err, stack) => KeyedSubtree(
+                    key: const ValueKey('song-detail-error'),
+                    child: SongBookAnimatedPresence(
+                      visible: true,
+                      child: Center(
+                        child: Material(
+                          color: BaseColor.cardBackground1,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusLg,
+                            ),
+                            side: BorderSide(
+                              color: BaseColor.neutral20,
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(BaseSize.w24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: BaseSize.w56,
+                                  height: BaseSize.w56,
+                                  decoration: BoxDecoration(
+                                    color: BaseColor.red[50],
+                                    borderRadius: BorderRadius.circular(
+                                      BaseSize.radiusLg,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    AppIcons.error,
+                                    size: BaseSize.w28,
+                                    color: BaseColor.red[700],
+                                  ),
+                                ),
+                                Gap.h12,
+                                Text(
+                                  l10n.songDetail_errorLoadingSong,
+                                  textAlign: TextAlign.center,
+                                  style: BaseTypography.titleMedium.copyWith(
+                                    color: BaseColor.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Gap.h4,
+                                Text(
+                                  err.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: BaseTypography.bodyMedium.copyWith(
+                                    color: BaseColor.secondaryText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -209,7 +285,7 @@ class _SongInfoCard extends StatelessWidget {
             Gap.h4,
             Text(
               l10n.lbl_hashId(song.id),
-              style: BaseTypography.bodySmall.copyWith(
+              style: BaseTypography.bodyMedium.copyWith(
                 color: BaseColor.secondaryText,
               ),
             ),
@@ -266,7 +342,7 @@ class _SongInfoCard extends StatelessWidget {
                         ),
                         child: Text(
                           l10n.songDetail_openVideo,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
@@ -298,13 +374,13 @@ class _InfoRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BaseTypography.bodySmall.copyWith(color: BaseColor.neutral60),
+          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.neutral60),
         ),
         Gap.w16,
         Flexible(
           child: Text(
             value,
-            style: BaseTypography.bodySmall.copyWith(
+            style: BaseTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.right,

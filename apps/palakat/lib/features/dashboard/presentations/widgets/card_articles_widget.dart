@@ -30,7 +30,7 @@ class CardArticlesWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(title, style: BaseTypography.bodySmall),
+            Text(title, style: BaseTypography.bodyMedium),
             Gap.h6,
             Wrap(
               runSpacing: BaseSize.h6,

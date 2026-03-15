@@ -55,18 +55,30 @@ class CompactStatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        const iconSize = 14.0;
+        final horizontalPadding =
+            constraints.maxWidth.isFinite && constraints.maxWidth < 110 ? 6.0 : 8.0;
+        final spacing =
+            constraints.maxWidth.isFinite && constraints.maxWidth < 110 ? 4.0 : 6.0;
+        final minLabelWidth = 52.0;
         final iconOnly =
             constraints.maxWidth.isFinite &&
             constraints.maxWidth > 0 &&
-            constraints.maxWidth < 80;
+            constraints.maxWidth <
+                (iconSize + spacing + (horizontalPadding * 2) + minLabelWidth);
 
         final double maxLabelWidth = constraints.maxWidth.isFinite
-            ? (constraints.maxWidth - (14 + 6 + 16)).clamp(0, 140).toDouble()
+            ? (constraints.maxWidth -
+                      iconSize -
+                      (iconOnly ? 0 : spacing) -
+                      (horizontalPadding * 2))
+                  .clamp(0, 140)
+                  .toDouble()
             : 140.0;
 
         return Container(
           padding: EdgeInsets.symmetric(
-            horizontal: iconOnly ? 6 : 8,
+            horizontal: horizontalPadding,
             vertical: 4,
           ),
           decoration: BoxDecoration(
@@ -77,19 +89,21 @@ class CompactStatusChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: foreground, size: 14),
+              Icon(icon, color: foreground, size: iconSize),
               if (!iconOnly) ...[
-                const SizedBox(width: 6),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxLabelWidth),
-                  child: Text(
-                    label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: foreground,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
+                SizedBox(width: spacing),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxLabelWidth),
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: foreground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),

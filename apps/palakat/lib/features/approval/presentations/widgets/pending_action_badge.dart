@@ -53,7 +53,7 @@ class PendingActionBadge extends StatelessWidget {
                     Gap.h4,
                     Text(
                       l10n.approval_allCaughtUpSubtitle,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.bodyMedium.copyWith(
                         color: BaseColor.green.shade600,
                       ),
                     ),
@@ -116,7 +116,7 @@ class PendingActionBadge extends StatelessWidget {
                 Gap.h4,
                 Text(
                   l10n.approval_pendingReviewCount(count),
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),

@@ -179,16 +179,12 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       _loaded = update;
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.msg_updated)));
+        AppSnackbars.showSuccess(context, message: context.l10n.msg_updated);
         setState(() {});
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -211,7 +207,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(l10n.btn_cancel),
             ),
-            FilledButton(
+            FilledButton.tonal(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(l10n.btn_delete),
             ),
@@ -227,9 +223,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       final repo = ref.read(churchesRepositoryProvider);
       await repo.deleteChurch(id);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.msg_deleted)));
+        AppSnackbars.showSuccess(context, message: l10n.msg_deleted);
         context.go('/churches');
       }
     } finally {
@@ -287,11 +281,8 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
               runSpacing: 8,
               children: [
                 if (!isNew)
-                  OutlinedButton(
+                  FilledButton.tonal(
                     onPressed: _loading ? null : _deleteChurch,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: theme.colorScheme.error,
-                    ),
                     child: Text(l10n.btn_delete),
                   ),
                 FilledButton(

@@ -1,13 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Column;
+import 'package:flutter/material.dart' as material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/constants.dart';
-import 'package:palakat_admin/extensions.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart';
 import 'package:palakat_admin/features/report/report.dart';
 import 'package:palakat_admin/core/utils/download_url.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -119,7 +115,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
     return Material(
       child: SingleChildScrollView(
-        child: Column(
+        child: material.Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -191,7 +187,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             SurfaceCard(
               title: l10n.card_reportHistory_title,
               // subtitle: 'View and manage previously generated reports.',
-              child: Column(
+              child: material.Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AppTable<Report>(
@@ -323,7 +319,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
               (report.file.path != null
                   ? report.file.path!.split('/').last
                   : ctx.l10n.lbl_na);
-          return Column(
+          return material.Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -480,7 +476,7 @@ class _GenerateCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
+            child: material.Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -534,20 +530,20 @@ class _PendingJobsSection extends StatelessWidget {
 
     return SurfaceCard(
       title: l10n.card_pendingJobs_title,
-      child: Column(
+      child: material.Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (isLoading && jobs.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(24.0),
-                child: CircularProgressIndicator(),
+                child: AppLoadingWidget(),
               ),
             )
           else if (error != null && jobs.isEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: material.Column(
                 children: [
                   Text(
                     error!,
@@ -609,20 +605,13 @@ class _PendingJobCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: statusInfo.isAnimated
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: statusInfo.iconColor,
-                    ),
-                  )
+                ? CompactLoadingWidget(size: 20)
                 : Icon(statusInfo.icon, color: statusInfo.iconColor, size: 20),
           ),
           const SizedBox(width: 12),
           // Job details
           Expanded(
-            child: Column(
+            child: material.Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [

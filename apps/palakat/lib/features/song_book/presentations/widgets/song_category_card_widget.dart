@@ -174,52 +174,12 @@ class _CategoryHeader extends StatelessWidget {
         highlightColor: BaseColor.primary.withValues(alpha: 0.05),
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w16),
-          child: Row(
-            children: [
-              // Category icon
-              Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BaseSize.w12),
-                ),
-                child: FaIcon(
-                  category.icon,
-                  color: BaseColor.primary,
-                  size: BaseSize.w24,
-                ),
-              ),
-              Gap.w12,
-              // Category title and abbreviation
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      category.abbreviation,
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: BaseColor.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      category.title,
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: BaseColor.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              // Song count badge
-              Container(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final shouldStackTrailing =
+                  constraints.maxWidth < 360 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.1;
+              final countBadge = Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: BaseSize.w8,
                   vertical: BaseSize.w4,
@@ -230,15 +190,13 @@ class _CategoryHeader extends StatelessWidget {
                 ),
                 child: Text(
                   '$songCount',
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.labelMedium.copyWith(
                     color: BaseColor.primary[700],
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              // Expand/collapse icon with animation
-              Gap.w8,
-              AnimatedRotation(
+              );
+              final chevron = AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: FaIcon(
@@ -246,8 +204,66 @@ class _CategoryHeader extends StatelessWidget {
                   color: BaseColor.primary,
                   size: BaseSize.w24,
                 ),
-              ),
-            ],
+              );
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: BaseSize.w40,
+                    height: BaseSize.w40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: BaseColor.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(BaseSize.w12),
+                    ),
+                    child: FaIcon(
+                      category.icon,
+                      color: BaseColor.primary,
+                      size: BaseSize.w24,
+                    ),
+                  ),
+                  Gap.w12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          category.abbreviation,
+                          style: BaseTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: BaseColor.textPrimary,
+                          ),
+                          maxLines: shouldStackTrailing ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          category.title,
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: BaseColor.textSecondary,
+                          ),
+                          maxLines: shouldStackTrailing ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Gap.w8,
+                  if (shouldStackTrailing)
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [countBadge, Gap.h6, chevron],
+                    )
+                  else ...[
+                    countBadge,
+                    Gap.w8,
+                    chevron,
+                  ],
+                ],
+              );
+            },
           ),
         ),
       ),

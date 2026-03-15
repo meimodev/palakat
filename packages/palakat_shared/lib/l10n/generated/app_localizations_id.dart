@@ -566,7 +566,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_emptySubtitle => 'Coba sesuaikan filter Anda';
 
   @override
-  String get approval_errorTitle => 'Terjadi kesalahan';
+  String get approval_errorTitle => 'Gagal memuat persetujuan';
 
   @override
   String get approval_confirmApproveTitle => 'Setujui Kegiatan?';
@@ -800,7 +800,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get btn_signOutMessage =>
-      'Apakah Anda yakin ingin keluar? Anda perlu masuk kembali untuk mengakses akun Anda.';
+      'Keluar dari akun Anda? Anda harus masuk kembali untuk mengaksesnya.';
 
   @override
   String get btn_resendCode => 'Kirim Ulang Kode';
@@ -2699,7 +2699,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get dlg_signOut_title => 'Keluar';
 
   @override
-  String get dlg_signOut_content => 'Apakah Anda yakin ingin keluar?';
+  String get dlg_signOut_content => 'Keluar dari akun Anda?';
 
   @override
   String get dlg_recordPayment_title => 'Catat Pembayaran';
@@ -3050,7 +3050,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get unauthorized_signInRequired_message =>
-      'Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.';
+      'Anda perlu masuk untuk mengakses fitur ini.';
 
   @override
   String get msg_insufficientPermissions => 'Izin tidak mencukupi';

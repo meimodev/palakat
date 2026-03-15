@@ -85,6 +85,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     });
 
     final theme = Theme.of(context);
+    final compactSignIn = MediaQuery.of(context).size.width < 360;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -95,8 +96,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               clipBehavior: Clip.antiAlias,
               elevation: 2,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
+                padding: EdgeInsets.symmetric(
+                  horizontal: compactSignIn ? 20 : 28,
                   vertical: 24,
                 ),
                 child: Form(
@@ -136,14 +137,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Identifier
                       TextFormField(
                         controller: _identifierCtrl,
                         decoration: InputDecoration(
                           labelText:
                               '${context.l10n.lbl_email} / ${context.l10n.lbl_phone}',
                           hintText: context.l10n.hint_signInCredentials,
-                          border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.emailAddress,
@@ -153,12 +152,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         ],
                         onChanged: (value) {
                           if (_isFormatting) return;
-                          // If it contains letters (likely email or mixed), don't format
                           if (value.contains('@') ||
                               RegExp(r'[A-Za-z]').hasMatch(value)) {
                             return;
                           }
-                          // Strip all non-digits and limit to 13 (no country code)
                           final digits = _normalizePhoneDigits(value);
                           final limited = digits.length > 13
                               ? digits.substring(0, 13)
@@ -181,13 +178,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Password
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscure,
                         decoration: InputDecoration(
                           labelText: context.l10n.lbl_password,
-                          border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscure
@@ -212,13 +207,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         child: FilledButton(
                           onPressed: isLoading ? null : _submit,
                           child: isLoading
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
+                              ? const CompactLoadingWidget(size: 22)
                               : Text(context.l10n.btn_signIn),
                         ),
                       ),

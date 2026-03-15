@@ -92,7 +92,7 @@ class ApproverStatusBadge extends StatelessWidget {
     final color = getStatusColor(status);
     final icon = getStatusIcon(status);
     final label = getStatusLabelLocalized(context, status);
-    final size = iconSize ?? BaseSize.w20;
+    final size = iconSize ?? BaseSize.w22;
 
     if (!showLabel) {
       return FaIcon(icon, size: size, color: color);
@@ -102,10 +102,10 @@ class ApproverStatusBadge extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         FaIcon(icon, size: size, color: color),
-        Gap.w4,
+        Gap.w6,
         Text(
           label,
-          style: BaseTypography.bodySmall.copyWith(
+          style: BaseTypography.labelMedium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),

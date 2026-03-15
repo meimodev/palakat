@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Column;
+import 'package:flutter/material.dart' as material;
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class FinancialAccountEditDrawer extends StatefulWidget {
@@ -68,17 +69,17 @@ class _FinancialAccountEditDrawerState
       if (mounted) {
         final l10n = context.l10n;
         widget.onClose();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isEditMode ? l10n.msg_updated : l10n.msg_created),
-          ),
+        AppSnackbars.showSuccess(
+          context,
+          message: isEditMode ? l10n.msg_updated : l10n.msg_created,
         );
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.churchRequest_errorWithDetail('$e'))),
+        AppSnackbars.showError(
+          context,
+          message: l10n.churchRequest_errorWithDetail('$e'),
         );
       }
     } finally {
@@ -103,7 +104,7 @@ class _FinancialAccountEditDrawerState
       onClose: widget.onClose,
       content: Form(
         key: _formKey,
-        child: Column(
+        child: material.Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Account Number Field
@@ -118,7 +119,6 @@ class _FinancialAccountEditDrawerState
               controller: _accountNumberController,
               decoration: InputDecoration(
                 hintText: l10n.hint_enterAccountNumber,
-                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -168,41 +168,41 @@ class _FinancialAccountEditDrawerState
             const SizedBox(height: 8),
             TextFormField(
               controller: _descriptionController,
-              decoration: InputDecoration(
-                hintText: l10n.hint_enterDescription,
-                border: const OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(hintText: l10n.hint_enterDescription),
               maxLines: 3,
               textInputAction: TextInputAction.done,
             ),
           ],
         ),
       ),
-      footer: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: _isLoading ? null : widget.onClose,
-              child: Text(l10n.btn_cancel),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: _isLoading ? null : _handleSave,
-              child: _isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    )
-                  : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
-            ),
-          ),
-        ],
+      footer: LayoutBuilder(
+        builder: (context, constraints) {
+          final cancelButton = OutlinedButton(
+            onPressed: _isLoading ? null : widget.onClose,
+            child: Text(l10n.btn_cancel),
+          );
+          final saveButton = FilledButton(
+            onPressed: _isLoading ? null : _handleSave,
+            child: _isLoading
+                ? const CompactLoadingWidget(size: 20)
+                : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
+          );
+
+          if (constraints.maxWidth < 420) {
+            return material.Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [cancelButton, const SizedBox(height: 12), saveButton],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: cancelButton),
+              const SizedBox(width: 12),
+              Expanded(child: saveButton),
+            ],
+          );
+        },
       ),
     );
   }

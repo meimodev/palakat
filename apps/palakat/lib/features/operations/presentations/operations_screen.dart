@@ -6,6 +6,7 @@ import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat/features/operations/presentations/widgets/widgets.dart';
 import 'package:palakat/features/report/presentations/report_generate/report_generate_controller.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
@@ -57,7 +58,9 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ScreenTitleWidget.titleOnly(title: l10n.operations_title),
+            OperationsReveal(
+              child: ScreenTitleWidget.titleOnly(title: l10n.operations_title),
+            ),
             Gap.h16,
             LoadingWrapper(
               loading: state.loadingScreen,
@@ -93,39 +96,24 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     // Empty state when no operations available (Requirement 2.5)
     if (state.membership == null ||
         state.membership!.membershipPositions.isEmpty) {
-      return _EmptyStateWidget();
+      return OperationsAnimatedPresence(
+        visible: true,
+        child: _EmptyStateWidget(),
+      );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PositionSummaryCard(
-          membership: state.membership!,
-          accountName: state.accountName ?? l10n.admin_member_title,
-          onTap: () => _handleMembershipTap(context, state.membership!),
+        OperationsReveal(
+          delay: const Duration(milliseconds: 40),
+          child: PositionSummaryCard(
+            membership: state.membership!,
+            accountName: state.accountName ?? l10n.admin_member_title,
+            onTap: () => _handleMembershipTap(context, state.membership!),
+          ),
         ),
         Gap.h16,
-        SupervisedActivitiesSection(
-          activities: state.supervisedActivities,
-          isLoading: state.loadingSupervisedActivities,
-          error: state.supervisedActivitiesError,
-          isExpanded: state.supervisedActivitiesExpanded,
-          onExpansionChanged: () =>
-              controller.toggleSupervisedActivitiesExpansion(),
-          onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
-          onActivityTap: (activity) => _handleActivityTap(context, activity),
-          onRetry: () => controller.fetchSupervisedActivities(),
-        ),
-        // Add spacing only if section is visible
-        if (state.supervisedActivities.isNotEmpty ||
-            state.loadingSupervisedActivities ||
-            state.supervisedActivitiesError != null) ...[
-          Gap.h8,
-          Divider(),
-          Gap.h8,
-        ],
-
-        // Category-based operation list (Requirement 2.2)
         _OperationCategoryList(
           categories: state.categories,
           onExpansionChanged: (categoryId, isExpanded) {
@@ -144,6 +132,28 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           pendingReportJobs: state.pendingReportJobs,
           isLoadingPendingReportJobs: state.loadingPendingReportJobs,
         ),
+        if (state.supervisedActivities.isNotEmpty ||
+            state.loadingSupervisedActivities ||
+            state.supervisedActivitiesError != null) ...[
+          Gap.h16,
+          OperationsReveal(
+            delay: Duration(
+              milliseconds: 80 + (((state.categories as List).length) * 40),
+            ),
+            child: SupervisedActivitiesSection(
+              activities: state.supervisedActivities,
+              isLoading: state.loadingSupervisedActivities,
+              error: state.supervisedActivitiesError,
+              isExpanded: state.supervisedActivitiesExpanded,
+              onExpansionChanged: () =>
+                  controller.toggleSupervisedActivitiesExpansion(),
+              onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
+              onActivityTap: (activity) =>
+                  _handleActivityTap(context, activity),
+              onRetry: () => controller.fetchSupervisedActivities(),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -374,24 +384,30 @@ class _OperationCategoryList extends StatelessWidget {
       itemBuilder: (context, index) {
         final category = categories[index];
         final isReportsCategory = category.id == 'reports';
-        return OperationCategoryCard(
-          category: category,
-          onExpansionChanged: (isExpanded) {
-            onExpansionChanged(category.id, isExpanded);
-          },
-          onOperationTap: onOperationTap,
-          recentReports: isReportsCategory ? recentReports : null,
-          isLoadingRecentReports: isReportsCategory
-              ? isLoadingRecentReports
-              : false,
-          recentReportsError: isReportsCategory ? recentReportsError : null,
-          onReportDownloadTap: isReportsCategory ? onReportDownloadTap : null,
-          onReportViewTap: isReportsCategory ? onReportViewTap : null,
-          onRecentReportsRetry: isReportsCategory ? onRecentReportsRetry : null,
-          pendingReportJobs: isReportsCategory ? pendingReportJobs : null,
-          isLoadingPendingReportJobs: isReportsCategory
-              ? isLoadingPendingReportJobs
-              : false,
+        return OperationsReveal(
+          key: ValueKey('operations-category-${category.id}'),
+          delay: Duration(milliseconds: 70 + (index * 40)),
+          child: OperationCategoryCard(
+            category: category,
+            onExpansionChanged: (isExpanded) {
+              onExpansionChanged(category.id, isExpanded);
+            },
+            onOperationTap: onOperationTap,
+            recentReports: isReportsCategory ? recentReports : null,
+            isLoadingRecentReports: isReportsCategory
+                ? isLoadingRecentReports
+                : false,
+            recentReportsError: isReportsCategory ? recentReportsError : null,
+            onReportDownloadTap: isReportsCategory ? onReportDownloadTap : null,
+            onReportViewTap: isReportsCategory ? onReportViewTap : null,
+            onRecentReportsRetry: isReportsCategory
+                ? onRecentReportsRetry
+                : null,
+            pendingReportJobs: isReportsCategory ? pendingReportJobs : null,
+            isLoadingPendingReportJobs: isReportsCategory
+                ? isLoadingPendingReportJobs
+                : false,
+          ),
         );
       },
     );

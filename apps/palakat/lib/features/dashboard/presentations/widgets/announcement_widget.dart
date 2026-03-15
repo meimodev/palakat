@@ -39,17 +39,19 @@ class AnnouncementWidget extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SegmentTitleWidget(
-          onPressedViewAll: onPressedViewAll,
-          count: announcements.length,
-          title: context.l10n.activityType_announcement,
-          titleStyle: BaseTypography.titleMedium.copyWith(
-            fontWeight: FontWeight.w700,
-            color: BaseColor.black,
+        DashboardReveal(
+          child: SegmentTitleWidget(
+            onPressedViewAll: onPressedViewAll,
+            count: announcements.length,
+            title: context.l10n.activityType_announcement,
+            titleStyle: BaseTypography.titleMedium.copyWith(
+              fontWeight: FontWeight.w700,
+              color: BaseColor.black,
+            ),
+            leadingIcon: AppIcons.announcement,
+            leadingBg: BaseColor.yellow[50],
+            leadingFg: BaseColor.yellow[700],
           ),
-          leadingIcon: AppIcons.announcement,
-          leadingBg: BaseColor.yellow[50],
-          leadingFg: BaseColor.yellow[700],
         ),
         Gap.h12,
         if (announcements.isEmpty)
@@ -64,33 +66,41 @@ class AnnouncementWidget extends ConsumerWidget {
             itemBuilder: (context, index) {
               final announcement = announcements[index];
               final fileId = announcement.fileId;
-              return CardAnnouncementWidget(
-                title: announcement.title,
-                publishedOn: announcement.date,
-                onPressedCard: () {
-                  context.pushNamed(
-                    AppRoute.activityDetail,
-                    pathParameters: {'activityId': announcement.id.toString()},
-                  );
-                },
-                onPressedDownload: fileId == null
-                    ? null
-                    : () async {
-                        final repo = ref.read(fileManagerRepositoryProvider);
-                        final result = await repo.resolveDownloadUrl(
-                          fileId: fileId,
-                        );
-                        result.when(
-                          onSuccess: (url) => _openUrl(url),
-                          onFailure: (failure) {
-                            final msg = failure.message.trim();
-                            if (msg.isEmpty) return;
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(msg)));
-                          },
-                        );
+              return DashboardReveal(
+                key: ValueKey(
+                  'dashboard-announcement-${announcement.id ?? index}',
+                ),
+                delay: Duration(milliseconds: 50 + (index * 35)),
+                child: CardAnnouncementWidget(
+                  title: announcement.title,
+                  publishedOn: announcement.date,
+                  onPressedCard: () {
+                    context.pushNamed(
+                      AppRoute.activityDetail,
+                      pathParameters: {
+                        'activityId': announcement.id.toString(),
                       },
+                    );
+                  },
+                  onPressedDownload: fileId == null
+                      ? null
+                      : () async {
+                          final repo = ref.read(fileManagerRepositoryProvider);
+                          final result = await repo.resolveDownloadUrl(
+                            fileId: fileId,
+                          );
+                          result.when(
+                            onSuccess: (url) => _openUrl(url),
+                            onFailure: (failure) {
+                              final msg = failure.message.trim();
+                              if (msg.isEmpty) return;
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(msg)));
+                            },
+                          );
+                        },
+                ),
               );
             },
           ),

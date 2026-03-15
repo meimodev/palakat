@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/extension/extension.dart';
 
@@ -201,16 +202,24 @@ class _MapScreenState extends State<MapScreen> {
           _buildMap(),
 
           // Top bar with back button and title
-          _buildTopBar(),
+          OperationsReveal(child: _buildTopBar()),
 
           // Center pin marker
           if (_isPinPointMode) _buildCenterPin(),
 
           // Bottom location card
-          if (_isPinPointMode) _buildBottomCard(),
+          if (_isPinPointMode)
+            OperationsReveal(
+              delay: const Duration(milliseconds: 80),
+              child: _buildBottomCard(),
+            ),
 
           // Map controls (zoom, my location)
-          if (_isPinPointMode) _buildMapControls(),
+          if (_isPinPointMode)
+            OperationsReveal(
+              delay: const Duration(milliseconds: 40),
+              child: _buildMapControls(),
+            ),
         ],
       ),
     );
@@ -431,7 +440,7 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             Text(
                               l10n.publish_locationSelected,
-                              style: BaseTypography.labelSmall.copyWith(
+                              style: BaseTypography.labelMedium.copyWith(
                                 color: BaseColor.neutral60,
                               ),
                             ),

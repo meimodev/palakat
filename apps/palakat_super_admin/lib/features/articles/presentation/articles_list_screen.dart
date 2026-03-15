@@ -59,14 +59,14 @@ Widget _articleTypeChip(BuildContext context, String type) {
 String _articleStatusLabel(BuildContext context, String status) {
   final l10n = context.l10n;
   switch (status.trim().toUpperCase()) {
-  case 'DRAFT':
-  return l10n.status_draft;
-  case 'PUBLISHED':
-  return l10n.status_published;
-  case 'ARCHIVED':
-  return l10n.status_archived;
-  default:
-  return status;
+    case 'DRAFT':
+      return l10n.status_draft;
+    case 'PUBLISHED':
+      return l10n.status_published;
+    case 'ARCHIVED':
+      return l10n.status_archived;
+    default:
+      return status;
   }
 }
 
@@ -91,14 +91,10 @@ class ArticlesListScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         SurfaceCard(
           title: l10n.articles_title,
-          trailing: ElevatedButton.icon(
+          trailing: FilledButton.icon(
             onPressed: () => context.go('/articles/new'),
             icon: const Icon(Icons.add),
             label: Text(l10n.btn_add),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
           ),
           child: AppTable<ArticleModel>(
             loading: asyncItems.isLoading,

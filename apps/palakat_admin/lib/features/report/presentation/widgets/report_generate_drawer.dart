@@ -150,15 +150,13 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-
           if (showColumnDropdown) ...[
             LabeledField(
               label: l10n.lbl_selectColumn,
               child: DropdownButtonFormField<cm.Column?>(
                 value: _selectedColumn,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -193,7 +191,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<DocumentInput>(
                 value: _documentInput,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -225,7 +223,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<CongregationReportSubtype>(
                 value: _congregationSubtype,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -260,14 +258,13 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             const SizedBox(height: 16),
           ],
 
-
           if (showActivityType) ...[
             LabeledField(
               label: l10n.lbl_activityType,
               child: DropdownButtonFormField<ActivityType?>(
                 value: _activityType,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -300,7 +297,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<FinancialReportSubtype>(
                 value: _financialSubtype,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -412,7 +409,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             child: DropdownButtonFormField<ReportFormat>(
               value: _format,
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+                
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
@@ -441,47 +438,14 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
 
           const SizedBox(height: 24),
 
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.msg_reportGenerationMayTakeAWhile,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          InfoBoxWidget(message: l10n.msg_reportGenerationMayTakeAWhile),
         ],
       ),
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButton.icon(
+          FilledButton.icon(
             onPressed: _generateReport,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
             icon: const Icon(Icons.assessment),
             label: Text(l10n.btn_generateReport),
           ),

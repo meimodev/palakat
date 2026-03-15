@@ -22,21 +22,24 @@ class BaseSize {
   static final w32 = 32.0.w;
   static final w36 = 36.0.w;
   static final w40 = 40.0.w;
+  static final w44 = 44.0.w;
   static final w48 = 48.0.w;
   static final w52 = 52.0.w;
   static final w56 = 56.0.w;
   static final w64 = 64.0.w;
   static final w72 = 72.0.w;
   static final w80 = 80.0.w;
+  static final w84 = 84.0.w;
   static final w96 = 96.0.w;
   static final w6 = 6.0.w;
   static var w3 = 3.0.w;
 
-
   // [INFO]
   // Sizes that related with height
+  static final h2 = 2.0.h;
   static final h4 = 4.0.h;
   static final h8 = 8.0.h;
+  static final h10 = 10.0.h;
   static final h12 = 12.0.h;
   static final h16 = 16.0.h;
   static final h18 = 18.0.h;
@@ -55,18 +58,12 @@ class BaseSize {
   static final h96 = 96.0.h;
   static final h6 = 6.0.h;
 
-
   // [INFO]
   // Sizes that related with radius
   static final radiusSm = 6.r;
   static final radiusMd = 12.r;
   static final radiusLg = 24.r;
   static final radiusXl = 32.r;
-
-
-
-
-
 
   /// [INFO]
   /// Sizes for custom width or height outside the 8 pixel rules
@@ -86,6 +83,7 @@ class Gap {
   /// Gaps that related with width
   static final w4 = SizedBox(width: BaseSize.w4);
   static final w8 = SizedBox(width: BaseSize.w8);
+  static final w10 = SizedBox(width: BaseSize.w10);
   static final w12 = SizedBox(width: BaseSize.w12);
   static final w16 = SizedBox(width: BaseSize.w16);
   static final w20 = SizedBox(width: BaseSize.w20);
@@ -104,11 +102,12 @@ class Gap {
   static final w3 = SizedBox(width: BaseSize.w3);
   static final w6 = SizedBox(width: BaseSize.w6);
 
-
   /// [INFO]
   /// Gaps that related with height
+  static final h2 = SizedBox(height: BaseSize.h2);
   static final h4 = SizedBox(height: BaseSize.h4);
   static final h8 = SizedBox(height: BaseSize.h8);
+  static final h10 = SizedBox(height: BaseSize.h10);
   static final h12 = SizedBox(height: BaseSize.h12);
   static final h16 = SizedBox(height: BaseSize.h16);
   static final h20 = SizedBox(height: BaseSize.h20);
@@ -126,8 +125,6 @@ class Gap {
 
   static final h6 = SizedBox(height: BaseSize.h6);
 
-
-
   /// [INFO]
   /// Gaps for custom width or height outside the 8 pixel rules
   static SizedBox customGapWidth(double value) => SizedBox(width: value.w);
@@ -142,7 +139,4 @@ class Gap {
   }
 }
 
-
-final horizontalScreenPadding = EdgeInsets.symmetric(
-  horizontal: BaseSize.w12,
-);
+final horizontalScreenPadding = EdgeInsets.symmetric(horizontal: BaseSize.w12);

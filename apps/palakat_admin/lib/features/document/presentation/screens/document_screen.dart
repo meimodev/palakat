@@ -388,7 +388,7 @@ class _IdentityNumberEditDrawer extends StatefulWidget {
 
 class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
   late final TextEditingController _controller;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _errorMessage;
 
   @override
@@ -401,40 +401,6 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _handleSave() async {
-    final newTemplate = _controller.text.trim();
-    if (newTemplate.isEmpty) {
-      setState(() {
-        _errorMessage = context.l10n.validation_required;
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await widget.onSave(newTemplate);
-      // On success, schedule drawer close after any triggered rebuilds complete
-      // This avoids Navigator !_debugLocked assertion when onSave invalidates providers
-      if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          widget.onClose();
-        }
-      });
-    } catch (e) {
-      // On error, show inline error and keep drawer open
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.toString();
-      });
-    }
   }
 
   void _handleRetry() {

@@ -41,12 +41,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     Widget? footer,
     double width = 420,
   }) async {
+    final screenWidth = MediaQuery.of(context).size.width;
     DrawerUtils.showDrawer(
       context: context,
       drawer: SideDrawer(
         title: title,
         subtitle: subtitle,
-        width: width,
+        width: screenWidth < 520 ? screenWidth - 24 : width,
         onClose: () => DrawerUtils.closeDrawer(context),
         content: content,
         footer: footer,
@@ -130,10 +131,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 6),
           TextField(
             controller: nameCtrl,
-            decoration: InputDecoration(
-              hintText: l10n.hint_enterFullName,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(hintText: l10n.hint_enterFullName),
           ),
           const SizedBox(height: 16),
           Text(
@@ -147,7 +145,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             controller: phoneCtrl,
             decoration: InputDecoration(
               hintText: l10n.hint_enterYourPhoneNumber,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -158,10 +155,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          TextField(
-            controller: emailCtrl,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-          ),
+          TextField(controller: emailCtrl, decoration: const InputDecoration()),
           const SizedBox(height: 16),
           Text(
             l10n.lbl_positions,
@@ -173,103 +167,110 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: posCtrl,
             readOnly: true,
-            decoration: InputDecoration(
-              hintText: l10n.hint_enterYourPosition,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(hintText: l10n.hint_enterYourPosition),
           ),
         ],
       ),
       footer: ValueListenableBuilder<bool>(
         valueListenable: isSaving,
-        builder: (context, saving, _) => Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: saving ? null : _closeSideDrawer,
-                child: Text(l10n.btn_cancel),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        final accountId = currentAccount.id;
-                        if (accountId == null) {
-                          AppSnackbars.showError(
-                            this.context,
-                            title: l10n.err_error,
-                            message: l10n.msg_operationFailed,
-                          );
-                          return;
-                        }
-
-                        isSaving.value = true;
-                        final result = await ref
-                            .read(membershipRepositoryProvider)
-                            .updateAccount(
-                              accountId: accountId,
-                              update: {
-                                'name': nameCtrl.text.trim(),
-                                'phone': phoneCtrl.text.trim().isEmpty
-                                    ? null
-                                    : phoneCtrl.text.trim(),
-                                'email': emailCtrl.text.trim().isEmpty
-                                    ? null
-                                    : emailCtrl.text.trim(),
-                              },
-                            );
-
-                        if (!context.mounted) {
-                          return;
-                        }
-
-                        final currentContext = this.context;
-                        final currentL10n = currentContext.l10n;
-                        Account? updatedAccount;
-                        Failure? failure;
-                        result.when(
-                          onSuccess: (data) {
-                            updatedAccount = data;
-                            return null;
-                          },
-                          onFailure: (error) {
-                            failure = error;
-                          },
+        builder: (context, saving, _) => LayoutBuilder(
+          builder: (context, constraints) {
+            final cancelButton = OutlinedButton(
+              onPressed: saving ? null : _closeSideDrawer,
+              child: Text(l10n.btn_cancel),
+            );
+            final saveButton = FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final accountId = currentAccount.id;
+                      if (accountId == null) {
+                        AppSnackbars.showError(
+                          this.context,
+                          title: l10n.err_error,
+                          message: l10n.msg_operationFailed,
                         );
+                        return;
+                      }
 
-                        if (updatedAccount != null) {
-                          await ref
-                              .read(authControllerProvider.notifier)
-                              .updateCachedAccount(updatedAccount!);
-                          if (!mounted) {
-                            return;
-                          }
-                          _handleAccountUpdateSuccess(updatedAccount!);
-                        } else {
-                          AppSnackbars.showError(
-                            currentContext,
-                            title: currentL10n.err_error,
-                            message: failure?.message.isNotEmpty == true
-                                ? failure!.message
-                                : currentL10n.msg_operationFailed,
+                      isSaving.value = true;
+                      final result = await ref
+                          .read(membershipRepositoryProvider)
+                          .updateAccount(
+                            accountId: accountId,
+                            update: {
+                              'name': nameCtrl.text.trim(),
+                              'phone': phoneCtrl.text.trim().isEmpty
+                                  ? null
+                                  : phoneCtrl.text.trim(),
+                              'email': emailCtrl.text.trim().isEmpty
+                                  ? null
+                                  : emailCtrl.text.trim(),
+                            },
                           );
-                        }
 
-                        isSaving.value = false;
-                      },
-                child: saving
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.btn_saveChanges),
-              ),
-            ),
-          ],
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      final currentContext = this.context;
+                      final currentL10n = currentContext.l10n;
+                      Account? updatedAccount;
+                      Failure? failure;
+                      result.when(
+                        onSuccess: (data) {
+                          updatedAccount = data;
+                          return null;
+                        },
+                        onFailure: (error) {
+                          failure = error;
+                        },
+                      );
+
+                      if (updatedAccount != null) {
+                        await ref
+                            .read(authControllerProvider.notifier)
+                            .updateCachedAccount(updatedAccount!);
+                        if (!mounted) {
+                          return;
+                        }
+                        _handleAccountUpdateSuccess(updatedAccount!);
+                      } else {
+                        AppSnackbars.showError(
+                          currentContext,
+                          title: currentL10n.err_error,
+                          message: failure?.message.isNotEmpty == true
+                              ? failure!.message
+                              : currentL10n.msg_operationFailed,
+                        );
+                      }
+
+                      isSaving.value = false;
+                    },
+              child: saving
+                  ? const CompactLoadingWidget(size: 18)
+                  : Text(l10n.btn_saveChanges),
+            );
+
+            if (constraints.maxWidth < 420) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  cancelButton,
+                  const SizedBox(height: 12),
+                  saveButton,
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: cancelButton),
+                const SizedBox(width: 12),
+                Expanded(child: saveButton),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -301,7 +302,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             obscureText: true,
             decoration: InputDecoration(
               hintText: l10n.hint_enterCurrentPassword,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -315,10 +315,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: newCtrl,
             obscureText: true,
-            decoration: InputDecoration(
-              hintText: l10n.hint_enterNewPassword,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(hintText: l10n.hint_enterNewPassword),
           ),
           const SizedBox(height: 16),
           Text(
@@ -331,108 +328,100 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           TextField(
             controller: confirmCtrl,
             obscureText: true,
-            decoration: InputDecoration(
-              hintText: l10n.hint_reEnterNewPassword,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: InputDecoration(hintText: l10n.hint_reEnterNewPassword),
           ),
         ],
       ),
       footer: ValueListenableBuilder<bool>(
         valueListenable: isSaving,
-        builder: (context, saving, _) => Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: saving ? null : _closeSideDrawer,
-                child: Text(l10n.btn_cancel),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        final currentPass = currentCtrl.text;
-                        final newPass = newCtrl.text;
-                        final confirmPass = confirmCtrl.text;
+        builder: (context, saving, _) => LayoutBuilder(
+          builder: (context, constraints) {
+            final cancelButton = OutlinedButton(
+              onPressed: saving ? null : _closeSideDrawer,
+              child: Text(l10n.btn_cancel),
+            );
+            final submitButton = FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final currentPass = currentCtrl.text;
+                      final newPass = newCtrl.text;
+                      final confirmPass = confirmCtrl.text;
 
-                        if (currentPass.isEmpty) {
-                          AppSnackbars.showError(
-                            this.context,
-                            title: l10n.err_error,
-                            message: l10n.hint_enterCurrentPassword,
-                          );
-                          return;
-                        }
-                        if (newPass.length < 6) {
-                          AppSnackbars.showError(
-                            context,
-                            title: l10n.err_error,
-                            message: l10n.msg_invalidPassword,
-                          );
-                          return;
-                        }
-                        if (newPass != confirmPass) {
-                          AppSnackbars.showError(
-                            context,
-                            title: l10n.err_error,
-                            message: l10n.msg_passwordMismatch,
-                          );
-                          return;
-                        }
-
-                        isSaving.value = true;
-                        final result = await ref
-                            .read(authControllerProvider.notifier)
-                            .changePassword(
-                              currentPassword: currentPass,
-                              newPassword: newPass,
-                            );
-
-                        if (!context.mounted) {
-                          return;
-                        }
-
-                        final currentContext = this.context;
-                        final currentL10n = currentContext.l10n;
-                        Failure? failure;
-                        var success = false;
-                        result.when(
-                          onSuccess: (_) {
-                            success = true;
-                            return null;
-                          },
-                          onFailure: (error) {
-                            failure = error;
-                          },
+                      if (currentPass.isEmpty) {
+                        AppSnackbars.showError(
+                          this.context,
+                          title: l10n.err_error,
+                          message: l10n.hint_enterCurrentPassword,
                         );
+                        return;
+                      }
+                      if (newPass.length < 6) {
+                        AppSnackbars.showError(
+                          context,
+                          title: l10n.err_error,
+                          message: l10n.msg_invalidPassword,
+                        );
+                        return;
+                      }
+                      if (newPass != confirmPass) {
+                        AppSnackbars.showError(
+                          context,
+                          title: l10n.err_error,
+                          message: l10n.msg_passwordMismatch,
+                        );
+                        return;
+                      }
 
-                        if (success) {
-                          _handlePasswordChangeSuccess();
-                        } else {
-                          AppSnackbars.showError(
-                            currentContext,
-                            title: currentL10n.err_error,
-                            message: failure?.message.isNotEmpty == true
-                                ? failure!.message
-                                : currentL10n.msg_operationFailed,
+                      isSaving.value = true;
+                      final result = await ref
+                          .read(authControllerProvider.notifier)
+                          .changePassword(
+                            currentPassword: currentPass,
+                            newPassword: newPass,
                           );
-                        }
 
-                        isSaving.value = false;
-                      },
-                child: saving
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.btn_updatePassword),
-              ),
-            ),
-          ],
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      result.when(
+                        onSuccess: (_) => _handlePasswordChangeSuccess(),
+                        onFailure: (failure) {
+                          AppSnackbars.showError(
+                            context,
+                            title: l10n.err_error,
+                            message: failure.message,
+                          );
+                        },
+                      );
+
+                      isSaving.value = false;
+                    },
+              child: saving
+                  ? const CompactLoadingWidget(size: 18)
+                  : Text(l10n.btn_updatePassword),
+            );
+
+            if (constraints.maxWidth < 420) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  cancelButton,
+                  const SizedBox(height: 12),
+                  submitButton,
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: cancelButton),
+                const SizedBox(width: 12),
+                Expanded(child: submitButton),
+              ],
+            );
+          },
         ),
       ),
     );

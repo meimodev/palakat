@@ -322,7 +322,7 @@ class _AccountNumberCard extends StatelessWidget {
                       Gap.h4,
                       Text(
                         account.description!,
-                        style: BaseTypography.bodySmall.copyWith(
+                        style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.neutral60,
                         ),
                         maxLines: 2,

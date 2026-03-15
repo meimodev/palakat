@@ -19,32 +19,55 @@ class InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stackHeader =
+            constraints.maxWidth < 560 && (trailing != null || action != null);
+        final titleBlock = Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            Row(
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (action != null) ...[
-                  const SizedBox(width: 8),
-                  action!,
-                ],
-              ],
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            if (trailing != null) trailing!,
+            if (action != null) action!,
           ],
-        ),
-        SizedBox(height: titleSpacing),
-        ...children,
-      ],
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (stackHeader)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleBlock,
+                  if (trailing != null) ...[
+                    const SizedBox(height: 8),
+                    trailing!,
+                  ],
+                ],
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: titleBlock),
+                  if (trailing != null) ...[
+                    const SizedBox(width: 12),
+                    trailing!,
+                  ],
+                ],
+              ),
+            SizedBox(height: titleSpacing),
+            ...children,
+          ],
+        );
+      },
     );
   }
 }
@@ -53,7 +76,7 @@ class LabeledField extends StatelessWidget {
   final String? label;
   final Widget child;
 
-  const LabeledField({super.key,  this.label, required this.child});
+  const LabeledField({super.key, this.label, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -105,29 +128,43 @@ class InfoRow extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: contentPadding ?? const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment:
-            isMultiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: labelWidth,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = isMultiline || constraints.maxWidth < 560;
+          final resolvedLabelWidth = labelWidth
+              .clamp(96.0, constraints.maxWidth * 0.35)
+              .toDouble();
+          final labelWidget = Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
-          ),
-          SizedBox(width: spacing),
-          Expanded(
-            child: valueWidget ??
-                Text(
-                  value,
-                  style: valueStyle ?? theme.textTheme.bodyMedium,
-                ),
-          ),
-        ],
+          );
+          final resolvedValueWidget =
+              valueWidget ??
+              Text(value, style: valueStyle ?? theme.textTheme.bodyMedium);
+
+          if (stacked) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                labelWidget,
+                const SizedBox(height: 4),
+                resolvedValueWidget,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: resolvedLabelWidth, child: labelWidget),
+              SizedBox(width: spacing),
+              Expanded(child: resolvedValueWidget),
+            ],
+          );
+        },
       ),
     );
   }

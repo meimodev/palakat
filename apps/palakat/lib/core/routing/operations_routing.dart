@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
@@ -7,36 +8,146 @@ import 'package:palakat_shared/core/models/models.dart';
 final operationsRouting = GoRoute(
   path: '/operations',
   name: AppRoute.operations,
-  builder: (context, state) => const OperationsScreen(),
+  pageBuilder: (context, state) {
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final reduceMotion =
+        (mediaQuery?.disableAnimations ?? false) ||
+        (mediaQuery?.accessibleNavigation ?? false);
+
+    return CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: const OperationsScreen(),
+      transitionDuration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 260),
+      reverseTransitionDuration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        if (reduceMotion) {
+          return child;
+        }
+
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeOutCubic,
+        );
+
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.025),
+              end: Offset.zero,
+            ).animate(curvedAnimation),
+            child: child,
+          ),
+        );
+      },
+    );
+  },
   routes: [
     GoRoute(
       path: 'report-generate',
       name: AppRoute.reportGenerate,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.reportType] as ReportGenerateType?;
         final normalizedType = type == ReportGenerateType.outcomingDocument
             ? ReportGenerateType.incomingDocument
             : type;
-        return ReportGenerateScreen(initialReportType: normalizedType);
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: ReportGenerateScreen(initialReportType: normalizedType),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: 'activity-publish',
       name: AppRoute.activityPublish,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.activityType] as ActivityType?;
 
         assert(type != null, 'RouteParamKey.activityType cannot be null');
 
-        return ActivityPublishScreen(type: type!);
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: ActivityPublishScreen(type: type!),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: 'map',
       name: AppRoute.publishingMap,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final ot = params?[RouteParamKey.mapOperationType] as MapOperationType?;
         final locJson =
@@ -47,9 +158,45 @@ final operationsRouting = GoRoute(
 
         assert(ot != null, 'RouteParamKey.mapOperationType cannot be null');
 
-        return MapScreen(
-          mapOperationType: ot!,
-          initialLocation: initialLocation,
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: MapScreen(
+            mapOperationType: ot!,
+            initialLocation: initialLocation,
+          ),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
         );
       },
     ),
@@ -57,13 +204,51 @@ final operationsRouting = GoRoute(
     GoRoute(
       path: 'supervised-activities',
       name: AppRoute.supervisedActivitiesList,
-      builder: (context, state) => const SupervisedActivitiesListScreen(),
+      pageBuilder: (context, state) {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const SupervisedActivitiesListScreen(),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
+      },
     ),
     // Finance Create Screen (Requirements 1.3, 4.1)
     GoRoute(
       path: 'finance-create',
       name: AppRoute.financeCreate,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final financeType = params?[RouteParamKey.financeType] as FinanceType?;
         final isStandalone =
@@ -71,9 +256,45 @@ final operationsRouting = GoRoute(
 
         assert(financeType != null, 'RouteParamKey.financeType cannot be null');
 
-        return FinanceCreateScreen(
-          financeType: financeType!,
-          isStandalone: isStandalone,
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: FinanceCreateScreen(
+            financeType: financeType!,
+            isStandalone: isStandalone,
+          ),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
         );
       },
     ),
@@ -81,17 +302,93 @@ final operationsRouting = GoRoute(
     GoRoute(
       path: 'members-list',
       name: AppRoute.membersList,
-      builder: (context, state) => const MembersListScreen(),
+      pageBuilder: (context, state) {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const MembersListScreen(),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
+      },
     ),
     GoRoute(
       path: 'member-birthdays',
       name: AppRoute.memberBirthdays,
-      builder: (context, state) => const MemberBirthdaysScreen(),
+      pageBuilder: (context, state) {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const MemberBirthdaysScreen(),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
+      },
     ),
     GoRoute(
       path: 'member-detail/:membershipId',
       name: AppRoute.memberDetail,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final membershipIdStr = state.pathParameters['membershipId'];
 
         assert(
@@ -100,19 +397,131 @@ final operationsRouting = GoRoute(
         );
 
         final membershipId = int.parse(membershipIdStr!);
-        return MemberDetailScreen(membershipId: membershipId);
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: MemberDetailScreen(membershipId: membershipId),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
       },
     ),
     // Member Invite Screen - Invite new members to the church
     GoRoute(
       path: 'member-invite',
       name: AppRoute.memberInvite,
-      builder: (context, state) => const MemberInviteScreen(),
+      pageBuilder: (context, state) {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const MemberInviteScreen(),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
+      },
     ),
     GoRoute(
       path: 'member-create',
       name: AppRoute.memberCreate,
-      builder: (context, state) => const MemberCreateScreen(),
+      pageBuilder: (context, state) {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        final reduceMotion =
+            (mediaQuery?.disableAnimations ?? false) ||
+            (mediaQuery?.accessibleNavigation ?? false);
+
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const MemberCreateScreen(),
+          transitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          reverseTransitionDuration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 220),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (reduceMotion) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.025),
+                  end: Offset.zero,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
+        );
+      },
     ),
   ],
 );

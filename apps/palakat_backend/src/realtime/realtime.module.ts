@@ -7,6 +7,6 @@ import { RealtimeEmitterService } from './realtime-emitter.service';
 @Module({
   imports: [AuthModule],
   providers: [RealtimeGateway, RpcRouterService, RealtimeEmitterService],
-  exports: [RealtimeEmitterService],
+  exports: [RealtimeEmitterService, RealtimeGateway],
 })
 export class RealtimeModule {}

@@ -1067,7 +1067,7 @@ abstract class AppLocalizations {
   /// No description provided for @approval_errorTitle.
   ///
   /// In en, this message translates to:
-  /// **'Something went wrong'**
+  /// **'Could not load approvals'**
   String get approval_errorTitle;
 
   /// No description provided for @approval_confirmApproveTitle.
@@ -1085,13 +1085,13 @@ abstract class AppLocalizations {
   /// No description provided for @approval_confirmApproveDescription.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to approve this activity? This action cannot be undone.'**
+  /// **'Approve this activity? This action cannot be undone.'**
   String get approval_confirmApproveDescription;
 
   /// No description provided for @approval_confirmRejectDescription.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to reject this activity? This action cannot be undone.'**
+  /// **'Reject this activity? This action cannot be undone.'**
   String get approval_confirmRejectDescription;
 
   /// No description provided for @approvalDetail_title.
@@ -1457,7 +1457,7 @@ abstract class AppLocalizations {
   /// No description provided for @btn_signOutMessage.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to sign out? You will need to sign in again to access your account.'**
+  /// **'Sign out of your account? You will need to sign in again to access it.'**
   String get btn_signOutMessage;
 
   /// No description provided for @btn_resendCode.
@@ -2051,7 +2051,7 @@ abstract class AppLocalizations {
   /// No description provided for @err_somethingWentWrong.
   ///
   /// In en, this message translates to:
-  /// **'Something went wrong. Please try again.'**
+  /// **'We encountered an issue. Please try again.'**
   String get err_somethingWentWrong;
 
   /// No description provided for @err_noData.
@@ -3953,7 +3953,7 @@ abstract class AppLocalizations {
   /// No description provided for @publish_removeFinancialRecordContent.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to remove this financial record? This action cannot be undone.'**
+  /// **'Remove this financial record? This action cannot be undone.'**
   String get publish_removeFinancialRecordContent;
 
   /// No description provided for @publish_publishedNotice.
@@ -4901,7 +4901,7 @@ abstract class AppLocalizations {
   /// No description provided for @dlg_deleteRule_content.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to delete this approval rule?'**
+  /// **'Delete this approval rule?'**
   String get dlg_deleteRule_content;
 
   /// No description provided for @dlg_deleteMember_title.
@@ -4913,7 +4913,7 @@ abstract class AppLocalizations {
   /// No description provided for @dlg_deleteMember_content.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to delete this member? This action cannot be undone.'**
+  /// **'Delete this member? This action cannot be undone.'**
   String get dlg_deleteMember_content;
 
   /// No description provided for @dlg_deletePosition_title.
@@ -4925,7 +4925,7 @@ abstract class AppLocalizations {
   /// No description provided for @dlg_deletePosition_content.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to delete this position? This action cannot be undone.'**
+  /// **'Delete this position? This action cannot be undone.'**
   String get dlg_deletePosition_content;
 
   /// No description provided for @dlg_deleteColumn_title.
@@ -4937,7 +4937,7 @@ abstract class AppLocalizations {
   /// No description provided for @dlg_deleteColumn_content.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to delete this column? This action cannot be undone.'**
+  /// **'Delete this column? This action cannot be undone.'**
   String get dlg_deleteColumn_content;
 
   /// No description provided for @dlg_signOut_title.
@@ -4949,7 +4949,7 @@ abstract class AppLocalizations {
   /// No description provided for @dlg_signOut_content.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to sign out?'**
+  /// **'Sign out of your account?'**
   String get dlg_signOut_content;
 
   /// No description provided for @dlg_recordPayment_title.
@@ -5579,7 +5579,7 @@ abstract class AppLocalizations {
   /// No description provided for @unauthorized_signInRequired_message.
   ///
   /// In en, this message translates to:
-  /// **'This feature is available for signed-in users. Please sign in to continue.'**
+  /// **'You need to sign in to access this feature.'**
   String get unauthorized_signInRequired_message;
 
   /// No description provided for @msg_insufficientPermissions.
@@ -6005,73 +6005,73 @@ abstract class AppLocalizations {
   /// No description provided for @error_loadingData.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load data'**
+  /// **'Could not load data'**
   String get error_loadingData;
 
   /// No description provided for @error_loadingMembers.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load members'**
+  /// **'Could not load members'**
   String get error_loadingMembers;
 
   /// No description provided for @error_loadingActivities.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load activities'**
+  /// **'Could not load activities'**
   String get error_loadingActivities;
 
   /// No description provided for @error_loadingRevenue.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load revenue'**
+  /// **'Could not load revenue'**
   String get error_loadingRevenue;
 
   /// No description provided for @error_loadingExpenses.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load expenses'**
+  /// **'Could not load expenses'**
   String get error_loadingExpenses;
 
   /// No description provided for @error_loadingReports.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load reports'**
+  /// **'Could not load reports'**
   String get error_loadingReports;
 
   /// No description provided for @error_loadingDocuments.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load documents'**
+  /// **'Could not load documents'**
   String get error_loadingDocuments;
 
   /// No description provided for @error_loadingApprovals.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load approvals'**
+  /// **'Could not load approvals'**
   String get error_loadingApprovals;
 
   /// No description provided for @error_loadingBilling.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load billing'**
+  /// **'Could not load billing'**
   String get error_loadingBilling;
 
   /// No description provided for @error_loadingFinancial.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load financial data'**
+  /// **'Could not load financial data'**
   String get error_loadingFinancial;
 
   /// No description provided for @error_loadingChurch.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load church information'**
+  /// **'Could not load church information'**
   String get error_loadingChurch;
 
   /// No description provided for @error_loadingAccount.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load account information'**
+  /// **'Could not load account information'**
   String get error_loadingAccount;
 
   /// No description provided for @error_connectionFailed.

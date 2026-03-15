@@ -8,6 +8,8 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
 
+import 'activity_alarm_motion_widget.dart';
+
 class AlarmRingScreen extends ConsumerStatefulWidget {
   const AlarmRingScreen({
     super.key,
@@ -136,37 +138,39 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w12,
-                      vertical: BaseSize.h8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(BaseSize.radiusXl),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.10),
+                ActivityAlarmReveal(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: BaseSize.w12,
+                        vertical: BaseSize.h8,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          AppIcons.notificationActive,
-                          color: const Color(0xFFFFD54F),
-                          size: BaseSize.w16,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(BaseSize.radiusXl),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.10),
                         ),
-                        Gap.w8,
-                        Text(
-                          'Alarm ringing',
-                          style: BaseTypography.bodySmall.copyWith(
-                            color: BaseColor.white,
-                            fontWeight: FontWeight.w700,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            AppIcons.notificationActive,
+                            color: const Color(0xFFFFD54F),
+                            size: BaseSize.w18,
                           ),
-                        ),
-                      ],
+                          Gap.w10,
+                          Text(
+                            'Alarm ringing',
+                            style: BaseTypography.bodyMedium.copyWith(
+                              color: BaseColor.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -174,104 +178,117 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: BaseSize.customWidth(88),
-                        height: BaseSize.customWidth(88),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0x1AFFFFFF),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.12),
+                      ActivityAlarmReveal(
+                        delay: const Duration(milliseconds: 40),
+                        child: Container(
+                          width: BaseSize.customWidth(88),
+                          height: BaseSize.customWidth(88),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0x1AFFFFFF),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.12),
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          AppIcons.notificationActive,
-                          size: BaseSize.w36,
-                          color: const Color(0xFFFFD54F),
+                          child: Icon(
+                            AppIcons.notificationActive,
+                            size: BaseSize.w36,
+                            color: const Color(0xFFFFD54F),
+                          ),
                         ),
                       ),
                       Gap.h24,
-                      Text(
-                        timeText,
-                        textAlign: TextAlign.center,
-                        style: BaseTypography.headlineLarge.copyWith(
-                          color: BaseColor.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 72,
-                          letterSpacing: -2,
+                      ActivityAlarmReveal(
+                        delay: const Duration(milliseconds: 90),
+                        child: Text(
+                          timeText,
+                          textAlign: TextAlign.center,
+                          style: BaseTypography.headlineLarge.copyWith(
+                            color: BaseColor.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 72,
+                            letterSpacing: -2,
+                          ),
                         ),
                       ),
                       Gap.h8,
-                      Text(
-                        dayText,
-                        textAlign: TextAlign.center,
-                        style: BaseTypography.titleLarge.copyWith(
-                          color: Colors.white.withValues(alpha: 0.72),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                      ActivityAlarmReveal(
+                        delay: const Duration(milliseconds: 130),
+                        child: Text(
+                          dayText,
+                          textAlign: TextAlign.center,
+                          style: BaseTypography.titleLarge.copyWith(
+                            color: Colors.white.withValues(alpha: 0.72),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       Gap.h24,
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(BaseSize.w18),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusLg,
-                          ),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.10),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Activity',
-                              style: BaseTypography.bodySmall.copyWith(
-                                color: Colors.white.withValues(alpha: 0.64),
-                                fontWeight: FontWeight.w700,
-                              ),
+                      ActivityAlarmReveal(
+                        delay: const Duration(milliseconds: 180),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(BaseSize.w18),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusLg,
                             ),
-                            Gap.h8,
-                            Text(
-                              title,
-                              style: BaseTypography.headlineSmall.copyWith(
-                                color: BaseColor.white,
-                                fontWeight: FontWeight.w800,
-                              ),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.10),
                             ),
-                            if (reminderText != null &&
-                                reminderText.trim().isNotEmpty) ...[
-                              Gap.h16,
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: BaseSize.w12,
-                                  vertical: BaseSize.h8,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Activity',
+                                style: BaseTypography.labelLarge.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.64),
+                                  fontWeight: FontWeight.w700,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0x14FFD54F),
-                                  borderRadius: BorderRadius.circular(
-                                    BaseSize.radiusXl,
+                              ),
+                              Gap.h8,
+                              Text(
+                                title,
+                                style: BaseTypography.headlineSmall.copyWith(
+                                  color: BaseColor.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              if (reminderText != null &&
+                                  reminderText.trim().isNotEmpty) ...[
+                                Gap.h16,
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: BaseSize.w14,
+                                    vertical: BaseSize.h8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x14FFD54F),
+                                    borderRadius: BorderRadius.circular(
+                                      BaseSize.radiusXl,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    reminderText,
+                                    style: BaseTypography.bodyMedium.copyWith(
+                                      color: const Color(0xFFFFE082),
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                                child: Text(
-                                  reminderText,
-                                  style: BaseTypography.bodyMedium.copyWith(
-                                    color: const Color(0xFFFFE082),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                       Gap.h20,
-                      if (_starting)
-                        Row(
+                      ActivityAlarmAnimatedPresence(
+                        visible: _starting,
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
@@ -292,49 +309,56 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                             ),
                           ],
                         ),
+                      ),
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: _dismissAndClose,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: BaseColor.red[600],
-                    foregroundColor: BaseColor.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      vertical: BaseSize.customHeight(16),
+                ActivityAlarmReveal(
+                  delay: const Duration(milliseconds: 220),
+                  child: ElevatedButton(
+                    onPressed: _dismissAndClose,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: BaseColor.red[600],
+                      foregroundColor: BaseColor.white,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                        vertical: BaseSize.customHeight(16),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                    ),
-                  ),
-                  child: Text(
-                    'Dismiss alarm',
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.white,
+                    child: Text(
+                      'Dismiss alarm',
+                      style: BaseTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.white,
+                      ),
                     ),
                   ),
                 ),
                 Gap.customGapHeight(10),
-                OutlinedButton(
-                  onPressed: _openActivity,
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      vertical: BaseSize.customHeight(16),
+                ActivityAlarmReveal(
+                  delay: const Duration(milliseconds: 260),
+                  child: OutlinedButton(
+                    onPressed: _openActivity,
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: BaseSize.customHeight(16),
+                      ),
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.18),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                      ),
                     ),
-                    side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.18),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                    ),
-                  ),
-                  child: Text(
-                    'View activity',
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.white,
+                    child: Text(
+                      'View activity',
+                      style: BaseTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BaseColor.white,
+                      ),
                     ),
                   ),
                 ),

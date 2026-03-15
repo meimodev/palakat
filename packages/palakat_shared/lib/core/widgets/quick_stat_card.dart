@@ -48,6 +48,8 @@ class QuickStatCard extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
               ),
               const SizedBox(width: 12),
@@ -78,6 +80,8 @@ class QuickStatCard extends StatelessWidget {
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
@@ -88,6 +92,8 @@ class QuickStatCard extends StatelessWidget {
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
           ],
         ],

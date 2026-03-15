@@ -346,7 +346,7 @@
   "@approval_emptySubtitle": {
     "description": "Empty state subtitle for approval screen"
   },
-  "approval_errorTitle": "Terjadi kesalahan",
+  "approval_errorTitle": "Gagal memuat persetujuan",
   "@approval_errorTitle": {
     "description": "Error state title for approval screen"
   },
@@ -557,7 +557,7 @@
   "@btn_signOutConfirm": {
     "description": "Sign out confirmation title"
   },
-  "btn_signOutMessage": "Apakah Anda yakin ingin keluar? Anda perlu masuk kembali untuk mengakses akun Anda.",
+  "btn_signOutMessage": "Keluar dari akun Anda? Anda harus masuk kembali untuk mengaksesnya.",
   "@btn_signOutMessage": {
     "description": "Sign out confirmation message"
   },
@@ -2497,7 +2497,7 @@
   "@dlg_signOut_title": {
     "description": "Title for sign out confirmation dialog"
   },
-  "dlg_signOut_content": "Apakah Anda yakin ingin keluar?",
+  "dlg_signOut_content": "Keluar dari akun Anda?",
   "@dlg_signOut_content": {
     "description": "Content for sign out confirmation dialog"
   },
@@ -3336,7 +3336,7 @@
   "@unauthorized_signInRequired_title": {
     "description": "Title for bottom sheet shown when a feature requires the user to sign in"
   },
-  "unauthorized_signInRequired_message": "Fitur ini hanya tersedia untuk pengguna yang sudah masuk. Silakan masuk untuk melanjutkan.",
+  "unauthorized_signInRequired_message": "Anda perlu masuk untuk mengakses fitur ini.",
   "@unauthorized_signInRequired_message": {
     "description": "Message for bottom sheet shown when a feature requires the user to sign in"
   },

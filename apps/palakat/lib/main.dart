@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -133,78 +134,107 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding =
-        MediaQuery.of(context).viewPadding.bottom +
-        MediaQuery.of(context).viewInsets.bottom;
+    final media = MediaQuery.of(context);
+    final bottomPadding = media.viewPadding.bottom + media.viewInsets.bottom;
+    final shouldStackActions =
+        media.size.width < 360 ||
+        MediaQuery.textScalerOf(context).scale(1) > 1.15;
+    final sheetMaxWidth = media.size.width >= 768 ? 480.0 : double.infinity;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg),
-          topRight: Radius.circular(BaseSize.radiusLg),
-        ),
-      ),
-      padding: EdgeInsets.only(
-        left: BaseSize.w24,
-        right: BaseSize.w24,
-        top: BaseSize.w16,
-        bottom: BaseSize.w24 + bottomPadding,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: BaseSize.w40,
-              height: BaseSize.h4,
-              decoration: BoxDecoration(
-                color: BaseColor.neutral30,
-                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-              ),
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: sheetMaxWidth),
+        child: Container(
+          decoration: BoxDecoration(
+            color: BaseColor.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(BaseSize.radiusLg),
+              topRight: Radius.circular(BaseSize.radiusLg),
             ),
           ),
-          Gap.h16,
-          AuthSurfaceCard(
-            icon: AppIcons.security,
-            title: title,
-            centeredHeader: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  message,
-                  style: BaseTypography.bodyMedium.toSecondary,
-                  textAlign: TextAlign.center,
+          padding: EdgeInsets.only(
+            left: BaseSize.w24,
+            right: BaseSize.w24,
+            top: BaseSize.w16,
+            bottom: BaseSize.w24 + bottomPadding,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: BaseSize.w40,
+                  height: BaseSize.h4,
+                  decoration: BoxDecoration(
+                    color: BaseColor.neutral30,
+                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  ),
                 ),
-                Gap.h24,
-                Row(
+              ),
+              Gap.h16,
+              AuthSurfaceCard(
+                icon: AppIcons.security,
+                title: title,
+                centeredHeader: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: ButtonWidget.outlined(
-                        text: cancelLabel,
-                        onTap: onCancel,
-                        outlineColor: BaseColor.neutral40,
-                        textColor: BaseColor.secondaryText,
-                        focusColor: BaseColor.neutral20,
-                        overlayColor: BaseColor.neutral10,
-                      ),
+                    Text(
+                      message,
+                      style: BaseTypography.bodyMedium.toSecondary,
+                      textAlign: TextAlign.center,
                     ),
-                    Gap.w12,
-                    Expanded(
-                      child: ButtonWidget.primary(
-                        text: confirmLabel,
-                        onTap: onConfirm,
+                    Gap.h24,
+                    if (shouldStackActions) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ButtonWidget.primary(
+                          text: confirmLabel,
+                          onTap: onConfirm,
+                        ),
                       ),
-                    ),
+                      Gap.h12,
+                      SizedBox(
+                        width: double.infinity,
+                        child: ButtonWidget.outlined(
+                          text: cancelLabel,
+                          onTap: onCancel,
+                          outlineColor: BaseColor.neutral40,
+                          textColor: BaseColor.secondaryText,
+                          focusColor: BaseColor.neutral20,
+                          overlayColor: BaseColor.neutral10,
+                        ),
+                      ),
+                    ] else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ButtonWidget.outlined(
+                              text: cancelLabel,
+                              onTap: onCancel,
+                              outlineColor: BaseColor.neutral40,
+                              textColor: BaseColor.secondaryText,
+                              focusColor: BaseColor.neutral20,
+                              overlayColor: BaseColor.neutral10,
+                            ),
+                          ),
+                          Gap.w12,
+                          Expanded(
+                            child: ButtonWidget.primary(
+                              text: confirmLabel,
+                              onTap: onConfirm,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Gap.h8,
+            ],
           ),
-          Gap.h8,
-        ],
+        ),
       ),
     );
   }
@@ -537,22 +567,61 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // The payload might contain the data in different formats
     // Try to extract the actual notification data
 
-    if (payload.containsKey('data')) {
-      return payload['data'] as Map<String, dynamic>;
+    final normalizedPayload = _normalizeNotificationMap(payload);
+
+    if (normalizedPayload.containsKey('data')) {
+      final data = _decodeNotificationMap(normalizedPayload['data']);
+      if (data != null) {
+        return data;
+      }
     }
 
     // If payload is a string representation, try to parse it
-    if (payload.containsKey('payload')) {
-      final payloadStr = payload['payload'] as String?;
-      if (payloadStr != null) {
-        // For now, return empty map as we need proper JSON parsing
-        // In production, you'd parse the JSON string here
-        return <String, dynamic>{};
+    if (normalizedPayload.containsKey('payload')) {
+      final nestedPayload = _decodeNotificationMap(
+        normalizedPayload['payload'],
+      );
+      if (nestedPayload != null) {
+        return nestedPayload;
       }
     }
 
     // Return the payload as-is if it already contains the expected keys
-    return payload;
+    return normalizedPayload;
+  }
+
+  Map<String, dynamic>? _decodeNotificationMap(dynamic raw) {
+    if (raw == null) {
+      return null;
+    }
+
+    if (raw is Map) {
+      return _normalizeNotificationMap(raw);
+    }
+
+    if (raw is! String) {
+      return null;
+    }
+
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is Map) {
+        return _normalizeNotificationMap(decoded);
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  Map<String, dynamic> _normalizeNotificationMap(
+    Map<dynamic, dynamic> payload,
+  ) {
+    return payload.map((key, value) => MapEntry(key.toString(), value));
   }
 
   @override

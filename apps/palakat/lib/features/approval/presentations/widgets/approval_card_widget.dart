@@ -93,20 +93,51 @@ class ApprovalCardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Activity type and financial badges row
-              Row(
-                children: [
-                  _ActivityTypeBadge(activityType: approval.activityType),
-                  if (hasFinancial) ...[
-                    Gap.w8,
-                    _FinancialIndicatorBadge(isRevenue: isRevenue),
-                  ],
-                  const Spacer(),
-                  FaIcon(
-                    AppIcons.forward,
-                    size: BaseSize.w24,
-                    color: BaseColor.secondaryText,
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final shouldStackHeader =
+                      constraints.maxWidth < 360 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.1;
+                  final badgeGroup = Wrap(
+                    spacing: BaseSize.w8,
+                    runSpacing: BaseSize.h8,
+                    children: [
+                      _ActivityTypeBadge(activityType: approval.activityType),
+                      if (hasFinancial)
+                        _FinancialIndicatorBadge(isRevenue: isRevenue),
+                    ],
+                  );
+
+                  if (shouldStackHeader) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        badgeGroup,
+                        Gap.h8,
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: FaIcon(
+                            AppIcons.forward,
+                            size: BaseSize.w24,
+                            color: BaseColor.secondaryText,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: badgeGroup),
+                      Gap.w8,
+                      FaIcon(
+                        AppIcons.forward,
+                        size: BaseSize.w24,
+                        color: BaseColor.secondaryText,
+                      ),
+                    ],
+                  );
+                },
               ),
               Gap.h8,
               // Title row
@@ -121,49 +152,86 @@ class ApprovalCardWidget extends StatelessWidget {
               ),
               Gap.h12,
               // Supervisor and date info
-              Row(
-                children: [
-                  Container(
-                    width: BaseSize.w32,
-                    height: BaseSize.w32,
-                    decoration: BoxDecoration(
-                      color: BaseColor.blue[100],
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: FaIcon(
-                      AppIcons.person,
-                      size: BaseSize.w16,
-                      color: BaseColor.blue[700],
-                    ),
-                  ),
-                  Gap.w8,
-                  Expanded(
-                    child: Text(
-                      approval.supervisor.account?.name ??
-                          context.l10n.lbl_unknown,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: BaseColor.textPrimary,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final shouldStackInfo =
+                      constraints.maxWidth < 380 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.1;
+                  final supervisorInfo = Row(
+                    children: [
+                      Container(
+                        width: BaseSize.w32,
+                        height: BaseSize.w32,
+                        decoration: BoxDecoration(
+                          color: BaseColor.blue[100],
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: FaIcon(
+                          AppIcons.person,
+                          size: BaseSize.w16,
+                          color: BaseColor.blue[700],
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Gap.w12,
-                  FaIcon(
-                    AppIcons.time,
-                    size: BaseSize.w16,
-                    color: BaseColor.secondaryText,
-                  ),
-                  Gap.w4,
-                  Text(
-                    "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
-                    style: BaseTypography.bodySmall.copyWith(
-                      color: BaseColor.secondaryText,
-                    ),
-                  ),
-                ],
+                      Gap.w8,
+                      Expanded(
+                        child: Text(
+                          approval.supervisor.account?.name ??
+                              context.l10n.lbl_unknown,
+                          style: BaseTypography.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: BaseColor.textPrimary,
+                          ),
+                          maxLines: shouldStackInfo ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  );
+                  final dateInfo = Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FaIcon(
+                        AppIcons.time,
+                        size: BaseSize.w18,
+                        color: BaseColor.secondaryText,
+                      ),
+                      Gap.w6,
+                      Flexible(
+                        child: Text(
+                          "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
+                          style: BaseTypography.bodyMedium.copyWith(
+                            color: BaseColor.secondaryText,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  );
+
+                  if (shouldStackInfo) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        supervisorInfo,
+                        Gap.h8,
+                        Padding(
+                          padding: EdgeInsets.only(left: BaseSize.w40),
+                          child: dateInfo,
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: supervisorInfo),
+                      Gap.w12,
+                      Flexible(child: dateInfo),
+                    ],
+                  );
+                },
               ),
               // Approvers list
               if (approval.approvers.isNotEmpty) ...[
@@ -277,7 +345,7 @@ class _ActivityTypeBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w10,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
@@ -287,11 +355,11 @@ class _ActivityTypeBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w14, color: textColor),
-          Gap.w4,
+          FaIcon(icon, size: BaseSize.w18, color: textColor),
+          Gap.w6,
           Text(
             label,
-            style: BaseTypography.labelSmall.copyWith(
+            style: BaseTypography.labelMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -318,11 +386,13 @@ class _FinancialIndicatorBadge extends StatelessWidget {
         ? BaseColor.green.shade700
         : BaseColor.red.shade700;
     final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
-    final label = isRevenue ? l10n.admin_revenue_title : l10n.operationsItem_add_expense_title;
+    final label = isRevenue
+        ? l10n.admin_revenue_title
+        : l10n.operationsItem_add_expense_title;
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w10,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
@@ -332,11 +402,11 @@ class _FinancialIndicatorBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w14, color: textColor),
-          Gap.w4,
+          FaIcon(icon, size: BaseSize.w18, color: textColor),
+          Gap.w6,
           Text(
             label,
-            style: BaseTypography.labelSmall.copyWith(
+            style: BaseTypography.labelMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -369,13 +439,13 @@ class _ActionIconButton extends StatelessWidget {
         onTap: onTap,
         overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
         child: Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(BaseSize.w10),
           decoration: BoxDecoration(
             border: Border.all(color: color),
             borderRadius: BorderRadius.circular(BaseSize.radiusMd),
           ),
           child: Center(
-            child: FaIcon(icon, size: BaseSize.w20, color: color),
+            child: FaIcon(icon, size: BaseSize.w22, color: color),
           ),
         ),
       ),

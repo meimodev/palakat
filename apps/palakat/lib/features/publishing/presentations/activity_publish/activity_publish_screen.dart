@@ -7,6 +7,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
@@ -43,13 +44,18 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
 
     return ScaffoldWidget(
       loading: state.loading,
-      persistBottomWidget: _buildSubmitButton(state, controller),
+      persistBottomWidget: OperationsReveal(
+        delay: const Duration(milliseconds: 180),
+        child: _buildSubmitButton(state, controller),
+      ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ScreenTitleWidget.titleSecondary(
-              title: '${l10n.btn_create} ${state.type.displayName}',
+            OperationsReveal(
+              child: ScreenTitleWidget.titleSecondary(
+                title: '${l10n.btn_create} ${state.type.displayName}',
+              ),
             ),
             Gap.h16,
             Padding(
@@ -57,24 +63,51 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildActivityTypeIndicator(),
+                  OperationsReveal(
+                    delay: const Duration(milliseconds: 40),
+                    child: _buildActivityTypeIndicator(),
+                  ),
                   Gap.h12,
-                  _buildPublisherSection(state),
+                  OperationsReveal(
+                    delay: const Duration(milliseconds: 60),
+                    child: _buildPublisherSection(state),
+                  ),
                   Gap.h16,
-                  _buildBasicInfoSection(state, controller, context),
+                  OperationsReveal(
+                    delay: const Duration(milliseconds: 80),
+                    child: _buildBasicInfoSection(state, controller, context),
+                  ),
                   Gap.h16,
                   if (widget.type != ActivityType.announcement) ...[
-                    _buildLocationSection(state, controller, context),
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildLocationSection(state, controller, context),
+                    ),
                     Gap.h16,
-                    _buildScheduleSection(state, controller, context),
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 120),
+                      child: _buildScheduleSection(state, controller, context),
+                    ),
                     Gap.h16,
-                    // Financial Record section for service/event types
-                    // Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
-                    _buildFinancialRecordSection(state, controller, context),
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 140),
+                      child: _buildFinancialRecordSection(
+                        state,
+                        controller,
+                        context,
+                      ),
+                    ),
                     Gap.h16,
                   ],
                   if (widget.type == ActivityType.announcement)
-                    _buildAnnouncementSection(state, controller, context),
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildAnnouncementSection(
+                        state,
+                        controller,
+                        context,
+                      ),
+                    ),
                   Gap.h24,
                 ],
               ),
@@ -150,94 +183,12 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     }
   }
 
-  Widget _buildSectionCard({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-    String? subtitle,
-  }) {
-    return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Section header
-          Container(
-            padding: EdgeInsets.all(BaseSize.w12),
-            decoration: BoxDecoration(
-              color: BaseColor.surfaceMedium,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusLg),
-                topRight: Radius.circular(BaseSize.radiusLg),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(BaseSize.w6),
-                  decoration: BoxDecoration(
-                    color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  ),
-                  child: Icon(
-                    icon,
-                    size: BaseSize.w16,
-                    color: BaseColor.primary[600],
-                  ),
-                ),
-                Gap.w8,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: BaseTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        Gap.h4,
-                        Text(
-                          subtitle,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.neutral[600],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Section content
-          Padding(
-            padding: EdgeInsets.all(BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBasicInfoSection(
     ActivityPublishState state,
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: context.l10n.section_basicInformation,
       icon: AppIcons.info,
       subtitle: context.l10n.publish_basicInfoSubtitle,
@@ -287,7 +238,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           hasColumn
               ? '${context.l10n.publish_publishToColumnOnly_subtitle} (${columnName!})'
               : context.l10n.publish_publishToColumnOnly_subtitleNoColumn,
-          style: BaseTypography.bodySmall.toSecondary,
+          style: BaseTypography.bodyMedium.toSecondary,
         ),
         activeColor: BaseColor.primary[700],
         contentPadding: EdgeInsets.symmetric(
@@ -359,7 +310,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Text(
               state.errorBipra!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -396,7 +347,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               Gap.h4,
               Text(
                 context.l10n.publish_targetGroup,
-                style: BaseTypography.bodySmall.copyWith(
+                style: BaseTypography.labelMedium.copyWith(
                   color: BaseColor.neutral[500],
                 ),
               ),
@@ -461,7 +412,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.w4,
                   Text(
                     context.l10n.publish_targetGroup,
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.labelMedium.copyWith(
                       color: BaseColor.teal[600],
                     ),
                   ),
@@ -501,7 +452,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: context.l10n.card_location_title,
       icon: AppIcons.locationOnOutlined,
       // subtitle: context.l10n.publish_locationSubtitle,
@@ -580,7 +531,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Text(
               state.errorPinpointLocation!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -664,7 +615,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                       hasCoordinates
                           ? '${location.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
                           : context.l10n.lbl_na,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.bodyMedium.copyWith(
                         color: BaseColor.neutral[600],
                       ),
                     ),
@@ -688,7 +639,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: context.l10n.section_schedule,
       icon: AppIcons.scheduleOutlined,
       // subtitle: context.l10n.publish_scheduleSubtitle,
@@ -820,7 +771,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.h4,
                   Text(
                     _formatDayOfWeek(context, state.selectedDate!),
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.blue[500],
                     ),
                   ),
@@ -835,7 +786,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Text(
               state.errorDate!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -923,7 +874,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.h4,
                   Text(
                     _getTimePeriod(context, state.selectedTime!),
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.primary[500],
                     ),
                   ),
@@ -938,7 +889,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Text(
               state.errorTime!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodySmall.copyWith(color: BaseColor.error),
+              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
             ),
           ),
       ],
@@ -1058,7 +1009,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: context.l10n.section_announcementDetails,
       icon: AppIcons.article,
       subtitle: context.l10n.publish_announcementDetailsSubtitle,
@@ -1179,7 +1130,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                           Flexible(
                             child: Text(
                               state.churchName ?? '',
-                              style: BaseTypography.bodySmall.copyWith(
+                              style: BaseTypography.bodyMedium.copyWith(
                                 color: BaseColor.neutral[600],
                               ),
                               maxLines: 1,
@@ -1203,7 +1154,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   ),
                   child: Text(
                     state.currentDate ?? '',
-                    style: BaseTypography.bodySmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.neutral[700],
                       fontWeight: FontWeight.w500,
                     ),
@@ -1239,7 +1190,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         Gap.w4,
                         Text(
                           position,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.labelMedium.copyWith(
                             color: BaseColor.blue[700],
                             fontWeight: FontWeight.w500,
                           ),
@@ -1328,7 +1279,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishController controller,
     BuildContext context,
   ) {
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: context.l10n.section_financialRecord,
       icon: AppIcons.accountBalanceWalletOutlined,
       subtitle: context.l10n.publish_financialRecordSubtitle,

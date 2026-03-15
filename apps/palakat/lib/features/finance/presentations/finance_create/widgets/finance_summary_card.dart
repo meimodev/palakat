@@ -261,7 +261,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: BaseTypography.bodySmall.copyWith(
+                style: BaseTypography.labelMedium.copyWith(
                   color: BaseColor.neutral[500],
                 ),
               ),
@@ -279,7 +279,7 @@ class _InfoRow extends StatelessWidget {
                 Gap.h4,
                 Text(
                   subtitle!,
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.neutral[600],
                   ),
                   maxLines: 2,

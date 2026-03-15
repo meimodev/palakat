@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/activity_alarm/presentations/activity_alarm_motion_widget.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_controller.dart';
 import 'package:palakat/features/dashboard/presentations/activity_detail/activity_detail_state.dart';
@@ -37,27 +38,32 @@ class ActivityDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ScreenTitleWidget.primary(
-                title: l10n.loading_activities,
-                leadIcon: AppIcons.back,
-                leadIconColor: Colors.black,
-                onPressedLeadIcon: context.pop,
+              ActivityAlarmReveal(
+                child: ScreenTitleWidget.primary(
+                  title: l10n.loading_activities,
+                  leadIcon: AppIcons.back,
+                  leadIconColor: Colors.black,
+                  onPressedLeadIcon: context.pop,
+                ),
               ),
               Gap.h16,
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-                child: LoadingShimmer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      PalakatShimmerPlaceholders.activityCard(),
-                      Gap.h16,
-                      PalakatShimmerPlaceholders.infoCard(),
-                      Gap.h16,
-                      PalakatShimmerPlaceholders.listItemCard(),
-                      Gap.h16,
-                      PalakatShimmerPlaceholders.infoCard(),
-                    ],
+              ActivityAlarmReveal(
+                delay: const Duration(milliseconds: 40),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+                  child: LoadingShimmer(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        PalakatShimmerPlaceholders.activityCard(),
+                        Gap.h16,
+                        PalakatShimmerPlaceholders.infoCard(),
+                        Gap.h16,
+                        PalakatShimmerPlaceholders.listItemCard(),
+                        Gap.h16,
+                        PalakatShimmerPlaceholders.infoCard(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -69,29 +75,32 @@ class ActivityDetailScreen extends ConsumerWidget {
 
     if (state.errorMessage != null) {
       return ScaffoldWidget(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FaIcon(AppIcons.error, size: 48, color: BaseColor.red),
-                Gap.h16,
-                Text(
-                  state.errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: BaseTypography.bodyMedium,
-                ),
-                Gap.h16,
-                ElevatedButton(
-                  onPressed: () => ref
-                      .read(
-                        activityDetailControllerProvider(activityId).notifier,
-                      )
-                      .fetchActivity(),
-                  child: Text(l10n.btn_retry),
-                ),
-              ],
+        child: ActivityAlarmAnimatedPresence(
+          visible: true,
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(AppIcons.error, size: 48, color: BaseColor.red),
+                  Gap.h16,
+                  Text(
+                    state.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: BaseTypography.bodyMedium,
+                  ),
+                  Gap.h16,
+                  ElevatedButton(
+                    onPressed: () => ref
+                        .read(
+                          activityDetailControllerProvider(activityId).notifier,
+                        )
+                        .fetchActivity(),
+                    child: Text(l10n.btn_retry),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -101,10 +110,13 @@ class ActivityDetailScreen extends ConsumerWidget {
     final activity = state.activity;
     if (activity == null) {
       return ScaffoldWidget(
-        child: Center(
-          child: Text(
-            l10n.msg_activityNotFound,
-            style: BaseTypography.bodyMedium,
+        child: ActivityAlarmAnimatedPresence(
+          visible: true,
+          child: Center(
+            child: Text(
+              l10n.msg_activityNotFound,
+              style: BaseTypography.bodyMedium,
+            ),
           ),
         ),
       );
@@ -127,18 +139,23 @@ class ActivityDetailScreen extends ConsumerWidget {
 
     return ScaffoldWidget(
       persistBottomWidget: showSelfApprovalButtons
-          ? _buildSelfApprovalButtons(context, ref, state)
+          ? ActivityAlarmReveal(
+              delay: const Duration(milliseconds: 140),
+              child: _buildSelfApprovalButtons(context, ref, state),
+            )
           : null,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ScreenTitleWidget.primary(
-              title: activity.activityType.displayName,
-              subTitle: activity.title,
-              leadIcon: AppIcons.back,
-              leadIconColor: Colors.black,
-              onPressedLeadIcon: context.pop,
+            ActivityAlarmReveal(
+              child: ScreenTitleWidget.primary(
+                title: activity.activityType.displayName,
+                subTitle: activity.title,
+                leadIcon: AppIcons.back,
+                leadIconColor: Colors.black,
+                onPressedLeadIcon: context.pop,
+              ),
             ),
             Gap.h16,
             Padding(
@@ -146,21 +163,45 @@ class ActivityDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildActivityTypeIndicator(activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 40),
+                    child: _buildActivityTypeIndicator(activity),
+                  ),
                   Gap.h12,
-                  _buildBasicInfoSection(context, ref, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 60),
+                    child: _buildBasicInfoSection(context, ref, activity),
+                  ),
                   Gap.h16,
-                  _buildNoteSection(context, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 80),
+                    child: _buildNoteSection(context, activity),
+                  ),
                   Gap.h16,
-                  _buildScheduleSection(context, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 100),
+                    child: _buildScheduleSection(context, activity),
+                  ),
                   Gap.h16,
-                  _buildLocationSection(context, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 120),
+                    child: _buildLocationSection(context, activity),
+                  ),
                   Gap.h16,
-                  _buildFinanceSection(context, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 140),
+                    child: _buildFinanceSection(context, activity),
+                  ),
                   Gap.h16,
-                  _buildApproversSection(context, activity, state),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 160),
+                    child: _buildApproversSection(context, activity, state),
+                  ),
                   Gap.h16,
-                  _buildSupervisorSection(context, activity),
+                  ActivityAlarmReveal(
+                    delay: const Duration(milliseconds: 180),
+                    child: _buildSupervisorSection(context, activity),
+                  ),
                   Gap.h24,
                 ],
               ),
@@ -335,7 +376,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     Gap.w8,
                     Text(
                       text,
-                      style: BaseTypography.labelSmall.copyWith(
+                      style: BaseTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
@@ -542,7 +583,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     Gap.w4,
                     Text(
                       supervisor.account?.phone ?? '',
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.bodyMedium.copyWith(
                         color: BaseColor.teal[600],
                       ),
                     ),
@@ -567,7 +608,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             p.name,
-                            style: BaseTypography.labelSmall.copyWith(
+                            style: BaseTypography.labelMedium.copyWith(
                               color: BaseColor.teal[700],
                               fontWeight: FontWeight.w500,
                             ),
@@ -726,7 +767,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   children: [
                     Text(
                       label,
-                      style: BaseTypography.bodySmall.copyWith(
+                      style: BaseTypography.labelMedium.copyWith(
                         color: BaseColor.neutral[500],
                       ),
                     ),
@@ -797,7 +838,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   context.l10n.lbl_targetAudience,
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.labelMedium.copyWith(
                     color: BaseColor.blue[600],
                   ),
                 ),
@@ -821,9 +862,12 @@ class ActivityDetailScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildDateTimeCard(context, activity),
+        ActivityAlarmReveal(child: _buildDateTimeCard(context, activity)),
         Gap.h12,
-        _buildReminderInfo(context, activity),
+        ActivityAlarmReveal(
+          delay: const Duration(milliseconds: 50),
+          child: _buildReminderInfo(context, activity),
+        ),
       ],
     );
   }
@@ -898,7 +942,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         Gap.h4,
         Text(
           subValue,
-          style: BaseTypography.bodySmall.copyWith(color: color[500]),
+          style: BaseTypography.bodyMedium.copyWith(color: color[500]),
         ),
       ],
     );
@@ -942,7 +986,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 children: [
                   Text(
                     context.l10n.lbl_reminder,
-                    style: BaseTypography.labelSmall.copyWith(
+                    style: BaseTypography.labelMedium.copyWith(
                       color: BaseColor.neutral[600],
                       fontWeight: FontWeight.w600,
                     ),
@@ -993,7 +1037,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   context.l10n.lbl_reminder,
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.labelMedium.copyWith(
                     color: BaseColor.yellow[700],
                     fontWeight: FontWeight.w600,
                   ),
@@ -1009,7 +1053,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 Gap.h4,
                 Text(
                   context.l10n.msg_willBeRemindedAt(reminderDate),
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.yellow[600],
                   ),
                 ),
@@ -1104,7 +1148,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             '${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}',
-                            style: BaseTypography.bodySmall.copyWith(
+                            style: BaseTypography.bodyMedium.copyWith(
                               color: BaseColor.primary[600],
                             ),
                           ),
@@ -1175,7 +1219,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 children: [
                   Text(
                     context.l10n.section_financialRecord,
-                    style: BaseTypography.labelSmall.copyWith(
+                    style: BaseTypography.labelMedium.copyWith(
                       color: BaseColor.neutral[600],
                       fontWeight: FontWeight.w600,
                     ),
@@ -1239,7 +1283,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   children: [
                     Text(
                       financeType.displayName,
-                      style: BaseTypography.labelSmall.copyWith(
+                      style: BaseTypography.labelMedium.copyWith(
                         color: color[600],
                         fontWeight: FontWeight.w600,
                       ),
@@ -1278,7 +1322,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     children: [
                       Text(
                         context.l10n.lbl_accountNumber,
-                        style: BaseTypography.labelSmall.copyWith(
+                        style: BaseTypography.labelMedium.copyWith(
                           color: BaseColor.neutral[500],
                         ),
                       ),
@@ -1292,7 +1336,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                       if (accountDesc != null && accountDesc.isNotEmpty) ...[
                         Text(
                           accountDesc,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: BaseColor.neutral[600],
                           ),
                         ),
@@ -1506,7 +1550,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                             Gap.w4,
                             Text(
                               context.l10n.lbl_you,
-                              style: BaseTypography.labelSmall.copyWith(
+                              style: BaseTypography.labelMedium.copyWith(
                                 color: BaseColor.blue[700],
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1537,7 +1581,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               p.name,
-                              style: BaseTypography.labelSmall.copyWith(
+                              style: BaseTypography.labelMedium.copyWith(
                                 color: isSupervisorApprover
                                     ? BaseColor.blue[700]
                                     : BaseColor.neutral[700],
@@ -1556,7 +1600,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                     Gap.w4,
                     Text(
                       _getApprovalStatusTextLocalized(context, approver.status),
-                      style: BaseTypography.labelSmall.copyWith(
+                      style: BaseTypography.labelMedium.copyWith(
                         color: statusColor,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1567,7 +1611,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   Gap.h4,
                   Text(
                     '${approver.updatedAt!.ddMmmmYyyy} • ${approver.updatedAt!.HHmm}',
-                    style: BaseTypography.labelSmall.copyWith(
+                    style: BaseTypography.bodyMedium.copyWith(
                       color: BaseColor.neutral[500],
                     ),
                   ),

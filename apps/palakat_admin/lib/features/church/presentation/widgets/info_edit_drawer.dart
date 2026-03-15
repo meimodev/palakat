@@ -111,7 +111,6 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
 
     return SideDrawer(
@@ -138,11 +137,6 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterChurchName,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     validator: (value) => ChurchValidators.churchName()
                         .asFormFieldValidator(value),
@@ -157,11 +151,6 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                     maxLength: 13,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterPhoneNumber,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     validator: (value) => Validators.optionalPhoneMinDigits(
                       12,
@@ -177,11 +166,6 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: l10n.hint_enterEmailAddress,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                     ),
                     validator: (value) =>
                         Validators.email().asFormFieldValidator(value),
@@ -195,11 +179,6 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                     maxLines: 4,
                     decoration: InputDecoration(
                       hintText: l10n.hint_describeYourChurch,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
                       alignLabelWithHint: true,
                     ),
                     validator: (_) => null,
@@ -213,12 +192,8 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButton(
+          FilledButton(
             onPressed: _saveChanges,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
             child: Text(l10n.btn_saveChanges),
           ),
         ],

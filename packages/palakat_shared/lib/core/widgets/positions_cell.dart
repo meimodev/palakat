@@ -14,9 +14,9 @@ class PositionsCell extends StatelessWidget {
     final remainingCount = positions.length - 1;
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
-        PositionChip(position: firstPosition),
+        Flexible(child: PositionChip(position: firstPosition)),
         if (remainingCount > 0) ...[
           const SizedBox(width: 6),
           Text(

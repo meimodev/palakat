@@ -97,61 +97,63 @@ class PhoneInputScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AuthSurfaceCard(
-              icon: AppIcons.phone,
-              title: context.l10n.btn_signIn,
-              child: Semantics(
-                label: context.l10n.lbl_phone,
-                hint: context.l10n.auth_enterPhoneNumber,
-                textField: true,
-                enabled: !isSendingOtp,
-                child: AnimatedOpacity(
-                  opacity: isSendingOtp ? 0.5 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: IgnorePointer(
-                    ignoring: isSendingOtp,
-                    child: InputWidget.text(
-                      currentInputValue: phoneNumber,
-                      onChanged: controller.onPhoneNumberChanged,
-                      hint: l10n.churchRequest_hintPhoneExample,
-                      label: context.l10n.lbl_phone,
-                      textInputType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        PhoneInputFormatter(),
-                      ],
+            AuthReveal(
+              child: AuthSurfaceCard(
+                icon: AppIcons.phone,
+                title: context.l10n.btn_signIn,
+                child: Semantics(
+                  label: context.l10n.lbl_phone,
+                  hint: context.l10n.auth_enterPhoneNumber,
+                  textField: true,
+                  enabled: !isSendingOtp,
+                  child: AnimatedOpacity(
+                    opacity: isSendingOtp ? 0.5 : 1.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: IgnorePointer(
+                      ignoring: isSendingOtp,
+                      child: InputWidget.text(
+                        currentInputValue: phoneNumber,
+                        onChanged: controller.onPhoneNumberChanged,
+                        hint: l10n.churchRequest_hintPhoneExample,
+                        label: context.l10n.lbl_phone,
+                        textInputType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          PhoneInputFormatter(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: errorMessage != null
-                  ? Column(
-                      children: [
-                        Gap.h12,
-                        AuthErrorDisplay(
-                          message: errorMessage,
-                          onRetry: _shouldShowRetry(context, errorMessage)
-                              ? controller.sendOtp
-                              : null,
-                        ),
-                      ],
-                    )
-                  : const SizedBox.shrink(),
+            AuthAnimatedPresence(
+              visible: errorMessage != null,
+              child: Padding(
+                padding: EdgeInsets.only(top: BaseSize.h12),
+                child: AuthErrorDisplay(
+                  message: errorMessage ?? '',
+                  onRetry:
+                      errorMessage != null &&
+                          _shouldShowRetry(context, errorMessage)
+                      ? controller.sendOtp
+                      : null,
+                ),
+              ),
             ),
             Gap.h16,
-            Semantics(
-              label: context.l10n.btn_continue,
-              hint: context.l10n.auth_otpSent,
-              button: true,
-              enabled: !isSendingOtp,
-              child: ButtonWidget.primary(
-                text: context.l10n.btn_continue,
-                isLoading: isSendingOtp,
-                onTap: controller.sendOtp,
+            AuthReveal(
+              delay: const Duration(milliseconds: 90),
+              child: Semantics(
+                label: context.l10n.btn_continue,
+                hint: context.l10n.auth_otpSent,
+                button: true,
+                enabled: !isSendingOtp,
+                child: ButtonWidget.primary(
+                  text: context.l10n.btn_continue,
+                  isLoading: isSendingOtp,
+                  onTap: controller.sendOtp,
+                ),
               ),
             ),
           ],

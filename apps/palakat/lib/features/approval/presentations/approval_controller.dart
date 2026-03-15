@@ -69,6 +69,7 @@ class ApprovalController extends _$ApprovalController {
 
     result.when(
       onSuccess: (response) {
+        final previousStatusFilter = state.statusFilter;
         final newActivities = response.data;
         final total = response.pagination.total;
 
@@ -93,6 +94,19 @@ class ApprovalController extends _$ApprovalController {
           hasMoreData: hasMore,
         );
         _groupActivitiesByStatus();
+        if (!isLoadMore) {
+          final hasPendingMyAction = state.pendingMyAction.isNotEmpty;
+          ApprovalFilterStatus nextStatusFilter = previousStatusFilter;
+
+          if (previousStatusFilter == ApprovalFilterStatus.pendingMyAction &&
+              !hasPendingMyAction) {
+            nextStatusFilter = ApprovalFilterStatus.all;
+          }
+
+          if (nextStatusFilter != previousStatusFilter) {
+            state = state.copyWith(statusFilter: nextStatusFilter);
+          }
+        }
         _applyFilters();
       },
       onFailure: (failure) {

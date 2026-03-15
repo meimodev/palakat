@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/features/activity_alarm/presentations/activity_alarm_motion_widget.dart';
 import 'package:palakat/features/activity_alarm/services/activity_alarm_summary_provider.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 
@@ -22,15 +23,19 @@ class ActivityAlarmInfoCardWidget extends ConsumerWidget {
         if (!summary.enabled) return const SizedBox.shrink();
         if (summary.scheduledCount <= 0) return const SizedBox.shrink();
 
-        return DashboardNoticeCardWidget(
-          icon: AppIcons.notificationActive,
-          title: l10n.dashboard_alarmSummary_title,
-          message: l10n.dashboard_alarmSummary_message(summary.scheduledCount),
-          actionLabel: l10n.dashboard_alarmSummary_action,
-          onPressedAction: () {
-            context.pushNamed(AppRoute.alarmSettings);
-          },
-          tone: DashboardNoticeTone.warning,
+        return ActivityAlarmReveal(
+          child: DashboardNoticeCardWidget(
+            icon: AppIcons.notificationActive,
+            title: l10n.dashboard_alarmSummary_title,
+            message: l10n.dashboard_alarmSummary_message(
+              summary.scheduledCount,
+            ),
+            actionLabel: l10n.dashboard_alarmSummary_action,
+            onPressedAction: () {
+              context.pushNamed(AppRoute.alarmSettings);
+            },
+            tone: DashboardNoticeTone.warning,
+          ),
         );
       },
       loading: () => const SizedBox.shrink(),

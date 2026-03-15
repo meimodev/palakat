@@ -563,7 +563,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approval_emptySubtitle => 'Try adjusting your filters';
 
   @override
-  String get approval_errorTitle => 'Something went wrong';
+  String get approval_errorTitle => 'Could not load approvals';
 
   @override
   String get approval_confirmApproveTitle => 'Approve Activity?';
@@ -573,11 +573,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get approval_confirmApproveDescription =>
-      'Are you sure you want to approve this activity? This action cannot be undone.';
+      'Approve this activity? This action cannot be undone.';
 
   @override
   String get approval_confirmRejectDescription =>
-      'Are you sure you want to reject this activity? This action cannot be undone.';
+      'Reject this activity? This action cannot be undone.';
 
   @override
   String get approvalDetail_title => 'Approval Details';
@@ -796,7 +796,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btn_signOutMessage =>
-      'Are you sure you want to sign out? You will need to sign in again to access your account.';
+      'Sign out of your account? You will need to sign in again to access it.';
 
   @override
   String get btn_resendCode => 'Resend Code';
@@ -1108,7 +1108,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get err_somethingWentWrong =>
-      'Something went wrong. Please try again.';
+      'We encountered an issue. Please try again.';
 
   @override
   String get err_noData => 'No data available.';
@@ -2164,7 +2164,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publish_removeFinancialRecordContent =>
-      'Are you sure you want to remove this financial record? This action cannot be undone.';
+      'Remove this financial record? This action cannot be undone.';
 
   @override
   String get publish_publishedNotice =>
@@ -2666,35 +2666,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dlg_deleteRule_title => 'Delete Rule';
 
   @override
-  String get dlg_deleteRule_content =>
-      'Are you sure you want to delete this approval rule?';
+  String get dlg_deleteRule_content => 'Delete this approval rule?';
 
   @override
   String get dlg_deleteMember_title => 'Delete Member';
 
   @override
   String get dlg_deleteMember_content =>
-      'Are you sure you want to delete this member? This action cannot be undone.';
+      'Delete this member? This action cannot be undone.';
 
   @override
   String get dlg_deletePosition_title => 'Delete Position';
 
   @override
   String get dlg_deletePosition_content =>
-      'Are you sure you want to delete this position? This action cannot be undone.';
+      'Delete this position? This action cannot be undone.';
 
   @override
   String get dlg_deleteColumn_title => 'Delete Column';
 
   @override
   String get dlg_deleteColumn_content =>
-      'Are you sure you want to delete this column? This action cannot be undone.';
+      'Delete this column? This action cannot be undone.';
 
   @override
   String get dlg_signOut_title => 'Sign Out';
 
   @override
-  String get dlg_signOut_content => 'Are you sure you want to sign out?';
+  String get dlg_signOut_content => 'Sign out of your account?';
 
   @override
   String get dlg_recordPayment_title => 'Record Payment';
@@ -3040,7 +3039,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unauthorized_signInRequired_message =>
-      'This feature is available for signed-in users. Please sign in to continue.';
+      'You need to sign in to access this feature.';
 
   @override
   String get msg_insufficientPermissions => 'Insufficient permissions';
@@ -3269,40 +3268,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading_deleting => 'Deleting...';
 
   @override
-  String get error_loadingData => 'Failed to load data';
+  String get error_loadingData => 'Could not load data';
 
   @override
-  String get error_loadingMembers => 'Failed to load members';
+  String get error_loadingMembers => 'Could not load members';
 
   @override
-  String get error_loadingActivities => 'Failed to load activities';
+  String get error_loadingActivities => 'Could not load activities';
 
   @override
-  String get error_loadingRevenue => 'Failed to load revenue';
+  String get error_loadingRevenue => 'Could not load revenue';
 
   @override
-  String get error_loadingExpenses => 'Failed to load expenses';
+  String get error_loadingExpenses => 'Could not load expenses';
 
   @override
-  String get error_loadingReports => 'Failed to load reports';
+  String get error_loadingReports => 'Could not load reports';
 
   @override
-  String get error_loadingDocuments => 'Failed to load documents';
+  String get error_loadingDocuments => 'Could not load documents';
 
   @override
-  String get error_loadingApprovals => 'Failed to load approvals';
+  String get error_loadingApprovals => 'Could not load approvals';
 
   @override
-  String get error_loadingBilling => 'Failed to load billing';
+  String get error_loadingBilling => 'Could not load billing';
 
   @override
-  String get error_loadingFinancial => 'Failed to load financial data';
+  String get error_loadingFinancial => 'Could not load financial data';
 
   @override
-  String get error_loadingChurch => 'Failed to load church information';
+  String get error_loadingChurch => 'Could not load church information';
 
   @override
-  String get error_loadingAccount => 'Failed to load account information';
+  String get error_loadingAccount => 'Could not load account information';
 
   @override
   String get error_connectionFailed =>

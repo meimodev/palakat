@@ -26,6 +26,10 @@ import { ReportJobListQueryDto } from './dto/report-job-list.dto';
 export class ReportQueueService {
   private readonly logger = new Logger(ReportQueueService.name);
   private isProcessing = false;
+  private lastAttemptedAt?: string;
+  private lastCompletedAt?: string;
+  private lastFailedAt?: string;
+  private lastErrorMessage?: string;
 
   constructor(
     private prisma: PrismaService,
@@ -34,6 +38,38 @@ export class ReportQueueService {
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
   ) {}
+
+  async getHealthSnapshot() {
+    const [pending, processing, failed, oldestPending] =
+      await this.prisma.$transaction([
+        this.prisma.reportJob.count({
+          where: { status: ReportJobStatus.PENDING },
+        }),
+        this.prisma.reportJob.count({
+          where: { status: ReportJobStatus.PROCESSING },
+        }),
+        this.prisma.reportJob.count({
+          where: { status: ReportJobStatus.FAILED },
+        }),
+        this.prisma.reportJob.findFirst({
+          where: { status: ReportJobStatus.PENDING },
+          orderBy: { createdAt: 'asc' },
+          select: { createdAt: true },
+        }),
+      ]);
+
+    return {
+      pending,
+      processing,
+      failed,
+      isProcessing: this.isProcessing,
+      lastAttemptedAt: this.lastAttemptedAt,
+      lastCompletedAt: this.lastCompletedAt,
+      lastFailedAt: this.lastFailedAt,
+      lastErrorMessage: this.lastErrorMessage,
+      oldestPendingAt: oldestPending?.createdAt?.toISOString(),
+    };
+  }
 
   private async resolveRequesterChurchId(user?: any): Promise<number> {
     const userId = user?.userId;
@@ -251,6 +287,8 @@ export class ReportQueueService {
     }
 
     this.logger.log(`Processing report job ${job.id}`);
+    this.lastAttemptedAt = new Date().toISOString();
+    this.lastErrorMessage = undefined;
 
     await this.prisma.reportJob.update({
       where: { id: job.id },
@@ -344,6 +382,7 @@ export class ReportQueueService {
       this.logger.log(
         `Report job ${job.id} completed, report ${report.id} created`,
       );
+      this.lastCompletedAt = new Date().toISOString();
 
       await this.notifyReportReady(job, report);
     } catch (error) {
@@ -359,6 +398,8 @@ export class ReportQueueService {
           errorMessage: error.message || 'Unknown error',
         },
       });
+      this.lastFailedAt = new Date().toISOString();
+      this.lastErrorMessage = error.message || 'Unknown error';
 
       try {
         this.realtime.emitToRoom(

@@ -55,7 +55,7 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                         Gap.h4,
                         Text(
                           activity.date.ddMmmmYyyy,
-                          style: BaseTypography.bodySmall.copyWith(
+                          style: BaseTypography.bodyMedium.copyWith(
                             color: BaseColor.textSecondary,
                           ),
                         ),
@@ -72,14 +72,13 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
               ),
               Gap.h12,
               // Bottom row: Activity type badge, Finance badge, and Approval status
-              Row(
+              Wrap(
+                spacing: BaseSize.w8,
+                runSpacing: BaseSize.h8,
                 children: [
                   _ActivityTypeBadge(activityType: activity.activityType),
-                  Gap.w8,
-                  if (activity.financeType != null) ...[
+                  if (activity.financeType != null)
                     _FinanceBadge(financeType: activity.financeType!),
-                    Gap.w8,
-                  ],
                   _ApprovalStatusBadge(activity: activity),
                 ],
               ),
@@ -155,7 +154,7 @@ class _ActivityTypeBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w10,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
@@ -201,7 +200,7 @@ class _FinanceBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w10,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
@@ -212,8 +211,8 @@ class _FinanceBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(financeType.icon, size: BaseSize.w12, color: color),
-          Gap.w4,
+          Icon(financeType.icon, size: BaseSize.w14, color: color),
+          Gap.w6,
           Text(
             financeType.displayName,
             style: BaseTypography.labelMedium.copyWith(
@@ -240,7 +239,7 @@ class _ApprovalStatusBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w8,
+        horizontal: BaseSize.w10,
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
@@ -254,8 +253,8 @@ class _ApprovalStatusBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(statusInfo.icon, size: BaseSize.w12, color: statusInfo.color),
-          Gap.w4,
+          Icon(statusInfo.icon, size: BaseSize.w14, color: statusInfo.color),
+          Gap.w6,
           Text(
             statusInfo.label,
             style: BaseTypography.labelMedium.copyWith(

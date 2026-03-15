@@ -5,6 +5,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/members/member_birthdays_controller.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' as shared;
 
@@ -30,32 +31,37 @@ class MemberBirthdaysScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ScreenTitleWidget.titleSecondary(
-            title: l10n.tbl_birth,
-            subTitle: state.scopeLabel,
-            onBack: () => context.pop(),
+          OperationsReveal(
+            child: ScreenTitleWidget.titleSecondary(
+              title: l10n.tbl_birth,
+              subTitle: state.scopeLabel,
+              onBack: () => context.pop(),
+            ),
           ),
           Gap.h16,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-            child: DateRangePresetInput(
-              label: l10n.lbl_dateRange,
-              start: start,
-              end: end,
-              showYear: false,
-              allowedPresets: const [
-                DateRangePreset.allTime,
-                DateRangePreset.thisWeek,
-                DateRangePreset.thisMonth,
-                DateRangePreset.thisYear,
-                DateRangePreset.lastWeek,
-                DateRangePreset.lastMonth,
-                DateRangePreset.lastYear,
-                DateRangePreset.custom,
-              ],
-              onChanged: (s, e) {
-                controller.setDateRange(start: s, end: e);
-              },
+          OperationsReveal(
+            delay: const Duration(milliseconds: 40),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              child: DateRangePresetInput(
+                label: l10n.lbl_dateRange,
+                start: start,
+                end: end,
+                showYear: false,
+                allowedPresets: const [
+                  DateRangePreset.allTime,
+                  DateRangePreset.thisWeek,
+                  DateRangePreset.thisMonth,
+                  DateRangePreset.thisYear,
+                  DateRangePreset.lastWeek,
+                  DateRangePreset.lastMonth,
+                  DateRangePreset.lastYear,
+                  DateRangePreset.custom,
+                ],
+                onChanged: (s, e) {
+                  controller.setDateRange(start: s, end: e);
+                },
+              ),
             ),
           ),
           Gap.h16,
@@ -93,10 +99,13 @@ class _BirthdaysContent extends StatelessWidget {
     final l10n = context.l10n;
 
     if (items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.only(top: BaseSize.h12),
-          child: InfoBoxWidget(message: l10n.err_noData),
+      return OperationsAnimatedPresence(
+        visible: true,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: BaseSize.h12),
+            child: InfoBoxWidget(message: l10n.err_noData),
+          ),
         ),
       );
     }
@@ -113,75 +122,78 @@ class _BirthdaysContent extends StatelessWidget {
         final dateLabel = item.date.ddMmmm;
         final id = membership.id;
 
-        return Material(
-          color: BaseColor.cardBackground1,
-          elevation: 1,
-          shadowColor: Colors.black.withValues(alpha: 0.05),
-          surfaceTintColor: BaseColor.yellow[50],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-            onTap: id == null
-                ? null
-                : () {
-                    context.pushNamed(
-                      AppRoute.memberDetail,
-                      pathParameters: {'membershipId': id.toString()},
-                    );
-                  },
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w12),
-              child: Row(
-                children: [
-                  Container(
-                    width: BaseSize.w36,
-                    height: BaseSize.w36,
-                    decoration: BoxDecoration(
-                      color: BaseColor.yellow[100],
-                      shape: BoxShape.circle,
+        return OperationsReveal(
+          delay: Duration(milliseconds: 40 + (index * 30)),
+          child: Material(
+            color: BaseColor.cardBackground1,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.05),
+            surfaceTintColor: BaseColor.yellow[50],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: InkWell(
+              onTap: id == null
+                  ? null
+                  : () {
+                      context.pushNamed(
+                        AppRoute.memberDetail,
+                        pathParameters: {'membershipId': id.toString()},
+                      );
+                    },
+              child: Padding(
+                padding: EdgeInsets.all(BaseSize.w12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: BaseSize.w36,
+                      height: BaseSize.w36,
+                      decoration: BoxDecoration(
+                        color: BaseColor.yellow[100],
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        AppIcons.birthday,
+                        size: BaseSize.w16,
+                        color: BaseColor.yellow[700],
+                      ),
                     ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      AppIcons.birthday,
-                      size: BaseSize.w16,
-                      color: BaseColor.yellow[700],
-                    ),
-                  ),
-                  Gap.w12,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: BaseColor.black,
+                    Gap.w12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: BaseTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: BaseColor.black,
+                            ),
                           ),
-                        ),
-                        Gap.h4,
-                        Text(
-                          dateLabel,
-                          style: BaseTypography.bodySmall.copyWith(
-                            color: BaseColor.textSecondary,
+                          Gap.h4,
+                          Text(
+                            dateLabel,
+                            style: BaseTypography.bodyMedium.copyWith(
+                              color: BaseColor.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  if (account?.claimed == true) ...[
-                    Gap.w8,
-                    Icon(
-                      AppIcons.verified,
-                      size: BaseSize.w16,
-                      color: BaseColor.green[700],
-                    ),
+                    if (account?.claimed == true) ...[
+                      Gap.w8,
+                      Icon(
+                        AppIcons.verified,
+                        size: BaseSize.w16,
+                        color: BaseColor.green[700],
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),

@@ -54,7 +54,7 @@ class MembershipController extends _$MembershipController {
   }
 
   /// Fetch columns from backend filtered by church ID with optional search
-  Future<List<Column>> fetchColumns({
+  Future<Result<List<Column>, Failure>> fetchColumns({
     required int churchId,
     String? searchQuery,
   }) async {
@@ -75,16 +75,27 @@ class MembershipController extends _$MembershipController {
         paginationRequest: paginationRequest,
       );
 
+      Failure? fetchFailure;
       final columns = result.when<List<Column>>(
         onSuccess: (response) {
           return response.data.cast<Column>();
         },
-        onFailure: (failure) {},
+        onFailure: (failure) {
+          fetchFailure = failure;
+        },
       );
 
-      return columns ?? <Column>[];
+      if (fetchFailure != null) {
+        return Result.failure(fetchFailure!);
+      }
+
+      if (columns == null) {
+        return Result.failure(Failure(_l10n().err_loadFailed));
+      }
+
+      return Result.success(columns);
     } catch (e) {
-      return [];
+      return Result.failure(Failure.fromException(e));
     }
   }
 

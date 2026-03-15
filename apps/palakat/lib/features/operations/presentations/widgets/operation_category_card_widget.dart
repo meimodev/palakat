@@ -3,6 +3,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/widgets/operation_item_card_widget.dart';
 import 'package:palakat/features/operations/presentations/widgets/recent_reports_section_widget.dart';
+import 'package:palakat/features/operations/presentations/widgets/responsive_operation_grid_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/report.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
@@ -112,55 +113,65 @@ class OperationCategoryCard extends StatelessWidget {
         );
       }
 
-      return Padding(
-        padding: EdgeInsets.only(
-          left: BaseSize.w8,
-          right: BaseSize.w8,
-          bottom: BaseSize.w12,
-          top: BaseSize.w8,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: BaseSize.w8,
-              mainAxisSpacing: BaseSize.w8,
-              childAspectRatio: 3.0,
-              children: operations
-                  .map(
-                    (operation) => _ReportTypeTile(
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = _reportGridColumnCount(constraints.maxWidth);
+          final childAspectRatio = crossAxisCount == 1 ? 3.4 : 3.0;
+
+          return Padding(
+            padding: EdgeInsets.only(
+              left: BaseSize.w8,
+              right: BaseSize.w8,
+              bottom: BaseSize.w12,
+              top: BaseSize.w8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: operations.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: BaseSize.w8,
+                    mainAxisSpacing: BaseSize.w8,
+                    childAspectRatio: childAspectRatio,
+                  ),
+                  itemBuilder: (context, index) {
+                    final operation = operations[index];
+                    return _ReportTypeTile(
                       title: operation.title,
                       icon: operation.icon,
                       isEnabled: operation.isEnabled,
                       onTap: () => onOperationTap(operation),
-                    ),
-                  )
-                  .toList(),
-            ),
-            // Recent reports section
-            if (recentReports != null ||
-                isLoadingRecentReports ||
-                recentReportsError != null ||
-                (pendingReportJobs != null && pendingReportJobs!.isNotEmpty) ||
-                isLoadingPendingReportJobs)
-              Padding(
-                padding: EdgeInsets.only(top: BaseSize.w8),
-                child: RecentReportsSection(
-                  reports: recentReports ?? [],
-                  isLoading: isLoadingRecentReports,
-                  error: recentReportsError,
-                  onDownloadTap: (report) => onReportDownloadTap?.call(report),
-                  onViewTap: onReportViewTap,
-                  onRetry: () => onRecentReportsRetry?.call(),
-                  pendingJobs: pendingReportJobs ?? [],
-                  isLoadingPendingJobs: isLoadingPendingReportJobs,
+                    );
+                  },
                 ),
-              ),
-          ],
-        ),
+                if (recentReports != null ||
+                    isLoadingRecentReports ||
+                    recentReportsError != null ||
+                    (pendingReportJobs != null &&
+                        pendingReportJobs!.isNotEmpty) ||
+                    isLoadingPendingReportJobs)
+                  Padding(
+                    padding: EdgeInsets.only(top: BaseSize.w8),
+                    child: RecentReportsSection(
+                      reports: recentReports ?? [],
+                      isLoading: isLoadingRecentReports,
+                      error: recentReportsError,
+                      onDownloadTap: (report) =>
+                          onReportDownloadTap?.call(report),
+                      onViewTap: onReportViewTap,
+                      onRetry: () => onRecentReportsRetry?.call(),
+                      pendingJobs: pendingReportJobs ?? [],
+                      isLoadingPendingJobs: isLoadingPendingReportJobs,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       );
     }
 
@@ -182,22 +193,18 @@ class OperationCategoryCard extends StatelessWidget {
         right: BaseSize.w8,
         bottom: BaseSize.w8,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: operations
-            .map(
-              (operation) => Padding(
-                padding: EdgeInsets.only(bottom: BaseSize.w8),
-                child: OperationItemCard(
-                  operation: operation,
-                  onTap: () => onOperationTap(operation),
-                ),
-              ),
-            )
-            .toList(),
+      child: ResponsiveOperationGrid(
+        operations: operations,
+        onOperationTap: onOperationTap,
       ),
     );
   }
+}
+
+int _reportGridColumnCount(double width) {
+  if (width >= 760) return 3;
+  if (width >= 420) return 2;
+  return 1;
 }
 
 class _ReportTypeTile extends StatelessWidget {
@@ -231,50 +238,69 @@ class _ReportTypeTile extends StatelessWidget {
           onTap: isEnabled ? onTap : null,
           splashColor: BaseColor.primary.withValues(alpha: 0.08),
           highlightColor: BaseColor.primary.withValues(alpha: 0.05),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: BaseSize.w12,
-              vertical: BaseSize.h8,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: BaseSize.w28,
-                  height: BaseSize.w28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isEnabled
-                        ? BaseColor.primary.withValues(alpha: 0.12)
-                        : BaseColor.neutral[100],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: isEnabled
-                        ? BaseColor.primary
-                        : BaseColor.textDisabled,
-                    size: BaseSize.w14,
-                  ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final shouldStack =
+                  constraints.maxWidth < 180 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+              final tileIcon = Container(
+                width: shouldStack ? BaseSize.w32 : BaseSize.w28,
+                height: shouldStack ? BaseSize.w32 : BaseSize.w28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isEnabled
+                      ? BaseColor.primary.withValues(alpha: 0.12)
+                      : BaseColor.neutral[100],
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: BaseSize.w8),
-                    child: Text(
-                      title,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: isEnabled
-                            ? BaseColor.textPrimary
-                            : BaseColor.textDisabled,
-                        height: 1.1,
+                child: Icon(
+                  icon,
+                  color: isEnabled ? BaseColor.primary : BaseColor.textDisabled,
+                  size: shouldStack ? BaseSize.w16 : BaseSize.w14,
+                ),
+              );
+
+              final titleText = Text(
+                title,
+                style: BaseTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: isEnabled
+                      ? BaseColor.textPrimary
+                      : BaseColor.textDisabled,
+                  height: 1.1,
+                ),
+                maxLines: shouldStack ? 3 : 2,
+                overflow: TextOverflow.ellipsis,
+              );
+
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: BaseSize.w12,
+                  vertical: BaseSize.h8,
+                ),
+                child: shouldStack
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          tileIcon,
+                          Gap.h8,
+                          Expanded(child: titleText),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          tileIcon,
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: BaseSize.w8),
+                              child: titleText,
+                            ),
+                          ),
+                        ],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -313,10 +339,13 @@ class _CategoryHeader extends StatelessWidget {
         highlightColor: BaseColor.primary.withValues(alpha: 0.05),
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w16),
-          child: Row(
-            children: [
-              // Category icon
-              Container(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final shouldStack =
+                  constraints.maxWidth < 360 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.1;
+
+              final icon = Container(
                 width: BaseSize.w40,
                 height: BaseSize.w40,
                 alignment: Alignment.center,
@@ -329,20 +358,19 @@ class _CategoryHeader extends StatelessWidget {
                   color: BaseColor.primary,
                   size: BaseSize.w24,
                 ),
-              ),
-              Gap.w12,
-              // Category title
-              Expanded(
-                child: Text(
-                  _categoryTitle(context, category),
-                  style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: BaseColor.textPrimary,
-                  ),
+              );
+
+              final title = Text(
+                _categoryTitle(context, category),
+                style: BaseTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BaseColor.textPrimary,
                 ),
-              ),
-              // Operation count badge
-              Container(
+                maxLines: shouldStack ? 2 : 1,
+                overflow: TextOverflow.ellipsis,
+              );
+
+              final countBadge = Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: BaseSize.w8,
                   vertical: BaseSize.w4,
@@ -353,15 +381,14 @@ class _CategoryHeader extends StatelessWidget {
                 ),
                 child: Text(
                   '${category.operations.length}',
-                  style: BaseTypography.labelSmall.copyWith(
+                  style: BaseTypography.labelMedium.copyWith(
                     color: BaseColor.primary[700],
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              // Expand/collapse icon with animation (always visible)
-              Gap.w8,
-              AnimatedRotation(
+              );
+
+              final expandIcon = AnimatedRotation(
                 turns: category.isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
@@ -369,8 +396,40 @@ class _CategoryHeader extends StatelessWidget {
                   color: BaseColor.primary,
                   size: BaseSize.w24,
                 ),
-              ),
-            ],
+              );
+
+              if (shouldStack) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        icon,
+                        Gap.w12,
+                        Expanded(child: title),
+                      ],
+                    ),
+                    Gap.h12,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [countBadge, Gap.w8, expandIcon],
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  icon,
+                  Gap.w12,
+                  Expanded(child: title),
+                  countBadge,
+                  Gap.w8,
+                  expandIcon,
+                ],
+              );
+            },
           ),
         ),
       ),

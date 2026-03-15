@@ -71,15 +71,18 @@ class ViewAllScreen extends ConsumerWidget {
     final hasError =
         (async.hasError || (birthdaysAsync?.hasError ?? false)) &&
         (errorMessage != null);
+    final weekDates = DateTime.now().generateThisWeekDates;
 
     return ScaffoldWidget(
       child: Column(
         children: [
-          ScreenTitleWidget.primary(
-            title: '$titlePrefix - ${context.l10n.dateRangeFilter_thisWeek}',
-            leadIcon: AppIcons.back,
-            leadIconColor: Colors.black,
-            onPressedLeadIcon: context.pop,
+          DashboardReveal(
+            child: ScreenTitleWidget.primary(
+              title: '$titlePrefix - ${context.l10n.dateRangeFilter_thisWeek}',
+              leadIcon: AppIcons.back,
+              leadIconColor: BaseColor.textPrimary,
+              onPressedLeadIcon: context.pop,
+            ),
           ),
           Gap.h16,
           LoadingWrapper(
@@ -112,39 +115,46 @@ class ViewAllScreen extends ConsumerWidget {
 
                 return Column(
                   children: [
-                    ...DateTime.now().generateThisWeekDates.map(
-                      (date) => Padding(
-                        padding: EdgeInsets.only(bottom: BaseSize.h16),
-                        child: CardActivitySectionWidget(
-                          title: date.EEEEddMMM,
-                          today: date.isSameDay(DateTime.now()),
-                          activities: filtered
-                              .where(
-                                (activity) => activity.date.isSameDay(date),
-                              )
-                              .toList(),
-                          birthdays: birthdays
-                              .where((b) => b.date.isSameDay(date))
-                              .toList(growable: false),
-                          onPressedBirthday: (birthday) {
-                            final id = birthday.membership.id;
-                            if (id == null) return;
-                            context.pushNamed(
-                              AppRoute.memberDetail,
-                              pathParameters: {'membershipId': id.toString()},
-                            );
-                          },
-                          onPressedCard: (Activity activity) {
-                            context.pushNamed(
-                              AppRoute.activityDetail,
-                              pathParameters: {
-                                'activityId': activity.id.toString(),
-                              },
-                            );
-                          },
+                    ...weekDates.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final date = entry.value;
+
+                      return DashboardReveal(
+                        key: ValueKey('view-all-${date.toIso8601String()}'),
+                        delay: Duration(milliseconds: 50 + (index * 35)),
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: BaseSize.h16),
+                          child: CardActivitySectionWidget(
+                            title: date.EEEEddMMM,
+                            today: date.isSameDay(DateTime.now()),
+                            activities: filtered
+                                .where(
+                                  (activity) => activity.date.isSameDay(date),
+                                )
+                                .toList(),
+                            birthdays: birthdays
+                                .where((b) => b.date.isSameDay(date))
+                                .toList(growable: false),
+                            onPressedBirthday: (birthday) {
+                              final id = birthday.membership.id;
+                              if (id == null) return;
+                              context.pushNamed(
+                                AppRoute.memberDetail,
+                                pathParameters: {'membershipId': id.toString()},
+                              );
+                            },
+                            onPressedCard: (Activity activity) {
+                              context.pushNamed(
+                                AppRoute.activityDetail,
+                                pathParameters: {
+                                  'activityId': activity.id.toString(),
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 );
               },

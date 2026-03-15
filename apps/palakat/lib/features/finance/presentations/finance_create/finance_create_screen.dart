@@ -7,6 +7,7 @@ import 'package:palakat/features/finance/presentations/finance_create/finance_cr
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_state.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_controller.dart';
+import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
@@ -49,24 +50,36 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
       loading: state.loading,
       disablePadding: true,
       disableSingleChildScrollView: true,
-      persistBottomWidget: _buildSubmitButton(state, controller),
+      persistBottomWidget: OperationsReveal(
+        delay: const Duration(milliseconds: 140),
+        child: _buildSubmitButton(state, controller),
+      ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(state),
+            OperationsReveal(child: _buildHeader(state)),
             Gap.h16,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildFinanceTypeIndicator(),
+                  OperationsReveal(
+                    delay: const Duration(milliseconds: 40),
+                    child: _buildFinanceTypeIndicator(),
+                  ),
                   Gap.h16,
-                  _buildFormSection(state, controller),
+                  OperationsReveal(
+                    delay: const Duration(milliseconds: 80),
+                    child: _buildFormSection(state, controller),
+                  ),
                   if (widget.isStandalone) ...[
                     Gap.h16,
-                    _buildActivityPickerSection(state, controller),
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 120),
+                      child: _buildActivityPickerSection(state, controller),
+                    ),
                   ],
                   Gap.h24,
                 ],
@@ -124,93 +137,12 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     );
   }
 
-  Widget _buildSectionCard({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-    String? subtitle,
-  }) {
-    return Material(
-      color: BaseColor.white,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Section header
-          Container(
-            padding: EdgeInsets.all(BaseSize.w12),
-            decoration: BoxDecoration(
-              color: BaseColor.surfaceMedium,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusLg),
-                topRight: Radius.circular(BaseSize.radiusLg),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(BaseSize.w6),
-                  decoration: BoxDecoration(
-                    color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  ),
-                  child: Icon(
-                    icon,
-                    size: BaseSize.w16,
-                    color: BaseColor.primary[600],
-                  ),
-                ),
-                Gap.w8,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: BaseTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        Gap.h4,
-                        Text(
-                          subtitle,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.neutral[600],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Section content
-          Padding(
-            padding: EdgeInsets.all(BaseSize.w12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFormSection(
     FinanceCreateState state,
     FinanceCreateController controller,
   ) {
     final l10n = context.l10n;
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: l10n.section_financialRecord,
       icon: AppIcons.wallet,
       children: [
@@ -250,7 +182,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     FinanceCreateController controller,
   ) {
     final l10n = context.l10n;
-    return _buildSectionCard(
+    return FormSectionWidget(
       title: l10n.tbl_activity,
       icon: AppIcons.event,
       children: [
@@ -302,7 +234,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
               if (!widget.isStandalone) ...[
                 Text(
                   l10n.publish_financialRecordSubtitle,
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.neutral60,
                   ),
                   textAlign: TextAlign.center,

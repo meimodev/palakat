@@ -164,7 +164,7 @@ class _MembershipInvitationConfirmationCardWidgetState
           Gap.w8,
           Text(
             text,
-            style: BaseTypography.bodySmall.copyWith(
+            style: BaseTypography.labelMedium.copyWith(
               color: fgColor,
               fontWeight: FontWeight.w700,
             ),
@@ -218,10 +218,12 @@ class _MembershipInvitationConfirmationCardWidgetState
                     children: [
                       Text(
                         l10n.dashboard_membershipInvitation_title,
-                        style: BaseTypography.bodySmall.copyWith(
+                        style: BaseTypography.bodyMedium.copyWith(
                           color: BaseColor.neutral[700],
                           fontWeight: FontWeight.w700,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Gap.h4,
                       Text(

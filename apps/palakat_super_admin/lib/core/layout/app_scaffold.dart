@@ -13,28 +13,39 @@ class AppScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
-    final isSmall = width < 900;
-    final horizontalPadding = isSmall
+    final isCompact = width < 640;
+    final isSmall = width < 960;
+    final horizontalPadding = isCompact
         ? 12.0
         : width > 1440
         ? 24.0
-        : 16.0;
+        : isSmall
+        ? 16.0
+        : 20.0;
+    final drawerWidth = width < 420 ? width - 24 : 320.0;
+    final showCompactTitle = width < 420;
     final l10n = context.l10n;
 
     return Scaffold(
       appBar: isSmall
           ? AppBar(
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(l10n.appTitle),
-                  const SizedBox(width: 8),
-                  Chip(
-                    label: Text(l10n.app_superAdminTitle),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
+              title: showCompactTitle
+                  ? Text(
+                      l10n.app_superAdminTitle,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l10n.appTitle),
+                        const SizedBox(width: 8),
+                        Chip(
+                          label: Text(l10n.app_superAdminTitle),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+              titleSpacing: 8,
               elevation: 0,
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
@@ -61,7 +72,10 @@ class AppScaffold extends ConsumerWidget {
             )
           : null,
       drawer: isSmall
-          ? const _AnimatedDrawer(sidebar: SuperAdminSidebar())
+          ? _AnimatedDrawer(
+              sidebar: const SuperAdminSidebar(),
+              width: drawerWidth,
+            )
           : null,
       drawerEnableOpenDragGesture: true,
       body: Row(
@@ -79,7 +93,10 @@ class AppScaffold extends ConsumerWidget {
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1440),
-                    child: child,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [child, const _AppFooter()],
+                    ),
                   ),
                 ),
               ),
@@ -92,8 +109,9 @@ class AppScaffold extends ConsumerWidget {
 }
 
 class _AnimatedDrawer extends StatelessWidget {
-  const _AnimatedDrawer({required this.sidebar});
+  const _AnimatedDrawer({required this.sidebar, this.width});
   final Widget sidebar;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +123,7 @@ class _AnimatedDrawer extends StatelessWidget {
         ),
       ),
       child: Drawer(
+        width: width,
         elevation: 0,
         child: Container(
           decoration: BoxDecoration(
@@ -238,5 +257,39 @@ class _AnimatedContentState extends State<_AnimatedContent>
   @override
   Widget build(BuildContext context) {
     return FadeTransition(opacity: _controller, child: widget.child);
+  }
+}
+
+class _AppFooter extends StatelessWidget {
+  const _AppFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final year = DateTime.now().year;
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.6);
+    final l10n = context.l10n;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 32),
+        Divider(
+          height: 16,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            l10n.footer_copyright(year),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
   }
 }

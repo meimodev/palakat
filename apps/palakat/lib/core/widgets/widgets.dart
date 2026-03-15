@@ -77,5 +77,8 @@ export 'loading/shimmer_widgets.dart';
 // Scaffold - app-specific implementation using local LoadingWrapper
 export 'scaffold/scaffold_widget.dart';
 
+// Segment Title
+export 'segment_title/form_section_widget.dart';
+
 // Icon widget - app-specific helper for Font Awesome icons
 export 'app_icon_widget.dart';

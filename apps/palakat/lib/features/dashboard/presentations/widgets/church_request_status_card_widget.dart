@@ -13,7 +13,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
     final statusInfo = _getStatusInfo(context, churchRequest.status);
 
     return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
+      padding: EdgeInsets.all(BaseSize.w14),
       decoration: BoxDecoration(
         color: statusInfo.backgroundColor,
         borderRadius: BorderRadius.circular(12),
@@ -22,8 +22,8 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: BaseSize.w32,
-            height: BaseSize.w32,
+            width: BaseSize.w36,
+            height: BaseSize.w36,
             decoration: BoxDecoration(
               color: statusInfo.iconBackgroundColor,
               shape: BoxShape.circle,
@@ -31,7 +31,7 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
             alignment: Alignment.center,
             child: Icon(
               statusInfo.icon,
-              size: BaseSize.w16,
+              size: BaseSize.w18,
               color: statusInfo.iconColor,
             ),
           ),
@@ -47,15 +47,17 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
                         context.l10n.churchRequest_title,
                         style: BaseTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: BaseColor.black,
+                          color: BaseColor.textPrimary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Gap.w8,
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w6,
-                        vertical: BaseSize.h4 / 2,
+                        horizontal: BaseSize.w8,
+                        vertical: BaseSize.h4,
                       ),
                       decoration: BoxDecoration(
                         color: statusInfo.badgeBackgroundColor,
@@ -63,21 +65,19 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
                       ),
                       child: Text(
                         statusInfo.statusLabel,
-                        style: BaseTypography.labelSmall.copyWith(
+                        style: BaseTypography.labelMedium.copyWith(
                           color: statusInfo.badgeTextColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 10,
                         ),
                       ),
                     ),
                   ],
                 ),
-                Gap.h4,
+                Gap.h6,
                 Text(
                   statusInfo.message,
-                  style: BaseTypography.bodySmall.copyWith(
+                  style: BaseTypography.bodyMedium.copyWith(
                     color: BaseColor.neutral[600],
-                    fontSize: 12,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
