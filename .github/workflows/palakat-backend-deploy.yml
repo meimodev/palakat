@@ -39,6 +39,10 @@ jobs:
           cp pnpm-workspace.yaml "$RELEASE_DIR/"
           tar -czf palakat_backend_release.tar.gz -C "$RELEASE_DIR" .
 
+      - name: Check TCP reachability to EC2 SSH
+        run: |
+            nc -vz ${{ secrets.EC2_HOST }} ${{ secrets.EC2_PORT }}
+    
       - name: Upload artifact to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
