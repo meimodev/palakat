@@ -109,14 +109,14 @@ jobs:
             tar -xzf /tmp/palakat_backend_release.tar.gz -C "$RELEASE_DIR"
             cd "$RELEASE_DIR"
             pnpm install --frozen-lockfile
-            cp /etc/palakat/palakat_backend.env "$RELEASE_DIR/apps/palakat_backend/.env"
+            sudo cp /etc/palakat/palakat_backend.env "$RELEASE_DIR/apps/palakat_backend/.env"
             pnpm --dir apps/palakat_backend run build
             cd "$RELEASE_DIR/apps/palakat_backend"
             pnpm run db:deploy
             ln -sfn "$RELEASE_DIR" /srv/palakat/backend/current
             sudo systemctl restart palakat-backend
             sudo systemctl is-active palakat-backend
-            HEALTH_PAGE_SECRET=$(grep '^HEALTH_PAGE_SECRET=' /etc/palakat/palakat_backend.env | cut -d= -f2-)
+            HEALTH_PAGE_SECRET=$(sudo grep '^HEALTH_PAGE_SECRET=' /etc/palakat/palakat_backend.env | cut -d= -f2-)
             curl -fsS -H "x-health-secret: ${HEALTH_PAGE_SECRET}" http://127.0.0.1:3000/health > /dev/null
             rm -f /tmp/palakat_backend_release.tar.gz
             
