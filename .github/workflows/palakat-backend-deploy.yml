@@ -46,6 +46,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           port: ${{ secrets.EC2_PORT }}
+          passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
           source: "palakat_backend_release.tar.gz"
           target: "/tmp"
 
@@ -56,6 +57,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           port: ${{ secrets.EC2_PORT }}
+          passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
           script_stop: true
           script: |
             set -euo pipefail
