@@ -30,6 +30,40 @@ jobs:
       - name: Build backend
         run: pnpm --dir apps/palakat_backend run build
 
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-actions-palakat-deploy
+          aws-region: ${{ secrets.AWS_REGION }}
+ 
+      - name: Get runner public IP
+        id: runner_ip
+        run: |
+          IP=$(curl -fsS https://checkip.amazonaws.com | tr -d '\n')
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+
+      - name: Authorize temporary SSH ingress
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --region "${{ secrets.AWS_REGION }}" \
+            --group-id "${{ secrets.EC2_SECURITY_GROUP_ID }}" \
+            --ip-permissions '[
+              {
+                "IpProtocol": "tcp",
+                "FromPort": '"${{ secrets.EC2_PORT }}"',
+                "ToPort": '"${{ secrets.EC2_PORT }}"',
+                "IpRanges": [
+                  {
+                    "CidrIp": "'"${{ steps.runner_ip.outputs.ip }}/32"'",
+                    "Description": "GitHub Actions run '"${{ github.run_id }}"'"
+                  }
+                ]
+              }
+            ]'
+
       - name: Package release artifact
         run: |
           RELEASE_DIR=palakat_backend_release
@@ -81,3 +115,22 @@ jobs:
             HEALTH_PAGE_SECRET=$(grep '^HEALTH_PAGE_SECRET=' /etc/palakat/palakat_backend.env | cut -d= -f2-)
             curl -fsS -H "x-health-secret: ${HEALTH_PAGE_SECRET}" http://127.0.0.1:3000/health > /dev/null
             rm -f /tmp/palakat_backend_release.tar.gz
+            
+      - name: Revoke temporary SSH ingress
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --region "${{ secrets.AWS_REGION }}" \
+            --group-id "${{ secrets.EC2_SECURITY_GROUP_ID }}" \
+            --ip-permissions '[
+              {
+                "IpProtocol": "tcp",
+                "FromPort": '"${{ secrets.EC2_PORT }}"',
+                "ToPort": '"${{ secrets.EC2_PORT }}"',
+                "IpRanges": [
+                  {
+                    "CidrIp": "'"${{ steps.runner_ip.outputs.ip }}/32"'"
+                  }
+                ]
+              }
+            ]'
