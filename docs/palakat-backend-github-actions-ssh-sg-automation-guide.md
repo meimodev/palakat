@@ -224,27 +224,83 @@ If your key was created with `-N ""`, you do not need this secret.
 
 # 5. One-time AWS setup
 
-## 5.1 Create the GitHub OIDC identity provider in AWS
+## 5.1 Understand what you are creating
 
-In AWS Console:
+Before clicking around in AWS, it helps to know what each part does.
 
-- Go to IAM.
-- Open Identity providers.
-- Create a new provider.
+You need three AWS pieces:
 
-Use these values:
+- an **OIDC identity provider** so AWS can trust GitHub's identity tokens
+- an **IAM policy** so the workflow is allowed to update the EC2 security group
+- an **IAM role** that GitHub Actions assumes temporarily during deployment
 
-- Provider type: `OpenID Connect`
-- Provider URL: `https://token.actions.githubusercontent.com`
-- Audience: `sts.amazonaws.com`
+Think of it this way:
 
-This tells AWS to trust GitHub-issued OIDC tokens.
+- GitHub proves its identity to AWS using OIDC
+- AWS checks whether that GitHub workflow is allowed to assume your role
+- if allowed, AWS gives temporary credentials to the workflow
+- the workflow uses those temporary credentials to call EC2 APIs
 
-## 5.2 Create an IAM policy for security group access
+If the OIDC provider does not exist, you will get an error like:
 
-Create a customer-managed IAM policy that allows the workflow to manage inbound SSH rules on the target security group.
+```text
+No OpenIDConnect provider found in your account for https://token.actions.githubusercontent.com
+```
 
-A simple starting policy is:
+If the IAM role trust policy is wrong, you will usually get a role assumption or access denied error.
+
+## 5.2 Create the GitHub OIDC identity provider in AWS
+
+This is a one-time setup per AWS account.
+
+### Step-by-step in AWS Console
+
+1. Sign in to AWS Console.
+2. In the search bar, type `IAM` and open **IAM**.
+3. In the left sidebar, click **Identity providers**.
+4. Click **Add provider**.
+5. For **Provider type**, choose `OpenID Connect`.
+6. For **Provider URL**, enter:
+
+```text
+https://token.actions.githubusercontent.com
+```
+
+7. For **Audience**, enter:
+
+```text
+sts.amazonaws.com
+```
+
+8. Review the values.
+9. Click **Add provider**.
+
+### What success looks like
+
+After saving, you should see an identity provider whose URL is:
+
+```text
+token.actions.githubusercontent.com
+```
+
+That tells AWS that GitHub Actions may present OIDC tokens to request temporary credentials.
+
+### Beginner notes
+
+- You only need to do this once per AWS account.
+- If you have multiple AWS accounts, you must create the provider in the exact account where your deploy role lives.
+- If you skip this step, `aws-actions/configure-aws-credentials` cannot assume your role.
+
+## 5.3 Create an IAM policy for EC2 security group access
+
+The GitHub workflow needs permission to temporarily add and remove an SSH ingress rule.
+
+### Step-by-step in AWS Console
+
+1. In **IAM**, click **Policies**.
+2. Click **Create policy**.
+3. Open the **JSON** tab.
+4. Paste this starter policy:
 
 ```json
 {
@@ -264,15 +320,71 @@ A simple starting policy is:
 }
 ```
 
-This is intentionally broad enough to get the workflow working quickly. You can tighten it later if needed.
+5. Click **Next**.
+6. Give the policy a clear name, for example:
 
-## 5.3 Create an IAM role for GitHub Actions
+```text
+PalakatGithubActionsSecurityGroupDeployPolicy
+```
 
-Create an IAM role that uses web identity federation and trusts GitHub's OIDC provider.
+7. Optionally add a description explaining that it is used by GitHub Actions to temporarily manage SSH ingress during backend deployment.
+8. Click **Create policy**.
 
-The trust policy should restrict who can assume the role.
+### Beginner notes
 
-A branch-based trust policy example:
+- This policy only covers security group updates.
+- It does not give full EC2 administration rights.
+- `Resource: "*"` is acceptable for a first working setup. You can tighten it later if you want.
+
+## 5.4 Create an IAM role for GitHub Actions
+
+This is the role your GitHub workflow will assume using OIDC.
+
+### Step-by-step in AWS Console
+
+1. In **IAM**, click **Roles**.
+2. Click **Create role**.
+3. For the trusted entity type, choose **Web identity**.
+4. For the identity provider, choose the GitHub provider you just created:
+
+```text
+token.actions.githubusercontent.com
+```
+
+5. For **Audience**, choose or enter:
+
+```text
+sts.amazonaws.com
+```
+
+6. Continue to the next step.
+7. Attach the policy you created in section 5.3.
+8. Continue to the naming step.
+9. Give the role a clear name, for example:
+
+```text
+github-actions-palakat-deploy
+```
+
+10. Create the role.
+
+At this point, the role exists, but you still need to tighten its trust relationship so only your repository is allowed to assume it.
+
+## 5.5 Edit the IAM role trust policy so only your repo can use it
+
+After creating the role:
+
+1. Open the new role.
+2. Go to the **Trust relationships** tab.
+3. Click **Edit trust policy**.
+4. Replace the policy with a repository-scoped version.
+
+### Example trust policy for the `main` branch
+
+Replace:
+
+- `123456789012` with your real AWS account ID
+- `meimodev/palakat` with your actual GitHub owner/repo if different
 
 ```json
 {
@@ -289,7 +401,7 @@ A branch-based trust policy example:
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:OWNER/REPO:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub": "repo:meimodev/palakat:ref:refs/heads/main"
         }
       }
     }
@@ -297,12 +409,18 @@ A branch-based trust policy example:
 }
 ```
 
-Replace these values:
+### What this means
 
-- `123456789012` with your AWS account ID
-- `OWNER/REPO` with your real GitHub repository, for example `meimodev/palakat`
+This policy says:
 
-If you use GitHub Environments for production, an environment-based trust policy is usually better:
+- trust GitHub's OIDC provider
+- allow OIDC role assumption
+- only if the GitHub token came from the `meimodev/palakat` repo
+- only if the workflow was running from branch `main`
+
+### If you use GitHub Environments
+
+If your production deploy uses a GitHub Environment such as `production`, then this version is often better:
 
 ```json
 {
@@ -319,7 +437,7 @@ If you use GitHub Environments for production, an environment-based trust policy
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:OWNER/REPO:environment:production"
+          "token.actions.githubusercontent.com:sub": "repo:meimodev/palakat:environment:production"
         }
       }
     }
@@ -327,9 +445,78 @@ If you use GitHub Environments for production, an environment-based trust policy
 }
 ```
 
-Attach the policy from section 5.2 to this role.
+Use this version only if the deployment job actually runs under that GitHub Environment.
 
-Then copy the role ARN and store it in GitHub variable `AWS_ROLE_TO_ASSUME`.
+## 5.6 Copy the role ARN into GitHub as `AWS_ROLE_TO_ASSUME`
+
+After the role is created:
+
+1. Open the IAM role details page.
+2. Copy the **Role ARN**.
+
+It will look similar to this:
+
+```text
+arn:aws:iam::123456789012:role/github-actions-palakat-deploy
+```
+
+3. In GitHub, open your repository.
+4. Go to **Settings**.
+5. Go to **Secrets and variables**.
+6. Open **Actions**.
+7. Create either a repository variable or secret named:
+
+```text
+AWS_ROLE_TO_ASSUME
+```
+
+8. Paste the copied role ARN as the value.
+
+This is the exact value used by the workflow step:
+
+```yaml
+- name: Configure AWS credentials
+  uses: aws-actions/configure-aws-credentials@v4
+  with:
+    role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME || secrets.AWS_ROLE_TO_ASSUME }}
+    aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
+```
+
+If the ARN in GitHub does not exactly match the real IAM role ARN in AWS, the workflow will fail.
+
+## 5.7 Beginner end-to-end checklist for the AWS side
+
+Use this quick checklist before rerunning GitHub Actions:
+
+1. The AWS account contains an OIDC provider for:
+
+```text
+https://token.actions.githubusercontent.com
+```
+
+2. The IAM role exists.
+3. The IAM role has the EC2 security group policy attached.
+4. The role trust policy points at the GitHub OIDC provider.
+5. The trust policy `sub` matches your repo and branch or environment.
+6. GitHub has `AWS_ROLE_TO_ASSUME` set to the real role ARN.
+7. GitHub has `AWS_REGION` set.
+8. Your workflow includes:
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+```
+
+## 5.8 Most common beginner mistakes
+
+- creating the OIDC provider in the wrong AWS account
+- creating the role in one account but storing an ARN from another account in GitHub
+- forgetting to attach the EC2 security group policy to the role
+- using a trust policy for the wrong repo name
+- using a branch-based trust policy while running the workflow from a different branch
+- using an environment-based trust policy without actually configuring the job to use that GitHub Environment
+- storing `AWS_ROLE_TO_ASSUME` or `AWS_REGION` under the wrong GitHub setting and leaving the value empty at runtime
 
 ---
 
