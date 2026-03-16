@@ -1,0 +1,77 @@
+name: Deploy Palakat Backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build backend
+        run: pnpm --dir apps/palakat_backend run build
+
+      - name: Package release artifact
+        run: |
+          RELEASE_DIR=palakat_backend_release
+          mkdir -p "$RELEASE_DIR"
+          cp -R apps "$RELEASE_DIR/"
+          cp pnpm-lock.yaml "$RELEASE_DIR/"
+          cp pnpm-workspace.yaml "$RELEASE_DIR/"
+          tar -czf palakat_backend_release.tar.gz -C "$RELEASE_DIR" .
+
+      - name: Upload artifact to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: "palakat_backend_release.tar.gz"
+          target: "/tmp"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            RELEASE_ID=$(date +%Y%m%d%H%M%S)
+            RELEASE_DIR=/srv/palakat/backend/releases/$RELEASE_ID
+            mkdir -p "$RELEASE_DIR"
+            tar -xzf /tmp/palakat_backend_release.tar.gz -C "$RELEASE_DIR"
+            cd "$RELEASE_DIR"
+            pnpm install --frozen-lockfile
+            cp /etc/palakat/palakat_backend.env "$RELEASE_DIR/apps/palakat_backend/.env"
+            pnpm --dir apps/palakat_backend run build
+            cd "$RELEASE_DIR/apps/palakat_backend"
+            pnpm run db:deploy
+            ln -sfn "$RELEASE_DIR" /srv/palakat/backend/current
+            sudo systemctl restart palakat-backend
+            sudo systemctl is-active palakat-backend
+            HEALTH_PAGE_SECRET=$(grep '^HEALTH_PAGE_SECRET=' /etc/palakat/palakat_backend.env | cut -d= -f2-)
+            curl -fsS -H "x-health-secret: ${HEALTH_PAGE_SECRET}" http://127.0.0.1:3000/health > /dev/null
+            rm -f /tmp/palakat_backend_release.tar.gz
