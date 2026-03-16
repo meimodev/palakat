@@ -40,8 +40,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/github-actions-palakat-deploy
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
  
       - name: Get runner public IP
         id: runner_ip
@@ -52,13 +52,13 @@ jobs:
       - name: Authorize temporary SSH ingress
         run: |
           aws ec2 authorize-security-group-ingress \
-            --region "${{ secrets.AWS_REGION }}" \
-            --group-id "${{ secrets.EC2_SECURITY_GROUP_ID }}" \
+            --region "${{ vars.AWS_REGION }}" \
+            --group-id "${{ vars.EC2_SECURITY_GROUP_ID }}" \
             --ip-permissions '[
               {
                 "IpProtocol": "tcp",
-                "FromPort": '"${{ secrets.EC2_PORT }}"',
-                "ToPort": '"${{ secrets.EC2_PORT }}"',
+                "FromPort": '"${{ vars.EC2_PORT }}"',
+                "ToPort": '"${{ vars.EC2_PORT }}"',
                 "IpRanges": [
                   {
                     "CidrIp": "'"${{ steps.runner_ip.outputs.ip }}/32"'",
@@ -79,15 +79,15 @@ jobs:
 
       - name: Check TCP reachability to EC2 SSH
         run: |
-            nc -vz ${{ secrets.EC2_HOST }} ${{ secrets.EC2_PORT }}
+            nc -vz ${{ vars.EC2_HOST }} ${{ vars.EC2_PORT }}
     
       - name: Upload artifact to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.EC2_PORT }}
+          port: ${{ vars.EC2_PORT }}
           passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
           source: "palakat_backend_release.tar.gz"
           target: "/tmp"
@@ -95,10 +95,10 @@ jobs:
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.EC2_PORT }}
+          port: ${{ vars.EC2_PORT }}
           passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
           script_stop: true
           script: |
@@ -124,13 +124,13 @@ jobs:
         if: always()
         run: |
           aws ec2 revoke-security-group-ingress \
-            --region "${{ secrets.AWS_REGION }}" \
-            --group-id "${{ secrets.EC2_SECURITY_GROUP_ID }}" \
+            --region "${{ vars.AWS_REGION }}" \
+            --group-id "${{ vars.EC2_SECURITY_GROUP_ID }}" \
             --ip-permissions '[
               {
                 "IpProtocol": "tcp",
-                "FromPort": '"${{ secrets.EC2_PORT }}"',
-                "ToPort": '"${{ secrets.EC2_PORT }}"',
+                "FromPort": '"${{ vars.EC2_PORT }}"',
+                "ToPort": '"${{ vars.EC2_PORT }}"',
                 "IpRanges": [
                   {
                     "CidrIp": "'"${{ steps.runner_ip.outputs.ip }}/32"'"
