@@ -1,4 +1,3 @@
-import 'package:palakat_admin/features/notification/application/pusher_beams_controller.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/services.dart';
@@ -45,24 +44,7 @@ class AuthController extends _$AuthController {
   /// This is called after successful sign-in to subscribe to relevant device interests.
   /// **Validates: Requirements 4.2**
   Future<void> _registerPushNotificationInterests(AuthResponse auth) async {
-    final membership = auth.account.membership;
-    final accountId = auth.account.id;
-    if (membership == null || accountId == null) {
-      return;
-    }
-
-    try {
-      final pusherBeamsController = ref.read(
-        pusherBeamsControllerProvider.notifier,
-      );
-      await pusherBeamsController.registerInterests(
-        membership,
-        accountId: accountId,
-      );
-    } catch (e) {
-      // Don't block sign-in flow if push notification registration fails
-      // The error is already logged in the controller
-    }
+    return;
   }
 
   Future<void> signOut() async {
@@ -101,15 +83,7 @@ class AuthController extends _$AuthController {
   /// and clear the Pusher Beams state.
   /// **Validates: Requirements 4.4**
   Future<void> _unregisterPushNotificationInterests() async {
-    try {
-      final pusherBeamsController = ref.read(
-        pusherBeamsControllerProvider.notifier,
-      );
-      await pusherBeamsController.unregisterAllInterests();
-    } catch (e) {
-      // Don't block sign-out flow if push notification unregistration fails
-      // The error is already logged in the controller
-    }
+    return;
   }
 
   /// Force sign-out locally without calling the API.

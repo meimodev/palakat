@@ -1,0 +1,21 @@
+name: pusher_beams_web
+description: Local no-op web stub for Palakat Wasm builds.
+publish_to: 'none'
+version: 1.1.1+local
+
+environment:
+  sdk: ^3.8.1
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      web:
+        pluginClass: PusherBeams
+        fileName: pusher_beams_web.dart

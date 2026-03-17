@@ -1406,13 +1406,12 @@ packages:
     source: hosted
     version: "1.1.1"
   pusher_beams_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pusher_beams_web
-      sha256: f95a14e497263a75f7025fc3c5471fe315f36fb85b113022ca1ac579e10bbe38
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
+      path: "packages/pusher_beams_web_stub"
+      relative: true
+    source: path
+    version: "1.1.1+local"
   quiver:
     dependency: transitive
     description:

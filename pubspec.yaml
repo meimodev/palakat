@@ -13,3 +13,7 @@ workspace:
 
 dev_dependencies:
   melos: ^6.2.0
+
+dependency_overrides:
+  pusher_beams_web:
+    path: packages/pusher_beams_web_stub
