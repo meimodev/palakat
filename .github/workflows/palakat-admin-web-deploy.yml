@@ -3,7 +3,7 @@ name: Deploy Palakat Admin Web
 on:
   push:
     tags:
-      - deploy-admin
+      - deploy-admin*
 
   workflow_dispatch:
 
