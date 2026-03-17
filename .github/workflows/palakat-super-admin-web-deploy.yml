@@ -3,7 +3,7 @@ name: Deploy Palakat Super Admin Web
 on:
   push:
     tags:
-      - deploy-palakat-super-admin-web
+      - deploy-super-admin
 
 permissions:
   contents: read
@@ -36,9 +36,7 @@ jobs:
           cache: true
 
       - name: Get workspace dependencies
-        run: |
-          dart pub get
-          dart run melos bootstrap
+        run: dart pub get
 
       - name: Write app environment
         env:
