@@ -108,8 +108,8 @@ jobs:
             mkdir -p "$RELEASE_DIR"
             tar -xzf /tmp/palakat_backend_release.tar.gz -C "$RELEASE_DIR"
             cd "$RELEASE_DIR"
-            pnpm install --frozen-lockfile
-            sudo cp /etc/palakat/palakat_backend.env "$RELEASE_DIR/apps/palakat_backend/.env"
+            pnpm --dir apps/palakat_backend install --frozen-lockfile
+            sudo install -o ubuntu -g ubuntu -m 600 /etc/palakat/palakat_backend.env "$RELEASE_DIR/apps/palakat_backend/.env"
             pnpm --dir apps/palakat_backend run build
             cd "$RELEASE_DIR/apps/palakat_backend"
             pnpm run db:deploy
