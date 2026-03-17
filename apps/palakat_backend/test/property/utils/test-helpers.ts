@@ -16,7 +16,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 
 export function getDatabasePostgresUrl(): string {
-  const raw = process.env.DATABASE_POSTGRES_URL;
+  const raw = process.env.DATABASE_URL;
   if (raw && !raw.includes('${')) {
     return raw;
   }

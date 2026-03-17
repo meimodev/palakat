@@ -12,9 +12,8 @@ export class PrismaService
 
   constructor() {
     const connectionString =
-      process.env.DATABASE_POSTGRES_URL &&
-      !process.env.DATABASE_POSTGRES_URL.includes('${')
-        ? process.env.DATABASE_POSTGRES_URL
+      process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('${')
+        ? process.env.DATABASE_URL
         : `postgresql://${process.env.POSTGRES_USER || 'root'}:${process.env.POSTGRES_PASSWORD || 'password'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'database'}`;
 
     // Create connection pool

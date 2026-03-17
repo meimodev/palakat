@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
 const databaseUrl = (() => {
-  const raw = process.env.DATABASE_POSTGRES_URL;
+  const raw = process.env.DATABASE_URL;
   if (raw && !raw.includes('${')) {
     return raw;
   }

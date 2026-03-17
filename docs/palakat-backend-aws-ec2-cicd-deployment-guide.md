@@ -118,7 +118,7 @@ At minimum, production must define these correctly:
 - `PORT`
 - `PUBLIC_BASE_URL`
 - `HEALTH_PAGE_SECRET`
-- `DATABASE_POSTGRES_URL`
+- `DATABASE_URL`
 - `APP_CLIENT_USERNAME`
 - `APP_CLIENT_PASSWORD`
 - `JWT_SECRET`
@@ -174,7 +174,7 @@ From the Supabase dashboard, copy the **Postgres connection string** intended fo
 
 For this codebase, the main requirement is:
 
-- set `DATABASE_POSTGRES_URL` to the exact working Supabase PostgreSQL connection string
+- set `DATABASE_URL` to the exact working Supabase PostgreSQL connection string
 
 Important:
 
@@ -541,7 +541,7 @@ PORT=3000
 PUBLIC_BASE_URL=https://api.yourdomain.com
 HEALTH_PAGE_SECRET=replace-with-a-long-random-secret
 
-DATABASE_POSTGRES_URL=postgresql://USERNAME:PASSWORD@HOST:PORT/postgres?sslmode=require
+DATABASE_URL=postgresql://USERNAME:PASSWORD@HOST:PORT/postgres?sslmode=require
 
 APP_CLIENT_USERNAME=replace-me
 APP_CLIENT_PASSWORD=replace-me
@@ -997,7 +997,7 @@ Do not strip SSL parameters.
 
 ## 16.3 Connection management
 
-This codebase currently uses a standard Postgres connection string through `DATABASE_POSTGRES_URL`.
+This codebase currently uses a standard Postgres connection string through `DATABASE_URL`.
 
 Start simple:
 
@@ -1296,7 +1296,7 @@ Symptoms usually look like:
 
 Check:
 
-- `DATABASE_POSTGRES_URL` is the exact Supabase external connection string
+- `DATABASE_URL` is the exact Supabase external connection string
 - the password is correct
 - SSL parameters required by Supabase were preserved
 - EC2 has outbound internet access

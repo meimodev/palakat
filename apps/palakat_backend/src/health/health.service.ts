@@ -378,11 +378,8 @@ export class HealthService {
   }
 
   private resolvePostgresTarget(): string {
-    if (
-      process.env.DATABASE_POSTGRES_URL &&
-      !process.env.DATABASE_POSTGRES_URL.includes('${')
-    ) {
-      return this.sanitizeUrlTarget(process.env.DATABASE_POSTGRES_URL);
+    if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('${')) {
+      return this.sanitizeUrlTarget(process.env.DATABASE_URL);
     }
 
     const host = process.env.POSTGRES_HOST || 'localhost';

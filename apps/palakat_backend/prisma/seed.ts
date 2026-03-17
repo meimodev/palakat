@@ -20,9 +20,8 @@ import * as bcrypt from 'bcryptjs';
 import * as process from 'node:process';
 
 const connectionString =
-  process.env.DATABASE_POSTGRES_URL &&
-  !process.env.DATABASE_POSTGRES_URL.includes('${')
-    ? process.env.DATABASE_POSTGRES_URL
+  process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('${')
+    ? process.env.DATABASE_URL
     : `postgresql://${process.env.POSTGRES_USER || 'root'}:${process.env.POSTGRES_PASSWORD || 'password'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'database'}`;
 
 const pool = new Pool({
@@ -707,8 +706,7 @@ async function seedMainAccounts(passwordHash: string) {
         phone,
         name: `Main User ${i + 1}`,
         email: `mainuser${i + 1}@example.com`,
-        role:
-          phone === '081111111111' ? AccountRole.ADMIN : AccountRole.USER,
+        role: phone === '081111111111' ? AccountRole.ADMIN : AccountRole.USER,
         passwordHash,
         claimed: true,
         isActive: true,
@@ -2366,7 +2364,7 @@ async function printSummary(
 
 async function main() {
   const inServerEnvironment = !['localhost', '127.0.0.1'].some((host) =>
-    process.env.DATABASE_POSTGRES_URL?.includes(host),
+    process.env.DATABASE_URL?.includes(host),
   );
   const forceSeeding = process.env.FORCE_SEEDING === 'true';
 
