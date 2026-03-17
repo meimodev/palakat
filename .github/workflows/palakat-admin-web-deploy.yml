@@ -1,0 +1,59 @@
+name: Deploy Palakat Admin Web
+
+on:
+  push:
+    tags:
+      - deploy-palakat-admin-web
+
+permissions:
+  contents: read
+
+concurrency:
+  group: palakat-admin-web-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.PALAKAT_ADMIN_VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.PALAKAT_ADMIN_VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get workspace dependencies
+        run: |
+          dart pub get
+          dart run melos bootstrap
+
+      - name: Write app environment
+        env:
+          APP_ENV: ${{ secrets.PALAKAT_ADMIN_WEB_ENV }}
+        run: printf '%s' "$APP_ENV" > apps/palakat_admin/.env
+
+      - name: Build Flutter web
+        run: flutter build web --wasm --release
+        working-directory: apps/palakat_admin
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.PALAKAT_ADMIN_VERCEL_TOKEN }}
+        run: vercel deploy --prod --token "$VERCEL_TOKEN" --yes
+        working-directory: apps/palakat_admin/build/web

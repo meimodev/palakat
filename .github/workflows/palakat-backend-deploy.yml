@@ -2,8 +2,9 @@ name: Deploy Palakat Backend
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - deploy-backend
+
   workflow_dispatch:
 
 permissions:
