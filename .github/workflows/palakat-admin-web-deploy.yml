@@ -40,6 +40,14 @@ jobs:
       - name: Get workspace dependencies
         run: dart pub get
 
+      - name: Generate Dart code
+        run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: packages/palakat_shared
+
+      - name: Generate admin Dart code
+        run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: apps/palakat_admin
+
       - name: Write app environment
         env:
           APP_ENV: ${{ secrets.PALAKAT_ADMIN_WEB_ENV }}
