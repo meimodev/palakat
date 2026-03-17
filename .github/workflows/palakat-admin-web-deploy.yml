@@ -63,5 +63,5 @@ jobs:
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.PALAKAT_ADMIN_VERCEL_TOKEN }}
-        run: vercel deploy --prod --token "$VERCEL_TOKEN" --yes
+        run: vercel deploy . --prod --token "$VERCEL_TOKEN" --yes
         working-directory: apps/palakat_admin/build/web
