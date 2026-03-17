@@ -3,7 +3,7 @@ name: Deploy Palakat Backend
 on:
   push:
     tags:
-      - deploy-backend*
+      - 'deploy-backend*'
 
   workflow_dispatch:
 
