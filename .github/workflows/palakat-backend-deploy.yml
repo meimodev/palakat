@@ -115,9 +115,20 @@ jobs:
             pnpm run db:deploy
             ln -sfn "$RELEASE_DIR" /srv/palakat/backend/current
             sudo systemctl restart palakat-backend
-            sudo systemctl is-active palakat-backend
             HEALTH_PAGE_SECRET=$(sudo grep '^HEALTH_PAGE_SECRET=' /etc/palakat/palakat_backend.env | cut -d= -f2-)
-            curl -fsS -H "x-health-secret: ${HEALTH_PAGE_SECRET}" http://127.0.0.1:3000/health > /dev/null
+            for attempt in $(seq 1 30); do
+              if curl -fsS -H "x-health-secret: ${HEALTH_PAGE_SECRET}" http://127.0.0.1:3000/health > /dev/null; then
+                break
+              fi
+
+              if [ "$attempt" -eq 30 ]; then
+                sudo systemctl status palakat-backend --no-pager || true
+                sudo journalctl -u palakat-backend -n 200 --no-pager || true
+                exit 1
+              fi
+
+              sleep 2
+            done
             rm -f /tmp/palakat_backend_release.tar.gz
             
       - name: Revoke temporary SSH ingress
