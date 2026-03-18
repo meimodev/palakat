@@ -21,10 +21,13 @@ abstract class AppConfig with _$AppConfig {
     final baseUrl = dotenv.env['API_BASE_URL']?.trim() ?? '';
     final baseUrlPort = dotenv.env['API_BASE_PORT']?.trim() ?? '';
     final baseUrlVersion = dotenv.env['API_BASE_VERSION']?.trim() ?? '';
-    if (baseUrl.isEmpty || baseUrlPort.isEmpty || baseUrlVersion.isEmpty) {
-      throw StateError(
-        'Missing required env var: API_BASE_URL, API_BASE_PORT, API_BASE_VERSION',
-      );
+
+    final missing = <String>[
+      if (baseUrl.isEmpty) 'API_BASE_URL',
+      if (baseUrlVersion.isEmpty) 'API_BASE_VERSION',
+    ];
+    if (missing.isNotEmpty) {
+      throw StateError('Missing required env var: ${missing.join(', ')}');
     }
 
     final key = dotenv.env['API_KEY'];
@@ -37,10 +40,19 @@ abstract class AppConfig with _$AppConfig {
     final normalizedBaseUrl = baseUrl.replaceAll(RegExp(r'/+$'), '');
     final normalizedVersion = baseUrlVersion.replaceAll(RegExp(r'^/+|/+$'), '');
     final parsedBase = Uri.tryParse(normalizedBaseUrl);
-    final portPart = (parsedBase?.hasPort ?? false) ? '' : ':$baseUrlPort';
+    if (parsedBase == null || parsedBase.scheme.isEmpty || parsedBase.host.isEmpty) {
+      throw StateError('Invalid API_BASE_URL: $baseUrl');
+    }
+
+    final parsedPort = baseUrlPort.isEmpty ? null : int.tryParse(baseUrlPort);
+    if (baseUrlPort.isNotEmpty && parsedPort == null) {
+      throw StateError('Invalid API_BASE_PORT: $baseUrlPort');
+    }
+
+    final portPart = parsedBase.hasPort || parsedPort == null ? '' : ':$parsedPort';
 
     return AppConfig(
-      apiBaseUrl: "$normalizedBaseUrl$portPart/$normalizedVersion/",
+      apiBaseUrl: '$normalizedBaseUrl$portPart/$normalizedVersion/',
       apiKey: key?.isEmpty == true ? null : key,
       songDbFileId: songDbFileId,
     );
