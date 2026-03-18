@@ -1,5 +1,5 @@
 name: pusher_beams_web
-description: Local no-op web stub for Palakat Wasm builds.
+description: Local no-op web stub for Palakat web builds.
 publish_to: 'none'
 version: 1.1.1+local
 
