@@ -54,7 +54,7 @@ jobs:
         run: printf '%s' "$APP_ENV" > apps/palakat_admin/.env
 
       - name: Build Flutter web
-        run: flutter build web --wasm --release
+        run: flutter build web --wasm --release --no-web-resources-cdn
         working-directory: apps/palakat_admin
 
       - name: Copy Vercel config into build output
