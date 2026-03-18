@@ -59,12 +59,7 @@ class PalakatAdminApp extends ConsumerWidget {
       routerConfig: router,
       builder: (context, child) => FocusTraversalGroup(
         policy: WidgetOrderTraversalPolicy(),
-        child: FileTransferProgressBanner(
-          child: SocketConnectionBanner(
-            blockInteractionWhenNotConnected: false,
-            child: child,
-          ),
-        ),
+        child: FileTransferProgressBanner(child: child),
       ),
       // Localization configuration - Requirements: 1.2, 1.4
       locale: locale,
@@ -103,7 +98,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       ShellRoute(
-        builder: (context, state, child) => AppScaffold(child: child),
+        builder: (context, state, child) => SocketConnectionBanner(
+          blockInteractionWhenNotConnected: false,
+          child: AppScaffold(child: child),
+        ),
         routes: [
           GoRoute(
             path: '/dashboard',
