@@ -19,24 +19,41 @@ class AuthController extends _$AuthController {
     required String password,
   }) async {
     state = const AsyncValue.loading();
-    final repo = ref.read(authRepositoryProvider);
-    final result = await repo.signIn(
-      AuthCredentials(identifier: identifier, password: password),
-    );
-    result.when(
-      onSuccess: (auth) {
-        state = AsyncValue.data(auth);
-        // Register push notification interests after successful sign-in
-        // **Validates: Requirements 4.2**
-        _registerPushNotificationInterests(auth);
-      },
-      onFailure: (failure) {
-        state = AsyncValue.error(
-          AppError.serverError(failure.message, statusCode: failure.code),
-          StackTrace.current,
-        );
-      },
-    );
+    try {
+      final repo = ref.read(authRepositoryProvider);
+      final result = await repo.signIn(
+        AuthCredentials(identifier: identifier, password: password),
+      );
+      result.when(
+        onSuccess: (auth) {
+          state = AsyncValue.data(auth);
+          // Register push notification interests after successful sign-in
+          // **Validates: Requirements 4.2**
+          _registerPushNotificationInterests(auth);
+        },
+        onFailure: (failure) {
+          state = AsyncValue.error(
+            AppError.serverError(failure.message, statusCode: failure.code),
+            StackTrace.current,
+          );
+        },
+      );
+    } catch (e, st) {
+      if (e is AppError) {
+        state = AsyncValue.error(e, st);
+        return;
+      }
+
+      final failure = Failure.fromException(e);
+      state = AsyncValue.error(
+        AppError.serverError(
+          failure.message,
+          statusCode: failure.code,
+          details: e.toString(),
+        ),
+        st,
+      );
+    }
   }
 
   /// Registers push notification interests based on the authenticated user's membership.

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/core/config/app_config.dart';
 import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
 import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
@@ -37,9 +39,34 @@ Future<void> main() async {
     debugPrint('Warning: Could not load .env file: $e');
     debugPrint('Using default or build-time environment variables');
   }
+  _logStartupEnvStatus();
   // Initialize Hive and open the auth box for cached session restore
   await LocalStorageService.initHive();
   runApp(const ProviderScope(child: PalakatAdminApp()));
+}
+
+void _logStartupEnvStatus() {
+  final apiBaseUrl = dotenv.env['API_BASE_URL']?.trim() ?? '';
+  final apiBaseVersion = dotenv.env['API_BASE_VERSION']?.trim() ?? '';
+  final apiBasePort = dotenv.env['API_BASE_PORT']?.trim() ?? '';
+  final parsedBaseUrl = Uri.tryParse(apiBaseUrl);
+  final host = parsedBaseUrl?.host ?? '-';
+
+  debugPrint(
+    'Startup env status: '
+    'platform=${kIsWeb ? 'web' : 'non-web'}, '
+    'apiBaseUrlPresent=${apiBaseUrl.isNotEmpty}, '
+    'apiBaseVersionPresent=${apiBaseVersion.isNotEmpty}, '
+    'apiBasePortPresent=${apiBasePort.isNotEmpty}, '
+    'apiBaseUrlHost=$host',
+  );
+
+  try {
+    final config = AppConfig.fromEnv();
+    debugPrint('Startup env config ok: apiBaseUrl=${config.apiBaseUrl}');
+  } catch (e) {
+    debugPrint('Startup env config invalid: $e');
+  }
 }
 
 class PalakatAdminApp extends ConsumerWidget {

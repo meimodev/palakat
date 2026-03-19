@@ -69,6 +69,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final asyncAuth = ref.watch(authControllerProvider);
     final isLoading = asyncAuth.isLoading;
+    final authError = asyncAuth.error;
+    final appError = authError is AppError
+        ? authError
+        : authError == null
+        ? null
+        : AppError.serverError(
+            authError.toString(),
+            details: authError.toString(),
+          );
 
     // Listen to auth state changes to handle navigation and errors centrally
     ref.listen(authControllerProvider, (previous, next) {
@@ -213,9 +222,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
 
                       const SizedBox(height: 12),
-                      if (asyncAuth.hasError) ...[
+                      if (asyncAuth.hasError && appError != null) ...[
                         CompactErrorWidget(
-                          error: asyncAuth.error as AppError,
+                          error: appError,
                           isSignInContext: true,
                         ),
                       ],

@@ -565,10 +565,18 @@ class SocketService {
     required String identifier,
     required String password,
   }) async {
-    final res = await rpc('auth.signIn', {
+    if (!_ensureSocket().connected) {
+      await connect();
+    }
+
+    if (!_ensureSocket().connected) {
+      throw Failure('Unable to connect to server');
+    }
+
+    final res = await _rpc('auth.signIn', {
       'identifier': identifier,
       'password': password,
-    });
+    }, allowAutoRefresh: false);
 
     final data = res['data'];
     if (data is! Map<String, dynamic>) {
