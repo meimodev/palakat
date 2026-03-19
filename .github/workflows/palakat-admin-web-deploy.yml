@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f apps/palakat_admin/build/web/assets/AssetManifest.json
-          grep -F '".env"' apps/palakat_admin/build/web/assets/AssetManifest.json >/dev/null
+          grep '\.env' apps/palakat_admin/build/web/assets/AssetManifest.json >/dev/null
 
       - name: Copy Vercel config into build output
         run: cp apps/palakat_admin/vercel.json apps/palakat_admin/build/web/vercel.json
