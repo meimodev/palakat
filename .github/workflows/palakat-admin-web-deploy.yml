@@ -82,8 +82,9 @@ jobs:
       - name: Verify bundled env asset
         run: |
           set -euo pipefail
-          test -f apps/palakat_admin/build/web/assets/AssetManifest.json
-          grep '\.env' apps/palakat_admin/build/web/assets/AssetManifest.json >/dev/null
+          test -s apps/palakat_admin/build/web/assets/.env
+          grep -q '^API_BASE_URL=' apps/palakat_admin/build/web/assets/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat_admin/build/web/assets/.env
 
       - name: Copy Vercel config into build output
         run: cp apps/palakat_admin/vercel.json apps/palakat_admin/build/web/vercel.json
