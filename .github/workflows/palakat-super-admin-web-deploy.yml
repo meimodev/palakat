@@ -47,11 +47,40 @@ jobs:
       - name: Write app environment
         env:
           APP_ENV: ${{ secrets.PALAKAT_SUPER_ADMIN_WEB_ENV }}
-        run: printf '%s' "$APP_ENV" > apps/palakat_super_admin/.env
+        run: |
+          set -euo pipefail
+
+          if [ -z "${APP_ENV:-}" ]; then
+            echo "PALAKAT_SUPER_ADMIN_WEB_ENV is empty"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          raw = os.environ['APP_ENV']
+          normalized = raw.replace('\r\n', '\n').replace('\r', '\n')
+          if '\n' not in normalized and '\\n' in normalized:
+              normalized = normalized.replace('\\n', '\n')
+
+          path = Path('apps/palakat_super_admin/.env')
+          path.write_text(normalized.rstrip('\n') + '\n', encoding='utf-8')
+          PY
+
+          grep -q '^API_BASE_URL=' apps/palakat_super_admin/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat_super_admin/.env
 
       - name: Build Flutter web
         run: flutter build web --release
         working-directory: apps/palakat_super_admin
+
+      - name: Verify bundled env asset
+        run: |
+          set -euo pipefail
+          test -s apps/palakat_super_admin/build/web/assets/.env
+          grep -q '^API_BASE_URL=' apps/palakat_super_admin/build/web/assets/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat_super_admin/build/web/assets/.env
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
