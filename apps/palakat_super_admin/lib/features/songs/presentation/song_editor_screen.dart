@@ -185,7 +185,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
             child: DropdownButtonFormField<SongPartType>(
-              value: type,
+              initialValue: type,
               decoration: InputDecoration(labelText: l10n.lbl_type),
               items: SongPartType.values
                   .map(
@@ -535,7 +535,7 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
                           builder: (context, constraints) {
                             final dropdown =
                                 DropdownButtonFormField<SongPartType>(
-                                  value: t,
+                                  initialValue: t,
                                   decoration: InputDecoration(
                                     labelText: l10n.lbl_type,
                                   ),

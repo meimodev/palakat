@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/theme/theme.dart';
 
-import '../theme/theme.dart';
 
 class SanctuaryWebShell extends StatelessWidget {
   const SanctuaryWebShell({

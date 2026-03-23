@@ -154,7 +154,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             LabeledField(
               label: l10n.lbl_selectColumn,
               child: DropdownButtonFormField<cm.Column?>(
-                value: _selectedColumn,
+                initialValue: _selectedColumn,
                 decoration: const InputDecoration(
                   
                   contentPadding: EdgeInsets.symmetric(
@@ -189,7 +189,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             LabeledField(
               label: l10n.lbl_documentInput,
               child: DropdownButtonFormField<DocumentInput>(
-                value: _documentInput,
+                initialValue: _documentInput,
                 decoration: const InputDecoration(
                   
                   contentPadding: EdgeInsets.symmetric(
@@ -221,7 +221,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             LabeledField(
               label: l10n.lbl_congregationSubtype,
               child: DropdownButtonFormField<CongregationReportSubtype>(
-                value: _congregationSubtype,
+                initialValue: _congregationSubtype,
                 decoration: const InputDecoration(
                   
                   contentPadding: EdgeInsets.symmetric(
@@ -262,7 +262,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             LabeledField(
               label: l10n.lbl_activityType,
               child: DropdownButtonFormField<ActivityType?>(
-                value: _activityType,
+                initialValue: _activityType,
                 decoration: const InputDecoration(
                   
                   contentPadding: EdgeInsets.symmetric(
@@ -295,7 +295,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             LabeledField(
               label: l10n.lbl_financialSubtype,
               child: DropdownButtonFormField<FinancialReportSubtype>(
-                value: _financialSubtype,
+                initialValue: _financialSubtype,
                 decoration: const InputDecoration(
                   
                   contentPadding: EdgeInsets.symmetric(
@@ -407,7 +407,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
           LabeledField(
             label: l10n.lbl_format,
             child: DropdownButtonFormField<ReportFormat>(
-              value: _format,
+              initialValue: _format,
               decoration: const InputDecoration(
                 
                 contentPadding: EdgeInsets.symmetric(

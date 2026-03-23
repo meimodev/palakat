@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_shared/core/theme/theme.dart';
 
 /// A theme-aware divider widget that supports both vertical and horizontal orientations.
 ///

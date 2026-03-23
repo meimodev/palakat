@@ -234,7 +234,7 @@ class ValidatedDropdownFieldState<T> extends State<ValidatedDropdownField<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<T>(
-          value: _value,
+          initialValue: _value,
           decoration: InputDecoration(
             labelText: widget.label,
             hintText: widget.hint,

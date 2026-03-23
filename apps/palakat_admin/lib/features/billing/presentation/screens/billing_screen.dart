@@ -877,7 +877,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<PaymentMethod>(
-              value: _paymentMethod,
+              initialValue: _paymentMethod,
               decoration: InputDecoration(
                 labelText: context.l10n.filter_paymentMethod,
               ),

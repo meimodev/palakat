@@ -33,7 +33,7 @@ class GenderDropdown extends StatelessWidget {
     final theme = Theme.of(context);
 
     return DropdownButtonFormField<Gender>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,

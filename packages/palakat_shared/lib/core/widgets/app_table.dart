@@ -709,7 +709,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
             withWidth(
               DropdownButtonFormField<String?>(
                 isExpanded: true,
-                value: widget.config.dropdownValue,
+                initialValue: widget.config.dropdownValue,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: widget.config.dropdownLabel,
@@ -744,7 +744,7 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
             withWidth(
               DropdownButtonFormField<MemberPosition?>(
                 isExpanded: true,
-                value: widget.config.positionValue,
+                initialValue: widget.config.positionValue,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(

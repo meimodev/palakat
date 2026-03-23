@@ -31,7 +31,7 @@ class MaritalStatusDropdown extends StatelessWidget {
     final theme = Theme.of(context);
 
     return DropdownButtonFormField<MaritalStatus>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

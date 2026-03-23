@@ -546,7 +546,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                 LabeledField(
                   label: context.l10n.lbl_selectColumn,
                   child: DropdownButtonFormField<cm.Column?>(
-                    value: _selectedColumn,
+                    initialValue: _selectedColumn,
                     decoration: InputDecoration(
                       hintText: context.l10n.lbl_selectColumn,
                       errorText: _columnError,

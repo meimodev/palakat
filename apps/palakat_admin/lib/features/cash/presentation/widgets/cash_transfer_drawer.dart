@@ -136,7 +136,7 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
-              value: _fromAccountId,
+              initialValue: _fromAccountId,
               decoration: const InputDecoration(),
               items: widget.accounts
                   .map(
@@ -159,7 +159,7 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
-              value: _toAccountId,
+              initialValue: _toAccountId,
               decoration: const InputDecoration(),
               items: widget.accounts
                   .map(

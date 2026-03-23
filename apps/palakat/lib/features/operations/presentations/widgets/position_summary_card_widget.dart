@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 import 'package:palakat_shared/core/models/membership.dart';
 

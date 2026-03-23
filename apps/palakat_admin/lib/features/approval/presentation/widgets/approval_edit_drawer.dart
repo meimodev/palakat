@@ -434,7 +434,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
               LabeledField(
                 label: context.l10n.lbl_activityType,
                 child: DropdownButtonFormField<ActivityType?>(
-                  value: _selectedActivityType,
+                  initialValue: _selectedActivityType,
                   decoration: InputDecoration(
                     hintText: context.l10n.hint_allActivityTypes,
                   ),
@@ -473,7 +473,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
               LabeledField(
                 label: context.l10n.lbl_financialType,
                 child: DropdownButtonFormField<FinanceType?>(
-                  value: _selectedFinancialType,
+                  initialValue: _selectedFinancialType,
                   decoration: InputDecoration(
                     hintText: context.l10n.hint_noFinancialFilter,
                   ),
