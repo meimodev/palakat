@@ -6,6 +6,89 @@ import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 
+String _languageCodeFromLocaleName(String localeName) {
+  final underscoreIndex = localeName.indexOf('_');
+  final hyphenIndex = localeName.indexOf('-');
+  final separatorIndex = underscoreIndex == -1
+      ? hyphenIndex
+      : hyphenIndex == -1
+      ? underscoreIndex
+      : underscoreIndex < hyphenIndex
+      ? underscoreIndex
+      : hyphenIndex;
+  if (separatorIndex == -1) return localeName;
+  return localeName.substring(0, separatorIndex);
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
+String _stripPhoneFormatting(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit == 32 || codeUnit == 45 || codeUnit == 40 || codeUnit == 41) {
+      continue;
+    }
+    buffer.writeCharCode(codeUnit);
+  }
+  return buffer.toString();
+}
+
+bool _isAsciiLetterOrDigit(int codeUnit) {
+  return (codeUnit >= 48 && codeUnit <= 57) ||
+      (codeUnit >= 65 && codeUnit <= 90) ||
+      (codeUnit >= 97 && codeUnit <= 122);
+}
+
+bool _isValidEmail(String value) {
+  final trimmed = value.trim();
+  final atIndex = trimmed.indexOf('@');
+  if (atIndex <= 0 ||
+      atIndex != trimmed.lastIndexOf('@') ||
+      atIndex == trimmed.length - 1) {
+    return false;
+  }
+
+  final local = trimmed.substring(0, atIndex);
+  final domain = trimmed.substring(atIndex + 1);
+  if (local.startsWith('.') ||
+      local.endsWith('.') ||
+      domain.startsWith('.') ||
+      domain.endsWith('.') ||
+      !domain.contains('.')) {
+    return false;
+  }
+
+  for (final codeUnit in local.codeUnits) {
+    final isValid =
+        _isAsciiLetterOrDigit(codeUnit) ||
+        codeUnit == 45 ||
+        codeUnit == 46 ||
+        codeUnit == 95;
+    if (!isValid) return false;
+  }
+
+  final labels = domain.split('.');
+  if (labels.length < 2) return false;
+  for (final label in labels) {
+    if (label.isEmpty) return false;
+    for (final codeUnit in label.codeUnits) {
+      final isValid = _isAsciiLetterOrDigit(codeUnit) || codeUnit == 45;
+      if (!isValid) return false;
+    }
+  }
+
+  final topLevelDomain = labels.last;
+  return topLevelDomain.length >= 2 && topLevelDomain.length <= 4;
+}
+
 @immutable
 class MemberCreateState {
   final int? churchId;
@@ -142,7 +225,7 @@ class MemberCreateState {
 
 AppLocalizations _l10n() {
   final localeName = intl.Intl.getCurrentLocale();
-  final languageCode = localeName.split(RegExp('[_-]')).first;
+  final languageCode = _languageCodeFromLocaleName(localeName);
   return lookupAppLocalizations(
     Locale(languageCode.isEmpty ? 'en' : languageCode),
   );
@@ -260,8 +343,7 @@ class MemberCreateController extends Notifier<MemberCreateState> {
     if (trimmed.isEmpty) {
       return null;
     }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(trimmed)) {
+    if (!_isValidEmail(trimmed)) {
       return l10n.validation_invalidEmail;
     }
     return null;
@@ -271,7 +353,7 @@ class MemberCreateController extends Notifier<MemberCreateState> {
     final l10n = _l10n();
     final trimmed = value.trim();
     if (trimmed.isEmpty) return null;
-    final digitsOnly = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
+    final digitsOnly = _digitsOnly(trimmed);
     if (digitsOnly.length < 12) {
       return l10n.validation_invalidPhone;
     }
@@ -295,8 +377,7 @@ class MemberCreateController extends Notifier<MemberCreateState> {
   }
 
   String? _normalizeIndonesianPhone(String raw) {
-    var normalized = raw.trim();
-    normalized = normalized.replaceAll(RegExp(r'[\s\-()]'), '');
+    var normalized = _stripPhoneFormatting(raw.trim());
 
     if (normalized.startsWith('+62')) {
       normalized = '0${normalized.substring(3)}';
@@ -304,7 +385,7 @@ class MemberCreateController extends Notifier<MemberCreateState> {
       normalized = '0${normalized.substring(2)}';
     }
 
-    normalized = normalized.replaceAll(RegExp(r'[^0-9]'), '');
+    normalized = _digitsOnly(normalized);
     return normalized.isEmpty ? null : normalized;
   }
 

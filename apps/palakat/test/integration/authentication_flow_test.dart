@@ -450,10 +450,15 @@ void main() {
 
       // Phone with letters
       controller.onPhoneNumberChanged('abc123');
-      final cleanPhone = controller.state.phoneNumber.replaceAll(
-        RegExp(r'\D'),
-        '',
-      );
+      final cleanPhone = (() {
+        final buffer = StringBuffer();
+        for (final codeUnit in controller.state.phoneNumber.codeUnits) {
+          if (codeUnit >= 48 && codeUnit <= 57) {
+            buffer.writeCharCode(codeUnit);
+          }
+        }
+        return buffer.toString();
+      })();
       expect(cleanPhone, '123');
 
       // Phone with special characters

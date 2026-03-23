@@ -1,5 +1,36 @@
 import 'package:jiffy/jiffy.dart';
 
+List<String> _splitOnWhitespace(String value) {
+  final parts = <String>[];
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    final isWhitespace =
+        codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+    if (isWhitespace) {
+      if (buffer.isNotEmpty) {
+        parts.add(buffer.toString());
+        buffer.clear();
+      }
+      continue;
+    }
+    buffer.writeCharCode(codeUnit);
+  }
+  if (buffer.isNotEmpty) {
+    parts.add(buffer.toString());
+  }
+  return parts;
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
 extension StringExtension on String {
   String get toCamelCase {
     return toLowerCase()
@@ -22,10 +53,7 @@ extension StringExtension on String {
 
   // Returns initials from a full name string, e.g., "John Doe" -> "JD"
   String get initials {
-    final parts = trim()
-        .split(RegExp(r'\s+'))
-        .where((p) => p.isNotEmpty)
-        .toList();
+    final parts = _splitOnWhitespace(trim());
     if (parts.isEmpty) return 'U';
     if (parts.length == 1) return parts[0][0].toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
@@ -37,9 +65,7 @@ extension StringExtension on String {
     if (isEmpty) return this;
     final trimmed = trim();
     final hasPlus = trimmed.startsWith('+');
-    final digits = RegExp(
-      r'\d+',
-    ).allMatches(trimmed).map((m) => m.group(0)!).join();
+    final digits = _digitsOnly(trimmed);
 
     if (digits.length == 12 || digits.length == 13) {
       final p1 = digits.substring(0, 4);

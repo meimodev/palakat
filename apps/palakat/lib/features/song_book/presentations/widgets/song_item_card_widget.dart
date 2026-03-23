@@ -23,8 +23,37 @@ class SongItemCard extends StatelessWidget {
 
   final String? searchQuery;
 
+  String _removeWhitespace(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.toLowerCase().codeUnits) {
+      if (codeUnit != 32 && codeUnit != 9 && codeUnit != 10 && codeUnit != 13) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
+  String _collapseWhitespace(String value) {
+    final buffer = StringBuffer();
+    var previousWasWhitespace = false;
+    for (final codeUnit in value.trim().codeUnits) {
+      final isWhitespace =
+          codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+      if (isWhitespace) {
+        if (!previousWasWhitespace) {
+          buffer.write(' ');
+          previousWasWhitespace = true;
+        }
+      } else {
+        buffer.writeCharCode(codeUnit);
+        previousWasWhitespace = false;
+      }
+    }
+    return buffer.toString().trim();
+  }
+
   String _normalize(String value) {
-    return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+    return _removeWhitespace(value);
   }
 
   String? _lyricsSnippet() {
@@ -62,7 +91,7 @@ class SongItemCard extends StatelessWidget {
     final part = verseMatch ?? firstVerse ?? firstMatch;
     if (part == null) return null;
 
-    final content = part.content.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final content = _collapseWhitespace(part.content);
     const maxLen = 140;
     if (content.length <= maxLen) return content;
     return '${content.substring(0, maxLen)}…';
@@ -93,10 +122,7 @@ class SongItemCard extends StatelessWidget {
                 MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
             return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.0,
-                vertical: 8.0,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
               child: isCompact
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -198,11 +224,47 @@ class _SongContent extends StatelessWidget {
   final String? snippet;
   final bool isCompact;
 
+  String _collapseWhitespace(String value) {
+    final buffer = StringBuffer();
+    var previousWasWhitespace = false;
+    for (final codeUnit in value.trim().codeUnits) {
+      final isWhitespace =
+          codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+      if (isWhitespace) {
+        if (!previousWasWhitespace) {
+          buffer.write(' ');
+          previousWasWhitespace = true;
+        }
+      } else {
+        buffer.writeCharCode(codeUnit);
+        previousWasWhitespace = false;
+      }
+    }
+    return buffer.toString().trim();
+  }
+
+  String _stripLeadingNoPrefix(String value) {
+    final trimmed = value.trimLeft();
+    if (trimmed.length < 2 || trimmed.substring(0, 2).toUpperCase() != 'NO') {
+      return value;
+    }
+
+    var index = 2;
+    while (index < trimmed.length && trimmed[index] == '.') {
+      index++;
+    }
+    while (index < trimmed.length) {
+      final codeUnit = trimmed.codeUnitAt(index);
+      final isWhitespace =
+          codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+      if (!isWhitespace) break;
+      index++;
+    }
+    return trimmed.substring(index);
+  }
+
   String _displayTitle(String value) {
-    return value
-        .replaceAll(RegExp(r'\bNO\.?\s*', caseSensitive: false), '')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
+    return _collapseWhitespace(_stripLeadingNoPrefix(value));
   }
 
   @override
@@ -229,9 +291,9 @@ class _SongContent extends StatelessWidget {
         // Subtitle (song name)
         Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurfaceVariant),
           maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -239,9 +301,9 @@ class _SongContent extends StatelessWidget {
           Gap.h4,
           Text(
             snippet!,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurfaceVariant),
             maxLines: isCompact ? 2 : 1,
             overflow: TextOverflow.ellipsis,
           ),

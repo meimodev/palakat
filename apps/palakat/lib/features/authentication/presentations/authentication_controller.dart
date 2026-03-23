@@ -13,9 +13,41 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'authentication_controller.g.dart';
 
+String _languageCodeFromLocaleName(String localeName) {
+  final underscoreIndex = localeName.indexOf('_');
+  final hyphenIndex = localeName.indexOf('-');
+  final separatorIndex = underscoreIndex == -1
+      ? hyphenIndex
+      : hyphenIndex == -1
+      ? underscoreIndex
+      : underscoreIndex < hyphenIndex
+      ? underscoreIndex
+      : hyphenIndex;
+  if (separatorIndex == -1) return localeName;
+  return localeName.substring(0, separatorIndex);
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
+bool _allCharactersAre(String value, int codeUnit) {
+  if (value.isEmpty) return false;
+  for (final current in value.codeUnits) {
+    if (current != codeUnit) return false;
+  }
+  return true;
+}
+
 AppLocalizations _l10n() {
   final localeName = intl.Intl.getCurrentLocale();
-  final languageCode = localeName.split(RegExp('[_-]')).first;
+  final languageCode = _languageCodeFromLocaleName(localeName);
   return lookupAppLocalizations(
     Locale(languageCode.isEmpty ? 'en' : languageCode),
   );
@@ -64,7 +96,7 @@ class AuthenticationController extends _$AuthenticationController {
     }
 
     // Remove all non-digit characters for validation
-    final cleanPhone = state.phoneNumber.replaceAll(RegExp(r'\D'), '');
+    final cleanPhone = _digitsOnly(state.phoneNumber);
 
     // Check if phone contains only digits
     if (cleanPhone.isEmpty) {
@@ -97,7 +129,7 @@ class AuthenticationController extends _$AuthenticationController {
 
     // Additional validation: check for invalid patterns
     // (e.g., all zeros, all same digit)
-    if (RegExp(r'^0+$').hasMatch(cleanPhone)) {
+    if (_allCharactersAre(cleanPhone, 48)) {
       state = state.copyWith(errorMessage: l10n.validation_invalidPhone);
       return false;
     }
@@ -396,7 +428,7 @@ class AuthenticationController extends _$AuthenticationController {
     }
 
     // Remove any non-digit characters
-    final cleanOtp = state.otp.replaceAll(RegExp(r'\D'), '');
+    final cleanOtp = _digitsOnly(state.otp);
 
     if (cleanOtp.length < AppConstants.otpLength) {
       state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
@@ -404,12 +436,6 @@ class AuthenticationController extends _$AuthenticationController {
     }
 
     if (cleanOtp.length > AppConstants.otpLength) {
-      state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
-      return false;
-    }
-
-    // Check if OTP contains only digits
-    if (!RegExp(r'^\d+$').hasMatch(cleanOtp)) {
       state = state.copyWith(errorMessage: l10n.validation_invalidFormat);
       return false;
     }

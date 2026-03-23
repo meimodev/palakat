@@ -3,14 +3,24 @@ import 'package:flutter/services.dart';
 /// Text input formatter that automatically adds dashes every 4 digits
 /// Format: XXXX-XXXX-XXXX or XXXX-XXXX-XXXXX
 class PhoneInputFormatter extends TextInputFormatter {
+  String _digitsOnly(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
     // Get only digits from the old and new text
-    final oldDigits = oldValue.text.replaceAll(RegExp(r'\D'), '');
-    final newDigits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final oldDigits = _digitsOnly(oldValue.text);
+    final newDigits = _digitsOnly(newValue.text);
 
     // Limit to 13 digits
     final limitedDigits = newDigits.length > 13
@@ -31,10 +41,9 @@ class PhoneInputFormatter extends TextInputFormatter {
     // Calculate cursor position based on digit position
     // Count how many digits are before the cursor in the old value
     final oldCursorPosition = oldValue.selection.baseOffset;
-    final digitsBeforeCursor = oldValue.text
-        .substring(0, oldCursorPosition)
-        .replaceAll(RegExp(r'\D'), '')
-        .length;
+    final digitsBeforeCursor = _digitsOnly(
+      oldValue.text.substring(0, oldCursorPosition),
+    ).length;
 
     // Determine new cursor position based on digits
     // If we're adding digits, move cursor forward

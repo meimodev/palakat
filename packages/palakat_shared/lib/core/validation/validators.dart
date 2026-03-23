@@ -3,6 +3,149 @@ import 'validation_result.dart';
 /// Type definition for validator functions
 typedef Validator<T> = ValidationResult Function(T? value);
 
+bool _isDigit(int codeUnit) {
+  return codeUnit >= 48 && codeUnit <= 57;
+}
+
+bool _isAsciiLetter(int codeUnit) {
+  return (codeUnit >= 65 && codeUnit <= 90) ||
+      (codeUnit >= 97 && codeUnit <= 122);
+}
+
+bool _isEmailLocalChar(int codeUnit) {
+  return _isAsciiLetter(codeUnit) ||
+      _isDigit(codeUnit) ||
+      codeUnit == 95 ||
+      codeUnit == 45 ||
+      codeUnit == 46;
+}
+
+bool _isEmailDomainChar(int codeUnit) {
+  return _isAsciiLetter(codeUnit) || _isDigit(codeUnit) || codeUnit == 45;
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (_isDigit(codeUnit)) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
+bool _isValidEmail(String value) {
+  final atIndex = value.indexOf('@');
+  if (atIndex <= 0 || atIndex != value.lastIndexOf('@')) {
+    return false;
+  }
+
+  final local = value.substring(0, atIndex);
+  final domain = value.substring(atIndex + 1);
+  if (local.isEmpty || domain.isEmpty) {
+    return false;
+  }
+
+  for (final codeUnit in local.codeUnits) {
+    if (!_isEmailLocalChar(codeUnit)) {
+      return false;
+    }
+  }
+
+  final segments = domain.split('.');
+  if (segments.length < 2) {
+    return false;
+  }
+
+  for (final segment in segments) {
+    if (segment.isEmpty) {
+      return false;
+    }
+    for (final codeUnit in segment.codeUnits) {
+      if (!_isEmailDomainChar(codeUnit)) {
+        return false;
+      }
+    }
+  }
+
+  final topLevelSegment = segments.last;
+  return topLevelSegment.length >= 2 && topLevelSegment.length <= 4;
+}
+
+bool _isValidPhoneNumber(String value) {
+  if (value.isEmpty) {
+    return false;
+  }
+
+  final hasPlus = value.startsWith('+');
+  final start = hasPlus ? 1 : 0;
+  if (value.length - start < 10) {
+    return false;
+  }
+
+  for (int i = start; i < value.length; i++) {
+    final codeUnit = value.codeUnitAt(i);
+    final isAllowedFormatting =
+        codeUnit == 32 || codeUnit == 45 || codeUnit == 40 || codeUnit == 41;
+    if (!_isDigit(codeUnit) && !isAllowedFormatting) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool _hasAnyMatch(Pattern pattern, String value) {
+  return pattern.allMatches(value).isNotEmpty;
+}
+
+bool _isLocalPhoneDigits(String value) {
+  if (value.length < 12 || value.length > 13) {
+    return false;
+  }
+  for (final codeUnit in value.codeUnits) {
+    if (!_isDigit(codeUnit)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool _matchesPrefixedNumericId(String value, String prefix) {
+  if (!value.startsWith(prefix)) {
+    return false;
+  }
+  final suffix = value.substring(prefix.length);
+  if (suffix.length < 4) {
+    return false;
+  }
+  for (final codeUnit in suffix.codeUnits) {
+    if (!_isDigit(codeUnit)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool _startsWithAsciiLetter(String value) {
+  if (value.isEmpty) {
+    return false;
+  }
+  return _isAsciiLetter(value.codeUnitAt(0));
+}
+
+bool _isLettersNumbersSpacesOnly(String value) {
+  if (value.isEmpty) {
+    return false;
+  }
+  for (final codeUnit in value.codeUnits) {
+    if (!_isAsciiLetter(codeUnit) && !_isDigit(codeUnit) && codeUnit != 32) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /// Collection of common validators for form inputs
 class Validators {
   Validators._();
@@ -45,9 +188,10 @@ class Validators {
   static Validator<String> email([String? message]) {
     return (String? value) {
       if (value != null && value.isNotEmpty) {
-        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-        if (!emailRegex.hasMatch(value)) {
-          return ValidationError(message ?? 'Please enter a valid email address');
+        if (!_isValidEmail(value)) {
+          return ValidationError(
+            message ?? 'Please enter a valid email address',
+          );
         }
       }
       return const ValidationSuccess();
@@ -58,9 +202,10 @@ class Validators {
   static Validator<String> phoneNumber([String? message]) {
     return (String? value) {
       if (value != null && value.isNotEmpty) {
-        final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{10,}$');
-        if (!phoneRegex.hasMatch(value)) {
-          return ValidationError(message ?? 'Please enter a valid phone number');
+        if (!_isValidPhoneNumber(value)) {
+          return ValidationError(
+            message ?? 'Please enter a valid phone number',
+          );
         }
       }
       return const ValidationSuccess();
@@ -68,11 +213,14 @@ class Validators {
   }
 
   /// Optional phone validator that enforces a minimum number of digits when provided
-  static Validator<String> optionalPhoneMinDigits(int minDigits, [String? message]) {
+  static Validator<String> optionalPhoneMinDigits(
+    int minDigits, [
+    String? message,
+  ]) {
     return (String? value) {
       final raw = (value ?? '').trim();
       if (raw.isEmpty) return const ValidationSuccess();
-      final digitsOnly = raw.replaceAll(RegExp(r'[^0-9]'), '');
+      final digitsOnly = _digitsOnly(raw);
       if (digitsOnly.length < minDigits) {
         return ValidationError(
           message ?? 'Phone number must contain at least $minDigits digits',
@@ -100,9 +248,7 @@ class Validators {
       if (value != null && value.isNotEmpty) {
         final numValue = double.tryParse(value);
         if (numValue != null && numValue < minValue) {
-          return ValidationError(
-            message ?? 'Value must be at least $minValue',
-          );
+          return ValidationError(message ?? 'Value must be at least $minValue');
         }
       }
       return const ValidationSuccess();
@@ -125,10 +271,10 @@ class Validators {
   }
 
   /// Validator that uses a custom pattern (regex)
-  static Validator<String> pattern(RegExp pattern, [String? message]) {
+  static Validator<String> pattern(Pattern pattern, [String? message]) {
     return (String? value) {
       if (value != null && value.isNotEmpty) {
-        if (!pattern.hasMatch(value)) {
+        if (!_hasAnyMatch(pattern, value)) {
           return ValidationError(message ?? 'Invalid format');
         }
       }
@@ -147,12 +293,13 @@ class Validators {
   }
 
   /// Validator that checks if value is in a list of allowed values
-  static Validator<String> oneOf(List<String> allowedValues, [String? message]) {
+  static Validator<String> oneOf(
+    List<String> allowedValues, [
+    String? message,
+  ]) {
     return (String? value) {
       if (value != null && !allowedValues.contains(value)) {
-        return ValidationError(
-          message ?? 'Please select a valid option',
-        );
+        return ValidationError(message ?? 'Please select a valid option');
       }
       return const ValidationSuccess();
     };
@@ -210,7 +357,7 @@ class Validators {
   static Validator<T> combine<T>(List<Validator<T>> validators) {
     return (T? value) {
       final errors = <ValidationError>[];
-      
+
       for (final validator in validators) {
         final result = validator(value);
         if (result is ValidationError) {
@@ -219,7 +366,7 @@ class Validators {
           errors.addAll(result.errors);
         }
       }
-      
+
       if (errors.isEmpty) {
         return const ValidationSuccess();
       } else if (errors.length == 1) {
@@ -260,10 +407,12 @@ class AuthValidators {
       (v) {
         final value = (v ?? '').trim();
         final isEmail = Validators.email().isValidFor(value);
-        final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-        final isLocalPhone = RegExp(r'^[0-9]{12,13}$').hasMatch(digitsOnly);
+        final digitsOnly = _digitsOnly(value);
+        final isLocalPhone = _isLocalPhoneDigits(digitsOnly);
         if (isEmail || isLocalPhone) return const ValidationSuccess();
-        return ValidationError(message ?? 'Enter a valid email address or phone number');
+        return ValidationError(
+          message ?? 'Enter a valid email address or phone number',
+        );
       },
     ]);
   }
@@ -280,18 +429,28 @@ class ChurchValidators {
 
   /// Validator for member ID format
   static Validator<String> memberId([String? message]) {
-    return Validators.pattern(
-      RegExp(r'^MEM-\d{4,}$'),
-      message ?? 'Member ID must be in format MEM-XXXX',
-    );
+    return (String? value) {
+      final normalized = (value ?? '').trim();
+      if (normalized.isEmpty) return const ValidationSuccess();
+      if (_matchesPrefixedNumericId(normalized, 'MEM-')) {
+        return const ValidationSuccess();
+      }
+      return ValidationError(message ?? 'Member ID must be in format MEM-XXXX');
+    };
   }
 
   /// Validator for activity ID format
   static Validator<String> activityId([String? message]) {
-    return Validators.pattern(
-      RegExp(r'^ACT-\d{4,}$'),
-      message ?? 'Activity ID must be in format ACT-XXXX',
-    );
+    return (String? value) {
+      final normalized = (value ?? '').trim();
+      if (normalized.isEmpty) return const ValidationSuccess();
+      if (_matchesPrefixedNumericId(normalized, 'ACT-')) {
+        return const ValidationSuccess();
+      }
+      return ValidationError(
+        message ?? 'Activity ID must be in format ACT-XXXX',
+      );
+    };
   }
 
   /// Validator for donation amount
@@ -308,7 +467,10 @@ class ChurchValidators {
     return Validators.combine([
       Validators.required('Church name is required'),
       Validators.minLength(2, 'Church name must be at least 2 characters'),
-      Validators.maxLength(100, 'Church name must be no more than 100 characters'),
+      Validators.maxLength(
+        100,
+        'Church name must be no more than 100 characters',
+      ),
     ]);
   }
 
@@ -317,7 +479,10 @@ class ChurchValidators {
     return Validators.combine([
       Validators.required('Pastor name is required'),
       Validators.minLength(2, 'Pastor name must be at least 2 characters'),
-      Validators.maxLength(50, 'Pastor name must be no more than 50 characters'),
+      Validators.maxLength(
+        50,
+        'Pastor name must be no more than 50 characters',
+      ),
     ]);
   }
 
@@ -329,10 +494,10 @@ class ChurchValidators {
       Validators.maxLength(20, 'Maximum 20 characters'),
       (v) {
         final value = (v ?? '').trim();
-        if (!RegExp(r'^[A-Za-z]').hasMatch(value)) {
+        if (!_startsWithAsciiLetter(value)) {
           return const ValidationError('Must start with a letter');
         }
-        if (!RegExp(r'^[A-Za-z0-9 ]+$').hasMatch(value)) {
+        if (!_isLettersNumbersSpacesOnly(value)) {
           return const ValidationError('Only letters and numbers are allowed');
         }
         return const ValidationSuccess();
@@ -348,10 +513,10 @@ class ChurchValidators {
       Validators.maxLength(20, 'Maximum 20 characters'),
       (v) {
         final value = (v ?? '').trim();
-        if (!RegExp(r'^[A-Za-z]').hasMatch(value)) {
+        if (!_startsWithAsciiLetter(value)) {
           return const ValidationError('Must start with a letter');
         }
-        if (!RegExp(r'^[A-Za-z0-9 ]+$').hasMatch(value)) {
+        if (!_isLettersNumbersSpacesOnly(value)) {
           return const ValidationError('Only letters and numbers are allowed');
         }
         return const ValidationSuccess();
@@ -371,8 +536,12 @@ class ChurchValidators {
       Validators.numeric('Latitude must be a number'),
       (v) {
         final d = double.tryParse((v ?? '').trim());
-        if (d == null) return const ValidationError('Latitude must be a number');
-        if (d < -90 || d > 90) return const ValidationError('Latitude must be between -90 and 90');
+        if (d == null) {
+          return const ValidationError('Latitude must be a number');
+        }
+        if (d < -90 || d > 90) {
+          return const ValidationError('Latitude must be between -90 and 90');
+        }
         return const ValidationSuccess();
       },
     ]);
@@ -385,8 +554,14 @@ class ChurchValidators {
       Validators.numeric('Longitude must be a number'),
       (v) {
         final d = double.tryParse((v ?? '').trim());
-        if (d == null) return const ValidationError('Longitude must be a number');
-        if (d < -180 || d > 180) return const ValidationError('Longitude must be between -180 and 180');
+        if (d == null) {
+          return const ValidationError('Longitude must be a number');
+        }
+        if (d < -180 || d > 180) {
+          return const ValidationError(
+            'Longitude must be between -180 and 180',
+          );
+        }
         return const ValidationSuccess();
       },
     ]);

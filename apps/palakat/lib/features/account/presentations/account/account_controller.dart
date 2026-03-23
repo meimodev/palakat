@@ -10,9 +10,81 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'account_controller.g.dart';
 
+String _languageCodeFromLocaleName(String localeName) {
+  final underscoreIndex = localeName.indexOf('_');
+  final hyphenIndex = localeName.indexOf('-');
+  final separatorIndex = underscoreIndex == -1
+      ? hyphenIndex
+      : hyphenIndex == -1
+      ? underscoreIndex
+      : underscoreIndex < hyphenIndex
+      ? underscoreIndex
+      : hyphenIndex;
+  if (separatorIndex == -1) return localeName;
+  return localeName.substring(0, separatorIndex);
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
+bool _isAsciiLetterOrDigit(int codeUnit) {
+  return (codeUnit >= 48 && codeUnit <= 57) ||
+      (codeUnit >= 65 && codeUnit <= 90) ||
+      (codeUnit >= 97 && codeUnit <= 122);
+}
+
+bool _isValidEmail(String value) {
+  final trimmed = value.trim();
+  final atIndex = trimmed.indexOf('@');
+  if (atIndex <= 0 ||
+      atIndex != trimmed.lastIndexOf('@') ||
+      atIndex == trimmed.length - 1) {
+    return false;
+  }
+
+  final local = trimmed.substring(0, atIndex);
+  final domain = trimmed.substring(atIndex + 1);
+  if (local.startsWith('.') ||
+      local.endsWith('.') ||
+      domain.startsWith('.') ||
+      domain.endsWith('.') ||
+      !domain.contains('.')) {
+    return false;
+  }
+
+  for (final codeUnit in local.codeUnits) {
+    final isValid =
+        _isAsciiLetterOrDigit(codeUnit) ||
+        codeUnit == 45 ||
+        codeUnit == 46 ||
+        codeUnit == 95;
+    if (!isValid) return false;
+  }
+
+  final labels = domain.split('.');
+  if (labels.length < 2) return false;
+  for (final label in labels) {
+    if (label.isEmpty) return false;
+    for (final codeUnit in label.codeUnits) {
+      final isValid = _isAsciiLetterOrDigit(codeUnit) || codeUnit == 45;
+      if (!isValid) return false;
+    }
+  }
+
+  final topLevelDomain = labels.last;
+  return topLevelDomain.length >= 2 && topLevelDomain.length <= 4;
+}
+
 AppLocalizations _l10n() {
   final localeName = intl.Intl.getCurrentLocale();
-  final languageCode = localeName.split(RegExp('[_-]')).first;
+  final languageCode = _languageCodeFromLocaleName(localeName);
   return lookupAppLocalizations(
     Locale(languageCode.isEmpty ? 'en' : languageCode),
   );
@@ -30,7 +102,7 @@ class AccountController extends _$AccountController {
   /// Format phone number with dashes (XXXX-XXXX-XXXX)
   String _formatPhoneNumber(String? phone) {
     // Remove all non-digit characters
-    final digits = (phone ?? '').replaceAll(RegExp(r'\D'), '');
+    final digits = _digitsOnly(phone ?? '');
 
     // Limit to 13 digits
     final limitedDigits = digits.length > 13 ? digits.substring(0, 13) : digits;
@@ -150,8 +222,7 @@ class AccountController extends _$AccountController {
       return null; // Email is optional
     }
     // Basic email validation
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
+    if (!_isValidEmail(value)) {
       return l10n.validation_invalidEmail;
     }
     return null;

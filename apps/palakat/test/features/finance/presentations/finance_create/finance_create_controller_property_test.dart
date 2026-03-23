@@ -379,10 +379,15 @@ class _TestableFinanceCreateController {
   }
 
   String _formatAmountForDisplay(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    final digits = amount.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
   }
 
   // Validation methods

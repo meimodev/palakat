@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:palakat/core/constants/constants.dart';
 
+String _formatThousands(int value) {
+  final digits = value.toString();
+  final buffer = StringBuffer();
+  for (int i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) {
+      buffer.write('.');
+    }
+    buffer.write(digits[i]);
+  }
+  return buffer.toString();
+}
+
 /// A currency input widget that formats values as Indonesian Rupiah.
 /// Displays as "Rp X.XXX.XXX" while storing the raw integer value.
 /// Requirements: 6.4
@@ -82,10 +94,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
     if (number == null) return value;
 
     // Format with thousand separators (Indonesian style uses period)
-    final formatted = number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    final formatted = _formatThousands(number);
 
     return formatted;
   }
@@ -142,10 +151,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
             children: [
               // Rp prefix
               Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 12.0,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
@@ -168,14 +174,14 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: _onChanged,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.onSurface,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurface),
                   decoration: InputDecoration(
                     hintText: widget.hint,
-                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.neutral,
-                    ),
+                    hintStyle: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: AppColors.neutral),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 14.0,
@@ -196,7 +202,9 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
               maxLines: 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -208,9 +216,6 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
 /// Example: 1500000 -> "Rp 1.500.000"
 /// Requirements: 6.4
 String formatRupiah(int amount) {
-  final formatted = amount.toString().replaceAllMapped(
-    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-    (Match m) => '${m[1]}.',
-  );
+  final formatted = _formatThousands(amount);
   return 'Rp $formatted';
 }

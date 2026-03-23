@@ -97,7 +97,7 @@ class _AuthHeaderIcon extends StatelessWidget {
         boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
       ),
       alignment: Alignment.center,
-      child: FaIcon(icon, size: iconSize, color: AppColors.secondary),
+      child: FaIcon(icon, size: iconSize, color: AppColors.onSecondary),
     );
   }
 }

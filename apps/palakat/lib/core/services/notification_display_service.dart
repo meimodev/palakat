@@ -447,6 +447,19 @@ class NotificationDisplayServiceImpl
     }
   }
 
+  String _sanitizePayloadSegment(Object? value) {
+    final source = value.toString();
+    final buffer = StringBuffer();
+    for (final codeUnit in source.codeUnits) {
+      if (codeUnit == 61 || codeUnit == 59) {
+        buffer.write('_');
+      } else {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
   /// Encode payload data as a simple string format
   /// Format: key1=value1;key2=value2
   String _encodePayloadData(Map<String, dynamic> data) {
@@ -454,11 +467,8 @@ class NotificationDisplayServiceImpl
       final parts = <String>[];
       data.forEach((key, value) {
         // Sanitize key and value to avoid issues with delimiters
-        final sanitizedKey = key.toString().replaceAll(RegExp(r'[=;]'), '_');
-        final sanitizedValue = value.toString().replaceAll(
-          RegExp(r'[=;]'),
-          '_',
-        );
+        final sanitizedKey = _sanitizePayloadSegment(key);
+        final sanitizedValue = _sanitizePayloadSegment(value);
         parts.add('$sanitizedKey=$sanitizedValue');
       });
       return parts.join(';');

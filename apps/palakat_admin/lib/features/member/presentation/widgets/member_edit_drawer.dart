@@ -85,7 +85,13 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
   }
 
   String _normalizePhoneDigits(String input) {
-    return input.replaceAll(RegExp(r'[^0-9]'), '');
+    final buffer = StringBuffer();
+    for (final codeUnit in input.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
   }
 
   String _formatLocalPhone(String digits) {

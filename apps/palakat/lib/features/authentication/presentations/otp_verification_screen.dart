@@ -75,7 +75,8 @@ class OtpVerificationScreen extends ConsumerWidget {
       // Announce errors for screen readers
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        SemanticsService.announce(
+        SemanticsService.sendAnnouncement(
+          View.of(context),
           '${l10n.err_error}: ${next.errorMessage}',
           TextDirection.ltr,
         );
@@ -83,7 +84,8 @@ class OtpVerificationScreen extends ConsumerWidget {
 
       // Announce verification success
       if (next.showSuccessFeedback && (previous?.showSuccessFeedback != true)) {
-        SemanticsService.announce(
+        SemanticsService.sendAnnouncement(
+          View.of(context),
           l10n.auth_verificationSuccessful,
           TextDirection.ltr,
         );
@@ -144,7 +146,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                 tooltip: l10n.btn_back,
                 icon: FaIcon(
                   AppIcons.back,
-                  color: AppColors.primary,
+                  color: AppColors.onPrimary,
                   size: 20.0,
                 ),
                 style: IconButton.styleFrom(
@@ -176,7 +178,9 @@ class OtpVerificationScreen extends ConsumerWidget {
                         children: [
                           Text(
                             context.l10n.auth_enterCode,
-                            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium!.toSecondary,
                             textAlign: TextAlign.center,
                           ),
                           Gap.h6,
@@ -185,10 +189,11 @@ class OtpVerificationScreen extends ConsumerWidget {
                               fullPhoneNumber,
                               convertPlusToZero: true,
                             ),
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.onSurface,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.onSurface,
+                                ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -615,7 +620,9 @@ class _TimerAndResendButton extends StatelessWidget {
                   Flexible(
                     child: Text(
                       formatTime(remainingSeconds),
-                      style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.toSecondary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -670,10 +677,7 @@ class _SuccessFeedback extends StatelessWidget {
         side: BorderSide(color: AppColors.secondary, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

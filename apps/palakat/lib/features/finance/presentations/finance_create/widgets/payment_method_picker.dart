@@ -5,6 +5,20 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
+String _languageCodeFromLocaleName(String localeName) {
+  final underscoreIndex = localeName.indexOf('_');
+  final hyphenIndex = localeName.indexOf('-');
+  final separatorIndex = underscoreIndex == -1
+      ? hyphenIndex
+      : hyphenIndex == -1
+      ? underscoreIndex
+      : underscoreIndex < hyphenIndex
+      ? underscoreIndex
+      : hyphenIndex;
+  if (separatorIndex == -1) return localeName;
+  return localeName.substring(0, separatorIndex);
+}
+
 /// A widget for selecting payment method (CASH or CASHLESS).
 /// Displays options as selectable cards with visual feedback.
 /// Requirements: 2.4, 3.4
@@ -69,7 +83,9 @@ class PaymentMethodPicker extends StatelessWidget {
               maxLines: 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -99,12 +115,12 @@ class _PaymentMethodCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isSelected ? config.selectedBgColor : AppColors.surfaceContainerLowest,
+          color: isSelected
+              ? config.selectedBgColor
+              : AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
-            color: isSelected
-                ? config.selectedBorderColor
-                : AppColors.neutral,
+            color: isSelected ? config.selectedBorderColor : AppColors.neutral,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -164,10 +180,7 @@ class _PaymentMethodCard extends StatelessWidget {
             if (isSelected) ...[
               Gap.h8,
               Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
                   color: config.selectedBorderColor,
                   borderRadius: BorderRadius.circular(4.0),
@@ -252,7 +265,7 @@ class _PaymentMethodConfig {
 extension PaymentMethodExtension on PaymentMethod {
   AppLocalizations _l10n() {
     final localeName = intl.Intl.getCurrentLocale();
-    final languageCode = localeName.split(RegExp('[_-]')).first;
+    final languageCode = _languageCodeFromLocaleName(localeName);
     return lookupAppLocalizations(
       Locale(languageCode.isEmpty ? 'en' : languageCode),
     );

@@ -318,17 +318,44 @@ class SongRepository {
     throw Failure('Song DB not downloaded');
   }
 
+  String _removeWhitespace(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.toLowerCase().codeUnits) {
+      final isWhitespace =
+          codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+      if (!isWhitespace) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
+  String _stripLeadingNoPrefix(String value) {
+    final trimmed = value.trimLeft().toLowerCase();
+    if (trimmed.length < 2 || !trimmed.startsWith('no')) {
+      return trimmed;
+    }
+
+    var index = 2;
+    while (index < trimmed.length && trimmed[index] == '.') {
+      index++;
+    }
+    while (index < trimmed.length) {
+      final codeUnit = trimmed.codeUnitAt(index);
+      final isWhitespace =
+          codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+      if (!isWhitespace) break;
+      index++;
+    }
+    return trimmed.substring(index);
+  }
+
   String _normalizeSearch(String value) {
-    return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+    return _removeWhitespace(value);
   }
 
   String _normalizeSongTitle(String value) {
-    final lowered = value.toLowerCase();
-    final withoutNo = lowered.replaceAll(
-      RegExp(r'\bno\.?\s*', caseSensitive: false),
-      '',
-    );
-    return withoutNo.replaceAll(RegExp(r'\s+'), '');
+    return _removeWhitespace(_stripLeadingNoPrefix(value));
   }
 
   /// Get songs with pagination and optional search filter

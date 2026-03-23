@@ -94,18 +94,24 @@ class SongDetailScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     _formatSongPartType(entry.value.type),
-                                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.onSurfaceVariant,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge!
+                                        .copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.onSurfaceVariant,
+                                        ),
                                   ),
                                   Gap.h8,
                                   SelectableText(
                                     entry.value.content,
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      color: AppColors.primary,
-                                      height: 1.6,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: AppColors.primary,
+                                          height: 1.6,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -123,9 +129,7 @@ class SongDetailScreen extends ConsumerWidget {
                               shadowColor: AppColors.onSurface,
                               surfaceTintColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  8.0,
-                                ),
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: ImageNetworkWidget(
@@ -170,9 +174,7 @@ class SongDetailScreen extends ConsumerWidget {
                           color: AppColors.surfaceContainerLowest,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              16.0,
-                            ),
+                            borderRadius: BorderRadius.circular(16.0),
                             side: BorderSide(
                               color: AppColors.outlineVariant,
                               width: 1,
@@ -188,9 +190,7 @@ class SongDetailScreen extends ConsumerWidget {
                                   height: 56.0,
                                   decoration: BoxDecoration(
                                     color: AppColors.error,
-                                    borderRadius: BorderRadius.circular(
-                                      16.0,
-                                    ),
+                                    borderRadius: BorderRadius.circular(16.0),
                                   ),
                                   alignment: Alignment.center,
                                   child: Icon(
@@ -203,18 +203,22 @@ class SongDetailScreen extends ConsumerWidget {
                                 Text(
                                   l10n.songDetail_errorLoadingSong,
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                    color: AppColors.onSurface,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: AppColors.onSurface,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                 ),
                                 Gap.h4,
                                 Text(
                                   err.toString(),
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    color: AppColors.onSurfaceVariant,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium!
+                                      .copyWith(
+                                        color: AppColors.onSurfaceVariant,
+                                      ),
                                 ),
                               ],
                             ),
@@ -266,9 +270,7 @@ class _SongInfoCard extends StatelessWidget {
       elevation: 1,
       shadowColor: AppColors.onSurface,
       surfaceTintColor: AppColors.primary,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       clipBehavior: Clip.hardEdge,
       child: Padding(
         padding: EdgeInsets.all(16.0),
@@ -322,10 +324,11 @@ class _SongInfoCard extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           l10n.songDetail_videoFallback,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: AppColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                     Positioned(
@@ -342,10 +345,11 @@ class _SongInfoCard extends StatelessWidget {
                         ),
                         child: Text(
                           l10n.songDetail_openVideo,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: AppColors.surfaceContainerLowest,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: AppColors.surfaceContainerLowest,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ),
                     ),
@@ -374,17 +378,17 @@ class _InfoRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurfaceVariant),
         ),
         Gap.w16,
         Flexible(
           child: Text(
             value,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.right,
           ),
         ),
@@ -395,17 +399,27 @@ class _InfoRow extends StatelessWidget {
 
 String _formatSongPartType(SongPartType type) {
   final raw = type.name;
-  final withCamelSpaces = raw.replaceAllMapped(
-    RegExp(r'([a-z])([A-Z])'),
-    (m) => '${m.group(1)} ${m.group(2)}',
-  );
-  final withNumberSpaces = withCamelSpaces.replaceAllMapped(
-    RegExp(r'([a-zA-Z]+)(\d+)'),
-    (m) => '${m.group(1)} ${m.group(2)}',
-  );
-  final parts = withNumberSpaces
-      .split(RegExp(r'\s+'))
-      .where((p) => p.isNotEmpty);
+  final normalized = StringBuffer();
+  for (int i = 0; i < raw.length; i++) {
+    final current = raw.codeUnitAt(i);
+    final previous = i > 0 ? raw.codeUnitAt(i - 1) : null;
+    final isUppercase = current >= 65 && current <= 90;
+    final wasLowercase = previous != null && previous >= 97 && previous <= 122;
+    final isDigit = current >= 48 && current <= 57;
+    final wasLetter =
+        previous != null &&
+        ((previous >= 65 && previous <= 90) ||
+            (previous >= 97 && previous <= 122));
+    if (i > 0 && ((isUppercase && wasLowercase) || (isDigit && wasLetter))) {
+      normalized.write(' ');
+    }
+    normalized.writeCharCode(current);
+  }
+
+  final parts = normalized
+      .toString()
+      .split(' ')
+      .where((p) => p.trim().isNotEmpty);
 
   String capitalize(String s) {
     if (s.isEmpty) return s;
@@ -458,9 +472,33 @@ String? _extractYoutubeVideoId(Uri? uri) {
     }
   }
 
-  // Fallback regex (handles various formats)
-  final match = RegExp(
-    r'(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})',
-  ).firstMatch(uri.toString());
-  return match?.group(1);
+  final uriText = uri.toString();
+  const fallbackMarkers = <String>[
+    'watch?v=',
+    'embed/',
+    'shorts/',
+    'youtu.be/',
+  ];
+  for (final marker in fallbackMarkers) {
+    final markerIndex = uriText.indexOf(marker);
+    if (markerIndex == -1) continue;
+    final start = markerIndex + marker.length;
+    final buffer = StringBuffer();
+    for (int i = start; i < uriText.length; i++) {
+      final codeUnit = uriText.codeUnitAt(i);
+      final isValid =
+          (codeUnit >= 48 && codeUnit <= 57) ||
+          (codeUnit >= 65 && codeUnit <= 90) ||
+          (codeUnit >= 97 && codeUnit <= 122) ||
+          codeUnit == 95 ||
+          codeUnit == 45;
+      if (!isValid) break;
+      buffer.writeCharCode(codeUnit);
+    }
+    final candidate = buffer.toString();
+    if (candidate.length >= 6) {
+      return candidate;
+    }
+  }
+  return null;
 }

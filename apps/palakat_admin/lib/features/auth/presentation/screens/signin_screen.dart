@@ -38,7 +38,23 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   String _normalizePhoneDigits(String input) {
-    return input.replaceAll(RegExp(r'[^0-9]'), '');
+    final buffer = StringBuffer();
+    for (final codeUnit in input.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
+  bool _containsAsciiLetter(String input) {
+    for (final codeUnit in input.codeUnits) {
+      if ((codeUnit >= 65 && codeUnit <= 90) ||
+          (codeUnit >= 97 && codeUnit <= 122)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Prevent recursive formatting in onChanged
@@ -166,7 +182,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           onChanged: (value) {
                             if (_isFormatting) return;
                             if (value.contains('@') ||
-                                RegExp(r'[A-Za-z]').hasMatch(value)) {
+                                _containsAsciiLetter(value)) {
                               return;
                             }
                             final digits = _normalizePhoneDigits(value);

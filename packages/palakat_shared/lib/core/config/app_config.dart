@@ -8,6 +8,26 @@ part 'app_config.freezed.dart';
 
 part 'app_config.g.dart';
 
+String _trimTrailingSlashes(String value) {
+  var end = value.length;
+  while (end > 0 && value.codeUnitAt(end - 1) == 47) {
+    end--;
+  }
+  return value.substring(0, end);
+}
+
+String _trimSurroundingSlashes(String value) {
+  var start = 0;
+  var end = value.length;
+  while (start < end && value.codeUnitAt(start) == 47) {
+    start++;
+  }
+  while (end > start && value.codeUnitAt(end - 1) == 47) {
+    end--;
+  }
+  return value.substring(start, end);
+}
+
 /// Centralized configuration loaded from .env
 @freezed
 abstract class AppConfig with _$AppConfig {
@@ -37,10 +57,12 @@ abstract class AppConfig with _$AppConfig {
         ? null
         : int.tryParse(rawSongDbFileId);
 
-    final normalizedBaseUrl = baseUrl.replaceAll(RegExp(r'/+$'), '');
-    final normalizedVersion = baseUrlVersion.replaceAll(RegExp(r'^/+|/+$'), '');
+    final normalizedBaseUrl = _trimTrailingSlashes(baseUrl);
+    final normalizedVersion = _trimSurroundingSlashes(baseUrlVersion);
     final parsedBase = Uri.tryParse(normalizedBaseUrl);
-    if (parsedBase == null || parsedBase.scheme.isEmpty || parsedBase.host.isEmpty) {
+    if (parsedBase == null ||
+        parsedBase.scheme.isEmpty ||
+        parsedBase.host.isEmpty) {
       throw StateError('Invalid API_BASE_URL: $baseUrl');
     }
 
@@ -49,7 +71,9 @@ abstract class AppConfig with _$AppConfig {
       throw StateError('Invalid API_BASE_PORT: $baseUrlPort');
     }
 
-    final portPart = parsedBase.hasPort || parsedPort == null ? '' : ':$parsedPort';
+    final portPart = parsedBase.hasPort || parsedPort == null
+        ? ''
+        : ':$parsedPort';
 
     return AppConfig(
       apiBaseUrl: '$normalizedBaseUrl$portPart/$normalizedVersion/',

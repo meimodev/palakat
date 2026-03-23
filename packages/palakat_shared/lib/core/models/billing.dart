@@ -8,9 +8,23 @@ import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 part 'billing.freezed.dart';
 part 'billing.g.dart';
 
+String _languageCodeFromLocaleName(String localeName) {
+  final underscoreIndex = localeName.indexOf('_');
+  final hyphenIndex = localeName.indexOf('-');
+  final separatorIndex = underscoreIndex == -1
+      ? hyphenIndex
+      : hyphenIndex == -1
+      ? underscoreIndex
+      : underscoreIndex < hyphenIndex
+      ? underscoreIndex
+      : hyphenIndex;
+  if (separatorIndex == -1) return localeName;
+  return localeName.substring(0, separatorIndex);
+}
+
 AppLocalizations _l10n() {
   final localeName = intl.Intl.getCurrentLocale();
-  final languageCode = localeName.split(RegExp('[_-]')).first;
+  final languageCode = _languageCodeFromLocaleName(localeName);
   return lookupAppLocalizations(
     Locale(languageCode.isEmpty ? 'en' : languageCode),
   );

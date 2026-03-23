@@ -35,7 +35,7 @@ class QuickStatCard extends StatelessWidget {
         iconBackgroundColor ?? AppColors.surfaceContainerHigh;
     final resolvedIconColor = () {
       final desiredColor = iconColor ?? theme.colorScheme.primary;
-      if (desiredColor.value != resolvedIconBackgroundColor.value) {
+      if (desiredColor.toARGB32() != resolvedIconBackgroundColor.toARGB32()) {
         return desiredColor;
       }
 

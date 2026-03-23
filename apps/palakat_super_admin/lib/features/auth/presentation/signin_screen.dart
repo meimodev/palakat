@@ -14,13 +14,23 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _PhoneInputFormatter extends TextInputFormatter {
+  String _digitsOnly(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final oldDigits = oldValue.text.replaceAll(RegExp(r'\D'), '');
-    final newDigits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final oldDigits = _digitsOnly(oldValue.text);
+    final newDigits = _digitsOnly(newValue.text);
 
     final limitedDigits = newDigits.length > 13
         ? newDigits.substring(0, 13)
@@ -37,10 +47,9 @@ class _PhoneInputFormatter extends TextInputFormatter {
     final formattedText = buffer.toString();
 
     final oldCursorPosition = oldValue.selection.baseOffset;
-    final digitsBeforeCursor = oldValue.text
-        .substring(0, oldCursorPosition)
-        .replaceAll(RegExp(r'\D'), '')
-        .length;
+    final digitsBeforeCursor = _digitsOnly(
+      oldValue.text.substring(0, oldCursorPosition),
+    ).length;
 
     int targetDigitPosition = digitsBeforeCursor;
     if (newDigits.length > oldDigits.length) {

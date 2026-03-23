@@ -6,6 +6,79 @@ class SongSearchRepositoryFallback implements SongSearchRepository {
   String? _fingerprint;
   List<Song> _songs = const <Song>[];
 
+  bool _isLowerAlpha(int codeUnit) {
+    return codeUnit >= 97 && codeUnit <= 122;
+  }
+
+  bool _isDigit(int codeUnit) {
+    return codeUnit >= 48 && codeUnit <= 57;
+  }
+
+  bool _isWhitespace(int codeUnit) {
+    return codeUnit == 32 || codeUnit == 9 || codeUnit == 10 || codeUnit == 13;
+  }
+
+  bool _isLettersOnly(String value) {
+    if (value.isEmpty) return false;
+    for (final codeUnit in value.codeUnits) {
+      if (!_isLowerAlpha(codeUnit)) return false;
+    }
+    return true;
+  }
+
+  bool _isDigitsOnly(String value) {
+    if (value.isEmpty) return false;
+    for (final codeUnit in value.codeUnits) {
+      if (!_isDigit(codeUnit)) return false;
+    }
+    return true;
+  }
+
+  String _removeWhitespace(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.toLowerCase().codeUnits) {
+      if (!_isWhitespace(codeUnit)) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
+  List<String> _normalizedTokens(String value) {
+    final lower = value.toLowerCase().trim();
+    final tokens = <String>[];
+    final buffer = StringBuffer();
+    var previousKind = 0;
+
+    void flush() {
+      if (buffer.isEmpty) return;
+      final token = buffer.toString();
+      if (token != 'no') {
+        tokens.add(token);
+      }
+      buffer.clear();
+    }
+
+    for (final codeUnit in lower.codeUnits) {
+      final isAlpha = _isLowerAlpha(codeUnit);
+      final isNumeric = _isDigit(codeUnit);
+      if (!isAlpha && !isNumeric) {
+        flush();
+        previousKind = 0;
+        continue;
+      }
+
+      final kind = isAlpha ? 1 : 2;
+      if (buffer.isNotEmpty && previousKind != 0 && previousKind != kind) {
+        flush();
+      }
+      buffer.writeCharCode(codeUnit);
+      previousKind = kind;
+    }
+    flush();
+    return tokens;
+  }
+
   @override
   Future<void> ensureIndexed({
     required List<Song> songs,
@@ -18,27 +91,23 @@ class SongSearchRepositoryFallback implements SongSearchRepository {
   }
 
   String _normalizeSearch(String value) {
-    return value.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+    return _removeWhitespace(value);
   }
 
   String _normalizeSongTitle(String value) {
-    final lowered = value.toLowerCase();
-    final withoutNo = lowered.replaceAll(
-      RegExp(r'\bno\.?\s*', caseSensitive: false),
-      '',
-    );
-    return withoutNo.replaceAll(RegExp(r'\s+'), '');
+    return _normalizedTokens(value).join();
   }
 
   int _bookNumberScore(Song s, String q) {
-    final normalized = q.toLowerCase().trim();
-    final spaced = normalized.replaceAll(RegExp(r'\s+'), ' ');
-    final m = RegExp(r'^([a-z]+)\s*(?:no\.?\s*)?(\d+)$').firstMatch(spaced);
-    if (m == null) return 0;
+    final parts = _normalizedTokens(q);
+    if (parts.length != 2 ||
+        !_isLettersOnly(parts[0]) ||
+        !_isDigitsOnly(parts[1])) {
+      return 0;
+    }
 
-    final book = m.group(1) ?? '';
-    final num = m.group(2) ?? '';
-    if (book.isEmpty || num.isEmpty) return 0;
+    final book = parts[0];
+    final num = parts[1];
 
     final bookId = s.bookId.trim().toLowerCase();
     final titleNorm = _normalizeSongTitle(s.title);

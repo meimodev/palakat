@@ -12,6 +12,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'finance_create_controller.g.dart';
 
+String _formatThousands(int value) {
+  final digits = value.toString();
+  final buffer = StringBuffer();
+  for (int i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) {
+      buffer.write('.');
+    }
+    buffer.write(digits[i]);
+  }
+  return buffer.toString();
+}
+
 /// Controller for the Finance Create Screen.
 /// Handles both revenue and expense creation in standalone and embedded modes.
 /// Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.5, 3.2, 3.3, 3.5, 4.4, 6.2
@@ -70,10 +82,7 @@ class FinanceCreateController extends _$FinanceCreateController {
   /// Formats an integer amount for display with thousand separators.
   /// Example: 1000000 -> "1.000.000"
   String _formatAmountForDisplay(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    return _formatThousands(amount);
   }
 
   // ===== Validation Methods =====

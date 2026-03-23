@@ -2,6 +2,30 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+bool _containsDirectIconsUsage(String line) {
+  var start = 0;
+  while (true) {
+    final index = line.indexOf('Icons.', start);
+    if (index == -1) return false;
+    final previousChar = index > 0 ? line[index - 1] : null;
+    if (previousChar != 'A' && previousChar != 'p') {
+      return true;
+    }
+    start = index + 'Icons.'.length;
+  }
+}
+
+int _countOccurrences(String value, String needle) {
+  var count = 0;
+  var start = 0;
+  while (true) {
+    final index = value.indexOf(needle, start);
+    if (index == -1) return count;
+    count++;
+    start = index + needle.length;
+  }
+}
+
 /// Migration verification tests for icon consolidation.
 /// These tests verify that all icon usages have been migrated to AppIcons.
 ///
@@ -29,7 +53,6 @@ void main() {
     /// **Validates: Requirements 3.1, 3.3**
     test('No direct Icons.* usage in feature code', () {
       final violations = <String>[];
-      final iconPattern = RegExp(r'(?<![Ap])Icons\.');
 
       for (final file in featureFiles) {
         final content = file.readAsStringSync();
@@ -42,7 +65,7 @@ void main() {
           // Skip comments
           if (line.trimLeft().startsWith('//')) continue;
 
-          if (iconPattern.hasMatch(line)) {
+          if (_containsDirectIconsUsage(line)) {
             violations.add('${file.path}:${i + 1}: $line');
           }
         }
@@ -61,7 +84,6 @@ void main() {
     /// **Validates: Requirements 3.2, 3.3**
     test('No Assets.icons.* usage in feature code', () {
       final violations = <String>[];
-      final assetIconPattern = RegExp(r'Assets\.icons\.');
 
       for (final file in featureFiles) {
         final content = file.readAsStringSync();
@@ -74,7 +96,7 @@ void main() {
           // Skip comments
           if (line.trimLeft().startsWith('//')) continue;
 
-          if (assetIconPattern.hasMatch(line)) {
+          if (line.contains('Assets.icons.')) {
             violations.add('${file.path}:${i + 1}: $line');
           }
         }
@@ -93,11 +115,10 @@ void main() {
     /// This is a sanity check to ensure the migration has been applied.
     test('AppIcons is used in feature code', () {
       var appIconsUsageCount = 0;
-      final appIconsPattern = RegExp(r'AppIcons\.');
 
       for (final file in featureFiles) {
         final content = file.readAsStringSync();
-        appIconsUsageCount += appIconsPattern.allMatches(content).length;
+        appIconsUsageCount += _countOccurrences(content, 'AppIcons.');
       }
 
       expect(

@@ -18,6 +18,75 @@ class SongSearchRepositorySqflite implements SongSearchRepository {
   Future<void>? _indexing;
   String? _fingerprint;
 
+  bool _isLowerAlpha(int codeUnit) {
+    return codeUnit >= 97 && codeUnit <= 122;
+  }
+
+  bool _isDigit(int codeUnit) {
+    return codeUnit >= 48 && codeUnit <= 57;
+  }
+
+  bool _isLettersOnly(String value) {
+    if (value.isEmpty) return false;
+    for (final codeUnit in value.codeUnits) {
+      if (!_isLowerAlpha(codeUnit)) return false;
+    }
+    return true;
+  }
+
+  bool _isDigitsOnly(String value) {
+    if (value.isEmpty) return false;
+    for (final codeUnit in value.codeUnits) {
+      if (!_isDigit(codeUnit)) return false;
+    }
+    return true;
+  }
+
+  String _cleanAsciiAlphaNumeric(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.codeUnits) {
+      if (_isLowerAlpha(codeUnit) || _isDigit(codeUnit)) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
+  List<String> _normalizedTokens(String value) {
+    final lower = value.toLowerCase().trim();
+    final tokens = <String>[];
+    final buffer = StringBuffer();
+    var previousKind = 0;
+
+    void flush() {
+      if (buffer.isEmpty) return;
+      final token = buffer.toString();
+      if (token != 'no') {
+        tokens.add(token);
+      }
+      buffer.clear();
+    }
+
+    for (final codeUnit in lower.codeUnits) {
+      final isAlpha = _isLowerAlpha(codeUnit);
+      final isNumeric = _isDigit(codeUnit);
+      if (!isAlpha && !isNumeric) {
+        flush();
+        previousKind = 0;
+        continue;
+      }
+
+      final kind = isAlpha ? 1 : 2;
+      if (buffer.isNotEmpty && previousKind != 0 && previousKind != kind) {
+        flush();
+      }
+      buffer.writeCharCode(codeUnit);
+      previousKind = kind;
+    }
+    flush();
+    return tokens;
+  }
+
   Future<Database> _openDb() async {
     final existing = _db;
     if (existing != null && existing.isOpen) {
@@ -82,21 +151,13 @@ class SongSearchRepositorySqflite implements SongSearchRepository {
   }
 
   String _normalizeQuery(String query) {
-    var q = query.toLowerCase().trim();
-    q = q.replaceAll(RegExp(r'\bno\.?\b', caseSensitive: false), ' ');
-    q = q.replaceAll(RegExp(r'([a-z])(\d)'), r'$1 $2');
-    q = q.replaceAll(RegExp(r'(\d)([a-z])'), r'$1 $2');
-    q = q.replaceAll(RegExp(r'[^0-9a-z]+'), ' ');
-    q = q.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return q;
+    return _normalizedTokens(query).join(' ');
   }
 
   String _ftsToken(String token, {required bool allowPrefix}) {
-    final cleaned = token.replaceAll(RegExp(r'[^0-9a-z]'), '');
+    final cleaned = _cleanAsciiAlphaNumeric(token);
     if (cleaned.isEmpty) return '';
-    if (allowPrefix &&
-        cleaned.length >= 3 &&
-        !RegExp(r'^\d+$').hasMatch(cleaned)) {
+    if (allowPrefix && cleaned.length >= 3 && !_isDigitsOnly(cleaned)) {
       return '$cleaned*';
     }
     return cleaned;
@@ -113,8 +174,8 @@ class SongSearchRepositorySqflite implements SongSearchRepository {
     if (parts.isEmpty) return '';
 
     if (parts.length == 2 &&
-        RegExp(r'^[a-z]+$').hasMatch(parts[0]) &&
-        RegExp(r'^\d+$').hasMatch(parts[1])) {
+        _isLettersOnly(parts[0]) &&
+        _isDigitsOnly(parts[1])) {
       final book = _ftsToken(parts[0], allowPrefix: false);
       final num = _ftsToken(parts[1], allowPrefix: false);
       if (book.isEmpty || num.isEmpty) return '';

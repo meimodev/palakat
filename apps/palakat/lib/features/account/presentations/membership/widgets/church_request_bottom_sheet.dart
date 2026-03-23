@@ -575,12 +575,22 @@ class _ChurchRequestBottomSheetState
     return null;
   }
 
+  String _digitsOnly(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
   String? _validatePhone(String value) {
     final l10n = context.l10n;
     if (value.isEmpty) {
       return l10n.err_requiredField;
     }
-    final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+    final digitsOnly = _digitsOnly(value);
     if (digitsOnly.length < 10) {
       return l10n.churchRequest_validation_phoneMinDigits(10);
     }

@@ -2,6 +2,16 @@
 class PhoneNumberFormatter {
   PhoneNumberFormatter._();
 
+  static String _digitsOnly(String value) {
+    final buffer = StringBuffer();
+    for (final codeUnit in value.codeUnits) {
+      if (codeUnit >= 48 && codeUnit <= 57) {
+        buffer.writeCharCode(codeUnit);
+      }
+    }
+    return buffer.toString();
+  }
+
   /// Formats a phone number for display with dashes every 4 digits
   ///
   /// Example:
@@ -24,7 +34,7 @@ class PhoneNumberFormatter {
     }
 
     // Remove all non-digit characters
-    final cleanPhone = processedPhone.replaceAll(RegExp(r'\D'), '');
+    final cleanPhone = _digitsOnly(processedPhone);
 
     if (cleanPhone.isEmpty) {
       return '';
@@ -53,7 +63,7 @@ class PhoneNumberFormatter {
   /// Returns: Phone number in E.164 format
   static String toE164(String phone) {
     // Remove all non-digit characters from phone
-    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+    final cleanPhone = _digitsOnly(phone);
 
     if (cleanPhone.isEmpty) {
       return '+62';
@@ -87,12 +97,12 @@ class PhoneNumberFormatter {
     }
 
     // Remove all non-digit characters
-    final cleaned = processedPhone.replaceAll(RegExp(r'\D'), '');
+    final cleaned = _digitsOnly(processedPhone);
 
     if (cleaned.length <= 8) {
       // If phone is too short, mask middle part
       if (cleaned.length <= 4) {
-        return cleaned.replaceAll(RegExp(r'.'), '*');
+        return '*' * cleaned.length;
       }
       final first = cleaned.substring(0, 2);
       final last = cleaned.substring(cleaned.length - 2);

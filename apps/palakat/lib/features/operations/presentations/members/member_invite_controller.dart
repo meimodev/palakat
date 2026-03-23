@@ -8,6 +8,27 @@ import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:palakat_shared/services.dart';
 
+String _stripPhoneFormatting(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit == 32 || codeUnit == 45 || codeUnit == 40 || codeUnit == 41) {
+      continue;
+    }
+    buffer.writeCharCode(codeUnit);
+  }
+  return buffer.toString();
+}
+
+String _digitsOnly(String value) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return buffer.toString();
+}
+
 @immutable
 class MemberInviteState {
   final int? churchId;
@@ -183,8 +204,7 @@ class MemberInviteController extends Notifier<MemberInviteState> {
   }
 
   String _normalizeIndonesianPhone(String raw) {
-    var normalized = raw.trim();
-    normalized = normalized.replaceAll(RegExp(r'[\s\-()]'), '');
+    var normalized = _stripPhoneFormatting(raw.trim());
 
     if (normalized.startsWith('+62')) {
       normalized = '0${normalized.substring(3)}';
@@ -192,7 +212,7 @@ class MemberInviteController extends Notifier<MemberInviteState> {
       normalized = '0${normalized.substring(2)}';
     }
 
-    normalized = normalized.replaceAll(RegExp(r'[^0-9]'), '');
+    normalized = _digitsOnly(normalized);
     return normalized;
   }
 

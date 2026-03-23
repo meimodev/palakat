@@ -759,11 +759,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   color: effectiveIconColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: FaIcon(
-                  icon,
-                  size: 16.0,
-                  color: effectiveIconColor,
-                ),
+                child: FaIcon(icon, size: 16.0, color: effectiveIconColor),
               ),
               Gap.w12,
               Expanded(
@@ -823,7 +819,10 @@ class ActivityDetailScreen extends ConsumerWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.primary.shade700, AppColors.primary.shade800],
+                colors: [
+                  AppColors.primary.shade700,
+                  AppColors.primary.shade800,
+                ],
               ),
               shape: BoxShape.circle,
             ),
@@ -901,11 +900,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               color: AppColors.primary,
             ),
           ),
-          Container(
-            width: 1,
-            height: 48.0,
-            color: AppColors.outlineVariant,
-          ),
+          Container(width: 1, height: 48.0, color: AppColors.outlineVariant),
           Expanded(
             child: _buildDateTimeItem(
               context: context,
@@ -1354,10 +1349,15 @@ class ActivityDetailScreen extends ConsumerWidget {
   String _formatCurrency(int amount) {
     final isNegative = amount < 0;
     final absAmount = amount.abs();
-    final formatted = absAmount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    final digits = absAmount.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(digits[i]);
+    }
+    final formatted = buffer.toString();
     return '${isNegative ? '-' : ''}Rp $formatted';
   }
 
@@ -1621,9 +1621,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                   Gap.h4,
                   Text(
                     '${approver.updatedAt!.ddMmmmYyyy} • ${approver.updatedAt!.HHmm}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium!.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),

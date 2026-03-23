@@ -3,6 +3,16 @@ import 'package:kiri_check/kiri_check.dart';
 import 'package:palakat_shared/core/models/song.dart';
 import 'package:palakat_shared/core/models/song_part.dart';
 
+int _extractTrailingNumber(String value, {int fallback = 1}) {
+  final buffer = StringBuffer();
+  for (final codeUnit in value.codeUnits) {
+    if (codeUnit >= 48 && codeUnit <= 57) {
+      buffer.writeCharCode(codeUnit);
+    }
+  }
+  return int.tryParse(buffer.toString()) ?? fallback;
+}
+
 /// **Feature: songbook-backend-integration, Property 8: Backend response to Song model mapping**
 ///
 /// *For any* valid backend song response JSON containing id, title, index, book, and parts array,
@@ -20,11 +30,7 @@ void main() {
   String partNameToType(String partName) {
     final normalized = partName.toLowerCase().trim();
     if (normalized.startsWith('verse')) {
-      final n =
-          int.tryParse(
-            RegExp(r'\d+').firstMatch(normalized)?.group(0) ?? '1',
-          ) ??
-          1;
+      final n = _extractTrailingNumber(normalized);
       return switch (n) {
         1 => 'VERSE',
         2 => 'VERSE2',
@@ -38,11 +44,7 @@ void main() {
       };
     }
     if (normalized.startsWith('chorus')) {
-      final n =
-          int.tryParse(
-            RegExp(r'\d+').firstMatch(normalized)?.group(0) ?? '1',
-          ) ??
-          1;
+      final n = _extractTrailingNumber(normalized);
       return switch (n) {
         1 => 'CHORUS',
         2 => 'CHORUS2',

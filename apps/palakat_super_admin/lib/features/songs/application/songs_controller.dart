@@ -319,11 +319,12 @@ class SongsController extends Notifier<SongsState> {
   String _bumpVersion(String? current) {
     final raw = (current ?? '').trim();
     if (raw.isEmpty) return '1.0.0';
-    final m = RegExp(r'^(\d+)\.(\d+)\.(\d+)$').firstMatch(raw);
-    if (m == null) return '1.0.0';
-    final major = int.tryParse(m.group(1) ?? '') ?? 1;
-    final minor = int.tryParse(m.group(2) ?? '') ?? 0;
-    final patch = int.tryParse(m.group(3) ?? '') ?? 0;
+    final parts = raw.split('.');
+    if (parts.length != 3) return '1.0.0';
+    final major = int.tryParse(parts[0]);
+    final minor = int.tryParse(parts[1]);
+    final patch = int.tryParse(parts[2]);
+    if (major == null || minor == null || patch == null) return '1.0.0';
     return '$major.$minor.${patch + 1}';
   }
 
@@ -443,8 +444,21 @@ class SongsController extends Notifier<SongsState> {
 
   String _normalize(String raw) {
     final lower = raw.toLowerCase();
-    final spaced = lower.replaceAll(RegExp(r'[^a-z0-9]+'), ' ');
-    return spaced.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final buffer = StringBuffer();
+    var previousWasSpace = false;
+    for (final codeUnit in lower.codeUnits) {
+      final isAlphaNumeric =
+          (codeUnit >= 97 && codeUnit <= 122) ||
+          (codeUnit >= 48 && codeUnit <= 57);
+      if (isAlphaNumeric) {
+        buffer.writeCharCode(codeUnit);
+        previousWasSpace = false;
+      } else if (!previousWasSpace) {
+        buffer.write(' ');
+        previousWasSpace = true;
+      }
+    }
+    return buffer.toString().trim();
   }
 
   String _normalizeId(String raw) {
