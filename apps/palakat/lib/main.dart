@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +19,7 @@ import 'package:palakat/features/activity_alarm/services/activity_alarm_schedule
 import 'package:palakat/features/authentication/presentations/widgets/widgets.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
+import 'package:palakat_shared/core/config/sectioned_env_loader.dart';
 import 'package:palakat_shared/core/extension/approver_extension.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/result.dart';
@@ -75,7 +75,7 @@ Future<void> _handleUnauthorized() async {
             isScrollControlled: true,
             isDismissible: true,
             enableDrag: true,
-            backgroundColor: BaseColor.transparent,
+            backgroundColor: Colors.transparent,
             builder: (context) {
               return _UnauthorizedBottomSheetContent(
                 title: l10n.unauthorized_signInRequired_title,
@@ -146,17 +146,17 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: sheetMaxWidth),
         child: Container(
           decoration: BoxDecoration(
-            color: BaseColor.white,
+            color: AppColors.surfaceContainerLowest,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(BaseSize.radiusLg),
-              topRight: Radius.circular(BaseSize.radiusLg),
+              topLeft: Radius.circular(16.0),
+              topRight: Radius.circular(16.0),
             ),
           ),
           padding: EdgeInsets.only(
-            left: BaseSize.w24,
-            right: BaseSize.w24,
-            top: BaseSize.w16,
-            bottom: BaseSize.w24 + bottomPadding,
+            left: 24.0,
+            right: 24.0,
+            top: 16.0,
+            bottom: 24.0 + bottomPadding,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -164,11 +164,11 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
             children: [
               Center(
                 child: Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.h4,
+                  width: 40.0,
+                  height: 4.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral30,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    color: AppColors.tertiary,
+                    borderRadius: BorderRadius.circular(4.0),
                   ),
                 ),
               ),
@@ -182,7 +182,9 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
                   children: [
                     Text(
                       message,
-                      style: BaseTypography.bodyMedium.toSecondary,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.toSecondary,
                       textAlign: TextAlign.center,
                     ),
                     Gap.h24,
@@ -200,10 +202,10 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
                         child: ButtonWidget.outlined(
                           text: cancelLabel,
                           onTap: onCancel,
-                          outlineColor: BaseColor.neutral40,
-                          textColor: BaseColor.secondaryText,
-                          focusColor: BaseColor.neutral20,
-                          overlayColor: BaseColor.neutral10,
+                          outlineColor: AppColors.tertiary,
+                          textColor: AppColors.onSurfaceVariant,
+                          focusColor: AppColors.tertiary,
+                          overlayColor: AppColors.tertiary,
                         ),
                       ),
                     ] else
@@ -213,10 +215,10 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
                             child: ButtonWidget.outlined(
                               text: cancelLabel,
                               onTap: onCancel,
-                              outlineColor: BaseColor.neutral40,
-                              textColor: BaseColor.secondaryText,
-                              focusColor: BaseColor.neutral20,
-                              overlayColor: BaseColor.neutral10,
+                              outlineColor: AppColors.tertiary,
+                              textColor: AppColors.onSurfaceVariant,
+                              focusColor: AppColors.tertiary,
+                              overlayColor: AppColors.tertiary,
                             ),
                           ),
                           Gap.w12,
@@ -242,7 +244,7 @@ class _UnauthorizedBottomSheetContent extends StatelessWidget {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await SectionedEnvLoader.load();
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -644,7 +646,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         routeInformationParser: router.routeInformationParser,
         routeInformationProvider: router.routeInformationProvider,
         title: l10n.appTitle,
-        theme: BaseTheme.appTheme,
+        theme: buildAppTheme(),
         builder: (context, child) => FocusTraversalGroup(
           // Use ReadingOrderTraversalPolicy with a try-catch wrapper
           // to prevent RenderBox layout errors during focus traversal

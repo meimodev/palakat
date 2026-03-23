@@ -11,7 +11,7 @@ Future<bool?> showPermissionRationaleBottomSheet({
 }) {
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: BaseColor.transparent,
+    backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (dialogContext) => const _PermissionRationaleContent(),
   );
@@ -24,13 +24,13 @@ class _PermissionRationaleContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: BaseColor.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg),
-          topRight: Radius.circular(BaseSize.radiusLg),
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
       ),
-      padding: EdgeInsets.all(BaseSize.w24),
+      padding: EdgeInsets.all(24.0),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -39,11 +39,11 @@ class _PermissionRationaleContent extends StatelessWidget {
             // Handle bar
             Center(
               child: Container(
-                width: BaseSize.w40,
-                height: BaseSize.h4,
+                width: 40.0,
+                height: 4.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.neutral30,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: AppColors.tertiary,
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
               ),
             ),
@@ -51,17 +51,17 @@ class _PermissionRationaleContent extends StatelessWidget {
             // Icon/Illustration
             Center(
               child: Container(
-                width: BaseSize.w80,
-                height: BaseSize.w80,
+                width: 80.0,
+                height: 80.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.primary3.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   FontAwesomeIcons.bell,
-                  size: BaseSize.w40,
-                  color: BaseColor.primary3,
+                  size: 40.0,
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -69,9 +69,9 @@ class _PermissionRationaleContent extends StatelessWidget {
             // Title
             Text(
               context.l10n.notificationPermission_rationale_title,
-              style: BaseTypography.headlineSmall.copyWith(
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                 fontWeight: FontWeight.bold,
-                color: BaseColor.black,
+                color: AppColors.primary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -102,19 +102,19 @@ class _PermissionRationaleContent extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: BaseColor.primary3,
-                foregroundColor: BaseColor.white,
-                padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.surfaceContainerLowest,
+                padding: EdgeInsets.symmetric(vertical: 16.0),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
               child: Text(
                 context.l10n.notificationSettings_enableNotifications,
-                style: BaseTypography.titleMedium.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: BaseColor.white,
+                  color: AppColors.surfaceContainerLowest,
                 ),
               ),
             ),
@@ -123,16 +123,16 @@ class _PermissionRationaleContent extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                padding: EdgeInsets.symmetric(vertical: 12.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
               child: Text(
                 context.l10n.notificationPermission_btn_notNow,
-                style: BaseTypography.titleLarge.copyWith(
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: BaseColor.secondaryText,
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
             ),
@@ -156,23 +156,23 @@ class _BenefitItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: BaseSize.w40,
-          height: BaseSize.w40,
+          width: 40.0,
+          height: 40.0,
           decoration: BoxDecoration(
-            color: BaseColor.primary3.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(4.0),
           ),
           alignment: Alignment.center,
-          child: FaIcon(icon, size: BaseSize.w20, color: BaseColor.primary3),
+          child: FaIcon(icon, size: 20.0, color: AppColors.primary),
         ),
         Gap.w12,
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(top: BaseSize.h8),
+            padding: EdgeInsets.only(top: 8.0),
             child: Text(
               text,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.primaryText,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurface,
                 height: 1.5,
               ),
             ),

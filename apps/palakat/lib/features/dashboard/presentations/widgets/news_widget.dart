@@ -27,7 +27,7 @@
 //         ...data.map(
 //           (e) => Padding(
 //             padding: EdgeInsets.only(
-//               bottom: BaseSize.h6,
+//               bottom: 6.0,
 //             ),
 //             child: CardArticlesWidget(
 //               title: e,

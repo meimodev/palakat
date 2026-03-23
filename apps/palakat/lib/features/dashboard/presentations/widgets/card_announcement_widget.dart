@@ -21,39 +21,36 @@ class CardAnnouncementWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final canDownload = onPressedDownload != null;
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.yellow[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.warning,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
       ),
       child: InkWell(
         onTap: onPressedCard,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
               Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
+                width: 40.0,
+                height: 40.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.yellow[100],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  boxShadow: [
-                    BoxShadow(
-                      color: BaseColor.yellow[200]!.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  color: AppColors.warning.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                    color: AppColors.warning.shade200,
+                  ),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   AppIcons.document,
-                  size: BaseSize.w20,
-                  color: BaseColor.yellow[700],
+                  size: 20.0,
+                  color: AppColors.warning.shade700,
                 ),
               ),
               Gap.w12,
@@ -65,9 +62,9 @@ class CardAnnouncementWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: BaseTypography.bodyMedium.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+                        color: AppColors.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -75,8 +72,8 @@ class CardAnnouncementWidget extends StatelessWidget {
                     Gap.h4,
                     Text(
                       publishedOn.EEEEddMMMyyyy,
-                      style: BaseTypography.labelMedium.copyWith(
-                        color: BaseColor.textSecondary,
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: AppColors.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -85,28 +82,37 @@ class CardAnnouncementWidget extends StatelessWidget {
               ),
               if (canDownload) ...[
                 Gap.w12,
-                Material(
-                  color: BaseColor.yellow[50],
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    side: BorderSide(color: BaseColor.yellow[200]!, width: 1),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                   ),
-                  clipBehavior: Clip.hardEdge,
-                  child: InkWell(
+                  child: Material(
+                    color: AppColors.warning.shade100,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      side: BorderSide(
+                        color: AppColors.warning.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: InkWell(
                     onTap: onPressedDownload,
                     child: Container(
-                      width: BaseSize.w40,
-                      height: BaseSize.w40,
+                      width: 40.0,
+                      height: 40.0,
                       alignment: Alignment.center,
                       child: FaIcon(
                         AppIcons.download,
-                        size: BaseSize.w18,
-                        color: BaseColor.yellow[700],
+                        size: 18.0,
+                        color: AppColors.warning.shade700,
                       ),
                     ),
                   ),
                 ),
+              ),
               ],
             ],
           ),

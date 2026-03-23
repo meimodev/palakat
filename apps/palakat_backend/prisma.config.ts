@@ -3,7 +3,7 @@ import { defineConfig } from 'prisma/config';
 
 const databaseUrl = (() => {
   const raw = process.env.DATABASE_URL;
-  if (raw) {
+  if (raw && !raw.includes('${')) {
     return raw;
   }
 

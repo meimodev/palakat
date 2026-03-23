@@ -33,8 +33,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  palakat_shared:
-    path: ../../packages/palakat_shared
+  palakat_shared: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -43,6 +42,7 @@ dependencies:
   flutter_riverpod: ^3.0.3
   go_router: ^16.2.4
   intl: ^0.20.2
+  flutter_screenutil: ^5.9.3
   flutter_dotenv: ^6.0.0
   dio: ^5.9.0
   talker_dio_logger: ^5.0.2

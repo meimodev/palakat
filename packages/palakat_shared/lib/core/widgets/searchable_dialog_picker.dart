@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 import 'input/input_search_widget.dart';
 
@@ -118,91 +119,162 @@ class _SearchableDialogPickerState<T> extends State<SearchableDialogPicker<T>> {
     final screenSize = MediaQuery.of(context).size;
 
     return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: widget.maxWidth,
           maxHeight: screenSize.height * widget.maxHeightFactor,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.title,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
+        child: Material(
+          color: Colors.transparent,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            side: BorderSide(color: AppColors.ghostBorder(0.08)),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 22),
             ),
-
-            // Search field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: InputSearchWidget(
-                controller: _searchController,
-                hint: widget.searchHint,
-                autoClearButton: true,
-                debounceMilliseconds: widget.debounceMilliseconds,
-                borderRadius: widget.searchBorderRadius,
-                onChanged: _onSearchChanged,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Items list
-            Expanded(
-              child: _filteredItems.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      itemCount: _filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredItems[index];
-                        final isSelected = item == widget.selectedItem;
-
-                        return InkWell(
-                          onTap: () => Navigator.of(context).pop(item),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? theme.colorScheme.primaryContainer
-                                      .withValues(alpha: 0.3)
-                                  : null,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(child: widget.itemBuilder(item)),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check,
-                                    color: theme.colorScheme.primary,
-                                    size: 20,
-                                  ),
-                              ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            widget.title,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      Gap.w12,
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
+                          ),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Search field
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: InputSearchWidget(
+                    controller: _searchController,
+                    hint: widget.searchHint,
+                    autoClearButton: true,
+                    debounceMilliseconds: widget.debounceMilliseconds,
+                    borderRadius: widget.searchBorderRadius,
+                    onChanged: _onSearchChanged,
+                  ),
+                ),
+
+                Gap.h16,
+
+                // Items list
+                Expanded(
+                  child: _filteredItems.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                          itemCount: _filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = _filteredItems[index];
+                            final isSelected = item == widget.selectedItem;
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(
+                                    SanctuaryLayout.radius,
+                                  ),
+                                  onTap: () => Navigator.of(context).pop(item),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.primary.withValues(
+                                              alpha: 0.08,
+                                            )
+                                          : AppColors.surfaceContainerLow,
+                                      borderRadius: BorderRadius.circular(
+                                        SanctuaryLayout.radius,
+                                      ),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.primary.withValues(
+                                                alpha: 0.18,
+                                              )
+                                            : AppColors.ghostBorder(0.06),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: widget.itemBuilder(item),
+                                        ),
+                                        if (isSelected)
+                                          Container(
+                                            width: 28,
+                                            height: 28,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.12),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    SanctuaryLayout.radius,
+                                                  ),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Icon(
+                                              Icons.check,
+                                              color: theme.colorScheme.primary,
+                                              size: 16,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -214,23 +286,40 @@ class _SearchableDialogPickerState<T> extends State<SearchableDialogPicker<T>> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 48,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              widget.emptyStateMessage ?? 'No items found',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.search_off,
+                  size: 22,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              Gap.h16,
+              Text(
+                widget.emptyStateMessage ?? 'No items found',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

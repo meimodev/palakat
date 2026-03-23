@@ -128,7 +128,7 @@ class _MapScreenState extends State<MapScreen> {
           content: Text(l10n.map_locationAccessError),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: BaseColor.error,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -271,8 +271,8 @@ class _MapScreenState extends State<MapScreen> {
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h12,
+            horizontal: 12.0,
+            vertical: 12.0,
           ),
           child: Row(
             children: [
@@ -281,33 +281,33 @@ class _MapScreenState extends State<MapScreen> {
                 onTap: () => context.pop(),
                 child: FaIcon(
                   AppIcons.back,
-                  size: BaseSize.w24,
-                  color: BaseColor.neutral90,
+                  size: 24.0,
+                  color: AppColors.tertiary,
                 ),
               ),
               Gap.w12,
               // Title
               Expanded(
                 child: Material(
-                  color: BaseColor.white,
+                  color: AppColors.surfaceContainerLowest,
                   elevation: 1,
-                  shadowColor: Colors.black.withValues(alpha: 0.05),
+                  shadowColor: AppColors.onSurface,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+                    borderRadius: BorderRadius.circular(8.0),
+                    side: BorderSide(color: AppColors.neutral, width: 1),
                   ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w16,
-                      vertical: BaseSize.h12,
+                      horizontal: 16.0,
+                      vertical: 12.0,
                     ),
                     child: Text(
                       _isPinPointMode
                           ? l10n.map_selectLocationTitle
                           : l10n.card_location_title,
-                      style: BaseTypography.titleMedium.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+                        color: AppColors.onSurface,
                       ),
                     ),
                   ),
@@ -332,14 +332,14 @@ class _MapScreenState extends State<MapScreen> {
               children: [
                 // Pin icon
                 Container(
-                  width: BaseSize.w48,
-                  height: BaseSize.w48,
+                  width: 48.0,
+                  height: 48.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary3,
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: BaseColor.primary3.withValues(alpha: 0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -348,26 +348,26 @@ class _MapScreenState extends State<MapScreen> {
                   child: Center(
                     child: FaIcon(
                       AppIcons.mapPin,
-                      size: BaseSize.w24,
-                      color: BaseColor.white,
+                      size: 24.0,
+                      color: AppColors.surfaceContainerLowest,
                     ),
                   ),
                 ),
                 // Pin pointer
                 CustomPaint(
-                  size: Size(BaseSize.w12, BaseSize.h12),
-                  painter: _PinPointerPainter(color: BaseColor.primary3),
+                  size: Size(12.0, 12.0),
+                  painter: _PinPointerPainter(color: AppColors.primary),
                 ),
                 // Shadow dot
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  width: _isMapMoving ? BaseSize.w8 : BaseSize.w16,
-                  height: BaseSize.h4,
+                  width: _isMapMoving ? 8.0 : 16.0,
+                  height: 4.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.shadow.withValues(
+                    color: AppColors.onSurface.withValues(
                       alpha: _isMapMoving ? 0.2 : 0.3,
                     ),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    borderRadius: BorderRadius.circular(4.0),
                   ),
                 ),
               ],
@@ -389,16 +389,16 @@ class _MapScreenState extends State<MapScreen> {
         duration: const Duration(milliseconds: 200),
         opacity: _isInitialized ? 1.0 : 0.0,
         child: Material(
-          color: BaseColor.white,
+          color: AppColors.surfaceContainerLowest,
           elevation: 4,
-          shadowColor: Colors.black.withValues(alpha: 0.08),
+          shadowColor: AppColors.onSurface,
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(BaseSize.radiusLg),
+            top: Radius.circular(16.0),
           ),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: EdgeInsets.all(BaseSize.w16),
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,11 +406,11 @@ class _MapScreenState extends State<MapScreen> {
                   // Handle bar
                   Center(
                     child: Container(
-                      width: BaseSize.w40,
-                      height: BaseSize.h4,
+                      width: 40.0,
+                      height: 4.0,
                       decoration: BoxDecoration(
-                        color: BaseColor.neutral30,
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        color: AppColors.tertiary,
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
                   ),
@@ -420,17 +420,17 @@ class _MapScreenState extends State<MapScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(BaseSize.w10),
+                        padding: EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
-                          color: BaseColor.primary.shade50,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(
-                            BaseSize.radiusMd,
+                            8.0,
                           ),
                         ),
                         child: FaIcon(
                           AppIcons.mapPin,
-                          size: BaseSize.w24,
-                          color: BaseColor.primary3,
+                          size: 24.0,
+                          color: AppColors.primary,
                         ),
                       ),
                       Gap.w12,
@@ -440,15 +440,15 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             Text(
                               l10n.publish_locationSelected,
-                              style: BaseTypography.labelMedium.copyWith(
-                                color: BaseColor.neutral60,
+                              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                                color: AppColors.tertiary,
                               ),
                             ),
                             Gap.h4,
                             Text(
                               _selectedLocation?.name ?? '-',
-                              style: BaseTypography.titleMedium.toBold.copyWith(
-                                color: BaseColor.neutral90,
+                              style: Theme.of(context).textTheme.titleMedium!.toBold.copyWith(
+                                color: AppColors.tertiary,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -476,8 +476,8 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildMapControls() {
     return Positioned(
-      right: BaseSize.w12,
-      bottom: BaseSize.customHeight(220),
+      right: 12.0,
+      bottom: 220,
       child: Column(
         children: [
           // Zoom in
@@ -485,8 +485,8 @@ class _MapScreenState extends State<MapScreen> {
             onTap: _zoomIn,
             child: FaIcon(
               AppIcons.add,
-              size: BaseSize.w24,
-              color: BaseColor.neutral80,
+              size: 24.0,
+              color: AppColors.tertiary,
             ),
           ),
           Gap.h8,
@@ -495,8 +495,8 @@ class _MapScreenState extends State<MapScreen> {
             onTap: _zoomOut,
             child: FaIcon(
               AppIcons.remove,
-              size: BaseSize.w24,
-              color: BaseColor.neutral80,
+              size: 24.0,
+              color: AppColors.tertiary,
             ),
           ),
           Gap.h16,
@@ -504,18 +504,15 @@ class _MapScreenState extends State<MapScreen> {
           _MapIconButton(
             onTap: _isLoadingLocation ? () {} : _goToMyLocation,
             child: _isLoadingLocation
-                ? SizedBox(
-                    width: BaseSize.w22,
-                    height: BaseSize.w22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: BaseColor.primary3,
-                    ),
+                ? CompactLoadingWidget(
+                    size: 18.0,
+                    baseColor: AppColors.primary.withValues(alpha: 0.24),
+                    highlightColor: AppColors.surface,
                   )
                 : FaIcon(
                     AppIcons.gps,
-                    size: BaseSize.w22,
-                    color: BaseColor.primary3,
+                    size: 22.0,
+                    color: AppColors.primary,
                   ),
           ),
         ],
@@ -534,16 +531,16 @@ class _MapIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.white,
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(8.0),
       elevation: 2,
-      shadowColor: BaseColor.shadow.withValues(alpha: 0.2),
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.2),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
         child: Container(
-          width: BaseSize.w48,
-          height: BaseSize.w48,
+          width: 48.0,
+          height: 48.0,
           alignment: Alignment.center,
           child: child,
         ),

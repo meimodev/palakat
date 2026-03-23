@@ -1,6 +1,6 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../theme/theme.dart';
 
 /// A customizable bottom sheet dialog widget.
 ///
@@ -21,32 +21,65 @@ Future<T?> showDialogCustomWidget<T>({
     isScrollControlled: scrollControlled,
     isDismissible: dismissible,
     enableDrag: dragAble,
+    backgroundColor: Colors.transparent,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(BaseSize.customRadius(BaseSize.radiusMd)),
+        top: Radius.circular(SanctuaryLayout.radiusLarge),
       ),
     ),
-    builder: (context) => Padding(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Gap.h24,
-          _DialogHeader(
-            title: title,
-            closeIcon: closeIcon,
-            onClose: () {
-              if (onPopBottomSheet != null) {
-                onPopBottomSheet();
-              }
-              context.pop();
-            },
+    builder: (context) => SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          12.0,
+          12.0,
+          12.0,
+          MediaQuery.of(context).viewPadding.bottom + 12.0,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SanctuaryLayout.radiusLarge),
+            ),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.05, blur: 28),
           ),
-          Gap.h16,
-          content,
-          Gap.h48,
-        ],
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.pillRadius,
+                      ),
+                    ),
+                  ),
+                ),
+                Gap.h16,
+                _DialogHeader(
+                  title: title,
+                  closeIcon: closeIcon,
+                  onClose: () {
+                    if (onPopBottomSheet != null) {
+                      onPopBottomSheet();
+                    }
+                    context.pop();
+                  },
+                ),
+                Gap.h16,
+                content,
+                Gap.h24,
+              ],
+            ),
+          ),
+        ),
       ),
     ),
   );
@@ -67,32 +100,33 @@ class _DialogHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Spacer for symmetry
-        const SizedBox(width: 40),
         Expanded(
           child: Text(
             title,
-            style: BaseTypography.headlineSmall.copyWith(
-              fontWeight: FontWeight.bold,
-              color: BaseColor.black,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
             ),
-            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+        Gap.w12,
         IconButton(
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints(
-            minHeight: BaseSize.w24,
-            minWidth: BaseSize.w24,
+          style: IconButton.styleFrom(
+            backgroundColor: AppColors.surfaceContainerLow,
+            foregroundColor: AppColors.onSurfaceVariant,
+            padding: EdgeInsets.all(10.0),
+            minimumSize: Size(40.0, 40.0),
           ),
           icon:
               closeIcon ??
               Icon(
                 Icons.close,
-                size: BaseSize.w24,
-                color: BaseColor.primaryText,
+                size: 20.0,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
           onPressed: onClose,
         ),

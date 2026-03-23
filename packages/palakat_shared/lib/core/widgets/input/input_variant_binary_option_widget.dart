@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 /// A theme-aware binary option input variant widget.
 ///
@@ -90,7 +91,7 @@ class _InputVariantBinaryOptionWidgetState<T>
             color: isActive
                 ? theme.colorScheme.primaryContainer
                 : theme.colorScheme.surface,
-            shadowColor: Colors.black.withValues(alpha: 0.04),
+            shadowColor: AppColors.onSurface,
             elevation: isActive ? 2 : 1,
             child: InkWell(
               onTap: isActive

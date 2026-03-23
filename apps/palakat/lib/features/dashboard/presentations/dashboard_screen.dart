@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -145,7 +145,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         onRefresh: () async {
           await controller.fetchData();
         },
-        color: BaseColor.teal.shade500,
+        color: AppColors.primary,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -156,32 +156,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final headerActions = Wrap(
-                      spacing: BaseSize.w8,
-                      runSpacing: BaseSize.h8,
+                      spacing: 8.0,
+                      runSpacing: 8.0,
                       alignment: WrapAlignment.end,
                       children: [
                         if (state.account != null)
                           Badge.count(
                             count: alarmScheduledCount,
                             isLabelVisible: alarmScheduledCount > 0,
-                            backgroundColor: BaseColor.red,
-                            textColor: BaseColor.white,
+                            backgroundColor: AppColors.error,
+                            textColor: AppColors.surfaceContainerLowest,
                             offset: const Offset(-2, 2),
                             child: IconButton(
                               onPressed: () =>
                                   context.pushNamed(AppRoute.alarmSettings),
                               icon: FaIcon(
                                 AppIcons.notificationActive,
-                                size: BaseSize.w22,
-                                color: BaseColor.yellow[800],
+                                size: 22.0,
+                                color: AppColors.onPrimary,
                               ),
                               tooltip: l10n.dashboard_alarmSettings_tooltip,
                               style: IconButton.styleFrom(
-                                backgroundColor: BaseColor.yellow[50],
+                                backgroundColor: AppColors.warning,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    BaseSize.radiusMd,
-                                  ),
+                                  borderRadius: BorderRadius.circular(8.0),
                                 ),
                               ),
                             ),
@@ -192,16 +190,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                 context.pushNamed(AppRoute.settings),
                             icon: FaIcon(
                               AppIcons.settings,
-                              size: BaseSize.w24,
-                              color: BaseColor.primary[600],
+                              size: 24.0,
+                              color: AppColors.onPrimary,
                             ),
                             tooltip: context.l10n.settings_title,
                             style: IconButton.styleFrom(
-                              backgroundColor: BaseColor.primary[50],
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  BaseSize.radiusMd,
-                                ),
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
                           ),
@@ -214,11 +210,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         Expanded(
                           child: Text(
                             l10n.dashboard_title,
-                            style: BaseTypography.headlineLarge.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.textPrimary,
-                              letterSpacing: -0.5,
-                            ),
+                            style: Theme.of(context).textTheme.headlineLarge!
+                                .copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurface,
+                                  letterSpacing: -0.5,
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -230,89 +227,92 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 ),
               ),
               Gap.h16,
-              DashboardReveal(
-                delay: const Duration(milliseconds: 60),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    LoadingWrapper(
-                      loading:
-                          state.thisWeekActivitiesLoading ||
-                          state.thisWeekAnnouncementsLoading,
-                      hasError:
-                          state.errorMessage != null &&
-                          state.thisWeekActivitiesLoading == false,
-                      errorMessage: state.errorMessage,
-                      onRetry: () => controller.fetchThisWeekActivities(),
-                      shimmerPlaceholder: Column(
-                        children: [
-                          PalakatShimmerPlaceholders.activityCard(),
-                          Gap.h8,
-                          PalakatShimmerPlaceholders.activityCard(),
-                          Gap.h8,
-                          PalakatShimmerPlaceholders.activityCard(),
-                        ],
+              if (state.account != null)
+                DashboardReveal(
+                  delay: const Duration(milliseconds: 60),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LoadingWrapper(
+                        loading:
+                            state.thisWeekActivitiesLoading ||
+                            state.thisWeekAnnouncementsLoading,
+                        hasError:
+                            state.errorMessage != null &&
+                            state.thisWeekActivitiesLoading == false,
+                        errorMessage: state.errorMessage,
+                        onRetry: () => controller.fetchThisWeekActivities(),
+                        shimmerPlaceholder: Column(
+                          children: [
+                            PalakatShimmerPlaceholders.activityCard(),
+                            Gap.h8,
+                            PalakatShimmerPlaceholders.activityCard(),
+                            Gap.h8,
+                            PalakatShimmerPlaceholders.activityCard(),
+                          ],
+                        ),
+                        child: ActivityWidget(
+                          onPressedViewAll: () async {
+                            await context.pushNamed(
+                              AppRoute.viewAll,
+                              extra: const RouteParam(
+                                params: <String, dynamic>{},
+                              ),
+                            );
+                          },
+                          activities: state.thisWeekActivities,
+                          announcements: state.thisWeekAnnouncements,
+                          birthdays: thisWeekBirthdays,
+                          cardsHeight: 92,
+                          onPressedCardDatePreview: (DateTime dateTime) async {
+                            final thisDayActivities = state.thisWeekActivities
+                                .where(
+                                  (element) => element.date.isSameDay(dateTime),
+                                )
+                                .toList();
+
+                            final thisDayAnnouncements = state
+                                .thisWeekAnnouncements
+                                .where((a) => a.date.isSameDay(dateTime))
+                                .toList(growable: false);
+
+                            final thisDayBirthdays = thisWeekBirthdays
+                                .where((b) => b.date.isSameDay(dateTime))
+                                .toList(growable: false);
+
+                            await showDialogPreviewDayActivitiesWidget(
+                              title: dateTime.ddMmmm,
+                              context: context,
+                              activities: [
+                                ...thisDayAnnouncements,
+                                ...thisDayActivities,
+                              ],
+                              birthdays: thisDayBirthdays,
+                              onPressedCardBirthday: (birthday) {
+                                final id = birthday.membership.id;
+                                if (id == null) return;
+                                context.pushNamed(
+                                  AppRoute.memberDetail,
+                                  pathParameters: {
+                                    'membershipId': id.toString(),
+                                  },
+                                );
+                              },
+                              onPressedCardActivity: (activity) {
+                                context.pushNamed(
+                                  AppRoute.activityDetail,
+                                  pathParameters: {
+                                    'activityId': activity.id.toString(),
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
-                      child: ActivityWidget(
-                        onPressedViewAll: () async {
-                          await context.pushNamed(
-                            AppRoute.viewAll,
-                            extra: const RouteParam(
-                              params: <String, dynamic>{},
-                            ),
-                          );
-                        },
-                        activities: state.thisWeekActivities,
-                        announcements: state.thisWeekAnnouncements,
-                        birthdays: thisWeekBirthdays,
-                        cardsHeight: BaseSize.customWidth(92),
-                        onPressedCardDatePreview: (DateTime dateTime) async {
-                          final thisDayActivities = state.thisWeekActivities
-                              .where(
-                                (element) => element.date.isSameDay(dateTime),
-                              )
-                              .toList();
-
-                          final thisDayAnnouncements = state
-                              .thisWeekAnnouncements
-                              .where((a) => a.date.isSameDay(dateTime))
-                              .toList(growable: false);
-
-                          final thisDayBirthdays = thisWeekBirthdays
-                              .where((b) => b.date.isSameDay(dateTime))
-                              .toList(growable: false);
-
-                          await showDialogPreviewDayActivitiesWidget(
-                            title: dateTime.ddMmmm,
-                            context: context,
-                            activities: [
-                              ...thisDayAnnouncements,
-                              ...thisDayActivities,
-                            ],
-                            birthdays: thisDayBirthdays,
-                            onPressedCardBirthday: (birthday) {
-                              final id = birthday.membership.id;
-                              if (id == null) return;
-                              context.pushNamed(
-                                AppRoute.memberDetail,
-                                pathParameters: {'membershipId': id.toString()},
-                              );
-                            },
-                            onPressedCardActivity: (activity) {
-                              context.pushNamed(
-                                AppRoute.activityDetail,
-                                pathParameters: {
-                                  'activityId': activity.id.toString(),
-                                },
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               Gap.h16,
               DashboardReveal(
                 delay: const Duration(milliseconds: 120),
@@ -348,7 +348,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 DashboardReveal(
                   delay: const Duration(milliseconds: 160),
                   child: Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h12),
+                    padding: EdgeInsets.only(top: 12.0),
                     child: const ActivityAlarmInfoCardWidget(),
                   ),
                 ),
@@ -356,7 +356,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 DashboardReveal(
                   delay: const Duration(milliseconds: 200),
                   child: Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h12),
+                    padding: EdgeInsets.only(top: 12.0),
                     child: LoadingWrapper(
                       loading: state.churchRequestLoading,
                       hasError: false,
@@ -373,7 +373,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 DashboardReveal(
                   delay: const Duration(milliseconds: 240),
                   child: Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h12),
+                    padding: EdgeInsets.only(top: 12.0),
                     child: MembershipInvitationConfirmationCardWidget(
                       invitation: state.pendingMembershipInvitation!,
                       onResolved: () async {
@@ -391,7 +391,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 DashboardReveal(
                   delay: const Duration(milliseconds: 320),
                   child: Padding(
-                    padding: EdgeInsets.only(top: BaseSize.h12),
+                    padding: EdgeInsets.only(top: 12.0),
                     child: DashboardNoticeCardWidget(
                       icon: AppIcons.notificationActive,
                       title: l10n.dashboard_smokeTest_title,
@@ -419,7 +419,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     return DashboardAnimatedPresence(
                       visible: !canExact,
                       child: Padding(
-                        padding: EdgeInsets.only(top: BaseSize.h12),
+                        padding: EdgeInsets.only(top: 12.0),
                         child: DashboardNoticeCardWidget(
                           icon: AppIcons.warning,
                           title: l10n.dashboard_alarmPermission_exact_title,
@@ -447,7 +447,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     return DashboardAnimatedPresence(
                       visible: !canUseFullScreenIntent,
                       child: Padding(
-                        padding: EdgeInsets.only(top: BaseSize.h12),
+                        padding: EdgeInsets.only(top: 12.0),
                         child: DashboardNoticeCardWidget(
                           icon: AppIcons.warning,
                           title:

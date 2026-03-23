@@ -1,3 +1,4 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/theme.dart';
@@ -26,57 +27,33 @@ class CardOverviewListItemWidget extends StatelessWidget {
         ? Icons.campaign_outlined
         : Icons.event_outlined;
 
-    final Color bgColor = isService
-        ? BaseColor.green[100]!
-        : isAnnouncement
-        ? BaseColor.teal[100]!
-        : BaseColor.blue[100]!;
+    final Color bgColor = AppColors.primary;
 
-    final Color iconColor = isService
-        ? BaseColor.green[700]!
-        : isAnnouncement
-        ? BaseColor.teal[700]!
-        : BaseColor.blue[700]!;
+    final Color iconColor = AppColors.primary.shade100;
 
-    final Color chipBg = isService
-        ? BaseColor.green[50]!
-        : isAnnouncement
-        ? BaseColor.teal[50]!
-        : BaseColor.blue[50]!;
+    final Color chipBg = AppColors.primary;
 
-    final Color chipFg = isService
-        ? BaseColor.green[700]!
-        : isAnnouncement
-        ? BaseColor.teal[700]!
-        : BaseColor.blue[700]!;
+    final Color chipFg = AppColors.primary.shade100;
 
-    final Color chipBorder = isService
-        ? BaseColor.green[200]!
-        : isAnnouncement
-        ? BaseColor.teal[200]!
-        : BaseColor.blue[200]!;
+    final Color chipBorder = AppColors.secondary;
 
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: isService
-          ? BaseColor.green[50]
-          : isAnnouncement
-          ? BaseColor.teal[50]
-          : BaseColor.blue[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onPressedCard,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
+          padding: EdgeInsets.all(12.0),
           child: Row(
             children: [
               // Icon container
               Container(
-                width: BaseSize.w32,
-                height: BaseSize.w32,
+                width: 32.0,
+                height: 32.0,
                 decoration: BoxDecoration(
                   color: bgColor,
                   shape: BoxShape.circle,
@@ -89,7 +66,7 @@ class CardOverviewListItemWidget extends StatelessWidget {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Icon(iconData, size: BaseSize.w16, color: iconColor),
+                child: Icon(iconData, size: 16.0, color: iconColor),
               ),
               Gap.w12,
               // Content
@@ -102,16 +79,16 @@ class CardOverviewListItemWidget extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: BaseTypography.bodyMedium.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: BaseColor.black,
+                        color: AppColors.primary,
                       ),
                     ),
                     Gap.h6,
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w8,
-                        vertical: BaseSize.h4,
+                        horizontal: 8.0,
+                        vertical: 4.0,
                       ),
                       decoration: BoxDecoration(
                         color: chipBg,
@@ -122,7 +99,7 @@ class CardOverviewListItemWidget extends StatelessWidget {
                         type.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: BaseTypography.labelSmall.copyWith(
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                           color: chipFg,
                           fontWeight: FontWeight.w600,
                         ),
@@ -135,8 +112,8 @@ class CardOverviewListItemWidget extends StatelessWidget {
               // Arrow indicator
               Icon(
                 Icons.chevron_right,
-                size: BaseSize.w20,
-                color: BaseColor.secondaryText,
+                size: 20.0,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ],
           ),

@@ -1,10 +1,9 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:palakat_shared/core/theme/color_constants.dart';
-import 'package:palakat_shared/core/theme/size_constants.dart';
-import 'package:palakat_shared/core/theme/typography_constants.dart';
-import 'package:palakat_shared/core/theme/text_style_extension.dart';
+
+import '../loading_widget.dart';
 
 enum _ButtonType { primary, outlined, text }
 
@@ -93,10 +92,10 @@ class ButtonWidget extends StatelessWidget {
     required this.text,
     this.icon,
     bool? isEnabled,
-    this.textColor = BaseColor.white,
-    this.color = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.onPrimary,
+    this.color = AppColors.primary,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.onTap,
     this.isShrink = false,
     this.buttonSize = ButtonSize.medium,
@@ -121,10 +120,10 @@ class ButtonWidget extends StatelessWidget {
     super.key,
     required this.icon,
     bool? isEnabled,
-    this.textColor = BaseColor.white,
-    this.color = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.onPrimary,
+    this.color = AppColors.primary,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.onTap,
     this.buttonSize = ButtonSize.medium,
     this.isLoading = false,
@@ -153,10 +152,10 @@ class ButtonWidget extends StatelessWidget {
     bool? isEnabled,
     this.onTap,
     this.isShrink = false,
-    this.textColor = BaseColor.primary3,
-    this.outlineColor = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.primary,
+    this.outlineColor = AppColors.outlineVariant,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.buttonSize = ButtonSize.medium,
     this.isIconLeading = true,
     this.isLoading = false,
@@ -168,7 +167,7 @@ class ButtonWidget extends StatelessWidget {
   }) : _isEnabled = isEnabled ?? onTap != null ? true : false,
        _buttonType = _ButtonType.outlined,
        _isIconOnly = false,
-       color = BaseColor.transparent;
+       color = Colors.transparent;
 
   /// [INFO] : Button Outlined Icon
   ///
@@ -182,10 +181,10 @@ class ButtonWidget extends StatelessWidget {
     required this.icon,
     bool? isEnabled,
     this.onTap,
-    this.textColor = BaseColor.primary3,
-    this.outlineColor = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.primary,
+    this.outlineColor = AppColors.outlineVariant,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.buttonSize = ButtonSize.medium,
     this.isLoading = false,
     this.isCenterContent = true,
@@ -199,7 +198,7 @@ class ButtonWidget extends StatelessWidget {
        _isIconOnly = true,
        isShrink = true,
        isIconLeading = true,
-       color = BaseColor.transparent;
+       color = Colors.transparent;
 
   /// [INFO] : Button Text
   ///
@@ -213,9 +212,9 @@ class ButtonWidget extends StatelessWidget {
     bool? isEnabled,
     this.icon,
     this.onTap,
-    this.textColor = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.primary,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.buttonSize = ButtonSize.medium,
     this.isIconLeading = true,
     this.isLoading = false,
@@ -229,7 +228,7 @@ class ButtonWidget extends StatelessWidget {
        _isIconOnly = false,
        isShrink = true,
        outlineColor = null,
-       color = BaseColor.white;
+       color = AppColors.surfaceContainerLowest;
 
   /// [INFO] : Button Text Icon
   ///
@@ -242,9 +241,9 @@ class ButtonWidget extends StatelessWidget {
     required this.icon,
     bool? isEnabled,
     this.onTap,
-    this.textColor = BaseColor.primary3,
-    this.focusColor = BaseColor.primary2,
-    this.overlayColor = BaseColor.primary2,
+    this.textColor = AppColors.primary,
+    this.focusColor = AppColors.primary,
+    this.overlayColor = AppColors.primary,
     this.buttonSize = ButtonSize.medium,
     this.isLoading = false,
     this.isCenterContent = true,
@@ -259,7 +258,7 @@ class ButtonWidget extends StatelessWidget {
        isShrink = true,
        isIconLeading = true,
        outlineColor = null,
-       color = BaseColor.white;
+       color = AppColors.surfaceContainerLowest;
 
   /// [INFO] GET BORDER
   ///
@@ -274,22 +273,22 @@ class ButtonWidget extends StatelessWidget {
   /// [INFO] GET TEXTSTYLE
   ///
   /// getTextStyle function is to get textstyle for button for every size
-  TextStyle? _getTextStyle() {
-    TextStyle typography = BaseTypography.headlineSmall.toBold;
+  TextStyle? _getTextStyle(BuildContext context) {
+    TextStyle typography = Theme.of(context).textTheme.headlineSmall!.toBold;
 
     if (buttonSize == ButtonSize.large) {
-      typography = BaseTypography.headlineSmall.toBold;
+      typography = Theme.of(context).textTheme.headlineSmall!.toBold;
     } else if (buttonSize == ButtonSize.medium) {
-      typography = BaseTypography.titleMedium.toBold;
+      typography = Theme.of(context).textTheme.titleMedium!.toBold;
     } else if (buttonSize == ButtonSize.small) {
-      typography = BaseTypography.labelSmall.toBold;
+      typography = Theme.of(context).textTheme.labelSmall!.toBold;
     }
 
     if (!_isEnabled) {
       if (_buttonType == _ButtonType.primary) {
-        return typography.copyWith(color: BaseColor.neutral[40]);
+        return typography.copyWith(color: AppColors.neutral);
       } else {
-        return typography.copyWith(color: BaseColor.neutral[30]);
+        return typography.copyWith(color: AppColors.neutral);
       }
     }
 
@@ -299,7 +298,7 @@ class ButtonWidget extends StatelessWidget {
   /// [INFO] GET CONTENT BUTTON
   ///
   /// have 3 state, if [_isIconOnly], [hasIcon], and [textOnly]
-  Widget _contentButton() {
+  Widget _contentButton(BuildContext context) {
     if (_isIconOnly) {
       return SizedBox(child: icon!);
     }
@@ -309,26 +308,26 @@ class ButtonWidget extends StatelessWidget {
           : MainAxisAlignment.start,
       mainAxisSize: isShrink ? MainAxisSize.min : MainAxisSize.max,
       children: [
-        if (icon != null && isIconLeading) ...[icon!, Gap.w8],
+        if (icon != null && isIconLeading) ...[icon!, const SizedBox(width: 8)],
         maxLines != null
-        ? Expanded(
-        child: AutoSizeText(
-        text,
-        style: _getTextStyle(),
-        textAlign: TextAlign.center,
-        maxLines: maxLines,
-        ),
-        )
-        : Flexible(
-        child: Text(
-          text,
-          style: _getTextStyle(),
-          textAlign: TextAlign.center,
-            maxLines: maxLines,
-                      ),
-                    ),
+            ? Expanded(
+                child: AutoSizeText(
+                  text,
+                  style: _getTextStyle(context),
+                  textAlign: TextAlign.center,
+                  maxLines: maxLines,
+                ),
+              )
+            : Flexible(
+                child: Text(
+                  text,
+                  style: _getTextStyle(context),
+                  textAlign: TextAlign.center,
+                  maxLines: maxLines,
+                ),
+              ),
         if (icon != null && !isIconLeading) ...[
-          spacer ? const Spacer() : Gap.w8,
+          spacer ? const Spacer() : const SizedBox(width: 8),
           icon!,
         ],
       ],
@@ -354,7 +353,7 @@ class ButtonWidget extends StatelessWidget {
   /// if button disable, it will change color to neutral
   Color? _getColor() {
     if (_buttonType == _ButtonType.primary) {
-      return _isEnabled ? color : BaseColor.neutral[20];
+      return _isEnabled ? color : AppColors.neutral;
     }
     return color;
   }
@@ -365,33 +364,21 @@ class ButtonWidget extends StatelessWidget {
   EdgeInsets _getPadding() {
     if (buttonSize == ButtonSize.small) {
       if (_isIconOnly) {
-        return EdgeInsets.all(BaseSize.w8);
+        return EdgeInsets.all(8.0);
       } else {
-        return EdgeInsets.symmetric(
-          horizontal: BaseSize.w24,
-          vertical: BaseSize.h8,
-        );
+        return EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0);
       }
     } else if (buttonSize == ButtonSize.medium) {
       if (_isIconOnly) {
-        return EdgeInsets.all(BaseSize.w12);
+        return EdgeInsets.all(12.0);
       } else {
-        return EdgeInsets.symmetric(
-          horizontal: BaseSize.w24,
-          vertical: BaseSize.h12,
-        );
+        return EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0);
       }
     } else {
       if (_isIconOnly) {
-        return EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h16,
-        );
+        return EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0);
       } else {
-        return EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h16,
-        );
+        return EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0);
       }
     }
   }
@@ -400,17 +387,19 @@ class ButtonWidget extends StatelessWidget {
   ///
   /// function to get border radius
   BorderRadius _getBorderRadius() {
-    return BorderRadius.circular(BaseSize.radiusMd);
+    return BorderRadius.circular(SanctuaryLayout.radius);
   }
 
   /// [INFO] GET COLOR
   ///
   /// function to get loading widget
-  Widget _getLoadingWidget() {
-    return SizedBox(
-      height: _isIconOnly ? BaseSize.h12 : BaseSize.h18,
-      width: _isIconOnly ? BaseSize.h12 : BaseSize.h18,
-      child: CircularProgressIndicator(color: _getTextStyle()?.color),
+  Widget _getLoadingWidget(BuildContext context) {
+    final indicatorColor = _getTextStyle(context)?.color ?? AppColors.onPrimary;
+
+    return CompactLoadingWidget(
+      size: _isIconOnly ? 12.0 : 18.0,
+      baseColor: indicatorColor.withValues(alpha: 0.52),
+      highlightColor: indicatorColor.withValues(alpha: 0.95),
     );
   }
 
@@ -439,13 +428,13 @@ class ButtonWidget extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Visibility(visible: isLoading, child: _getLoadingWidget()),
+              Visibility(visible: isLoading, child: _getLoadingWidget(context)),
               Visibility(
                 visible: !isLoading,
                 maintainSize: true,
                 maintainAnimation: true,
                 maintainState: true,
-                child: _contentButton(),
+                child: _contentButton(context),
               ),
             ],
           ),

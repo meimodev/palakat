@@ -183,10 +183,7 @@ class _AccountNumberPickerDialogContentState
       children: [
         // Search field
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16,
-            vertical: BaseSize.h8,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: SearchField(
             controller: _searchController,
             hint: context.l10n.lbl_searchAccountNumber,
@@ -207,42 +204,78 @@ class _AccountNumberPickerDialogContentState
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: LoadingShimmer(
+            isLoading: true,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PalakatShimmerPlaceholders.listItemCard(),
+                Gap.h8,
+                PalakatShimmerPlaceholders.listItemCard(),
+                Gap.h8,
+                PalakatShimmerPlaceholders.listItemCard(),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(BaseSize.w24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _errorMessage!,
-                style: BaseTypography.bodyMedium.toError,
-                textAlign: TextAlign.center,
-              ),
-              Gap.h16,
-              TextButton(
-                onPressed: _fetchAccounts,
-                child: Text(context.l10n.btn_retry),
-              ),
-            ],
-          ),
-        ),
+      return ErrorDisplayWidget(
+        message: _errorMessage!,
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        onRetry: () => _fetchAccounts(),
       );
     }
 
     if (_accounts.isEmpty) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w24),
-          child: Text(
-            _searchQuery.isNotEmpty
-                ? context.l10n.lbl_noResultsFor(_searchQuery)
-                : context.l10n.lbl_noAccountNumbers,
-            style: BaseTypography.bodyMedium.toSecondary,
-            textAlign: TextAlign.center,
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            padding: EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56.0,
+                  height: 56.0,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    border: Border.all(color: AppColors.ghostBorder(0.06)),
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.search_off_rounded,
+                    size: 24.0,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Gap.h12,
+                Text(
+                  _searchQuery.isNotEmpty
+                      ? context.l10n.lbl_noResultsFor(_searchQuery)
+                      : context.l10n.lbl_noAccountNumbers,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -253,12 +286,15 @@ class _AccountNumberPickerDialogContentState
       physics: const BouncingScrollPhysics(),
       itemCount: _accounts.length + (_isLoadingMore ? 1 : 0),
       separatorBuilder: (context, index) => Gap.h6,
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       itemBuilder: (context, index) {
         if (index == _accounts.length) {
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
-            child: const Center(child: CircularProgressIndicator()),
+            padding: EdgeInsets.symmetric(vertical: 12.0),
+            child: LoadingShimmer(
+              isLoading: true,
+              child: PalakatShimmerPlaceholders.listItemCard(),
+            ),
           );
         }
 
@@ -288,59 +324,65 @@ class _AccountNumberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        side: BorderSide(
-          color: isSelected ? BaseColor.primary : BaseColor.neutral[300]!,
-          width: isSelected ? 2 : 1,
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.015, blur: 8),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
       ),
-      color: isSelected
-          ? BaseColor.primary.withValues(alpha: 0.05)
-          : BaseColor.white,
-      child: InkWell(
-        onTap: onPressed,
-        child: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      account.accountNumber,
-                      style: BaseTypography.titleMedium.copyWith(
-                        color: BaseColor.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (account.description != null &&
-                        account.description!.isNotEmpty) ...[
-                      Gap.h4,
+      child: Material(
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+          side: BorderSide(
+            color: isSelected ? AppColors.primary : AppColors.ghostBorder(0.08),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        color: isSelected
+            ? AppColors.primary.withValues(alpha: 0.05)
+            : AppColors.surfaceContainerLowest,
+        child: InkWell(
+          onTap: onPressed,
+          child: Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        account.description!,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: BaseColor.neutral60,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        account.accountNumber,
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              color: AppColors.onSurface,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
+                      if (account.description != null &&
+                          account.description!.isNotEmpty) ...[
+                        Gap.h4,
+                        Text(
+                          account.description!,
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: AppColors.tertiary),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (isSelected) ...[
-                Gap.w8,
-                FaIcon(
-                  AppIcons.successSolid,
-                  color: BaseColor.primary,
-                  size: BaseSize.w20,
-                ),
+                if (isSelected) ...[
+                  Gap.w8,
+                  FaIcon(
+                    AppIcons.successSolid,
+                    color: AppColors.primary,
+                    size: 20.0,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

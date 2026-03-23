@@ -301,13 +301,13 @@ void main() {
       // Find the main card
       final cardMaterial = tester.widgetList<Material>(find.byType(Material));
       final mainCard = cardMaterial.firstWhere(
-        (m) => m.color == BaseColor.cardBackground1,
+        (m) => m.color == AppColors.surfaceContainerLowest,
       );
 
       // Verify card properties
       expect(mainCard.elevation, 1);
-      expect(mainCard.color, BaseColor.cardBackground1);
-      expect(mainCard.surfaceTintColor, BaseColor.teal[50]);
+      expect(mainCard.color, AppColors.surfaceContainerLowest);
+      expect(mainCard.surfaceTintColor, AppColors.secondary);
 
       // Verify border radius
       final shape = mainCard.shape as RoundedRectangleBorder;
@@ -330,12 +330,12 @@ void main() {
 
       // Verify container decoration
       final decoration = iconContainer.decoration as BoxDecoration;
-      expect(decoration.color, BaseColor.teal[100]);
+      expect(decoration.color, AppColors.secondary);
       expect(decoration.shape, BoxShape.circle);
 
       // Verify icon color
       final icon = tester.widget<Icon>(find.byIcon(Icons.phone_outlined));
-      expect(icon.color, BaseColor.teal[700]);
+      expect(icon.color, AppColors.secondary);
     });
 
     testWidgets('semantic labels are present for accessibility', (

@@ -10,7 +10,7 @@ import 'package:palakat/features/presentation.dart';
 import 'package:palakat/features/song_book/data/song_category_model.dart';
 import 'package:palakat/features/song_book/presentations/song_book_motion_widget.dart';
 import 'package:palakat_shared/palakat_shared.dart'
-    hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
+    hide Gap, Column, LoadingWrapper;
 
 import 'widgets/widgets.dart';
 
@@ -61,16 +61,16 @@ class _SongDbMetaHeader extends StatelessWidget {
               children: [
                 FaIcon(
                   AppIcons.info,
-                  size: BaseSize.w14,
-                  color: BaseColor.textSecondary,
+                  size: 14.0,
+                  color: AppColors.onSurfaceVariant,
                 ),
                 Gap.w8,
                 Expanded(
                   child: Text(
                     l10n.songBook_databaseTitle,
-                    style: BaseTypography.labelLarge.copyWith(
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: BaseColor.textSecondary,
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -78,8 +78,8 @@ class _SongDbMetaHeader extends StatelessWidget {
             ),
             Gap.h8,
             Wrap(
-              spacing: BaseSize.w8,
-              runSpacing: BaseSize.w8,
+              spacing: 8.0,
+              runSpacing: 8.0,
               children: [
                 _SongDbMetaChip(
                   icon: AppIcons.info,
@@ -114,25 +114,22 @@ class _SongDbMetaChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.w8,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: BaseColor.surfaceLight,
+        color: AppColors.surfaceBright,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+        border: Border.all(color: AppColors.neutral, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w14, color: BaseColor.textSecondary),
+          FaIcon(icon, size: 14.0, color: AppColors.onSurfaceVariant),
           Gap.w8,
           Flexible(
             child: Text(
               label,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
               ),
               maxLines: 1,
@@ -176,11 +173,11 @@ class _SongDbUpdateBanner extends StatelessWidget {
               );
 
         return Material(
-          color: BaseColor.primary[50],
+          color: AppColors.primary,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            side: BorderSide(color: BaseColor.primary[100]!, width: 1),
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: AppColors.primary, width: 1),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -196,7 +193,7 @@ class _SongDbUpdateBanner extends StatelessWidget {
               );
 
               return Padding(
-                padding: EdgeInsets.all(BaseSize.w12),
+                padding: EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -204,19 +201,17 @@ class _SongDbUpdateBanner extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: BaseSize.w32,
-                          height: BaseSize.w32,
+                          width: 32.0,
+                          height: 32.0,
                           decoration: BoxDecoration(
-                            color: BaseColor.white,
-                            borderRadius: BorderRadius.circular(
-                              BaseSize.radiusMd,
-                            ),
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                           alignment: Alignment.center,
                           child: FaIcon(
                             AppIcons.refresh,
-                            size: BaseSize.w14,
-                            color: BaseColor.primary,
+                            size: 14.0,
+                            color: AppColors.primary,
                           ),
                         ),
                         Gap.w10,
@@ -226,20 +221,22 @@ class _SongDbUpdateBanner extends StatelessWidget {
                             children: [
                               Text(
                                 l10n.songBook_updateAvailableTitle,
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: BaseColor.textPrimary,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.onPrimary,
+                                    ),
                                 maxLines: shouldStack ? 2 : 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Gap.h4,
                               Text(
                                 subtitle,
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  color: BaseColor.textSecondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      color: AppColors.onPrimary.withValues(alpha: 0.82),
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                 maxLines: shouldStack ? 3 : 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -496,9 +493,9 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
                 prefixIcon: FaIcon(
                   AppIcons.search,
                   size: 20,
-                  color: BaseColor.primary,
+                  color: AppColors.primary,
                 ),
-                borderRadius: BaseSize.radiusMd,
+                borderRadius: 8.0,
               ),
             ),
             Gap.h12,
@@ -566,39 +563,39 @@ class _DownloadRequiredState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w20),
+        padding: EdgeInsets.all(20.0),
         child: Material(
-          color: BaseColor.surfaceMedium,
+          color: AppColors.surfaceContainerLow,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+            borderRadius: BorderRadius.circular(16.0),
+            side: BorderSide(color: AppColors.neutral, width: 1),
           ),
           child: Padding(
-            padding: EdgeInsets.all(BaseSize.w20),
+            padding: EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: BaseSize.w56,
-                  height: BaseSize.w56,
+                  width: 56.0,
+                  height: 56.0,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: FaIcon(
                     AppIcons.download,
-                    size: BaseSize.w24,
-                    color: BaseColor.primary,
+                    size: 24.0,
+                    color: AppColors.onPrimary,
                   ),
                 ),
                 Gap.h16,
                 Text(
                   l10n.songBook_downloadRequiredTitle,
                   textAlign: TextAlign.center,
-                  style: BaseTypography.titleMedium.copyWith(
-                    color: BaseColor.textPrimary,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: AppColors.onSurface,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -606,8 +603,8 @@ class _DownloadRequiredState extends StatelessWidget {
                 Text(
                   l10n.songBook_downloadRequiredSubtitle,
                   textAlign: TextAlign.center,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.textSecondary,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurfaceVariant,
                   ),
                 ),
                 if (errorMessage != null &&
@@ -616,8 +613,8 @@ class _DownloadRequiredState extends StatelessWidget {
                   Text(
                     errorMessage!,
                     textAlign: TextAlign.center,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.error,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.error,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -692,8 +689,8 @@ class _SongBookGrid extends StatelessWidget {
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columnCount,
-            mainAxisSpacing: BaseSize.w8,
-            crossAxisSpacing: BaseSize.w8,
+            mainAxisSpacing: 8.0,
+            crossAxisSpacing: 8.0,
             childAspectRatio: _childAspectRatio(columnCount, textScale),
           ),
           itemBuilder: (context, index) {
@@ -736,19 +733,19 @@ class _SongBookGridCard extends StatelessWidget {
             MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
         return Material(
-          color: BaseColor.surfaceMedium,
+          color: AppColors.surfaceContainerLow,
           elevation: 0,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          borderRadius: BorderRadius.circular(8.0),
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-            splashColor: BaseColor.primary.withValues(alpha: 0.08),
-            highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(8.0),
+            splashColor: AppColors.primary.withValues(alpha: 0.08),
+            highlightColor: AppColors.primary.withValues(alpha: 0.05),
             child: Container(
-              padding: EdgeInsets.all(BaseSize.w10),
+              padding: EdgeInsets.all(10.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(color: AppColors.neutral, width: 1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -757,36 +754,36 @@ class _SongBookGridCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: isCompact ? BaseSize.w32 : BaseSize.w36,
-                        height: isCompact ? BaseSize.w32 : BaseSize.w36,
+                        width: isCompact ? 32.0 : 36.0,
+                        height: isCompact ? 32.0 : 36.0,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: BaseColor.primary[50],
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusMd,
-                          ),
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: FaIcon(
                           AppIcons.libraryMusic,
-                          size: isCompact ? BaseSize.w14 : BaseSize.w16,
-                          color: BaseColor.primary,
+                          size: isCompact ? 14.0 : 16.0,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                       Gap.w6,
                       Expanded(
                         child: Padding(
-                          padding: EdgeInsets.only(
-                            top: isCompact ? BaseSize.h4 : 0,
-                          ),
+                          padding: EdgeInsets.only(top: isCompact ? 4.0 : 0),
                           child: Text(
                             category.abbreviation,
                             style:
                                 (isCompact
-                                        ? BaseTypography.bodyMedium
-                                        : BaseTypography.titleMedium)
+                                        ? Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium!
+                                        : Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium!)
                                     .copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: BaseColor.textPrimary,
+                                      color: AppColors.onSurface,
                                     ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -798,8 +795,8 @@ class _SongBookGridCard extends StatelessWidget {
                   Gap.h8,
                   Text(
                     category.title,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.textSecondary,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: isCompact ? 3 : 2,
@@ -808,8 +805,8 @@ class _SongBookGridCard extends StatelessWidget {
                   const Spacer(),
                   Text(
                     l10n.songBook_songsCount(songCount),
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.textSecondary,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: isCompact ? 2 : 1,
@@ -835,37 +832,37 @@ class _EmptySearchStateWidget extends StatelessWidget {
     final l10n = context.l10n;
 
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLow,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
+        padding: EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: BaseSize.w48,
-              height: BaseSize.w48,
+              width: 48.0,
+              height: 48.0,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: BaseColor.primary[50],
-                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(16.0),
               ),
               child: FaIcon(
                 AppIcons.searchOff,
-                size: BaseSize.w20,
-                color: BaseColor.primary,
+                size: 20.0,
+                color: AppColors.onPrimary,
               ),
             ),
             Gap.h12,
             Text(
               l10n.songBook_emptyTitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textPrimary,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -873,8 +870,8 @@ class _EmptySearchStateWidget extends StatelessWidget {
             Text(
               l10n.songBook_emptySubtitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ],

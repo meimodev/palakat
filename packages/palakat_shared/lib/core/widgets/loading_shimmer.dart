@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 /// A shimmer loading effect widget for smooth content transitions
 class LoadingShimmer extends StatefulWidget {
@@ -31,8 +32,8 @@ class _LoadingShimmerState extends State<LoadingShimmer>
     super.initState();
     _controller = AnimationController(duration: widget.duration, vsync: this);
     _animation = Tween<double>(
-      begin: -1.0,
-      end: 2.0,
+      begin: -0.3,
+      end: 1.3,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.isLoading) {
@@ -63,10 +64,10 @@ class _LoadingShimmerState extends State<LoadingShimmer>
     final theme = Theme.of(context);
     final baseColor =
         widget.baseColor ??
-        theme.colorScheme.primaryContainer.withValues(alpha: 0.35);
+        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.92);
     final highlightColor =
         widget.highlightColor ??
-        theme.colorScheme.secondaryContainer.withValues(alpha: 0.85);
+        theme.colorScheme.surface.withValues(alpha: 0.98);
 
     if (!widget.isLoading) {
       return widget.child;
@@ -75,14 +76,19 @@ class _LoadingShimmerState extends State<LoadingShimmer>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
+        final center = _animation.value;
         return ShaderMask(
+          blendMode: BlendMode.srcATop,
           shaderCallback: (bounds) {
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [baseColor, highlightColor, baseColor],
-              stops: [0.0, 0.5, 1.0],
-              transform: GradientRotation(_animation.value * 3.14159),
+              stops: [
+                (center - 0.28).clamp(0.0, 1.0),
+                center.clamp(0.0, 1.0),
+                (center + 0.28).clamp(0.0, 1.0),
+              ],
             ).createShader(bounds);
           },
           child: widget.child,
@@ -103,7 +109,7 @@ class ShimmerPlaceholders {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: borderRadius ?? BorderRadius.circular(4),
       ),
     );
@@ -119,7 +125,7 @@ class ShimmerPlaceholders {
       height: height,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -157,7 +163,7 @@ class ShimmerPlaceholders {
               width: 40,
               height: 40,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceContainerLowest,
                 shape: BoxShape.circle,
               ),
             ),
@@ -191,7 +197,7 @@ class ShimmerPlaceholders {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppColors.surfaceContainerLowest,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           ),
           child: Row(
@@ -212,12 +218,9 @@ class ShimmerPlaceholders {
           (rowIndex) => Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceContainerLowest,
               border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  width: 1,
-                ),
+                bottom: BorderSide(color: AppColors.onSurfaceVariant, width: 1),
               ),
             ),
             child: Row(
@@ -247,8 +250,8 @@ class ShimmerPlaceholders {
     Color? backgroundColor,
     Color? placeholderColor,
   }) {
-    final bgColor = backgroundColor ?? Colors.white;
-    final phColor = placeholderColor ?? Colors.grey.withValues(alpha: 0.2);
+    final bgColor = backgroundColor ?? AppColors.surfaceContainerLowest;
+    final phColor = placeholderColor ?? AppColors.onSurfaceVariant;
 
     return Container(
       width: width,

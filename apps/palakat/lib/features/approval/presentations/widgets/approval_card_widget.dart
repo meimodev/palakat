@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
@@ -28,11 +29,11 @@ class ApprovalCardWidget extends StatelessWidget {
   Color _getStatusBackgroundColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
-        return BaseColor.green.shade50;
+        return AppColors.success.shade50;
       case ApprovalStatus.rejected:
-        return BaseColor.red.shade50;
+        return AppColors.error.shade50;
       case ApprovalStatus.unconfirmed:
-        return BaseColor.yellow.shade50;
+        return AppColors.warning.shade50;
     }
   }
 
@@ -40,11 +41,11 @@ class ApprovalCardWidget extends StatelessWidget {
   Color _getStatusBorderColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
-        return BaseColor.green.shade200;
+        return AppColors.success.shade200;
       case ApprovalStatus.rejected:
-        return BaseColor.red.shade200;
+        return AppColors.error.shade200;
       case ApprovalStatus.unconfirmed:
-        return BaseColor.yellow.shade200;
+        return AppColors.warning.shade200;
     }
   }
 
@@ -78,17 +79,17 @@ class ApprovalCardWidget extends StatelessWidget {
     return Material(
       color: _getStatusBackgroundColor(overall),
       elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
-      surfaceTintColor: BaseColor.teal[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.secondary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        borderRadius: BorderRadius.circular(16.0),
         side: BorderSide(color: _getStatusBorderColor(overall), width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -99,8 +100,8 @@ class ApprovalCardWidget extends StatelessWidget {
                       constraints.maxWidth < 360 ||
                       MediaQuery.textScalerOf(context).scale(1) > 1.1;
                   final badgeGroup = Wrap(
-                    spacing: BaseSize.w8,
-                    runSpacing: BaseSize.h8,
+                    spacing: 8.0,
+                    runSpacing: 8.0,
                     children: [
                       _ActivityTypeBadge(activityType: approval.activityType),
                       if (hasFinancial)
@@ -118,8 +119,8 @@ class ApprovalCardWidget extends StatelessWidget {
                           alignment: Alignment.centerRight,
                           child: FaIcon(
                             AppIcons.forward,
-                            size: BaseSize.w24,
-                            color: BaseColor.secondaryText,
+                            size: 24.0,
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -132,8 +133,8 @@ class ApprovalCardWidget extends StatelessWidget {
                       Gap.w8,
                       FaIcon(
                         AppIcons.forward,
-                        size: BaseSize.w24,
-                        color: BaseColor.secondaryText,
+                        size: 24.0,
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ],
                   );
@@ -145,9 +146,9 @@ class ApprovalCardWidget extends StatelessWidget {
                 approval.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: BaseTypography.titleLarge.copyWith(
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.textPrimary,
+                  color: AppColors.onSurface,
                 ),
               ),
               Gap.h12,
@@ -160,17 +161,17 @@ class ApprovalCardWidget extends StatelessWidget {
                   final supervisorInfo = Row(
                     children: [
                       Container(
-                        width: BaseSize.w32,
-                        height: BaseSize.w32,
+                        width: 32.0,
+                        height: 32.0,
                         decoration: BoxDecoration(
-                          color: BaseColor.blue[100],
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
                         child: FaIcon(
                           AppIcons.person,
-                          size: BaseSize.w16,
-                          color: BaseColor.blue[700],
+                          size: 16.0,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                       Gap.w8,
@@ -178,10 +179,11 @@ class ApprovalCardWidget extends StatelessWidget {
                         child: Text(
                           approval.supervisor.account?.name ??
                               context.l10n.lbl_unknown,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: BaseColor.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.onSurface,
+                              ),
                           maxLines: shouldStackInfo ? 2 : 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -193,16 +195,15 @@ class ApprovalCardWidget extends StatelessWidget {
                     children: [
                       FaIcon(
                         AppIcons.time,
-                        size: BaseSize.w18,
-                        color: BaseColor.secondaryText,
+                        size: 18.0,
+                        color: AppColors.onSurfaceVariant,
                       ),
                       Gap.w6,
                       Flexible(
                         child: Text(
                           "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.secondaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: AppColors.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -217,7 +218,7 @@ class ApprovalCardWidget extends StatelessWidget {
                         supervisorInfo,
                         Gap.h8,
                         Padding(
-                          padding: EdgeInsets.only(left: BaseSize.w40),
+                          padding: EdgeInsets.only(left: 40.0),
                           child: dateInfo,
                         ),
                       ],
@@ -248,7 +249,7 @@ class ApprovalCardWidget extends StatelessWidget {
                         approverMembershipId != null &&
                         approverMembershipId == currentMembershipId;
                     return Padding(
-                      padding: EdgeInsets.only(bottom: BaseSize.h6),
+                      padding: EdgeInsets.only(bottom: 6.0),
                       child: ApproverChip(
                         name: name,
                         status: ap.status,
@@ -267,13 +268,10 @@ class ApprovalCardWidget extends StatelessWidget {
                 if (isMinePending) ...[
                   if (isLoading)
                     Center(
-                      child: SizedBox(
-                        width: BaseSize.w24,
-                        height: BaseSize.w24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: BaseColor.teal.shade500,
-                        ),
+                      child: CompactLoadingWidget(
+                        size: 18.0,
+                        baseColor: AppColors.primary.withValues(alpha: 0.24),
+                        highlightColor: AppColors.surface,
                       ),
                     )
                   else
@@ -282,7 +280,7 @@ class ApprovalCardWidget extends StatelessWidget {
                         Expanded(
                           child: _ActionIconButton(
                             icon: AppIcons.close,
-                            color: BaseColor.red.shade500,
+                            color: AppColors.error.shade500,
                             onTap: onReject,
                           ),
                         ),
@@ -290,7 +288,7 @@ class ApprovalCardWidget extends StatelessWidget {
                         Expanded(
                           child: _ActionIconButton(
                             icon: AppIcons.approve,
-                            color: BaseColor.green.shade600,
+                            color: AppColors.success.shade600,
                             onTap: onApprove,
                           ),
                         ),
@@ -324,42 +322,41 @@ class _ActivityTypeBadge extends StatelessWidget {
 
     switch (activityType) {
       case ActivityType.service:
-        backgroundColor = BaseColor.blue.shade100;
-        textColor = BaseColor.blue.shade700;
+        backgroundColor = AppColors.primary.shade100;
+        textColor = AppColors.primary.shade700;
         icon = AppIcons.church;
         label = l10n.activityType_service;
         break;
       case ActivityType.event:
-        backgroundColor = BaseColor.teal.shade100;
-        textColor = BaseColor.teal.shade700;
+        backgroundColor = AppColors.primary.shade100;
+        textColor = AppColors.primary.shade700;
         icon = AppIcons.event;
         label = l10n.activityType_event;
         break;
       case ActivityType.announcement:
-        backgroundColor = BaseColor.yellow.shade100;
-        textColor = BaseColor.yellow.shade700;
+        backgroundColor = AppColors.warning.shade100;
+        textColor = AppColors.warning.shade700;
         icon = AppIcons.announcement;
         label = l10n.activityType_announcement;
         break;
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w10,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        borderRadius: BorderRadius.circular(4.0),
+        border: Border.all(color: textColor.withValues(alpha: 0.18)),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w18, color: textColor),
+          FaIcon(icon, size: 18.0, color: textColor),
           Gap.w6,
           Text(
             label,
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -380,33 +377,32 @@ class _FinancialIndicatorBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final backgroundColor = isRevenue
-        ? BaseColor.green.shade100
-        : BaseColor.red.shade100;
+        ? AppColors.success.shade100
+        : AppColors.error.shade100;
     final textColor = isRevenue
-        ? BaseColor.green.shade700
-        : BaseColor.red.shade700;
+        ? AppColors.success.shade700
+        : AppColors.error.shade700;
     final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
     final label = isRevenue
         ? l10n.admin_revenue_title
         : l10n.operationsItem_add_expense_title;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w10,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        borderRadius: BorderRadius.circular(4.0),
+        border: Border.all(color: textColor.withValues(alpha: 0.18)),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w18, color: textColor),
+          FaIcon(icon, size: 18.0, color: textColor),
           Gap.w6,
           Text(
             label,
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -432,21 +428,21 @@ class _ActionIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      borderRadius: BorderRadius.circular(8.0),
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
         onTap: onTap,
         overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
         child: Container(
-          padding: EdgeInsets.all(BaseSize.w10),
+          padding: EdgeInsets.all(10.0),
           decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
             border: Border.all(color: color),
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            borderRadius: BorderRadius.circular(8.0),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
-          child: Center(
-            child: FaIcon(icon, size: BaseSize.w22, color: color),
-          ),
+          child: Center(child: FaIcon(icon, size: 22.0, color: color)),
         ),
       ),
     );

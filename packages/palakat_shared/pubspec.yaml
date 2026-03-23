@@ -60,6 +60,9 @@ dependencies:
   # Date/time utilities
   jiffy: ^6.4.3
 
+  # Fonts
+  google_fonts: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

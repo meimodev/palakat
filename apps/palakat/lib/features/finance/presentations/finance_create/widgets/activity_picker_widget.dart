@@ -37,30 +37,34 @@ class ActivityPickerWidget extends StatelessWidget {
         GestureDetector(
           onTap: () => _openActivityPicker(context),
           child: Container(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: hasActivity ? BaseColor.blue[50] : BaseColor.white,
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              color: hasActivity
+                  ? AppColors.primary
+                  : AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
                 color: hasError
-                    ? BaseColor.error.withValues(alpha: 0.5)
+                    ? AppColors.error.withValues(alpha: 0.5)
                     : hasActivity
-                    ? BaseColor.blue[200]!
-                    : BaseColor.neutral[300]!,
+                    ? AppColors.primary
+                    : AppColors.neutral,
               ),
             ),
             child: hasActivity
-                ? _buildSelectedActivityInfo()
+                ? _buildSelectedActivityInfo(context)
                 : _buildEmptyPlaceholder(context),
           ),
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: 3),
             child: Text(
               errorText!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -71,36 +75,28 @@ class ActivityPickerWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: BaseColor.neutral[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.neutral,
+            borderRadius: BorderRadius.circular(4.0),
           ),
-          child: FaIcon(
-            AppIcons.event,
-            size: BaseSize.w20,
-            color: BaseColor.neutral[500],
-          ),
+          child: FaIcon(AppIcons.event, size: 20.0, color: AppColors.neutral),
         ),
         Gap.w12,
         Expanded(
           child: Text(
             context.l10n.hint_selectActivity,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.neutral[500],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: AppColors.neutral),
           ),
         ),
-        FaIcon(
-          AppIcons.forward,
-          size: BaseSize.w20,
-          color: BaseColor.neutral[400],
-        ),
+        FaIcon(AppIcons.forward, size: 20.0, color: AppColors.neutral),
       ],
     );
   }
 
-  Widget _buildSelectedActivityInfo() {
+  Widget _buildSelectedActivityInfo(BuildContext context) {
     final activity = selectedActivity!;
     final dateStr = Jiffy.parseFromDateTime(
       activity.date,
@@ -109,16 +105,12 @@ class ActivityPickerWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: BaseColor.blue[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(4.0),
           ),
-          child: FaIcon(
-            AppIcons.event,
-            size: BaseSize.w20,
-            color: BaseColor.blue[600],
-          ),
+          child: FaIcon(AppIcons.event, size: 20.0, color: AppColors.primary),
         ),
         Gap.w12,
         Expanded(
@@ -127,8 +119,8 @@ class ActivityPickerWidget extends StatelessWidget {
             children: [
               Text(
                 activity.title,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.blue[700],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
                 maxLines: 1,
@@ -136,8 +128,8 @@ class ActivityPickerWidget extends StatelessWidget {
               ),
               Gap.h4,
               Wrap(
-                spacing: BaseSize.w8,
-                runSpacing: BaseSize.h6,
+                spacing: 8.0,
+                runSpacing: 6.0,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Row(
@@ -145,31 +137,31 @@ class ActivityPickerWidget extends StatelessWidget {
                     children: [
                       FaIcon(
                         AppIcons.calendar,
-                        size: BaseSize.w14,
-                        color: BaseColor.blue[600],
+                        size: 14.0,
+                        color: AppColors.primary,
                       ),
                       Gap.w6,
                       Text(
                         dateStr,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: BaseColor.blue[600],
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w8,
-                      vertical: BaseSize.h4,
+                      horizontal: 8.0,
+                      vertical: 4.0,
                     ),
                     decoration: BoxDecoration(
-                      color: BaseColor.blue[100],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(4.0),
                     ),
                     child: Text(
                       activity.activityType.displayName,
-                      style: BaseTypography.labelMedium.copyWith(
-                        color: BaseColor.blue[700],
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -178,7 +170,7 @@ class ActivityPickerWidget extends StatelessWidget {
             ],
           ),
         ),
-        FaIcon(AppIcons.edit, size: BaseSize.w20, color: BaseColor.blue[600]),
+        FaIcon(AppIcons.edit, size: 20.0, color: AppColors.primary),
       ],
     );
   }

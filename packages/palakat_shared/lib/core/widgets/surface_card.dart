@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/theme.dart';
+
 class SurfaceCard extends StatelessWidget {
   final String? title;
   final String? subtitle;
@@ -20,16 +22,9 @@ class SurfaceCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.035, blur: 28),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +79,7 @@ class SurfaceCard extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
           ],
           child,
         ],

@@ -52,7 +52,7 @@ export 'package:palakat_shared/widgets.dart';
 // ============================================================================
 // THEME - App Theme Configuration (admin-specific)
 // ============================================================================
-export 'core/theme/theme.dart';
+export 'package:palakat_shared/core/theme/theme.dart';
 
 // Note: Config, Navigation, and Layout are NOT exported as they are
 // app-specific implementations.

@@ -14,6 +14,19 @@ final thisWeekBirthdaysProvider =
       final local = ref.read(localStorageServiceProvider);
       final membership =
           local.currentMembership ?? local.currentAuth?.account.membership;
+      final permissionRepo = ref.read(churchPermissionPolicyRepositoryProvider);
+
+      final permissionsResult = await permissionRepo.fetchMyPermissions();
+      var canReadMembers = membership?.membershipPositions.isNotEmpty ?? false;
+      permissionsResult.when(
+        onSuccess: (permissions) {
+          canReadMembers = permissions.permissions.contains('ops.members.read');
+          return null;
+        },
+        onFailure: (_) {},
+      );
+
+      if (!canReadMembers) return const <BirthdayItem>[];
 
       final churchId = membership?.church?.id ?? membership?.column?.churchId;
       final columnId = membership?.column?.id;
@@ -84,13 +97,6 @@ class BirthdaysWidget extends ConsumerWidget {
           if (items.isEmpty) return const SizedBox();
 
           final l10n = context.l10n;
-          final local = ref.read(localStorageServiceProvider);
-          final membership =
-              local.currentMembership ?? local.currentAuth?.account.membership;
-          final hasPositions =
-              membership?.membershipPositions.isNotEmpty == true;
-
-          if (!hasPositions) return const SizedBox();
 
           final maxItems = 5;
           final itemCount = items.length > maxItems ? maxItems : items.length;
@@ -104,13 +110,13 @@ class BirthdaysWidget extends ConsumerWidget {
                     context.pushNamed(AppRoute.memberBirthdays),
                 count: items.length,
                 title: '${l10n.tbl_birth} - ${l10n.dateRangeFilter_thisWeek}',
-                titleStyle: BaseTypography.titleMedium.copyWith(
+                titleStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.textPrimary,
+                  color: AppColors.onSurface,
                 ),
                 leadingIcon: AppIcons.birthday,
-                leadingBg: BaseColor.yellow[50],
-                leadingFg: BaseColor.yellow[700],
+                leadingBg: AppColors.warning.shade100,
+                leadingFg: AppColors.warning.shade700,
               ),
               Gap.h12,
               ListView.separated(
@@ -130,12 +136,12 @@ class BirthdaysWidget extends ConsumerWidget {
                       : l10n.lbl_unknown;
 
                   return Material(
-                    color: BaseColor.cardBackground1,
+                    color: AppColors.surfaceContainerLowest,
                     elevation: 1,
-                    shadowColor: Colors.black.withValues(alpha: 0.05),
-                    surfaceTintColor: BaseColor.yellow[50],
+                    shadowColor: AppColors.onSurface,
+                    surfaceTintColor: AppColors.warning,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                     clipBehavior: Clip.hardEdge,
                     child: InkWell(
@@ -148,23 +154,28 @@ class BirthdaysWidget extends ConsumerWidget {
                               );
                             },
                       child: Padding(
-                        padding: EdgeInsets.all(BaseSize.w12),
+                        padding: EdgeInsets.all(12.0),
                         child: Row(
                           children: [
                             Container(
-                              width: BaseSize.w40,
-                              height: BaseSize.w40,
+                              width: 40.0,
+                              height: 40.0,
                               decoration: BoxDecoration(
-                                color: BaseColor.yellow[100],
-                                borderRadius: BorderRadius.circular(
-                                  BaseSize.radiusMd,
+                                color: AppColors.warning.shade100,
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: AppColors.warning.shade200,
+                                ),
+                                boxShadow: SanctuaryDepth.ambient(
+                                  opacity: 0.02,
+                                  blur: 8,
                                 ),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
                                 AppIcons.birthday,
-                                size: BaseSize.w16,
-                                color: BaseColor.yellow[700],
+                                size: 16.0,
+                                color: AppColors.warning.shade700,
                               ),
                             ),
                             Gap.w12,
@@ -176,17 +187,23 @@ class BirthdaysWidget extends ConsumerWidget {
                                     name,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: BaseColor.textPrimary,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.onSurface,
+                                        ),
                                   ),
                                   Gap.h4,
                                   Text(
                                     item.date.ddMmmm,
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      color: BaseColor.textSecondary,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: AppColors.onSurfaceVariant,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -195,8 +212,8 @@ class BirthdaysWidget extends ConsumerWidget {
                               Gap.w8,
                               Icon(
                                 AppIcons.verified,
-                                size: BaseSize.w16,
-                                color: BaseColor.green[700],
+                                size: 16.0,
+                                color: AppColors.success,
                               ),
                             ],
                           ],

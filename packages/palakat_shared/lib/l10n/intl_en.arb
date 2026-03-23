@@ -1591,5 +1591,44 @@
   "jobStatus_failed": "Failed",
 
   "notificationType_reportReady": "Report Ready",
-  "notificationType_reportFailed": "Report Failed"
+  "notificationType_reportFailed": "Report Failed",
+  "activityAlarm_ringing": "Alarm ringing",
+  "activityAlarm_startingAudio": "Starting alarm audio...",
+  "activityAlarm_enableTitle": "Enable activity alarms",
+  "activityAlarm_enableSubtitle": "Schedule reminders for this week on your phone.",
+  "activityAlarm_noActivitiesWithReminders": "No activities with reminders found.",
+  "activityAlarm_dismiss": "Dismiss alarm",
+  "activityAlarm_viewActivity": "View activity",
+  "churchRequest_membershipStatusSubtitle": "Membership request status",
+  "notificationChannel_activityUpdates_name": "Activity Updates",
+  "notificationChannel_activityUpdates_description": "Notifications about church activities and events",
+  "notificationChannel_approvalRequests_name": "Approval Requests",
+  "notificationChannel_approvalRequests_description": "Notifications requiring your approval",
+  "notificationChannel_generalAnnouncements_name": "General Announcements",
+  "notificationChannel_generalAnnouncements_description": "General church announcements",
+  "notificationChannel_activityAlarms_name": "Activity Alarms",
+  "notificationChannel_activityAlarms_description": "Alarm notifications for upcoming church activities",
+  "notificationChannel_birthdayNotifications_name": "Birthday Notifications",
+  "notificationChannel_birthdayNotifications_description": "Notifications about member birthdays",
+  "membershipCard_notSet": "Not set",
+  "membershipCard_column": "Column {columnName}",
+  "@membershipCard_column": {
+    "placeholders": {
+      "columnName": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipCard_welcome": "Welcome!",
+  "membershipCard_pending": "Membership pending",
+  "membershipCard_signedOutSubtitle": "Sign in to see your congregation information",
+  "membershipCard_reviewDetails": "Review or update your membership details",
+  "segmentTitle_emptyState": "No {title} available",
+  "@segmentTitle_emptyState": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

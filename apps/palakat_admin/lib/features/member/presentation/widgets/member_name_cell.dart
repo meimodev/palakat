@@ -38,8 +38,8 @@ class MemberNameCell extends StatelessWidget {
                 if (isBaptized)
                   StatusBadge(
                     icon: Icons.water_drop,
-                    color: Colors.blue.shade600,
-                    backgroundColor: Colors.blue.shade50,
+                    color: AppColors.primary,
+                    backgroundColor: AppColors.primary,
                     tooltip: context.l10n.tooltip_baptized,
                   ),
                 if (isSidi)
@@ -47,8 +47,8 @@ class MemberNameCell extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 4.0),
                     child: StatusBadge(
                       icon: Icons.emoji_people,
-                      color: Colors.green.shade600,
-                      backgroundColor: Colors.green.shade50,
+                      color: AppColors.success,
+                      backgroundColor: AppColors.success,
                       tooltip: context.l10n.tooltip_sidi,
                     ),
                   ),
@@ -57,8 +57,8 @@ class MemberNameCell extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 4.0),
                     child: StatusBadge(
                       icon: Icons.phone_android,
-                      color: Colors.purple.shade600,
-                      backgroundColor: Colors.purple.shade50,
+                      color: AppColors.primary,
+                      backgroundColor: AppColors.primary,
                       tooltip: context.l10n.tooltip_appLinked,
                     ),
                   ),

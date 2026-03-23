@@ -6,16 +6,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:palakat_shared/core/config/app_config.dart';
+import 'package:palakat_shared/core/config/sectioned_env_loader.dart';
 import 'package:palakat_shared/core/widgets/file_transfer_progress_banner.dart';
 import 'package:palakat_shared/core/widgets/socket_connection_banner.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/services.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 import 'core/layout/app_scaffold.dart';
 import 'core/navigation/page_transitions.dart';
-import 'core/theme/theme.dart';
 import 'features/account/presentation/screens/account_screen.dart';
 import 'features/activity/presentation/screens/activity_screen.dart';
 import 'features/approval/presentation/screens/approval_screen.dart';
@@ -34,7 +36,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load environment variables with error handling for web
   try {
-    await dotenv.load(fileName: '.env');
+    await SectionedEnvLoader.load();
   } catch (e) {
     debugPrint('Warning: Could not load .env file: $e');
     debugPrint('Using default or build-time environment variables');
@@ -79,19 +81,28 @@ class PalakatAdminApp extends ConsumerWidget {
 
     intl.Intl.defaultLocale = locale.languageCode;
 
-    return MaterialApp.router(
-      onGenerateTitle: (context) => context.l10n.appTitle_admin,
-      debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
-      routerConfig: router,
-      builder: (context, child) => FocusTraversalGroup(
-        policy: WidgetOrderTraversalPolicy(),
-        child: FileTransferProgressBanner(child: child),
+    return ScreenUtilInit(
+      designSize: const Size(360, 640),
+      ensureScreenSize: true,
+      minTextAdapt: false,
+      enableScaleText: () => false,
+      fontSizeResolver: (fontSize, instance) =>
+          kIsWeb ? fontSize.toDouble() : instance.setSp(fontSize),
+      splitScreenMode: true,
+      builder: (context, child) => MaterialApp.router(
+        onGenerateTitle: (context) => context.l10n.appTitle_admin,
+        debugShowCheckedModeBanner: false,
+        theme: buildAppTheme(),
+        routerConfig: router,
+        builder: (context, child) => FocusTraversalGroup(
+          policy: WidgetOrderTraversalPolicy(),
+          child: FileTransferProgressBanner(child: child),
+        ),
+        // Localization configuration - Requirements: 1.2, 1.4
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
       ),
-      // Localization configuration - Requirements: 1.2, 1.4
-      locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
     );
   }
 }

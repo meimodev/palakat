@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/services.dart';
 
 import '../divider_widget.dart';
@@ -90,7 +91,7 @@ class InputVariantTextWidget extends StatelessWidget {
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
+                        color: AppColors.onSurface,
                         blurRadius: 4,
                         offset: const Offset(0, 1),
                       ),

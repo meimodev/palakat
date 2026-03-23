@@ -3492,4 +3492,96 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get notificationType_reportFailed => 'Laporan Gagal';
+
+  @override
+  String get activityAlarm_ringing => 'Alarm berbunyi';
+
+  @override
+  String get activityAlarm_startingAudio => 'Memulai audio alarm...';
+
+  @override
+  String get activityAlarm_enableTitle => 'Aktifkan alarm kegiatan';
+
+  @override
+  String get activityAlarm_enableSubtitle =>
+      'Jadwalkan pengingat untuk minggu ini di ponsel Anda.';
+
+  @override
+  String get activityAlarm_noActivitiesWithReminders =>
+      'Tidak ada kegiatan dengan pengingat.';
+
+  @override
+  String get activityAlarm_dismiss => 'Matikan alarm';
+
+  @override
+  String get activityAlarm_viewActivity => 'Lihat kegiatan';
+
+  @override
+  String get churchRequest_membershipStatusSubtitle =>
+      'Status permintaan keanggotaan';
+
+  @override
+  String get notificationChannel_activityUpdates_name => 'Pembaruan Kegiatan';
+
+  @override
+  String get notificationChannel_activityUpdates_description =>
+      'Notifikasi tentang kegiatan dan acara gereja';
+
+  @override
+  String get notificationChannel_approvalRequests_name =>
+      'Permintaan Persetujuan';
+
+  @override
+  String get notificationChannel_approvalRequests_description =>
+      'Notifikasi yang memerlukan persetujuan Anda';
+
+  @override
+  String get notificationChannel_generalAnnouncements_name =>
+      'Pengumuman Umum';
+
+  @override
+  String get notificationChannel_generalAnnouncements_description =>
+      'Pengumuman umum gereja';
+
+  @override
+  String get notificationChannel_activityAlarms_name => 'Alarm Kegiatan';
+
+  @override
+  String get notificationChannel_activityAlarms_description =>
+      'Notifikasi alarm untuk kegiatan gereja yang akan datang';
+
+  @override
+  String get notificationChannel_birthdayNotifications_name =>
+      'Notifikasi Ulang Tahun';
+
+  @override
+  String get notificationChannel_birthdayNotifications_description =>
+      'Notifikasi tentang ulang tahun anggota';
+
+  @override
+  String get membershipCard_notSet => 'Belum diatur';
+
+  @override
+  String membershipCard_column(Object columnName) {
+    return 'Kolom $columnName';
+  }
+
+  @override
+  String get membershipCard_welcome => 'Selamat datang!';
+
+  @override
+  String get membershipCard_pending => 'Keanggotaan tertunda';
+
+  @override
+  String get membershipCard_signedOutSubtitle =>
+      'Masuk untuk melihat informasi jemaat Anda';
+
+  @override
+  String get membershipCard_reviewDetails =>
+      'Tinjau atau perbarui detail keanggotaan Anda';
+
+  @override
+  String segmentTitle_emptyState(Object title) {
+    return 'Tidak ada $title tersedia';
+  }
 }

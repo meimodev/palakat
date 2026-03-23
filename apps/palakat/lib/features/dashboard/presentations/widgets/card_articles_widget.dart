@@ -20,20 +20,22 @@ class CardArticlesWidget extends StatelessWidget {
       onTap: onPressedCard,
       child: Container(
         decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: AppColors.ghostBorder(0.08)),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w12,
-          vertical: BaseSize.h12,
+          horizontal: 12.0,
+          vertical: 12.0,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(title, style: BaseTypography.bodyMedium),
+            Text(title, style: Theme.of(context).textTheme.bodyMedium!),
             Gap.h6,
             Wrap(
-              runSpacing: BaseSize.h6,
+              runSpacing: 6.0,
               direction: Axis.horizontal,
               children: [...categories.map((e) => ChipsWidget(title: e))],
             ),

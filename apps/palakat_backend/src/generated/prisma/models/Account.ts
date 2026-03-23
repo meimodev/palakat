@@ -28,17 +28,20 @@ export type AggregateAccount = {
 
 export type AccountAvgAggregateOutputType = {
   id: number | null
+  sourceAccountId: number | null
   failedLoginAttempts: number | null
 }
 
 export type AccountSumAggregateOutputType = {
   id: number | null
+  sourceAccountId: number | null
   failedLoginAttempts: number | null
 }
 
 export type AccountMinAggregateOutputType = {
   id: number | null
   name: string | null
+  sourceAccountId: number | null
   phone: string | null
   email: string | null
   passwordHash: string | null
@@ -60,6 +63,7 @@ export type AccountMinAggregateOutputType = {
 export type AccountMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  sourceAccountId: number | null
   phone: string | null
   email: string | null
   passwordHash: string | null
@@ -81,6 +85,7 @@ export type AccountMaxAggregateOutputType = {
 export type AccountCountAggregateOutputType = {
   id: number
   name: number
+  sourceAccountId: number
   phone: number
   email: number
   passwordHash: number
@@ -103,17 +108,20 @@ export type AccountCountAggregateOutputType = {
 
 export type AccountAvgAggregateInputType = {
   id?: true
+  sourceAccountId?: true
   failedLoginAttempts?: true
 }
 
 export type AccountSumAggregateInputType = {
   id?: true
+  sourceAccountId?: true
   failedLoginAttempts?: true
 }
 
 export type AccountMinAggregateInputType = {
   id?: true
   name?: true
+  sourceAccountId?: true
   phone?: true
   email?: true
   passwordHash?: true
@@ -135,6 +143,7 @@ export type AccountMinAggregateInputType = {
 export type AccountMaxAggregateInputType = {
   id?: true
   name?: true
+  sourceAccountId?: true
   phone?: true
   email?: true
   passwordHash?: true
@@ -156,6 +165,7 @@ export type AccountMaxAggregateInputType = {
 export type AccountCountAggregateInputType = {
   id?: true
   name?: true
+  sourceAccountId?: true
   phone?: true
   email?: true
   passwordHash?: true
@@ -264,6 +274,7 @@ export type AccountGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type AccountGroupByOutputType = {
   id: number
   name: string
+  sourceAccountId: number | null
   phone: string | null
   email: string | null
   passwordHash: string | null
@@ -308,6 +319,7 @@ export type AccountWhereInput = {
   NOT?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
   id?: Prisma.IntFilter<"Account"> | number
   name?: Prisma.StringFilter<"Account"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"Account"> | number | null
   phone?: Prisma.StringNullableFilter<"Account"> | string | null
   email?: Prisma.StringNullableFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
@@ -339,6 +351,7 @@ export type AccountWhereInput = {
 export type AccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -369,6 +382,7 @@ export type AccountOrderByWithRelationInput = {
 
 export type AccountWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  sourceAccountId?: number
   phone?: string
   email?: string
   AND?: Prisma.AccountWhereInput | Prisma.AccountWhereInput[]
@@ -399,11 +413,12 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   cashMutationsCreated?: Prisma.CashMutationListRelationFilter
   reportsCreated?: Prisma.ReportListRelationFilter
   reportJobsRequested?: Prisma.ReportJobListRelationFilter
-}, "id" | "phone" | "email">
+}, "id" | "sourceAccountId" | "phone" | "email">
 
 export type AccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -433,6 +448,7 @@ export type AccountScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AccountScalarWhereWithAggregatesInput | Prisma.AccountScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Account"> | number
   name?: Prisma.StringWithAggregatesFilter<"Account"> | string
+  sourceAccountId?: Prisma.IntNullableWithAggregatesFilter<"Account"> | number | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
@@ -453,6 +469,7 @@ export type AccountScalarWhereWithAggregatesInput = {
 
 export type AccountCreateInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -484,6 +501,7 @@ export type AccountCreateInput = {
 export type AccountUncheckedCreateInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -514,6 +532,7 @@ export type AccountUncheckedCreateInput = {
 
 export type AccountUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -545,6 +564,7 @@ export type AccountUpdateInput = {
 export type AccountUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -576,6 +596,7 @@ export type AccountUncheckedUpdateInput = {
 export type AccountCreateManyInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -596,6 +617,7 @@ export type AccountCreateManyInput = {
 
 export type AccountUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -617,6 +639,7 @@ export type AccountUpdateManyMutationInput = {
 export type AccountUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -643,6 +666,7 @@ export type AccountScalarRelationFilter = {
 export type AccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
@@ -663,12 +687,14 @@ export type AccountCountOrderByAggregateInput = {
 
 export type AccountAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
 }
 
 export type AccountMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
@@ -690,6 +716,7 @@ export type AccountMaxOrderByAggregateInput = {
 export type AccountMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
@@ -710,6 +737,7 @@ export type AccountMinOrderByAggregateInput = {
 
 export type AccountSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   failedLoginAttempts?: Prisma.SortOrder
 }
 
@@ -884,6 +912,7 @@ export type AccountUpdateOneRequiredWithoutReportJobsRequestedNestedInput = {
 
 export type AccountCreateWithoutMembershipInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -914,6 +943,7 @@ export type AccountCreateWithoutMembershipInput = {
 export type AccountUncheckedCreateWithoutMembershipInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -959,6 +989,7 @@ export type AccountUpdateToOneWithWhereWithoutMembershipInput = {
 
 export type AccountUpdateWithoutMembershipInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -989,6 +1020,7 @@ export type AccountUpdateWithoutMembershipInput = {
 export type AccountUncheckedUpdateWithoutMembershipInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1018,6 +1050,7 @@ export type AccountUncheckedUpdateWithoutMembershipInput = {
 
 export type AccountCreateWithoutCashMutationsCreatedInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1048,6 +1081,7 @@ export type AccountCreateWithoutCashMutationsCreatedInput = {
 export type AccountUncheckedCreateWithoutCashMutationsCreatedInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1093,6 +1127,7 @@ export type AccountUpdateToOneWithWhereWithoutCashMutationsCreatedInput = {
 
 export type AccountUpdateWithoutCashMutationsCreatedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1123,6 +1158,7 @@ export type AccountUpdateWithoutCashMutationsCreatedInput = {
 export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1152,6 +1188,7 @@ export type AccountUncheckedUpdateWithoutCashMutationsCreatedInput = {
 
 export type AccountCreateWithoutReportsCreatedInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1182,6 +1219,7 @@ export type AccountCreateWithoutReportsCreatedInput = {
 export type AccountUncheckedCreateWithoutReportsCreatedInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1227,6 +1265,7 @@ export type AccountUpdateToOneWithWhereWithoutReportsCreatedInput = {
 
 export type AccountUpdateWithoutReportsCreatedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1257,6 +1296,7 @@ export type AccountUpdateWithoutReportsCreatedInput = {
 export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1286,6 +1326,7 @@ export type AccountUncheckedUpdateWithoutReportsCreatedInput = {
 
 export type AccountCreateWithoutReviewedChurchRequestsInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1316,6 +1357,7 @@ export type AccountCreateWithoutReviewedChurchRequestsInput = {
 export type AccountUncheckedCreateWithoutReviewedChurchRequestsInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1350,6 +1392,7 @@ export type AccountCreateOrConnectWithoutReviewedChurchRequestsInput = {
 
 export type AccountCreateWithoutChurchRequestInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1380,6 +1423,7 @@ export type AccountCreateWithoutChurchRequestInput = {
 export type AccountUncheckedCreateWithoutChurchRequestInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1425,6 +1469,7 @@ export type AccountUpdateToOneWithWhereWithoutReviewedChurchRequestsInput = {
 
 export type AccountUpdateWithoutReviewedChurchRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1455,6 +1500,7 @@ export type AccountUpdateWithoutReviewedChurchRequestsInput = {
 export type AccountUncheckedUpdateWithoutReviewedChurchRequestsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1495,6 +1541,7 @@ export type AccountUpdateToOneWithWhereWithoutChurchRequestInput = {
 
 export type AccountUpdateWithoutChurchRequestInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1525,6 +1572,7 @@ export type AccountUpdateWithoutChurchRequestInput = {
 export type AccountUncheckedUpdateWithoutChurchRequestInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1554,6 +1602,7 @@ export type AccountUncheckedUpdateWithoutChurchRequestInput = {
 
 export type AccountCreateWithoutSentMembershipInvitationsInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1584,6 +1633,7 @@ export type AccountCreateWithoutSentMembershipInvitationsInput = {
 export type AccountUncheckedCreateWithoutSentMembershipInvitationsInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1618,6 +1668,7 @@ export type AccountCreateOrConnectWithoutSentMembershipInvitationsInput = {
 
 export type AccountCreateWithoutReceivedMembershipInvitationsInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1648,6 +1699,7 @@ export type AccountCreateWithoutReceivedMembershipInvitationsInput = {
 export type AccountUncheckedCreateWithoutReceivedMembershipInvitationsInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1693,6 +1745,7 @@ export type AccountUpdateToOneWithWhereWithoutSentMembershipInvitationsInput = {
 
 export type AccountUpdateWithoutSentMembershipInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1723,6 +1776,7 @@ export type AccountUpdateWithoutSentMembershipInvitationsInput = {
 export type AccountUncheckedUpdateWithoutSentMembershipInvitationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1763,6 +1817,7 @@ export type AccountUpdateToOneWithWhereWithoutReceivedMembershipInvitationsInput
 
 export type AccountUpdateWithoutReceivedMembershipInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1793,6 +1848,7 @@ export type AccountUpdateWithoutReceivedMembershipInvitationsInput = {
 export type AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1822,6 +1878,7 @@ export type AccountUncheckedUpdateWithoutReceivedMembershipInvitationsInput = {
 
 export type AccountCreateWithoutArticlesInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1852,6 +1909,7 @@ export type AccountCreateWithoutArticlesInput = {
 export type AccountUncheckedCreateWithoutArticlesInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1897,6 +1955,7 @@ export type AccountUpdateToOneWithWhereWithoutArticlesInput = {
 
 export type AccountUpdateWithoutArticlesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1927,6 +1986,7 @@ export type AccountUpdateWithoutArticlesInput = {
 export type AccountUncheckedUpdateWithoutArticlesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1956,6 +2016,7 @@ export type AccountUncheckedUpdateWithoutArticlesInput = {
 
 export type AccountCreateWithoutArticleLikesInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -1986,6 +2047,7 @@ export type AccountCreateWithoutArticleLikesInput = {
 export type AccountUncheckedCreateWithoutArticleLikesInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -2031,6 +2093,7 @@ export type AccountUpdateToOneWithWhereWithoutArticleLikesInput = {
 
 export type AccountUpdateWithoutArticleLikesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2061,6 +2124,7 @@ export type AccountUpdateWithoutArticleLikesInput = {
 export type AccountUncheckedUpdateWithoutArticleLikesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2090,6 +2154,7 @@ export type AccountUncheckedUpdateWithoutArticleLikesInput = {
 
 export type AccountCreateWithoutReportJobsRequestedInput = {
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -2120,6 +2185,7 @@ export type AccountCreateWithoutReportJobsRequestedInput = {
 export type AccountUncheckedCreateWithoutReportJobsRequestedInput = {
   id?: number
   name: string
+  sourceAccountId?: number | null
   phone?: string | null
   email?: string | null
   passwordHash?: string | null
@@ -2165,6 +2231,7 @@ export type AccountUpdateToOneWithWhereWithoutReportJobsRequestedInput = {
 
 export type AccountUpdateWithoutReportJobsRequestedInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2195,6 +2262,7 @@ export type AccountUpdateWithoutReportJobsRequestedInput = {
 export type AccountUncheckedUpdateWithoutReportJobsRequestedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2319,6 +2387,7 @@ export type AccountCountOutputTypeCountReportJobsRequestedArgs<ExtArgs extends r
 export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceAccountId?: boolean
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
@@ -2351,6 +2420,7 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceAccountId?: boolean
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
@@ -2372,6 +2442,7 @@ export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceAccountId?: boolean
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
@@ -2393,6 +2464,7 @@ export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type AccountSelectScalar = {
   id?: boolean
   name?: boolean
+  sourceAccountId?: boolean
   phone?: boolean
   email?: boolean
   passwordHash?: boolean
@@ -2411,7 +2483,7 @@ export type AccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "passwordHash" | "role" | "isActive" | "claimed" | "failedLoginAttempts" | "lockUntil" | "refreshTokenHash" | "refreshTokenExpiresAt" | "refreshTokenJti" | "gender" | "maritalStatus" | "dob" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
+export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sourceAccountId" | "phone" | "email" | "passwordHash" | "role" | "isActive" | "claimed" | "failedLoginAttempts" | "lockUntil" | "refreshTokenHash" | "refreshTokenExpiresAt" | "refreshTokenJti" | "gender" | "maritalStatus" | "dob" | "createdAt" | "updatedAt", ExtArgs["result"]["account"]>
 export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   membership?: boolean | Prisma.Account$membershipArgs<ExtArgs>
   churchRequest?: boolean | Prisma.Account$churchRequestArgs<ExtArgs>
@@ -2445,6 +2517,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    sourceAccountId: number | null
     phone: string | null
     email: string | null
     passwordHash: string | null
@@ -2896,6 +2969,7 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
 export interface AccountFieldRefs {
   readonly id: Prisma.FieldRef<"Account", 'Int'>
   readonly name: Prisma.FieldRef<"Account", 'String'>
+  readonly sourceAccountId: Prisma.FieldRef<"Account", 'Int'>
   readonly phone: Prisma.FieldRef<"Account", 'String'>
   readonly email: Prisma.FieldRef<"Account", 'String'>
   readonly passwordHash: Prisma.FieldRef<"Account", 'String'>

@@ -1,3 +1,4 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -130,11 +131,11 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: BaseColor.white,
+                    color: AppColors.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(12.r),
                     boxShadow: [
                       BoxShadow(
-                        color: BaseColor.shadow.withValues(alpha: 0.15),
+                        color: AppColors.onSurface.withValues(alpha: 0.15),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -185,10 +186,10 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                                     children: [
                                       Text(
                                         widget.notification.title,
-                                        style: BaseTypography.titleMedium
+                                        style: Theme.of(context).textTheme.titleMedium!
                                             .copyWith(
                                               fontWeight: FontWeight.w700,
-                                              color: BaseColor.textPrimary,
+                                              color: AppColors.onSurface,
                                             ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -196,9 +197,9 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                                       SizedBox(height: 2.h),
                                       Text(
                                         widget.notification.body,
-                                        style: BaseTypography.bodyMedium
+                                        style: Theme.of(context).textTheme.bodyMedium!
                                             .copyWith(
-                                              color: BaseColor.textSecondary,
+                                              color: AppColors.onSurfaceVariant,
                                             ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
@@ -209,7 +210,7 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                                 // Tap hint
                                 Icon(
                                   Icons.chevron_right,
-                                  color: BaseColor.neutral60,
+                                  color: AppColors.tertiary,
                                   size: 20.sp,
                                 ),
                               ],
@@ -232,14 +233,14 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
     final type = widget.notification.type;
     switch (type) {
       case 'APPROVAL_REQUIRED':
-        return BaseColor.warning;
+        return AppColors.warning;
       case 'APPROVAL_REJECTED':
-        return BaseColor.error;
+        return AppColors.error;
       case 'APPROVAL_CONFIRMED':
-        return BaseColor.success;
+        return AppColors.success;
       case 'ACTIVITY_CREATED':
       default:
-        return BaseColor.primary;
+        return AppColors.primary;
     }
   }
 

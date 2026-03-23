@@ -67,10 +67,10 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
         delay: const Duration(milliseconds: 140),
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: BaseSize.h24,
-            left: BaseSize.w12,
-            right: BaseSize.w12,
-            top: BaseSize.h6,
+            bottom: 24.0,
+            left: 12.0,
+            right: 12.0,
+            top: 6.0,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,8 +84,8 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
               if (state.cooldownRemainingSeconds > 0) Gap.h12,
               Text(
                 l10n.msg_reportGenerationMayTakeAWhile,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
               Gap.h12,
@@ -139,7 +139,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
             child: ScreenTitleWidget.primary(
               title: l10n.drawer_generateReport_title,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.textPrimary,
+              leadIconColor: AppColors.onSurface,
               onPressedLeadIcon: context.pop,
             ),
           ),
@@ -395,13 +395,10 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w16,
-                  vertical: BaseSize.h8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
                   title,
-                  style: BaseTypography.titleMedium.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -413,7 +410,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
                   onTap: () => Navigator.of(context).pop<T>(o),
                 ),
               ),
-              SizedBox(height: BaseSize.h12),
+              SizedBox(height: 12.0),
             ],
           ),
         );
@@ -441,11 +438,11 @@ class _CooldownBanner extends StatelessWidget {
     final seconds = (remainingSeconds % 60).toString().padLeft(2, '0');
 
     return Material(
-      color: BaseColor.yellow.shade50,
+      color: AppColors.warning.shade50,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.yellow.shade200),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.warning.shade200),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -454,18 +451,14 @@ class _CooldownBanner extends StatelessWidget {
               MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
           final icon = Container(
-            width: BaseSize.w36,
-            height: BaseSize.w36,
+            width: 36.0,
+            height: 36.0,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: BaseColor.yellow.shade100,
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              color: AppColors.warning.shade100,
+              borderRadius: BorderRadius.circular(8.0),
             ),
-            child: Icon(
-              AppIcons.pending,
-              color: BaseColor.warning,
-              size: BaseSize.w18,
-            ),
+            child: Icon(AppIcons.pending, color: AppColors.warning, size: 18.0),
           );
 
           final content = Column(
@@ -473,9 +466,9 @@ class _CooldownBanner extends StatelessWidget {
             children: [
               Text(
                 l10n.msg_slowDown,
-                style: BaseTypography.bodyMedium.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.warning,
+                  color: AppColors.warning,
                 ),
                 maxLines: shouldStack ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
@@ -483,8 +476,8 @@ class _CooldownBanner extends StatelessWidget {
               Gap.h4,
               Text(
                 '${l10n.msg_tryAgainLater} ($minutes:$seconds)',
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
                 maxLines: shouldStack ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
@@ -493,7 +486,7 @@ class _CooldownBanner extends StatelessWidget {
           );
 
           return Padding(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             child: shouldStack
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

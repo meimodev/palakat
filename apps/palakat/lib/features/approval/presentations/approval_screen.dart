@@ -65,7 +65,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       disableSingleChildScrollView: true,
       child: RefreshIndicator(
         onRefresh: () => controller.refresh(),
-        color: BaseColor.teal.shade500,
+        color: AppColors.primary,
         child: CustomScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
@@ -104,8 +104,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   ApprovalReveal(
                     delay: const Duration(milliseconds: 120),
                     child: Wrap(
-                      spacing: BaseSize.w8,
-                      runSpacing: BaseSize.h8,
+                      spacing: 8.0,
+                      runSpacing: 8.0,
                       children: [
                         OutlinedButton.icon(
                           onPressed: () {
@@ -115,21 +115,19 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                           },
                           icon: Icon(
                             Icons.calendar_today,
-                            size: BaseSize.w16,
-                            color: BaseColor.primary,
+                            size: 16.0,
+                            color: AppColors.primary,
                           ),
                           label: Text(l10n.approval_filterByDate),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: BaseColor.primary,
-                            side: BorderSide(color: BaseColor.neutral20),
+                            foregroundColor: AppColors.primary,
+                            side: BorderSide(color: AppColors.tertiary),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                BaseSize.radiusMd,
-                              ),
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
                             padding: EdgeInsets.symmetric(
-                              horizontal: BaseSize.w12,
-                              vertical: BaseSize.h8,
+                              horizontal: 12.0,
+                              vertical: 8.0,
                             ),
                           ),
                         ),
@@ -176,16 +174,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             if (state.isLoadingMore)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
-                  child: Center(
-                    child: SizedBox(
-                      width: BaseSize.w24,
-                      height: BaseSize.w24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: BaseColor.teal.shade500,
-                      ),
-                    ),
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: LoadingShimmer(
+                    isLoading: true,
+                    child: PalakatShimmerPlaceholders.approvalCard(),
                   ),
                 ),
               ),
@@ -193,12 +185,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             if (!state.hasMoreData && state.allActivities.isNotEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: BaseSize.h16),
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Center(
                     child: Text(
                       l10n.approval_noMoreApprovals,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.secondaryText,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -267,7 +259,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             state,
             controller,
             icon: AppIcons.pending,
-            color: BaseColor.teal,
+            color: AppColors.primary,
           ),
         ),
       );
@@ -286,7 +278,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             state,
             controller,
             icon: AppIcons.inProgress,
-            color: BaseColor.yellow,
+            color: AppColors.warning,
           ),
         ),
       );
@@ -305,7 +297,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             state,
             controller,
             icon: AppIcons.success,
-            color: BaseColor.green,
+            color: AppColors.success,
           ),
         ),
       );
@@ -324,7 +316,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             state,
             controller,
             icon: AppIcons.reject,
-            color: BaseColor.red,
+            color: AppColors.error,
           ),
         ),
       );
@@ -350,7 +342,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ApprovalState state,
     ApprovalController controller, {
     required IconData icon,
-    required MaterialColor color,
+    required Color color,
   }) {
     // Apply date filter to section activities
     final filteredActivities = _applyDateFilter(
@@ -364,7 +356,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(bottom: BaseSize.h16),
+      padding: EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -375,19 +367,18 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   constraints.maxWidth < 340 ||
                   MediaQuery.textScalerOf(context).scale(1) > 1.1;
               final countBadge = Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w8,
-                  vertical: BaseSize.h4,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: color.shade100,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4.0),
+                  border: Border.all(color: color.withValues(alpha: 0.18)),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
                 ),
                 child: Text(
                   filteredActivities.length.toString(),
-                  style: BaseTypography.labelMedium.copyWith(
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: color.shade700,
+                    color: color,
                   ),
                 ),
               );
@@ -398,15 +389,16 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   children: [
                     Row(
                       children: [
-                        FaIcon(icon, size: BaseSize.w20, color: color.shade600),
+                        FaIcon(icon, size: 20.0, color: color),
                         Gap.w8,
                         Expanded(
                           child: Text(
                             title,
-                            style: BaseTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium!
+                                .copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurface,
+                                ),
                           ),
                         ),
                       ],
@@ -419,14 +411,14 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
               return Row(
                 children: [
-                  FaIcon(icon, size: BaseSize.w20, color: color.shade600),
+                  FaIcon(icon, size: 20.0, color: color),
                   Gap.w8,
                   Expanded(
                     child: Text(
                       title,
-                      style: BaseTypography.titleMedium.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+                        color: AppColors.onSurface,
                       ),
                     ),
                   ),
@@ -440,7 +432,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           // Activity cards
           ...filteredActivities.map(
             (activity) => Padding(
-              padding: EdgeInsets.only(bottom: BaseSize.h20),
+              padding: EdgeInsets.only(bottom: 20.0),
               child: _buildActivityCard(context, activity, state, controller),
             ),
           ),
@@ -471,7 +463,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           key: ValueKey('approval-flat-${activity.id ?? index}'),
           delay: Duration(milliseconds: 40 + (index * 40)),
           child: Padding(
-            padding: EdgeInsets.only(bottom: BaseSize.h20),
+            padding: EdgeInsets.only(bottom: 20.0),
             child: _buildActivityCard(context, activity, state, controller),
           ),
         );
@@ -530,7 +522,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             messenger.showSnackBar(
               SnackBar(
                 content: Text(l10n.approval_snackbarApproved(activity.title)),
-                backgroundColor: BaseColor.green.shade600,
+                backgroundColor: AppColors.success.shade600,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -557,7 +549,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             messenger.showSnackBar(
               SnackBar(
                 content: Text(l10n.approval_snackbarRejected(activity.title)),
-                backgroundColor: BaseColor.red.shade500,
+                backgroundColor: AppColors.error.shade500,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -602,37 +594,39 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLow,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
+        padding: EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: BaseSize.w56,
-              height: BaseSize.w56,
+              width: 56.0,
+              height: 56.0,
               decoration: BoxDecoration(
-                color: BaseColor.primary[50],
-                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                color: AppColors.primary,
+                border: Border.all(color: AppColors.surfaceContainerLowest),
+                borderRadius: BorderRadius.circular(16.0),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
               ),
               alignment: Alignment.center,
               child: FaIcon(
                 AppIcons.approval,
-                size: BaseSize.w24,
-                color: BaseColor.primary,
+                size: 24.0,
+                color: AppColors.onPrimary,
               ),
             ),
             Gap.h12,
             Text(
               context.l10n.approval_emptyTitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textPrimary,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -640,8 +634,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             Text(
               context.l10n.approval_emptySubtitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ],

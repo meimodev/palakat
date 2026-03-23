@@ -144,14 +144,14 @@ class OtpVerificationScreen extends ConsumerWidget {
                 tooltip: l10n.btn_back,
                 icon: FaIcon(
                   AppIcons.back,
-                  color: BaseColor.primary[700],
-                  size: BaseSize.w20,
+                  color: AppColors.primary,
+                  size: 20.0,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: BaseColor.primary[50],
+                  backgroundColor: AppColors.primary,
                   minimumSize: const Size.square(44),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
               ),
@@ -176,7 +176,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                         children: [
                           Text(
                             context.l10n.auth_enterCode,
-                            style: BaseTypography.bodyMedium.toSecondary,
+                            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                             textAlign: TextAlign.center,
                           ),
                           Gap.h6,
@@ -185,9 +185,9 @@ class OtpVerificationScreen extends ConsumerWidget {
                               fullPhoneNumber,
                               convertPlusToZero: true,
                             ),
-                            style: BaseTypography.bodyMedium.copyWith(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: BaseColor.textPrimary,
+                              color: AppColors.onSurface,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -299,7 +299,7 @@ class OtpVerificationScreen extends ConsumerWidget {
             AuthAnimatedPresence(
               visible: errorMessage != null,
               child: Padding(
-                padding: EdgeInsets.only(top: BaseSize.h12),
+                padding: EdgeInsets.only(top: 12.0),
                 child: AuthErrorDisplay(
                   message: errorMessage ?? '',
                   onRetry:
@@ -488,17 +488,17 @@ class _OtpInputState extends State<_OtpInput> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
-      textStyle: BaseTypography.titleLarge.copyWith(
-        color: BaseColor.textPrimary,
+      textStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+        color: AppColors.onSurface,
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: BaseColor.neutral[300]!, width: 1.5),
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        color: BaseColor.white,
+        border: Border.all(color: AppColors.neutral, width: 1.5),
+        borderRadius: BorderRadius.circular(16.0),
+        color: AppColors.surfaceContainerLowest,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: AppColors.onSurface,
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -508,10 +508,10 @@ class _OtpInputState extends State<_OtpInput> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration?.copyWith(
-        border: Border.all(color: BaseColor.teal[700]!, width: 2),
+        border: Border.all(color: AppColors.secondary, width: 2),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.teal[200]!.withValues(alpha: 0.3),
+            color: AppColors.secondary.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -608,14 +608,14 @@ class _TimerAndResendButton extends StatelessWidget {
                 children: [
                   FaIcon(
                     AppIcons.timer,
-                    size: BaseSize.w16,
-                    color: BaseColor.secondaryText,
+                    size: 16.0,
+                    color: AppColors.onSurfaceVariant,
                   ),
                   Gap.w6,
                   Flexible(
                     child: Text(
                       formatTime(remainingSeconds),
-                      style: BaseTypography.bodyMedium.toSecondary,
+                      style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -627,15 +627,10 @@ class _TimerAndResendButton extends StatelessWidget {
             if (isLoading)
               Semantics(
                 label: l10n.loading_please_wait,
-                child: SizedBox(
-                  width: BaseSize.w16,
-                  height: BaseSize.w16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      BaseColor.teal[700]!,
-                    ),
-                  ),
+                child: CompactLoadingWidget(
+                  size: 16.0,
+                  baseColor: AppColors.secondary.withValues(alpha: 0.24),
+                  highlightColor: AppColors.surface,
                 ),
               )
             else
@@ -647,7 +642,7 @@ class _TimerAndResendButton extends StatelessWidget {
                   text: resendCodeLabel,
                   onTap: onResend,
                   buttonSize: ButtonSize.small,
-                  textColor: BaseColor.teal[700]!,
+                  textColor: AppColors.secondary,
                 ),
               ),
           ],
@@ -666,42 +661,42 @@ class _SuccessFeedback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.teal[50],
+      color: AppColors.secondary,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.04),
-      surfaceTintColor: BaseColor.teal[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.secondary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.teal[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.secondary, width: 1),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h12,
+          horizontal: 16.0,
+          vertical: 12.0,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: BaseSize.w32,
-              height: BaseSize.w32,
+              width: 32.0,
+              height: 32.0,
               decoration: BoxDecoration(
-                color: BaseColor.teal[700],
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                color: AppColors.secondary,
+                borderRadius: BorderRadius.circular(8.0),
               ),
               alignment: Alignment.center,
               child: FaIcon(
                 AppIcons.check,
-                size: BaseSize.w16,
-                color: BaseColor.white,
+                size: 16.0,
+                color: AppColors.surfaceContainerLowest,
               ),
             ),
             Gap.w12,
             Flexible(
               child: Text(
                 successLabel,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.teal[700],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.secondary,
                   fontWeight: FontWeight.w700,
                 ),
                 maxLines: 2,

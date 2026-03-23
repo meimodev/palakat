@@ -1,231 +1,269 @@
 import 'package:flutter/material.dart';
 
-// Export theme constants
-export 'color_constants.dart';
-export 'size_constants.dart';
-export 'typography_constants.dart';
+import 'app_colors.dart';
+import 'app_typography.dart';
+
+export 'app_colors.dart';
+export 'app_typography.dart';
+export 'gap.dart';
 export 'text_style_extension.dart';
 
-/// Primary teal color for the Palakat app
-/// This is the seed color for the entire color scheme
-const Color _primaryTeal = Color(0xFF009688);
+class SanctuaryLayout {
+  const SanctuaryLayout._();
 
-/// Builds the app theme using Material 3 with teal as the primary color.
-/// Uses ColorScheme.fromSeed to generate a cohesive color palette.
+  static const double radius = 8;
+  static const double radiusLarge = 16;
+  static const double pillRadius = 999;
+  static const double sectionGap = 24;
+  static const double blockGap = 16;
+  static const double compactGap = 12;
+  static const double desktopSidebarWidth = 288;
+  static const double desktopContentMaxWidth = 1440;
+  static const double mobileContentMaxWidth = 840;
+
+  static double horizontalPadding(double width) {
+    if (width < 600) return 16;
+    if (width < 960) return 24;
+    if (width > 1600) return 40;
+    return 32;
+  }
+
+  static double mobileHorizontalPadding(double width) {
+    if (width >= 768) return 24;
+    return 16;
+  }
+}
+
+class SanctuaryDepth {
+  const SanctuaryDepth._();
+
+  static List<BoxShadow> ambient({double opacity = 0.05, double blur = 40}) {
+    return [
+      BoxShadow(
+        color: AppColors.onSurface.withValues(alpha: opacity),
+        blurRadius: blur,
+        offset: const Offset(0, 12),
+      ),
+    ];
+  }
+}
+
 ThemeData buildAppTheme() {
-  final base = ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _primaryTeal,
-      brightness: Brightness.light,
-      // Override specific colors for consistency with design system
-      primary: _primaryTeal,
-      onPrimary: Colors.white,
-      surface: const Color(0xFFFAFAFA),
-      onSurface: const Color(0xFF212121),
-      error: const Color(0xFFD32F2F),
-    ),
-    visualDensity: VisualDensity.standard,
+  const baseColorTheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: AppColors.primary,
+    onPrimary: AppColors.onPrimary,
+    primaryContainer: AppColors.primaryContainer,
+    secondary: AppColors.secondary,
+    onSecondary: AppColors.onSecondary,
+    secondaryContainer: AppColors.secondaryContainer,
+    tertiary: AppColors.tertiary,
+    onTertiary: AppColors.onTertiary,
+    error: AppColors.error,
+    onError: AppColors.onError,
+    errorContainer: AppColors.errorContainer,
+    surface: AppColors.surface,
+    onSurface: AppColors.onSurface,
+    surfaceTint: AppColors.primaryContainer,
+    onSurfaceVariant: AppColors.onSurfaceVariant,
+    outline: AppColors.outline,
+    outlineVariant: AppColors.outlineVariant,
+    inverseSurface: AppColors.inverseSurface,
+    onInverseSurface: AppColors.inverseOnSurface,
+    inversePrimary: AppColors.inversePrimary,
   );
 
-  return base.copyWith(
-    // Typography with color integration
-    textTheme: base.textTheme.copyWith(
-      headlineMedium: base.textTheme.headlineMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: const Color(0xFF212121),
-      ),
-      titleLarge: base.textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: const Color(0xFF212121),
-      ),
-      bodyLarge: base.textTheme.bodyLarge?.copyWith(
-        color: const Color(0xFF424242),
-      ),
-      bodyMedium: base.textTheme.bodyMedium?.copyWith(
-        color: const Color(0xFF616161),
-      ),
-    ),
+  final baseTheme = ThemeData(
+    useMaterial3: true,
+    colorScheme: baseColorTheme,
+    scaffoldBackgroundColor: AppColors.background,
+    canvasColor: AppColors.background,
+  );
 
-    // AppBar theme
+  final textTheme = AppTypography.buildTextTheme(baseTheme.textTheme);
+
+  return baseTheme.copyWith(
+    textTheme: textTheme,
+    scaffoldBackgroundColor: AppColors.background,
+    splashFactory: InkSparkle.splashFactory,
+    iconTheme: const IconThemeData(color: AppColors.onSurfaceVariant),
+    primaryIconTheme: const IconThemeData(color: AppColors.onSurface),
     appBarTheme: AppBarTheme(
       elevation: 0,
-      backgroundColor: base.colorScheme.surface,
-      foregroundColor: base.colorScheme.onSurface,
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.onSurface,
       centerTitle: false,
-      titleTextStyle: base.textTheme.titleLarge?.copyWith(
-        color: const Color(0xFF212121),
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        color: AppColors.onSurface,
         fontWeight: FontWeight.w600,
       ),
     ),
-
-    // Card theme with 16px border radius per design spec
     cardTheme: CardThemeData(
-      elevation: 1,
-      color: const Color(0xFFF5F5F5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.all(8),
+      elevation: 0,
+      color: AppColors.surfaceContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+      ),
+      margin: EdgeInsets.zero,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.04),
     ),
-
-    // Input decoration theme
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _primaryTeal, width: 2),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        borderSide: BorderSide.none,
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        borderSide: BorderSide(
+          color: AppColors.error.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        borderSide: BorderSide(
+          color: AppColors.error.withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
       isDense: true,
       filled: true,
-      fillColor: const Color(0xFFFAFAFA),
+      fillColor: AppColors.surfaceContainer,
+      hintStyle: textTheme.bodyMedium?.copyWith(
+        color: AppColors.onSurfaceVariant.withValues(alpha: 0.72),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
-
-    // Divider theme
     dividerTheme: DividerThemeData(
-      color: base.colorScheme.outlineVariant,
-      space: 0.5,
+      color: AppColors.ghostBorder(0.08),
+      space: 1,
       thickness: 1,
     ),
-
-    // ListTile theme
     listTileTheme: ListTileThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      iconColor: base.colorScheme.onSurfaceVariant,
-      tileColor: const Color(0xFFF5F5F5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+      ),
+      iconColor: AppColors.onSurfaceVariant,
+      tileColor: AppColors.surfaceContainerLowest,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     ),
-
-    // Chip theme with 8px border radius per design spec
-    chipTheme: base.chipTheme.copyWith(
-      side: BorderSide(color: base.colorScheme.outlineVariant),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      backgroundColor: const Color(0xFFE0F2F1), // primary[50]
-      selectedColor: const Color(0xFFB2DFDB), // primary[100]
-      labelStyle: const TextStyle(color: Color(0xFF212121)),
+    chipTheme: baseTheme.chipTheme.copyWith(
+      side: BorderSide.none,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.pillRadius),
+      ),
+      backgroundColor: AppColors.surfaceContainer,
+      selectedColor: AppColors.primary,
+      labelStyle: textTheme.labelMedium?.copyWith(color: AppColors.onSurface),
+      secondaryLabelStyle: textTheme.labelMedium?.copyWith(
+        color: AppColors.onPrimary,
+      ),
     ),
-
-    // Elevated button theme
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _primaryTeal,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         elevation: 0,
+        shadowColor: Colors.transparent,
+        textStyle: textTheme.labelLarge,
       ),
     ),
-
-    // Outlined button theme
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: _primaryTeal,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        side: const BorderSide(color: _primaryTeal),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        foregroundColor: AppColors.primary,
+        backgroundColor: AppColors.surfaceContainerLowest,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        ),
+        side: BorderSide(color: AppColors.ghostBorder()),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        textStyle: textTheme.labelLarge,
       ),
     ),
-
-    // Text button theme
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: _primaryTeal,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        foregroundColor: AppColors.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        textStyle: textTheme.labelLarge,
       ),
     ),
-
-    // Floating action button theme
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: _primaryTeal,
-      foregroundColor: Colors.white,
-      elevation: 2,
-    ),
-
-    // SnackBar theme
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: base.colorScheme.inverseSurface,
-      contentTextStyle: base.textTheme.bodyMedium?.copyWith(
-        color: base.colorScheme.onInverseSurface,
-        fontWeight: FontWeight.w600,
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 6,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      actionTextColor: const Color(0xFF80CBC4), // primary[200] for contrast
-      showCloseIcon: true,
-      closeIconColor: base.colorScheme.onInverseSurface,
     ),
-
-    // Bottom navigation bar theme
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      selectedItemColor: _primaryTeal,
-      unselectedItemColor: Color(0xFF757575),
-      backgroundColor: Color(0xFFFAFAFA),
-      elevation: 8,
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.surfaceContainerLowest,
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+      ),
     ),
-
-    // Tab bar theme
-    tabBarTheme: const TabBarThemeData(
-      labelColor: _primaryTeal,
-      unselectedLabelColor: Color(0xFF757575),
-      indicatorColor: _primaryTeal,
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: AppColors.onSurfaceVariant,
+      backgroundColor: AppColors.surface.withValues(alpha: 0.92),
+      elevation: 0,
+      selectedLabelStyle: textTheme.labelSmall,
+      unselectedLabelStyle: textTheme.labelSmall,
     ),
-
-    // Icon theme
-    iconTheme: const IconThemeData(color: Color(0xFF757575), size: 24),
-
-    // Primary icon theme
-    primaryIconTheme: const IconThemeData(color: Colors.white, size: 24),
-
-    // Progress indicator theme
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: _primaryTeal,
-      linearTrackColor: Color(0xFFB2DFDB), // primary[100]
-    ),
-
-    // Switch theme
-    switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return _primaryTeal;
-        }
-        return const Color(0xFFBDBDBD);
-      }),
-      trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return const Color(0xFF80CBC4); // primary[200]
-        }
-        return const Color(0xFFE0E0E0);
-      }),
-    ),
-
-    // Checkbox theme
     checkboxTheme: CheckboxThemeData(
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return _primaryTeal;
+          return AppColors.primary;
         }
         return Colors.transparent;
       }),
-      checkColor: WidgetStateProperty.all(Colors.white),
-      side: const BorderSide(color: Color(0xFFBDBDBD), width: 2),
+      checkColor: WidgetStateProperty.all(AppColors.onPrimary),
+      side: BorderSide(color: AppColors.ghostBorder(0.3), width: 1.2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
-
-    // Radio theme
-    radioTheme: RadioThemeData(
-      fillColor: WidgetStateProperty.resolveWith((states) {
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return _primaryTeal;
+          return AppColors.primary;
         }
-        return const Color(0xFFBDBDBD);
+        return AppColors.tertiary;
       }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryContainer;
+        }
+        return AppColors.surfaceContainer;
+      }),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: AppColors.surfaceContainerLowest,
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.04),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+      ),
+    ),
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: AppColors.surfaceContainerLowest,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
     ),
   );
 }

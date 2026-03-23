@@ -77,7 +77,7 @@ class _SupervisedActivitiesListScreenState
           OperationsReveal(
             delay: const Duration(milliseconds: 40),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: _FilterSection(
                 filterActivityType: state.filterActivityType,
                 filterStartDate: state.filterStartDate,
@@ -92,7 +92,7 @@ class _SupervisedActivitiesListScreenState
           Gap.h16,
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: LoadingWrapper(
                 loading: state.isLoading,
                 hasError: state.errorMessage != null && !state.isLoading,
@@ -140,25 +140,16 @@ class _SupervisedActivitiesListScreenState
 
     return ListView.separated(
       controller: _scrollController,
-      padding: EdgeInsets.only(bottom: BaseSize.h16),
+      padding: EdgeInsets.only(bottom: 16.0),
       itemCount: state.activities.length + (state.isLoadingMore ? 1 : 0),
       separatorBuilder: (_, _) => Gap.h12,
       itemBuilder: (context, index) {
         if (index == state.activities.length) {
           return OperationsAnimatedPresence(
             visible: true,
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w16),
-                child: SizedBox(
-                  width: BaseSize.w24,
-                  height: BaseSize.w24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: BaseColor.primary[700],
-                  ),
-                ),
-              ),
+            child: LoadingShimmer(
+              isLoading: true,
+              child: PalakatShimmerPlaceholders.listItemCard(),
             ),
           );
         }
@@ -262,17 +253,18 @@ class _ActivityTypeFilter extends StatelessWidget {
       return Row(
         children: [
           Container(
-            width: BaseSize.w28,
-            height: BaseSize.w28,
+            width: 28.0,
+            height: 28.0,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: BaseColor.neutral[100],
+              color: AppColors.surfaceContainerLow,
+              border: Border.all(color: AppColors.outlineVariant),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
               AppIcons.apps,
-              size: BaseSize.w16,
-              color: BaseColor.neutral[600],
+              size: 16.0,
+              color: AppColors.onSurfaceVariant,
             ),
           ),
           Gap.w12,
@@ -283,15 +275,15 @@ class _ActivityTypeFilter extends StatelessWidget {
               children: [
                 Text(
                   l10n.filter_activityType_allTitle,
-                  style: BaseTypography.titleMedium.copyWith(
-                    color: BaseColor.black,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   l10n.filter_activityType_allSubtitle,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.textSecondary,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -304,8 +296,8 @@ class _ActivityTypeFilter extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: BaseSize.w28,
-          height: BaseSize.w28,
+          width: 28.0,
+          height: 28.0,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: _getActivityColor(type).withValues(alpha: 0.1),
@@ -313,7 +305,7 @@ class _ActivityTypeFilter extends StatelessWidget {
           ),
           child: Icon(
             _getActivityIcon(type),
-            size: BaseSize.w16,
+            size: 16.0,
             color: _getActivityColor(type),
           ),
         ),
@@ -325,15 +317,15 @@ class _ActivityTypeFilter extends StatelessWidget {
             children: [
               Text(
                 type.displayName,
-                style: BaseTypography.titleMedium.copyWith(
-                  color: BaseColor.black,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
                 _getActivityDescription(context, type),
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
             ],
@@ -352,36 +344,35 @@ class _ActivityTypeFilter extends StatelessWidget {
       useSafeArea: true,
       isScrollControlled: true,
       shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(BaseSize.radiusXl),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       ),
       builder: (ctx) {
         return Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile(
                 leading: Container(
-                  width: BaseSize.w32,
-                  height: BaseSize.w32,
+                  width: 32.0,
+                  height: 32.0,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral[100],
+                    color: AppColors.surfaceContainerLow,
+                    border: Border.all(color: AppColors.outlineVariant),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     AppIcons.apps,
-                    size: BaseSize.w18,
-                    color: BaseColor.neutral[600],
+                    size: 18.0,
+                    color: AppColors.onSurfaceVariant,
                   ),
                 ),
                 title: Text(l10n.filter_activityType_allTitle),
                 subtitle: Text(
                   l10n.filter_activityType_allSheetSubtitle,
-                  style: BaseTypography.bodyMedium.toSecondary,
+                  style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                 ),
                 trailing: currentValue == null
                     ? const Icon(AppIcons.check)
@@ -391,8 +382,8 @@ class _ActivityTypeFilter extends StatelessWidget {
               ...ActivityType.values.map((type) {
                 return ListTile(
                   leading: Container(
-                    width: BaseSize.w32,
-                    height: BaseSize.w32,
+                    width: 32.0,
+                    height: 32.0,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: _getActivityColor(type).withValues(alpha: 0.1),
@@ -400,14 +391,14 @@ class _ActivityTypeFilter extends StatelessWidget {
                     ),
                     child: Icon(
                       _getActivityIcon(type),
-                      size: BaseSize.w18,
+                      size: 18.0,
                       color: _getActivityColor(type),
                     ),
                   ),
                   title: Text(type.displayName),
                   subtitle: Text(
                     _getActivityDescription(context, type),
-                    style: BaseTypography.bodyMedium.toSecondary,
+                    style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                   ),
                   trailing: currentValue == type
                       ? const Icon(AppIcons.check)
@@ -436,11 +427,11 @@ class _ActivityTypeFilter extends StatelessWidget {
   Color _getActivityColor(ActivityType type) {
     switch (type) {
       case ActivityType.service:
-        return BaseColor.primary[700]!;
+        return AppColors.primary;
       case ActivityType.event:
-        return BaseColor.blue[700]!;
+        return AppColors.primary;
       case ActivityType.announcement:
-        return BaseColor.yellow[700]!;
+        return AppColors.warning;
     }
   }
 
@@ -467,28 +458,24 @@ class _ActiveFilterIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: BaseColor.primary[50],
+        color: AppColors.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: BaseColor.primary[200]!, width: 1),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.24),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
-          Icon(
-            AppIcons.filterList,
-            size: BaseSize.w16,
-            color: BaseColor.primary[700],
-          ),
+          Icon(AppIcons.filterList, size: 16.0, color: AppColors.primary),
           Gap.w8,
           Expanded(
             child: Text(
               l10n.filters_applied,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.primary[700],
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.primary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -496,18 +483,15 @@ class _ActiveFilterIndicator extends StatelessWidget {
           TextButton(
             onPressed: onClearFilters,
             style: TextButton.styleFrom(
-              foregroundColor: BaseColor.primary[700],
-              padding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w8,
-                vertical: BaseSize.h4,
-              ),
+              foregroundColor: AppColors.primary,
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
               l10n.btn_clearAll,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.primary[700],
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -533,12 +517,12 @@ class _EmptyState extends StatelessWidget {
     final l10n = context.l10n;
     return Center(
       child: Container(
-        padding: EdgeInsets.all(BaseSize.w24),
-        margin: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+        padding: EdgeInsets.all(24.0),
+        margin: EdgeInsets.symmetric(horizontal: 16.0),
         decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
+          color: AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: BaseColor.neutral20, width: 1),
+          border: Border.all(color: AppColors.tertiary, width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -547,8 +531,8 @@ class _EmptyState extends StatelessWidget {
               hasActiveFilters
                   ? AppIcons.filterListOff
                   : AppIcons.supervisorAccount,
-              size: BaseSize.w48,
-              color: BaseColor.secondaryText,
+              size: 48.0,
+              color: AppColors.onSurfaceVariant,
             ),
             Gap.h12,
             Text(
@@ -556,8 +540,8 @@ class _EmptyState extends StatelessWidget {
                   ? l10n.supervisedActivities_emptyFilteredTitle
                   : l10n.supervisedActivities_emptyTitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.secondaryText,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -567,22 +551,22 @@ class _EmptyState extends StatelessWidget {
                   ? l10n.supervisedActivities_emptyFilteredSubtitle
                   : l10n.supervisedActivities_emptySubtitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.secondaryText,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
             if (hasActiveFilters) ...[
               Gap.h16,
               OutlinedButton.icon(
                 onPressed: onClearFilters,
-                icon: Icon(AppIcons.clear, size: BaseSize.w14),
+                icon: Icon(AppIcons.clear, size: 14.0),
                 label: Text(l10n.btn_clearFilters),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: BaseColor.primary[700],
-                  side: BorderSide(color: BaseColor.primary[300]!, width: 1),
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.primary, width: 1),
                   padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w12,
-                    vertical: BaseSize.h8,
+                    horizontal: 12.0,
+                    vertical: 8.0,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

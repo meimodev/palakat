@@ -21,17 +21,17 @@ class AuthSurfaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.secondary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.teal[100]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.secondary, width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: Padding(
-        padding: padding ?? EdgeInsets.all(BaseSize.w20),
+        padding: padding ?? EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -42,9 +42,9 @@ class AuthSurfaceCard extends StatelessWidget {
                   Gap.h16,
                   Text(
                     title,
-                    style: BaseTypography.titleLarge.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: BaseColor.primaryText,
+                      color: AppColors.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -58,9 +58,9 @@ class AuthSurfaceCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: BaseTypography.titleLarge.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.primaryText,
+                        color: AppColors.onSurface,
                       ),
                     ),
                   ),
@@ -83,26 +83,21 @@ class _AuthHeaderIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = centered ? BaseSize.w56 : BaseSize.w40;
-    final iconSize = centered ? BaseSize.w24 : BaseSize.w18;
-    final radius = centered ? BaseSize.radiusLg : BaseSize.radiusMd;
+    final size = centered ? 56.0 : 40.0;
+    final iconSize = centered ? 24.0 : 18.0;
+    final radius = centered ? 16.0 : 8.0;
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: BaseColor.teal[100],
+        color: AppColors.secondary,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.teal[200]!.withValues(alpha: 0.28),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
       ),
       alignment: Alignment.center,
-      child: FaIcon(icon, size: iconSize, color: BaseColor.teal[700]),
+      child: FaIcon(icon, size: iconSize, color: AppColors.secondary),
     );
   }
 }

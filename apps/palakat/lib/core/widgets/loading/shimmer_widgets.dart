@@ -7,22 +7,16 @@ class PalakatShimmerPlaceholders {
   static Widget membershipCard() {
     return Material(
       clipBehavior: Clip.hardEdge,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
-      color: BaseColor.teal[50],
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.58),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          width: 1,
-          color: BaseColor.teal[100] ?? BaseColor.neutral20,
-        ),
+        side: BorderSide(width: 1, color: AppColors.ghostBorder(0.06)),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h16,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
@@ -30,10 +24,10 @@ class PalakatShimmerPlaceholders {
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -43,19 +37,19 @@ class PalakatShimmerPlaceholders {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: BaseSize.h16,
+                        height: 16.0,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       Gap.h8,
                       Container(
-                        height: BaseSize.h12,
-                        width: BaseSize.customWidth(120),
+                        height: 12.0,
+                        width: 120,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -69,9 +63,9 @@ class PalakatShimmerPlaceholders {
               children: [
                 Expanded(
                   child: Container(
-                    height: BaseSize.h40,
+                    height: 40.0,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -79,9 +73,9 @@ class PalakatShimmerPlaceholders {
                 Gap.w12,
                 Expanded(
                   child: Container(
-                    height: BaseSize.h40,
+                    height: 40.0,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -97,24 +91,24 @@ class PalakatShimmerPlaceholders {
   /// Shimmer placeholder for activity card
   static Widget activityCard({double? height}) {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        height: height ?? BaseSize.customHeight(92),
-        padding: EdgeInsets.all(BaseSize.w12),
+        height: height ?? 92,
+        padding: EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w32,
-                  height: BaseSize.w32,
+                  width: 32.0,
+                  height: 32.0,
                   decoration: const BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -124,19 +118,19 @@ class PalakatShimmerPlaceholders {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: BaseSize.h16,
+                        height: 16.0,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       Gap.h6,
                       Container(
-                        height: BaseSize.h12,
-                        width: BaseSize.w80,
+                        height: 12.0,
+                        width: 80.0,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -147,10 +141,10 @@ class PalakatShimmerPlaceholders {
             ),
             const Spacer(),
             Container(
-              height: BaseSize.h12,
-              width: BaseSize.customWidth(100),
+              height: 12.0,
+              width: 100,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -163,21 +157,21 @@ class PalakatShimmerPlaceholders {
   /// Shimmer placeholder for list item card
   static Widget listItemCard() {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.hardEdge,
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w12),
+        padding: EdgeInsets.all(12.0),
         child: Row(
           children: [
             Container(
-              width: BaseSize.w32,
-              height: BaseSize.w32,
+              width: 32.0,
+              height: 32.0,
               decoration: const BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 shape: BoxShape.circle,
               ),
             ),
@@ -188,19 +182,19 @@ class PalakatShimmerPlaceholders {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    height: BaseSize.h16,
+                    height: 16.0,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                   Gap.h6,
                   Container(
-                    height: BaseSize.h12,
-                    width: BaseSize.customWidth(120),
+                    height: 12.0,
+                    width: 120,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -209,10 +203,10 @@ class PalakatShimmerPlaceholders {
             ),
             Gap.w12,
             Container(
-              width: BaseSize.w20,
-              height: BaseSize.w20,
+              width: 20.0,
+              height: 20.0,
               decoration: const BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 shape: BoxShape.circle,
               ),
             ),
@@ -225,23 +219,23 @@ class PalakatShimmerPlaceholders {
   /// Shimmer placeholder for announcement card
   static Widget announcementCard() {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.yellow[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: const BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -251,19 +245,19 @@ class PalakatShimmerPlaceholders {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: BaseSize.h16,
+                        height: 16.0,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       Gap.h6,
                       Container(
-                        height: BaseSize.h12,
-                        width: BaseSize.customWidth(100),
+                        height: 12.0,
+                        width: 100,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -274,19 +268,19 @@ class PalakatShimmerPlaceholders {
             ),
             Gap.h12,
             Container(
-              height: BaseSize.h12,
+              height: 12.0,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
             Gap.h6,
             Container(
-              height: BaseSize.h12,
-              width: BaseSize.customWidth(200),
+              height: 12.0,
+              width: 200,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -299,23 +293,23 @@ class PalakatShimmerPlaceholders {
   /// Shimmer placeholder for approval card
   static Widget approvalCard() {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: const BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -325,19 +319,19 @@ class PalakatShimmerPlaceholders {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: BaseSize.h16,
+                        height: 16.0,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       Gap.h8,
                       Container(
-                        height: BaseSize.h12,
-                        width: BaseSize.customWidth(150),
+                        height: 12.0,
+                        width: 150,
                         decoration: BoxDecoration(
-                          color: BaseColor.neutral20,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -348,19 +342,19 @@ class PalakatShimmerPlaceholders {
             ),
             Gap.h16,
             Container(
-              height: BaseSize.h12,
+              height: 12.0,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
             Gap.h8,
             Container(
-              height: BaseSize.h12,
+              height: 12.0,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -369,19 +363,19 @@ class PalakatShimmerPlaceholders {
               children: [
                 Expanded(
                   child: Container(
-                    height: BaseSize.h24,
+                    height: 24.0,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
                 Gap.w8,
                 Container(
-                  height: BaseSize.h24,
-                  width: BaseSize.w80,
+                  height: 24.0,
+                  width: 80.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -396,32 +390,32 @@ class PalakatShimmerPlaceholders {
   /// Shimmer placeholder for info card (used in detail screens)
   static Widget infoCard() {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: const BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                   ),
                 ),
                 Gap.w12,
                 Expanded(
                   child: Container(
-                    height: BaseSize.h16,
+                    height: 16.0,
                     decoration: BoxDecoration(
-                      color: BaseColor.neutral20,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -431,15 +425,15 @@ class PalakatShimmerPlaceholders {
             Gap.h16,
             ...List.generate(3, (index) {
               return Padding(
-                padding: EdgeInsets.only(bottom: BaseSize.h12),
+                padding: EdgeInsets.only(bottom: 12.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: BaseSize.w20,
-                      height: BaseSize.w20,
+                      width: 20.0,
+                      height: 20.0,
                       decoration: const BoxDecoration(
-                        color: BaseColor.neutral20,
+                        color: Colors.white,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -449,19 +443,19 @@ class PalakatShimmerPlaceholders {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: BaseSize.h12,
-                            width: BaseSize.w80,
+                            height: 12.0,
+                            width: 80.0,
                             decoration: BoxDecoration(
-                              color: BaseColor.neutral20,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
                           Gap.h6,
                           Container(
-                            height: BaseSize.h16,
+                            height: 16.0,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: BaseColor.neutral20,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -485,10 +479,10 @@ class PalakatShimmerPlaceholders {
     EdgeInsets padding = const EdgeInsets.all(16),
   }) {
     return Material(
-      color: BaseColor.cardBackground1,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.teal[50],
+      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
+      elevation: 0,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         width: width,
@@ -501,7 +495,7 @@ class PalakatShimmerPlaceholders {
               height: 20,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -510,7 +504,7 @@ class PalakatShimmerPlaceholders {
               height: 14,
               width: 200,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -519,7 +513,7 @@ class PalakatShimmerPlaceholders {
               height: 14,
               width: 150,
               decoration: BoxDecoration(
-                color: BaseColor.neutral20,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -530,7 +524,7 @@ class PalakatShimmerPlaceholders {
                   height: 12,
                   width: 80,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -539,7 +533,7 @@ class PalakatShimmerPlaceholders {
                   height: 12,
                   width: 60,
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral20,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),

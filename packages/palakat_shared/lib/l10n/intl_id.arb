@@ -3879,5 +3879,44 @@
   "jobStatus_failed": "Gagal",
 
   "notificationType_reportReady": "Laporan Siap",
-  "notificationType_reportFailed": "Laporan Gagal"
+  "notificationType_reportFailed": "Laporan Gagal",
+  "activityAlarm_ringing": "Alarm berbunyi",
+  "activityAlarm_startingAudio": "Memulai audio alarm...",
+  "activityAlarm_enableTitle": "Aktifkan alarm kegiatan",
+  "activityAlarm_enableSubtitle": "Jadwalkan pengingat untuk minggu ini di ponsel Anda.",
+  "activityAlarm_noActivitiesWithReminders": "Tidak ada kegiatan dengan pengingat.",
+  "activityAlarm_dismiss": "Matikan alarm",
+  "activityAlarm_viewActivity": "Lihat kegiatan",
+  "churchRequest_membershipStatusSubtitle": "Status permintaan keanggotaan",
+  "notificationChannel_activityUpdates_name": "Pembaruan Kegiatan",
+  "notificationChannel_activityUpdates_description": "Notifikasi tentang kegiatan dan acara gereja",
+  "notificationChannel_approvalRequests_name": "Permintaan Persetujuan",
+  "notificationChannel_approvalRequests_description": "Notifikasi yang memerlukan persetujuan Anda",
+  "notificationChannel_generalAnnouncements_name": "Pengumuman Umum",
+  "notificationChannel_generalAnnouncements_description": "Pengumuman umum gereja",
+  "notificationChannel_activityAlarms_name": "Alarm Kegiatan",
+  "notificationChannel_activityAlarms_description": "Notifikasi alarm untuk kegiatan gereja yang akan datang",
+  "notificationChannel_birthdayNotifications_name": "Notifikasi Ulang Tahun",
+  "notificationChannel_birthdayNotifications_description": "Notifikasi tentang ulang tahun anggota",
+  "membershipCard_notSet": "Belum diatur",
+  "membershipCard_column": "Kolom {columnName}",
+  "@membershipCard_column": {
+    "placeholders": {
+      "columnName": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipCard_welcome": "Selamat datang!",
+  "membershipCard_pending": "Keanggotaan tertunda",
+  "membershipCard_signedOutSubtitle": "Masuk untuk melihat informasi jemaat Anda",
+  "membershipCard_reviewDetails": "Tinjau atau perbarui detail keanggotaan Anda",
+  "segmentTitle_emptyState": "Tidak ada {title} tersedia",
+  "@segmentTitle_emptyState": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

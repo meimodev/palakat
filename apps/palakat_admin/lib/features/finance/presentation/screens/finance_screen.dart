@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/utils.dart';
@@ -66,8 +67,8 @@ class FinanceScreen extends ConsumerWidget {
                             label: l10n.lbl_balance,
                             value: (overview?.totalBalance ?? 0).toCurrency,
                             icon: Icons.account_balance_wallet_outlined,
-                            iconColor: Colors.indigo.shade700,
-                            iconBackgroundColor: Colors.indigo.shade50,
+                            iconColor: AppColors.primary,
+                            iconBackgroundColor: AppColors.primary,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
@@ -77,8 +78,8 @@ class FinanceScreen extends ConsumerWidget {
                                 '${l10n.paymentMethod_cash} ${l10n.lbl_balance}',
                             value: (overview?.cashBalance ?? 0).toCurrency,
                             icon: Icons.payments_outlined,
-                            iconColor: Colors.green.shade700,
-                            iconBackgroundColor: Colors.green.shade50,
+                            iconColor: AppColors.success,
+                            iconBackgroundColor: AppColors.success,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
@@ -88,8 +89,8 @@ class FinanceScreen extends ConsumerWidget {
                                 '${l10n.paymentMethod_cashless} ${l10n.lbl_balance}',
                             value: (overview?.cashlessBalance ?? 0).toCurrency,
                             icon: Icons.credit_card_outlined,
-                            iconColor: Colors.purple.shade700,
-                            iconBackgroundColor: Colors.purple.shade50,
+                            iconColor: AppColors.primary,
+                            iconBackgroundColor: AppColors.primary,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
@@ -296,7 +297,7 @@ class _FinanceTypeChip extends StatelessWidget {
     final label = isRevenue
         ? l10n.financeType_revenue
         : l10n.financeType_expense;
-    final color = isRevenue ? Colors.green : Colors.red;
+    final color = isRevenue ? AppColors.success : AppColors.error;
     final icon = isRevenue ? Icons.arrow_downward : Icons.arrow_upward;
 
     return LayoutBuilder(

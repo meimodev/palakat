@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
 import '../models/finance_type.dart';
 import '../models/financial_account_number.dart';
 import 'searchable_dialog_picker.dart';
 import 'divider_widget.dart';
+import 'loading_widget.dart';
 
 /// A theme-aware picker widget for selecting financial account numbers.
 ///
@@ -174,13 +176,10 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
     if (widget.isLoading) {
       return Row(
         children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: theme.colorScheme.primary,
-            ),
+          CompactLoadingWidget(
+            size: 16,
+            baseColor: theme.colorScheme.surfaceContainerHighest,
+            highlightColor: theme.colorScheme.surface,
           ),
           const SizedBox(width: 8),
           Text(
@@ -347,7 +346,7 @@ class _SearchableAccountDropdown extends StatelessWidget {
           if (account.description != null && account.description!.isNotEmpty)
             Text(
               account.description!,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
             ),
         ],
       ),

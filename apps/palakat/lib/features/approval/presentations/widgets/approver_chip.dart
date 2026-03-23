@@ -38,7 +38,7 @@ class ApproverChip extends StatelessWidget {
               MediaQuery.textScalerOf(context).scale(1) > 1.1;
           final statusLabel = Text(
             ApproverStatusBadge.getStatusLabelLocalized(context, status),
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: ApproverStatusBadge.getStatusColor(status),
               fontWeight: FontWeight.w600,
             ),
@@ -49,7 +49,7 @@ class ApproverChip extends StatelessWidget {
             children: [
               ApproverStatusBadge(
                 status: status,
-                iconSize: BaseSize.w22,
+                iconSize: 22.0,
                 showLabel: false,
               ),
               Gap.w12,
@@ -59,39 +59,46 @@ class ApproverChip extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Wrap(
-                      spacing: BaseSize.w6,
-                      runSpacing: BaseSize.h4,
+                      spacing: 6.0,
+                      runSpacing: 4.0,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           name,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: isCurrentUser
-                                ? BaseColor.teal.shade800
-                                : BaseColor.textPrimary,
-                            fontWeight: isCurrentUser
-                                ? FontWeight.w700
-                                : FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: isCurrentUser
+                                    ? AppColors.primary
+                                    : AppColors.onSurface,
+                                fontWeight: isCurrentUser
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                              ),
                         ),
                         if (isCurrentUser)
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: BaseSize.w8,
-                              vertical: BaseSize.h4,
+                              horizontal: 8.0,
+                              vertical: 4.0,
                             ),
                             decoration: BoxDecoration(
-                              color: BaseColor.teal.shade600,
-                              borderRadius: BorderRadius.circular(
-                                BaseSize.radiusSm,
+                              color: AppColors.primary,
+                              border: Border.all(
+                                color: AppColors.surfaceContainerLowest,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                              boxShadow: SanctuaryDepth.ambient(
+                                opacity: 0.02,
+                                blur: 6,
                               ),
                             ),
                             child: Text(
                               context.l10n.lbl_you,
-                              style: BaseTypography.labelMedium.copyWith(
-                                color: BaseColor.white,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium!
+                                  .copyWith(
+                                    color: AppColors.surfaceContainerLowest,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                           ),
                       ],
@@ -99,15 +106,16 @@ class ApproverChip extends StatelessWidget {
                     if (updatedAt != null &&
                         status != ApprovalStatus.unconfirmed)
                       Padding(
-                        padding: EdgeInsets.only(top: BaseSize.h6),
+                        padding: EdgeInsets.only(top: 6.0),
                         child: Text(
                           "${updatedAt!.slashDate} ${updatedAt!.HHmm}",
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: isCurrentUser
-                                ? BaseColor.teal.shade700
-                                : BaseColor.secondaryText,
-                            fontWeight: FontWeight.w400,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: isCurrentUser
+                                    ? AppColors.primary
+                                    : AppColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w400,
+                              ),
                         ),
                       ),
                     if (shouldStackStatus) ...[Gap.h8, statusLabel],
@@ -126,25 +134,31 @@ class ApproverChip extends StatelessWidget {
 
     // Highlight container when this is the current user
     if (isCurrentUser) {
-      return Material(
-        color: BaseColor.teal.shade50,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          side: BorderSide(color: BaseColor.teal.shade200, width: 1),
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: BaseSize.h8,
-            horizontal: BaseSize.w8,
+        child: Material(
+          color: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(
+              color: AppColors.surfaceContainerLowest,
+              width: 1,
+            ),
           ),
-          child: buildContent(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+            child: buildContent(),
+          ),
         ),
       );
     }
 
     // No decoration for non-current users
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: BaseSize.h8),
+      padding: EdgeInsets.symmetric(vertical: 8.0),
       child: buildContent(),
     );
   }

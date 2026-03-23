@@ -61,7 +61,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
             OperationsReveal(child: _buildHeader(state)),
             Gap.h16,
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -102,33 +102,41 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
   }
 
   Widget _buildFinanceTypeIndicator() {
+    final theme = Theme.of(context);
     final isRevenue = widget.financeType == FinanceType.revenue;
-    final backgroundColor = isRevenue
-        ? BaseColor.teal[50]!
-        : BaseColor.red[50]!;
-    final borderColor = isRevenue ? BaseColor.teal[200]! : BaseColor.red[200]!;
-    final iconColor = isRevenue ? BaseColor.teal[700]! : BaseColor.red[700]!;
-    final textColor = isRevenue ? BaseColor.teal[700]! : BaseColor.red[700]!;
+    final accentColor = isRevenue ? AppColors.secondary : AppColors.error;
+    final borderColor = isRevenue ? AppColors.secondary : AppColors.error;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: borderColor),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        border: Border.all(color: borderColor.withValues(alpha: 0.18)),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(widget.financeType.icon, size: BaseSize.w18, color: iconColor),
+          Container(
+            width: 36.0,
+            height: 36.0,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              widget.financeType.icon,
+              size: 18.0,
+              color: accentColor,
+            ),
+          ),
           Gap.w8,
           Text(
             widget.financeType.displayName,
-            style: BaseTypography.titleMedium.copyWith(
-              color: textColor,
+            style: theme.textTheme.titleMedium!.copyWith(
+              color: AppColors.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -202,6 +210,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     FinanceCreateController controller,
   ) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     // Clear button text that indicates the action
     // In embedded mode: "Add Revenue" or "Add Expense" to indicate attaching to activity
     // In standalone mode: "Create Revenue" or "Create Expense"
@@ -210,45 +219,79 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
         : '${l10n.btn_add} ${widget.financeType.displayName}';
 
     return Material(
-      color: BaseColor.white,
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       child: Container(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
-          left: BaseSize.w12,
-          right: BaseSize.w12,
-          top: BaseSize.h12,
+          bottom: MediaQuery.of(context).padding.bottom + 12.0,
+          left: 12.0,
+          right: 12.0,
+          top: 12.0,
         ),
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-          ),
+          color: AppColors.background.withValues(alpha: 0.96),
         ),
         child: SafeArea(
           top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Helper text for embedded mode to clarify the action
-              // Requirements: 4.4
-              if (!widget.isStandalone) ...[
-                Text(
-                  l10n.publish_financialRecordSubtitle,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.neutral60,
-                  ),
-                  textAlign: TextAlign.center,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              side: BorderSide(color: AppColors.ghostBorder(0.08)),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(14.0),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
                 ),
-                Gap.h8,
-              ],
-              // Prominent button with clear labeling
-              // Requirements: 4.1
-              ButtonWidget.primary(
-                text: buttonText,
-                isLoading: state.loading,
-                onTap: () => _handleSubmit(controller),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 22),
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Helper text for embedded mode to clarify the action
+                  // Requirements: 4.4
+                  if (!widget.isStandalone) ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 10.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(
+                          SanctuaryLayout.radius,
+                        ),
+                      ),
+                      child: Text(
+                        l10n.publish_financialRecordSubtitle,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Gap.h12,
+                  ],
+                  // Prominent button with clear labeling
+                  // Requirements: 4.1
+                  ButtonWidget.primary(
+                    text: buttonText,
+                    isLoading: state.loading,
+                    onTap: () => _handleSubmit(controller),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

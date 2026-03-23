@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kiri_check/kiri_check.dart';
 import 'package:palakat/core/constants/app_icons.dart';
 import 'package:palakat/core/widgets/app_icon_widget.dart';
-import 'package:palakat_shared/theme.dart';
 
 /// Property-based tests for AppIconWidget class.
 /// **Feature: icon-consolidation**
@@ -33,23 +33,23 @@ void main() {
       // Verify sizes match expected BaseSize values
       expect(
         smallWidget.size,
-        equals(BaseSize.w16),
-        reason: 'Small icon should have size BaseSize.w16',
+        equals(16.0),
+        reason: 'Small icon should have size 16.0',
       );
       expect(
         mediumWidget.size,
-        equals(BaseSize.w20),
-        reason: 'Medium icon should have size BaseSize.w20',
+        equals(16.0),
+        reason: 'Medium icon should have size 16.0',
       );
       expect(
         largeWidget.size,
-        equals(BaseSize.w24),
-        reason: 'Large icon should have size BaseSize.w24',
+        equals(16.0),
+        reason: 'Large icon should have size 16.0',
       );
       expect(
         xlWidget.size,
-        equals(BaseSize.w32),
-        reason: 'XL icon should have size BaseSize.w32',
+        equals(16.0),
+        reason: 'XL icon should have size 16.0',
       );
     });
 
@@ -129,7 +129,7 @@ void main() {
           designSize: const Size(375, 812),
           builder: (context, child) => MaterialApp(
             home: Scaffold(
-              body: AppIconWidget.medium(AppIcons.search, color: Colors.blue),
+              body: AppIconWidget.medium(AppIcons.search, color: AppColors.primary),
             ),
           ),
         ),
@@ -152,7 +152,7 @@ void main() {
       );
       expect(
         faIcon.color,
-        equals(Colors.blue),
+        equals(AppColors.primary),
         reason: 'FaIcon should have the correct color',
       );
     });

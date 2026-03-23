@@ -92,10 +92,14 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     OperationsController controller,
   ) {
     final l10n = context.l10n;
+    final hasEnabledOperations = (state.categories as List<OperationCategory>)
+        .any(
+          (category) =>
+              category.operations.any((operation) => operation.isEnabled),
+        );
 
     // Empty state when no operations available (Requirement 2.5)
-    if (state.membership == null ||
-        state.membership!.membershipPositions.isEmpty) {
+    if (state.membership == null || !hasEnabledOperations) {
       return OperationsAnimatedPresence(
         visible: true,
         child: _EmptyStateWidget(),
@@ -113,6 +117,26 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             onTap: () => _handleMembershipTap(context, state.membership!),
           ),
         ),
+        Gap.h4,
+        if (state.supervisedActivities.isNotEmpty ||
+            state.loadingSupervisedActivities ||
+            state.supervisedActivitiesError != null) ...[
+          Gap.h4,
+          OperationsReveal(
+            delay: Duration(
+              milliseconds: 80 + (((state.categories as List).length) * 40),
+            ),
+            child: SupervisedActivitiesSection(
+              activities: state.supervisedActivities,
+              isLoading: state.loadingSupervisedActivities,
+              error: state.supervisedActivitiesError,
+              onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
+              onActivityTap: (activity) =>
+                  _handleActivityTap(context, activity),
+              onRetry: () => controller.fetchSupervisedActivities(),
+            ),
+          ),
+        ],
         Gap.h16,
         _OperationCategoryList(
           categories: state.categories,
@@ -132,28 +156,6 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           pendingReportJobs: state.pendingReportJobs,
           isLoadingPendingReportJobs: state.loadingPendingReportJobs,
         ),
-        if (state.supervisedActivities.isNotEmpty ||
-            state.loadingSupervisedActivities ||
-            state.supervisedActivitiesError != null) ...[
-          Gap.h16,
-          OperationsReveal(
-            delay: Duration(
-              milliseconds: 80 + (((state.categories as List).length) * 40),
-            ),
-            child: SupervisedActivitiesSection(
-              activities: state.supervisedActivities,
-              isLoading: state.loadingSupervisedActivities,
-              error: state.supervisedActivitiesError,
-              isExpanded: state.supervisedActivitiesExpanded,
-              onExpansionChanged: () =>
-                  controller.toggleSupervisedActivitiesExpansion(),
-              onSeeAllTap: () => _handleSeeAllSupervisedActivities(context),
-              onActivityTap: (activity) =>
-                  _handleActivityTap(context, activity),
-              onRetry: () => controller.fetchSupervisedActivities(),
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -208,7 +210,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(l10n.err_somethingWentWrong),
-          backgroundColor: BaseColor.error,
+          backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -227,7 +229,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(l10n.err_somethingWentWrong),
-              backgroundColor: BaseColor.error,
+              backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -237,7 +239,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(failure.message),
-            backgroundColor: BaseColor.error,
+            backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -268,7 +270,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(l10n.err_somethingWentWrong),
-              backgroundColor: BaseColor.error,
+              backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -278,7 +280,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(failure.message),
-            backgroundColor: BaseColor.error,
+            backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -295,37 +297,37 @@ class _EmptyStateWidget extends StatelessWidget {
     final l10n = context.l10n;
 
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLowest,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
+        padding: EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: BaseSize.w56,
-              height: BaseSize.w56,
+              width: 56.0,
+              height: 56.0,
               decoration: BoxDecoration(
-                color: BaseColor.primary[50],
-                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(16.0),
               ),
               alignment: Alignment.center,
               child: Icon(
                 AppIcons.workOff,
-                size: BaseSize.w24,
-                color: BaseColor.primary,
+                size: 24.0,
+                color: AppColors.onPrimary,
               ),
             ),
             Gap.h12,
             Text(
               l10n.noData_positions,
               textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textPrimary,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -333,8 +335,8 @@ class _EmptyStateWidget extends StatelessWidget {
             Text(
               l10n.operations_noPositionsSubtitle,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 /// A widget for displaying segment/section titles with count and optional "View All" action.
 ///
@@ -48,6 +49,7 @@ class SegmentTitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
@@ -69,7 +71,7 @@ class SegmentTitleWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "No $title available",
+              l10n.segmentTitle_emptyState(title),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

@@ -30,7 +30,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
 
     if (approvers.isEmpty) {
       return _ApprovalStatusInfo(
-        color: BaseColor.neutral[400]!,
+        color: AppColors.neutral,
         label: context.l10n.msg_noApproversAssigned,
       );
     }
@@ -41,7 +41,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
     );
     if (hasRejected) {
       return _ApprovalStatusInfo(
-        color: BaseColor.red[500]!,
+        color: AppColors.error,
         label: context.l10n.status_rejected,
       );
     }
@@ -52,14 +52,14 @@ class SupervisedActivityItemWidget extends StatelessWidget {
     );
     if (allApproved) {
       return _ApprovalStatusInfo(
-        color: BaseColor.green[500]!,
+        color: AppColors.success,
         label: context.l10n.status_approved,
       );
     }
 
     // Otherwise pending
     return _ApprovalStatusInfo(
-      color: BaseColor.yellow[600]!,
+      color: AppColors.warning,
       label: context.l10n.status_pending,
     );
   }
@@ -69,7 +69,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
     final statusInfo = _approvalStatus(context);
 
     return Material(
-      color: BaseColor.white,
+      color: AppColors.surfaceContainerLowest,
       borderRadius: BorderRadius.circular(8),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
@@ -78,10 +78,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(left: BorderSide(color: statusInfo.color, width: 4)),
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h8,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Row(
             children: [
               // Activity details
@@ -90,75 +87,47 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Title and type in one row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            activity.title,
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: BaseColor.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Gap.w8,
-                        _ActivityTypeBadge(activityType: activity.activityType),
-                      ],
+                    Text(
+                      activity.title,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Gap.h4,
-                    // Date, approval status, and financial type
+
                     Row(
                       children: [
                         Text(
                           activity.date.ddMmmmYyyy,
-                          style: BaseTypography.labelMedium.copyWith(
-                            color: BaseColor.textSecondary,
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium!
+                              .copyWith(color: AppColors.secondary.shade100),
                         ),
                         Gap.w8,
                         Container(
                           width: 4,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: BaseColor.neutral[300],
+                            color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
                         ),
                         Gap.w8,
-                        Text(
-                          statusInfo.label,
-                          style: BaseTypography.labelMedium.copyWith(
-                            color: statusInfo.color,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        _StatusInfoBadge(
+                          statusInfoColor: statusInfo.color,
+                          statusInfo: statusInfo.label,
                         ),
-                        if (activity.financeType != null) ...[
-                          Gap.w8,
-                          Container(
-                            width: 4,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: BaseColor.neutral[300],
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Gap.w8,
+
+                        Gap.w8,
+                        _ActivityTypeBadge(activityType: activity.activityType),
+                        Gap.w8,
+                        if (activity.financeType != null)
                           _FinanceTypeBadge(financeType: activity.financeType!),
-                        ],
                       ],
                     ),
                   ],
                 ),
-              ),
-              Gap.w4,
-              // Chevron icon
-              Icon(
-                AppIcons.forward,
-                size: BaseSize.w16,
-                color: BaseColor.textSecondary,
               ),
             ],
           ),
@@ -176,7 +145,6 @@ class _ApprovalStatusInfo {
   final String label;
 }
 
-/// Compact badge displaying the activity type
 class _ActivityTypeBadge extends StatelessWidget {
   const _ActivityTypeBadge({required this.activityType});
 
@@ -185,17 +153,16 @@ class _ActivityTypeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w6,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
       decoration: BoxDecoration(
         color: _getBadgeColor().withValues(alpha: 0.1),
+        border: Border.all(color: _getBadgeColor().withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(4),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Text(
         activityType.displayName,
-        style: BaseTypography.labelMedium.copyWith(
+        style: Theme.of(context).textTheme.labelMedium!.copyWith(
           color: _getBadgeColor(),
           fontWeight: FontWeight.w500,
         ),
@@ -206,16 +173,15 @@ class _ActivityTypeBadge extends StatelessWidget {
   Color _getBadgeColor() {
     switch (activityType) {
       case ActivityType.service:
-        return BaseColor.primary[700]!;
+        return AppColors.primary;
       case ActivityType.event:
-        return BaseColor.blue[700]!;
+        return AppColors.primary;
       case ActivityType.announcement:
-        return BaseColor.yellow[700]!;
+        return AppColors.warning;
     }
   }
 }
 
-/// Compact badge displaying the financial type
 class _FinanceTypeBadge extends StatelessWidget {
   const _FinanceTypeBadge({required this.financeType});
 
@@ -224,27 +190,46 @@ class _FinanceTypeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w6,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
       decoration: BoxDecoration(
         color: financeType.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: financeType.color.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(80),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(financeType.icon, size: 12, color: financeType.color),
-          Gap.w4,
-          Text(
-            financeType.displayName,
-            style: BaseTypography.labelMedium.copyWith(
-              color: financeType.color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+        children: [Icon(financeType.icon, size: 12, color: financeType.color)],
+      ),
+    );
+  }
+}
+
+class _StatusInfoBadge extends StatelessWidget {
+  const _StatusInfoBadge({
+    required this.statusInfo,
+    required this.statusInfoColor,
+  });
+
+  final String statusInfo;
+  final Color statusInfoColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: statusInfoColor.withValues(alpha: 0.075),
+        border: Border.all(color: statusInfoColor.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
+      ),
+      child: Text(
+        statusInfo,
+        style: Theme.of(context).textTheme.labelMedium!.copyWith(
+          color: statusInfoColor,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

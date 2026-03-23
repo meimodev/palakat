@@ -42,26 +42,26 @@ class BottomNavBar extends ConsumerWidget {
         ? 76.0
         : 70.0;
 
-    const Color selectedColor = BaseColor.primary;
-    const Color unselectedColor = BaseColor.textSecondary;
+    const Color selectedColor = AppColors.primary;
+    const Color unselectedColor = AppColors.onSurfaceVariant;
 
-    final selectedLabelStyle = BaseTypography.labelMedium.copyWith(
+    final selectedLabelStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: selectedColor,
       fontWeight: FontWeight.bold,
       letterSpacing: 0.5,
     );
-    final unselectedLabelStyle = BaseTypography.labelMedium.copyWith(
+    final unselectedLabelStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: unselectedColor,
       fontWeight: FontWeight.w500,
     );
 
     return Material(
       elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
+      shadowColor: AppColors.onSurface,
       surfaceTintColor: selectedColor.withValues(alpha: 0.02),
       child: Container(
         decoration: BoxDecoration(
-          color: BaseColor.white,
+          color: AppColors.surfaceContainerLowest,
           border: Border(
             top: BorderSide(
               color: selectedColor.withValues(alpha: 0.12),

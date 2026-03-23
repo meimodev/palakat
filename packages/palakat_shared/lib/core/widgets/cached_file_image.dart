@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../repositories/file_manager_repository.dart';
+import 'loading/loading.dart';
 
 /// A widget that displays an image from a file ID with caching support
 /// Uses signed URLs for better performance on Flutter Web
@@ -96,13 +97,15 @@ class _CachedFileImageState extends ConsumerState<CachedFileImage> {
           SizedBox(
             width: widget.width,
             height: widget.height,
-            child: Center(
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: theme.colorScheme.primary,
+            child: LoadingShimmer(
+              isLoading: true,
+              child: Container(
+                color: theme.colorScheme.surfaceContainerHighest,
+                alignment: Alignment.center,
+                child: CompactLoadingWidget(
+                  size: 18,
+                  baseColor: theme.colorScheme.surfaceContainerHighest,
+                  highlightColor: theme.colorScheme.surface,
                 ),
               ),
             ),

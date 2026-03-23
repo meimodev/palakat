@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
@@ -52,26 +53,78 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
         delay: const Duration(milliseconds: 180),
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: BaseSize.h24,
-            left: BaseSize.w12,
-            right: BaseSize.w12,
-            top: BaseSize.h6,
+            bottom: 24.0,
+            left: 12.0,
+            right: 12.0,
+            top: 6.0,
           ),
-          child: ButtonWidget.primary(
-            text: l10n.btn_submit,
-            onTap: () async {
-              final result = await controller.submit();
-              if (context.mounted) {
-                result.when(
-                  onSuccess: (_) {
-                    context.goNamed(AppRoute.home);
-                  },
-                  onFailure: (failure) {
-                    showSnackBar(context, failure.message);
-                  },
-                );
-              }
-            },
+          child: Material(
+            color: Colors.transparent,
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              side: BorderSide(color: AppColors.ghostBorder(0.08)),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
+                ),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLow,
+                      border: Border.all(color: AppColors.ghostBorder(0.06)),
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.radius,
+                      ),
+                      boxShadow: SanctuaryDepth.ambient(
+                        opacity: 0.02,
+                        blur: 10,
+                      ),
+                    ),
+                    child: Text(
+                      l10n.membership_churchMembership_title,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Gap.h12,
+                  ButtonWidget.primary(
+                    text: l10n.btn_submit,
+                    onTap: () async {
+                      final result = await controller.submit();
+                      if (context.mounted) {
+                        result.when(
+                          onSuccess: (_) {
+                            context.goNamed(AppRoute.home);
+                          },
+                          onFailure: (failure) {
+                            showSnackBar(context, failure.message);
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -82,7 +135,7 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
             child: ScreenTitleWidget.primary(
               title: l10n.membership_title,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.textPrimary,
+              leadIconColor: AppColors.onSurface,
               onPressedLeadIcon: context.pop,
             ),
           ),
@@ -93,6 +146,11 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  MembershipReveal(
+                    delay: const Duration(milliseconds: 20),
+                    child: _buildHeroPanel(context, state),
+                  ),
+                  Gap.h16,
                   MembershipAnimatedPresence(
                     visible:
                         state.errorMessage != null &&
@@ -117,16 +175,20 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                   ),
                   MembershipReveal(
                     delay: const Duration(milliseconds: 40),
-                    child: Material(
-                      color: BaseColor.cardBackground1,
-                      elevation: 1,
-                      shadowColor: Colors.black.withValues(alpha: 0.05),
-                      surfaceTintColor: BaseColor.primary[50],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLowest,
+                        border: Border.all(color: AppColors.ghostBorder(0.08)),
+                        borderRadius: BorderRadius.circular(
+                          SanctuaryLayout.radiusLarge,
+                        ),
+                        boxShadow: SanctuaryDepth.ambient(
+                          opacity: 0.035,
+                          blur: 28,
+                        ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(BaseSize.w16),
+                        padding: EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -142,30 +204,58 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
                                           1.1;
 
                                   final icon = Container(
-                                    width: BaseSize.w40,
-                                    height: BaseSize.w40,
+                                    width: 44.0,
+                                    height: 44.0,
                                     decoration: BoxDecoration(
-                                      color: BaseColor.primary[50],
+                                      color: AppColors.surfaceContainerLow,
+                                      border: Border.all(
+                                        color: AppColors.ghostBorder(0.06),
+                                      ),
                                       borderRadius: BorderRadius.circular(
-                                        BaseSize.radiusMd,
+                                        SanctuaryLayout.radius,
+                                      ),
+                                      boxShadow: SanctuaryDepth.ambient(
+                                        opacity: 0.02,
+                                        blur: 10,
                                       ),
                                     ),
                                     alignment: Alignment.center,
-                                    child: Icon(
-                                      AppIcons.church,
-                                      size: BaseSize.w18,
-                                      color: BaseColor.primary,
+                                    child: const Icon(
+                                      Icons.church_rounded,
+                                      size: 20.0,
+                                      color: AppColors.primary,
                                     ),
                                   );
 
-                                  final title = Text(
-                                    l10n.membership_churchMembership_title,
-                                    style: BaseTypography.titleMedium.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: BaseColor.textPrimary,
-                                    ),
-                                    maxLines: shouldStack ? 2 : 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  final title = Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.membership_churchMembership_title,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium!
+                                            .copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.onSurface,
+                                            ),
+                                        maxLines: shouldStack ? 2 : 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Gap.h4,
+                                      Text(
+                                        l10n.membership_title,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
                                   );
 
                                   if (shouldStack) {
@@ -275,6 +365,176 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
     );
   }
 
+  Widget _buildHeroPanel(BuildContext context, MembershipState state) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                border: Border.all(color: AppColors.ghostBorder(0.06)),
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
+                ),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+              ),
+              child: const Icon(
+                Icons.volunteer_activism_rounded,
+                color: AppColors.primary,
+              ),
+            ),
+            Gap.h16,
+            Text(
+              l10n.membership_title,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Gap.h8,
+            Text(
+              l10n.membership_churchMembership_title,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Gap.h20,
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                _buildSummaryChip(
+                  context,
+                  icon: Icons.apartment_outlined,
+                  label: l10n.nav_church,
+                  value: state.church?.name ?? l10n.lbl_notSpecified,
+                ),
+                _buildSummaryChip(
+                  context,
+                  icon: Icons.account_tree_outlined,
+                  label: l10n.lbl_selectColumn,
+                  value: state.column?.name ?? l10n.lbl_notSpecified,
+                ),
+                _buildSummaryChip(
+                  context,
+                  icon: Icons.pending_outlined,
+                  label: l10n.section_status,
+                  value: _membershipStatusLabel(context, state),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final theme = Theme.of(context);
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 132),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        border: Border.all(color: AppColors.ghostBorder(0.06)),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              border: Border.all(color: AppColors.ghostBorder(0.06)),
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 16, color: AppColors.primary),
+          ),
+          Gap.w10,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Gap.h2,
+                Text(
+                  value,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _membershipStatusLabel(BuildContext context, MembershipState state) {
+    final l10n = context.l10n;
+
+    if (state.churchRequest != null) {
+      switch (state.churchRequest!.status) {
+        case RequestStatus.todo:
+          return l10n.status_pending;
+        case RequestStatus.doing:
+          return l10n.jobStatus_processing;
+        case RequestStatus.done:
+          return l10n.status_completed;
+        case RequestStatus.rejected:
+          return l10n.status_rejected;
+      }
+    }
+
+    if (state.membership != null) {
+      return l10n.status_completed;
+    }
+
+    return l10n.lbl_notSpecified;
+  }
+
   Widget _buildChurchRequestInfo(MembershipState state, BuildContext context) {
     // Show loading if we haven't checked yet
     if (!state.hasCheckedChurchRequest) {
@@ -338,8 +598,60 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
     if (msg.trim().isEmpty) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+
+    final theme = Theme.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        margin: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+        content: Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            border: Border.all(color: AppColors.error.withValues(alpha: 0.18)),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 32.0,
+                height: 32.0,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.12),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.18),
+                  ),
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  AppIcons.error,
+                  size: 14.0,
+                  color: AppColors.error,
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Text(
+                  msg,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurface,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

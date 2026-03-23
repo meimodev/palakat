@@ -20,23 +20,23 @@ class ReportCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: BaseColor.white,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.neutral20.withValues(alpha: 0.1),
+            color: AppColors.tertiary.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
-        color: BaseColor.transparent,
+        color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          borderRadius: BorderRadius.circular(8.0),
           child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -44,19 +44,24 @@ class ReportCardWidget extends StatelessWidget {
                   children: [
                     // Report Type Icon
                     Container(
-                      width: BaseSize.w40,
-                      height: BaseSize.w40,
+                      width: 40.0,
+                      height: 40.0,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: _getGenerationTypeColor(
                           report.generatedBy,
                         ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        border: Border.all(
+                          color: _getGenerationTypeColor(report.generatedBy)
+                              .withValues(alpha: 0.24),
+                        ),
+                        borderRadius: BorderRadius.circular(4.0),
+                        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                       ),
                       child: Icon(
                         _getGenerationTypeIcon(report.generatedBy),
                         color: _getGenerationTypeColor(report.generatedBy),
-                        size: BaseSize.w20,
+                        size: 20.0,
                       ),
                     ),
                     Gap.w12,
@@ -68,7 +73,7 @@ class ReportCardWidget extends StatelessWidget {
                         children: [
                           Text(
                             report.name,
-                            style: BaseTypography.titleMedium.copyWith(
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
@@ -80,7 +85,7 @@ class ReportCardWidget extends StatelessWidget {
                               context,
                               report.generatedBy,
                             ),
-                            style: BaseTypography.bodyMedium.copyWith(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               color: _getGenerationTypeColor(
                                 report.generatedBy,
                               ),
@@ -108,12 +113,12 @@ class ReportCardWidget extends StatelessWidget {
                               Icon(
                                 AppIcons.delete,
                                 size: 16,
-                                color: BaseColor.error,
+                                color: AppColors.error,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 context.l10n.btn_delete,
-                                style: TextStyle(color: BaseColor.error),
+                                style: TextStyle(color: AppColors.error),
                               ),
                             ],
                           ),
@@ -121,8 +126,8 @@ class ReportCardWidget extends StatelessWidget {
                       ],
                       child: Icon(
                         AppIcons.moreVert,
-                        color: BaseColor.neutral60,
-                        size: BaseSize.w20,
+                        color: AppColors.tertiary,
+                        size: 20.0,
                       ),
                     ),
                   ],
@@ -133,8 +138,8 @@ class ReportCardWidget extends StatelessWidget {
                 // File info
                 Text(
                   '${context.l10n.tbl_file}: ${_getFileName(context, report.file)}',
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.neutral60,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.tertiary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -148,14 +153,14 @@ class ReportCardWidget extends StatelessWidget {
                     children: [
                       Icon(
                         AppIcons.schedule,
-                        size: BaseSize.w16,
-                        color: BaseColor.neutral60,
+                        size: 16.0,
+                        color: AppColors.tertiary,
                       ),
                       Gap.w4,
                       Text(
                         '${context.l10n.tbl_on} ${_formatDate(context, report.createdAt!)}',
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: BaseColor.neutral60,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.tertiary,
                         ),
                       ),
                     ],
@@ -171,9 +176,9 @@ class ReportCardWidget extends StatelessWidget {
   Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return BaseColor.blue[500]!; // Blue for manual
+        return AppColors.primary; // Blue for manual
       case GeneratedBy.system:
-        return BaseColor.primary[500]!; // Teal for system
+        return AppColors.primary; // Teal for system
     }
   }
 

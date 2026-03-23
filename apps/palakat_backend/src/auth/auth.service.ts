@@ -411,7 +411,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (account.role !== AccountRole.ADMIN) {
+    if (
+      account.role !== AccountRole.ADMIN &&
+      account.role !== AccountRole.SUPER_ADMIN
+    ) {
       throw new ForbiddenException('Admin account required');
     }
 
@@ -545,7 +548,10 @@ export class AuthService {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
-    const samePassword = await bcrypt.compare(newPassword, account.passwordHash);
+    const samePassword = await bcrypt.compare(
+      newPassword,
+      account.passwordHash,
+    );
     if (samePassword) {
       throw new BadRequestException(
         'New password must be different from current password',

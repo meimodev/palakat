@@ -24,7 +24,7 @@ class OperationItemCard extends StatelessWidget {
   static const double disabledOpacity = 0.5;
 
   /// Border radius for the card (Requirement 3.3 - 16px)
-  static final double borderRadius = BaseSize.radiusLg;
+  static final double borderRadius = 16.0;
 
   @override
   Widget build(BuildContext context) {
@@ -34,21 +34,21 @@ class OperationItemCard extends StatelessWidget {
     return Opacity(
       opacity: operation.isEnabled ? 1.0 : disabledOpacity,
       child: Material(
-        color: BaseColor.cardBackground1,
+        color: AppColors.surfaceContainerLowest,
         elevation: 0,
-        shadowColor: Colors.black.withValues(alpha: 0.05),
-        surfaceTintColor: BaseColor.primary[50],
+        shadowColor: AppColors.onSurface,
+        surfaceTintColor: AppColors.neutral,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
-          side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+          side: BorderSide(color: AppColors.neutral, width: 1),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           // Only respond to taps if enabled (Requirement 5.4)
           onTap: operation.isEnabled ? onTap : null,
           // Ripple effect with primary color at 10% opacity (Requirement 5.1)
-          splashColor: BaseColor.primary.withValues(alpha: 0.1),
-          highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+          splashColor: AppColors.primary.withValues(alpha: 0.1),
+          highlightColor: AppColors.primary.withValues(alpha: 0.05),
           child: Tooltip(
             // Tooltip on long-press (Requirement 5.2)
             message: description,
@@ -60,7 +60,7 @@ class OperationItemCard extends StatelessWidget {
                     MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
                 return Padding(
-                  padding: EdgeInsets.all(BaseSize.w10),
+                  padding: EdgeInsets.all(10.0),
                   child: isCompact
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,9 +92,11 @@ class OperationItemCard extends StatelessWidget {
                               child: Icon(
                                 AppIcons.forward,
                                 color: operation.isEnabled
-                                    ? BaseColor.textSecondary
-                                    : BaseColor.textDisabled,
-                                size: BaseSize.w18,
+                                    ? AppColors.onSurfaceVariant
+                                    : AppColors.onSurface.withValues(
+                                        alpha: 0.38,
+                                      ),
+                                size: 18.0,
                               ),
                             ),
                           ],
@@ -122,9 +124,9 @@ class OperationItemCard extends StatelessWidget {
                             Icon(
                               AppIcons.forward,
                               color: operation.isEnabled
-                                  ? BaseColor.textSecondary
-                                  : BaseColor.textDisabled,
-                              size: BaseSize.w18,
+                                  ? AppColors.onSurfaceVariant
+                                  : AppColors.onSurface.withValues(alpha: 0.38),
+                              size: 18.0,
                             ),
                           ],
                         ),
@@ -193,17 +195,23 @@ class _OperationIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: isCompact ? BaseSize.w36 : BaseSize.w40,
-      height: isCompact ? BaseSize.w36 : BaseSize.w40,
+      width: isCompact ? 26.0 : 32.0,
+      height: isCompact ? 26.0 : 32.0,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isEnabled ? BaseColor.primary[50] : BaseColor.neutral[100],
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        color: isEnabled ? AppColors.primary : AppColors.secondary.shade200,
+        border: Border.all(
+          color: isEnabled
+              ? AppColors.primary.withValues(alpha: 0.2)
+              : AppColors.ghostBorder(0.08),
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
       ),
       child: Icon(
         icon,
-        color: isEnabled ? BaseColor.primary : BaseColor.textDisabled,
-        size: isCompact ? BaseSize.w18 : BaseSize.w20,
+        color: isEnabled ? AppColors.neutral : AppColors.secondary,
+        size: isCompact ? 12.0 : 14.0,
       ),
     );
   }
@@ -234,13 +242,13 @@ class _OperationContent extends StatelessWidget {
           title,
           style:
               (isCompact
-                      ? BaseTypography.bodyMedium
-                      : BaseTypography.titleMedium)
+                      ? Theme.of(context).textTheme.bodyMedium!
+                      : Theme.of(context).textTheme.titleMedium!)
                   .copyWith(
                     fontWeight: FontWeight.w700,
                     color: isEnabled
-                        ? BaseColor.textPrimary
-                        : BaseColor.textDisabled,
+                        ? AppColors.onSurface
+                        : AppColors.onSurface.withValues(alpha: 0.38),
                   ),
           maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
@@ -249,8 +257,10 @@ class _OperationContent extends StatelessWidget {
         // Description (Requirement 5.3)
         Text(
           description,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: isEnabled ? BaseColor.textSecondary : BaseColor.textDisabled,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: isEnabled
+                ? AppColors.onSurfaceVariant
+                : AppColors.onSurface.withValues(alpha: 0.38),
           ),
           maxLines: isCompact ? 3 : 2,
           overflow: TextOverflow.ellipsis,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Column;
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_shared/palakat_shared.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 import 'package:palakat_admin/features/report/report.dart';
 import 'package:palakat_admin/core/utils/download_url.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
@@ -142,25 +142,25 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                   _GenerateCard(
                     title: l10n.reportType_incomingDocument,
                     icon: Icons.mail_outline,
-                    color: Colors.blue,
+                    color: AppColors.primary,
                     onGenerate: () => _showGenerateDrawer('INCOMING_DOCUMENT'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_congregation,
                     icon: Icons.groups_outlined,
-                    color: Colors.purple,
+                    color: AppColors.primary,
                     onGenerate: () => _showGenerateDrawer('CONGREGATION'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_activity,
                     icon: Icons.local_activity_outlined,
-                    color: Colors.orange,
+                    color: AppColors.warning,
                     onGenerate: () => _showGenerateDrawer('ACTIVITY'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_financial,
                     icon: Icons.account_balance_wallet_outlined,
-                    color: Colors.teal,
+                    color: AppColors.primary,
                     onGenerate: () => _showGenerateDrawer('FINANCIAL'),
                   ),
                 ],
@@ -685,10 +685,10 @@ class _PendingJobCard extends StatelessWidget {
       case ReportJobStatus.pending:
         return _StatusInfo(
           icon: Icons.hourglass_empty,
-          iconColor: Colors.orange,
-          iconBackgroundColor: Colors.orange.withValues(alpha: 0.12),
-          backgroundColor: Colors.orange.shade50,
-          borderColor: Colors.orange.shade200,
+          iconColor: AppColors.warning,
+          iconBackgroundColor: AppColors.warning,
+          backgroundColor: AppColors.warning,
+          borderColor: AppColors.warning,
           statusText: l10n.jobStatus_pending,
           isAnimated: false,
         );
@@ -709,10 +709,10 @@ class _PendingJobCard extends StatelessWidget {
       case ReportJobStatus.completed:
         return _StatusInfo(
           icon: Icons.check_circle,
-          iconColor: Colors.green,
-          iconBackgroundColor: Colors.green.withValues(alpha: 0.12),
-          backgroundColor: Colors.green.shade50,
-          borderColor: Colors.green.shade200,
+          iconColor: AppColors.success,
+          iconBackgroundColor: AppColors.success,
+          backgroundColor: AppColors.success,
+          borderColor: AppColors.success,
           statusText: l10n.jobStatus_completed,
           isAnimated: false,
         );

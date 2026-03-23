@@ -40,29 +40,29 @@ class BottomNavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveActiveColor = activeColor ?? BaseColor.cardBackground1;
-    final effectiveInactiveColor = inactiveColor ?? BaseColor.primaryText;
+    final effectiveActiveColor = activeColor ?? AppColors.surfaceContainerLowest;
+    final effectiveInactiveColor = inactiveColor ?? Theme.of(context).colorScheme.onSurface;
     final effectiveActiveBackground =
-        activeBackgroundColor ?? BaseColor.primaryText;
+        activeBackgroundColor ?? Theme.of(context).colorScheme.onSurface;
     final effectiveInactiveBackground =
-        inactiveBackgroundColor ?? BaseColor.cardBackground1;
+        inactiveBackgroundColor ?? AppColors.surfaceContainerLowest;
 
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(18)),
       onTap: onPressed,
       child: Container(
-        height: BaseSize.customWidth(45),
-        width: BaseSize.customWidth(45),
+        height: 45.0,
+        width: 45.0,
         padding: EdgeInsets.symmetric(
-          horizontal: activated ? BaseSize.customWidth(14) : BaseSize.w12,
-          vertical: activated ? BaseSize.customWidth(14) : BaseSize.w12,
+          horizontal: activated ? 14.0 : 12.0,
+          vertical: activated ? 14.0 : 12.0,
         ),
         decoration: BoxDecoration(
           boxShadow: activated
               ? const []
               : [
                   BoxShadow(
-                    color: BaseColor.black.withValues(alpha: .125),
+                    color: AppColors.primary.withValues(alpha: .125),
                     spreadRadius: 1,
                     blurRadius: 10,
                     offset: const Offset(10, 10),

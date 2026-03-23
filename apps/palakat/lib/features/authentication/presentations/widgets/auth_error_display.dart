@@ -17,16 +17,19 @@ class AuthErrorDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.red[50],
+      color: AppColors.errorContainer,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.04),
-      surfaceTintColor: BaseColor.red[50],
+      shadowColor: AppColors.error.withValues(alpha: 0.08),
+      surfaceTintColor: AppColors.errorContainer,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.red[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(
+          color: AppColors.error.withValues(alpha: 0.24),
+          width: 1,
+        ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -34,32 +37,29 @@ class AuthErrorDisplay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
+                  width: 36.0,
+                  height: 36.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.red[100],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    boxShadow: [
-                      BoxShadow(
-                        color: BaseColor.red[200]!.withValues(alpha: 0.28),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: AppColors.error.withValues(alpha: 0.12),
+                    border: Border.all(
+                      color: AppColors.error.withValues(alpha: 0.18),
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.error,
-                    size: BaseSize.w16,
-                    color: BaseColor.red[700],
+                    size: 16.0,
+                    color: AppColors.error.shade700,
                   ),
                 ),
                 Gap.w12,
                 Expanded(
                   child: Text(
                     message,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.red[800],
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onErrorContainer,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -72,10 +72,10 @@ class AuthErrorDisplay extends StatelessWidget {
                 text: context.l10n.btn_retry,
                 onTap: onRetry,
                 buttonSize: ButtonSize.small,
-                textColor: BaseColor.red[700]!,
-                outlineColor: BaseColor.red[300]!,
-                focusColor: BaseColor.red[100]!,
-                overlayColor: BaseColor.red[50]!,
+                textColor: AppColors.error.shade700,
+                outlineColor: AppColors.error.withValues(alpha: 0.28),
+                focusColor: AppColors.error.withValues(alpha: 0.08),
+                overlayColor: AppColors.error.withValues(alpha: 0.08),
               ),
             ],
           ],

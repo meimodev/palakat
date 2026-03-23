@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 
 /// Report button widget using the monochromatic teal color system.
 /// Uses teal palette variations for accent colors and semantic colors appropriately.
@@ -26,15 +27,15 @@ class ReportButtonWidget extends StatelessWidget {
   Color get _accentColor {
     switch (type) {
       case ReportButtonType.primary:
-        return BaseColor.primary[500]!; // Main teal
+        return AppColors.primary; // Main teal
       case ReportButtonType.secondary:
-        return BaseColor.primary[700]!; // Dark teal
+        return AppColors.primary; // Dark teal
       case ReportButtonType.info:
-        return BaseColor.info; // Info teal variant
+        return AppColors.primary; // Info teal variant
       case ReportButtonType.warning:
-        return BaseColor.warning; // Semantic warning
+        return AppColors.warning; // Semantic warning
       case ReportButtonType.error:
-        return BaseColor.error; // Semantic error (red for accessibility)
+        return AppColors.error; // Semantic error (red for accessibility)
     }
   }
 
@@ -43,48 +44,43 @@ class ReportButtonWidget extends StatelessWidget {
     final isDisabled = onPressed == null;
 
     return Material(
-      color: BaseColor.surfaceMedium, // Neutral surface color
+      color: AppColors.surfaceContainerLow, // Neutral surface color
       elevation: 1,
-      shadowColor: BaseColor.neutral90.withValues(alpha: 0.05),
+      shadowColor: AppColors.tertiary.withValues(alpha: 0.05),
       surfaceTintColor: _accentColor.withValues(alpha: 0.05),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
+      ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onPressed,
-        splashColor: BaseColor.primary[100]!.withValues(alpha: 0.3),
-        highlightColor: BaseColor.primary[50]!.withValues(alpha: 0.5),
+        splashColor: AppColors.primary.withValues(alpha: 0.3),
+        highlightColor: AppColors.primary.withValues(alpha: 0.5),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
               // Icon Container with teal-based styling
               Container(
-                width: BaseSize.w48,
-                height: BaseSize.w48,
+                width: 48.0,
+                height: 48.0,
                 decoration: BoxDecoration(
                   color: _accentColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: _accentColor.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: _accentColor.withValues(alpha: 0.24),
+                  ),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
                 ),
                 alignment: Alignment.center,
                 child: isLoading
-                    ? SizedBox(
-                        width: BaseSize.w20,
-                        height: BaseSize.w20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            _accentColor,
-                          ),
-                        ),
+                    ? CompactLoadingWidget(
+                        size: 18.0,
+                        baseColor: _accentColor.withValues(alpha: 0.24),
+                        highlightColor: AppColors.surface,
                       )
-                    : Icon(icon, color: _accentColor, size: BaseSize.w24),
+                    : Icon(icon, color: _accentColor, size: 24.0),
               ),
 
               Gap.w16,
@@ -96,18 +92,18 @@ class ReportButtonWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: BaseTypography.titleMedium.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isDisabled
-                            ? BaseColor.textSecondary
-                            : BaseColor.textPrimary,
+                            ? AppColors.onSurfaceVariant
+                            : AppColors.onSurface,
                       ),
                     ),
                     Gap.h4,
                     Text(
                       isLoading ? 'Processing...' : description,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.textSecondary,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.onSurfaceVariant,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -123,9 +119,9 @@ class ReportButtonWidget extends StatelessWidget {
                 Icon(
                   AppIcons.forward,
                   color: isDisabled
-                      ? BaseColor.textDisabled
-                      : BaseColor.textSecondary,
-                  size: BaseSize.w24,
+                      ? AppColors.onSurface.withValues(alpha: 0.38)
+                      : AppColors.onSurfaceVariant,
+                  size: 24.0,
                 ),
             ],
           ),

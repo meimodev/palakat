@@ -55,9 +55,9 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Unified teal primary color for all selected states
-    final effectiveSelectedColor = selectedColor ?? BaseColor.primary;
+    final effectiveSelectedColor = selectedColor ?? Theme.of(context).colorScheme.primary;
     // Neutral color for unselected states
-    final effectiveUnselectedColor = unselectedColor ?? BaseColor.textSecondary;
+    final effectiveUnselectedColor = unselectedColor ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     // Map currentIndex to visual position in the destinations list
     final selectedVisualIndex = destinations.indexWhere(
@@ -67,23 +67,23 @@ class BottomNavBar extends StatelessWidget {
         ? selectedVisualIndex
         : 0;
 
-    final selectedLabelStyle = BaseTypography.labelMedium.copyWith(
+    final selectedLabelStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: effectiveSelectedColor,
       fontWeight: FontWeight.bold,
       letterSpacing: 0.5,
     );
-    final unselectedLabelStyle = BaseTypography.labelMedium.copyWith(
+    final unselectedLabelStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: effectiveUnselectedColor,
       fontWeight: FontWeight.w500,
     );
 
     return Material(
       elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
+      shadowColor: AppColors.onSurface,
       surfaceTintColor: effectiveSelectedColor.withValues(alpha: 0.02),
       child: Container(
         decoration: BoxDecoration(
-          color: BaseColor.white,
+          color: AppColors.surfaceContainerLowest,
           border: Border(
             top: BorderSide(
               // Top border using primary color at 12% opacity

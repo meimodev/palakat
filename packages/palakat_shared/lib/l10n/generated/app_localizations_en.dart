@@ -3483,4 +3483,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationType_reportFailed => 'Report Failed';
+
+  @override
+  String get activityAlarm_ringing => 'Alarm ringing';
+
+  @override
+  String get activityAlarm_startingAudio => 'Starting alarm audio...';
+
+  @override
+  String get activityAlarm_enableTitle => 'Enable activity alarms';
+
+  @override
+  String get activityAlarm_enableSubtitle =>
+      'Schedule reminders for this week on your phone.';
+
+  @override
+  String get activityAlarm_noActivitiesWithReminders =>
+      'No activities with reminders found.';
+
+  @override
+  String get activityAlarm_dismiss => 'Dismiss alarm';
+
+  @override
+  String get activityAlarm_viewActivity => 'View activity';
+
+  @override
+  String get churchRequest_membershipStatusSubtitle =>
+      'Membership request status';
+
+  @override
+  String get notificationChannel_activityUpdates_name => 'Activity Updates';
+
+  @override
+  String get notificationChannel_activityUpdates_description =>
+      'Notifications about church activities and events';
+
+  @override
+  String get notificationChannel_approvalRequests_name => 'Approval Requests';
+
+  @override
+  String get notificationChannel_approvalRequests_description =>
+      'Notifications requiring your approval';
+
+  @override
+  String get notificationChannel_generalAnnouncements_name =>
+      'General Announcements';
+
+  @override
+  String get notificationChannel_generalAnnouncements_description =>
+      'General church announcements';
+
+  @override
+  String get notificationChannel_activityAlarms_name => 'Activity Alarms';
+
+  @override
+  String get notificationChannel_activityAlarms_description =>
+      'Alarm notifications for upcoming church activities';
+
+  @override
+  String get notificationChannel_birthdayNotifications_name =>
+      'Birthday Notifications';
+
+  @override
+  String get notificationChannel_birthdayNotifications_description =>
+      'Notifications about member birthdays';
+
+  @override
+  String get membershipCard_notSet => 'Not set';
+
+  @override
+  String membershipCard_column(Object columnName) {
+    return 'Column $columnName';
+  }
+
+  @override
+  String get membershipCard_welcome => 'Welcome!';
+
+  @override
+  String get membershipCard_pending => 'Membership pending';
+
+  @override
+  String get membershipCard_signedOutSubtitle =>
+      'Sign in to see your congregation information';
+
+  @override
+  String get membershipCard_reviewDetails =>
+      'Review or update your membership details';
+
+  @override
+  String segmentTitle_emptyState(Object title) {
+    return 'No $title available';
+  }
 }

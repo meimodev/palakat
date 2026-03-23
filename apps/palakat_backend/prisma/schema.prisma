@@ -8,6 +8,17 @@ datasource db {
   provider = "postgresql"
 }
 
+model Region {
+  id             Int      @id @default(autoincrement())
+  sourceRegionId Int?     @unique
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  churches       Church[]
+
+  @@index([name])
+}
+
 model Church {
   id                      Int                      @id @default(autoincrement())
   name                    String
@@ -15,11 +26,14 @@ model Church {
   email                   String?
   description             String?
   documentAccountNumber   String?
+  sourceChurchId          Int?                     @unique
+  regionId                Int?
   permissionPolicy        ChurchPermissionPolicy?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   locationId              Int                      @unique
   location                Location                 @relation(fields: [locationId], references: [id])
+  region                  Region?                  @relation(fields: [regionId], references: [id], onDelete: SetNull)
   columns                 Column[]
   memberships             Membership[]
   membershipInvitations   MembershipInvitation[]
@@ -37,6 +51,7 @@ model Church {
   reportJobs              ReportJob[]
 
   @@index([name])
+  @@index([regionId])
 }
 
 model ChurchPermissionPolicy {
@@ -51,14 +66,15 @@ model ChurchPermissionPolicy {
 }
 
 model Column {
-  id          Int          @id @default(autoincrement())
-  name        String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  churchId    Int?
-  church      Church?      @relation(fields: [churchId], references: [id], onDelete: SetNull)
-  memberships Membership[]
-  activities  Activity[]
+  id                    Int                    @id @default(autoincrement())
+  name                  String
+  sourceColumnId        Int?                   @unique
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  churchId              Int?
+  church                Church?                @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  memberships           Membership[]
+  activities            Activity[]
   membershipInvitations MembershipInvitation[]
 
   @@unique([churchId, name])
@@ -99,25 +115,26 @@ model MembershipPosition {
 }
 
 model Account {
-  id                    Int            @id @default(autoincrement())
-  name                  String
-  phone                 String?        @unique
-  email                 String?        @unique
-  passwordHash          String?
-  role                  AccountRole    @default(USER)
-  isActive              Boolean        @default(true)
-  claimed               Boolean        @default(false)
-  failedLoginAttempts   Int            @default(0)
-  lockUntil             DateTime?
-  refreshTokenHash      String?
-  refreshTokenExpiresAt DateTime?
-  refreshTokenJti       String?
-  gender                Gender
-  maritalStatus         MaritalStatus
-  dob                   DateTime
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-  membership            Membership?
+  id                     Int                       @id @default(autoincrement())
+  name                   String
+  sourceAccountId        Int?                      @unique
+  phone                  String?                   @unique
+  email                  String?                   @unique
+  passwordHash           String?
+  role                   AccountRole               @default(USER)
+  isActive               Boolean                   @default(true)
+  claimed                Boolean                   @default(false)
+  failedLoginAttempts    Int                       @default(0)
+  lockUntil              DateTime?
+  refreshTokenHash       String?
+  refreshTokenExpiresAt  DateTime?
+  refreshTokenJti        String?
+  gender                 Gender
+  maritalStatus          MaritalStatus
+  dob                    DateTime
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  membership             Membership?
   churchRequest         ChurchRequest?  @relation("ChurchRequestRequester")
   reviewedChurchRequests ChurchRequest[] @relation("ChurchRequestReviewedBy")
   sentMembershipInvitations     MembershipInvitation[] @relation("MembershipInvitationInviter")

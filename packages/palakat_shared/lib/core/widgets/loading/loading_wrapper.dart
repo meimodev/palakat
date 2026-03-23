@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import '../loading_shimmer.dart';
 import '../error/error_display_widget.dart';
 
@@ -78,7 +79,7 @@ class LoadingWrapper extends StatelessWidget {
     return Container(
       height: 120,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
       ),
     );

@@ -56,7 +56,7 @@ class ArticleDetailScreen extends ConsumerWidget {
           Gap.h16,
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: LoadingWrapper(
                 loading: state.isLoading,
                 hasError: state.errorMessage != null && !state.isLoading,
@@ -68,24 +68,24 @@ class ArticleDetailScreen extends ConsumerWidget {
                         visible: article == null,
                         child: Center(
                           child: Material(
-                            color: BaseColor.surfaceMedium,
+                            color: AppColors.surfaceContainerLow,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
-                                BaseSize.radiusLg,
+                                16.0,
                               ),
                               side: BorderSide(
-                                color: BaseColor.neutral[200]!,
+                                color: AppColors.outlineVariant,
                                 width: 1,
                               ),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.all(BaseSize.w24),
+                              padding: EdgeInsets.all(24.0),
                               child: Text(
                                 l10n.noData_available,
                                 textAlign: TextAlign.center,
-                                style: BaseTypography.titleMedium.copyWith(
-                                  color: BaseColor.textPrimary,
+                                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  color: AppColors.onSurface,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -137,22 +137,22 @@ class _Content extends StatelessWidget {
     final effectiveDate = publishedAt ?? createdAt;
 
     return ListView(
-      padding: EdgeInsets.only(bottom: BaseSize.h16),
+      padding: EdgeInsets.only(bottom: 16.0),
       children: [
         if (coverUrl != null && coverUrl.trim().isNotEmpty)
           ArticlesReveal(
             child: Material(
-              color: BaseColor.cardBackground1,
+              color: AppColors.surfaceContainerLowest,
               elevation: 1,
-              shadowColor: Colors.black.withValues(alpha: 0.05),
-              surfaceTintColor: BaseColor.primary[50],
+              shadowColor: AppColors.onSurface,
+              surfaceTintColor: AppColors.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                borderRadius: BorderRadius.circular(8.0),
               ),
               clipBehavior: Clip.hardEdge,
               child: ImageNetworkWidget(
                 imageUrl: coverUrl,
-                height: BaseSize.customHeight(200),
+                height: 200,
                 fit: BoxFit.cover,
               ),
             ),
@@ -162,9 +162,9 @@ class _Content extends StatelessWidget {
           delay: const Duration(milliseconds: 40),
           child: Text(
             title,
-            style: BaseTypography.headlineSmall.copyWith(
+            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
               fontWeight: FontWeight.w700,
-              color: BaseColor.textPrimary,
+              color: AppColors.onSurface,
             ),
           ),
         ),
@@ -176,15 +176,15 @@ class _Content extends StatelessWidget {
               children: [
                 FaIcon(
                   AppIcons.time,
-                  size: BaseSize.w14,
-                  color: BaseColor.secondaryText,
+                  size: 14.0,
+                  color: AppColors.onSurfaceVariant,
                 ),
                 Gap.w8,
                 Expanded(
                   child: Text(
                     effectiveDate.EEEEddMMMyyyyShort,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.secondaryText,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -200,8 +200,8 @@ class _Content extends StatelessWidget {
             delay: const Duration(milliseconds: 120),
             child: Text(
               excerpt,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.secondaryText,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
@@ -216,18 +216,18 @@ class _Content extends StatelessWidget {
           ArticlesReveal(
             delay: const Duration(milliseconds: 160),
             child: Material(
-              color: BaseColor.surfaceMedium,
+              color: AppColors.surfaceContainerLow,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+                borderRadius: BorderRadius.circular(16.0),
+                side: BorderSide(color: AppColors.outlineVariant, width: 1),
               ),
               child: Padding(
-                padding: EdgeInsets.all(BaseSize.w16),
+                padding: EdgeInsets.all(16.0),
                 child: Text(
                   context.l10n.noData_available,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.textPrimary,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurface,
                   ),
                 ),
               ),
@@ -260,12 +260,12 @@ class _LikeBar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h12,
+        horizontal: 12.0,
+        vertical: 12.0,
       ),
       decoration: BoxDecoration(
-        color: BaseColor.white,
-        border: Border(top: BorderSide(color: BaseColor.neutral20, width: 1)),
+        color: AppColors.surfaceContainerLowest,
+        border: Border(top: BorderSide(color: AppColors.tertiary, width: 1)),
       ),
       child: Row(
         children: [
@@ -273,7 +273,7 @@ class _LikeBar extends StatelessWidget {
             child: Text(
               l10n.article_likesCount(likesCount),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: BaseColor.secondaryText,
+                color: AppColors.onSurfaceVariant,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -283,7 +283,7 @@ class _LikeBar extends StatelessWidget {
             onPressed: isLoading ? null : onTap,
             icon: FaIcon(
               isLiked ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
-              color: isLiked ? BaseColor.red[600] : BaseColor.secondaryText,
+              color: isLiked ? AppColors.error : AppColors.onSurfaceVariant,
             ),
           ),
         ],

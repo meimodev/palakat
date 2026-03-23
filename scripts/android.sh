@@ -8,6 +8,56 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 APP_DIR="$PROJECT_ROOT/apps/palakat"
+ENV_UTILS="$SCRIPT_DIR/env_utils.sh"
+SELECTED_ENV="local"
+
+# shellcheck disable=SC1090
+source "$ENV_UTILS"
+
+show_help() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Run the Palakat mobile app on Android"
+    echo ""
+    echo "Options:"
+    echo "  --env ENVIRONMENT  Environment to use (local, staging, production)"
+    echo "  -h, --help         Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0"
+    echo "  $0 --env staging"
+    echo "  $0 --env production"
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --env)
+            if [[ -z "$2" ]]; then
+                echo "❌ Missing value for --env"
+                show_help
+                exit 1
+            fi
+
+            if ! is_supported_env_name "$2"; then
+                echo "❌ Unsupported environment: $2"
+                echo "Supported environments: $(supported_env_names_text)"
+                exit 1
+            fi
+
+            SELECTED_ENV="$(normalize_env_name "$2")"
+            shift 2
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo "❌ Unknown option: $1"
+            show_help
+            exit 1
+            ;;
+    esac
+done
 
 # Find Android SDK path
 if [ -n "$ANDROID_HOME" ]; then
@@ -21,6 +71,52 @@ else
     echo "Please set ANDROID_HOME or ANDROID_SDK_ROOT environment variable"
     exit 1
 fi
+
+check_env_file() {
+    echo "🔍 Checking environment configuration for '$SELECTED_ENV'..."
+
+    if [ ! -f "$APP_DIR/.env" ]; then
+        echo "⚠️  .env file not found"
+
+        if [ -f "$APP_DIR/.env.example" ]; then
+            echo "ℹ️  Copying .env.example to .env..."
+            cp "$APP_DIR/.env.example" "$APP_DIR/.env"
+            echo "✅ .env file created"
+            echo "⚠️  Please review and update apps/palakat/.env"
+        else
+            echo "❌ .env.example not found"
+            exit 1
+        fi
+    fi
+
+    local active_env_file
+    active_env_file="$(create_temp_env_file "palakat_mobile_${SELECTED_ENV}")"
+
+    if ! extract_env_section_to_file "$APP_DIR/.env" "$SELECTED_ENV" "$active_env_file"; then
+        local status=$?
+        rm -f "$active_env_file"
+
+        if [ $status -eq 2 ]; then
+            echo "❌ Environment '$SELECTED_ENV' is not defined in $APP_DIR/.env"
+        else
+            echo "❌ Failed to read $APP_DIR/.env"
+        fi
+        exit 1
+    fi
+
+    local missing_keys
+    missing_keys="$(missing_env_keys_text "$active_env_file" API_BASE_URL API_BASE_VERSION)"
+    rm -f "$active_env_file"
+
+    if [ -n "$missing_keys" ]; then
+        echo "❌ Selected environment '$SELECTED_ENV' is missing required variables: $missing_keys"
+        exit 1
+    fi
+
+    echo "✅ Environment '$SELECTED_ENV' is configured"
+}
+
+check_env_file
 
 EMULATOR_CMD="$ANDROID_SDK/emulator/emulator"
 ADB_CMD="$ANDROID_SDK/platform-tools/adb"
@@ -57,11 +153,9 @@ echo ""
 if [ -n "$RUNNING_DEVICES" ]; then
     while IFS= read -r device_id; do
         if [[ "$device_id" == emulator-* ]]; then
-            # Get emulator name
             DEVICE_MODEL=$("$ADB_CMD" -s "$device_id" emu avd name 2>/dev/null || echo "Unknown Emulator")
             echo "   $OPTION_NUM) 🖥️  $DEVICE_MODEL [$device_id] (Running)"
         else
-            # Get physical device model
             DEVICE_MODEL=$("$ADB_CMD" -s "$device_id" shell getprop ro.product.model 2>/dev/null | tr -d '\r' || echo "Unknown Device")
             echo "   $OPTION_NUM) 📱 $DEVICE_MODEL [$device_id] (Connected)"
         fi
@@ -74,7 +168,6 @@ fi
 # Add available emulators that are not running
 if [ -n "$AVAILABLE_EMULATORS" ]; then
     while IFS= read -r avd_name; do
-        # Check if this emulator is already running
         IS_RUNNING=false
         if [ -n "$RUNNING_DEVICES" ]; then
             while IFS= read -r running_device; do
@@ -99,7 +192,6 @@ fi
 
 echo ""
 
-# Check if any devices are available
 TOTAL_OPTIONS=$((OPTION_NUM - 1))
 if [ "$TOTAL_OPTIONS" -eq 0 ]; then
     echo "❌ No devices available"
@@ -109,16 +201,13 @@ if [ "$TOTAL_OPTIONS" -eq 0 ]; then
     exit 1
 fi
 
-# Ask user to choose
 read -p "❓ Select a device (1-$TOTAL_OPTIONS): " CHOICE
 
-# Validate choice
 if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 1 ] || [ "$CHOICE" -gt "$TOTAL_OPTIONS" ]; then
     echo "❌ Invalid choice. Please run the script again and select a number between 1 and $TOTAL_OPTIONS"
     exit 1
 fi
 
-# Get selected device
 SELECTED_INDEX=$((CHOICE - 1))
 SELECTED_DEVICE="${DEVICE_LIST[$SELECTED_INDEX]}"
 SELECTED_TYPE="${DEVICE_IDS[$SELECTED_INDEX]}"
@@ -126,20 +215,16 @@ SELECTED_TYPE="${DEVICE_IDS[$SELECTED_INDEX]}"
 DEVICE_ID=""
 
 if [ "$SELECTED_TYPE" = "running" ]; then
-    # Device is already running
     echo "✅ Using device: $SELECTED_DEVICE"
     DEVICE_ID="$SELECTED_DEVICE"
 elif [ "$SELECTED_TYPE" = "start" ]; then
-    # Need to start the emulator
     echo "🚀 Starting emulator: $SELECTED_DEVICE"
 
-    # Start emulator in background
     "$EMULATOR_CMD" -avd "$SELECTED_DEVICE" &
     EMULATOR_PID=$!
 
     echo "⏳ Waiting for emulator to boot..."
 
-    # Wait for device to be ready (timeout after 120 seconds)
     TIMEOUT=120
     ELAPSED=0
     while [ $ELAPSED -lt $TIMEOUT ]; do
@@ -159,10 +244,8 @@ elif [ "$SELECTED_TYPE" = "start" ]; then
         exit 1
     fi
 
-    # Give it a few more seconds to fully stabilize
     sleep 3
 
-    # Get the emulator device ID
     NEW_DEVICE=$("$ADB_CMD" devices | grep -w "device" | grep "emulator-" | head -n 1 | awk '{print $1}')
     if [ -n "$NEW_DEVICE" ]; then
         DEVICE_ID="$NEW_DEVICE"
@@ -172,7 +255,14 @@ fi
 echo "📂 Navigating to app directory: $APP_DIR"
 cd "$APP_DIR"
 
+FLUTTER_CMD=(flutter run -d "$DEVICE_ID" --dart-define="PALAKAT_ENV=$SELECTED_ENV")
+if command -v fvm &> /dev/null && [ -f ".fvmrc" ]; then
+    FLUTTER_CMD=(fvm "${FLUTTER_CMD[@]}")
+    echo "ℹ️  Using FVM for Flutter"
+fi
+
+echo "🌐 Using environment: $SELECTED_ENV"
 echo "🏃 Running Palakat app on device: $DEVICE_ID"
-flutter run -d "$DEVICE_ID"
+"${FLUTTER_CMD[@]}"
 
 echo "✅ Done"

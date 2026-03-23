@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
 import 'package:palakat_admin/features/revenue/revenue.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class RevenueDetailDrawer extends ConsumerStatefulWidget {
   final int revenueId;
@@ -105,7 +102,7 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                       valueStyle: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: AppColors.primary,
                           ),
                     ),
                     InfoRow(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
@@ -111,9 +112,9 @@ extension PaymentMethodExtension on PaymentMethod {
   (IconData icon, Color color) get iconAndColor {
     switch (this) {
       case PaymentMethod.cash:
-        return (Icons.money, Colors.orange);
+        return (Icons.money, AppColors.warning);
       case PaymentMethod.cashless:
-        return (Icons.contactless, Colors.indigo);
+        return (Icons.contactless, AppColors.primary);
     }
   }
 

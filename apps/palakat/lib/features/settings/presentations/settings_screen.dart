@@ -40,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
             child: ScreenTitleWidget.primary(
               title: l10n.settings_title,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.black,
+              leadIconColor: AppColors.onSurface,
               onPressedLeadIcon: () => context.pop(),
             ),
           ),
@@ -50,26 +50,26 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-                  padding: EdgeInsets.all(BaseSize.w12),
+                  margin: EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    color: BaseColor.red[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    border: Border.all(color: BaseColor.red[200]!),
+                    color: AppColors.error.shade50,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: AppColors.error.shade200),
                   ),
                   child: Row(
                     children: [
                       FaIcon(
                         AppIcons.warning,
-                        size: BaseSize.w16,
-                        color: BaseColor.red[700],
+                        size: 16.0,
+                        color: AppColors.error.shade700,
                       ),
                       Gap.w8,
                       Expanded(
                         child: Text(
                           state.errorMessage ?? '',
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.red[700],
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.error.shade700,
                           ),
                         ),
                       ),
@@ -79,8 +79,8 @@ class SettingsScreen extends ConsumerWidget {
                             .clearError(),
                         child: FaIcon(
                           AppIcons.close,
-                          size: BaseSize.w16,
-                          color: BaseColor.red[700],
+                          size: 16.0,
+                          color: AppColors.error.shade700,
                         ),
                       ),
                     ],
@@ -93,12 +93,12 @@ class SettingsScreen extends ConsumerWidget {
           SettingsReveal(
             delay: const Duration(milliseconds: 40),
             child: Material(
-              color: BaseColor.cardBackground1,
+              color: AppColors.surfaceContainerLowest,
               elevation: 1,
-              shadowColor: BaseColor.black.withValues(alpha: 0.05),
-              surfaceTintColor: BaseColor.primary[50],
+              shadowColor: AppColors.primary.withValues(alpha: 0.05),
+              surfaceTintColor: AppColors.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                borderRadius: BorderRadius.circular(16.0),
               ),
               child: Column(
                 children: [
@@ -106,8 +106,8 @@ class SettingsScreen extends ConsumerWidget {
                     delay: const Duration(milliseconds: 80),
                     child: _SettingsMenuItem(
                       icon: AppIcons.person,
-                      iconBackgroundColor: BaseColor.primary[100]!,
-                      iconColor: BaseColor.primary[700]!,
+                      iconBackgroundColor: AppColors.primary.shade100,
+                      iconColor: AppColors.primary.shade700,
                       title: l10n.settings_accountSettings,
                       grouped: true,
                       onTap: () {
@@ -121,17 +121,17 @@ class SettingsScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  Divider(height: 1, color: BaseColor.neutral[200]),
+                  Divider(height: 1, color: AppColors.neutral),
                   SettingsReveal(
                     delay: const Duration(milliseconds: 120),
                     child: _SettingsMenuItem(
                       icon: AppIcons.group,
                       iconBackgroundColor: hasMembership
-                          ? BaseColor.primary[100]!
-                          : BaseColor.neutral20,
+                          ? AppColors.primary.shade100
+                          : AppColors.surfaceContainerHigh,
                       iconColor: hasMembership
-                          ? BaseColor.primary[700]!
-                          : BaseColor.neutral50,
+                          ? AppColors.primary.shade700
+                          : AppColors.onSurfaceVariant,
                       title: l10n.settings_membershipSettings,
                       subtitle: hasMembership
                           ? null
@@ -151,18 +151,18 @@ class SettingsScreen extends ConsumerWidget {
                           : null,
                     ),
                   ),
-                  Divider(height: 1, color: BaseColor.neutral[200]),
+                  Divider(height: 1, color: AppColors.neutral),
                   SettingsReveal(
                     delay: const Duration(milliseconds: 160),
                     child: _SettingsMenuItem(
                       icon: AppIcons.notificationActive,
                       iconBackgroundColor: hasMembership
-                          ? BaseColor.yellow[100]!
-                          : BaseColor.neutral20,
+                          ? AppColors.warning.shade100
+                          : AppColors.surfaceContainerHigh,
                       iconColor: hasMembership
-                          ? BaseColor.yellow[800]!
-                          : BaseColor.neutral50,
-                      title: 'Activity Alarms',
+                          ? AppColors.warning.shade700
+                          : AppColors.onSurfaceVariant,
+                      title: l10n.dashboard_alarmSettings_tooltip,
                       subtitle: hasMembership
                           ? null
                           : l10n.settings_noMembership,
@@ -184,8 +184,8 @@ class SettingsScreen extends ConsumerWidget {
             delay: const Duration(milliseconds: 100),
             child: _SettingsCard(
               icon: FontAwesomeIcons.language,
-              iconBackgroundColor: BaseColor.primary[100]!,
-              iconColor: BaseColor.primary[700]!,
+              iconBackgroundColor: AppColors.primary.shade100,
+              iconColor: AppColors.primary.shade700,
               title: l10n.card_languageSettings_title,
               child: const LanguageSelector(),
             ),
@@ -195,10 +195,10 @@ class SettingsScreen extends ConsumerWidget {
             delay: const Duration(milliseconds: 140),
             child: ButtonWidget.outlined(
               text: l10n.btn_signOut,
-              textColor: BaseColor.red[700]!,
-              outlineColor: BaseColor.red[300]!,
-              focusColor: BaseColor.red[100]!,
-              overlayColor: BaseColor.red[50]!,
+              textColor: AppColors.error,
+              outlineColor: AppColors.error,
+              focusColor: AppColors.error,
+              overlayColor: AppColors.error,
               onTap: () => showSignOutConfirmationBottomSheet(context, ref),
             ),
           ),
@@ -208,7 +208,7 @@ class SettingsScreen extends ConsumerWidget {
             child: Center(
               child: Text(
                 _formatVersion(context, state.appVersion, state.buildNumber),
-                style: BaseTypography.bodyMedium.toSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
               ),
             ),
           ),
@@ -266,18 +266,18 @@ class _SettingsMenuItem extends StatelessWidget {
       onTap: enabled ? onTap : null,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Row(
           children: [
             Container(
-              width: BaseSize.w40,
-              height: BaseSize.w40,
+              width: 40.0,
+              height: 40.0,
               decoration: BoxDecoration(
                 color: iconBackgroundColor,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: FaIcon(icon, size: BaseSize.w18, color: iconColor),
+              child: FaIcon(icon, size: 18.0, color: iconColor),
             ),
             Gap.w12,
             Expanded(
@@ -286,17 +286,17 @@ class _SettingsMenuItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: BaseTypography.titleMedium.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: enabled ? BaseColor.black : BaseColor.neutral50,
+                      color: enabled ? AppColors.primary : AppColors.tertiary,
                     ),
                   ),
                   if (subtitle != null) ...[
                     Gap.h4,
                     Text(
                       subtitle!,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.neutral50,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.tertiary,
                       ),
                     ),
                   ],
@@ -306,8 +306,8 @@ class _SettingsMenuItem extends StatelessWidget {
             if (enabled)
               FaIcon(
                 AppIcons.arrowForward,
-                size: BaseSize.w16,
-                color: BaseColor.neutral50,
+                size: 16.0,
+                color: AppColors.tertiary,
               ),
           ],
         ),
@@ -319,10 +319,10 @@ class _SettingsMenuItem extends StatelessWidget {
     }
 
     return Material(
-      color: enabled ? BaseColor.cardBackground1 : BaseColor.neutral10,
+      color: enabled ? AppColors.surfaceContainerLowest : AppColors.tertiary,
       elevation: enabled ? 1 : 0,
-      shadowColor: BaseColor.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.primary.withValues(alpha: 0.05),
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: content,
     );
@@ -350,35 +350,35 @@ class _SettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: BaseColor.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.primary.withValues(alpha: 0.05),
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: BoxDecoration(
                     color: iconBackgroundColor,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: FaIcon(icon, size: BaseSize.w18, color: iconColor),
+                  child: FaIcon(icon, size: 18.0, color: iconColor),
                 ),
                 Gap.w12,
                 Expanded(
                   child: Text(
                     title,
-                    style: BaseTypography.titleMedium.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: BaseColor.black,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),

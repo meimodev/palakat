@@ -23,7 +23,7 @@ void main() {
             // Green checkmark for approved
             expect(
               color,
-              equals(BaseColor.green.shade600),
+              equals(AppColors.success.shade600),
               reason: 'Approved status should have green color',
             );
             expect(
@@ -36,7 +36,7 @@ void main() {
             // Red X for rejected
             expect(
               color,
-              equals(BaseColor.red.shade500),
+              equals(AppColors.error.shade500),
               reason: 'Rejected status should have red color',
             );
             expect(
@@ -49,7 +49,7 @@ void main() {
             // Amber clock for unconfirmed/pending
             expect(
               color,
-              equals(BaseColor.yellow.shade700),
+              equals(AppColors.warning.shade700),
               reason: 'Unconfirmed status should have amber/yellow color',
             );
             expect(
@@ -106,13 +106,13 @@ void main() {
         final label = ApproverStatusBadge.getStatusLabel(status);
 
         // Verify semantic consistency
-        if (color == BaseColor.green.shade600) {
+        if (color == AppColors.success.shade600) {
           expect(icon, equals(Icons.check_circle));
           expect(label, equals('Approved'));
-        } else if (color == BaseColor.red.shade500) {
+        } else if (color == AppColors.error.shade500) {
           expect(icon, equals(Icons.cancel));
           expect(label, equals('Rejected'));
-        } else if (color == BaseColor.yellow.shade700) {
+        } else if (color == AppColors.warning.shade700) {
           expect(icon, equals(Icons.schedule));
           expect(label, equals('Pending'));
         } else {

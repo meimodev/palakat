@@ -34,7 +34,7 @@ class SongDetailScreen extends ConsumerWidget {
               title: song.title,
               subTitle: song.subTitle,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.black,
+              leadIconColor: AppColors.primary,
               onPressedLeadIcon: () => Navigator.pop(context),
             ),
           ),
@@ -88,22 +88,22 @@ class SongDetailScreen extends ConsumerWidget {
                               milliseconds: 40 + (entry.key * 28),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.only(bottom: BaseSize.h20),
+                              padding: EdgeInsets.only(bottom: 20.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Text(
                                     _formatSongPartType(entry.value.type),
-                                    style: BaseTypography.labelLarge.copyWith(
+                                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: BaseColor.neutral60,
+                                      color: AppColors.onSurfaceVariant,
                                     ),
                                   ),
                                   Gap.h8,
                                   SelectableText(
                                     entry.value.content,
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      color: BaseColor.black,
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      color: AppColors.primary,
                                       height: 1.6,
                                     ),
                                   ),
@@ -118,19 +118,19 @@ class SongDetailScreen extends ConsumerWidget {
                               milliseconds: 60 + (songParts.length * 28),
                             ),
                             child: Material(
-                              color: BaseColor.cardBackground1,
+                              color: AppColors.surfaceContainerLowest,
                               elevation: 1,
-                              shadowColor: Colors.black.withValues(alpha: 0.05),
-                              surfaceTintColor: BaseColor.primary[50],
+                              shadowColor: AppColors.onSurface,
+                              surfaceTintColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
-                                  BaseSize.radiusMd,
+                                  8.0,
                                 ),
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: ImageNetworkWidget(
                                 imageUrl: song.urlImage,
-                                height: BaseSize.customHeight(300),
+                                height: 300,
                               ),
                             ),
                           ),
@@ -167,44 +167,44 @@ class SongDetailScreen extends ConsumerWidget {
                       visible: true,
                       child: Center(
                         child: Material(
-                          color: BaseColor.cardBackground1,
+                          color: AppColors.surfaceContainerLowest,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
-                              BaseSize.radiusLg,
+                              16.0,
                             ),
                             side: BorderSide(
-                              color: BaseColor.neutral20,
+                              color: AppColors.outlineVariant,
                               width: 1,
                             ),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(BaseSize.w24),
+                            padding: EdgeInsets.all(24.0),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
-                                  width: BaseSize.w56,
-                                  height: BaseSize.w56,
+                                  width: 56.0,
+                                  height: 56.0,
                                   decoration: BoxDecoration(
-                                    color: BaseColor.red[50],
+                                    color: AppColors.error,
                                     borderRadius: BorderRadius.circular(
-                                      BaseSize.radiusLg,
+                                      16.0,
                                     ),
                                   ),
                                   alignment: Alignment.center,
                                   child: Icon(
                                     AppIcons.error,
-                                    size: BaseSize.w28,
-                                    color: BaseColor.red[700],
+                                    size: 28.0,
+                                    color: AppColors.onError,
                                   ),
                                 ),
                                 Gap.h12,
                                 Text(
                                   l10n.songDetail_errorLoadingSong,
                                   textAlign: TextAlign.center,
-                                  style: BaseTypography.titleMedium.copyWith(
-                                    color: BaseColor.textPrimary,
+                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                    color: AppColors.onSurface,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -212,8 +212,8 @@ class SongDetailScreen extends ConsumerWidget {
                                 Text(
                                   err.toString(),
                                   textAlign: TextAlign.center,
-                                  style: BaseTypography.bodyMedium.copyWith(
-                                    color: BaseColor.secondaryText,
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: AppColors.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -262,31 +262,31 @@ class _SongInfoCard extends StatelessWidget {
     final videoThumbnailUrl = _youtubeThumbnailUrl(videoUri);
 
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
       ),
       clipBehavior: Clip.hardEdge,
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               l10n.songDetail_informationTitle,
-              style: BaseTypography.bodyMedium.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.w700,
-                color: BaseColor.black,
+                color: AppColors.primary,
               ),
             ),
             Gap.h4,
             Text(
               l10n.lbl_hashId(song.id),
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.secondaryText,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
             Gap.h12,
@@ -313,37 +313,37 @@ class _SongInfoCard extends StatelessWidget {
                     if (videoThumbnailUrl != null)
                       ImageNetworkWidget(
                         imageUrl: videoThumbnailUrl,
-                        height: BaseSize.customHeight(200),
+                        height: 200,
                       )
                     else
                       Container(
-                        height: BaseSize.customHeight(200),
-                        color: BaseColor.neutral10,
+                        height: 200,
+                        color: AppColors.surfaceContainerHigh,
                         alignment: Alignment.center,
                         child: Text(
                           l10n.songDetail_videoFallback,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.neutral60,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.onSurfaceVariant,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     Positioned(
-                      right: BaseSize.w12,
-                      bottom: BaseSize.h12,
+                      right: 12.0,
+                      bottom: 12.0,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w10,
-                          vertical: BaseSize.h6,
+                          horizontal: 10.0,
+                          vertical: 6.0,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.55),
+                          color: AppColors.onSurface,
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
                           l10n.songDetail_openVideo,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: Colors.white,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.surfaceContainerLowest,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -374,13 +374,15 @@ class _InfoRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BaseTypography.bodyMedium.copyWith(color: BaseColor.neutral60),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
         ),
         Gap.w16,
         Flexible(
           child: Text(
             value,
-            style: BaseTypography.bodyMedium.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.right,

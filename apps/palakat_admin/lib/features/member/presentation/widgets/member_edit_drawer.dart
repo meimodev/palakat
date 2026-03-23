@@ -354,15 +354,15 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      border: Border.all(color: Colors.orange.shade200),
+                      color: AppColors.warning,
+                      border: Border.all(color: AppColors.warning),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color: Colors.orange.shade700,
+                          color: AppColors.warning,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -370,7 +370,7 @@ class _MemberEditDrawerState extends ConsumerState<MemberEditDrawer> {
                           child: Text(
                             context.l10n.tooltip_appLinked,
                             style: TextStyle(
-                              color: Colors.orange.shade700,
+                              color: AppColors.warning,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),

@@ -58,22 +58,6 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () => controller.refresh(),
-                            icon: const Icon(Icons.refresh),
-                            label: Text(l10n.tooltip_refresh),
-                          ),
-                          FilledButton.icon(
-                            onPressed: () => context.go('/activity'),
-                            icon: const Icon(Icons.add),
-                            label: Text(l10n.nav_activity),
-                          ),
-                        ],
-                      ),
                     ],
                   )
                 else
@@ -98,23 +82,6 @@ class DashboardScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () => controller.refresh(),
-                            icon: const Icon(Icons.refresh),
-                            label: Text(l10n.tooltip_refresh),
-                          ),
-                          FilledButton.icon(
-                            onPressed: () => context.go('/activity'),
-                            icon: const Icon(Icons.add),
-                            label: Text(l10n.nav_activity),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 const SizedBox(height: 16),
@@ -126,8 +93,8 @@ class DashboardScreen extends ConsumerWidget {
                       label: l10n.approval_title,
                       value: pendingTotal.toString(),
                       icon: Icons.assignment_outlined,
-                      iconColor: Colors.blue.shade700,
-                      iconBackgroundColor: Colors.blue.shade50,
+                      iconColor: AppColors.primary,
+                      iconBackgroundColor: AppColors.primary,
                       isLoading: state.pendingApprovals.isLoading,
                       width: 240,
                     ),
@@ -135,8 +102,8 @@ class DashboardScreen extends ConsumerWidget {
                       label: l10n.section_schedule,
                       value: scheduleCount.toString(),
                       icon: Icons.event_outlined,
-                      iconColor: Colors.orange.shade700,
-                      iconBackgroundColor: Colors.orange.shade50,
+                      iconColor: AppColors.warning,
+                      iconBackgroundColor: AppColors.warning,
                       isLoading: state.home.isLoading,
                       width: 240,
                     ),
@@ -144,8 +111,8 @@ class DashboardScreen extends ConsumerWidget {
                       label: l10n.activityType_announcement,
                       value: announcementCount.toString(),
                       icon: Icons.campaign_outlined,
-                      iconColor: Colors.purple.shade700,
-                      iconBackgroundColor: Colors.purple.shade50,
+                      iconColor: AppColors.primary,
+                      iconBackgroundColor: AppColors.primary,
                       isLoading: state.home.isLoading,
                       width: 240,
                     ),
@@ -475,7 +442,7 @@ class _UpcomingCard extends StatelessWidget {
                       Text(
                         a.date.toCustomFormat('dd MMM'),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: AppColors.onSurfaceVariant,
                         ),
                       ),
                     ],

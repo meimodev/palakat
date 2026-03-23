@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Region: 'Region',
   Church: 'Church',
   ChurchPermissionPolicy: 'ChurchPermissionPolicy',
   Column: 'Column',
@@ -95,6 +96,17 @@ export const TransactionIsolationLevel = {
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const RegionScalarFieldEnum = {
+  id: 'id',
+  sourceRegionId: 'sourceRegionId',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RegionScalarFieldEnum = (typeof RegionScalarFieldEnum)[keyof typeof RegionScalarFieldEnum]
+
+
 export const ChurchScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -102,6 +114,8 @@ export const ChurchScalarFieldEnum = {
   email: 'email',
   description: 'description',
   documentAccountNumber: 'documentAccountNumber',
+  sourceChurchId: 'sourceChurchId',
+  regionId: 'regionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   locationId: 'locationId'
@@ -124,6 +138,7 @@ export type ChurchPermissionPolicyScalarFieldEnum = (typeof ChurchPermissionPoli
 export const ColumnScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  sourceColumnId: 'sourceColumnId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId'
@@ -162,6 +177,7 @@ export type MembershipPositionScalarFieldEnum = (typeof MembershipPositionScalar
 export const AccountScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  sourceAccountId: 'sourceAccountId',
   phone: 'phone',
   email: 'email',
   passwordHash: 'passwordHash',

@@ -7,8 +7,7 @@ import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/articles/presentations/articles_list/articles_list_controller.dart';
 import 'package:palakat/features/articles/presentations/articles_motion_widget.dart';
-import 'package:palakat_shared/palakat_shared.dart'
-    hide BaseColor, BaseSize, BaseTypography, Gap, Column, LoadingWrapper;
+import 'package:palakat_shared/palakat_shared.dart' hide Column, LoadingWrapper;
 
 class ArticlesListScreen extends ConsumerStatefulWidget {
   const ArticlesListScreen({super.key});
@@ -76,7 +75,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
           Gap.h8,
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: LoadingWrapper(
                 loading: state.isLoading,
                 hasError: state.errorMessage != null && !state.isLoading,
@@ -94,11 +93,11 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                     : RefreshIndicator(
                         onRefresh: () =>
                             controller.fetchArticles(refresh: true),
-                        color: BaseColor.teal.shade500,
+                        color: AppColors.primary,
                         child: ListView.separated(
                           controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.only(bottom: BaseSize.h16),
+                          padding: EdgeInsets.only(bottom: 16.0),
                           itemCount:
                               state.articles.length +
                               (state.isLoadingMore ? 1 : 0),
@@ -107,18 +106,9 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                             if (index == state.articles.length) {
                               return ArticlesAnimatedPresence(
                                 visible: state.isLoadingMore,
-                                child: Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(BaseSize.w16),
-                                    child: SizedBox(
-                                      width: BaseSize.w24,
-                                      height: BaseSize.w24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: BaseColor.primary[700],
-                                      ),
-                                    ),
-                                  ),
+                                child: LoadingShimmer(
+                                  isLoading: true,
+                                  child: PalakatShimmerPlaceholders.listItemCard(),
                                 ),
                               );
                             }
@@ -203,7 +193,7 @@ class _SearchAndFilterBar extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -215,9 +205,9 @@ class _SearchAndFilterBar extends StatelessWidget {
             prefixIcon: FaIcon(
               AppIcons.search,
               size: 18,
-              color: BaseColor.secondaryText,
+              color: AppColors.onSurfaceVariant,
             ),
-            borderRadius: BaseSize.radiusMd,
+            borderRadius: 8.0,
           ),
           Gap.h8,
           InputWidget<ArticleType?>.dropdown(
@@ -253,7 +243,7 @@ class _SearchAndFilterBar extends StatelessWidget {
                             onTap: () => Navigator.of(context).pop(t),
                           ),
                         ),
-                        SizedBox(height: BaseSize.h12),
+                        SizedBox(height: 12.0),
                       ],
                     ),
                   );
@@ -264,7 +254,7 @@ class _SearchAndFilterBar extends StatelessWidget {
           ArticlesAnimatedPresence(
             visible: hasActiveFilters,
             child: Padding(
-              padding: EdgeInsets.only(top: BaseSize.h8),
+              padding: EdgeInsets.only(top: 8.0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: ButtonWidget.text(
@@ -308,45 +298,45 @@ class _ArticleListItem extends StatelessWidget {
     }
 
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        side: BorderSide(color: BaseColor.neutral20, width: 1),
+        borderRadius: BorderRadius.circular(8.0),
+        side: BorderSide(color: AppColors.tertiary, width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           child: Row(
             children: [
               if (article.coverImageUrl != null &&
                   article.coverImageUrl!.trim().isNotEmpty)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  borderRadius: BorderRadius.circular(4.0),
                   child: ImageNetworkWidget(
                     imageUrl: article.coverImageUrl!,
-                    width: BaseSize.w48,
-                    height: BaseSize.w48,
+                    width: 48.0,
+                    height: 48.0,
                     fit: BoxFit.cover,
                   ),
                 )
               else
                 Container(
-                  width: BaseSize.w48,
-                  height: BaseSize.w48,
+                  width: 48.0,
+                  height: 48.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    color: AppColors.primaryContainer,
+                    borderRadius: BorderRadius.circular(4.0),
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     iconForArticleType(article.type),
-                    size: BaseSize.w18,
-                    color: BaseColor.primary,
+                    size: 18.0,
+                    color: AppColors.onPrimaryContainer,
                   ),
                 ),
               Gap.w10,
@@ -356,9 +346,9 @@ class _ArticleListItem extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: BaseTypography.bodyMedium.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: BaseColor.textPrimary,
+                        color: AppColors.onSurface,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -367,19 +357,20 @@ class _ArticleListItem extends StatelessWidget {
                     if (article.excerpt != null &&
                         article.excerpt!.trim().isNotEmpty)
                       Padding(
-                        padding: EdgeInsets.only(top: BaseSize.h4),
+                        padding: EdgeInsets.only(top: 4.0),
                         child: Text(
                           article.excerpt!,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.secondaryText,
-                            height: 1.2,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: AppColors.onSurfaceVariant,
+                                height: 1.2,
+                              ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     Padding(
-                      padding: EdgeInsets.only(top: BaseSize.h6),
+                      padding: EdgeInsets.only(top: 6.0),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final shouldStackMeta =
@@ -392,23 +383,23 @@ class _ArticleListItem extends StatelessWidget {
                               FaIcon(
                                 AppIcons.time,
                                 size: 12,
-                                color: BaseColor.secondaryText,
+                                color: AppColors.onSurfaceVariant,
                               ),
                               Gap.w4,
                               ConstrainedBox(
                                 constraints: BoxConstraints(
                                   maxWidth: shouldStackMeta
-                                      ? constraints.maxWidth > BaseSize.w16
-                                            ? constraints.maxWidth -
-                                                  BaseSize.w16
+                                      ? constraints.maxWidth > 16.0
+                                            ? constraints.maxWidth - 16.0
                                             : constraints.maxWidth
                                       : constraints.maxWidth * 0.6,
                                 ),
                                 child: Text(
                                   publishedText,
-                                  style: BaseTypography.bodyMedium.copyWith(
-                                    color: BaseColor.secondaryText,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium!
+                                      .copyWith(
+                                        color: AppColors.onSurfaceVariant,
+                                      ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -422,14 +413,15 @@ class _ArticleListItem extends StatelessWidget {
                               FaIcon(
                                 FontAwesomeIcons.heart,
                                 size: 12,
-                                color: BaseColor.secondaryText,
+                                color: AppColors.onSurfaceVariant,
                               ),
                               Gap.w4,
                               Text(
                                 (article.likesCount ?? 0).toString(),
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  color: BaseColor.secondaryText,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!
+                                    .copyWith(
+                                      color: AppColors.onSurfaceVariant,
+                                    ),
                               ),
                             ],
                           );
@@ -442,8 +434,8 @@ class _ArticleListItem extends StatelessWidget {
                           }
 
                           return Wrap(
-                            spacing: BaseSize.w8,
-                            runSpacing: BaseSize.h6,
+                            spacing: 8.0,
+                            runSpacing: 6.0,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [publishedMeta, likesMeta],
                           );
@@ -476,29 +468,29 @@ class _EmptyState extends StatelessWidget {
 
     return Center(
       child: Material(
-        color: BaseColor.surfaceMedium,
+        color: AppColors.surfaceContainerLow,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-          side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+          borderRadius: BorderRadius.circular(16.0),
+          side: BorderSide(color: AppColors.outlineVariant, width: 1),
         ),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w24),
+          padding: EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: BaseSize.w56,
-                height: BaseSize.w56,
+                width: 56.0,
+                height: 56.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.primary[50],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  color: AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   hasActiveFilters ? AppIcons.searchOff : AppIcons.article,
-                  size: BaseSize.w24,
-                  color: BaseColor.primary,
+                  size: 24.0,
+                  color: AppColors.onPrimaryContainer,
                 ),
               ),
               Gap.h12,
@@ -507,8 +499,8 @@ class _EmptyState extends StatelessWidget {
                     ? l10n.noData_matchingCriteria
                     : l10n.noData_available,
                 textAlign: TextAlign.center,
-                style: BaseTypography.titleMedium.copyWith(
-                  color: BaseColor.textPrimary,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: AppColors.onSurface,
                   fontWeight: FontWeight.w700,
                 ),
               ),

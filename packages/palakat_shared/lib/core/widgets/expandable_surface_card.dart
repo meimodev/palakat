@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 class ExpandableSurfaceCard extends StatefulWidget {
   final String? title;
@@ -73,7 +74,7 @@ class _ExpandableSurfaceCardState extends State<ExpandableSurfaceCard>
         border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: AppColors.onSurface,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

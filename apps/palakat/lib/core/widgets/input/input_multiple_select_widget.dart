@@ -67,19 +67,19 @@
 //           Text(
 //             label ?? '',
 //             style: TypographyTheme.textMRegular
-//                 .fontColor(BaseColor.neutral.shade60),
+//                 .fontColor(AppColors.neutral.shade60),
 //           ),
 //         GestureDetector(
 //           onTap: onBodyTap,
 //           child: Container(
 //             padding: value.isEmpty
 //                 ? EdgeInsets.zero
-//                 : EdgeInsets.symmetric(vertical: BaseSize.h8),
+//                 : EdgeInsets.symmetric(vertical: 8.0),
 //             decoration: BoxDecoration(
 //               border: Border(
 //                 bottom: BorderSide(
 //                   width: 1,
-//                   color: BaseColor.neutral.shade30,
+//                   color: AppColors.neutral.shade30,
 //                 ),
 //               ),
 //             ),
@@ -118,7 +118,7 @@
 //
 // Widget _createItem<T>(String title, {VoidCallback? onRemove}) {
 //   return (ChipsWidget.custom(
-//     color: BaseColor.primary1,
+//     color: AppColors.primary1,
 //     child: Row(
 //       mainAxisSize: MainAxisSize.min,
 //       children: [
@@ -140,7 +140,7 @@
 //               highlightColor: Colors.transparent,
 //               onPressed: onRemove,
 //               icon: Assets.icons.line.times.svg(
-//                 colorFilter: BaseColor.neutral.shade70.filterSrcIn,
+//                 colorFilter: AppColors.neutral.shade70.filterSrcIn,
 //               ),
 //             ),
 //           )

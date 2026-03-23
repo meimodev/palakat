@@ -6361,6 +6361,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report Failed'**
   String get notificationType_reportFailed;
+
+  /// No description provided for @activityAlarm_ringing.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm ringing'**
+  String get activityAlarm_ringing;
+
+  /// No description provided for @activityAlarm_startingAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting alarm audio...'**
+  String get activityAlarm_startingAudio;
+
+  /// No description provided for @activityAlarm_enableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable activity alarms'**
+  String get activityAlarm_enableTitle;
+
+  /// No description provided for @activityAlarm_enableSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule reminders for this week on your phone.'**
+  String get activityAlarm_enableSubtitle;
+
+  /// No description provided for @activityAlarm_noActivitiesWithReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities with reminders found.'**
+  String get activityAlarm_noActivitiesWithReminders;
+
+  /// No description provided for @activityAlarm_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss alarm'**
+  String get activityAlarm_dismiss;
+
+  /// No description provided for @activityAlarm_viewActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'View activity'**
+  String get activityAlarm_viewActivity;
+
+  /// No description provided for @churchRequest_membershipStatusSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership request status'**
+  String get churchRequest_membershipStatusSubtitle;
+
+  /// No description provided for @notificationChannel_activityUpdates_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Updates'**
+  String get notificationChannel_activityUpdates_name;
+
+  /// No description provided for @notificationChannel_activityUpdates_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications about church activities and events'**
+  String get notificationChannel_activityUpdates_description;
+
+  /// No description provided for @notificationChannel_approvalRequests_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Requests'**
+  String get notificationChannel_approvalRequests_name;
+
+  /// No description provided for @notificationChannel_approvalRequests_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications requiring your approval'**
+  String get notificationChannel_approvalRequests_description;
+
+  /// No description provided for @notificationChannel_generalAnnouncements_name.
+  ///
+  /// In en, this message translates to:
+  /// **'General Announcements'**
+  String get notificationChannel_generalAnnouncements_name;
+
+  /// No description provided for @notificationChannel_generalAnnouncements_description.
+  ///
+  /// In en, this message translates to:
+  /// **'General church announcements'**
+  String get notificationChannel_generalAnnouncements_description;
+
+  /// No description provided for @notificationChannel_activityAlarms_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Alarms'**
+  String get notificationChannel_activityAlarms_name;
+
+  /// No description provided for @notificationChannel_activityAlarms_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm notifications for upcoming church activities'**
+  String get notificationChannel_activityAlarms_description;
+
+  /// No description provided for @notificationChannel_birthdayNotifications_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday Notifications'**
+  String get notificationChannel_birthdayNotifications_name;
+
+  /// No description provided for @notificationChannel_birthdayNotifications_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications about member birthdays'**
+  String get notificationChannel_birthdayNotifications_description;
+
+  /// No description provided for @membershipCard_notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get membershipCard_notSet;
+
+  /// No description provided for @membershipCard_column.
+  ///
+  /// In en, this message translates to:
+  /// **'Column {columnName}'**
+  String membershipCard_column(Object columnName);
+
+  /// No description provided for @membershipCard_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome!'**
+  String get membershipCard_welcome;
+
+  /// No description provided for @membershipCard_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership pending'**
+  String get membershipCard_pending;
+
+  /// No description provided for @membershipCard_signedOutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your congregation information'**
+  String get membershipCard_signedOutSubtitle;
+
+  /// No description provided for @membershipCard_reviewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Review or update your membership details'**
+  String get membershipCard_reviewDetails;
+
+  /// No description provided for @segmentTitle_emptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No {title} available'**
+  String segmentTitle_emptyState(Object title);
 }
 
 class _AppLocalizationsDelegate

@@ -22,11 +22,7 @@ Future<model.Column?> showDialogColumnPickerWidget({
     context: context,
     title: context.l10n.lbl_selectColumn,
     scrollControlled: false,
-    closeIcon: FaIcon(
-      AppIcons.close,
-      size: BaseSize.w24,
-      color: BaseColor.primaryText,
-    ),
+    closeIcon: FaIcon(AppIcons.close, size: 24.0, color: AppColors.onSurface),
     content: Expanded(child: _DialogColumnPickerWidget(churchId: churchId)),
   );
 }
@@ -115,19 +111,45 @@ class _DialogColumnPickerWidgetState
 
     if (widget.churchId == null) {
       return Center(
-        child: Material(
-          color: BaseColor.surfaceMedium,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(BaseSize.w24),
-            child: Text(
-              l10n.lbl_selectChurchFirst,
-              style: BaseTypography.bodyMedium.toSecondary,
-              textAlign: TextAlign.center,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            padding: EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56.0,
+                  height: 56.0,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    border: Border.all(color: AppColors.ghostBorder(0.06)),
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.account_tree_rounded,
+                    size: 24.0,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Gap.h12,
+                Text(
+                  l10n.lbl_selectChurchFirst,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
@@ -136,89 +158,153 @@ class _DialogColumnPickerWidgetState
 
     return Column(
       children: [
-        // Search field
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16,
-            vertical: BaseSize.h8,
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
           ),
-          child: SearchField(
-            controller: _searchController,
-            hint: l10n.lbl_searchColumns,
-            debounceMilliseconds: 500,
-            unfocusOnSearch: true,
-            prefixIcon: FaIcon(AppIcons.search),
-            clearIcon: FaIcon(AppIcons.clear),
-            onSearch: _onSearchChanged,
-            onChanged: null,
-            borderRadius: BaseSize.radiusMd,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44.0,
+                height: 44.0,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  border: Border.all(color: AppColors.ghostBorder(0.06)),
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.account_tree_rounded,
+                  color: AppColors.primary,
+                  size: 20.0,
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.lbl_selectColumn,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                    Gap.h4,
+                    Text(
+                      l10n.lbl_searchColumns,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Gap.h12,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Container(
+            padding: EdgeInsets.all(10.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              border: Border.all(color: AppColors.ghostBorder(0.08)),
+            ),
+            child: SearchField(
+              controller: _searchController,
+              hint: l10n.lbl_searchColumns,
+              debounceMilliseconds: 500,
+              unfocusOnSearch: true,
+              prefixIcon: FaIcon(AppIcons.search),
+              clearIcon: FaIcon(AppIcons.clear),
+              onSearch: _onSearchChanged,
+              onChanged: null,
+              borderRadius: SanctuaryLayout.radiusLarge,
+            ),
           ),
         ),
         Gap.h8,
-        // Column list
         Expanded(
           child: _isLoading
               ? Center(
-                  child: LoadingShimmer(
-                    isLoading: true,
-                    child: Column(
-                      children: [
-                        PalakatShimmerPlaceholders.listItemCard(),
-                        Gap.h8,
-                        PalakatShimmerPlaceholders.listItemCard(),
-                        Gap.h8,
-                        PalakatShimmerPlaceholders.listItemCard(),
-                      ],
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: LoadingShimmer(
+                      isLoading: true,
+                      child: Column(
+                        children: [
+                          PalakatShimmerPlaceholders.listItemCard(),
+                          Gap.h8,
+                          PalakatShimmerPlaceholders.listItemCard(),
+                          Gap.h8,
+                          PalakatShimmerPlaceholders.listItemCard(),
+                        ],
+                      ),
                     ),
                   ),
                 )
               : _errorMessage != null && _errorMessage!.trim().isNotEmpty
               ? ErrorDisplayWidget(
                   message: _errorMessage!,
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   onRetry: _fetchColumns,
                 )
               : _columns.isEmpty
               ? Center(
-                  child: Material(
-                    color: BaseColor.surfaceMedium,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                      side: BorderSide(
-                        color: BaseColor.neutral[200]!,
-                        width: 1,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
+                      padding: EdgeInsets.all(24.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(
+                          SanctuaryLayout.radiusLarge,
+                        ),
                       ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(BaseSize.w24),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: BaseSize.w56,
-                            height: BaseSize.w56,
+                            width: 56.0,
+                            height: 56.0,
                             decoration: BoxDecoration(
-                              color: BaseColor.primary[50],
+                              color: AppColors.surfaceContainerLow,
+                              border: Border.all(
+                                color: AppColors.ghostBorder(0.06),
+                              ),
                               borderRadius: BorderRadius.circular(
-                                BaseSize.radiusLg,
+                                SanctuaryLayout.radiusLarge,
+                              ),
+                              boxShadow: SanctuaryDepth.ambient(
+                                opacity: 0.02,
+                                blur: 12,
                               ),
                             ),
                             alignment: Alignment.center,
-                            child: FaIcon(
-                              AppIcons.searchOff,
-                              size: BaseSize.w24,
-                              color: BaseColor.primary,
+                            child: Icon(
+                              Icons.search_off_rounded,
+                              size: 24.0,
+                              color: AppColors.primary,
                             ),
                           ),
                           Gap.h12,
                           Text(
                             l10n.lbl_noColumnsFound,
                             textAlign: TextAlign.center,
-                            style: BaseTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium!
+                                .copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurface,
+                                ),
                           ),
                         ],
                       ),
@@ -228,9 +314,9 @@ class _DialogColumnPickerWidgetState
               : ListView.separated(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: BaseSize.w12),
+                  padding: EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
                   itemCount: _columns.length,
-                  separatorBuilder: (context, index) => Gap.h6,
+                  separatorBuilder: (context, index) => Gap.h8,
                   itemBuilder: (context, index) {
                     final column = _columns[index];
                     return CardColumn(

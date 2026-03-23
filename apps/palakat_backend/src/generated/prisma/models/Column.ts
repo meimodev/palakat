@@ -28,17 +28,20 @@ export type AggregateColumn = {
 
 export type ColumnAvgAggregateOutputType = {
   id: number | null
+  sourceColumnId: number | null
   churchId: number | null
 }
 
 export type ColumnSumAggregateOutputType = {
   id: number | null
+  sourceColumnId: number | null
   churchId: number | null
 }
 
 export type ColumnMinAggregateOutputType = {
   id: number | null
   name: string | null
+  sourceColumnId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -47,6 +50,7 @@ export type ColumnMinAggregateOutputType = {
 export type ColumnMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  sourceColumnId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -55,6 +59,7 @@ export type ColumnMaxAggregateOutputType = {
 export type ColumnCountAggregateOutputType = {
   id: number
   name: number
+  sourceColumnId: number
   createdAt: number
   updatedAt: number
   churchId: number
@@ -64,17 +69,20 @@ export type ColumnCountAggregateOutputType = {
 
 export type ColumnAvgAggregateInputType = {
   id?: true
+  sourceColumnId?: true
   churchId?: true
 }
 
 export type ColumnSumAggregateInputType = {
   id?: true
+  sourceColumnId?: true
   churchId?: true
 }
 
 export type ColumnMinAggregateInputType = {
   id?: true
   name?: true
+  sourceColumnId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -83,6 +91,7 @@ export type ColumnMinAggregateInputType = {
 export type ColumnMaxAggregateInputType = {
   id?: true
   name?: true
+  sourceColumnId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -91,6 +100,7 @@ export type ColumnMaxAggregateInputType = {
 export type ColumnCountAggregateInputType = {
   id?: true
   name?: true
+  sourceColumnId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -186,6 +196,7 @@ export type ColumnGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ColumnGroupByOutputType = {
   id: number
   name: string
+  sourceColumnId: number | null
   createdAt: Date
   updatedAt: Date
   churchId: number | null
@@ -217,6 +228,7 @@ export type ColumnWhereInput = {
   NOT?: Prisma.ColumnWhereInput | Prisma.ColumnWhereInput[]
   id?: Prisma.IntFilter<"Column"> | number
   name?: Prisma.StringFilter<"Column"> | string
+  sourceColumnId?: Prisma.IntNullableFilter<"Column"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Column"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Column"> | Date | string
   churchId?: Prisma.IntNullableFilter<"Column"> | number | null
@@ -229,6 +241,7 @@ export type ColumnWhereInput = {
 export type ColumnOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -240,6 +253,7 @@ export type ColumnOrderByWithRelationInput = {
 
 export type ColumnWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  sourceColumnId?: number
   churchId_name?: Prisma.ColumnChurchIdNameCompoundUniqueInput
   AND?: Prisma.ColumnWhereInput | Prisma.ColumnWhereInput[]
   OR?: Prisma.ColumnWhereInput[]
@@ -252,11 +266,12 @@ export type ColumnWhereUniqueInput = Prisma.AtLeast<{
   memberships?: Prisma.MembershipListRelationFilter
   activities?: Prisma.ActivityListRelationFilter
   membershipInvitations?: Prisma.MembershipInvitationListRelationFilter
-}, "id" | "churchId_name">
+}, "id" | "sourceColumnId" | "churchId_name">
 
 export type ColumnOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -273,6 +288,7 @@ export type ColumnScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ColumnScalarWhereWithAggregatesInput | Prisma.ColumnScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Column"> | number
   name?: Prisma.StringWithAggregatesFilter<"Column"> | string
+  sourceColumnId?: Prisma.IntNullableWithAggregatesFilter<"Column"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Column"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Column"> | Date | string
   churchId?: Prisma.IntNullableWithAggregatesFilter<"Column"> | number | null
@@ -280,6 +296,7 @@ export type ColumnScalarWhereWithAggregatesInput = {
 
 export type ColumnCreateInput = {
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
@@ -291,6 +308,7 @@ export type ColumnCreateInput = {
 export type ColumnUncheckedCreateInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
@@ -301,6 +319,7 @@ export type ColumnUncheckedCreateInput = {
 
 export type ColumnUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
@@ -312,6 +331,7 @@ export type ColumnUpdateInput = {
 export type ColumnUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -323,6 +343,7 @@ export type ColumnUncheckedUpdateInput = {
 export type ColumnCreateManyInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
@@ -330,6 +351,7 @@ export type ColumnCreateManyInput = {
 
 export type ColumnUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -337,6 +359,7 @@ export type ColumnUpdateManyMutationInput = {
 export type ColumnUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -360,6 +383,7 @@ export type ColumnChurchIdNameCompoundUniqueInput = {
 export type ColumnCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -367,12 +391,14 @@ export type ColumnCountOrderByAggregateInput = {
 
 export type ColumnAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
 }
 
 export type ColumnMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -381,6 +407,7 @@ export type ColumnMaxOrderByAggregateInput = {
 export type ColumnMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -388,6 +415,7 @@ export type ColumnMinOrderByAggregateInput = {
 
 export type ColumnSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceColumnId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
 }
 
@@ -443,14 +471,6 @@ export type ColumnUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.ColumnScalarWhereInput | Prisma.ColumnScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ColumnCreateNestedOneWithoutMembershipsInput = {
   create?: Prisma.XOR<Prisma.ColumnCreateWithoutMembershipsInput, Prisma.ColumnUncheckedCreateWithoutMembershipsInput>
   connectOrCreate?: Prisma.ColumnCreateOrConnectWithoutMembershipsInput
@@ -499,6 +519,7 @@ export type ColumnUpdateOneRequiredWithoutMembershipInvitationsNestedInput = {
 
 export type ColumnCreateWithoutChurchInput = {
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutColumnInput
@@ -509,6 +530,7 @@ export type ColumnCreateWithoutChurchInput = {
 export type ColumnUncheckedCreateWithoutChurchInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutColumnInput
@@ -548,6 +570,7 @@ export type ColumnScalarWhereInput = {
   NOT?: Prisma.ColumnScalarWhereInput | Prisma.ColumnScalarWhereInput[]
   id?: Prisma.IntFilter<"Column"> | number
   name?: Prisma.StringFilter<"Column"> | string
+  sourceColumnId?: Prisma.IntNullableFilter<"Column"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Column"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Column"> | Date | string
   churchId?: Prisma.IntNullableFilter<"Column"> | number | null
@@ -555,6 +578,7 @@ export type ColumnScalarWhereInput = {
 
 export type ColumnCreateWithoutMembershipsInput = {
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
@@ -565,6 +589,7 @@ export type ColumnCreateWithoutMembershipsInput = {
 export type ColumnUncheckedCreateWithoutMembershipsInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
@@ -590,6 +615,7 @@ export type ColumnUpdateToOneWithWhereWithoutMembershipsInput = {
 
 export type ColumnUpdateWithoutMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
@@ -600,6 +626,7 @@ export type ColumnUpdateWithoutMembershipsInput = {
 export type ColumnUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -609,6 +636,7 @@ export type ColumnUncheckedUpdateWithoutMembershipsInput = {
 
 export type ColumnCreateWithoutActivitiesInput = {
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
@@ -619,6 +647,7 @@ export type ColumnCreateWithoutActivitiesInput = {
 export type ColumnUncheckedCreateWithoutActivitiesInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
@@ -644,6 +673,7 @@ export type ColumnUpdateToOneWithWhereWithoutActivitiesInput = {
 
 export type ColumnUpdateWithoutActivitiesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
@@ -654,6 +684,7 @@ export type ColumnUpdateWithoutActivitiesInput = {
 export type ColumnUncheckedUpdateWithoutActivitiesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -663,6 +694,7 @@ export type ColumnUncheckedUpdateWithoutActivitiesInput = {
 
 export type ColumnCreateWithoutMembershipInvitationsInput = {
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutColumnsInput
@@ -673,6 +705,7 @@ export type ColumnCreateWithoutMembershipInvitationsInput = {
 export type ColumnUncheckedCreateWithoutMembershipInvitationsInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
@@ -698,6 +731,7 @@ export type ColumnUpdateToOneWithWhereWithoutMembershipInvitationsInput = {
 
 export type ColumnUpdateWithoutMembershipInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutColumnsNestedInput
@@ -708,6 +742,7 @@ export type ColumnUpdateWithoutMembershipInvitationsInput = {
 export type ColumnUncheckedUpdateWithoutMembershipInvitationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -718,12 +753,14 @@ export type ColumnUncheckedUpdateWithoutMembershipInvitationsInput = {
 export type ColumnCreateManyChurchInput = {
   id?: number
   name: string
+  sourceColumnId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ColumnUpdateWithoutChurchInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutColumnNestedInput
@@ -734,6 +771,7 @@ export type ColumnUpdateWithoutChurchInput = {
 export type ColumnUncheckedUpdateWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutColumnNestedInput
@@ -744,6 +782,7 @@ export type ColumnUncheckedUpdateWithoutChurchInput = {
 export type ColumnUncheckedUpdateManyWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceColumnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -800,6 +839,7 @@ export type ColumnCountOutputTypeCountMembershipInvitationsArgs<ExtArgs extends 
 export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceColumnId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -813,6 +853,7 @@ export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ColumnSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceColumnId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -822,6 +863,7 @@ export type ColumnSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ColumnSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  sourceColumnId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
@@ -831,12 +873,13 @@ export type ColumnSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ColumnSelectScalar = {
   id?: boolean
   name?: boolean
+  sourceColumnId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
 }
 
-export type ColumnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt" | "churchId", ExtArgs["result"]["column"]>
+export type ColumnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sourceColumnId" | "createdAt" | "updatedAt" | "churchId", ExtArgs["result"]["column"]>
 export type ColumnInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.Column$churchArgs<ExtArgs>
   memberships?: boolean | Prisma.Column$membershipsArgs<ExtArgs>
@@ -862,6 +905,7 @@ export type $ColumnPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    sourceColumnId: number | null
     createdAt: Date
     updatedAt: Date
     churchId: number | null
@@ -1294,6 +1338,7 @@ export interface Prisma__ColumnClient<T, Null = never, ExtArgs extends runtime.T
 export interface ColumnFieldRefs {
   readonly id: Prisma.FieldRef<"Column", 'Int'>
   readonly name: Prisma.FieldRef<"Column", 'String'>
+  readonly sourceColumnId: Prisma.FieldRef<"Column", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Column", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Column", 'DateTime'>
   readonly churchId: Prisma.FieldRef<"Column", 'Int'>

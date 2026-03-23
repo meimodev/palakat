@@ -5,12 +5,32 @@
 # Or run directly with: ./run.sh <script-name>
 
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts"
+ENV_UTILS="$SCRIPTS_DIR/env_utils.sh"
+
+if [ -f "$ENV_UTILS" ]; then
+    # shellcheck disable=SC1090
+    source "$ENV_UTILS"
+fi
+
+is_env_aware_script() {
+    case "$1" in
+        backend|android|admin|super_admin)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
 # Get all .sh files
 scripts=()
 script_names=()
 while IFS= read -r -d '' file; do
     filename=$(basename "$file")
+    if [[ "$filename" == "env_utils.sh" ]]; then
+        continue
+    fi
     scripts+=("$filename")
     # Store name without .sh extension for matching
     script_names+=("${filename%.sh}")
@@ -22,7 +42,7 @@ if [[ ${#scripts[@]} -eq 0 ]]; then
 fi
 
 show_help() {
-    echo "Usage: $0 [SCRIPT_NAME] [SCRIPT_OPTIONS...]"
+    echo "Usage: $0 [SCRIPT_NAME] [ENVIRONMENT] [SCRIPT_OPTIONS...]"
     echo ""
     echo "Run without arguments for interactive mode, or specify a script directly."
     echo ""
@@ -33,10 +53,14 @@ show_help() {
     echo ""
     echo "Examples:"
     echo "  $0                    # Interactive mode"
-    echo "  $0 backend            # Run backend.sh directly"
-    echo "  $0 admin --device chrome"
-    echo "  $0 android"
+    echo "  $0 backend            # Run backend.sh with local env"
+    echo "  $0 backend staging    # Run backend.sh with staging env"
+    echo "  $0 admin production --device chrome"
+    echo "  $0 android staging"
     echo "  $0 super_admin --release"
+    echo ""
+    echo "Environment-aware scripts default to 'local' when ENVIRONMENT is omitted."
+    echo "Supported environments: local, staging, production"
     echo ""
     echo "Options:"
     echo "  -h, --help            Show this help message"
@@ -95,9 +119,31 @@ if [[ -n "$1" ]]; then
     fi
     
     if [[ -n "$matched" ]]; then
+        selected_script_name="${matched%.sh}"
+        selected_env=""
+
+        if is_env_aware_script "$selected_script_name"; then
+            if [[ -n "$1" ]] && is_supported_env_name "$1"; then
+                selected_env="$(normalize_env_name "$1")"
+                shift
+            else
+                selected_env="local"
+            fi
+        fi
+
         echo "Running: $matched"
+        if [[ -n "$selected_env" ]]; then
+            echo "Environment: $selected_env"
+        fi
         echo "────────────────────────────────────────"
-        exec bash "$SCRIPTS_DIR/$matched" "$@"
+
+        command=(bash "$SCRIPTS_DIR/$matched")
+        if [[ -n "$selected_env" ]]; then
+            command+=(--env "$selected_env")
+        fi
+        command+=("$@")
+
+        exec "${command[@]}"
     else
         echo "Script not found: $target"
         echo ""
@@ -146,9 +192,34 @@ if [[ "$choice" -lt 1 || "$choice" -gt ${#scripts[@]} ]]; then
 fi
 
 selected="${scripts[$((choice - 1))]}"
+selected_script_name="${selected%.sh}"
+selected_env=""
+
+if is_env_aware_script "$selected_script_name"; then
+    echo ""
+    read -p "Environment [local/staging/production] (default: local): " env_choice
+    env_choice="${env_choice:-local}"
+    env_choice="$(normalize_env_name "$env_choice")"
+
+    if ! is_supported_env_name "$env_choice"; then
+        echo "Invalid environment. Supported values: local, staging, production."
+        exit 1
+    fi
+
+    selected_env="$env_choice"
+fi
+
 echo ""
 echo "Running: $selected"
+if [[ -n "$selected_env" ]]; then
+    echo "Environment: $selected_env"
+fi
 echo "────────────────────────────────────────"
 
 # Execute the selected script
-exec bash "$SCRIPTS_DIR/$selected"
+command=(bash "$SCRIPTS_DIR/$selected")
+if [[ -n "$selected_env" ]]; then
+    command+=(--env "$selected_env")
+fi
+
+exec "${command[@]}"

@@ -1,10 +1,9 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat_shared/core/theme/color_constants.dart';
-import 'package:palakat_shared/core/theme/size_constants.dart';
 
 /// Service for displaying popup notifications when the app is in foreground.
 /// Shows a brief popup for ~3 seconds that can be tapped to navigate to the activity.
@@ -146,9 +145,9 @@ class _NotificationPopupWidgetState extends State<_NotificationPopupWidget>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + BaseSize.h8,
-      left: BaseSize.w16,
-      right: BaseSize.w16,
+      top: MediaQuery.of(context).padding.top + 8.0,
+      left: 16.0,
+      right: 16.0,
       child: SlideTransition(
         position: _slideAnimation,
         child: FadeTransition(
@@ -164,13 +163,13 @@ class _NotificationPopupWidgetState extends State<_NotificationPopupWidget>
                 }
               },
               child: Container(
-                padding: EdgeInsets.all(BaseSize.w16),
+                padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: BaseColor.white,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  color: AppColors.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(8.0),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.black.withValues(alpha: 0.15),
+                      color: AppColors.primary.withValues(alpha: 0.15),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -179,18 +178,18 @@ class _NotificationPopupWidgetState extends State<_NotificationPopupWidget>
                 child: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(BaseSize.w8),
+                      padding: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: BaseColor.primary[100],
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                       child: Icon(
                         Icons.notifications_active,
-                        color: BaseColor.primary[700],
+                        color: AppColors.primary,
                         size: 24,
                       ),
                     ),
-                    SizedBox(width: BaseSize.w12),
+                    SizedBox(width: 12.0),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,17 +200,17 @@ class _NotificationPopupWidgetState extends State<_NotificationPopupWidget>
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
-                              color: BaseColor.neutral[900],
+                              color: AppColors.neutral,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: BaseSize.h4),
+                          SizedBox(height: 4.0),
                           Text(
                             widget.body,
                             style: TextStyle(
                               fontSize: 13,
-                              color: BaseColor.neutral[600],
+                              color: AppColors.neutral,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -219,7 +218,7 @@ class _NotificationPopupWidgetState extends State<_NotificationPopupWidget>
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: BaseColor.neutral[400]),
+                    Icon(Icons.chevron_right, color: AppColors.neutral),
                   ],
                 ),
               ),

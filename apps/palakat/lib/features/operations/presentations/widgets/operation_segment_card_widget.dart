@@ -19,26 +19,28 @@ class OperationSegmentCardWidget extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: BaseSize.w32,
-              height: BaseSize.w32,
+              width: 32.0,
+              height: 32.0,
               decoration: BoxDecoration(
-                color: BaseColor.blue[100],
+                color: AppColors.primary,
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
               ),
               alignment: Alignment.center,
               child: Icon(
                 AppIcons.work,
-                size: BaseSize.w16,
-                color: BaseColor.blue[700],
+                size: 16.0,
+                color: AppColors.primary,
               ),
             ),
             Gap.w12,
             Expanded(
               child: Text(
                 context.l10n.operations_title,
-                style: BaseTypography.titleLarge.copyWith(
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: BaseColor.black,
+                  color: AppColors.primary,
                 ),
               ),
             ),

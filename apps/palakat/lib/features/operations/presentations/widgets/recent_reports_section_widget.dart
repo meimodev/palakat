@@ -58,7 +58,7 @@ class RecentReportsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Divider(color: BaseColor.neutral[200], height: 1),
+        Divider(color: AppColors.neutral, height: 1),
         Gap.h12,
         _SectionHeader(),
         Gap.h8,
@@ -114,9 +114,9 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       context.l10n.card_reportHistory_title,
-      style: BaseTypography.labelLarge.copyWith(
+      style: Theme.of(context).textTheme.labelLarge!.copyWith(
         fontWeight: FontWeight.w600,
-        color: BaseColor.textSecondary,
+        color: AppColors.onSurfaceVariant,
       ),
     );
   }
@@ -141,7 +141,7 @@ class _ReportsList extends StatelessWidget {
       children: reports
           .map(
             (report) => Padding(
-              padding: EdgeInsets.only(bottom: BaseSize.w4),
+              padding: EdgeInsets.only(bottom: 4.0),
               child: RecentReportItem(
                 report: report,
                 onDownloadTap: () => onDownloadTap(report),
@@ -193,13 +193,13 @@ class RecentReportItem extends StatelessWidget {
         : l10n.msg_noGenerationDate;
 
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(8.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -208,36 +208,36 @@ class RecentReportItem extends StatelessWidget {
               MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
           final actions = Wrap(
-            spacing: BaseSize.w8,
-            runSpacing: BaseSize.h8,
+            spacing: 8.0,
+            runSpacing: 8.0,
             children: [
               if (report.format == ReportFormat.pdf && onViewTap != null)
                 IconButton(
                   onPressed: onViewTap,
                   icon: Icon(AppIcons.openExternal),
-                  iconSize: BaseSize.w20,
-                  color: BaseColor.primary,
+                  iconSize: 20.0,
+                  color: AppColors.primary,
                   style: IconButton.styleFrom(
-                    backgroundColor: BaseColor.primary[50],
-                    padding: EdgeInsets.all(BaseSize.w10),
-                    minimumSize: Size(BaseSize.w44, BaseSize.w44),
+                    backgroundColor: AppColors.primary,
+                    padding: EdgeInsets.all(10.0),
+                    minimumSize: Size(44.0, 44.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                 ),
               IconButton(
                 onPressed: onDownloadTap,
                 icon: Icon(AppIcons.download),
-                iconSize: BaseSize.w20,
-                color: BaseColor.primary,
+                iconSize: 20.0,
+                color: AppColors.primary,
                 tooltip: l10n.tooltip_downloadReport,
                 style: IconButton.styleFrom(
-                  backgroundColor: BaseColor.primary[50],
-                  padding: EdgeInsets.all(BaseSize.w10),
-                  minimumSize: Size(BaseSize.w44, BaseSize.w44),
+                  backgroundColor: AppColors.primary,
+                  padding: EdgeInsets.all(10.0),
+                  minimumSize: Size(44.0, 44.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
               ),
@@ -245,17 +245,21 @@ class RecentReportItem extends StatelessWidget {
           );
 
           final reportIcon = Container(
-            width: BaseSize.w40,
-            height: BaseSize.w40,
+            width: 40.0,
+            height: 40.0,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: _getFormatColor(report.format).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              border: Border.all(
+                color: _getFormatColor(report.format).withValues(alpha: 0.24),
+              ),
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
             ),
             child: Icon(
               _getFormatIcon(report.format),
               color: _getFormatColor(report.format),
-              size: BaseSize.w18,
+              size: 18.0,
             ),
           );
 
@@ -265,9 +269,9 @@ class RecentReportItem extends StatelessWidget {
             children: [
               Text(
                 report.name,
-                style: BaseTypography.bodyMedium.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.textPrimary,
+                  color: AppColors.onSurface,
                 ),
                 maxLines: shouldStack ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
@@ -275,8 +279,8 @@ class RecentReportItem extends StatelessWidget {
               Gap.h6,
               Text(
                 dateText,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -286,8 +290,8 @@ class RecentReportItem extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: BaseSize.w12,
-              vertical: BaseSize.h8,
+              horizontal: 12.0,
+              vertical: 8.0,
             ),
             child: shouldStack
                 ? Column(
@@ -332,9 +336,9 @@ class RecentReportItem extends StatelessWidget {
   Color _getFormatColor(ReportFormat format) {
     switch (format) {
       case ReportFormat.pdf:
-        return BaseColor.error;
+        return AppColors.error;
       case ReportFormat.xlsx:
-        return BaseColor.success;
+        return AppColors.success;
     }
   }
 }
@@ -352,7 +356,7 @@ class _PendingJobsList extends StatelessWidget {
       children: jobs
           .map(
             (job) => Padding(
-              padding: EdgeInsets.only(bottom: BaseSize.w4),
+              padding: EdgeInsets.only(bottom: 4.0),
               child: _PendingJobItem(job: job),
             ),
           )
@@ -381,7 +385,7 @@ class _PendingJobItem extends StatelessWidget {
       color: statusInfo.backgroundColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
         side: BorderSide(color: statusInfo.borderColor, width: 1),
       ),
       child: LayoutBuilder(
@@ -392,34 +396,33 @@ class _PendingJobItem extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: BaseSize.w12,
-              vertical: BaseSize.h8,
+              horizontal: 12.0,
+              vertical: 8.0,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Status icon
                 Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
+                  width: 36.0,
+                  height: 36.0,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: statusInfo.iconBackgroundColor,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    border: Border.all(color: statusInfo.borderColor),
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                   ),
                   child: statusInfo.isAnimated
-                      ? SizedBox(
-                          width: BaseSize.w16,
-                          height: BaseSize.w16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: statusInfo.iconColor,
-                          ),
+                      ? CompactLoadingWidget(
+                          size: 16.0,
+                          baseColor: statusInfo.iconColor.withValues(alpha: 0.24),
+                          highlightColor: AppColors.surface,
                         )
                       : Icon(
                           statusInfo.icon,
                           color: statusInfo.iconColor,
-                          size: BaseSize.w16,
+                          size: 16.0,
                         ),
                 ),
                 Gap.w12,
@@ -431,9 +434,9 @@ class _PendingJobItem extends StatelessWidget {
                     children: [
                       Text(
                         _getJobName(context, job),
-                        style: BaseTypography.bodyMedium.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
+                          color: AppColors.onSurface,
                         ),
                         maxLines: shouldStackMeta ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
@@ -442,7 +445,7 @@ class _PendingJobItem extends StatelessWidget {
                       if (shouldStackMeta) ...[
                         Text(
                           statusInfo.statusText,
-                          style: BaseTypography.bodyMedium.copyWith(
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             color: statusInfo.iconColor,
                             fontWeight: FontWeight.w600,
                           ),
@@ -450,29 +453,29 @@ class _PendingJobItem extends StatelessWidget {
                         Gap.h4,
                         Text(
                           dateText,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.textSecondary,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ] else
                         Wrap(
-                          spacing: BaseSize.w4,
-                          runSpacing: BaseSize.h4,
+                          spacing: 4.0,
+                          runSpacing: 4.0,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               statusInfo.statusText,
-                              style: BaseTypography.bodyMedium.copyWith(
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: statusInfo.iconColor,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               '• $dateText',
-                              style: BaseTypography.bodyMedium.copyWith(
-                                color: BaseColor.textSecondary,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: AppColors.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -512,40 +515,40 @@ class _PendingJobItem extends StatelessWidget {
       case ReportJobStatus.pending:
         return _StatusInfo(
           icon: AppIcons.pending,
-          iconColor: BaseColor.warning,
-          iconBackgroundColor: BaseColor.warning.withValues(alpha: 0.12),
-          backgroundColor: BaseColor.yellow.shade50,
-          borderColor: BaseColor.yellow.shade200,
+          iconColor: AppColors.warning,
+          iconBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
+          backgroundColor: AppColors.warning.shade50,
+          borderColor: AppColors.warning.shade200,
           statusText: l10n.jobStatus_pending,
           isAnimated: false,
         );
       case ReportJobStatus.processing:
         return _StatusInfo(
           icon: AppIcons.pending,
-          iconColor: BaseColor.primary,
-          iconBackgroundColor: BaseColor.primary.withValues(alpha: 0.12),
-          backgroundColor: BaseColor.blue.shade50,
-          borderColor: BaseColor.blue.shade200,
+          iconColor: AppColors.primary,
+          iconBackgroundColor: AppColors.primary.withValues(alpha: 0.12),
+          backgroundColor: AppColors.primary.shade50,
+          borderColor: AppColors.primary.shade200,
           statusText: l10n.jobStatus_processing,
           isAnimated: true,
         );
       case ReportJobStatus.completed:
         return _StatusInfo(
           icon: AppIcons.checkCircle,
-          iconColor: BaseColor.success,
-          iconBackgroundColor: BaseColor.success.withValues(alpha: 0.12),
-          backgroundColor: BaseColor.green.shade50,
-          borderColor: BaseColor.green.shade200,
+          iconColor: AppColors.success,
+          iconBackgroundColor: AppColors.success.withValues(alpha: 0.12),
+          backgroundColor: AppColors.success.shade50,
+          borderColor: AppColors.success.shade200,
           statusText: l10n.jobStatus_completed,
           isAnimated: false,
         );
       case ReportJobStatus.failed:
         return _StatusInfo(
           icon: AppIcons.error,
-          iconColor: BaseColor.error,
-          iconBackgroundColor: BaseColor.error.withValues(alpha: 0.12),
-          backgroundColor: BaseColor.red.shade50,
-          borderColor: BaseColor.red.shade200,
+          iconColor: AppColors.error,
+          iconBackgroundColor: AppColors.error.withValues(alpha: 0.12),
+          backgroundColor: AppColors.error.shade50,
+          borderColor: AppColors.error.shade200,
           statusText: l10n.jobStatus_failed,
           isAnimated: false,
         );

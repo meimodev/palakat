@@ -28,12 +28,12 @@ class FinanceSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.white,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
       shadowColor: _accentColor.withValues(alpha: 0.05),
       surfaceTintColor: _accentColor.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        borderRadius: BorderRadius.circular(16.0),
         side: BorderSide(
           color: _accentColor.withValues(alpha: 0.3),
           width: 1.5,
@@ -55,12 +55,12 @@ class FinanceSummaryCard extends StatelessWidget {
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
+      padding: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: _accentColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg - 1),
-          topRight: Radius.circular(BaseSize.radiusLg - 1),
+          topLeft: Radius.circular(16.0 - 1),
+          topRight: Radius.circular(16.0 - 1),
         ),
       ),
       child: Row(
@@ -72,14 +72,14 @@ class FinanceSummaryCard extends StatelessWidget {
           _ActionButton(
             icon: AppIcons.edit,
             onTap: onEdit,
-            color: BaseColor.primary,
+            color: AppColors.primary,
           ),
           Gap.w8,
           // Remove button
           _ActionButton(
             icon: AppIcons.delete,
             onTap: onRemove,
-            color: BaseColor.error,
+            color: AppColors.error,
           ),
         ],
       ),
@@ -94,7 +94,7 @@ class FinanceSummaryCard extends StatelessWidget {
         : formatRupiah(financeData.amount);
 
     return Padding(
-      padding: EdgeInsets.all(BaseSize.w12),
+      padding: EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -104,7 +104,7 @@ class FinanceSummaryCard extends StatelessWidget {
             iconColor: _accentColor,
             label: l10n.lbl_amount,
             value: formattedAmount,
-            valueStyle: BaseTypography.titleMedium.copyWith(
+            valueStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
               color: _accentColor,
               fontWeight: FontWeight.w700,
             ),
@@ -159,22 +159,22 @@ class _FinanceTypeBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h6,
+        horizontal: 12.0,
+        vertical: 6.0,
       ),
       decoration: BoxDecoration(
         color: type.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        borderRadius: BorderRadius.circular(4.0),
         border: Border.all(color: type.color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(type.icon, size: BaseSize.w16, color: type.color),
+          FaIcon(type.icon, size: 16.0, color: type.color),
           Gap.w6,
           Text(
             type.displayName,
-            style: BaseTypography.bodyMedium.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: type.color,
               fontWeight: FontWeight.w600,
             ),
@@ -201,15 +201,15 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+      borderRadius: BorderRadius.circular(4.0),
       child: Container(
-        padding: EdgeInsets.all(BaseSize.w8),
+        padding: EdgeInsets.all(8.0),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+          borderRadius: BorderRadius.circular(4.0),
         ),
-        child: FaIcon(icon, size: BaseSize.w18, color: color),
+        child: FaIcon(icon, size: 18.0, color: color),
       ),
     );
   }
@@ -240,17 +240,17 @@ class _InfoRow extends StatelessWidget {
       children: [
         // Icon
         Container(
-          width: BaseSize.w32,
-          height: BaseSize.w32,
+          width: 32.0,
+          height: 32.0,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: iconColor?.withValues(alpha: 0.1) ?? BaseColor.neutral[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: iconColor?.withValues(alpha: 0.1) ?? AppColors.neutral,
+            borderRadius: BorderRadius.circular(4.0),
           ),
           child: FaIcon(
             icon,
-            size: BaseSize.w16,
-            color: iconColor ?? BaseColor.neutral[600],
+            size: 16.0,
+            color: iconColor ?? AppColors.neutral,
           ),
         ),
         Gap.w12,
@@ -261,8 +261,8 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: BaseTypography.labelMedium.copyWith(
-                  color: BaseColor.neutral[500],
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: AppColors.neutral,
                 ),
               ),
               Gap.h4,
@@ -270,8 +270,8 @@ class _InfoRow extends StatelessWidget {
                 value,
                 style:
                     valueStyle ??
-                    BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.textPrimary,
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
               ),
@@ -279,8 +279,8 @@ class _InfoRow extends StatelessWidget {
                 Gap.h4,
                 Text(
                   subtitle!,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.neutral[600],
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.neutral,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

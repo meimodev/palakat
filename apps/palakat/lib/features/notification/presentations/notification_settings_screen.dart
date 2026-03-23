@@ -34,7 +34,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           ScreenTitleWidget.primary(
             title: l10n.notificationSettings_title,
             leadIcon: AppIcons.back,
-            leadIconColor: BaseColor.black,
+            leadIconColor: AppColors.onSurface,
             onPressedLeadIcon: () => context.pop(),
           ),
           Gap.h16,
@@ -48,13 +48,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
           settingsAsync.when(
             data: (settings) =>
                 _buildPreferencesSection(context, ref, settings),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => LoadingShimmer(
+              isLoading: true,
+              child: PalakatShimmerPlaceholders.infoCard(),
+            ),
             error: (error, stack) => Center(
               child: Text(
                 l10n.notificationSettings_errorLoadingSettings(
                   error.toString(),
                 ),
-                style: BaseTypography.bodyMedium.toSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
               ),
             ),
           ),
@@ -70,39 +73,39 @@ class NotificationSettingsScreen extends ConsumerWidget {
   ) {
     final l10n = context.l10n;
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: BaseColor.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.primary.withValues(alpha: 0.05),
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w32,
-                  height: BaseSize.w32,
+                  width: 32.0,
+                  height: 32.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[100],
+                    color: AppColors.primary.shade100,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     FontAwesomeIcons.bell,
-                    size: BaseSize.w16,
-                    color: BaseColor.primary[700],
+                    size: 16.0,
+                    color: AppColors.primary.shade700,
                   ),
                 ),
                 Gap.w12,
                 Expanded(
                   child: Text(
                     l10n.notificationSettings_permissionStatus_title,
-                    style: BaseTypography.titleMedium.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -119,12 +122,12 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Container(
-                          width: BaseSize.w12,
-                          height: BaseSize.w12,
+                          width: 12.0,
+                          height: 12.0,
                           decoration: BoxDecoration(
                             color: isGranted
-                                ? BaseColor.green[500]
-                                : BaseColor.red[500],
+                                ? AppColors.success
+                                : AppColors.error,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -133,10 +136,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
                           isGranted
                               ? l10n.notificationSettings_permissionEnabled
                               : l10n.notificationSettings_permissionDisabled,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: BaseColor.black,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
                         ),
                       ],
                     ),
@@ -145,7 +149,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                       isGranted
                           ? l10n.notificationSettings_permissionEnabledDesc
                           : l10n.notificationSettings_permissionDisabledDesc,
-                      style: BaseTypography.bodyMedium.toSecondary,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.toSecondary,
                     ),
                     if (!isGranted) ...[
                       Gap.h16,
@@ -162,10 +168,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   ],
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: LoadingShimmer(
+                  isLoading: true,
+                  child: PalakatShimmerPlaceholders.simpleCard(height: 64),
+                ),
+              ),
               error: (error, stack) => Text(
                 l10n.notificationSettings_errorLoadingPermissionStatus,
-                style: BaseTypography.bodyMedium.toSecondary,
+                style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
               ),
             ),
           ],
@@ -185,39 +197,39 @@ class NotificationSettingsScreen extends ConsumerWidget {
     );
 
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: BaseColor.black.withValues(alpha: 0.05),
-      surfaceTintColor: BaseColor.primary[50],
+      shadowColor: AppColors.primary.withValues(alpha: 0.05),
+      surfaceTintColor: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  width: BaseSize.w32,
-                  height: BaseSize.w32,
+                  width: 32.0,
+                  height: 32.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[100],
+                    color: AppColors.primary.shade100,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     FontAwesomeIcons.sliders,
-                    size: BaseSize.w16,
-                    color: BaseColor.primary[700],
+                    size: 16.0,
+                    color: AppColors.primary.shade700,
                   ),
                 ),
                 Gap.w12,
                 Expanded(
                   child: Text(
                     l10n.notificationSettings_preferences_title,
-                    style: BaseTypography.titleMedium.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: BaseColor.black,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -226,11 +238,12 @@ class NotificationSettingsScreen extends ConsumerWidget {
             Gap.h16,
             Text(
               l10n.notificationSettings_preferences_subtitle,
-              style: BaseTypography.bodyMedium.toSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
             ),
             Gap.h16,
             // Channel preferences
             _buildToggleTile(
+              context: context,
               title: l10n.notificationSettings_channel_activityUpdates_title,
               subtitle:
                   l10n.notificationSettings_channel_activityUpdates_subtitle,
@@ -239,6 +252,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h12,
             _buildToggleTile(
+              context: context,
               title: l10n.notificationSettings_channel_approvalRequests_title,
               subtitle:
                   l10n.notificationSettings_channel_approvalRequests_subtitle,
@@ -247,6 +261,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h12,
             _buildToggleTile(
+              context: context,
               title:
                   l10n.notificationSettings_channel_generalAnnouncements_title,
               subtitle: l10n
@@ -257,6 +272,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h12,
             _buildToggleTile(
+              context: context,
               title:
                   l10n.notificationSettings_channel_birthdayNotifications_title,
               subtitle: l10n
@@ -266,17 +282,18 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   controller.updateBirthdayNotifications(value),
             ),
             Gap.h16,
-            Divider(color: BaseColor.neutral30),
+            Divider(color: AppColors.tertiary),
             Gap.h16,
             Text(
               l10n.notificationSettings_soundVibration_title,
-              style: BaseTypography.bodyMedium.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.w600,
-                color: BaseColor.black,
+                color: AppColors.primary,
               ),
             ),
             Gap.h12,
             _buildToggleTile(
+              context: context,
               title: l10n.notificationSettings_sound_title,
               subtitle: l10n.notificationSettings_sound_subtitle,
               value: settings.soundEnabled,
@@ -284,6 +301,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
             Gap.h12,
             _buildToggleTile(
+              context: context,
               title: l10n.notificationSettings_vibration_title,
               subtitle: l10n.notificationSettings_vibration_subtitle,
               value: settings.vibrationEnabled,
@@ -296,33 +314,34 @@ class NotificationSettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildToggleTile({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
     return Material(
-      color: BaseColor.primary[50],
+      color: AppColors.primary.shade50,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: BaseColor.primary[200] ?? BaseColor.neutral40),
+        side: BorderSide(color: AppColors.primary.shade200),
       ),
       child: SwitchListTile(
         value: value,
         onChanged: onChanged,
         title: Text(
           title,
-          style: BaseTypography.bodyMedium.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontWeight: FontWeight.w600,
-            color: BaseColor.black,
+            color: AppColors.primary.shade700,
           ),
         ),
-        subtitle: Text(subtitle, style: BaseTypography.bodyMedium.toSecondary),
-        activeColor: BaseColor.primary[700],
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h8,
+        subtitle: Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
         ),
+        activeThumbColor: AppColors.primary,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       ),
     );
   }

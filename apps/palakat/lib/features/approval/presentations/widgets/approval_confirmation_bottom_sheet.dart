@@ -14,7 +14,7 @@ Future<bool?> showApprovalConfirmationBottomSheet({
 }) {
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: BaseColor.transparent,
+    backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (dialogContext) => _ApprovalConfirmationContent(
       isApprove: isApprove,
@@ -35,7 +35,7 @@ class _ApprovalConfirmationContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final baseColor = isApprove ? BaseColor.green : BaseColor.red;
+    final baseColor = isApprove ? AppColors.success : AppColors.error;
     final icon = isApprove ? AppIcons.success : AppIcons.reject;
     final title = isApprove
         ? l10n.approval_confirmApproveTitle
@@ -68,20 +68,20 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                   : constraints.maxWidth,
             ),
             child: Material(
-              color: BaseColor.white,
+              color: AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusLg),
-                topRight: Radius.circular(BaseSize.radiusLg),
+                topLeft: Radius.circular(16.0),
+                topRight: Radius.circular(16.0),
               ),
               child: SafeArea(
                 top: false,
                 child: Padding(
                   padding: EdgeInsets.only(
-                    left: BaseSize.w24,
-                    right: BaseSize.w24,
-                    top: BaseSize.w24,
+                    left: 24.0,
+                    right: 24.0,
+                    top: 24.0,
                     bottom:
-                        BaseSize.w24 + MediaQuery.of(context).viewInsets.bottom,
+                        24.0 + MediaQuery.of(context).viewInsets.bottom,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -89,12 +89,12 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                     children: [
                       Center(
                         child: Container(
-                          width: BaseSize.w40,
-                          height: BaseSize.h4,
+                          width: 40.0,
+                          height: 4.0,
                           decoration: BoxDecoration(
-                            color: BaseColor.neutral30,
+                            color: AppColors.tertiary,
                             borderRadius: BorderRadius.circular(
-                              BaseSize.radiusSm,
+                              4.0,
                             ),
                           ),
                         ),
@@ -102,8 +102,8 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                       Gap.h16,
                       Center(
                         child: Container(
-                          width: BaseSize.w56,
-                          height: BaseSize.w56,
+                          width: 56.0,
+                          height: 56.0,
                           decoration: BoxDecoration(
                             color: baseColor[50],
                             shape: BoxShape.circle,
@@ -111,7 +111,7 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                           alignment: Alignment.center,
                           child: FaIcon(
                             icon,
-                            size: BaseSize.w32,
+                            size: 32.0,
                             color: baseColor[700],
                           ),
                         ),
@@ -119,33 +119,33 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                       Gap.h16,
                       Text(
                         title,
-                        style: BaseTypography.titleLarge.copyWith(
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
+                          color: AppColors.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       Gap.h8,
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w12,
-                          vertical: BaseSize.h8,
+                          horizontal: 12.0,
+                          vertical: 8.0,
                         ),
                         decoration: BoxDecoration(
-                          color: BaseColor.surfaceMedium,
+                          color: AppColors.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(
-                            BaseSize.radiusMd,
+                            8.0,
                           ),
                           border: Border.all(
-                            color: BaseColor.neutral[200]!,
+                            color: AppColors.outlineVariant,
                             width: 1,
                           ),
                         ),
                         child: Text(
                           activityTitle,
-                          style: BaseTypography.bodyMedium.copyWith(
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BaseColor.primaryText,
+                            color: AppColors.onSurface,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: shouldStackActions ? 3 : 2,
@@ -155,7 +155,7 @@ class _ApprovalConfirmationContent extends StatelessWidget {
                       Gap.h12,
                       Text(
                         description,
-                        style: BaseTypography.bodyMedium.toSecondary,
+                        style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                         textAlign: TextAlign.center,
                       ),
                       Gap.h24,

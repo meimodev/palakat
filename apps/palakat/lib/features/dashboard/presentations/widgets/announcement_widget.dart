@@ -44,13 +44,13 @@ class AnnouncementWidget extends ConsumerWidget {
             onPressedViewAll: onPressedViewAll,
             count: announcements.length,
             title: context.l10n.activityType_announcement,
-            titleStyle: BaseTypography.titleMedium.copyWith(
+            titleStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.w700,
-              color: BaseColor.black,
+              color: AppColors.primary,
             ),
             leadingIcon: AppIcons.announcement,
-            leadingBg: BaseColor.yellow[50],
-            leadingFg: BaseColor.yellow[700],
+            leadingBg: AppColors.warning.shade100,
+            leadingFg: AppColors.warning.shade700,
           ),
         ),
         Gap.h12,

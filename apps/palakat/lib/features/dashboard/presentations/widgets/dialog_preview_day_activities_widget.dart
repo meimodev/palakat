@@ -45,19 +45,19 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
     if (activities.isEmpty && birthdays.isEmpty) {
       return Center(
         child: Material(
-          color: BaseColor.surfaceMedium,
+          color: AppColors.surfaceContainerLow,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+            borderRadius: BorderRadius.circular(16.0),
+            side: BorderSide(color: AppColors.neutral, width: 1),
           ),
           child: Padding(
-            padding: EdgeInsets.all(BaseSize.w24),
+            padding: EdgeInsets.all(24.0),
             child: Text(
               context.l10n.noData_activities,
               textAlign: TextAlign.center,
-              style: BaseTypography.titleMedium.copyWith(
-                color: BaseColor.textPrimary,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -72,9 +72,9 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: BaseSize.customHeight(300)),
+          constraints: BoxConstraints(maxHeight: 300),
           child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
             separatorBuilder: (_, _) => Gap.h12,
             itemCount: itemsCount,
             physics: const BouncingScrollPhysics(),
@@ -86,12 +86,12 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                     context.l10n.lbl_unknown;
 
                 return Material(
-                  color: BaseColor.cardBackground1,
+                  color: AppColors.surfaceContainerLowest,
                   elevation: 1,
-                  shadowColor: Colors.black.withValues(alpha: 0.05),
-                  surfaceTintColor: BaseColor.yellow[50],
+                  shadowColor: AppColors.onSurface,
+                  surfaceTintColor: AppColors.warning,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: InkWell(
@@ -99,23 +99,28 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                         ? null
                         : () => onPressedCardBirthday!(birthday),
                     child: Padding(
-                      padding: EdgeInsets.all(BaseSize.w12),
+                      padding: EdgeInsets.all(12.0),
                       child: Row(
                         children: [
                           Container(
-                            width: BaseSize.w36,
-                            height: BaseSize.w36,
+                            width: 36.0,
+                            height: 36.0,
                             decoration: BoxDecoration(
-                              color: BaseColor.yellow[100],
-                              borderRadius: BorderRadius.circular(
-                                BaseSize.radiusMd,
+                              color: AppColors.warning.shade100,
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                color: AppColors.warning.shade200,
+                              ),
+                              boxShadow: SanctuaryDepth.ambient(
+                                opacity: 0.02,
+                                blur: 8,
                               ),
                             ),
                             alignment: Alignment.center,
                             child: Icon(
                               AppIcons.birthday,
-                              size: BaseSize.w16,
-                              color: BaseColor.yellow[700],
+                              size: 16.0,
+                              color: AppColors.warning.shade700,
                             ),
                           ),
                           Gap.w12,
@@ -128,33 +133,39 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                                   name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: BaseTypography.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: BaseColor.textPrimary,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.onSurface,
+                                      ),
                                 ),
                                 Gap.h6,
                                 Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: BaseSize.w8,
-                                    vertical: BaseSize.h4,
+                                    horizontal: 8.0,
+                                    vertical: 4.0,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: BaseColor.yellow[50],
-                                    borderRadius: BorderRadius.circular(
-                                      BaseSize.radiusSm,
-                                    ),
+                                    color: AppColors.warning.shade100,
+                                    borderRadius: BorderRadius.circular(4.0),
                                     border: Border.all(
-                                      color: BaseColor.yellow[200]!,
+                                      color: AppColors.warning.shade200,
                                       width: 1,
+                                    ),
+                                    boxShadow: SanctuaryDepth.ambient(
+                                      opacity: 0.02,
+                                      blur: 6,
                                     ),
                                   ),
                                   child: Text(
                                     context.l10n.tbl_birth,
-                                    style: BaseTypography.labelMedium.copyWith(
-                                      color: BaseColor.yellow[700],
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium!
+                                        .copyWith(
+                                          color: AppColors.warning.shade700,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -163,8 +174,8 @@ class _DialogPreviewDayActivitiesWidget extends StatelessWidget {
                           Gap.w8,
                           Icon(
                             Icons.chevron_right,
-                            size: BaseSize.w18,
-                            color: BaseColor.secondaryText,
+                            size: 18.0,
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ],
                       ),

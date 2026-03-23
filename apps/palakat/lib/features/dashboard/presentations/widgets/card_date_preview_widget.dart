@@ -56,12 +56,11 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
       child: Material(
         clipBehavior: Clip.hardEdge,
         elevation: today ? 2 : 1,
-        shadowColor: Colors.black.withValues(alpha: 0.08),
-        surfaceTintColor:
-            today ? BaseColor.primary[200] : BaseColor.primary[50],
-        color: today ? Colors.transparent : BaseColor.cardBackground1,
+        shadowColor: AppColors.onSurface,
+        surfaceTintColor: today ? AppColors.primary : AppColors.primary,
+        color: today ? Colors.transparent : AppColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+          borderRadius: BorderRadius.circular(16.0),
         ),
         child: Container(
           decoration: today
@@ -69,9 +68,9 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [BaseColor.blue[600]!, BaseColor.teal[500]!],
+                    colors: [AppColors.primary, AppColors.secondary],
                   ),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  borderRadius: BorderRadius.circular(16.0),
                 )
               : null,
           child: InkWell(
@@ -83,10 +82,7 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
             child: Container(
               height: widget.height,
               width: widget.width,
-              padding: EdgeInsets.symmetric(
-                vertical: BaseSize.customHeight(10),
-                horizontal: BaseSize.customWidth(8),
-              ),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -94,10 +90,10 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
                   // Day name
                   Text(
                     date.toStringFormatted("E"),
-                    style: BaseTypography.labelMedium.copyWith(
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       color: today
-                          ? Colors.white.withValues(alpha: 0.9)
-                          : BaseColor.secondaryText,
+                          ? AppColors.surfaceContainerLowest
+                          : AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -105,8 +101,10 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
                   // Day number
                   Text(
                     date.day.toString(),
-                    style: BaseTypography.headlineSmall.copyWith(
-                      color: today ? Colors.white : BaseColor.textPrimary,
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: today
+                          ? AppColors.surfaceContainerLowest
+                          : AppColors.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -129,13 +127,11 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
         _pillChip(
           icon: AppIcons.birthday,
           label: widget.birthdayCount.toString(),
-          bg: isToday
-              ? Colors.white.withValues(alpha: 0.2)
-              : BaseColor.yellow[50]!,
-          fg: isToday ? Colors.white : BaseColor.yellow[700]!,
+          bg: isToday ? AppColors.surfaceContainerLowest : AppColors.warning,
+          fg: isToday ? AppColors.warning : AppColors.surfaceContainerLowest,
           border: isToday
-              ? Colors.white.withValues(alpha: 0.3)
-              : BaseColor.yellow[200]!,
+              ? AppColors.surfaceContainerLowest
+              : AppColors.warning,
         ),
       );
     }
@@ -145,13 +141,11 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
         _pillChip(
           icon: AppIcons.church,
           label: widget.serviceCount.toString(),
-          bg: isToday
-              ? Colors.white.withValues(alpha: 0.2)
-              : BaseColor.green[50]!,
-          fg: isToday ? Colors.white : BaseColor.green[700]!,
+          bg: isToday ? AppColors.surfaceContainerLowest : AppColors.success,
+          fg: isToday ? AppColors.success : AppColors.surfaceContainerLowest,
           border: isToday
-              ? Colors.white.withValues(alpha: 0.3)
-              : BaseColor.green[200]!,
+              ? AppColors.surfaceContainerLowest
+              : AppColors.success,
         ),
       );
     }
@@ -161,13 +155,11 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
         _pillChip(
           icon: AppIcons.event,
           label: widget.eventCount.toString(),
-          bg: isToday
-              ? Colors.white.withValues(alpha: 0.2)
-              : BaseColor.blue[50]!,
-          fg: isToday ? Colors.white : BaseColor.blue[700]!,
+          bg: isToday ? AppColors.surfaceContainerLowest : AppColors.primary,
+          fg: isToday ? AppColors.primary : AppColors.surfaceContainerLowest,
           border: isToday
-              ? Colors.white.withValues(alpha: 0.3)
-              : BaseColor.blue[200]!,
+              ? AppColors.surfaceContainerLowest
+              : AppColors.primary,
         ),
       );
     }
@@ -177,13 +169,11 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
         _pillChip(
           icon: AppIcons.announcement,
           label: widget.announcementCount.toString(),
-          bg: isToday
-              ? Colors.white.withValues(alpha: 0.2)
-              : BaseColor.teal[50]!,
-          fg: isToday ? Colors.white : BaseColor.teal[700]!,
+          bg: isToday ? AppColors.surfaceContainerLowest : AppColors.secondary,
+          fg: isToday ? AppColors.secondary : AppColors.surfaceContainerLowest,
           border: isToday
-              ? Colors.white.withValues(alpha: 0.3)
-              : BaseColor.teal[200]!,
+              ? AppColors.surfaceContainerLowest
+              : AppColors.secondary,
         ),
       );
     }
@@ -229,23 +219,21 @@ class _CardDatePreviewWidgetState extends State<CardDatePreviewWidget> {
     required Color border,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w6,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+        borderRadius: BorderRadius.circular(4.0),
         border: Border.all(color: border, width: 1),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: BaseSize.customWidth(12), color: fg),
+          Icon(icon, size: 12, color: fg),
           Gap.w4,
           Text(
             label,
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: fg,
               fontWeight: FontWeight.w700,
             ),

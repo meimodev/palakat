@@ -64,6 +64,10 @@ const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
 export class ChurchPermissionPolicyService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private isElevatedRole(role?: string): boolean {
+    return role === 'ADMIN' || role === 'SUPER_ADMIN';
+  }
+
   private async resolveRequesterMembership(userId: number): Promise<{
     membershipId: number;
     churchId: number;
@@ -279,7 +283,7 @@ export class ChurchPermissionPolicyService {
     userId: number;
     role?: string;
   }): Promise<{ churchId: number }> {
-    if (user?.role === 'ADMIN') {
+    if (this.isElevatedRole(user?.role)) {
       const membership = await (this.prisma as any).membership.findUnique({
         where: { accountId: user.userId },
         select: {
@@ -407,7 +411,7 @@ export class ChurchPermissionPolicyService {
   }
 
   async getEffectivePermissions(user: { userId: number; role?: string }) {
-    if (user?.role === 'ADMIN') {
+    if (this.isElevatedRole(user?.role)) {
       return {
         message: 'OK',
         data: {

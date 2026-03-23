@@ -1,3 +1,4 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/theme.dart';
@@ -17,32 +18,32 @@ class CardBipra extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.cardBackground1,
+      color: AppColors.surfaceContainerLowest,
       elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
-      surfaceTintColor: BaseColor.teal[50],
+      shadowColor: AppColors.onSurface,
+      surfaceTintColor: Theme.of(context).colorScheme.secondary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onPressed,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
               // Abbreviation in gradient circle
               Container(
-                width: BaseSize.w48,
-                height: BaseSize.w48,
+                width: 48.0,
+                height: 48.0,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [BaseColor.teal[400]!, BaseColor.teal[600]!],
+                    colors: [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.teal[300]!.withValues(alpha: 0.4),
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -51,8 +52,8 @@ class CardBipra extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   bipra.abv,
-                  style: BaseTypography.titleMedium.copyWith(
-                    color: Colors.white,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: AppColors.surfaceContainerLowest,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -68,9 +69,9 @@ class CardBipra extends StatelessWidget {
                       (columnName != null && columnName!.isNotEmpty)
                           ? '${bipra.name} (${columnName!})'
                           : bipra.name,
-                      style: BaseTypography.titleLarge.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: BaseColor.black,
+                        color: AppColors.primary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -78,14 +79,14 @@ class CardBipra extends StatelessWidget {
                     Gap.h4,
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w8,
-                        vertical: BaseSize.h4,
+                        horizontal: 8.0,
+                        vertical: 4.0,
                       ),
                       decoration: BoxDecoration(
-                        color: BaseColor.teal[50],
+                        color: Theme.of(context).colorScheme.secondary,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: BaseColor.teal[200]!,
+                          color: Theme.of(context).colorScheme.secondary,
                           width: 1,
                         ),
                       ),
@@ -94,14 +95,14 @@ class CardBipra extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.group_outlined,
-                            size: BaseSize.w12,
-                            color: BaseColor.teal[700],
+                            size: 12.0,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           Gap.w4,
                           Text(
                             'Group',
-                            style: BaseTypography.labelSmall.copyWith(
-                              color: BaseColor.teal[700],
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -115,8 +116,8 @@ class CardBipra extends StatelessWidget {
               // Arrow indicator
               Icon(
                 Icons.chevron_right,
-                size: BaseSize.w24,
-                color: BaseColor.secondaryText,
+                size: 24.0,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ],
           ),

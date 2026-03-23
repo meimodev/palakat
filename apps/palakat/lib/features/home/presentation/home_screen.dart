@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/notification/data/pusher_beams_controller.dart';
@@ -183,7 +182,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 SnackBar(
                   content: Text(
                     context.l10n.msg_pressBackToExit,
-                    style: BaseTypography.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium!,
                   ),
                   duration: const Duration(seconds: 2),
                 ),

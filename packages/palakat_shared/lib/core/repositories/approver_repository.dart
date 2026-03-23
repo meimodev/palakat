@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/approver.dart';
 import '../models/approval_status.dart';
@@ -136,19 +137,19 @@ class ApproverRepository {
       case ApprovalStatus.unconfirmed:
         return StatusDisplay(
           label: 'Unconfirmed',
-          colorValue: Colors.grey.shade600.toARGB32(),
+          colorValue: AppColors.onSurfaceVariant.toARGB32(),
           icon: Icons.help_outline,
         );
       case ApprovalStatus.approved:
         return StatusDisplay(
           label: 'Approved',
-          colorValue: Colors.green.shade600.toARGB32(),
+          colorValue: AppColors.success.toARGB32(),
           icon: Icons.check_circle_outline,
         );
       case ApprovalStatus.rejected:
         return StatusDisplay(
           label: 'Rejected',
-          colorValue: Colors.red.shade600.toARGB32(),
+          colorValue: AppColors.error.toARGB32(),
           icon: Icons.cancel_outlined,
         );
     }

@@ -13,8 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  palakat_shared:
-    path: ../../packages/palakat_shared
+  palakat_shared: any
 
   cupertino_icons: ^1.0.8
 

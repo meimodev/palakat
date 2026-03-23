@@ -28,42 +28,42 @@ class PublishByYouWidget extends StatelessWidget {
           count: data.length,
           title: l10n.publish_publishedByYou,
           leadingIcon: AppIcons.person,
-          leadingBg: BaseColor.teal[50],
-          leadingFg: BaseColor.teal[700],
+          leadingBg: AppColors.secondary,
+          leadingFg: AppColors.secondary,
         ),
         Gap.h12,
         if (data.isEmpty)
           Material(
-            color: BaseColor.surfaceMedium,
+            color: AppColors.surfaceContainerLow,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-              side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+              borderRadius: BorderRadius.circular(16.0),
+              side: BorderSide(color: AppColors.neutral, width: 1),
             ),
             child: Padding(
-              padding: EdgeInsets.all(BaseSize.w24),
+              padding: EdgeInsets.all(24.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: BaseSize.w56,
-                    height: BaseSize.w56,
+                    width: 56.0,
+                    height: 56.0,
                     decoration: BoxDecoration(
-                      color: BaseColor.primary[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
                     alignment: Alignment.center,
                     child: Icon(
                       AppIcons.publishOutlined,
-                      size: BaseSize.w24,
-                      color: BaseColor.primary,
+                      size: 24.0,
+                      color: AppColors.primary,
                     ),
                   ),
                   Gap.h12,
                   Text(
                     l10n.publish_noPublishedActivities,
                     textAlign: TextAlign.center,
-                    style: BaseTypography.titleMedium.copyWith(
-                      color: BaseColor.textPrimary,
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: AppColors.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -71,8 +71,8 @@ class PublishByYouWidget extends StatelessWidget {
                   Text(
                     l10n.publish_noPublishedActivitiesSubtitle,
                     textAlign: TextAlign.center,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.textSecondary,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ],

@@ -64,11 +64,11 @@ class OperationCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLow,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -80,7 +80,6 @@ class OperationCategoryCard extends StatelessWidget {
             onTap: () => onExpansionChanged(!category.isExpanded),
           ),
 
-          // Operation items - only visible when expanded
           AnimatedCrossFade(
             firstChild: _buildOperationsList(context, category.operations),
             secondChild: const SizedBox.shrink(),
@@ -99,20 +98,18 @@ class OperationCategoryCard extends StatelessWidget {
     List<OperationItem> operations,
   ) {
     final l10n = context.l10n;
-
+    if (operations.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text(
+          l10n.operations_noOperationsAvailable,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurfaceVariant),
+        ),
+      );
+    }
     if (category.id == 'reports') {
-      if (operations.isEmpty) {
-        return Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
-          child: Text(
-            l10n.operations_noOperationsAvailable,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.textSecondary,
-            ),
-          ),
-        );
-      }
-
       return LayoutBuilder(
         builder: (context, constraints) {
           final crossAxisCount = _reportGridColumnCount(constraints.maxWidth);
@@ -120,10 +117,10 @@ class OperationCategoryCard extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.only(
-              left: BaseSize.w8,
-              right: BaseSize.w8,
-              bottom: BaseSize.w12,
-              top: BaseSize.w8,
+              left: 8.0,
+              right: 8.0,
+              bottom: 12.0,
+              top: 8.0,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -134,8 +131,8 @@ class OperationCategoryCard extends StatelessWidget {
                   itemCount: operations.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: BaseSize.w8,
-                    mainAxisSpacing: BaseSize.w8,
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
                     childAspectRatio: childAspectRatio,
                   ),
                   itemBuilder: (context, index) {
@@ -155,7 +152,7 @@ class OperationCategoryCard extends StatelessWidget {
                         pendingReportJobs!.isNotEmpty) ||
                     isLoadingPendingReportJobs)
                   Padding(
-                    padding: EdgeInsets.only(top: BaseSize.w8),
+                    padding: EdgeInsets.only(top: 8.0),
                     child: RecentReportsSection(
                       reports: recentReports ?? [],
                       isLoading: isLoadingRecentReports,
@@ -175,24 +172,8 @@ class OperationCategoryCard extends StatelessWidget {
       );
     }
 
-    if (operations.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.all(BaseSize.w16),
-        child: Text(
-          l10n.operations_noOperationsAvailable,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.textSecondary,
-          ),
-        ),
-      );
-    }
-
     return Padding(
-      padding: EdgeInsets.only(
-        left: BaseSize.w8,
-        right: BaseSize.w8,
-        bottom: BaseSize.w8,
-      ),
+      padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
       child: ResponsiveOperationGrid(
         operations: operations,
         onOperationTap: onOperationTap,
@@ -203,7 +184,7 @@ class OperationCategoryCard extends StatelessWidget {
 
 int _reportGridColumnCount(double width) {
   if (width >= 760) return 3;
-  if (width >= 420) return 2;
+  if (width >= 150) return 2;
   return 1;
 }
 
@@ -225,49 +206,49 @@ class _ReportTypeTile extends StatelessWidget {
     return Opacity(
       opacity: isEnabled ? 1.0 : OperationItemCard.disabledOpacity,
       child: Material(
-        color: BaseColor.cardBackground1,
+        color: AppColors.surfaceContainerLowest,
         elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.05),
-        surfaceTintColor: BaseColor.primary[50],
+        shadowColor: AppColors.onSurface,
+        surfaceTintColor: AppColors.primary,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+          borderRadius: BorderRadius.circular(8.0),
+          side: BorderSide(color: AppColors.neutral, width: 1),
         ),
         child: InkWell(
           onTap: isEnabled ? onTap : null,
-          splashColor: BaseColor.primary.withValues(alpha: 0.08),
-          highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+          splashColor: AppColors.primary.withValues(alpha: 0.08),
+          highlightColor: AppColors.primary.withValues(alpha: 0.05),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final shouldStack =
-                  constraints.maxWidth < 180 ||
+                  constraints.maxWidth < 100 ||
                   MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
               final tileIcon = Container(
-                width: shouldStack ? BaseSize.w32 : BaseSize.w28,
-                height: shouldStack ? BaseSize.w32 : BaseSize.w28,
+                width: shouldStack ? 32.0 : 28.0,
+                height: shouldStack ? 32.0 : 28.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isEnabled
-                      ? BaseColor.primary.withValues(alpha: 0.12)
-                      : BaseColor.neutral[100],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: isEnabled ? AppColors.primary : AppColors.neutral,
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Icon(
                   icon,
-                  color: isEnabled ? BaseColor.primary : BaseColor.textDisabled,
-                  size: shouldStack ? BaseSize.w16 : BaseSize.w14,
+                  color: isEnabled
+                      ? AppColors.neutral
+                      : AppColors.onSurface.withValues(alpha: 0.38),
+                  size: shouldStack ? 16.0 : 14.0,
                 ),
               );
 
               final titleText = Text(
                 title,
-                style: BaseTypography.bodyMedium.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: isEnabled
-                      ? BaseColor.textPrimary
-                      : BaseColor.textDisabled,
+                      ? AppColors.onSurface
+                      : AppColors.onSurface.withValues(alpha: 0.38),
                   height: 1.1,
                 ),
                 maxLines: shouldStack ? 3 : 2,
@@ -275,10 +256,7 @@ class _ReportTypeTile extends StatelessWidget {
               );
 
               return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w12,
-                  vertical: BaseSize.h8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                 child: shouldStack
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,7 +271,7 @@ class _ReportTypeTile extends StatelessWidget {
                           tileIcon,
                           Expanded(
                             child: Padding(
-                              padding: EdgeInsets.only(left: BaseSize.w8),
+                              padding: EdgeInsets.only(left: 8.0),
                               child: titleText,
                             ),
                           ),
@@ -332,13 +310,13 @@ class _CategoryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.primary[50],
+      color: Colors.transparent,
       child: InkWell(
-        onTap: onTap, // Always tappable for expand/collapse
-        splashColor: BaseColor.primary.withValues(alpha: 0.1),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        onTap: onTap,
+        splashColor: AppColors.primary.withValues(alpha: 0.1),
+        highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final shouldStack =
@@ -346,43 +324,48 @@ class _CategoryHeader extends StatelessWidget {
                   MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
               final icon = Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
+                width: 40.0,
+                height: 40.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                 ),
                 child: Icon(
                   category.icon,
-                  color: BaseColor.primary,
-                  size: BaseSize.w24,
+                  color: AppColors.primary,
+                  size: 24.0,
                 ),
               );
 
               final title = Text(
                 _categoryTitle(context, category),
-                style: BaseTypography.titleMedium.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: BaseColor.textPrimary,
+                  color: AppColors.onSurface,
                 ),
                 maxLines: shouldStack ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
               );
 
               final countBadge = Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w8,
-                  vertical: BaseSize.w4,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
                 ),
                 child: Text(
                   '${category.operations.length}',
-                  style: BaseTypography.labelMedium.copyWith(
-                    color: BaseColor.primary[700],
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -393,31 +376,10 @@ class _CategoryHeader extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   AppIcons.keyboardArrowDown,
-                  color: BaseColor.primary,
-                  size: BaseSize.w24,
+                  color: AppColors.primary,
+                  size: 24.0,
                 ),
               );
-
-              if (shouldStack) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        icon,
-                        Gap.w12,
-                        Expanded(child: title),
-                      ],
-                    ),
-                    Gap.h12,
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [countBadge, Gap.w8, expandIcon],
-                    ),
-                  ],
-                );
-              }
 
               return Row(
                 children: [

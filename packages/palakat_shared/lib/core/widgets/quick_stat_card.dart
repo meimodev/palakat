@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
 
 /// Reusable quick statistic card with built-in shimmer loading
@@ -30,6 +31,21 @@ class QuickStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final resolvedIconBackgroundColor =
+        iconBackgroundColor ?? AppColors.surfaceContainerHigh;
+    final resolvedIconColor = () {
+      final desiredColor = iconColor ?? theme.colorScheme.primary;
+      if (desiredColor.value != resolvedIconBackgroundColor.value) {
+        return desiredColor;
+      }
+
+      return ThemeData.estimateBrightnessForColor(
+                resolvedIconBackgroundColor,
+              ) ==
+              Brightness.dark
+          ? Colors.white
+          : Colors.black87;
+    }();
 
     Widget buildContent() {
       return Column(
@@ -55,29 +71,21 @@ class QuickStatCard extends StatelessWidget {
               const SizedBox(width: 12),
               if (icon != null)
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color:
-                        iconBackgroundColor ??
-                        theme.colorScheme.primaryContainer.withValues(
-                          alpha: 0.3,
-                        ),
-                    borderRadius: BorderRadius.circular(6),
+                    color: resolvedIconBackgroundColor,
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
                   ),
-                  child: Icon(
-                    icon!,
-                    size: 16,
-                    color: iconColor ?? theme.colorScheme.primary,
-                  ),
+                  child: Icon(icon!, size: 18, color: resolvedIconColor),
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           isLoading
               ? _shimmerBlock(height: 28, width: 60, borderRadius: 6)
               : Text(
                   value.toThousands(),
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                   maxLines: 1,
@@ -109,18 +117,11 @@ class QuickStatCard extends StatelessWidget {
 
         return Container(
           width: resolvedWidth,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.032, blur: 24),
           ),
           child: isLoading
               ? LoadingShimmer(isLoading: true, child: buildContent())
@@ -139,7 +140,7 @@ class QuickStatCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

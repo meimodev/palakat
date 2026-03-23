@@ -16,4 +16,7 @@ module.exports = {
       url: databaseUrl,
     },
   },
+  migrations: {
+    seed: 'tsx prisma/seed.ts',
+  },
 };

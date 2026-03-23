@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
 import 'package:palakat_admin/features/expense/expense.dart';
-import 'package:palakat_admin/models.dart' hide Column;
-import 'package:palakat_admin/utils.dart';
-import 'package:palakat_admin/widgets.dart';
+import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 class ExpenseDetailDrawer extends ConsumerStatefulWidget {
   final int expenseId;
@@ -106,7 +103,7 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                       valueStyle: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: Theme.of(context).colorScheme.error,
+                            color: AppColors.error,
                           ),
                     ),
                     InfoRow(

@@ -52,11 +52,11 @@ class ApproverStatusBadge extends StatelessWidget {
   static Color getStatusColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
-        return BaseColor.green.shade600;
+        return AppColors.success.shade600;
       case ApprovalStatus.rejected:
-        return BaseColor.red.shade500;
+        return AppColors.error.shade500;
       case ApprovalStatus.unconfirmed:
-        return BaseColor.yellow.shade700;
+        return AppColors.warning.shade700;
     }
   }
 
@@ -92,7 +92,7 @@ class ApproverStatusBadge extends StatelessWidget {
     final color = getStatusColor(status);
     final icon = getStatusIcon(status);
     final label = getStatusLabelLocalized(context, status);
-    final size = iconSize ?? BaseSize.w22;
+    final size = iconSize ?? 22.0;
 
     if (!showLabel) {
       return FaIcon(icon, size: size, color: color);
@@ -105,7 +105,7 @@ class ApproverStatusBadge extends StatelessWidget {
         Gap.w6,
         Text(
           label,
-          style: BaseTypography.labelMedium.copyWith(
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),

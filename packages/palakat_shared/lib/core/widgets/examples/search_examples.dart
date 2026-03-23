@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import '../input/input_search_widget.dart';
 import '../searchable_dialog_picker.dart';
 import '../search_field.dart';
@@ -77,7 +78,7 @@ class _SearchExamplesState extends State<SearchExamples> {
                 autoClearButton: true,
                 debounceMilliseconds: 500,
                 onChanged: (value) => debugPrint('Immediate: $value'),
-                prefixIcon: const Icon(Icons.search, color: Colors.blue),
+                prefixIcon: const Icon(Icons.search, color: AppColors.primary),
               ),
             ),
 
@@ -130,7 +131,7 @@ class _SearchExamplesState extends State<SearchExamples> {
       children: [
         Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(description, style: TextStyle(color: Colors.grey[600])),
+        Text(description, style: TextStyle(color: AppColors.onSurfaceVariant)),
         const SizedBox(height: 8),
         child,
         const SizedBox(height: 24),
@@ -150,7 +151,7 @@ class _SearchExamplesState extends State<SearchExamples> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(item.name, style: const TextStyle(fontWeight: FontWeight.w500)),
-            Text(item.category, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text(item.category, style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12)),
           ],
         ),
         onFilter: (item, query) =>

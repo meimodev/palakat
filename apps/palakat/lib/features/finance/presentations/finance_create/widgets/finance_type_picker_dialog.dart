@@ -53,64 +53,86 @@ class _FinanceTypeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final config = _getConfig(context);
+    final theme = Theme.of(context);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: config.borderColor),
+      ),
+      clipBehavior: Clip.hardEdge,
       child: Container(
-        padding: EdgeInsets.all(BaseSize.w16),
         decoration: BoxDecoration(
           color: config.backgroundColor,
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          border: Border.all(color: config.borderColor),
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
         ),
-        child: Row(
-          children: [
-            // Icon container
-            Container(
-              width: BaseSize.w48,
-              height: BaseSize.w48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: config.iconBackgroundColor,
-                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-              ),
-              child: FaIcon(
-                financeType.icon,
-                size: BaseSize.w24,
-                color: config.iconColor,
-              ),
-            ),
-            Gap.w16,
-            // Label and description
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    financeType.displayName,
-                    style: BaseTypography.titleMedium.copyWith(
-                      color: config.textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 44.0,
+                  height: 44.0,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: config.iconBackgroundColor,
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
                   ),
-                  Gap.h4,
-                  Text(
-                    config.description,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: config.descriptionColor,
-                    ),
+                  child: FaIcon(
+                    financeType.icon,
+                    size: 20.0,
+                    color: config.iconColor,
                   ),
-                ],
-              ),
+                ),
+                Gap.w16,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        financeType.displayName,
+                        style: theme.textTheme.titleMedium!.copyWith(
+                          color: config.textColor,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Gap.h4,
+                      Text(
+                        config.description,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: config.descriptionColor,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Gap.w12,
+                Container(
+                  width: 32.0,
+                  height: 32.0,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: config.iconBackgroundColor,
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                  ),
+                  child: FaIcon(
+                    AppIcons.forward,
+                    size: 16.0,
+                    color: config.chevronColor,
+                  ),
+                ),
+              ],
             ),
-            // Chevron
-            FaIcon(
-              AppIcons.forward,
-              size: BaseSize.w24,
-              color: config.chevronColor,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -118,28 +140,29 @@ class _FinanceTypeCard extends StatelessWidget {
 
   _FinanceTypeConfig _getConfig(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     switch (financeType) {
       case FinanceType.revenue:
         return _FinanceTypeConfig(
           description: l10n.operationsItem_add_income_desc,
-          backgroundColor: BaseColor.teal[50]!,
-          borderColor: BaseColor.teal[200]!,
-          iconBackgroundColor: BaseColor.teal[100]!,
-          iconColor: BaseColor.teal[600]!,
-          textColor: BaseColor.teal[800]!,
-          descriptionColor: BaseColor.teal[600]!,
-          chevronColor: BaseColor.teal[400]!,
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.secondary.withValues(alpha: 0.18),
+          iconBackgroundColor: AppColors.secondary.withValues(alpha: 0.12),
+          iconColor: AppColors.secondary,
+          textColor: AppColors.onSurface,
+          descriptionColor: theme.colorScheme.onSurfaceVariant,
+          chevronColor: AppColors.secondary,
         );
       case FinanceType.expense:
         return _FinanceTypeConfig(
           description: l10n.operationsItem_add_expense_desc,
-          backgroundColor: BaseColor.red[50]!,
-          borderColor: BaseColor.red[200]!,
-          iconBackgroundColor: BaseColor.red[100]!,
-          iconColor: BaseColor.red[600]!,
-          textColor: BaseColor.red[800]!,
-          descriptionColor: BaseColor.red[600]!,
-          chevronColor: BaseColor.red[400]!,
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.error.withValues(alpha: 0.18),
+          iconBackgroundColor: AppColors.error.withValues(alpha: 0.12),
+          iconColor: AppColors.error,
+          textColor: AppColors.onSurface,
+          descriptionColor: theme.colorScheme.onSurfaceVariant,
+          chevronColor: AppColors.error,
         );
     }
   }

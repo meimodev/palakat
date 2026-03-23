@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/core/theme/app_colors.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
 AppLocalizations _l10n() {
@@ -50,9 +51,9 @@ extension FinanceTypeExtension on FinanceType {
   Color get color {
     switch (this) {
       case FinanceType.revenue:
-        return const Color(0xFF009688); // Teal - success color
+        return AppColors.success;
       case FinanceType.expense:
-        return const Color(0xFFD32F2F); // Red - error color
+        return AppColors.error;
     }
   }
 }

@@ -59,7 +59,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ),
             Gap.h16,
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -121,27 +121,20 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   Widget _buildActivityTypeIndicator() {
     final typeConfig = _getTypeConfig();
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: typeConfig.backgroundColor,
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
         border: Border.all(color: typeConfig.borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            typeConfig.icon,
-            size: BaseSize.w18,
-            color: typeConfig.iconColor,
-          ),
+          Icon(typeConfig.icon, size: 18.0, color: typeConfig.iconColor),
           Gap.w8,
           Text(
             typeConfig.label,
-            style: BaseTypography.titleMedium.copyWith(
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
               color: typeConfig.textColor,
               fontWeight: FontWeight.w600,
             ),
@@ -157,28 +150,28 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         return _TypeConfig(
           icon: AppIcons.church,
           label: widget.type.displayName,
-          backgroundColor: BaseColor.primary[50]!,
-          borderColor: BaseColor.primary[200]!,
-          iconColor: BaseColor.primary[700]!,
-          textColor: BaseColor.primary[700]!,
+          backgroundColor: AppColors.primary.shade100,
+          borderColor: AppColors.primary.shade200,
+          iconColor: AppColors.primary.shade700,
+          textColor: AppColors.primary.shade700,
         );
       case ActivityType.event:
         return _TypeConfig(
           icon: AppIcons.event,
           label: widget.type.displayName,
-          backgroundColor: BaseColor.blue[50]!,
-          borderColor: BaseColor.blue[200]!,
-          iconColor: BaseColor.blue[700]!,
-          textColor: BaseColor.blue[700]!,
+          backgroundColor: AppColors.primary.shade100,
+          borderColor: AppColors.primary.shade200,
+          iconColor: AppColors.primary.shade700,
+          textColor: AppColors.primary.shade700,
         );
       case ActivityType.announcement:
         return _TypeConfig(
           icon: AppIcons.announcement,
           label: widget.type.displayName,
-          backgroundColor: BaseColor.yellow[50]!,
-          borderColor: BaseColor.yellow[200]!,
-          iconColor: BaseColor.yellow[700]!,
-          textColor: BaseColor.yellow[700]!,
+          backgroundColor: AppColors.warning.shade100,
+          borderColor: AppColors.warning.shade200,
+          iconColor: AppColors.warning.shade700,
+          textColor: AppColors.warning.shade700,
         );
     }
   }
@@ -217,34 +210,29 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         state.authorColumn != null && state.authorColumn!.isNotEmpty;
     final columnName = state.authorColumn;
     return Material(
-      color: BaseColor.primary[50],
+      color: AppColors.surfaceContainerLowest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(
-          color: BaseColor.primary[200] ?? BaseColor.neutral[300]!,
-        ),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.outlineVariant),
       ),
       child: SwitchListTile(
         value: hasColumn ? state.publishToColumnOnly : false,
         onChanged: hasColumn ? controller.onChangedPublishToColumnOnly : null,
         title: Text(
           context.l10n.publish_publishToColumnOnly_title,
-          style: BaseTypography.bodyMedium.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontWeight: FontWeight.w600,
-            color: BaseColor.textPrimary,
+            color: AppColors.onSurface,
           ),
         ),
         subtitle: Text(
           hasColumn
               ? '${context.l10n.publish_publishToColumnOnly_subtitle} (${columnName!})'
               : context.l10n.publish_publishToColumnOnly_subtitleNoColumn,
-          style: BaseTypography.bodyMedium.toSecondary,
+          style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
         ),
-        activeColor: BaseColor.primary[700],
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h8,
-        ),
+        activeThumbColor: AppColors.primary,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       ),
     );
   }
@@ -269,8 +257,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       children: [
         Text(
           '${context.l10n.publish_targetAudienceBipra}$columnContext ${context.l10n.lbl_optional}',
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.neutral[800],
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -287,16 +275,18 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             }
           },
           child: Container(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: hasBipra ? BaseColor.teal[50] : BaseColor.white,
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              color: hasBipra
+                  ? AppColors.secondaryContainer
+                  : AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
                 color: hasError
-                    ? BaseColor.error.withValues(alpha: 0.5)
+                    ? AppColors.error.withValues(alpha: 0.5)
                     : hasBipra
-                    ? BaseColor.teal[200]!
-                    : BaseColor.neutral[300]!,
+                    ? AppColors.onSecondaryContainer.withValues(alpha: 0.16)
+                    : AppColors.outlineVariant,
               ),
             ),
             child: hasBipra
@@ -306,11 +296,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: 3),
             child: Text(
               state.errorBipra!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -321,15 +313,15 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: BaseColor.neutral[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(4.0),
           ),
           child: FaIcon(
             AppIcons.group,
-            size: BaseSize.w20,
-            color: BaseColor.neutral[500],
+            size: 20.0,
+            color: AppColors.onSurfaceVariant,
           ),
         ),
         Gap.w12,
@@ -339,26 +331,22 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             children: [
               Text(
                 context.l10n.lbl_general,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.neutral[800],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Gap.h4,
               Text(
                 context.l10n.publish_targetGroup,
-                style: BaseTypography.labelMedium.copyWith(
-                  color: BaseColor.neutral[500],
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
             ],
           ),
         ),
-        FaIcon(
-          AppIcons.forward,
-          size: BaseSize.w20,
-          color: BaseColor.neutral[400],
-        ),
+        FaIcon(AppIcons.forward, size: 20.0, color: AppColors.onSurfaceVariant),
       ],
     );
   }
@@ -370,21 +358,24 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return Row(
       children: [
         Container(
-          width: BaseSize.w40,
-          height: BaseSize.w40,
+          width: 40.0,
+          height: 40.0,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [BaseColor.teal[400]!, BaseColor.teal[600]!],
+              colors: [
+                AppColors.onSecondaryContainer.withValues(alpha: 0.86),
+                AppColors.onSecondaryContainer,
+              ],
             ),
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
           child: Text(
             bipra.abv,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: Colors.white,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.surfaceContainerLowest,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -396,8 +387,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             children: [
               Text(
                 bipra.name,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.teal[800],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSecondaryContainer,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -406,14 +397,14 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 children: [
                   FaIcon(
                     AppIcons.group,
-                    size: BaseSize.w12,
-                    color: BaseColor.teal[600],
+                    size: 12.0,
+                    color: AppColors.onSecondaryContainer,
                   ),
                   Gap.w4,
                   Text(
                     context.l10n.publish_targetGroup,
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.teal[600],
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      color: AppColors.onSecondaryContainer,
                     ),
                   ),
                 ],
@@ -430,16 +421,16 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 onTap: () => controller.onSelectedBipra(null),
                 child: FaIcon(
                   AppIcons.clear,
-                  size: BaseSize.w18,
-                  color: BaseColor.teal[600],
+                  size: 18.0,
+                  color: AppColors.onSecondaryContainer,
                 ),
               ),
             ),
             Gap.w12,
             FaIcon(
               AppIcons.edit,
-              size: BaseSize.w18,
-              color: BaseColor.teal[600],
+              size: 18.0,
+              color: AppColors.onSecondaryContainer,
             ),
           ],
         ),
@@ -485,8 +476,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       children: [
         Text(
           context.l10n.publish_pinOnMapOptional,
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.neutral[800],
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -508,16 +499,18 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             }
           },
           child: Container(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: hasLocation ? BaseColor.primary[50] : BaseColor.white,
-              borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+              color: hasLocation
+                  ? AppColors.primary.shade50
+                  : AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
                 color: hasError
-                    ? BaseColor.error.withValues(alpha: 0.5)
+                    ? AppColors.error.withValues(alpha: 0.5)
                     : hasLocation
-                    ? BaseColor.primary[200]!
-                    : BaseColor.neutral[300]!,
+                    ? AppColors.primary.shade200
+                    : AppColors.outlineVariant,
               ),
             ),
             child: hasLocation
@@ -527,11 +520,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: 3),
             child: Text(
               state.errorPinpointLocation!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -542,31 +537,27 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: BaseColor.neutral[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(4.0),
           ),
           child: FaIcon(
             AppIcons.mapOutlined,
-            size: BaseSize.w20,
-            color: BaseColor.neutral[500],
+            size: 20.0,
+            color: AppColors.onSurfaceVariant,
           ),
         ),
         Gap.w12,
         Expanded(
           child: Text(
             context.l10n.publish_tapToSelectLocationOptional,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.neutral[500],
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
           ),
         ),
-        FaIcon(
-          AppIcons.forward,
-          size: BaseSize.w20,
-          color: BaseColor.neutral[400],
-        ),
+        FaIcon(AppIcons.forward, size: 20.0, color: AppColors.neutral),
       ],
     );
   }
@@ -578,15 +569,15 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.all(BaseSize.w8),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: BaseColor.primary[100],
-            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+            color: AppColors.primary.shade100,
+            borderRadius: BorderRadius.circular(4.0),
           ),
           child: FaIcon(
             AppIcons.locationOn,
-            size: BaseSize.w20,
-            color: BaseColor.primary[600],
+            size: 20.0,
+            color: AppColors.primary.shade700,
           ),
         ),
         Gap.w12,
@@ -596,8 +587,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             children: [
               Text(
                 context.l10n.publish_locationSelected,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.primary[700],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.primary.shade700,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -606,8 +597,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 children: [
                   FaIcon(
                     AppIcons.myLocation,
-                    size: BaseSize.w14,
-                    color: BaseColor.neutral[600],
+                    size: 14.0,
+                    color: AppColors.onSurfaceVariant,
                   ),
                   Gap.w4,
                   Expanded(
@@ -615,8 +606,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                       hasCoordinates
                           ? '${location.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}'
                           : context.l10n.lbl_na,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.neutral[600],
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -625,11 +616,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             ],
           ),
         ),
-        FaIcon(
-          AppIcons.edit,
-          size: BaseSize.w18,
-          color: BaseColor.primary[600],
-        ),
+        FaIcon(AppIcons.edit, size: 18.0, color: AppColors.primary),
       ],
     );
   }
@@ -666,15 +653,15 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return Container(
-      padding: EdgeInsets.all(BaseSize.w12),
+      padding: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [BaseColor.blue[50]!, BaseColor.primary[50]!],
+          colors: [AppColors.primary, AppColors.primary],
         ),
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        border: Border.all(color: BaseColor.blue[100]!),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppColors.primary),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,22 +699,22 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             }
           },
           child: Container(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: BaseColor.white,
-              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(4.0),
               border: Border.all(
                 color: hasError
-                    ? BaseColor.error.withValues(alpha: 0.5)
+                    ? AppColors.error.withValues(alpha: 0.5)
                     : hasDate
-                    ? BaseColor.blue[300]!
-                    : BaseColor.neutral[200]!,
+                    ? AppColors.primary
+                    : AppColors.neutral,
                 width: hasDate ? 1.5 : 1,
               ),
               boxShadow: hasDate
                   ? [
                       BoxShadow(
-                        color: BaseColor.blue[100]!.withValues(alpha: 0.5),
+                        color: AppColors.primary.withValues(alpha: 0.5),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -737,21 +724,17 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Column(
               children: [
                 Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
+                  width: 36.0,
+                  height: 36.0,
                   decoration: BoxDecoration(
-                    color: hasDate
-                        ? BaseColor.blue[100]
-                        : BaseColor.neutral[100],
+                    color: hasDate ? AppColors.primary : AppColors.neutral,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.calendarToday,
-                    size: BaseSize.w18,
-                    color: hasDate
-                        ? BaseColor.blue[600]
-                        : BaseColor.neutral[500],
+                    size: 18.0,
+                    color: hasDate ? AppColors.primary : AppColors.neutral,
                   ),
                 ),
                 Gap.h8,
@@ -759,10 +742,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   hasDate
                       ? _formatDateShort(context, state.selectedDate!)
                       : context.l10n.lbl_date,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: hasDate
-                        ? BaseColor.blue[700]
-                        : BaseColor.neutral[500],
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: hasDate ? AppColors.primary : AppColors.neutral,
                     fontWeight: hasDate ? FontWeight.w600 : FontWeight.w400,
                   ),
                   textAlign: TextAlign.center,
@@ -771,9 +752,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.h4,
                   Text(
                     _formatDayOfWeek(context, state.selectedDate!),
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.blue[500],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: AppColors.primary),
                   ),
                 ],
               ],
@@ -782,11 +763,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: 3),
             child: Text(
               state.errorDate!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -815,22 +798,22 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             }
           },
           child: Container(
-            padding: EdgeInsets.all(BaseSize.w12),
+            padding: EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: BaseColor.white,
-              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(4.0),
               border: Border.all(
                 color: hasError
-                    ? BaseColor.error.withValues(alpha: 0.5)
+                    ? AppColors.error.withValues(alpha: 0.5)
                     : hasTime
-                    ? BaseColor.primary[300]!
-                    : BaseColor.neutral[200]!,
+                    ? AppColors.primary
+                    : AppColors.neutral,
                 width: hasTime ? 1.5 : 1,
               ),
               boxShadow: hasTime
                   ? [
                       BoxShadow(
-                        color: BaseColor.primary[100]!.withValues(alpha: 0.5),
+                        color: AppColors.primary.withValues(alpha: 0.5),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -840,21 +823,17 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             child: Column(
               children: [
                 Container(
-                  width: BaseSize.w36,
-                  height: BaseSize.w36,
+                  width: 36.0,
+                  height: 36.0,
                   decoration: BoxDecoration(
-                    color: hasTime
-                        ? BaseColor.primary[100]
-                        : BaseColor.neutral[100],
+                    color: hasTime ? AppColors.primary : AppColors.neutral,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.accessTime,
-                    size: BaseSize.w18,
-                    color: hasTime
-                        ? BaseColor.primary[600]
-                        : BaseColor.neutral[500],
+                    size: 18.0,
+                    color: hasTime ? AppColors.primary : AppColors.neutral,
                   ),
                 ),
                 Gap.h8,
@@ -862,10 +841,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   hasTime
                       ? _formatTime(context, state.selectedTime!)
                       : context.l10n.lbl_time,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: hasTime
-                        ? BaseColor.primary[700]
-                        : BaseColor.neutral[500],
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: hasTime ? AppColors.primary : AppColors.neutral,
                     fontWeight: hasTime ? FontWeight.w600 : FontWeight.w400,
                   ),
                   textAlign: TextAlign.center,
@@ -874,9 +851,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   Gap.h4,
                   Text(
                     _getTimePeriod(context, state.selectedTime!),
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.primary[500],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium!.copyWith(color: AppColors.primary),
                   ),
                 ],
               ],
@@ -885,11 +862,13 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.customHeight(3)),
+            padding: EdgeInsets.only(top: 3),
             child: Text(
               state.errorTime!,
               textAlign: TextAlign.center,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],
@@ -978,13 +957,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w16,
-                  vertical: BaseSize.h8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
                   title,
-                  style: BaseTypography.titleMedium.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -996,7 +972,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   onTap: () => Navigator.of(context).pop<T>(o),
                 ),
               ),
-              SizedBox(height: BaseSize.h12),
+              SizedBox(height: 12.0),
             ],
           ),
         );
@@ -1039,8 +1015,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       children: [
         Text(
           '${context.l10n.tbl_file} ${context.l10n.lbl_optional}',
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.neutral[800],
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1077,14 +1053,14 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
 
   Widget _buildPublisherSection(ActivityPublishState state) {
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLowest,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w12),
+        padding: EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1092,17 +1068,17 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               children: [
                 // Avatar
                 Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 40.0,
+                  height: 40.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[100],
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: FaIcon(
                     AppIcons.person,
-                    color: BaseColor.primary[600],
-                    size: BaseSize.w20,
+                    color: AppColors.onPrimary,
+                    size: 20.0,
                   ),
                 ),
                 Gap.w12,
@@ -1113,26 +1089,26 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                     children: [
                       Text(
                         state.authorName ?? context.l10n.loading_please_wait,
-                        style: BaseTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: BaseColor.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.onSurface,
+                            ),
                       ),
                       Gap.h4,
                       Row(
                         children: [
                           FaIcon(
                             AppIcons.church,
-                            size: BaseSize.w12,
-                            color: BaseColor.neutral[500],
+                            size: 12.0,
+                            color: AppColors.onSurfaceVariant,
                           ),
                           Gap.w4,
                           Flexible(
                             child: Text(
                               state.churchName ?? '',
-                              style: BaseTypography.bodyMedium.copyWith(
-                                color: BaseColor.neutral[600],
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(color: AppColors.onSurfaceVariant),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1144,18 +1120,16 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 ),
                 // Date
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w8,
-                    vertical: BaseSize.h4,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: BaseColor.neutral[100],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(4.0),
+                    border: Border.all(color: AppColors.outlineVariant),
                   ),
                   child: Text(
                     state.currentDate ?? '',
-                    style: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.neutral[700],
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1166,34 +1140,35 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
             if (state.authorPositions.isNotEmpty) ...[
               Gap.h8,
               Wrap(
-                spacing: BaseSize.w6,
-                runSpacing: BaseSize.h4,
+                spacing: 6.0,
+                runSpacing: 4.0,
                 children: state.authorPositions.map((position) {
                   return Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w8,
-                      vertical: BaseSize.h4,
+                      horizontal: 8.0,
+                      vertical: 4.0,
                     ),
                     decoration: BoxDecoration(
-                      color: BaseColor.blue[50],
-                      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                      border: Border.all(color: BaseColor.blue[200]!),
+                      color: AppColors.primary.shade100,
+                      borderRadius: BorderRadius.circular(4.0),
+                      border: Border.all(color: AppColors.primary.shade200),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         FaIcon(
                           AppIcons.badgeOutlined,
-                          size: BaseSize.w12,
-                          color: BaseColor.blue[700],
+                          size: 12.0,
+                          color: AppColors.primary.shade700,
                         ),
                         Gap.w4,
                         Text(
                           position,
-                          style: BaseTypography.labelMedium.copyWith(
-                            color: BaseColor.blue[700],
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium!
+                              .copyWith(
+                                color: AppColors.primary.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                       ],
                     ),
@@ -1215,18 +1190,16 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final isEnabled = state.isFormValid && !state.loading;
 
     return Material(
-      color: BaseColor.white,
+      color: AppColors.surfaceContainerLowest,
       child: Container(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + BaseSize.h12,
-          left: BaseSize.w12,
-          right: BaseSize.w12,
-          top: BaseSize.h12,
+          bottom: MediaQuery.of(context).padding.bottom + 12.0,
+          left: 12.0,
+          right: 12.0,
+          top: 12.0,
         ),
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: BaseColor.neutral[200]!, width: 1),
-          ),
+          border: Border(top: BorderSide(color: AppColors.neutral, width: 1)),
         ),
         child: SafeArea(
           top: false,
@@ -1303,36 +1276,36 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     BuildContext context,
   ) {
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLowest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[300]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       child: InkWell(
         onTap: () => _handleAddFinance(controller, context),
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        borderRadius: BorderRadius.circular(16.0),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(BaseSize.w8),
+                padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                  color: BaseColor.primary[100],
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: FaIcon(
                   AppIcons.add,
-                  size: BaseSize.w20,
-                  color: BaseColor.primary[600],
+                  size: 20.0,
+                  color: AppColors.onPrimary,
                 ),
               ),
               Gap.w12,
               Text(
                 context.l10n.publish_addFinancialRecord,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.primary[700],
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1415,7 +1388,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: BaseColor.error),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: Text(context.l10n.btn_remove),
           ),
         ],

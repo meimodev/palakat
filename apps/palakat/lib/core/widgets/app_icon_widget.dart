@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:palakat_shared/theme.dart';
 
 /// Helper widget for rendering Font Awesome icons with consistent styling.
 ///
@@ -10,15 +9,15 @@ import 'package:palakat_shared/theme.dart';
 /// Example usage:
 /// ```dart
 /// AppIconWidget.small(AppIcons.back)
-/// AppIconWidget.medium(AppIcons.search, color: Colors.blue)
+/// AppIconWidget.medium(AppIcons.search, color: AppColors.primary)
 /// AppIconWidget.large(AppIcons.approve)
-/// AppIconWidget.xl(AppIcons.error, color: Colors.red)
+/// AppIconWidget.xl(AppIcons.error, color: AppColors.error)
 /// ```
 class AppIconWidget extends StatelessWidget {
   /// The icon to display.
   final IconData icon;
 
-  /// The size of the icon. Defaults to [BaseSize.w20] (medium).
+  /// The size of the icon. Defaults to [20.0] (medium).
   final double? size;
 
   /// The color of the icon. If null, uses the default icon theme color.
@@ -29,26 +28,26 @@ class AppIconWidget extends StatelessWidget {
 
   /// Creates a small icon (16px).
   factory AppIconWidget.small(IconData icon, {Key? key, Color? color}) {
-    return AppIconWidget(icon, key: key, size: BaseSize.w16, color: color);
+    return AppIconWidget(icon, key: key, size: 16.0, color: color);
   }
 
   /// Creates a medium icon (20px) - the default size.
   factory AppIconWidget.medium(IconData icon, {Key? key, Color? color}) {
-    return AppIconWidget(icon, key: key, size: BaseSize.w20, color: color);
+    return AppIconWidget(icon, key: key, size: 20.0, color: color);
   }
 
   /// Creates a large icon (24px).
   factory AppIconWidget.large(IconData icon, {Key? key, Color? color}) {
-    return AppIconWidget(icon, key: key, size: BaseSize.w24, color: color);
+    return AppIconWidget(icon, key: key, size: 24.0, color: color);
   }
 
   /// Creates an extra large icon (32px).
   factory AppIconWidget.xl(IconData icon, {Key? key, Color? color}) {
-    return AppIconWidget(icon, key: key, size: BaseSize.w32, color: color);
+    return AppIconWidget(icon, key: key, size: 32.0, color: color);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FaIcon(icon, size: size ?? BaseSize.w20, color: color);
+    return FaIcon(icon, size: size ?? 20.0, color: color);
   }
 }

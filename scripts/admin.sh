@@ -12,6 +12,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+ADMIN_DIR="$PROJECT_ROOT/apps/palakat_admin"
+ENV_UTILS="$SCRIPT_DIR/env_utils.sh"
+
+# shellcheck disable=SC1090
+source "$ENV_UTILS"
+
 # Helper functions
 print_info() {
     echo -e "${BLUE}ℹ ${1}${NC}"
@@ -39,6 +47,7 @@ print_section() {
 # Parse command line arguments
 FLUTTER_DEVICE=""
 RELEASE_MODE=false
+SELECTED_ENV="local"
 
 show_help() {
     echo "Usage: $0 [OPTIONS]"
@@ -46,19 +55,35 @@ show_help() {
     echo "Start the Palakat admin app"
     echo ""
     echo "Options:"
-    echo "  --device DEVICE   Flutter device to use (e.g., chrome, macos, windows, linux)"
-    echo "  --release         Run in release mode"
-    echo "  -h, --help        Show this help message"
+    echo "  --env ENVIRONMENT  Environment to use (local, staging, production)"
+    echo "  --device DEVICE    Flutter device to use (e.g., chrome, macos, windows, linux)"
+    echo "  --release          Run in release mode"
+    echo "  -h, --help         Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0                         # Run on default device"
-    echo "  $0 --device chrome         # Run on Chrome"
-    echo "  $0 --device macos          # Run on macOS"
-    echo "  $0 --release               # Run in release mode"
+    echo "  $0                              # Run with local env on default device"
+    echo "  $0 --env staging --device chrome"
+    echo "  $0 --env production --release"
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --env)
+            if [[ -z "$2" ]]; then
+                print_error "Missing value for --env"
+                show_help
+                exit 1
+            fi
+
+            if ! is_supported_env_name "$2"; then
+                print_error "Unsupported environment: $2"
+                print_info "Supported environments: $(supported_env_names_text)"
+                exit 1
+            fi
+
+            SELECTED_ENV="$(normalize_env_name "$2")"
+            shift 2
+            ;;
         --device)
             FLUTTER_DEVICE="$2"
             shift 2
@@ -79,17 +104,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Get the script directory and project root
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
-ADMIN_DIR="$PROJECT_ROOT/apps/palakat_admin"
-
 # Trap to handle script termination
 cleanup() {
     print_section "Shutting Down"
     if [ -n "$FLUTTER_PID" ]; then
         print_info "Stopping Flutter admin app (PID: $FLUTTER_PID)..."
-        kill $FLUTTER_PID 2>/dev/null || true
+        kill "$FLUTTER_PID" 2>/dev/null || true
     fi
     print_success "Cleanup complete"
     exit 0
@@ -111,20 +131,45 @@ check_env_file() {
 
     if [ ! -f "$ADMIN_DIR/.env" ]; then
         print_warning ".env file not found"
-        print_info "Please run ./scripts/setup.sh first"
+
+        if [ -f "$ADMIN_DIR/.env.example" ]; then
+            print_info "Copying .env.example to .env..."
+            cp "$ADMIN_DIR/.env.example" "$ADMIN_DIR/.env"
+            print_success ".env file created"
+            print_warning "Please review and update apps/palakat_admin/.env"
+        else
+            print_error ".env.example not found"
+            exit 1
+        fi
+    else
+        print_success ".env file exists"
+    fi
+
+    local active_env_file
+    active_env_file="$(create_temp_env_file "palakat_admin_${SELECTED_ENV}")"
+
+    if ! extract_env_section_to_file "$ADMIN_DIR/.env" "$SELECTED_ENV" "$active_env_file"; then
+        local status=$?
+        rm -f "$active_env_file"
+
+        if [ $status -eq 2 ]; then
+            print_error "Environment '$SELECTED_ENV' is not defined in $ADMIN_DIR/.env"
+        else
+            print_error "Failed to read $ADMIN_DIR/.env"
+        fi
         exit 1
     fi
 
-    print_success ".env file exists"
-    
-    # Check for required variables
-    if ! grep -q "API_BASE_URL" "$ADMIN_DIR/.env" || \
-       ! grep -q "API_BASE_PORT" "$ADMIN_DIR/.env" || \
-       ! grep -q "API_BASE_VERSION" "$ADMIN_DIR/.env"; then
-        print_warning ".env file is missing required variables"
-        print_info "Required variables: API_BASE_URL, API_BASE_PORT, API_BASE_VERSION"
-        print_info "Please check .env.example for the correct format"
+    local missing_keys
+    missing_keys="$(missing_env_keys_text "$active_env_file" API_BASE_URL API_BASE_VERSION)"
+    rm -f "$active_env_file"
+
+    if [ -n "$missing_keys" ]; then
+        print_error "Selected environment '$SELECTED_ENV' is missing required variables: $missing_keys"
+        exit 1
     fi
+
+    print_success "Environment '$SELECTED_ENV' is configured"
 }
 
 # Check Flutter installation
@@ -144,36 +189,31 @@ start_admin_app() {
 
     cd "$ADMIN_DIR"
 
-    # Build flutter run command
-    FLUTTER_CMD="flutter run"
-    
+    FLUTTER_CMD=(flutter run --dart-define="PALAKAT_ENV=$SELECTED_ENV")
+
     if [ -n "$FLUTTER_DEVICE" ]; then
-        FLUTTER_CMD="$FLUTTER_CMD -d $FLUTTER_DEVICE"
+        FLUTTER_CMD+=(-d "$FLUTTER_DEVICE")
     fi
 
     if [ "$RELEASE_MODE" = true ]; then
-        FLUTTER_CMD="$FLUTTER_CMD --release"
+        FLUTTER_CMD+=(--release)
     fi
 
-    # Check if FVM is available
     if command -v fvm &> /dev/null && [ -f ".fvmrc" ]; then
-        FLUTTER_CMD="fvm $FLUTTER_CMD"
+        FLUTTER_CMD=(fvm "${FLUTTER_CMD[@]}")
         print_info "Using FVM for Flutter"
     fi
 
+    print_info "Selected environment: $SELECTED_ENV"
     print_info "Starting Flutter admin app..."
-    print_info "Command: $FLUTTER_CMD"
+    print_info "Command: ${FLUTTER_CMD[*]}"
     echo ""
 
-    $FLUTTER_CMD &
-    FLUTTER_PID=$!
-
-    print_success "Flutter admin app started (PID: $FLUTTER_PID)"
+    print_success "Flutter admin app started"
     print_info "Press Ctrl+C to stop the app"
     echo ""
 
-    # Wait for the Flutter process
-    wait $FLUTTER_PID
+    "${FLUTTER_CMD[@]}"
 }
 
 # Main function

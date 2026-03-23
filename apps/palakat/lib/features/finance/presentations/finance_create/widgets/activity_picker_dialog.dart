@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/finance/presentations/finance_create/widgets/activity_picker_controller.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
@@ -27,37 +28,84 @@ class _ActivityPickerDialog extends ConsumerWidget {
     final l10n = context.l10n;
 
     if (state.isLoading && state.activities.isEmpty) {
-      return const Dialog(
-        child: SizedBox(
-          height: 200,
-          child: Center(child: CircularProgressIndicator()),
+      return _buildFallbackDialog(
+        context: context,
+        child: LoadingShimmer(
+          isLoading: true,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PalakatShimmerPlaceholders.listItemCard(),
+              Gap.h8,
+              PalakatShimmerPlaceholders.listItemCard(),
+              Gap.h8,
+              PalakatShimmerPlaceholders.listItemCard(),
+            ],
+          ),
         ),
       );
     }
 
     if (state.errorMessage != null && state.activities.isEmpty) {
-      return Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error, size: 48, color: BaseColor.error),
-              const SizedBox(height: 16),
-              Text(
-                state.errorMessage!,
-                style: TextStyle(color: BaseColor.error),
-                textAlign: TextAlign.center,
+      return _buildFallbackDialog(
+        context: context,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
               ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => ref
-                    .read(activityPickerControllerProvider.notifier)
-                    .fetchActivities(refresh: true),
-                child: Text(l10n.btn_retry),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.error_outline,
+                size: 22,
+                color: AppColors.error,
               ),
-            ],
-          ),
+            ),
+            Gap.h16,
+            Text(
+              l10n.err_error,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap.h4,
+            Text(
+              state.errorMessage!,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                height: 1.35,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap.h16,
+            OutlinedButton.icon(
+              onPressed: () => ref
+                  .read(activityPickerControllerProvider.notifier)
+                  .fetchActivities(refresh: true),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: Text(l10n.btn_retry),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.error,
+                side: BorderSide(
+                  color: AppColors.error.withValues(alpha: 0.28),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -75,6 +123,37 @@ class _ActivityPickerDialog extends ConsumerWidget {
           : l10n.noData_results,
     );
   }
+
+  Widget _buildFallbackDialog({
+    required BuildContext context,
+    required Widget child,
+  }) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Material(
+          color: Colors.transparent,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            side: BorderSide(color: AppColors.ghostBorder(0.08)),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 22),
+            ),
+            child: Padding(padding: const EdgeInsets.all(24), child: child),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// List item widget for displaying an activity in the picker.
@@ -85,75 +164,81 @@ class _ActivityListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final dateStr = Jiffy.parseFromDateTime(
       activity.date,
     ).format(pattern: 'dd MMM yyyy, HH:mm');
+    final activityTypeColor = _getActivityTypeColor();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Activity type icon
           Container(
-            padding: EdgeInsets.all(BaseSize.w8),
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: _getActivityTypeColor().withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              color: activityTypeColor.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
             ),
+            alignment: Alignment.center,
             child: FaIcon(
               _getActivityTypeIcon(),
-              size: BaseSize.w16,
-              color: _getActivityTypeColor(),
+              size: 16,
+              color: activityTypeColor,
             ),
           ),
-          const SizedBox(width: 12),
-          // Activity info
+          Gap.w12,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   activity.title,
-                  style: BaseTypography.bodyMedium.copyWith(
+                  style: theme.textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: BaseColor.textPrimary,
+                    color: AppColors.onSurface,
+                    height: 1.3,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                Gap.h4,
                 Row(
                   children: [
                     FaIcon(
                       AppIcons.calendar,
                       size: 12,
-                      color: Colors.grey[600],
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 4),
+                    Gap.w4,
                     Expanded(
                       child: Text(
                         dateStr,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: Colors.grey[600],
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                Gap.h4,
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: _getActivityTypeColor().withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    color: activityTypeColor.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
                   ),
                   child: Text(
                     activity.activityType.displayName,
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: _getActivityTypeColor(),
+                    style: theme.textTheme.labelMedium!.copyWith(
+                      color: activityTypeColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -182,13 +267,13 @@ class _ActivityListItem extends StatelessWidget {
   Color _getActivityTypeColor() {
     switch (activity.activityType.name) {
       case 'service':
-        return BaseColor.primary[600]!;
+        return AppColors.primary;
       case 'event':
-        return BaseColor.teal[600]!;
+        return AppColors.secondary;
       case 'announcement':
-        return BaseColor.yellow[600]!;
+        return AppColors.warning;
       default:
-        return BaseColor.primary[600]!;
+        return AppColors.primary;
     }
   }
 }

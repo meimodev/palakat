@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 /// Error display widget with retry button
 ///
@@ -42,92 +43,106 @@ class ErrorDisplayWidget extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(24),
       child: Material(
         clipBehavior: Clip.hardEdge,
-        color: colorScheme.errorContainer.withValues(alpha: 0.3),
+        color: Colors.transparent,
         elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
           side: BorderSide(
-            color: colorScheme.error.withValues(alpha: 0.3),
+            color: AppColors.error.withValues(alpha: 0.16),
             width: 1,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Error icon and message
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: colorScheme.errorContainer,
-                      shape: BoxShape.circle,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Error icon and message
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(
+                          SanctuaryLayout.radius,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.error_outline,
+                        size: 20,
+                        color: colorScheme.error,
+                      ),
                     ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.error_outline,
-                      size: 20,
-                      color: colorScheme.error,
+                    Gap.w12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title ?? l10n.err_error,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          Gap.h4,
+                          Text(
+                            message,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title ?? l10n.err_error,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onErrorContainer,
+                  ],
+                ),
+
+                // Retry button (if callback provided)
+                if (onRetry != null) ...[
+                  Gap.h16,
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(l10n.btn_retry),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colorScheme.error,
+                        side: BorderSide(
+                          color: colorScheme.error.withValues(alpha: 0.35),
+                          width: 1,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          message,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onErrorContainer,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
-              ),
-
-              // Retry button (if callback provided)
-              if (onRetry != null) ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: Text(l10n.btn_retry),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colorScheme.error,
-                      side: BorderSide(
-                        color: colorScheme.error.withValues(alpha: 0.5),
-                        width: 1,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
               ],
-            ],
+            ),
           ),
         ),
       ),

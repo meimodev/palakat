@@ -6,6 +6,7 @@ import 'package:palakat_shared/core/extension/extension.dart';
 import '../../theme/theme.dart';
 import '../../models/column.dart' as model;
 import '../card/card_column.dart';
+import '../loading/loading.dart';
 import 'dialog_custom_widget.dart';
 
 /// Callback type for fetching columns with church ID and optional search query.
@@ -115,10 +116,10 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
     if (widget.churchId == null) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w24),
+          padding: EdgeInsets.all(24.0),
           child: Text(
             l10n.lbl_selectChurchFirst,
-            style: BaseTypography.bodyMedium.toSecondary,
+            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
             textAlign: TextAlign.center,
           ),
         ),
@@ -130,8 +131,8 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
         // Search field
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16,
-            vertical: BaseSize.h8,
+            horizontal: 16.0,
+            vertical: 8.0,
           ),
           child: TextField(
             controller: _searchController,
@@ -149,11 +150,11 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
                     )
                   : null,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                borderRadius: BorderRadius.circular(8.0),
               ),
               contentPadding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w16,
-                vertical: BaseSize.h12,
+                horizontal: 16.0,
+                vertical: 12.0,
               ),
             ),
           ),
@@ -162,12 +163,26 @@ class _DialogColumnPickerWidgetState extends State<_DialogColumnPickerWidget> {
         // Column list
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: LoadingShimmer(
+                    isLoading: true,
+                    child: Column(
+                      children: [
+                        ShimmerPlaceholders.listTile(),
+                        Gap.h6,
+                        ShimmerPlaceholders.listTile(),
+                        Gap.h6,
+                        ShimmerPlaceholders.listTile(),
+                      ],
+                    ),
+                  ),
+                )
               : _columns.isEmpty
               ? Center(
                   child: Text(
                     l10n.lbl_noColumnsFound,
-                    style: BaseTypography.bodyMedium.toSecondary,
+                    style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                   ),
                 )
               : ListView.separated(

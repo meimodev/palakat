@@ -130,7 +130,7 @@ class PhoneInputScreen extends ConsumerWidget {
             AuthAnimatedPresence(
               visible: errorMessage != null,
               child: Padding(
-                padding: EdgeInsets.only(top: BaseSize.h12),
+                padding: EdgeInsets.only(top: 12.0),
                 child: AuthErrorDisplay(
                   message: errorMessage ?? '',
                   onRetry:

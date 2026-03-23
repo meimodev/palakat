@@ -1,7 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+
+import 'loading/loading.dart';
 
 class SideDrawer extends StatelessWidget {
   final String title;
@@ -50,7 +53,7 @@ class SideDrawer extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(25),
+              color: AppColors.onSurface.withAlpha(25),
               blurRadius: 8,
               offset: const Offset(-2, 0),
             ),
@@ -117,24 +120,9 @@ class SideDrawer extends StatelessWidget {
                     Positioned.fill(
                       child: Container(
                         color: theme.colorScheme.surface.withValues(alpha: 0.8),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(
-                                width: 32,
-                                height: 32,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                loadingMessage,
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                            ],
-                          ),
+                        child: AppLoadingWidget(
+                          message: loadingMessage,
+                          size: 32,
                         ),
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/l10n/generated/app_localizations.dart';
@@ -42,11 +43,11 @@ extension ApprovalStatusExtension on ApprovalStatus {
   Color get backgroundColor {
     switch (this) {
       case ApprovalStatus.unconfirmed:
-        return Colors.orange.shade100;
+        return AppColors.warning.shade50;
       case ApprovalStatus.approved:
-        return Colors.green.shade100;
+        return AppColors.success.shade50;
       case ApprovalStatus.rejected:
-        return Colors.red.shade100;
+        return AppColors.error.shade50;
     }
   }
 
@@ -54,11 +55,11 @@ extension ApprovalStatusExtension on ApprovalStatus {
   Color get foregroundColor {
     switch (this) {
       case ApprovalStatus.unconfirmed:
-        return Colors.orange.shade800;
+        return AppColors.warning.shade800;
       case ApprovalStatus.approved:
-        return Colors.green.shade800;
+        return AppColors.success.shade800;
       case ApprovalStatus.rejected:
-        return Colors.red.shade800;
+        return AppColors.error.shade800;
     }
   }
 

@@ -11,11 +11,11 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: BaseColor.white,
+        backgroundColor: AppColors.surfaceContainerLowest,
         body: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16,
-            vertical: BaseSize.h12,
+            horizontal: 16.0,
+            vertical: 12.0,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {

@@ -121,21 +121,21 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
           widget.label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: BaseTypography.titleMedium.copyWith(
-            color: BaseColor.neutral[800],
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: AppColors.neutral,
             fontWeight: FontWeight.w500,
           ),
         ),
         Gap.h6,
         // Input field with Rp prefix
         Material(
-          color: BaseColor.white,
+          color: AppColors.surfaceContainerLowest,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            borderRadius: BorderRadius.circular(8.0),
             side: BorderSide(
               color: hasError
-                  ? BaseColor.error.withValues(alpha: 0.5)
-                  : BaseColor.neutral[300]!,
+                  ? AppColors.error.withValues(alpha: 0.5)
+                  : AppColors.neutral,
             ),
           ),
           child: Row(
@@ -143,20 +143,20 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
               // Rp prefix
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w12,
-                  vertical: BaseSize.h12,
+                  horizontal: 12.0,
+                  vertical: 12.0,
                 ),
                 decoration: BoxDecoration(
-                  color: BaseColor.surfaceMedium,
+                  color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(BaseSize.radiusMd),
-                    bottomLeft: Radius.circular(BaseSize.radiusMd),
+                    topLeft: Radius.circular(8.0),
+                    bottomLeft: Radius.circular(8.0),
                   ),
                 ),
                 child: Text(
                   'Rp',
-                  style: BaseTypography.titleMedium.copyWith(
-                    color: BaseColor.neutral[700],
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: AppColors.neutral,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -168,18 +168,18 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: _onChanged,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.textPrimary,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurface,
                   ),
                   decoration: InputDecoration(
                     hintText: widget.hint,
-                    hintStyle: BaseTypography.bodyMedium.copyWith(
-                      color: BaseColor.neutral[400],
+                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.neutral,
                     ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w14,
-                      vertical: BaseSize.h12,
+                      horizontal: 14.0,
+                      vertical: 12.0,
                     ),
                   ),
                 ),
@@ -190,13 +190,13 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
         // Error message
         if (hasError)
           Padding(
-            padding: EdgeInsets.only(top: BaseSize.h6),
+            padding: EdgeInsets.only(top: 6.0),
             child: Text(
               widget.errorText!,
               maxLines: 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: BaseTypography.bodyMedium.copyWith(color: BaseColor.error),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.error),
             ),
           ),
       ],

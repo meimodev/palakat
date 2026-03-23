@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 import '../divider_widget.dart';
 
@@ -106,7 +107,7 @@ class _InputVariantDropdownWidgetState<T>
           side: BorderSide(color: effectiveBorderColor, width: 1.5),
         ),
         color: theme.colorScheme.surface,
-        shadowColor: Colors.black.withValues(alpha: 0.04),
+        shadowColor: AppColors.onSurface,
         elevation: 1,
         child: InkWell(
           onTap: () async {

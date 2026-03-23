@@ -92,14 +92,12 @@ class _ActivityWidgetState extends State<ActivityWidget> {
       return rows > maxValue ? rows : maxValue;
     });
 
-    final baseHeight = BaseSize.customHeight(76);
-    final rowHeight = BaseSize.customHeight(24);
-    final rowSpacing = BaseSize.customHeight(4);
+    final baseHeight = 76.0;
+    final rowHeight = 24.0;
+    final rowSpacing = 4.0;
     final countersHeight = maxRows == 0
         ? 0.0
-        : (BaseSize.customHeight(6) +
-              (maxRows * rowHeight) +
-              ((maxRows - 1) * rowSpacing));
+        : (6 + (maxRows * rowHeight) + ((maxRows - 1) * rowSpacing));
     final cardHeight = baseHeight + countersHeight;
 
     return Column(
@@ -110,31 +108,30 @@ class _ActivityWidgetState extends State<ActivityWidget> {
           count: activities.length + birthdays.length + announcements.length,
           title:
               '${context.l10n.lbl_activity} - ${context.l10n.dateRangeFilter_thisWeek}',
-          titleStyle: BaseTypography.titleMedium.copyWith(
+          titleStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
             fontWeight: FontWeight.w700,
-            color: BaseColor.black,
+            color: AppColors.primary,
           ),
           leadingIcon: AppIcons.calendar,
-          leadingBg: BaseColor.blue[50],
-          leadingFg: BaseColor.blue[700],
+          leadingBg: AppColors.primary,
+          leadingFg: AppColors.primary.shade100,
         ),
         Gap.h12,
         SizedBox(
-          height: cardHeight + BaseSize.customHeight(8),
+          height: cardHeight + 20,
           child: ListView.separated(
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: thisWeekDates.length,
-            separatorBuilder: (context, index) =>
-                SizedBox(width: BaseSize.customWidth(12)),
+            separatorBuilder: (context, index) => SizedBox(width: 12),
             itemBuilder: (context, index) {
               final day = thisWeekDates[index];
               return DashboardReveal(
                 key: ValueKey('dashboard-day-${day.toIso8601String()}'),
                 delay: Duration(milliseconds: 80 + (index * 45)),
                 duration: const Duration(milliseconds: 320),
-                offset: const Offset(0.08, 0),
+                offset: const Offset(0.125, 0),
                 child: CardDatePreviewWidget(
                   width: widget.cardsHeight,
                   height: cardHeight,

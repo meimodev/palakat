@@ -39,29 +39,29 @@ class _NotificationPermissionBannerState
         }
 
         return Container(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: BaseColor.primary3.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
-              color: BaseColor.primary3.withValues(alpha: 0.3),
+              color: AppColors.primary.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
           child: Row(
             children: [
               Container(
-                width: BaseSize.w40,
-                height: BaseSize.w40,
+                width: 40.0,
+                height: 40.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.primary3.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   FontAwesomeIcons.bell,
-                  size: BaseSize.w20,
-                  color: BaseColor.primary3,
+                  size: 20.0,
+                  color: AppColors.primary,
                 ),
               ),
               Gap.w8,
@@ -74,9 +74,9 @@ class _NotificationPermissionBannerState
                       children: [
                         Text(
                           context.l10n.notificationSettings_enableNotifications,
-                          style: BaseTypography.titleMedium.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: BaseColor.primaryText,
+                            color: AppColors.onSurface,
                           ),
                         ),
                         Gap.h4,
@@ -84,8 +84,8 @@ class _NotificationPermissionBannerState
                           context
                               .l10n
                               .notificationSettings_permissionEnabledDesc,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.secondaryText,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -94,24 +94,24 @@ class _NotificationPermissionBannerState
                     ElevatedButton(
                       onPressed: () => _handleEnableNotifications(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: BaseColor.primary3,
-                        foregroundColor: BaseColor.white,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.surfaceContainerLowest,
                         padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w16,
-                          vertical: BaseSize.h8,
+                          horizontal: 16.0,
+                          vertical: 8.0,
                         ),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            BaseSize.radiusSm,
+                            4.0,
                           ),
                         ),
                       ),
                       child: Text(
                         context.l10n.notificationSettings_enableNotifications,
-                        style: BaseTypography.bodyMedium.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: BaseColor.white,
+                          color: AppColors.surfaceContainerLowest,
                         ),
                       ),
                     ),
@@ -123,13 +123,13 @@ class _NotificationPermissionBannerState
                 onPressed: _handleDismiss,
                 icon: FaIcon(
                   FontAwesomeIcons.xmark,
-                  size: BaseSize.w16,
-                  color: BaseColor.secondaryText,
+                  size: 16.0,
+                  color: AppColors.onSurfaceVariant,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(
-                  minWidth: BaseSize.w32,
-                  minHeight: BaseSize.w32,
+                  minWidth: 32.0,
+                  minHeight: 32.0,
                 ),
               ),
             ],

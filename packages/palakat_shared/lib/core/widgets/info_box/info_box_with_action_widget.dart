@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 /// A widget for displaying informational messages with an optional action button.
 ///
@@ -41,6 +42,7 @@ class InfoBoxWithActionWidget extends StatelessWidget {
         color: infoColor.withValues(alpha: 0.08),
         border: Border.all(color: infoColor.withValues(alpha: 0.24), width: 1),
         borderRadius: BorderRadius.circular(8),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

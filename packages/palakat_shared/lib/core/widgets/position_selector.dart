@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 
@@ -195,7 +196,7 @@ class _PositionSelectorState extends State<PositionSelector> {
             decoration: InputDecoration(
               hintText: widget.hintText,
               border: const OutlineInputBorder(),
-              fillColor: widget.enabled ? null : Colors.grey.shade100,
+              fillColor: widget.enabled ? null : AppColors.onSurfaceVariant,
               filled: !widget.enabled,
               suffixIcon: Icon(
                 Icons.keyboard_arrow_down,

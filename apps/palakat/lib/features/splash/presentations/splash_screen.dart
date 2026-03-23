@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/presentation.dart';
@@ -35,7 +34,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     return ScaffoldWidget(
       child: Center(
-        child: Text(context.l10n.appTitle, style: BaseTypography.headlineSmall),
+        child: Text(context.l10n.appTitle, style: Theme.of(context).textTheme.headlineSmall!),
       ),
     );
   }

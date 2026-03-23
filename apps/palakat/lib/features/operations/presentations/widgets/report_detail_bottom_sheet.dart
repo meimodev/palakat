@@ -15,21 +15,20 @@ class ReportDetailBottomSheet extends StatelessWidget {
     final l10n = context.l10n;
 
     return Material(
-      color: BaseColor.white,
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(BaseSize.radiusLg),
-      ),
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Handle
           Container(
-            margin: EdgeInsets.only(top: BaseSize.h12),
-            width: BaseSize.w40,
-            height: BaseSize.h4,
+            margin: EdgeInsets.only(top: 12.0),
+            width: 40.0,
+            height: 4.0,
             decoration: BoxDecoration(
-              color: BaseColor.neutral40,
-              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+              color: AppColors.tertiary,
+              borderRadius: BorderRadius.circular(4.0),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 4),
             ),
           ),
 
@@ -37,23 +36,28 @@ class ReportDetailBottomSheet extends StatelessWidget {
 
           // Header
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 Container(
-                  width: BaseSize.w48,
-                  height: BaseSize.w48,
+                  width: 48.0,
+                  height: 48.0,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: _getGenerationTypeColor(
                       report.generatedBy,
                     ).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    border: Border.all(
+                      color: _getGenerationTypeColor(report.generatedBy)
+                          .withValues(alpha: 0.24),
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
                   ),
                   child: Icon(
                     _getGenerationTypeIcon(report.generatedBy),
                     color: _getGenerationTypeColor(report.generatedBy),
-                    size: BaseSize.w24,
+                    size: 24.0,
                   ),
                 ),
                 Gap.w16,
@@ -63,9 +67,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
                     children: [
                       Text(
                         report.name,
-                        style: BaseTypography.titleLarge.copyWith(
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: BaseColor.textPrimary,
+                          color: AppColors.onSurface,
                         ),
                       ),
                       Gap.h4,
@@ -75,8 +79,8 @@ class ReportDetailBottomSheet extends StatelessWidget {
                                 _formatDate(context, report.createdAt!),
                               )
                             : l10n.msg_noGenerationDate,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          color: BaseColor.textSecondary,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -91,7 +95,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
           // Content based on report type
           Flexible(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: _buildReportContent(context),
             ),
           ),
@@ -100,7 +104,7 @@ class ReportDetailBottomSheet extends StatelessWidget {
 
           // Action Buttons
           Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
+            padding: EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Expanded(
@@ -137,39 +141,43 @@ class ReportDetailBottomSheet extends StatelessWidget {
       children: [
         // Report Details Card
         Material(
-          color: BaseColor.surfaceMedium,
+          color: AppColors.surfaceContainerLow,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-            side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+            borderRadius: BorderRadius.circular(16.0),
+            side: BorderSide(color: AppColors.neutral, width: 1),
           ),
           child: Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               children: [
-                _buildInfoRow(l10n.tbl_reportName, report.name),
+                _buildInfoRow(context, l10n.tbl_reportName, report.name),
                 Gap.h12,
                 _buildInfoRow(
+                  context,
                   l10n.lbl_generationType,
                   _getGenerationTypeLabel(context, report.generatedBy),
                 ),
                 Gap.h12,
                 if (report.church != null)
-                  _buildInfoRow(l10n.nav_church, report.church!.name),
+                  _buildInfoRow(context, l10n.nav_church, report.church!.name),
                 if (report.church != null) Gap.h12,
                 _buildInfoRow(
+                  context,
                   l10n.tbl_file,
                   _getFileName(context, report.file),
                 ),
                 Gap.h12,
                 if (report.createdAt != null)
                   _buildInfoRow(
+                    context,
                     l10n.lbl_createdAt,
                     _formatDate(context, report.createdAt!),
                   ),
                 if (report.updatedAt != null) ...[
                   Gap.h12,
                   _buildInfoRow(
+                    context,
                     l10n.lbl_updatedAt,
                     _formatDate(context, report.updatedAt!),
                   ),
@@ -181,8 +189,8 @@ class ReportDetailBottomSheet extends StatelessWidget {
         Gap.h16,
         Text(
           l10n.msg_downloadReportToViewDetails,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.textSecondary,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -190,24 +198,24 @@ class ReportDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.textSecondary,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
           ),
         ),
         Gap.w16,
         Flexible(
           child: Text(
             value,
-            style: BaseTypography.bodyMedium.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
-              color: BaseColor.textPrimary,
+              color: AppColors.onSurface,
             ),
             textAlign: TextAlign.right,
           ),
@@ -219,9 +227,9 @@ class ReportDetailBottomSheet extends StatelessWidget {
   Color _getGenerationTypeColor(GeneratedBy type) {
     switch (type) {
       case GeneratedBy.manual:
-        return BaseColor.blue[600]!; // Blue
+        return AppColors.primary; // Blue
       case GeneratedBy.system:
-        return BaseColor.green[600]!; // Green
+        return AppColors.success; // Green
     }
   }
 

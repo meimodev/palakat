@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/core/extension/string_extension.dart';
 import 'package:palakat_shared/core/models/auth_response.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
@@ -17,70 +19,92 @@ class AppSidebar extends ConsumerWidget {
 
     return Drawer(
       elevation: 0,
+      backgroundColor: AppColors.surface,
       child: SafeArea(
         child: Material(
+          color: AppColors.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.church,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        l10n.appTitle_admin,
-                        style: theme.textTheme.titleLarge,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 44,
+                        width: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.church_rounded,
+                          color: AppColors.primary,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sanctuary Admin',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.appTitle_admin,
+                              style: theme.textTheme.titleLarge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const Divider(height: 1),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   children: [
                     _NavItem(
                       icon: Icons.dashboard_outlined,
                       label: l10n.nav_dashboard,
                       selected: route.startsWith('/dashboard'),
                       onTap: () => context.go('/dashboard'),
-                      color: Colors.indigo,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.group_outlined,
                       label: l10n.nav_members,
                       selected: route.startsWith('/member'),
                       onTap: () => context.go('/member'),
-                      color: Colors.teal,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.event_note,
                       label: l10n.nav_activity,
                       selected: route.startsWith('/activity'),
                       onTap: () => context.go('/activity'),
-                      color: Colors.deepOrange,
+                      color: AppColors.primary,
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                      padding: const EdgeInsets.fromLTRB(12, 20, 12, 8),
                       child: Text(
                         l10n.nav_section_report,
                         style: theme.textTheme.labelMedium?.copyWith(
@@ -95,17 +119,17 @@ class AppSidebar extends ConsumerWidget {
                       label: l10n.nav_finance,
                       selected: route.startsWith('/finance'),
                       onTap: () => context.go('/finance'),
-                      color: Colors.green,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.insert_drive_file_outlined,
                       label: l10n.nav_report,
                       selected: route.startsWith('/report'),
                       onTap: () => context.go('/report'),
-                      color: Colors.orange,
+                      color: AppColors.primary,
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                      padding: const EdgeInsets.fromLTRB(12, 20, 12, 8),
                       child: Text(
                         l10n.nav_section_administration,
                         style: theme.textTheme.labelMedium?.copyWith(
@@ -120,99 +144,133 @@ class AppSidebar extends ConsumerWidget {
                       label: l10n.nav_church,
                       selected: route.startsWith('/church'),
                       onTap: () => context.go('/church'),
-                      color: Colors.red,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.description_outlined,
                       label: l10n.nav_document,
                       selected: route.startsWith('/document'),
                       onTap: () => context.go('/document'),
-                      color: Colors.orange,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.check_box_outlined,
                       label: l10n.nav_approval,
                       selected: route.startsWith('/approval'),
                       onTap: () => context.go('/approval'),
-                      color: Colors.cyan,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.account_balance_wallet_outlined,
                       label: l10n.nav_financial,
                       selected: route.startsWith('/financial'),
                       onTap: () => context.go('/financial'),
-                      color: Colors.amber,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.receipt_long,
                       label: l10n.nav_billing,
                       selected: route.startsWith('/billing'),
                       onTap: () => context.go('/billing'),
-                      color: Colors.blue,
+                      color: AppColors.primary,
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
-              ValueListenableBuilder<AuthResponse?>(
-                valueListenable: localStorage.currentAuthListenable,
-                builder: (context, auth, _) {
-                  final account = auth?.account;
-                  final membership =
-                      localStorage.currentMembership ?? account?.membership;
-                  final church = membership?.church;
-                  final displayNameValue = (account?.name ?? '').trim();
-                  final displayName = displayNameValue.isEmpty
-                      ? l10n.lbl_adminUser
-                      : displayNameValue;
-                  final phoneValue = (account?.phone ?? '').trim();
-                  final phone = phoneValue.isEmpty ? '-' : phoneValue;
-                  final churchNameValue = (church?.name ?? '').trim();
-                  final churchName = churchNameValue.isEmpty
-                      ? l10n.lbl_churchNotAvailable
-                      : churchNameValue;
-                  final churchId =
-                      church?.id?.toString() ??
-                      membership?.column?.churchId.toString() ??
-                      '-';
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                child: ValueListenableBuilder<AuthResponse?>(
+                  valueListenable: localStorage.currentAuthListenable,
+                  builder: (context, auth, _) {
+                    final account = auth?.account;
+                    final membership =
+                        localStorage.currentMembership ?? account?.membership;
+                    final church = membership?.church;
+                    final displayNameValue = (account?.name ?? '').trim();
+                    final displayName = displayNameValue.isEmpty
+                        ? l10n.lbl_adminUser
+                        : displayNameValue;
+                    final phoneValue = (account?.phone ?? '').trim();
+                    final phone = phoneValue.isEmpty ? '-' : phoneValue;
+                    final churchNameValue = (church?.name ?? '').trim();
+                    final churchName = churchNameValue.isEmpty
+                        ? l10n.lbl_churchNotAvailable
+                        : churchNameValue;
+                    final churchId =
+                        church?.id?.toString() ??
+                        membership?.column?.churchId.toString() ??
+                        '-';
 
-                  return ListTile(
-                    isThreeLine: true,
-                    title: Text(displayName),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          phone,
-                          style: theme.textTheme.labelSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.radiusLarge,
+                      ),
+                      onTap: () => context.go('/account'),
+                      child: Ink(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radiusLarge,
+                          ),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
+                            CircleAvatar(
+                              backgroundColor:
+                                  AppColors.surfaceContainerHighest,
                               child: Text(
-                                churchName,
-                                style: theme.textTheme.labelSmall,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                displayName.initials,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.lbl_hashId(churchId),
-                              style: theme.textTheme.labelSmall,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    displayName,
+                                    style: theme.textTheme.titleSmall,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    phone,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    churchName,
+                                    style: theme.textTheme.labelMedium,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    l10n.lbl_hashId(churchId),
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    onTap: () => context.go('/account'),
-                  );
-                },
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -258,12 +316,12 @@ class _NavItemState extends State<_NavItem>
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.02,
+      end: 1.01,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _iconScaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.1,
+      end: 1.04,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -304,19 +362,21 @@ class _NavItemState extends State<_NavItem>
                 curve: Curves.easeInOut,
                 decoration: BoxDecoration(
                   color: widget.selected
-                      ? theme.colorScheme.primary.withValues(alpha: 0.08)
+                      ? AppColors.surfaceContainerHighest
                       : _isHovered
-                      ? theme.colorScheme.primary.withValues(alpha: 0.04)
+                      ? AppColors.surfaceContainerLow
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    SanctuaryLayout.radiusLarge,
+                  ),
                   boxShadow: _isHovered && !widget.selected
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.1,
+                            color: theme.colorScheme.shadow.withValues(
+                              alpha: 0.04,
                             ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
                           ),
                         ]
                       : null,
@@ -329,22 +389,22 @@ class _NavItemState extends State<_NavItem>
                         scale: _iconScaleAnimation.value,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          height: 32,
-                          width: 32,
+                          height: 36,
+                          width: 36,
                           decoration: BoxDecoration(
-                            color: widget.selected
-                                ? theme.colorScheme.primary
-                                : _isHovered
-                                ? widget.color.withValues(alpha: 0.2)
-                                : widget.color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
+                            color: widget.selected || _isHovered
+                                ? widget.color.withValues(alpha: 0.12)
+                                : AppColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(
+                              SanctuaryLayout.radius,
+                            ),
                           ),
                           child: Icon(
                             widget.icon,
                             size: 18,
                             color: widget.selected
-                                ? theme.colorScheme.onPrimary
-                                : widget.color,
+                                ? widget.color
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       );
@@ -359,7 +419,7 @@ class _NavItemState extends State<_NavItem>
                           ? FontWeight.w500
                           : FontWeight.normal,
                       color: widget.selected
-                          ? theme.colorScheme.primary
+                          ? widget.color
                           : _isHovered
                           ? theme.colorScheme.onSurface
                           : theme.colorScheme.onSurface.withValues(alpha: 0.8),
@@ -367,7 +427,9 @@ class _NavItemState extends State<_NavItem>
                     child: Text(widget.label),
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
                   ),
                   onTap: widget.onTap,
                 ),

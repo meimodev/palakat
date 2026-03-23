@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/theme.dart';
@@ -17,198 +18,201 @@ class MembershipCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final bool signed = account != null;
     final membership = account?.membership;
+    final theme = Theme.of(context);
+    final bipraLabel = (account?.calculateBipra.name ?? '').isEmpty
+        ? l10n.membershipCard_notSet
+        : (account?.calculateBipra.name ?? '');
+    final columnLabel = membership?.column?.name != null
+        ? l10n.membershipCard_column(membership!.column!.name)
+        : l10n.membershipCard_notSet;
 
     return Material(
       clipBehavior: Clip.hardEdge,
-      elevation: 1,
-      shadowColor: Colors.black.withValues(alpha: 0.05),
-      surfaceTintColor: signed ? BaseColor.teal[50] : null,
-      color: signed ? BaseColor.teal[50] : Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: signed
-            ? BorderSide(
-                width: 1,
-                color: BaseColor.teal[100] ?? BaseColor.neutral20,
-              )
-            : BorderSide.none,
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
       ),
       child: Container(
-        decoration: signed
-            ? null
-            : BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [BaseColor.blue[600]!, BaseColor.teal[500]!],
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
+        decoration: BoxDecoration(
+          color: signed
+              ? AppColors.surfaceContainerLowest
+              : AppColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.035, blur: 22),
+        ),
         child: InkWell(
           onTap: onPressedCard,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: BaseSize.w16,
-              vertical: BaseSize.h16,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (signed)
-                      Container(
-                        width: BaseSize.w40,
-                        height: BaseSize.w40,
-                        decoration: BoxDecoration(
-                          color: BaseColor.teal[100] ?? BaseColor.neutral20,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  (BaseColor.teal[200] ?? BaseColor.neutral40)
-                                      .withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.church_outlined,
-                          size: BaseSize.w20,
-                          color: BaseColor.teal[700] ?? BaseColor.primaryText,
+                    Container(
+                      width: signed ? 44.0 : 52.0,
+                      height: signed ? 44.0 : 52.0,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(
+                          signed
+                              ? SanctuaryLayout.radius
+                              : SanctuaryLayout.radiusLarge,
                         ),
                       ),
-                    if (signed) Gap.w12,
-                    if (signed && onSignOut != null)
-                      IconButton(
-                        onPressed: onSignOut,
-                        icon: Icon(
-                          Icons.logout,
-                          size: BaseSize.w20,
-                          color: BaseColor.red[600],
-                        ),
-                        tooltip: 'Sign Out',
-                        style: IconButton.styleFrom(
-                          backgroundColor: BaseColor.red[50],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        signed
+                            ? Icons.badge_rounded
+                            : Icons.waving_hand_rounded,
+                        size: signed ? 20.0 : 24.0,
+                        color: AppColors.primary,
                       ),
-                    if (signed && onSignOut != null) Gap.w8,
+                    ),
+                    Gap.w12,
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: signed
-                            ? CrossAxisAlignment.start
-                            : CrossAxisAlignment.center,
-                        mainAxisAlignment: signed
-                            ? MainAxisAlignment.start
-                            : MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          if (signed) ...[
-                            Text(
-                              account?.name ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: BaseTypography.titleLarge.copyWith(
-                                color: BaseColor.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          Text(
+                            signed ? (account?.name ?? '') : l10n.membershipCard_welcome,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleLarge!.copyWith(
+                              color: AppColors.onSurface,
+                              fontWeight: FontWeight.w700,
                             ),
-                            if (membership?.church?.name != null) ...[
-                              Gap.h4,
-                              Text(
-                                membership!.church!.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  color: BaseColor.secondaryText,
-                                ),
-                              ),
-                            ],
-                          ] else ...[
-                            Icon(
-                              Icons.waving_hand,
-                              size: BaseSize.w32,
-                              color: Colors.white,
+                          ),
+                          Gap.h4,
+                          Text(
+                            signed
+                                ? (membership?.church?.name ??
+                                      l10n.membershipCard_pending)
+                                : l10n.membershipCard_signedOutSubtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              height: 1.35,
                             ),
-                            Gap.h8,
-                            Text(
-                              'Welcome!',
-                              style: BaseTypography.titleLarge.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Gap.h4,
-                            Text(
-                              'Sign in to see your congregation information',
-                              style: BaseTypography.bodyMedium.copyWith(
-                                color: Colors.white.withValues(alpha: 0.9),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                          ),
                         ],
                       ),
                     ),
+                    if (signed && onSignOut != null) ...[
+                      Gap.w12,
+                      IconButton(
+                        onPressed: onSignOut,
+                        icon: Icon(
+                          Icons.logout_rounded,
+                          size: 18.0,
+                          color: AppColors.error,
+                        ),
+
+                        tooltip: l10n.btn_signOut,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.surfaceContainerLow,
+                          side: BorderSide(color: AppColors.ghostBorder(0.08)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              SanctuaryLayout.radius,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-                if (signed) Gap.h16,
-                // Footer: chips or CTA
+                Gap.h16,
                 if (signed)
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _pillChip(
-                        icon: Icons.group_outlined,
-                        label: (account?.calculateBipra.name ?? '').isEmpty
-                            ? 'Not Set'
-                            : (account?.calculateBipra.name ?? ''),
-                        bg: BaseColor.teal[50] ?? BaseColor.neutral20,
-                        fg: BaseColor.teal[700] ?? BaseColor.primaryText,
-                        border: BaseColor.teal[200] ?? BaseColor.neutral40,
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: [
+                          _pillChip(
+                            context: context,
+                            icon: Icons.group_outlined,
+                            label: bipraLabel,
+                          ),
+                          _pillChip(
+                            context: context,
+                            icon: Icons.location_city_outlined,
+                            label: columnLabel,
+                          ),
+                        ],
                       ),
-                      Gap.w8,
-                      _pillChip(
-                        icon: Icons.location_city_outlined,
-                        label: membership?.column?.name != null
-                            ? 'Column ${membership!.column!.name}'
-                            : 'Not Set',
-                        bg: BaseColor.teal[50] ?? BaseColor.neutral20,
-                        fg: BaseColor.teal[700] ?? BaseColor.primaryText,
-                        border: BaseColor.teal[200] ?? BaseColor.neutral40,
+                      Gap.h16,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14.0,
+                          vertical: 12.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.arrow_outward_rounded,
+                              size: 18.0,
+                              color: AppColors.primary,
+                            ),
+                            Gap.w10,
+                            Expanded(
+                              child: Text(
+                                l10n.membershipCard_reviewDetails,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   )
                 else ...[
-                  Gap.h16,
                   Center(
                     child: ElevatedButton.icon(
                       onPressed: onPressedCard,
-                      icon: const Icon(Icons.login, size: 20),
+                      icon: const Icon(Icons.login_rounded, size: 18),
                       label: Text(
-                        'Sign In',
-                        style: BaseTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.bold,
+                        l10n.btn_signIn,
+                        style: theme.textTheme.titleMedium!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: BaseColor.blue[700],
-                        elevation: 4,
-                        shadowColor: Colors.black.withValues(alpha: 0.2),
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.onPrimary,
+                        elevation: 0,
                         padding: EdgeInsets.symmetric(
-                          horizontal: BaseSize.w32,
-                          vertical: BaseSize.h12,
+                          horizontal: 32.0,
+                          vertical: 12.0,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
+                          ),
                         ),
                       ),
                     ),
@@ -225,28 +229,35 @@ class MembershipCardWidget extends StatelessWidget {
 
 // Local helpers (kept in this file for reuse consistency with other widgets)
 Widget _pillChip({
+  required BuildContext context,
   required IconData icon,
   required String label,
-  required Color bg,
-  required Color fg,
-  required Color border,
 }) {
+  final theme = Theme.of(context);
+
   return Container(
-    padding: EdgeInsets.symmetric(
-      horizontal: BaseSize.w10,
-      vertical: BaseSize.h6,
-    ),
+    padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     decoration: BoxDecoration(
-      color: bg,
-      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-      border: Border.all(color: border),
+      color: AppColors.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+      border: Border.all(color: AppColors.ghostBorder(0.08)),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: BaseSize.w12, color: fg),
+        Icon(icon, size: 14.0, color: AppColors.primary),
         Gap.w6,
-        Text(label, style: BaseTypography.labelMedium.copyWith(color: fg)),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelMedium!.copyWith(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ],
     ),
   );

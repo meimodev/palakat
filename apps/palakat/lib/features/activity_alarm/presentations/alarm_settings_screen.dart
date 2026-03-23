@@ -206,6 +206,7 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final canExactAsync = ref.watch(canScheduleExactAlarmsProvider);
     final canFullScreenAsync = ref.watch(canUseFullScreenIntentProvider);
 
@@ -216,20 +217,20 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
         children: [
           ActivityAlarmReveal(
             child: ScreenTitleWidget.primary(
-              title: 'Activity Alarms',
+              title: l10n.dashboard_alarmSettings_tooltip,
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.black,
+              leadIconColor: AppColors.onSurface,
               onPressedLeadIcon: () => context.pop(),
             ),
           ),
           Gap.h16,
           if (_membershipId == null)
-            const ActivityAlarmReveal(
-              delay: Duration(milliseconds: 40),
+            ActivityAlarmReveal(
+              delay: const Duration(milliseconds: 40),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'No membership found.',
+                  l10n.settings_noMembership,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -238,13 +239,13 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
             ActivityAlarmReveal(
               delay: const Duration(milliseconds: 40),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
-                  padding: EdgeInsets.all(BaseSize.w12),
+                  padding: EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    color: BaseColor.primary[50],
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                    border: Border.all(color: BaseColor.primary[200]!),
+                    color: AppColors.primary.shade50,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: AppColors.primary.shade200),
                   ),
                   child: Row(
                     children: [
@@ -253,16 +254,16 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Enable activity alarms',
-                              style: BaseTypography.bodyMedium.copyWith(
+                              l10n.activityAlarm_enableTitle,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: BaseColor.black,
+                                color: AppColors.primary.shade700,
                               ),
                             ),
                             Gap.h4,
                             Text(
-                              'Schedule reminders for this week on your phone.',
-                              style: BaseTypography.bodyMedium.toSecondary,
+                              l10n.activityAlarm_enableSubtitle,
+                              style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                             ),
                           ],
                         ),
@@ -280,15 +281,15 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
               visible: _error != null,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                  BaseSize.w16,
-                  BaseSize.h12,
-                  BaseSize.w16,
+                  16.0,
+                  12.0,
+                  16.0,
                   0,
                 ),
                 child: Text(
                   _error ?? '',
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.red[700],
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.error,
                   ),
                 ),
               ),
@@ -299,17 +300,17 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                   visible: !canExact,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      BaseSize.w16,
-                      BaseSize.h12,
-                      BaseSize.w16,
+                      16.0,
+                      12.0,
+                      16.0,
                       0,
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(BaseSize.w12),
+                      padding: EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
-                        color: BaseColor.yellow[50],
-                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                        border: Border.all(color: BaseColor.yellow[200]!),
+                        color: AppColors.warning.shade50,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(color: AppColors.warning.shade200),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -318,16 +319,16 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                             children: [
                               Icon(
                                 AppIcons.warning,
-                                color: BaseColor.yellow[800],
-                                size: BaseSize.w18,
+                                color: AppColors.warning.shade700,
+                                size: 18.0,
                               ),
                               Gap.w8,
                               Expanded(
                                 child: Text(
-                                  'Allow exact alarms',
-                                  style: BaseTypography.bodyMedium.copyWith(
+                                  l10n.dashboard_alarmPermission_exact_title,
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: BaseColor.black,
+                                    color: AppColors.warning.shade800,
                                   ),
                                 ),
                               ),
@@ -335,8 +336,8 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                           ),
                           Gap.h8,
                           Text(
-                            'To trigger alarms on time, Android may require you to allow exact alarms for Palakat.',
-                            style: BaseTypography.bodyMedium.toSecondary,
+                            l10n.dashboard_alarmPermission_exact_message,
+                            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                           ),
                           Gap.h12,
                           OutlinedButton(
@@ -348,10 +349,10 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                               ref.invalidate(canScheduleExactAlarmsProvider);
                             },
                             child: Text(
-                              'Open settings',
-                              style: BaseTypography.bodyMedium.copyWith(
+                              l10n.notificationPermission_btn_enableInSettings,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: BaseColor.black,
+                                color: AppColors.warning.shade800,
                               ),
                             ),
                           ),
@@ -370,17 +371,17 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                   visible: !canUseFullScreenIntent,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                      BaseSize.w16,
-                      BaseSize.h12,
-                      BaseSize.w16,
+                      16.0,
+                      12.0,
+                      16.0,
                       0,
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(BaseSize.w12),
+                      padding: EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
-                        color: BaseColor.yellow[50],
-                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                        border: Border.all(color: BaseColor.yellow[200]!),
+                        color: AppColors.warning.shade50,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(color: AppColors.warning.shade200),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -389,16 +390,16 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                             children: [
                               Icon(
                                 AppIcons.warning,
-                                color: BaseColor.yellow[800],
-                                size: BaseSize.w18,
+                                color: AppColors.warning.shade700,
+                                size: 18.0,
                               ),
                               Gap.w8,
                               Expanded(
                                 child: Text(
-                                  'Allow full-screen alarms',
-                                  style: BaseTypography.bodyMedium.copyWith(
+                                  l10n.dashboard_alarmPermission_fullScreen_title,
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: BaseColor.black,
+                                    color: AppColors.warning.shade800,
                                   ),
                                 ),
                               ),
@@ -406,8 +407,8 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                           ),
                           Gap.h8,
                           Text(
-                            'To show the alarm screen over the lock screen, Android may require you to allow full-screen intent for Palakat.',
-                            style: BaseTypography.bodyMedium.toSecondary,
+                            l10n.dashboard_alarmPermission_fullScreen_message,
+                            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                           ),
                           Gap.h12,
                           OutlinedButton(
@@ -419,10 +420,10 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                               ref.invalidate(canUseFullScreenIntentProvider);
                             },
                             child: Text(
-                              'Open settings',
-                              style: BaseTypography.bodyMedium.copyWith(
+                              l10n.notificationPermission_btn_enableInSettings,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: BaseColor.black,
+                                color: AppColors.warning.shade800,
                               ),
                             ),
                           ),
@@ -435,16 +436,16 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
               loading: () => const SizedBox.shrink(),
               error: (error, stackTrace) => const SizedBox.shrink(),
             ),
-            Gap.customGapHeight(32),
+            Gap.h32,
             ActivityAlarmReveal(
               delay: const Duration(milliseconds: 80),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  'This week',
-                  style: BaseTypography.titleMedium.copyWith(
+                  l10n.dateRangeFilter_thisWeek,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: BaseColor.black,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -454,10 +455,10 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
               ActivityAlarmReveal(
                 delay: const Duration(milliseconds: 120),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    'No activities with reminders found.',
-                    style: BaseTypography.bodyMedium.toSecondary,
+                    l10n.activityAlarm_noActivitiesWithReminders,
+                    style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
                   ),
                 ),
               )
@@ -467,7 +468,7 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _activities.length,
                 separatorBuilder: (context, index) => Gap.h8,
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 itemBuilder: (context, index) {
                   final activity = _activities[index];
                   final id = activity.id;
@@ -484,15 +485,15 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                     key: ValueKey('alarm-activity-$id'),
                     delay: Duration(milliseconds: 120 + (index * 40)),
                     child: Material(
-                      color: BaseColor.cardBackground1,
+                      color: AppColors.surfaceContainerLowest,
                       elevation: 1,
-                      shadowColor: BaseColor.black.withValues(alpha: 0.05),
-                      surfaceTintColor: BaseColor.primary[50],
+                      shadowColor: AppColors.primary.withValues(alpha: 0.05),
+                      surfaceTintColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        borderRadius: BorderRadius.circular(8.0),
                         onTap: () {
                           context.pushNamed(
                             AppRoute.activityDetail,
@@ -500,7 +501,7 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                           );
                         },
                         child: Padding(
-                          padding: EdgeInsets.all(BaseSize.w12),
+                          padding: EdgeInsets.all(12.0),
                           child: Row(
                             children: [
                               Expanded(
@@ -509,24 +510,24 @@ class _AlarmSettingsScreenState extends ConsumerState<AlarmSettingsScreen>
                                   children: [
                                     Text(
                                       activity.title,
-                                      style: BaseTypography.bodyMedium.copyWith(
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         fontWeight: FontWeight.w700,
-                                        color: BaseColor.black,
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                     Gap.h4,
                                     Text(
                                       '${dateLocal.ddMmmmYyyy} ${dateLocal.HHmm}',
                                       style:
-                                          BaseTypography.bodyMedium.toSecondary,
+                                          Theme.of(context).textTheme.bodyMedium!.toSecondary,
                                     ),
                                     if (reminderText != null) ...[
                                       Gap.h4,
                                       Text(
                                         reminderText,
-                                        style: BaseTypography.bodyMedium
+                                        style: Theme.of(context).textTheme.bodyMedium!
                                             .copyWith(
-                                              color: BaseColor.neutral[700],
+                                              color: AppColors.neutral,
                                               fontWeight: FontWeight.w600,
                                             ),
                                       ),

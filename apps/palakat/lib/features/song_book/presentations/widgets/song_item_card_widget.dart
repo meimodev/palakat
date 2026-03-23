@@ -71,21 +71,21 @@ class SongItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final snippet = _lyricsSnippet();
-    final borderRadius = BaseSize.radiusMd;
+    final borderRadius = 8.0;
     return Material(
-      color: BaseColor.surfaceLight,
+      color: AppColors.surfaceBright,
       elevation: 0,
-      shadowColor: BaseColor.shadow.withValues(alpha: 0.1),
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         // Ripple effect with primary color at 10% opacity (Requirement 4.1)
-        splashColor: BaseColor.primary.withValues(alpha: 0.1),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        splashColor: AppColors.primary.withValues(alpha: 0.1),
+        highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isCompact =
@@ -94,8 +94,8 @@ class SongItemCard extends StatelessWidget {
 
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: BaseSize.w10,
-                vertical: BaseSize.w8,
+                horizontal: 10.0,
+                vertical: 8.0,
               ),
               child: isCompact
                   ? Column(
@@ -123,8 +123,8 @@ class SongItemCard extends StatelessWidget {
                           alignment: Alignment.centerRight,
                           child: Icon(
                             AppIcons.forward,
-                            color: BaseColor.textSecondary,
-                            size: BaseSize.w20,
+                            color: AppColors.onSurfaceVariant,
+                            size: 20.0,
                           ),
                         ),
                       ],
@@ -146,8 +146,8 @@ class SongItemCard extends StatelessWidget {
                         Gap.w6,
                         Icon(
                           AppIcons.forward,
-                          color: BaseColor.textSecondary,
-                          size: BaseSize.w20,
+                          color: AppColors.onSurfaceVariant,
+                          size: 20.0,
                         ),
                       ],
                     ),
@@ -168,17 +168,17 @@ class _SongIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: isCompact ? BaseSize.w36 : BaseSize.w40,
-      height: isCompact ? BaseSize.w36 : BaseSize.w40,
+      width: isCompact ? 36.0 : 40.0,
+      height: isCompact ? 36.0 : 40.0,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: BaseColor.primary[50],
-        borderRadius: BorderRadius.circular(BaseSize.w12),
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: FaIcon(
         AppIcons.musicNote,
-        color: BaseColor.primary,
-        size: isCompact ? BaseSize.w18 : BaseSize.w20,
+        color: AppColors.onPrimary,
+        size: isCompact ? 18.0 : 20.0,
       ),
     );
   }
@@ -216,11 +216,11 @@ class _SongContent extends StatelessWidget {
           _displayTitle(title),
           style:
               (isCompact
-                      ? BaseTypography.bodyMedium
-                      : BaseTypography.titleMedium)
+                      ? Theme.of(context).textTheme.bodyMedium!
+                      : Theme.of(context).textTheme.titleMedium!)
                   .copyWith(
                     fontWeight: FontWeight.w600,
-                    color: BaseColor.textPrimary,
+                    color: AppColors.onSurface,
                   ),
           maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
@@ -229,8 +229,8 @@ class _SongContent extends StatelessWidget {
         // Subtitle (song name)
         Text(
           subtitle,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.textSecondary,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
           ),
           maxLines: isCompact ? 2 : 1,
           overflow: TextOverflow.ellipsis,
@@ -239,8 +239,8 @@ class _SongContent extends StatelessWidget {
           Gap.h4,
           Text(
             snippet!,
-            style: BaseTypography.bodyMedium.copyWith(
-              color: BaseColor.textSecondary,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
             maxLines: isCompact ? 2 : 1,
             overflow: TextOverflow.ellipsis,

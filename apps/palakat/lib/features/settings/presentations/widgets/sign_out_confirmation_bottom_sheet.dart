@@ -16,7 +16,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 void showSignOutConfirmationBottomSheet(BuildContext context, WidgetRef ref) {
   showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: BaseColor.transparent,
+    backgroundColor: Colors.transparent,
     builder: (dialogContext) => _SignOutConfirmationContent(
       onCancel: () => Navigator.of(dialogContext).pop(),
       onConfirm: () async {
@@ -52,13 +52,13 @@ class _SignOutConfirmationContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: BaseColor.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(BaseSize.radiusLg),
-          topRight: Radius.circular(BaseSize.radiusLg),
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
       ),
-      padding: EdgeInsets.all(BaseSize.w24),
+      padding: EdgeInsets.all(24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,11 +66,11 @@ class _SignOutConfirmationContent extends StatelessWidget {
           // Drag handle
           Center(
             child: Container(
-              width: BaseSize.w40,
-              height: BaseSize.h4,
+              width: 40.0,
+              height: 4.0,
               decoration: BoxDecoration(
-                color: BaseColor.neutral30,
-                borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                color: AppColors.tertiary,
+                borderRadius: BorderRadius.circular(4.0),
               ),
             ),
           ),
@@ -78,17 +78,17 @@ class _SignOutConfirmationContent extends StatelessWidget {
           // Warning icon
           Center(
             child: Container(
-              width: BaseSize.w56,
-              height: BaseSize.w56,
+              width: 56.0,
+              height: 56.0,
               decoration: BoxDecoration(
-                color: BaseColor.red[50],
+                color: AppColors.error.shade100,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: FaIcon(
                 AppIcons.logout,
-                size: BaseSize.w32,
-                color: BaseColor.red[700],
+                size: 32.0,
+                color: AppColors.error.shade700,
               ),
             ),
           ),
@@ -96,9 +96,9 @@ class _SignOutConfirmationContent extends StatelessWidget {
           // Title
           Text(
             context.l10n.btn_signOutConfirm,
-            style: BaseTypography.titleLarge.copyWith(
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
               fontWeight: FontWeight.bold,
-              color: BaseColor.black,
+              color: AppColors.primary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -106,7 +106,7 @@ class _SignOutConfirmationContent extends StatelessWidget {
           // Message
           Text(
             context.l10n.btn_signOutMessage,
-            style: BaseTypography.bodyMedium.toSecondary,
+            style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
             textAlign: TextAlign.center,
           ),
           Gap.h24,
@@ -117,17 +117,17 @@ class _SignOutConfirmationContent extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onCancel,
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                    side: BorderSide(color: BaseColor.neutral40),
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    side: BorderSide(color: AppColors.tertiary),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                   child: Text(
                     context.l10n.btn_cancel,
-                    style: BaseTypography.bodyMedium.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: BaseColor.secondaryText,
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -137,19 +137,19 @@ class _SignOutConfirmationContent extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onConfirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: BaseColor.red[600],
-                    foregroundColor: BaseColor.white,
-                    padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                    backgroundColor: AppColors.error,
+                    foregroundColor: AppColors.surfaceContainerLowest,
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                   child: Text(
                     context.l10n.btn_signOut,
-                    style: BaseTypography.bodyMedium.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: BaseColor.white,
+                      color: AppColors.surfaceContainerLowest,
                     ),
                   ),
                 ),

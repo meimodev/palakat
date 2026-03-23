@@ -1,4 +1,4 @@
 /// App theme configuration
 library;
 
-export 'core/theme/theme.dart';
+export 'package:palakat_shared/theme.dart';

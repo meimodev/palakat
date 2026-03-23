@@ -40,15 +40,10 @@ class SongCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: BaseColor.surfaceMedium,
-        borderRadius: BorderRadius.circular(BaseSize.w16),
-        boxShadow: [
-          BoxShadow(
-            color: BaseColor.shadow.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: AppColors.ghostBorder(0.08)),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -84,9 +79,9 @@ class SongCategoryCard extends StatelessWidget {
     return Padding(
       // 8px grid spacing (Requirement 2.4)
       padding: EdgeInsets.only(
-        left: BaseSize.w8,
-        right: BaseSize.w8,
-        bottom: BaseSize.w8,
+        left: 8.0,
+        right: 8.0,
+        bottom: 8.0,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -94,7 +89,7 @@ class SongCategoryCard extends StatelessWidget {
             .map(
               (song) => Padding(
                 // 8px grid spacing (Requirement 2.4)
-                padding: EdgeInsets.only(bottom: BaseSize.w12),
+                padding: EdgeInsets.only(bottom: 12.0),
                 child: SongItemCard(song: song, onTap: () => onSongTap(song)),
               ),
             )
@@ -111,36 +106,39 @@ class _CategoryEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // 16px = 2 * 8px grid spacing (Requirement 2.4)
-      padding: EdgeInsets.all(BaseSize.w16),
-      margin: EdgeInsets.all(BaseSize.w8),
+      padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: BaseColor.surfaceLight,
+        color: AppColors.surfaceBright,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: BaseColor.neutral[200]!, width: 1),
+        border: Border.all(color: AppColors.ghostBorder(0.08), width: 1),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
       ),
       child: Row(
         children: [
           // Teal accent icon (Requirement 2.2)
           Container(
-            width: BaseSize.w32,
-            height: BaseSize.w32,
+            width: 32.0,
+            height: 32.0,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: BaseColor.primary[50],
+              color: AppColors.primary,
               shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
             ),
             child: FaIcon(
               AppIcons.musicOff,
-              size: BaseSize.w16,
-              color: BaseColor.primary,
+              size: 16.0,
+              color: AppColors.primary,
             ),
           ),
           Gap.w12,
           Expanded(
             child: Text(
               context.l10n.songBook_emptyTitle,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
@@ -167,13 +165,13 @@ class _CategoryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.primary[50],
+      color: AppColors.primary,
       child: InkWell(
         onTap: onTap,
-        splashColor: BaseColor.primary.withValues(alpha: 0.1),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
+        splashColor: AppColors.primary.withValues(alpha: 0.1),
+        highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final shouldStackTrailing =
@@ -181,17 +179,19 @@ class _CategoryHeader extends StatelessWidget {
                   MediaQuery.textScalerOf(context).scale(1) > 1.1;
               final countBadge = Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: BaseSize.w8,
-                  vertical: BaseSize.w4,
+                  horizontal: 8.0,
+                  vertical: 4.0,
                 ),
                 decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(BaseSize.w12),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                  borderRadius: BorderRadius.circular(12.0),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
                 ),
                 child: Text(
                   '$songCount',
-                  style: BaseTypography.labelMedium.copyWith(
-                    color: BaseColor.primary[700],
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -201,8 +201,8 @@ class _CategoryHeader extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 child: FaIcon(
                   AppIcons.chevronDown,
-                  color: BaseColor.primary,
-                  size: BaseSize.w24,
+                  color: AppColors.primary,
+                  size: 24.0,
                 ),
               );
 
@@ -210,17 +210,21 @@ class _CategoryHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: BaseSize.w40,
-                    height: BaseSize.w40,
+                    width: 40.0,
+                    height: 40.0,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: BaseColor.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(BaseSize.w12),
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12.0),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                      ),
+                      boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                     ),
                     child: FaIcon(
                       category.icon,
-                      color: BaseColor.primary,
-                      size: BaseSize.w24,
+                      color: AppColors.primary,
+                      size: 24.0,
                     ),
                   ),
                   Gap.w12,
@@ -231,17 +235,17 @@ class _CategoryHeader extends StatelessWidget {
                       children: [
                         Text(
                           category.abbreviation,
-                          style: BaseTypography.titleMedium.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BaseColor.textPrimary,
+                            color: AppColors.onSurface,
                           ),
                           maxLines: shouldStackTrailing ? 2 : 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           category.title,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.textSecondary,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.onSurfaceVariant,
                           ),
                           maxLines: shouldStackTrailing ? 2 : 1,
                           overflow: TextOverflow.ellipsis,

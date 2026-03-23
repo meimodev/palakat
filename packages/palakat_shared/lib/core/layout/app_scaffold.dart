@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
 
@@ -268,7 +269,7 @@ class _AppFooter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 32),
-        const Divider(height: 16, color: Colors.black54),
+        const Divider(height: 16, color: AppColors.onSurfaceVariant),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(

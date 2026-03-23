@@ -24,10 +24,10 @@ class MemberCreateScreen extends ConsumerWidget {
         delay: const Duration(milliseconds: 180),
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: BaseSize.h24,
-            left: BaseSize.w12,
-            right: BaseSize.w12,
-            top: BaseSize.h6,
+            bottom: 24.0,
+            left: 12.0,
+            right: 12.0,
+            top: 6.0,
           ),
           child: ButtonWidget.primary(
             text: l10n.btn_create,
@@ -66,7 +66,7 @@ class MemberCreateScreen extends ConsumerWidget {
                 state.errorMessage != null &&
                 state.errorMessage!.trim().isNotEmpty,
             child: Padding(
-              padding: EdgeInsets.only(bottom: BaseSize.h12),
+              padding: EdgeInsets.only(bottom: 12.0),
               child: ErrorDisplayWidget(message: state.errorMessage ?? ''),
             ),
           ),
@@ -77,7 +77,7 @@ class MemberCreateScreen extends ConsumerWidget {
           Gap.h16,
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: BaseSize.h16),
+              padding: EdgeInsets.only(bottom: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -170,6 +170,7 @@ class MemberCreateScreen extends ConsumerWidget {
                       title: l10n.settings_membershipSettings,
                       children: [
                         _buildInfoRow(
+                          context: context,
                           icon: AppIcons.church,
                           label: l10n.lbl_churchName,
                           value: (state.churchName?.trim().isNotEmpty == true)
@@ -178,6 +179,7 @@ class MemberCreateScreen extends ConsumerWidget {
                         ),
                         Gap.h12,
                         _buildInfoRow(
+                          context: context,
                           icon: AppIcons.grid,
                           label: l10n.lbl_columnName,
                           value: (state.columnName?.trim().isNotEmpty == true)
@@ -216,22 +218,27 @@ class MemberCreateScreen extends ConsumerWidget {
   }
 
   static Widget _buildInfoRow({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
   }) {
+    final theme = Theme.of(context);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: BaseSize.w28,
-          height: BaseSize.w28,
+          width: 28.0,
+          height: 28.0,
           decoration: BoxDecoration(
-            color: BaseColor.primary[50],
-            shape: BoxShape.circle,
+            color: AppColors.surfaceContainerHighest,
+            border: Border.all(color: AppColors.ghostBorder(0.06)),
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: BaseSize.w14, color: BaseColor.primary[700]),
+          child: Icon(icon, size: 14.0, color: AppColors.primary),
         ),
         Gap.w12,
         Expanded(
@@ -240,17 +247,18 @@ class MemberCreateScreen extends ConsumerWidget {
             children: [
               Text(
                 label,
-                style: BaseTypography.labelMedium.copyWith(
-                  color: BaseColor.textSecondary,
+                style: theme.textTheme.labelMedium!.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Gap.h4,
               Text(
                 value,
-                style: BaseTypography.bodyMedium.copyWith(
-                  color: BaseColor.textPrimary,
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  color: AppColors.onSurface,
                   fontWeight: FontWeight.w600,
+                  height: 1.35,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

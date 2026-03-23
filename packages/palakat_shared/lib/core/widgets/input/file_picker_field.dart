@@ -3,6 +3,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '../loading_shimmer.dart';
+import '../loading_widget.dart';
+
 class FilePickerValue {
   const FilePickerValue({
     required this.name,
@@ -185,8 +188,12 @@ class FilePickerField extends StatelessWidget {
                     child: isLoadingPreview
                         ? SizedBox(
                             height: previewHeight,
-                            child: const Center(
-                              child: CircularProgressIndicator(),
+                            child: Center(
+                              child: CompactLoadingWidget(
+                                size: 18,
+                                baseColor: theme.colorScheme.surfaceContainerHighest,
+                                highlightColor: theme.colorScheme.surface,
+                              ),
                             ),
                           )
                         : hasImageBytes
@@ -233,15 +240,13 @@ class FilePickerField extends StatelessWidget {
                                       return SizedBox(
                                         height: previewHeight,
                                         child: Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                                : null,
+                                          child: LoadingShimmer(
+                                            isLoading: true,
+                                            child: CompactLoadingWidget(
+                                              size: 18,
+                                              baseColor: theme.colorScheme.surfaceContainerHighest,
+                                              highlightColor: theme.colorScheme.surface,
+                                            ),
                                           ),
                                         ),
                                       );

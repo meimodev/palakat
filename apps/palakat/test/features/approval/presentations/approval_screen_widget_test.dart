@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 
@@ -151,7 +152,7 @@ void main() {
                   SliverToBoxAdapter(
                     child: Container(
                       height: 100,
-                      color: Colors.blue,
+                      color: AppColors.primary,
                       child: const Text('Header'),
                     ),
                   ),
@@ -206,14 +207,14 @@ void main() {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.teal.shade100,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '3',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.teal.shade700,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -240,25 +241,25 @@ void main() {
                 _buildSectionHeader(
                   'Pending Your Action',
                   Icons.pending_actions,
-                  Colors.teal,
+                  AppColors.primary,
                   3,
                 ),
                 _buildSectionHeader(
                   'Pending Others',
                   Icons.hourglass_empty,
-                  Colors.orange,
+                  AppColors.warning,
                   2,
                 ),
                 _buildSectionHeader(
                   'Approved',
                   Icons.check_circle_outline,
-                  Colors.green,
+                  AppColors.success,
                   5,
                 ),
                 _buildSectionHeader(
                   'Rejected',
                   Icons.cancel_outlined,
-                  Colors.red,
+                  AppColors.error,
                   1,
                 ),
               ],
@@ -313,21 +314,21 @@ Widget _buildSectionHeader(
     padding: const EdgeInsets.all(16),
     child: Row(
       children: [
-        Icon(icon, size: 20, color: color.shade600),
+        Icon(icon, size: 20, color: color),
         const SizedBox(width: 8),
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: color.shade100,
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             count.toString(),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: color.shade700,
+              color: color,
             ),
           ),
         ),

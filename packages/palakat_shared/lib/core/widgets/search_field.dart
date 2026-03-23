@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/debouncer.dart';
 import 'input/input_search_widget.dart';
+import 'loading_widget.dart';
 
 /// A specialized search field widget with common search patterns.
 ///
@@ -181,15 +182,10 @@ class _SearchFieldState extends State<SearchField> {
       suffixIcon: widget.isLoading
           ? Padding(
               padding: const EdgeInsets.all(12),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    theme.colorScheme.primary,
-                  ),
-                ),
+              child: CompactLoadingWidget(
+                size: 18,
+                baseColor: theme.colorScheme.primary.withValues(alpha: 0.24),
+                highlightColor: theme.colorScheme.surface,
               ),
             )
           : null,

@@ -90,16 +90,8 @@ class OperationsController extends _$OperationsController {
     final localStorage = ref.read(localStorageServiceProvider);
     final membership = localStorage.currentMembership ?? account?.membership;
 
-    final policyRes = await _permissionRepository.fetchMyPolicy();
-    ChurchPermissionPolicyRecord? policy;
-    policyRes.when(
-      onSuccess: (value) => policy = value,
-      onFailure: (_) => policy = null,
-    );
-
-    final permissions = _resolvePermissionsForMembership(
+    final permissions = await _resolveEffectivePermissions(
       membership: membership,
-      policy: policy,
     );
 
     final categories = _buildCategories(membership, permissions);
@@ -118,6 +110,33 @@ class OperationsController extends _$OperationsController {
       categories: categoriesWithExpansion,
       categoryExpansionState: expansionState,
       loadingScreen: false,
+    );
+  }
+
+  Future<Set<String>> _resolveEffectivePermissions({
+    required Membership? membership,
+  }) async {
+    final permissionsRes = await _permissionRepository.fetchMyPermissions();
+    AuthPermissions? authPermissions;
+    permissionsRes.when(
+      onSuccess: (value) => authPermissions = value,
+      onFailure: (_) => authPermissions = null,
+    );
+
+    if (authPermissions != null) {
+      return authPermissions!.permissions.toSet();
+    }
+
+    final policyRes = await _permissionRepository.fetchMyPolicy();
+    ChurchPermissionPolicyRecord? policy;
+    policyRes.when(
+      onSuccess: (value) => policy = value,
+      onFailure: (_) => policy = null,
+    );
+
+    return _resolvePermissionsForMembership(
+      membership: membership,
+      policy: policy,
     );
   }
 

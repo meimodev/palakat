@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Region'
 export type * from './models/Church'
 export type * from './models/ChurchPermissionPolicy'
 export type * from './models/Column'

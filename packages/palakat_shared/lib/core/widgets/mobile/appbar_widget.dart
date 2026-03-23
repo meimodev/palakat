@@ -48,9 +48,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onPressedTrailIcon;
 
   @override
-  Size get preferredSize => Size.fromHeight(height ?? BaseSize.h56);
+  Size get preferredSize => Size.fromHeight(height ?? 56.0);
 
-  static double get _iconSize => BaseSize.w24;
+  static double get _iconSize => 24.0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +69,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       systemOverlayStyle: const SystemUiOverlayStyle(
-        systemNavigationBarColor: BaseColor.transparent,
+        systemNavigationBarColor: Colors.transparent,
         statusBarBrightness: Brightness.light,
-        statusBarColor: BaseColor.transparent,
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
       ),
       elevation: 0,
@@ -83,7 +83,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: horizontalScreenPadding,
+              padding: EdgeInsets.symmetric(
+                horizontal: SanctuaryLayout.mobileHorizontalPadding(
+                  MediaQuery.sizeOf(context).width,
+                ),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -98,9 +102,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Title
-                      Text(title, style: BaseTypography.headlineLarge),
+                      Text(title, style: Theme.of(context).textTheme.headlineLarge!),
                       if (subtitle != null)
-                        Text(subtitle!, style: BaseTypography.titleMedium),
+                        Text(subtitle!, style: Theme.of(context).textTheme.titleMedium!),
                     ],
                   ),
                   if (trailIcon != null)

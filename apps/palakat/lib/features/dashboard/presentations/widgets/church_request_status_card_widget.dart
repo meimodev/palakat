@@ -11,78 +11,97 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusInfo = _getStatusInfo(context, churchRequest.status);
+    final theme = Theme.of(context);
 
     return Container(
-      padding: EdgeInsets.all(BaseSize.w14),
+      padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: statusInfo.backgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
         border: Border.all(color: statusInfo.borderColor, width: 1),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 20),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: BaseSize.w36,
-            height: BaseSize.w36,
-            decoration: BoxDecoration(
-              color: statusInfo.iconBackgroundColor,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              statusInfo.icon,
-              size: BaseSize.w18,
-              color: statusInfo.iconColor,
-            ),
-          ),
-          Gap.w12,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44.0,
+                height: 44.0,
+                decoration: BoxDecoration(
+                  color: statusInfo.iconBackgroundColor,
+                  border: Border.all(color: AppColors.ghostBorder(0.06)),
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  statusInfo.icon,
+                  size: 18.0,
+                  color: statusInfo.iconColor,
+                ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        context.l10n.churchRequest_title,
-                        style: BaseTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: BaseColor.textPrimary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      context.l10n.churchRequest_title,
+                      style: theme.textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Gap.w8,
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w8,
-                        vertical: BaseSize.h4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusInfo.badgeBackgroundColor,
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                      ),
-                      child: Text(
-                        statusInfo.statusLabel,
-                        style: BaseTypography.labelMedium.copyWith(
-                          color: statusInfo.badgeTextColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    Gap.h4,
+                    Text(
+                      context.l10n.churchRequest_membershipStatusSubtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
-                Gap.h6,
-                Text(
-                  statusInfo.message,
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: BaseColor.neutral[600],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+              ),
+              Gap.w8,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                decoration: BoxDecoration(
+                  color: statusInfo.badgeBackgroundColor,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                  border: Border.all(color: AppColors.ghostBorder(0.06)),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                 ),
-              ],
+                child: Text(
+                  statusInfo.statusLabel,
+                  style: theme.textTheme.labelMedium!.copyWith(
+                    color: statusInfo.badgeTextColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Gap.h16,
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+              border: Border.all(color: AppColors.ghostBorder(0.06)),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+            ),
+            child: Text(
+              statusInfo.message,
+              style: theme.textTheme.bodyMedium!.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -97,36 +116,36 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
           statusLabel: context.l10n.churchRequest_status_onReview,
           message: context.l10n.churchRequest_statusMessage_onReview,
           icon: AppIcons.schedule,
-          iconColor: BaseColor.yellow[700]!,
-          iconBackgroundColor: BaseColor.yellow[50]!,
-          backgroundColor: BaseColor.yellow[50]!,
-          borderColor: BaseColor.yellow[200]!,
-          badgeBackgroundColor: BaseColor.yellow[100]!,
-          badgeTextColor: BaseColor.yellow[700]!,
+          iconColor: AppColors.warning,
+          iconBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.ghostBorder(0.08),
+          badgeBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
+          badgeTextColor: AppColors.warning,
         );
       case RequestStatus.doing:
         return _StatusInfo(
           statusLabel: context.l10n.churchRequest_status_onProgress,
           message: context.l10n.churchRequest_statusMessage_onProgress,
           icon: AppIcons.sync,
-          iconColor: BaseColor.blue[700]!,
-          iconBackgroundColor: BaseColor.blue[50]!,
-          backgroundColor: BaseColor.blue[50]!,
-          borderColor: BaseColor.blue[200]!,
-          badgeBackgroundColor: BaseColor.blue[100]!,
-          badgeTextColor: BaseColor.blue[700]!,
+          iconColor: AppColors.primary,
+          iconBackgroundColor: AppColors.primary.withValues(alpha: 0.12),
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.ghostBorder(0.08),
+          badgeBackgroundColor: AppColors.primary.withValues(alpha: 0.12),
+          badgeTextColor: AppColors.primary,
         );
       case RequestStatus.done:
         return _StatusInfo(
           statusLabel: context.l10n.status_completed,
           message: context.l10n.churchRequest_statusMessage_completed,
           icon: AppIcons.success,
-          iconColor: BaseColor.green[700]!,
-          iconBackgroundColor: BaseColor.green[50]!,
-          backgroundColor: BaseColor.green[50]!,
-          borderColor: BaseColor.green[200]!,
-          badgeBackgroundColor: BaseColor.green[100]!,
-          badgeTextColor: BaseColor.green[700]!,
+          iconColor: AppColors.success,
+          iconBackgroundColor: AppColors.success.withValues(alpha: 0.12),
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.ghostBorder(0.08),
+          badgeBackgroundColor: AppColors.success.withValues(alpha: 0.12),
+          badgeTextColor: AppColors.success,
         );
       case RequestStatus.rejected:
         final note = churchRequest.decisionNote?.trim();
@@ -137,12 +156,12 @@ class ChurchRequestStatusCardWidget extends StatelessWidget {
           statusLabel: context.l10n.status_rejected,
           message: msg,
           icon: AppIcons.error,
-          iconColor: BaseColor.red[700]!,
-          iconBackgroundColor: BaseColor.red[50]!,
-          backgroundColor: BaseColor.red[50]!,
-          borderColor: BaseColor.red[200]!,
-          badgeBackgroundColor: BaseColor.red[100]!,
-          badgeTextColor: BaseColor.red[700]!,
+          iconColor: AppColors.error,
+          iconBackgroundColor: AppColors.error.withValues(alpha: 0.12),
+          backgroundColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.ghostBorder(0.08),
+          badgeBackgroundColor: AppColors.error.withValues(alpha: 0.12),
+          badgeTextColor: AppColors.error,
         );
     }
   }

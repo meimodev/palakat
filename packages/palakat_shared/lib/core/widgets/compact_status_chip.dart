@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_shared/core/extension/build_context_extension.dart';
+import 'package:palakat_shared/core/extension/approval_status_extension.dart';
 import 'package:palakat_shared/core/models/approval_status.dart';
 
 class CompactStatusChip extends StatelessWidget {
@@ -22,29 +22,9 @@ class CompactStatusChip extends StatelessWidget {
     BuildContext context,
     ApprovalStatus status,
   ) {
-    final l10n = context.l10n;
-    final (bg, fg, label, icon) = switch (status) {
-      ApprovalStatus.unconfirmed => (
-        Colors.orange.shade50,
-        Colors.orange.shade700,
-        l10n.status_unconfirmed.toUpperCase(),
-        Icons.pending,
-      ),
-      ApprovalStatus.approved => (
-        Colors.green.shade50,
-        Colors.green.shade700,
-        l10n.status_approved.toUpperCase(),
-        Icons.check_circle,
-      ),
-      ApprovalStatus.rejected => (
-        Colors.red.shade50,
-        Colors.red.shade700,
-        l10n.status_rejected.toUpperCase(),
-        Icons.cancel,
-      ),
-    };
+    final (bg, fg, label, icon) = status.displayProperties;
     return CompactStatusChip(
-      label: label,
+      label: label.toUpperCase(),
       background: bg,
       foreground: fg,
       icon: icon,
@@ -57,9 +37,13 @@ class CompactStatusChip extends StatelessWidget {
       builder: (context, constraints) {
         const iconSize = 14.0;
         final horizontalPadding =
-            constraints.maxWidth.isFinite && constraints.maxWidth < 110 ? 6.0 : 8.0;
+            constraints.maxWidth.isFinite && constraints.maxWidth < 110
+            ? 6.0
+            : 8.0;
         final spacing =
-            constraints.maxWidth.isFinite && constraints.maxWidth < 110 ? 4.0 : 6.0;
+            constraints.maxWidth.isFinite && constraints.maxWidth < 110
+            ? 4.0
+            : 6.0;
         final minLabelWidth = 52.0;
         final iconOnly =
             constraints.maxWidth.isFinite &&

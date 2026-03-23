@@ -92,6 +92,7 @@ export 'surface_card.dart';
 
 // Navigation and layout widgets
 export 'side_drawer.dart';
+export 'sanctuary_web_shell.dart';
 export 'sidebar.dart';
 
 // Table and list widgets

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 
 /// A reusable chip widget for displaying activity types with appropriate
@@ -19,9 +20,9 @@ class ActivityTypeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (color, icon) = switch (type) {
-      ActivityType.service => (Colors.teal, Icons.handshake),
-      ActivityType.event => (Colors.red, Icons.event),
-      ActivityType.announcement => (Colors.blue, Icons.campaign),
+      ActivityType.service => (AppColors.primary, Icons.handshake),
+      ActivityType.event => (AppColors.error, Icons.event),
+      ActivityType.announcement => (AppColors.primary, Icons.campaign),
     };
 
     return LayoutBuilder(

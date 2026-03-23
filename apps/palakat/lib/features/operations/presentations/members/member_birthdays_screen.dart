@@ -42,7 +42,7 @@ class MemberBirthdaysScreen extends ConsumerWidget {
           OperationsReveal(
             delay: const Duration(milliseconds: 40),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: DateRangePresetInput(
                 label: l10n.lbl_dateRange,
                 start: start,
@@ -103,7 +103,7 @@ class _BirthdaysContent extends StatelessWidget {
         visible: true,
         child: Center(
           child: Padding(
-            padding: EdgeInsets.only(top: BaseSize.h12),
+            padding: EdgeInsets.only(top: 12.0),
             child: InfoBoxWidget(message: l10n.err_noData),
           ),
         ),
@@ -111,7 +111,7 @@ class _BirthdaysContent extends StatelessWidget {
     }
 
     return ListView.separated(
-      padding: EdgeInsets.only(bottom: BaseSize.h16),
+      padding: EdgeInsets.only(bottom: 16.0),
       itemCount: items.length,
       separatorBuilder: (context, index) => Gap.h12,
       itemBuilder: (context, index) {
@@ -124,75 +124,91 @@ class _BirthdaysContent extends StatelessWidget {
 
         return OperationsReveal(
           delay: Duration(milliseconds: 40 + (index * 30)),
-          child: Material(
-            color: BaseColor.cardBackground1,
-            elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
-            surfaceTintColor: BaseColor.yellow[50],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 16),
             ),
-            clipBehavior: Clip.hardEdge,
-            child: InkWell(
-              onTap: id == null
-                  ? null
-                  : () {
-                      context.pushNamed(
-                        AppRoute.memberDetail,
-                        pathParameters: {'membershipId': id.toString()},
-                      );
-                    },
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w12),
-                child: Row(
-                  children: [
-                    Container(
-                      width: BaseSize.w36,
-                      height: BaseSize.w36,
-                      decoration: BoxDecoration(
-                        color: BaseColor.yellow[100],
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        AppIcons.birthday,
-                        size: BaseSize.w16,
-                        color: BaseColor.yellow[700],
-                      ),
-                    ),
-                    Gap.w12,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: BaseTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: BaseColor.black,
-                            ),
+            child: Material(
+              color: AppColors.surfaceContainerLowest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
+                ),
+                side: BorderSide(color: AppColors.ghostBorder(0.08)),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: InkWell(
+                onTap: id == null
+                    ? null
+                    : () {
+                        context.pushNamed(
+                          AppRoute.memberDetail,
+                          pathParameters: {'membershipId': id.toString()},
+                        );
+                      },
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36.0,
+                        height: 36.0,
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withValues(alpha: 0.12),
+                          border: Border.all(
+                            color: AppColors.warning.withValues(alpha: 0.18),
                           ),
-                          Gap.h4,
-                          Text(
-                            dateLabel,
-                            style: BaseTypography.bodyMedium.copyWith(
-                              color: BaseColor.textSecondary,
-                            ),
+                          shape: BoxShape.circle,
+                          boxShadow: SanctuaryDepth.ambient(
+                            opacity: 0.02,
+                            blur: 8,
                           ),
-                        ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          AppIcons.birthday,
+                          size: 16.0,
+                          color: AppColors.warning,
+                        ),
                       ),
-                    ),
-                    if (account?.claimed == true) ...[
-                      Gap.w8,
-                      Icon(
-                        AppIcons.verified,
-                        size: BaseSize.w16,
-                        color: BaseColor.green[700],
+                      Gap.w12,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                            ),
+                            Gap.h4,
+                            Text(
+                              dateLabel,
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(color: AppColors.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
                       ),
+                      if (account?.claimed == true) ...[
+                        Gap.w8,
+                        Icon(
+                          AppIcons.verified,
+                          size: 16.0,
+                          color: AppColors.success,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

@@ -16,6 +16,33 @@ class FirebaseAuthRepository {
 
   FirebaseAuthRepository(this._firebaseAuth);
 
+  String _mapSecurityOrVerificationMessage(String? rawMessage) {
+    final normalized = rawMessage?.toLowerCase() ?? '';
+
+    if (normalized.contains('unacceptable certificate') ||
+        normalized.contains('certificate') ||
+        normalized.contains('ssl') ||
+        normalized.contains('tls')) {
+      return 'Secure connection to Google services failed. Check the device date and time, emulator image, or any network/certificate filtering, then try again.';
+    }
+
+    if (normalized.contains('recaptcha') ||
+        normalized.contains('play integrity') ||
+        normalized.contains('app verification')) {
+      return 'App verification failed while requesting the OTP. Please retry on a trusted network or updated device/emulator.';
+    }
+
+    if (normalized.contains('network') || normalized.contains('connection')) {
+      return 'Network error. Please check your connection and try again';
+    }
+
+    if (normalized.contains('timeout')) {
+      return 'Request timed out. Please try again';
+    }
+
+    return rawMessage ?? 'An authentication error occurred. Please try again';
+  }
+
   /// Verifies a phone number and sends an OTP via SMS
   ///
   /// Parameters:
@@ -55,15 +82,8 @@ class FirebaseAuthRepository {
       return Result.failure(_convertFirebaseException(e));
     } catch (e) {
       // Handle network and other unexpected errors
-      if (e.toString().contains('network') ||
-          e.toString().contains('connection')) {
-        return Result.failure(
-          Failure('Network error. Please check your connection', 503),
-        );
-      }
-      return Result.failure(
-        Failure('An unexpected error occurred. Please try again', 500),
-      );
+      final message = _mapSecurityOrVerificationMessage(e.toString());
+      return Result.failure(Failure(message, 500));
     }
   }
 
@@ -94,7 +114,9 @@ class FirebaseAuthRepository {
     } on FirebaseAuthException catch (e) {
       return Result.failure(_convertFirebaseException(e));
     } catch (e) {
-      return Result.failure(Failure('Failed to verify OTP: $e'));
+      return Result.failure(
+        Failure(_mapSecurityOrVerificationMessage(e.toString())),
+      );
     }
   }
 
@@ -140,15 +162,8 @@ class FirebaseAuthRepository {
       return Result.failure(_convertFirebaseException(e));
     } catch (e) {
       // Handle network and other unexpected errors
-      if (e.toString().contains('network') ||
-          e.toString().contains('connection')) {
-        return Result.failure(
-          Failure('Network error. Please check your connection', 503),
-        );
-      }
-      return Result.failure(
-        Failure('Failed to resend OTP. Please try again', 500),
-      );
+      final message = _mapSecurityOrVerificationMessage(e.toString());
+      return Result.failure(Failure(message, 500));
     }
   }
 
@@ -233,7 +248,8 @@ class FirebaseAuthRepository {
         message = 'Phone authentication is not enabled. Please contact support';
         break;
       case 'captcha-check-failed':
-        message = 'Verification failed. Please try again';
+        message =
+            'App verification failed while requesting the OTP. Please retry on a trusted network or updated device/emulator.';
         break;
       case 'web-context-cancelled':
         message = 'Verification cancelled. Please try again';
@@ -241,16 +257,15 @@ class FirebaseAuthRepository {
 
       // Generic errors
       case 'internal-error':
-        message = 'An internal error occurred. Please try again';
+        message = _mapSecurityOrVerificationMessage(e.message);
         break;
       case 'unknown':
-        message = 'An unexpected error occurred. Please try again';
+        message = _mapSecurityOrVerificationMessage(e.message);
         break;
 
       default:
         // Provide a user-friendly message for unknown errors
-        message =
-            e.message ?? 'An authentication error occurred. Please try again';
+        message = _mapSecurityOrVerificationMessage(e.message);
         // Check if the error message contains specific keywords
         if (e.message?.toLowerCase().contains('network') ?? false) {
           message = 'Network error. Please check your connection and try again';
@@ -258,6 +273,13 @@ class FirebaseAuthRepository {
           message = 'Request timed out. Please try again';
         } else if (e.message?.toLowerCase().contains('rate') ?? false) {
           message = 'Too many attempts. Please wait before trying again';
+        } else if (e.message?.toLowerCase().contains('certificate') ?? false) {
+          message = _mapSecurityOrVerificationMessage(e.message);
+        } else if (e.message?.toLowerCase().contains('recaptcha') ?? false) {
+          message = _mapSecurityOrVerificationMessage(e.message);
+        } else if (e.message?.toLowerCase().contains('play integrity') ??
+            false) {
+          message = _mapSecurityOrVerificationMessage(e.message);
         }
     }
 

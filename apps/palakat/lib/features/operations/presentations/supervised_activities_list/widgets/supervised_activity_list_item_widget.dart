@@ -22,15 +22,15 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.white,
+      color: AppColors.surfaceContainerLowest,
       elevation: 1,
-      shadowColor: BaseColor.shadow.withValues(alpha: 0.05),
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,19 +45,19 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                       children: [
                         Text(
                           activity.title,
-                          style: BaseTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: BaseColor.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.onSurface,
+                              ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Gap.h4,
                         Text(
                           activity.date.ddMmmmYyyy,
-                          style: BaseTypography.bodyMedium.copyWith(
-                            color: BaseColor.textSecondary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: AppColors.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -65,16 +65,16 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                   Gap.w8,
                   Icon(
                     AppIcons.forward,
-                    size: BaseSize.w20,
-                    color: BaseColor.textSecondary,
+                    size: 20.0,
+                    color: AppColors.onSurfaceVariant,
                   ),
                 ],
               ),
               Gap.h12,
               // Bottom row: Activity type badge, Finance badge, and Approval status
               Wrap(
-                spacing: BaseSize.w8,
-                runSpacing: BaseSize.h8,
+                spacing: 8.0,
+                runSpacing: 8.0,
                 children: [
                   _ActivityTypeBadge(activityType: activity.activityType),
                   if (activity.financeType != null)
@@ -99,14 +99,16 @@ class _ActivityIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: BaseSize.w40,
-      height: BaseSize.w40,
+      width: 40.0,
+      height: 40.0,
       decoration: BoxDecoration(
-        color: _getBackgroundColor(),
+        color: _getAccentColor().withValues(alpha: 0.14),
         shape: BoxShape.circle,
+        border: Border.all(color: _getAccentColor().withValues(alpha: 0.24)),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
       ),
       alignment: Alignment.center,
-      child: Icon(_getIcon(), size: BaseSize.w22, color: _getIconColor()),
+      child: Icon(_getIcon(), size: 22.0, color: _getAccentColor()),
     );
   }
 
@@ -121,25 +123,14 @@ class _ActivityIcon extends StatelessWidget {
     }
   }
 
-  Color _getBackgroundColor() {
+  Color _getAccentColor() {
     switch (activityType) {
       case ActivityType.service:
-        return BaseColor.primary[50]!;
+        return AppColors.primary;
       case ActivityType.event:
-        return BaseColor.blue[50]!;
+        return AppColors.primary;
       case ActivityType.announcement:
-        return BaseColor.yellow[50]!;
-    }
-  }
-
-  Color _getIconColor() {
-    switch (activityType) {
-      case ActivityType.service:
-        return BaseColor.primary[700]!;
-      case ActivityType.event:
-        return BaseColor.blue[700]!;
-      case ActivityType.announcement:
-        return BaseColor.yellow[700]!;
+        return AppColors.warning;
     }
   }
 }
@@ -153,10 +144,7 @@ class _ActivityTypeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w10,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: _getBadgeColor().withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
@@ -164,10 +152,11 @@ class _ActivityTypeBadge extends StatelessWidget {
           color: _getBadgeColor().withValues(alpha: 0.3),
           width: 1,
         ),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Text(
         activityType.displayName,
-        style: BaseTypography.labelMedium.copyWith(
+        style: Theme.of(context).textTheme.labelMedium!.copyWith(
           color: _getBadgeColor(),
           fontWeight: FontWeight.w600,
         ),
@@ -178,11 +167,11 @@ class _ActivityTypeBadge extends StatelessWidget {
   Color _getBadgeColor() {
     switch (activityType) {
       case ActivityType.service:
-        return BaseColor.primary[700]!;
+        return AppColors.primary;
       case ActivityType.event:
-        return BaseColor.blue[700]!;
+        return AppColors.primary;
       case ActivityType.announcement:
-        return BaseColor.yellow[700]!;
+        return AppColors.warning;
     }
   }
 }
@@ -196,26 +185,24 @@ class _FinanceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRevenue = financeType == FinanceType.revenue;
-    final color = isRevenue ? BaseColor.green[700]! : BaseColor.red[700]!;
+    final color = isRevenue ? AppColors.success : AppColors.error;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w10,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(financeType.icon, size: BaseSize.w14, color: color),
+          Icon(financeType.icon, size: 14.0, color: color),
           Gap.w6,
           Text(
             financeType.displayName,
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -238,10 +225,7 @@ class _ApprovalStatusBadge extends StatelessWidget {
     final statusInfo = _getStatusInfo(context, status);
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w10,
-        vertical: BaseSize.h4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: statusInfo.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
@@ -249,15 +233,16 @@ class _ApprovalStatusBadge extends StatelessWidget {
           color: statusInfo.color.withValues(alpha: 0.3),
           width: 1,
         ),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(statusInfo.icon, size: BaseSize.w14, color: statusInfo.color),
+          Icon(statusInfo.icon, size: 14.0, color: statusInfo.color),
           Gap.w6,
           Text(
             statusInfo.label,
-            style: BaseTypography.labelMedium.copyWith(
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: statusInfo.color,
               fontWeight: FontWeight.w600,
             ),
@@ -298,19 +283,19 @@ class _ApprovalStatusBadge extends StatelessWidget {
       case ApprovalStatus.approved:
         return _StatusInfo(
           label: context.l10n.status_approved,
-          color: BaseColor.green[700]!,
+          color: AppColors.success,
           icon: AppIcons.success,
         );
       case ApprovalStatus.rejected:
         return _StatusInfo(
           label: context.l10n.status_rejected,
-          color: BaseColor.red[700]!,
+          color: AppColors.error,
           icon: AppIcons.cancel,
         );
       case ApprovalStatus.unconfirmed:
         return _StatusInfo(
           label: context.l10n.status_pending,
-          color: BaseColor.yellow[700]!,
+          color: AppColors.warning,
           icon: AppIcons.schedule,
         );
     }

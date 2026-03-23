@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
-import 'package:palakat/core/constants/themes/color_constants.dart';
 
 /// [INFO]
 /// Constant for shadows to be used in the app with following the design system
 class BaseShadow {
   static List<BoxShadow> shadow = [
     BoxShadow(
-      color: BaseColor.shadow.withValues(alpha: 0.06),
+      color: AppColors.onSurface.withValues(alpha: 0.06),
       offset: const Offset(0, 0.36),
       blurRadius: 0.73,
     ),
     BoxShadow(
-      color: BaseColor.shadow.withValues(alpha: 0.1),
+      color: AppColors.onSurface.withValues(alpha: 0.1),
       offset: const Offset(0, 0.36),
       blurRadius: 1.09,
     ),
@@ -20,13 +19,13 @@ class BaseShadow {
 
   static List<BoxShadow> shadowReversed = [
     BoxShadow(
-      color: BaseColor.shadow.withValues(alpha: 0.06),
+      color: AppColors.onSurface.withValues(alpha: 0.06),
       offset: const Offset(0, -0.36),
       blurRadius: 3,
       spreadRadius: 3,
     ),
     BoxShadow(
-      color: BaseColor.shadow.withValues(alpha: 0.1),
+      color: AppColors.onSurface.withValues(alpha: 0.1),
       offset: const Offset(0, -0.36),
       blurRadius: 3,
       spreadRadius: 3,

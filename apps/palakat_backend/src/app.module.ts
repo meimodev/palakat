@@ -34,13 +34,17 @@ import { VerifyModule } from './verify/verify.module';
 import { ChurchPermissionPolicyModule } from './church-permission-policy/church-permission-policy.module';
 import { HealthModule } from './health/health.module';
 
+const envFilePath = process.env.DOTENV_CONFIG_PATH?.trim();
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: envFilePath?.length ? envFilePath : undefined,
       ignoreEnvFile:
-        process.env.NODE_ENV === 'production' ||
-        process.env.INVOCATION_ID !== undefined,
+        !envFilePath?.length &&
+        (process.env.NODE_ENV === 'production' ||
+          process.env.INVOCATION_ID !== undefined),
     }),
     ScheduleModule.forRoot(),
     PrismaModule,

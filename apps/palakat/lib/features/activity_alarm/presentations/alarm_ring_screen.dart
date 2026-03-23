@@ -7,6 +7,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/services/notification_display_service_provider.dart';
+import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat_shared/core/extension/extension.dart';
 
 import 'activity_alarm_motion_widget.dart';
 
@@ -110,9 +112,10 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final title = widget.title?.trim().isNotEmpty == true
         ? widget.title!.trim()
-        : 'Activity';
+        : l10n.lbl_activity;
     final reminderText = widget.reminderName ?? widget.reminderValue;
     final alarmAt =
         DateTime.tryParse(widget.alarmAtUtcIso ?? '')?.toLocal() ??
@@ -126,14 +129,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
         unawaited(_cancelAlarmNotification());
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF08101D),
+        backgroundColor: AppColors.surface,
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              BaseSize.w20,
-              BaseSize.h12,
-              BaseSize.w20,
-              BaseSize.h20,
+              20.0,
+              12.0,
+              20.0,
+              20.0,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,14 +146,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                     alignment: Alignment.centerLeft,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: BaseSize.w12,
-                        vertical: BaseSize.h8,
+                        horizontal: 12.0,
+                        vertical: 8.0,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(BaseSize.radiusXl),
+                        color: AppColors.warning.shade100,
+                        borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.10),
+                          color: AppColors.warning.shade200,
                         ),
                       ),
                       child: Row(
@@ -158,14 +161,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         children: [
                           Icon(
                             AppIcons.notificationActive,
-                            color: const Color(0xFFFFD54F),
-                            size: BaseSize.w18,
+                            color: AppColors.warning,
+                            size: 18.0,
                           ),
                           Gap.w10,
                           Text(
-                            'Alarm ringing',
-                            style: BaseTypography.bodyMedium.copyWith(
-                              color: BaseColor.white,
+                            l10n.activityAlarm_ringing,
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: AppColors.warning.shade800,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -181,20 +184,20 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                       ActivityAlarmReveal(
                         delay: const Duration(milliseconds: 40),
                         child: Container(
-                          width: BaseSize.customWidth(88),
-                          height: BaseSize.customWidth(88),
+                          width: 88,
+                          height: 88,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0x1AFFFFFF),
+                            color: AppColors.surfaceContainerLowest.withValues(alpha: 0.1),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.12),
+                              color: AppColors.surfaceContainerLowest,
                             ),
                           ),
                           child: Icon(
                             AppIcons.notificationActive,
-                            size: BaseSize.w36,
-                            color: const Color(0xFFFFD54F),
+                            size: 36.0,
+                            color: AppColors.warning,
                           ),
                         ),
                       ),
@@ -204,8 +207,8 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         child: Text(
                           timeText,
                           textAlign: TextAlign.center,
-                          style: BaseTypography.headlineLarge.copyWith(
-                            color: BaseColor.white,
+                          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                            color: AppColors.surfaceContainerLowest,
                             fontWeight: FontWeight.w800,
                             fontSize: 72,
                             letterSpacing: -2,
@@ -218,8 +221,8 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         child: Text(
                           dayText,
                           textAlign: TextAlign.center,
-                          style: BaseTypography.titleLarge.copyWith(
-                            color: Colors.white.withValues(alpha: 0.72),
+                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: AppColors.surfaceContainerLowest,
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -230,31 +233,31 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         delay: const Duration(milliseconds: 180),
                         child: Container(
                           width: double.infinity,
-                          padding: EdgeInsets.all(BaseSize.w18),
+                          padding: EdgeInsets.all(18.0),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.08),
+                            color: AppColors.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(
-                              BaseSize.radiusLg,
+                              16.0,
                             ),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.10),
+                              color: AppColors.ghostBorder(0.08),
                             ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Activity',
-                                style: BaseTypography.labelLarge.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.64),
+                                l10n.lbl_activity,
+                                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                                  color: AppColors.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Gap.h8,
                               Text(
                                 title,
-                                style: BaseTypography.headlineSmall.copyWith(
-                                  color: BaseColor.white,
+                                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                                  color: AppColors.onSurface,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -263,19 +266,19 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                                 Gap.h16,
                                 Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: BaseSize.w14,
-                                    vertical: BaseSize.h8,
+                                    horizontal: 14.0,
+                                    vertical: 8.0,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0x14FFD54F),
+                                    color: AppColors.warning.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(
-                                      BaseSize.radiusXl,
+                                      16.0,
                                     ),
                                   ),
                                   child: Text(
                                     reminderText,
-                                    style: BaseTypography.bodyMedium.copyWith(
-                                      color: const Color(0xFFFFE082),
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      color: AppColors.warning,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -291,19 +294,16 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              width: BaseSize.w18,
-                              height: BaseSize.w18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: const Color(0xFFFFD54F),
-                              ),
+                            CompactLoadingWidget(
+                              size: 18.0,
+                              baseColor: AppColors.warning.withValues(alpha: 0.24),
+                              highlightColor: AppColors.surfaceContainerLowest,
                             ),
-                            Gap.customGapWidth(10),
+                            Gap.w10,
                             Text(
-                              'Starting alarm audio...',
-                              style: BaseTypography.bodyMedium.copyWith(
-                                color: Colors.white.withValues(alpha: 0.72),
+                              l10n.activityAlarm_startingAudio,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: AppColors.surfaceContainerLowest,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -318,46 +318,46 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                   child: ElevatedButton(
                     onPressed: _dismissAndClose,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: BaseColor.red[600],
-                      foregroundColor: BaseColor.white,
+                      backgroundColor: AppColors.error,
+                      foregroundColor: AppColors.surfaceContainerLowest,
                       elevation: 0,
                       padding: EdgeInsets.symmetric(
-                        vertical: BaseSize.customHeight(16),
+                        vertical: 16,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
                     child: Text(
-                      'Dismiss alarm',
-                      style: BaseTypography.bodyMedium.copyWith(
+                      l10n.activityAlarm_dismiss,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.white,
+                        color: AppColors.surfaceContainerLowest,
                       ),
                     ),
                   ),
                 ),
-                Gap.customGapHeight(10),
+                Gap.h10,
                 ActivityAlarmReveal(
                   delay: const Duration(milliseconds: 260),
                   child: OutlinedButton(
                     onPressed: _openActivity,
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
-                        vertical: BaseSize.customHeight(16),
+                        vertical: 16,
                       ),
                       side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: AppColors.surfaceContainerLowest,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
                     child: Text(
-                      'View activity',
-                      style: BaseTypography.bodyMedium.copyWith(
+                      l10n.activityAlarm_viewActivity,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.white,
+                        color: AppColors.surfaceContainerLowest,
                       ),
                     ),
                   ),

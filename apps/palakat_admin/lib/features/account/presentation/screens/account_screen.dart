@@ -468,7 +468,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
             if (icon != null) ...[
               const SizedBox(width: 6),
-              Icon(icon, color: Colors.green, size: 16),
+              Icon(icon, color: AppColors.success, size: 16),
             ],
           ],
         ),

@@ -42,7 +42,7 @@ class StatusFilterChips extends StatelessWidget {
             count: pendingMyActionCount,
             isSelected: selectedFilter == ApprovalFilterStatus.pendingMyAction,
             onTap: () => onFilterChanged(ApprovalFilterStatus.pendingMyAction),
-            highlightColor: BaseColor.teal,
+            highlightColor: AppColors.primary,
           ),
           Gap.w8,
           _FilterChip(
@@ -50,7 +50,7 @@ class StatusFilterChips extends StatelessWidget {
             count: pendingOthersCount,
             isSelected: selectedFilter == ApprovalFilterStatus.pendingOthers,
             onTap: () => onFilterChanged(ApprovalFilterStatus.pendingOthers),
-            highlightColor: BaseColor.yellow,
+            highlightColor: AppColors.warning,
           ),
           Gap.w8,
           _FilterChip(
@@ -58,7 +58,7 @@ class StatusFilterChips extends StatelessWidget {
             count: approvedCount,
             isSelected: selectedFilter == ApprovalFilterStatus.approved,
             onTap: () => onFilterChanged(ApprovalFilterStatus.approved),
-            highlightColor: BaseColor.green,
+            highlightColor: AppColors.success,
           ),
           Gap.w8,
           _FilterChip(
@@ -66,7 +66,7 @@ class StatusFilterChips extends StatelessWidget {
             count: rejectedCount,
             isSelected: selectedFilter == ApprovalFilterStatus.rejected,
             onTap: () => onFilterChanged(ApprovalFilterStatus.rejected),
-            highlightColor: BaseColor.red,
+            highlightColor: AppColors.error,
           ),
         ],
       ),
@@ -91,54 +91,55 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = highlightColor ?? BaseColor.teal;
+    final color = highlightColor ?? AppColors.primary;
 
     return Material(
-      color: isSelected ? color.shade500 : BaseColor.cardBackground1,
+      color: isSelected ? color : AppColors.surfaceContainerLowest,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h8,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isSelected ? color.shade500 : BaseColor.neutral20,
+              color: isSelected ? color : AppColors.tertiary,
               width: 1,
             ),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 label,
-                style: BaseTypography.bodyMedium.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : BaseColor.primaryText,
+                  color: isSelected ? AppColors.surfaceContainerLowest : AppColors.onSurface,
                 ),
               ),
               if (count != null && count! > 0) ...[
                 Gap.w6,
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w6,
-                    vertical: BaseSize.h4,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : color.shade100,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        ? AppColors.surfaceContainerLowest
+                        : color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4.0),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.surfaceContainerLowest
+                          : color.withValues(alpha: 0.18),
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
                   ),
                   child: Text(
                     count.toString(),
-                    style: BaseTypography.labelMedium.copyWith(
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : color.shade700,
+                      color: isSelected ? AppColors.surfaceContainerLowest : color,
                     ),
                   ),
                 ),

@@ -72,8 +72,8 @@ class ScaffoldWidget extends StatelessWidget {
     final Widget childWrapper = AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: LoadingWrapper(
-        paddingTop: BaseSize.h48,
-        paddingBottom: BaseSize.h48,
+        paddingTop: 48.0,
+        paddingBottom: 48.0,
         loading: loading,
         hasError: hasError,
         errorMessage: errorMessage,
@@ -89,8 +89,8 @@ class ScaffoldWidget extends StatelessWidget {
         appBar: appBar,
         body: Padding(
           padding: EdgeInsets.only(
-            left: disablePadding ? 0 : BaseSize.w12,
-            right: disablePadding ? 0 : BaseSize.w12,
+            left: disablePadding ? 0 : 12.0,
+            right: disablePadding ? 0 : 12.0,
           ),
           child: disableSingleChildScrollView
               ? Column(
@@ -113,7 +113,7 @@ class ScaffoldWidget extends StatelessWidget {
                   ],
                 ),
         ),
-        backgroundColor: backgroundColor ?? BaseColor.white,
+        backgroundColor: backgroundColor ?? AppColors.surfaceContainerLowest,
         bottomNavigationBar: bottomNavigationBar,
       ),
     );

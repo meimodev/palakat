@@ -22,8 +22,6 @@ class SupervisedActivitiesSection extends StatelessWidget {
     required this.activities,
     required this.isLoading,
     required this.error,
-    required this.isExpanded,
-    required this.onExpansionChanged,
     required this.onSeeAllTap,
     required this.onActivityTap,
     required this.onRetry,
@@ -37,12 +35,6 @@ class SupervisedActivitiesSection extends StatelessWidget {
 
   /// Error message if fetch failed, null if no error
   final String? error;
-
-  /// Whether the card is currently expanded
-  final bool isExpanded;
-
-  /// Callback when the card expansion state changes
-  final VoidCallback onExpansionChanged;
 
   /// Callback when "See All" button is tapped
   final VoidCallback onSeeAllTap;
@@ -62,39 +54,24 @@ class SupervisedActivitiesSection extends StatelessWidget {
     }
 
     return Material(
-      color: BaseColor.surfaceMedium,
+      color: AppColors.surfaceContainerLow,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        side: BorderSide(color: BaseColor.neutral[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Expandable header
-          _ExpandableHeader(
-            isExpanded: isExpanded,
+          _SectionHeader(
             activityCount: activities.length,
-            onTap: onExpansionChanged,
             onSeeAllTap: onSeeAllTap,
             showSeeAll: !isLoading && error == null && activities.isNotEmpty,
           ),
-          // Expandable content
-          AnimatedCrossFade(
-            firstChild: Padding(
-              padding: EdgeInsets.only(
-                left: BaseSize.w8,
-                right: BaseSize.w8,
-                bottom: BaseSize.w10,
-              ),
-              child: _buildContent(),
-            ),
-            secondChild: const SizedBox.shrink(),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
-            duration: const Duration(milliseconds: 200),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 10.0),
+            child: _buildContent(),
           ),
         ],
       ),
@@ -136,112 +113,70 @@ class SupervisedActivitiesSection extends StatelessWidget {
 }
 
 /// Expandable header with icon, title, count badge, and expand/collapse indicator
-class _ExpandableHeader extends StatelessWidget {
-  const _ExpandableHeader({
-    required this.isExpanded,
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
     required this.activityCount,
-    required this.onTap,
     required this.onSeeAllTap,
     required this.showSeeAll,
   });
 
-  final bool isExpanded;
   final int activityCount;
-  final VoidCallback onTap;
   final VoidCallback onSeeAllTap;
   final bool showSeeAll;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.primary[50],
-      child: InkWell(
-        onTap: onTap,
-        splashColor: BaseColor.primary.withValues(alpha: 0.1),
-        highlightColor: BaseColor.primary.withValues(alpha: 0.05),
-        child: Padding(
-          padding: EdgeInsets.all(BaseSize.w12),
-          child: Row(
-            children: [
-              // Category icon
-              Container(
-                width: BaseSize.w36,
-                height: BaseSize.w36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: BaseColor.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: AppColors.surfaceContainer,
+      child: Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            Container(
+              width: 36.0,
+              height: 36.0,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.2),
                 ),
-                child: Icon(
-                  AppIcons.event,
-                  color: BaseColor.primary,
-                  size: BaseSize.w20,
+                borderRadius: BorderRadius.circular(8.0),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
+              ),
+              child: Icon(AppIcons.event, color: AppColors.primary, size: 20.0),
+            ),
+            Gap.w10,
+            Expanded(
+              child: Text(
+                context.l10n.supervisedActivities_title,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onSurface,
                 ),
               ),
-              Gap.w10,
-              // Title
-              Expanded(
+            ),
+
+            if (showSeeAll) ...[
+              Gap.w8,
+              TextButton(
+                onPressed: onSeeAllTap,
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 child: Text(
-                  context.l10n.supervisedActivities_title,
-                  style: BaseTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: BaseColor.textPrimary,
+                  context.l10n.btn_viewAll,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
                   ),
-                ),
-              ),
-              // "See All" button - only visible when expanded
-              if (showSeeAll && isExpanded)
-                TextButton(
-                  onPressed: onSeeAllTap,
-                  style: TextButton.styleFrom(
-                    foregroundColor: BaseColor.primary[700],
-                    padding: EdgeInsets.symmetric(
-                      horizontal: BaseSize.w8,
-                      vertical: BaseSize.h4,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    context.l10n.btn_viewAll,
-                    style: BaseTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: BaseColor.primary[700],
-                    ),
-                  ),
-                ),
-              // Activity count badge
-              if (!isExpanded)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: BaseSize.w8,
-                    vertical: BaseSize.w4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: BaseColor.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  ),
-                  child: Text(
-                    '$activityCount',
-                    style: BaseTypography.labelMedium.copyWith(
-                      color: BaseColor.primary[700],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              // Expand/collapse icon with animation
-              Gap.w6,
-              AnimatedRotation(
-                turns: isExpanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  AppIcons.keyboardArrowDown,
-                  color: BaseColor.primary,
-                  size: BaseSize.w20,
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

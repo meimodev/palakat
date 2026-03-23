@@ -11,11 +11,11 @@ class ApprovalStatusPill extends StatelessWidget {
   Color _statusColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
-        return BaseColor.green.shade600;
+        return AppColors.success.shade600;
       case ApprovalStatus.rejected:
-        return BaseColor.red.shade500;
+        return AppColors.error.shade500;
       case ApprovalStatus.unconfirmed:
-        return BaseColor.yellow.shade700;
+        return AppColors.warning.shade700;
     }
   }
 
@@ -39,23 +39,21 @@ class ApprovalStatusPill extends StatelessWidget {
         label = l10n.status_pending;
     }
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: BaseSize.w12,
-        vertical: BaseSize.h8,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, size: BaseSize.w20, color: color),
+          FaIcon(icon, size: 20.0, color: color),
           Gap.w8,
           Text(
             label,
-            style: BaseTypography.bodyMedium.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: color,
               fontWeight: FontWeight.w700,
             ),

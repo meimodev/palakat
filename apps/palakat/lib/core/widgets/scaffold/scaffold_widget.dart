@@ -72,7 +72,7 @@ class ScaffoldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topSpace = BaseSize.h8;
+    final topSpace = SanctuaryLayout.compactGap;
 
     final Widget childWrapper = AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
@@ -95,7 +95,9 @@ class ScaffoldWidget extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.only(top: topSpace),
-              child: Column(children: [childWrapper, Gap.h64]),
+              child: Column(
+                children: [childWrapper, const SizedBox(height: 64)],
+              ),
             ),
           );
 
@@ -107,38 +109,45 @@ class ScaffoldWidget extends StatelessWidget {
           builder: (context, constraints) {
             final horizontalPadding = disablePadding
                 ? 0.0
-                : constraints.maxWidth >= 768
-                ? BaseSize.w24
-                : BaseSize.w12;
+                : SanctuaryLayout.mobileHorizontalPadding(constraints.maxWidth);
             final contentMaxWidth = disablePadding
                 ? constraints.maxWidth
                 : constraints.maxWidth >= 1024
-                ? 840.0
+                ? SanctuaryLayout.mobileContentMaxWidth
                 : constraints.maxWidth >= 768
                 ? 720.0
                 : constraints.maxWidth;
 
             return Align(
               alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: horizontalPadding,
-                    right: horizontalPadding,
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(child: bodyContent),
-                      persistBottomWidget ?? const SizedBox(),
-                    ],
+              child: Container(
+                color: backgroundColor ?? AppColors.surface,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: horizontalPadding,
+                      right: horizontalPadding,
+                      bottom: persistBottomWidget == null
+                          ? 0
+                          : SanctuaryLayout.blockGap,
+                    ),
+                    child: Column(
+                      children: [
+                        Expanded(child: bodyContent),
+                        if (persistBottomWidget != null) ...[
+                          const SizedBox(height: 16),
+                          persistBottomWidget!,
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             );
           },
         ),
-        backgroundColor: backgroundColor ?? BaseColor.white,
+        backgroundColor: backgroundColor ?? AppColors.surface,
         bottomNavigationBar: bottomNavigationBar,
       ),
     );

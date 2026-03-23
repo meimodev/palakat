@@ -16,26 +16,28 @@ class PendingActionBadge extends StatelessWidget {
 
     if (count == 0) {
       return Material(
-        color: BaseColor.green.shade50,
+        color: AppColors.success.shade50,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-          side: BorderSide(color: BaseColor.green.shade200, width: 1),
+          borderRadius: BorderRadius.circular(16.0),
+          side: BorderSide(color: AppColors.success.shade200, width: 1),
         ),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(BaseSize.w8),
+                padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                  color: BaseColor.green.shade100,
+                  color: AppColors.success.shade100,
+                  border: Border.all(color: AppColors.success.shade200),
                   shape: BoxShape.circle,
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   AppIcons.success,
-                  size: BaseSize.w24,
-                  color: BaseColor.green.shade600,
+                  size: 24.0,
+                  color: AppColors.success.shade600,
                 ),
               ),
               Gap.w12,
@@ -45,16 +47,16 @@ class PendingActionBadge extends StatelessWidget {
                   children: [
                     Text(
                       l10n.approval_allCaughtUpTitle,
-                      style: BaseTypography.titleMedium.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.green.shade700,
+                        color: AppColors.success.shade700,
                       ),
                     ),
                     Gap.h4,
                     Text(
                       l10n.approval_allCaughtUpSubtitle,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.green.shade600,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.success.shade600,
                       ),
                     ),
                   ],
@@ -67,17 +69,17 @@ class PendingActionBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.all(BaseSize.w16),
+      padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [BaseColor.teal.shade500, BaseColor.teal.shade600],
+          colors: [AppColors.primary, AppColors.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.teal.shade500.withValues(alpha: 0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -86,18 +88,20 @@ class PendingActionBadge extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: BaseSize.w48,
-            height: BaseSize.w48,
+            width: 48.0,
+            height: 48.0,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.surfaceContainerLowest,
+              border: Border.all(color: AppColors.surfaceContainerLowest),
               shape: BoxShape.circle,
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
             ),
             alignment: Alignment.center,
             child: Text(
               count.toString(),
-              style: BaseTypography.headlineSmall.copyWith(
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: AppColors.surfaceContainerLowest,
               ),
             ),
           ),
@@ -108,16 +112,16 @@ class PendingActionBadge extends StatelessWidget {
               children: [
                 Text(
                   l10n.approval_sectionPendingYourAction,
-                  style: BaseTypography.titleMedium.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.surfaceContainerLowest,
                   ),
                 ),
                 Gap.h4,
                 Text(
                   l10n.approval_pendingReviewCount(count),
-                  style: BaseTypography.bodyMedium.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.surfaceContainerLowest,
                   ),
                 ),
               ],
@@ -125,8 +129,8 @@ class PendingActionBadge extends StatelessWidget {
           ),
           FaIcon(
             AppIcons.arrowForward,
-            size: BaseSize.w16,
-            color: Colors.white.withValues(alpha: 0.7),
+            size: 16.0,
+            color: AppColors.surfaceContainerLowest,
           ),
         ],
       ),

@@ -539,7 +539,7 @@ class _BillingRow extends StatelessWidget {
                       Text(
                         _formatDate(item.dueDate),
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: item.isOverdue ? Colors.red : null,
+                          color: item.isOverdue ? AppColors.error : null,
                         ),
                       ),
                       flex: 2,
@@ -554,7 +554,7 @@ class _BillingRow extends StatelessWidget {
                     const Icon(
                       Icons.chevron_right,
                       size: 18,
-                      color: Colors.black54,
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -584,11 +584,11 @@ class _StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (color, icon) = switch (status) {
-      BillingStatus.paid => (Colors.green, Icons.check_circle),
-      BillingStatus.pending => (Colors.orange, Icons.pending),
-      BillingStatus.overdue => (Colors.red, Icons.warning),
-      BillingStatus.cancelled => (Colors.grey, Icons.cancel),
-      BillingStatus.refunded => (Colors.blue, Icons.undo),
+      BillingStatus.paid => (AppColors.success, Icons.check_circle),
+      BillingStatus.pending => (AppColors.warning, Icons.pending),
+      BillingStatus.overdue => (AppColors.error, Icons.warning),
+      BillingStatus.cancelled => (AppColors.onSurfaceVariant, Icons.cancel),
+      BillingStatus.refunded => (AppColors.primary, Icons.undo),
     };
 
     return Container(
@@ -671,7 +671,7 @@ class _PaymentHistoryRow extends StatelessWidget {
                   payment.formattedAmount,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Colors.green,
+                    color: AppColors.success,
                   ),
                 ),
                 flex: 2,
@@ -871,7 +871,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             Text(
               '${context.l10n.lbl_amount}: ${widget.item.formattedAmount}',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: Colors.green,
+                color: AppColors.success,
                 fontWeight: FontWeight.w600,
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 enum _ScreenTitleVariant { primary, titleOnly, bottomSheet, titleSecondary }
 
@@ -12,7 +13,7 @@ enum _ScreenTitleVariant { primary, titleOnly, bottomSheet, titleSecondary }
 /// ScreenTitleWidget.primary(
 ///   title: 'Dashboard',
 ///   leadIcon: Assets.icons.line.menu,
-///   leadIconColor: Colors.black,
+///   leadIconColor: AppColors.onSurface,
 ///   onPressedLeadIcon: () => openDrawer(),
 /// )
 /// ```
@@ -112,6 +113,10 @@ class ScreenTitleWidget extends StatelessWidget {
       return _buildTitleSecondary(context, theme);
     }
 
+    if (_variant == _ScreenTitleVariant.bottomSheet) {
+      return _buildBottomSheet(context, theme);
+    }
+
     const iconSize = 24.0;
 
     // Title only variant - simple and clean
@@ -131,50 +136,74 @@ class ScreenTitleWidget extends StatelessWidget {
     }
 
     // Primary and bottom sheet variants
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildIcon(
-          context: context,
-          icon: leadIcon,
-          iconColor: leadIconColor ?? Colors.transparent,
-          iconSize: iconSize,
-          onPressedIcon: leadIcon != null ? onPressedLeadIcon! : null,
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
         ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Column(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Text(
-                title,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+              _buildIcon(
+                context: context,
+                icon: leadIcon,
+                iconColor: leadIconColor ?? Colors.transparent,
+                iconSize: iconSize,
+                onPressedIcon: leadIcon != null ? onPressedLeadIcon! : null,
+                useSanctuaryShell: true,
+              ),
+              Gap.w12,
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                    if (subTitle != null) ...[
+                      Gap.h4,
+                      Text(
+                        subTitle!,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              if (subTitle != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subTitle!,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+              Gap.w12,
+              _buildIcon(
+                context: context,
+                icon: trailIcon,
+                iconColor: trailIconColor ?? Colors.transparent,
+                iconSize: iconSize,
+                onPressedIcon: trailIcon != null ? onPressedTrailIcon! : null,
+                useSanctuaryShell: true,
+              ),
             ],
           ),
         ),
-        const SizedBox(width: 24),
-        _buildIcon(
-          context: context,
-          icon: trailIcon,
-          iconColor: trailIconColor ?? Colors.transparent,
-          iconSize: iconSize,
-          onPressedIcon: trailIcon != null ? onPressedTrailIcon! : null,
-        ),
-      ],
+      ),
     );
   }
 
@@ -184,6 +213,7 @@ class ScreenTitleWidget extends StatelessWidget {
     required Color iconColor,
     required VoidCallback? onPressedIcon,
     required double iconSize,
+    bool useSanctuaryShell = false,
   }) {
     if (icon == null) {
       return SizedBox(width: iconSize, height: iconSize);
@@ -206,61 +236,152 @@ class ScreenTitleWidget extends StatelessWidget {
       );
     }
 
-    return IconButton(
-      padding: EdgeInsets.zero,
-      constraints: BoxConstraints(minHeight: iconSize, minWidth: iconSize),
-      icon: iconWidget,
-      onPressed: onPressedIcon,
+    if (!useSanctuaryShell) {
+      return IconButton(
+        padding: EdgeInsets.zero,
+        constraints: BoxConstraints(minHeight: iconSize, minWidth: iconSize),
+        icon: iconWidget,
+        onPressed: onPressedIcon,
+      );
+    }
+
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+        icon: iconWidget,
+        onPressed: onPressedIcon,
+      ),
     );
   }
 
   Widget _buildTitleSecondary(BuildContext context, ThemeData theme) {
-    return Container(
-      padding: EdgeInsets.only(top: 8, left: 4, right: 12, bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: onBack ?? () => Navigator.of(context).pop(),
-            icon: Icon(
-              Icons.chevron_left,
-              size: 24,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 44,
+                    height: 44,
+                  ),
+                  onPressed: onBack ?? () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.chevron_left,
+                    size: 22,
+                    color: AppColors.onSurface,
                   ),
                 ),
-                if (subTitle != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    subTitle!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                      if (subTitle != null) ...[
+                        Gap.h4,
+                        Text(
+                          subTitle!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheet(BuildContext context, ThemeData theme) {
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              const SizedBox(width: 44, height: 44),
+              Gap.w12,
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+              ),
+              Gap.w12,
+              _buildIcon(
+                context: context,
+                icon: trailIcon,
+                iconColor: trailIconColor ?? AppColors.onSurface,
+                iconSize: 24,
+                onPressedIcon: onPressedTrailIcon,
+                useSanctuaryShell: true,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

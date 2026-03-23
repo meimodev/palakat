@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  Region: 'Region',
   Church: 'Church',
   ChurchPermissionPolicy: 'ChurchPermissionPolicy',
   Column: 'Column',
@@ -425,10 +426,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
+    modelProps: "region" | "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    Region: {
+      payload: Prisma.$RegionPayload<ExtArgs>
+      fields: Prisma.RegionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RegionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RegionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        findFirst: {
+          args: Prisma.RegionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RegionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        findMany: {
+          args: Prisma.RegionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+        }
+        create: {
+          args: Prisma.RegionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        createMany: {
+          args: Prisma.RegionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RegionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+        }
+        delete: {
+          args: Prisma.RegionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        update: {
+          args: Prisma.RegionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        deleteMany: {
+          args: Prisma.RegionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RegionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RegionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+        }
+        upsert: {
+          args: Prisma.RegionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+        }
+        aggregate: {
+          args: Prisma.RegionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRegion>
+        }
+        groupBy: {
+          args: Prisma.RegionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RegionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionCountAggregateOutputType> | number
+        }
+      }
+    }
     Church: {
       payload: Prisma.$ChurchPayload<ExtArgs>
       fields: Prisma.ChurchFieldRefs
@@ -2392,6 +2467,17 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const RegionScalarFieldEnum = {
+  id: 'id',
+  sourceRegionId: 'sourceRegionId',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RegionScalarFieldEnum = (typeof RegionScalarFieldEnum)[keyof typeof RegionScalarFieldEnum]
+
+
 export const ChurchScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2399,6 +2485,8 @@ export const ChurchScalarFieldEnum = {
   email: 'email',
   description: 'description',
   documentAccountNumber: 'documentAccountNumber',
+  sourceChurchId: 'sourceChurchId',
+  regionId: 'regionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   locationId: 'locationId'
@@ -2421,6 +2509,7 @@ export type ChurchPermissionPolicyScalarFieldEnum = (typeof ChurchPermissionPoli
 export const ColumnScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  sourceColumnId: 'sourceColumnId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId'
@@ -2459,6 +2548,7 @@ export type MembershipPositionScalarFieldEnum = (typeof MembershipPositionScalar
 export const AccountScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  sourceAccountId: 'sourceAccountId',
   phone: 'phone',
   email: 'email',
   passwordHash: 'passwordHash',
@@ -3345,6 +3435,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  region?: Prisma.RegionOmit
   church?: Prisma.ChurchOmit
   churchPermissionPolicy?: Prisma.ChurchPermissionPolicyOmit
   column?: Prisma.ColumnOmit

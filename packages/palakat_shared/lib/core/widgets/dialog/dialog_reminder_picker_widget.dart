@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../theme/theme.dart';
 import '../../constants/enums.dart';
 import '../card/card_reminder.dart';
 import 'dialog_custom_widget.dart';
@@ -36,7 +35,7 @@ class _DialogReminderPickerWidget extends StatelessWidget {
       shrinkWrap: true,
       itemCount: Reminder.values.length,
       separatorBuilder: (BuildContext context, int index) =>
-          Padding(padding: EdgeInsets.symmetric(vertical: BaseSize.h6)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
       itemBuilder: (BuildContext context, int index) {
         final e = Reminder.values[index];
         return CardReminder(

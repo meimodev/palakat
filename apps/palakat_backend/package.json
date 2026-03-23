@@ -28,6 +28,7 @@
     "db:seed": "prisma db seed",
     "postinstall": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:congregation": "tsx prisma/seed_congregation.ts",
     "prisma:studio": "prisma studio",
     "test:prisma": "ts-node test-prisma-connection.ts"
   },

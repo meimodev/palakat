@@ -64,166 +64,331 @@ class _ChurchRequestBottomSheetState
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: BaseColor.white,
+    return Material(
+      color: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(BaseSize.radiusLg),
+          top: Radius.circular(SanctuaryLayout.radiusLarge),
         ),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            margin: EdgeInsets.only(top: BaseSize.h12),
-            width: BaseSize.w40,
-            height: BaseSize.h4,
-            decoration: BoxDecoration(
-              color: BaseColor.neutral[300],
-              borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-            ),
+      clipBehavior: Clip.hardEdge,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(SanctuaryLayout.radiusLarge),
           ),
-          Gap.h16,
-          // Title
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.churchRequest_title,
-                    style: BaseTypography.titleLarge.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BaseColor.textPrimary,
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.045, blur: 28),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: EdgeInsets.only(top: 12.0),
+              width: 44.0,
+              height: 4.0,
+              decoration: BoxDecoration(
+                color: AppColors.ghostBorder(0.18),
+                borderRadius: BorderRadius.circular(SanctuaryLayout.pillRadius),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 4),
+              ),
+            ),
+            Gap.h16,
+            // Title
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48.0,
+                    height: 48.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLow,
+                      border: Border.all(color: AppColors.ghostBorder(0.06)),
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.radiusLarge,
+                      ),
+                      boxShadow: SanctuaryDepth.ambient(
+                        opacity: 0.02,
+                        blur: 12,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.church_rounded,
+                      color: AppColors.primary,
+                      size: 22.0,
+                    ),
+                  ),
+                  Gap.w12,
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        l10n.churchRequest_title,
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Gap.w12,
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLow,
+                      border: Border.all(color: AppColors.ghostBorder(0.06)),
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.radius,
+                      ),
+                      boxShadow: SanctuaryDepth.ambient(
+                        opacity: 0.02,
+                        blur: 10,
+                      ),
+                    ),
+                    child: IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: FaIcon(
+                        AppIcons.close,
+                        size: 16.0,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Gap.h8,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  border: Border.all(color: AppColors.ghostBorder(0.06)),
+                  borderRadius: BorderRadius.circular(
+                    SanctuaryLayout.radiusLarge,
+                  ),
+                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 14),
+                ),
+                child: Text(
+                  l10n.churchRequest_description,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ),
+            Gap.h16,
+            // Error message display
+            if (_errorMessage != null && _errorMessage!.trim().isNotEmpty) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: ErrorDisplayWidget(
+                  message: _errorMessage!,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+              Gap.h12,
+            ],
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  padding: EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLowest,
+                    border: Border.all(color: AppColors.ghostBorder(0.08)),
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 22),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Requester Information Section
+                        _buildRequesterInfoSection(),
+                        Gap.h20,
+                        // Church Information Section
+                        _buildSectionHeader(
+                          icon: Icons.location_city_rounded,
+                          title: l10n.churchRequest_churchInformation,
+                        ),
+                        Gap.h12,
+                        InputWidget.text(
+                          controller: _churchNameController,
+                          label: l10n.lbl_churchName,
+                          hint: l10n.hint_enterChurchName,
+                          errorText: _churchNameError,
+                          onChanged: (_) {
+                            if (_churchNameError != null) {
+                              setState(() => _churchNameError = null);
+                            }
+                          },
+                          validators: _validateChurchName,
+                        ),
+                        Gap.h12,
+                        InputWidget.text(
+                          controller: _addressController,
+                          label: l10n.lbl_churchAddress,
+                          hint: l10n.hint_enterChurchAddress,
+                          maxLines: 2,
+                          errorText: _addressError,
+                          onChanged: (_) {
+                            if (_addressError != null) {
+                              setState(() => _addressError = null);
+                            }
+                          },
+                          validators: _validateAddress,
+                        ),
+                        Gap.h12,
+                        InputWidget.text(
+                          controller: _contactPersonController,
+                          label: l10n.lbl_contactPerson,
+                          hint: l10n.churchRequest_hintEnterContactPersonName,
+                          errorText: _contactPersonError,
+                          onChanged: (_) {
+                            if (_contactPersonError != null) {
+                              setState(() => _contactPersonError = null);
+                            }
+                          },
+                          validators: _validateContactPerson,
+                        ),
+                        Gap.h12,
+                        InputWidget.text(
+                          controller: _phoneController,
+                          label: l10n.lbl_phone,
+                          hint: l10n.churchRequest_hintPhoneExample,
+                          textInputType: TextInputType.phone,
+                          errorText: _phoneError,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            PhoneInputFormatter(),
+                          ],
+                          onChanged: (_) {
+                            if (_phoneError != null) {
+                              setState(() => _phoneError = null);
+                            }
+                          },
+                          validators: _validatePhone,
+                        ),
+                        Gap.h24,
+                      ],
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: FaIcon(AppIcons.close),
-                  color: BaseColor.neutral[600],
-                ),
-              ],
-            ),
-          ),
-          Gap.h8,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-            child: Text(
-              l10n.churchRequest_description,
-              style: BaseTypography.bodyMedium.copyWith(
-                color: BaseColor.textSecondary,
               ),
             ),
-          ),
-          Gap.h16,
-          // Error message display
-          if (_errorMessage != null && _errorMessage!.trim().isNotEmpty) ...[
+            // Submit button
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: ErrorDisplayWidget(
-                message: _errorMessage!,
-                padding: EdgeInsets.zero,
-              ),
-            ),
-            Gap.h12,
-          ],
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Requester Information Section
-                    _buildRequesterInfoSection(),
-                    Gap.h20,
-                    // Church Information Section
-                    Text(
-                      l10n.churchRequest_churchInformation,
-                      style: BaseTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BaseColor.textPrimary,
+              padding: EdgeInsets.all(16.0),
+              child: Material(
+                color: Colors.transparent,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    SanctuaryLayout.radiusLarge,
+                  ),
+                  side: BorderSide(color: AppColors.ghostBorder(0.08)),
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(14.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 22),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 10.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerLow,
+                          border: Border.all(
+                            color: AppColors.ghostBorder(0.06),
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
+                          ),
+                          boxShadow: SanctuaryDepth.ambient(
+                            opacity: 0.02,
+                            blur: 10,
+                          ),
+                        ),
+                        child: Text(
+                          l10n.churchRequest_title,
+                          style: Theme.of(context).textTheme.labelMedium!
+                              .copyWith(
+                                color: AppColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                    Gap.h12,
-                    InputWidget.text(
-                      controller: _churchNameController,
-                      label: l10n.lbl_churchName,
-                      hint: l10n.hint_enterChurchName,
-                      errorText: _churchNameError,
-                      onChanged: (_) {
-                        if (_churchNameError != null) {
-                          setState(() => _churchNameError = null);
-                        }
-                      },
-                      validators: _validateChurchName,
-                    ),
-                    Gap.h12,
-                    InputWidget.text(
-                      controller: _addressController,
-                      label: l10n.lbl_churchAddress,
-                      hint: l10n.hint_enterChurchAddress,
-                      maxLines: 2,
-                      errorText: _addressError,
-                      onChanged: (_) {
-                        if (_addressError != null) {
-                          setState(() => _addressError = null);
-                        }
-                      },
-                      validators: _validateAddress,
-                    ),
-                    Gap.h12,
-                    InputWidget.text(
-                      controller: _contactPersonController,
-                      label: l10n.lbl_contactPerson,
-                      hint: l10n.churchRequest_hintEnterContactPersonName,
-                      errorText: _contactPersonError,
-                      onChanged: (_) {
-                        if (_contactPersonError != null) {
-                          setState(() => _contactPersonError = null);
-                        }
-                      },
-                      validators: _validateContactPerson,
-                    ),
-                    Gap.h12,
-                    InputWidget.text(
-                      controller: _phoneController,
-                      label: l10n.lbl_phone,
-                      hint: l10n.churchRequest_hintPhoneExample,
-                      textInputType: TextInputType.phone,
-                      errorText: _phoneError,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        PhoneInputFormatter(),
-                      ],
-                      onChanged: (_) {
-                        if (_phoneError != null) {
-                          setState(() => _phoneError = null);
-                        }
-                      },
-                      validators: _validatePhone,
-                    ),
-                    Gap.h24,
-                  ],
+                      Gap.h12,
+                      ButtonWidget.primary(
+                        text: _isSubmitting
+                            ? l10n.churchRequest_submitting
+                            : l10n.churchRequest_submitRequest,
+                        onTap: _isSubmitting ? null : _handleSubmit,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader({required IconData icon, required String title}) {
+    return Row(
+      children: [
+        Container(
+          width: 40.0,
+          height: 40.0,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            border: Border.all(color: AppColors.ghostBorder(0.06)),
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
           ),
-          // Submit button
-          Padding(
-            padding: EdgeInsets.all(BaseSize.w16),
-            child: ButtonWidget.primary(
-              text: _isSubmitting
-                  ? l10n.churchRequest_submitting
-                  : l10n.churchRequest_submitRequest,
-              onTap: _isSubmitting ? null : _handleSubmit,
+          alignment: Alignment.center,
+          child: Icon(icon, size: 20.0, color: AppColors.primary),
+        ),
+        Gap.w12,
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -233,14 +398,21 @@ class _ChurchRequestBottomSheetState
     final account = localStorage.currentAuth?.account;
 
     return Material(
-      color: BaseColor.primary[50],
+      color: Colors.transparent,
       elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        side: BorderSide(color: BaseColor.primary[100]!, width: 1),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
       ),
-      child: Padding(
-        padding: EdgeInsets.all(BaseSize.w14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 16),
+        ),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -251,25 +423,27 @@ class _ChurchRequestBottomSheetState
                     MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
                 final icon = Container(
-                  width: BaseSize.w40,
-                  height: BaseSize.w40,
+                  width: 44.0,
+                  height: 44.0,
                   decoration: BoxDecoration(
-                    color: BaseColor.white,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                    color: AppColors.surfaceContainerLow,
+                    border: Border.all(color: AppColors.ghostBorder(0.06)),
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
                   ),
                   alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.person,
-                    size: BaseSize.w20,
-                    color: BaseColor.primary,
+                  child: const Icon(
+                    Icons.person_rounded,
+                    size: 20.0,
+                    color: AppColors.primary,
                   ),
                 );
 
                 final title = Text(
                   l10n.churchRequest_requesterInformation,
-                  style: BaseTypography.titleMedium.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: BaseColor.primary,
+                    color: AppColors.onSurface,
                   ),
                   maxLines: shouldStack ? 2 : 1,
                   overflow: TextOverflow.ellipsis,
@@ -278,22 +452,22 @@ class _ChurchRequestBottomSheetState
                 if (shouldStack) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [icon, Gap.h8, title],
+                    children: [icon, Gap.h12, title],
                   );
                 }
 
                 return Row(
                   children: [
                     icon,
-                    Gap.w10,
+                    Gap.w12,
                     Expanded(child: title),
                   ],
                 );
               },
             ),
-            Gap.h10,
+            Gap.h12,
             _buildInfoRow(l10n.lbl_name, account?.name ?? l10n.lbl_na),
-            Gap.h6,
+            Gap.h8,
             _buildInfoRow(l10n.lbl_phone, account?.phone ?? l10n.lbl_na),
           ],
         ),
@@ -310,34 +484,50 @@ class _ChurchRequestBottomSheetState
 
         final labelWidget = Text(
           '$label:',
-          style: BaseTypography.labelMedium.copyWith(
-            color: BaseColor.neutral[600],
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         );
 
         final valueWidget = Text(
           value,
-          style: BaseTypography.bodyMedium.copyWith(
-            color: BaseColor.textPrimary,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColors.onSurface,
             fontWeight: FontWeight.w600,
           ),
         );
 
         if (shouldStack) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [labelWidget, Gap.h4, valueWidget],
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              border: Border.all(color: AppColors.ghostBorder(0.06)),
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [labelWidget, Gap.h4, valueWidget],
+            ),
           );
         }
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: BaseSize.w84, child: labelWidget),
-            Gap.w6,
-            Expanded(child: valueWidget),
-          ],
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            border: Border.all(color: AppColors.ghostBorder(0.06)),
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 84.0, child: labelWidget),
+              Gap.w6,
+              Expanded(child: valueWidget),
+            ],
+          ),
         );
       },
     );
@@ -479,29 +669,14 @@ class _ChurchRequestBottomSheetState
 
       result.when(
         onSuccess: (_) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  FaIcon(AppIcons.success, color: BaseColor.white),
-                  Gap.w8,
-                  Expanded(
-                    child: Text(
-                      context.l10n.churchRequest_submittedSuccessfully,
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: BaseColor.success,
-              duration: const Duration(seconds: 3),
-            ),
+          _showStatusSnackBar(
+            context,
+            message: context.l10n.churchRequest_submittedSuccessfully,
+            isSuccess: true,
           );
 
-          // Close the bottom sheet
           Navigator.of(context).pop();
 
-          // Navigate to home screen
           context.goNamed(AppRoute.home);
         },
         onFailure: (failure) {
@@ -509,19 +684,7 @@ class _ChurchRequestBottomSheetState
             _errorMessage = failure.message;
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  FaIcon(AppIcons.error, color: BaseColor.white),
-                  Gap.w8,
-                  Expanded(child: Text(failure.message)),
-                ],
-              ),
-              backgroundColor: BaseColor.error,
-              duration: const Duration(seconds: 4),
-            ),
-          );
+          _showStatusSnackBar(context, message: failure.message);
         },
       );
     } on Exception catch (e) {
@@ -532,22 +695,9 @@ class _ChurchRequestBottomSheetState
         _errorMessage = context.l10n.err_somethingWentWrong;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              FaIcon(AppIcons.error, color: BaseColor.white),
-              Gap.w8,
-              Expanded(
-                child: Text(
-                  context.l10n.churchRequest_errorWithDetail(e.toString()),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: BaseColor.error,
-          duration: const Duration(seconds: 4),
-        ),
+      _showStatusSnackBar(
+        context,
+        message: context.l10n.churchRequest_errorWithDetail(e.toString()),
       );
     } catch (e) {
       if (!mounted) return;
@@ -557,19 +707,66 @@ class _ChurchRequestBottomSheetState
         _errorMessage = context.l10n.err_somethingWentWrong;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              FaIcon(AppIcons.error, color: BaseColor.white),
-              Gap.w8,
-              Expanded(child: Text(context.l10n.err_somethingWentWrong)),
-            ],
-          ),
-          backgroundColor: BaseColor.error,
-          duration: const Duration(seconds: 4),
-        ),
+      _showStatusSnackBar(
+        context,
+        message: context.l10n.err_somethingWentWrong,
       );
     }
+  }
+
+  void _showStatusSnackBar(
+    BuildContext context, {
+    required String message,
+    bool isSuccess = false,
+  }) {
+    final theme = Theme.of(context);
+    final accentColor = isSuccess ? AppColors.success : AppColors.error;
+    final accentIcon = isSuccess ? AppIcons.success : AppIcons.error;
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        margin: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+        duration: Duration(seconds: isSuccess ? 3 : 4),
+        content: Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+            border: Border.all(color: accentColor.withValues(alpha: 0.18)),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 32.0,
+                height: 32.0,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(accentIcon, size: 14.0, color: accentColor),
+              ),
+              Gap.w12,
+              Expanded(
+                child: Text(
+                  message,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    color: AppColors.onSurface,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

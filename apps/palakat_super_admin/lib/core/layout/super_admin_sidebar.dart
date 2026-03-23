@@ -17,127 +17,166 @@ class SuperAdminSidebar extends ConsumerWidget {
 
     return Drawer(
       elevation: 0,
+      backgroundColor: AppColors.surface,
       child: SafeArea(
         child: Material(
+          color: AppColors.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.shield,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.appTitle,
-                            style: theme.textTheme.titleLarge,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 44,
+                        width: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radius,
                           ),
-                          const SizedBox(height: 4),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Chip(
-                              label: Text(l10n.app_superAdminTitle),
-                              visualDensity: VisualDensity.compact,
+                        ),
+                        child: const Icon(
+                          Icons.shield_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sanctuary Control',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                letterSpacing: 0.4,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.app_superAdminTitle,
+                              style: theme.textTheme.titleLarge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              const Divider(height: 1),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   children: [
                     _NavItem(
                       icon: Icons.church_outlined,
                       label: l10n.churchRequest_title,
                       selected: route.startsWith('/church-requests'),
                       onTap: () => context.go('/church-requests'),
-                      color: Colors.deepOrange,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.apartment_outlined,
                       label: l10n.nav_church,
                       selected: route.startsWith('/churches'),
                       onTap: () => context.go('/churches'),
-                      color: Colors.blueGrey,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.article_outlined,
                       label: l10n.nav_articles,
                       selected: route.startsWith('/articles'),
                       onTap: () => context.go('/articles'),
-                      color: Colors.indigo,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.library_music_outlined,
                       label: l10n.nav_songs,
                       selected: route.startsWith('/songs'),
                       onTap: () => context.go('/songs'),
-                      color: Colors.teal,
+                      color: AppColors.primary,
                     ),
                     _NavItem(
                       icon: Icons.mail_outline,
                       label: l10n.dashboard_membershipInvitation_title,
                       selected: route.startsWith('/membership-invitations'),
                       onTap: () => context.go('/membership-invitations'),
-                      color: Colors.purple,
+                      color: AppColors.primary,
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: theme.colorScheme.primary,
-                  child: Text(
-                    displayName.initials,
-                    style: TextStyle(
-                      color: theme.colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                child: Ink(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
                     ),
                   ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: AppColors.surfaceContainerHighest,
+                        child: Text(
+                          displayName.initials,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.app_superAdminTitle,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l10n.btn_signOut,
+                        icon: const Icon(Icons.logout),
+                        onPressed: () async {
+                          await ref
+                              .read(superAdminAuthControllerProvider.notifier)
+                              .signOut();
+                          if (context.mounted) {
+                            context.go('/signin');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                title: const Text(
-                  displayName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: IconButton(
-                  tooltip: l10n.btn_signOut,
-                  icon: const Icon(Icons.logout),
-                  onPressed: () async {
-                    await ref
-                        .read(superAdminAuthControllerProvider.notifier)
-                        .signOut();
-                    if (context.mounted) {
-                      context.go('/signin');
-                    }
-                  },
-                ),
-                onTap: () {},
               ),
             ],
           ),
@@ -183,12 +222,12 @@ class _NavItemState extends State<_NavItem>
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.02,
+      end: 1.01,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _iconScaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.1,
+      end: 1.04,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -229,19 +268,21 @@ class _NavItemState extends State<_NavItem>
                 curve: Curves.easeInOut,
                 decoration: BoxDecoration(
                   color: widget.selected
-                      ? theme.colorScheme.primary.withValues(alpha: 0.08)
+                      ? AppColors.surfaceContainerHighest
                       : _isHovered
-                      ? theme.colorScheme.primary.withValues(alpha: 0.04)
+                      ? AppColors.surfaceContainerLow
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    SanctuaryLayout.radiusLarge,
+                  ),
                   boxShadow: _isHovered && !widget.selected
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.1,
+                            color: theme.colorScheme.shadow.withValues(
+                              alpha: 0.04,
                             ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
                           ),
                         ]
                       : null,
@@ -254,22 +295,22 @@ class _NavItemState extends State<_NavItem>
                         scale: _iconScaleAnimation.value,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          height: 32,
-                          width: 32,
+                          height: 36,
+                          width: 36,
                           decoration: BoxDecoration(
-                            color: widget.selected
-                                ? theme.colorScheme.primary
-                                : _isHovered
-                                ? widget.color.withValues(alpha: 0.2)
-                                : widget.color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
+                            color: widget.selected || _isHovered
+                                ? widget.color.withValues(alpha: 0.12)
+                                : AppColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(
+                              SanctuaryLayout.radius,
+                            ),
                           ),
                           child: Icon(
                             widget.icon,
                             size: 18,
                             color: widget.selected
-                                ? theme.colorScheme.onPrimary
-                                : widget.color,
+                                ? widget.color
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       );
@@ -284,7 +325,7 @@ class _NavItemState extends State<_NavItem>
                           ? FontWeight.w500
                           : FontWeight.normal,
                       color: widget.selected
-                          ? theme.colorScheme.primary
+                          ? widget.color
                           : _isHovered
                           ? theme.colorScheme.onSurface
                           : theme.colorScheme.onSurface.withValues(alpha: 0.8),
@@ -296,7 +337,9 @@ class _NavItemState extends State<_NavItem>
                     ),
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      SanctuaryLayout.radiusLarge,
+                    ),
                   ),
                   onTap: widget.onTap,
                 ),

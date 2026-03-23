@@ -80,7 +80,7 @@ class ViewAllScreen extends ConsumerWidget {
             child: ScreenTitleWidget.primary(
               title: '$titlePrefix - ${context.l10n.dateRangeFilter_thisWeek}',
               leadIcon: AppIcons.back,
-              leadIconColor: BaseColor.textPrimary,
+              leadIconColor: AppColors.onSurface,
               onPressedLeadIcon: context.pop,
             ),
           ),
@@ -123,7 +123,7 @@ class ViewAllScreen extends ConsumerWidget {
                         key: ValueKey('view-all-${date.toIso8601String()}'),
                         delay: Duration(milliseconds: 50 + (index * 35)),
                         child: Padding(
-                          padding: EdgeInsets.only(bottom: BaseSize.h16),
+                          padding: EdgeInsets.only(bottom: 16.0),
                           child: CardActivitySectionWidget(
                             title: date.EEEEddMMM,
                             today: date.isSameDay(DateTime.now()),

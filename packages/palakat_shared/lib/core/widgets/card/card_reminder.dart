@@ -1,3 +1,4 @@
+import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/constants.dart';
 import 'package:palakat_shared/theme.dart';
@@ -16,22 +17,22 @@ class CardReminder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       clipBehavior: Clip.hardEdge,
-      color: BaseColor.cardBackground1,
-      borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(8.0),
       child: InkWell(
         onTap: onPressed,
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w12,
-            vertical: BaseSize.h6,
+            horizontal: 12.0,
+            vertical: 6.0,
           ),
           child: Row(
             children: [
               Gap.w12,
               SizedBox(
-                height: BaseSize.h40,
+                height: 40.0,
                 child: Center(
-                  child: Text(reminder.name, style: BaseTypography.titleMedium),
+                  child: Text(reminder.name, style: Theme.of(context).textTheme.titleMedium!),
                 ),
               ),
             ],

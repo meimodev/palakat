@@ -48,7 +48,7 @@ class MemberInviteScreen extends ConsumerWidget {
                 state.errorMessage != null &&
                 state.errorMessage!.trim().isNotEmpty,
             child: Padding(
-              padding: EdgeInsets.only(bottom: BaseSize.h12),
+              padding: EdgeInsets.only(bottom: 12.0),
               child: ErrorDisplayWidget(message: state.errorMessage ?? ''),
             ),
           ),
@@ -70,7 +70,7 @@ class MemberInviteScreen extends ConsumerWidget {
                 PhoneInputFormatter(),
               ],
               onChanged: controller.setPhone,
-              endIcon: Icon(AppIcons.search, size: BaseSize.w16),
+              endIcon: Icon(AppIcons.search, size: 16.0),
             ),
           ),
           Gap.h12,
@@ -157,6 +157,7 @@ class _InviteResultSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
 
     if (isSearching) {
       return OperationsAnimatedPresence(
@@ -177,7 +178,7 @@ class _InviteResultSection extends StatelessWidget {
           visible: true,
           child: Center(
             child: Padding(
-              padding: EdgeInsets.only(top: BaseSize.h12),
+              padding: EdgeInsets.only(top: 12.0),
               child: InfoBoxWidget(message: l10n.auth_enterPhoneNumber),
             ),
           ),
@@ -187,7 +188,7 @@ class _InviteResultSection extends StatelessWidget {
         visible: true,
         child: Center(
           child: Padding(
-            padding: EdgeInsets.only(top: BaseSize.h12),
+            padding: EdgeInsets.only(top: 12.0),
             child: InfoBoxWidget(message: l10n.msg_notFound),
           ),
         ),
@@ -200,97 +201,138 @@ class _InviteResultSection extends StatelessWidget {
         OperationsReveal(
           delay: const Duration(milliseconds: 40),
           child: Material(
-            color: BaseColor.cardBackground1,
-            elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
-            surfaceTintColor: BaseColor.blue[50],
+            color: Colors.transparent,
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              side: BorderSide(color: AppColors.ghostBorder(0.08)),
             ),
-            child: Padding(
-              padding: EdgeInsets.all(BaseSize.w12),
-              child: Row(
-                children: [
-                  Container(
-                    width: BaseSize.w36,
-                    height: BaseSize.w36,
-                    decoration: BoxDecoration(
-                      color: BaseColor.blue[100],
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      AppIcons.person,
-                      size: BaseSize.w16,
-                      color: BaseColor.blue[700],
-                    ),
-                  ),
-                  Gap.w12,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                accountName!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: BaseTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: BaseColor.black,
-                                ),
-                              ),
-                            ),
-                            if (bipraLabel != null &&
-                                bipraLabel!.trim().isNotEmpty)
-                              Container(
-                                margin: EdgeInsets.only(left: BaseSize.w8),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: BaseSize.w8,
-                                  vertical: BaseSize.h4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: BaseColor.teal[50],
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(
-                                    color:
-                                        BaseColor.teal[200] ??
-                                        BaseColor.neutral40,
-                                  ),
-                                ),
-                                child: Text(
-                                  bipraLabel!,
-                                  style: BaseTypography.labelMedium.copyWith(
-                                    color: BaseColor.teal[700],
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            if (claimed) ...[
-                              Gap.w8,
-                              Icon(
-                                AppIcons.verified,
-                                size: BaseSize.w16,
-                                color: BaseColor.green[700],
-                              ),
-                            ],
-                          ],
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(
+                  SanctuaryLayout.radiusLarge,
+                ),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(14.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44.0,
+                      height: 44.0,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow,
+                        border: Border.all(color: AppColors.ghostBorder(0.06)),
+                        borderRadius: BorderRadius.circular(
+                          SanctuaryLayout.radius,
                         ),
-                        if (phone != null && phone!.trim().isNotEmpty) ...[
+                        boxShadow: SanctuaryDepth.ambient(
+                          opacity: 0.02,
+                          blur: 10,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        AppIcons.person,
+                        size: 18.0,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Gap.w12,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  accountName!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleMedium!.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.onSurface,
+                                  ),
+                                ),
+                              ),
+                              if (bipraLabel != null &&
+                                  bipraLabel!.trim().isNotEmpty) ...[
+                                Gap.w8,
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.0,
+                                    vertical: 6.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceContainerLow,
+                                    border: Border.all(
+                                      color: AppColors.ghostBorder(0.06),
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      SanctuaryLayout.radius,
+                                    ),
+                                    boxShadow: SanctuaryDepth.ambient(
+                                      opacity: 0.02,
+                                      blur: 8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    bipraLabel!,
+                                    style: theme.textTheme.labelMedium!
+                                        .copyWith(
+                                          color: AppColors.onSurface,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                              if (claimed) ...[
+                                Gap.w8,
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.0,
+                                    vertical: 6.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.success.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      SanctuaryLayout.radius,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    AppIcons.verified,
+                                    size: 14.0,
+                                    color: AppColors.success,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                           Gap.h4,
                           Text(
-                            phone!,
-                            style: BaseTypography.bodyMedium.copyWith(
-                              color: BaseColor.textSecondary,
+                            phone != null && phone!.trim().isNotEmpty
+                                ? phone!
+                                : l10n.lbl_na,
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

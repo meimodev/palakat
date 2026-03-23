@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 
 /// Represents a notification channel configuration for Android
 class NotificationChannel {
@@ -19,54 +22,83 @@ class NotificationChannel {
   });
 }
 
+AppLocalizations _l10n() {
+  final localeName = intl.Intl.getCurrentLocale();
+  final languageCode = localeName.split(RegExp('[_-]')).first;
+  return lookupAppLocalizations(
+    Locale(languageCode.isEmpty ? 'en' : languageCode),
+  );
+}
+
 /// Predefined notification channels for the app
 class NotificationChannels {
   NotificationChannels._();
 
-  static const activityUpdates = NotificationChannel(
-    id: 'activity_updates',
-    name: 'Activity Updates',
-    description: 'Notifications about church activities and events',
-    importance: Importance.defaultImportance,
-    enableVibration: false,
-    playSound: true,
-  );
+  static const activityUpdatesId = 'activity_updates';
+  static const approvalRequestsId = 'approval_requests';
+  static const generalAnnouncementsId = 'general_announcements';
+  static const activityAlarmsId = 'activity_alarms';
+  static const birthdayNotificationsId = 'birthday_notifications';
 
-  static const approvalRequests = NotificationChannel(
-    id: 'approval_requests',
-    name: 'Approval Requests',
-    description: 'Notifications requiring your approval',
-    importance: Importance.high,
-    enableVibration: true,
-    playSound: true,
-  );
+  static NotificationChannel get activityUpdates {
+    final l10n = _l10n();
+    return NotificationChannel(
+      id: activityUpdatesId,
+      name: l10n.notificationChannel_activityUpdates_name,
+      description: l10n.notificationChannel_activityUpdates_description,
+      importance: Importance.defaultImportance,
+      enableVibration: false,
+      playSound: true,
+    );
+  }
 
-  static const generalAnnouncements = NotificationChannel(
-    id: 'general_announcements',
-    name: 'General Announcements',
-    description: 'General church announcements',
-    importance: Importance.low,
-    enableVibration: false,
-    playSound: false,
-  );
+  static NotificationChannel get approvalRequests {
+    final l10n = _l10n();
+    return NotificationChannel(
+      id: approvalRequestsId,
+      name: l10n.notificationChannel_approvalRequests_name,
+      description: l10n.notificationChannel_approvalRequests_description,
+      importance: Importance.high,
+      enableVibration: true,
+      playSound: true,
+    );
+  }
 
-  static const activityAlarms = NotificationChannel(
-    id: 'activity_alarms',
-    name: 'Activity Alarms',
-    description: 'Alarm notifications for upcoming church activities',
-    importance: Importance.max,
-    enableVibration: true,
-    playSound: true,
-  );
+  static NotificationChannel get generalAnnouncements {
+    final l10n = _l10n();
+    return NotificationChannel(
+      id: generalAnnouncementsId,
+      name: l10n.notificationChannel_generalAnnouncements_name,
+      description: l10n.notificationChannel_generalAnnouncements_description,
+      importance: Importance.low,
+      enableVibration: false,
+      playSound: false,
+    );
+  }
 
-  static const birthdayNotifications = NotificationChannel(
-    id: 'birthday_notifications',
-    name: 'Birthday Notifications',
-    description: 'Notifications about member birthdays',
-    importance: Importance.defaultImportance,
-    enableVibration: false,
-    playSound: true,
-  );
+  static NotificationChannel get activityAlarms {
+    final l10n = _l10n();
+    return NotificationChannel(
+      id: activityAlarmsId,
+      name: l10n.notificationChannel_activityAlarms_name,
+      description: l10n.notificationChannel_activityAlarms_description,
+      importance: Importance.max,
+      enableVibration: true,
+      playSound: true,
+    );
+  }
+
+  static NotificationChannel get birthdayNotifications {
+    final l10n = _l10n();
+    return NotificationChannel(
+      id: birthdayNotificationsId,
+      name: l10n.notificationChannel_birthdayNotifications_name,
+      description: l10n.notificationChannel_birthdayNotifications_description,
+      importance: Importance.defaultImportance,
+      enableVibration: false,
+      playSound: true,
+    );
+  }
 
   /// Get all notification channels
   static List<NotificationChannel> get all => [
@@ -81,19 +113,19 @@ class NotificationChannels {
   static String getChannelForType(String notificationType) {
     switch (notificationType) {
       case 'APPROVAL_REQUIRED':
-        return approvalRequests.id;
+        return approvalRequestsId;
       case 'ACTIVITY_ALARM':
-        return activityAlarms.id;
+        return activityAlarmsId;
       case 'MEMBER_BIRTHDAY':
-        return birthdayNotifications.id;
+        return birthdayNotificationsId;
       case 'ACTIVITY_CREATED':
       case 'APPROVAL_CONFIRMED':
       case 'APPROVAL_REJECTED':
       case 'CHURCH_REQUEST_APPROVED':
       case 'CHURCH_REQUEST_REJECTED':
-        return activityUpdates.id;
+        return activityUpdatesId;
       default:
-        return generalAnnouncements.id;
+        return generalAnnouncementsId;
     }
   }
 }

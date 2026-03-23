@@ -17,33 +17,33 @@ class CardPublishingOperationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: BaseColor.primary[500],
+      color: AppColors.primary,
       elevation: 2,
-      shadowColor: BaseColor.primary[300]!.withValues(alpha: 0.35),
+      shadowColor: AppColors.primary.withValues(alpha: 0.35),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        borderRadius: BorderRadius.circular(16.0),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onPressedCard,
-        splashColor: BaseColor.primary[400]!.withValues(alpha: 0.3),
-        highlightColor: BaseColor.primary[600]!.withValues(alpha: 0.2),
+        splashColor: AppColors.primary.withValues(alpha: 0.3),
+        highlightColor: AppColors.primary.withValues(alpha: 0.2),
         child: Padding(
-          padding: EdgeInsets.all(BaseSize.w16),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             children: [
               Container(
-                width: BaseSize.w48,
-                height: BaseSize.w48,
+                width: 48.0,
+                height: 48.0,
                 decoration: BoxDecoration(
-                  color: BaseColor.textOnPrimary.withValues(alpha: 0.2),
+                  color: AppColors.onPrimary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: FaIcon(
                   AppIcons.add,
-                  size: BaseSize.w32,
-                  color: BaseColor.textOnPrimary,
+                  size: 32.0,
+                  color: AppColors.onPrimary,
                 ),
               ),
               Gap.w16,
@@ -53,16 +53,16 @@ class CardPublishingOperationWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: BaseTypography.titleLarge.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: BaseColor.textOnPrimary,
+                        color: AppColors.onPrimary,
                       ),
                     ),
                     Gap.h4,
                     Text(
                       description,
-                      style: BaseTypography.bodyMedium.copyWith(
-                        color: BaseColor.textOnPrimary.withValues(alpha: 0.9),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.onPrimary.withValues(alpha: 0.9),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -73,8 +73,8 @@ class CardPublishingOperationWidget extends StatelessWidget {
               Gap.w8,
               FaIcon(
                 AppIcons.arrowForwardIcon,
-                size: BaseSize.w24,
-                color: BaseColor.textOnPrimary,
+                size: 24.0,
+                color: AppColors.onPrimary,
               ),
             ],
           ),

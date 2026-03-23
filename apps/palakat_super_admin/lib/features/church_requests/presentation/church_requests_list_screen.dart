@@ -31,29 +31,29 @@ StatusChip _statusChip(BuildContext context, RequestStatus status) {
     case RequestStatus.todo:
       return StatusChip(
         label: l10n.churchRequest_status_onReview,
-        background: Colors.orange.shade100,
-        foreground: Colors.orange.shade900,
+        background: AppColors.warning,
+        foreground: AppColors.onPrimary,
         icon: Icons.schedule,
       );
     case RequestStatus.doing:
       return StatusChip(
         label: l10n.churchRequest_status_onProgress,
-        background: Colors.blue.shade100,
-        foreground: Colors.blue.shade900,
+        background: AppColors.primary,
+        foreground: AppColors.onPrimary,
         icon: Icons.sync,
       );
     case RequestStatus.done:
       return StatusChip(
         label: l10n.status_completed,
-        background: Colors.green.shade100,
-        foreground: Colors.green.shade900,
+        background: AppColors.success,
+        foreground: AppColors.onPrimary,
         icon: Icons.check_circle,
       );
     case RequestStatus.rejected:
       return StatusChip(
         label: l10n.status_rejected,
-        background: Colors.red.shade100,
-        foreground: Colors.red.shade900,
+        background: AppColors.error,
+        foreground: AppColors.onPrimary,
         icon: Icons.cancel,
       );
   }

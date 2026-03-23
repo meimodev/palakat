@@ -43,22 +43,22 @@ StatusChip _statusChip(
     case MembershipInvitationStatus.pending:
       return StatusChip(
         label: l10n.status_pending,
-        background: Colors.orange.shade100,
-        foreground: Colors.orange.shade900,
+        background: AppColors.warning,
+        foreground: AppColors.onPrimary,
         icon: Icons.schedule,
       );
     case MembershipInvitationStatus.approved:
       return StatusChip(
         label: l10n.status_approved,
-        background: Colors.green.shade100,
-        foreground: Colors.green.shade800,
+        background: AppColors.success,
+        foreground: AppColors.onPrimary,
         icon: Icons.check_circle_outline,
       );
     case MembershipInvitationStatus.rejected:
       return StatusChip(
         label: l10n.status_rejected,
-        background: Colors.red.shade100,
-        foreground: Colors.red.shade900,
+        background: AppColors.error,
+        foreground: AppColors.onPrimary,
         icon: Icons.cancel_outlined,
       );
   }
@@ -268,18 +268,26 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                 final ok = await _confirm(
                                   context,
                                   title: l10n.btn_approve,
-                                  content: l10n.dashboard_membershipInvitation_confirmApprove,
+                                  content: l10n
+                                      .dashboard_membershipInvitation_confirmApprove,
                                   confirmLabel: l10n.btn_approve,
                                 );
                                 if (ok != true) return;
                                 try {
                                   await controller.approve(id);
                                   if (context.mounted) {
-                                    AppSnackbars.showSuccess(context, message: l10n.dashboard_membershipInvitation_snackbarApproved,);
+                                    AppSnackbars.showSuccess(
+                                      context,
+                                      message: l10n
+                                          .dashboard_membershipInvitation_snackbarApproved,
+                                    );
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    AppSnackbars.showError(context, message: e.toString());
+                                    AppSnackbars.showError(
+                                      context,
+                                      message: e.toString(),
+                                    );
                                   }
                                 }
                               },
@@ -300,11 +308,18 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                     rejectedReason: reason,
                                   );
                                   if (context.mounted) {
-                                    AppSnackbars.showSuccess(context, message: l10n.dashboard_membershipInvitation_snackbarRejected,);
+                                    AppSnackbars.showSuccess(
+                                      context,
+                                      message: l10n
+                                          .dashboard_membershipInvitation_snackbarRejected,
+                                    );
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    AppSnackbars.showError(context, message: e.toString());
+                                    AppSnackbars.showError(
+                                      context,
+                                      message: e.toString(),
+                                    );
                                   }
                                 }
                               },
@@ -318,18 +333,25 @@ class MembershipInvitationsListScreen extends ConsumerWidget {
                                 final ok = await _confirm(
                                   context,
                                   title: l10n.btn_delete,
-                                  content: l10n.dashboard_membershipInvitation_confirmDelete,
+                                  content: l10n
+                                      .dashboard_membershipInvitation_confirmDelete,
                                   confirmLabel: l10n.btn_delete,
                                 );
                                 if (ok != true) return;
                                 try {
                                   await controller.delete(id);
                                   if (context.mounted) {
-                                    AppSnackbars.showSuccess(context, message: l10n.msg_deleted);
+                                    AppSnackbars.showSuccess(
+                                      context,
+                                      message: l10n.msg_deleted,
+                                    );
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    AppSnackbars.showError(context, message: e.toString());
+                                    AppSnackbars.showError(
+                                      context,
+                                      message: e.toString(),
+                                    );
                                   }
                                 }
                               },

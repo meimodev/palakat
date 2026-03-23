@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
+
+import 'loading_shimmer.dart';
 
 /// Reusable loading widget for displaying loading states consistently across the app
 class AppLoadingWidget extends StatelessWidget {
@@ -14,18 +17,25 @@ class AppLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final indicatorSize = size ?? 48;
+
     return Center(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            width: size ?? 48,
-            height: size ?? 48,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              color: theme.colorScheme.primary,
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: indicatorSize * 0.36,
+              vertical: indicatorSize * 0.28,
             ),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.ghostBorder(0.06)),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
+            ),
+            child: CompactLoadingWidget(size: indicatorSize * 0.58),
           ),
           if (message != null) ...[
             const SizedBox(height: 16),
@@ -47,44 +57,54 @@ class AppLoadingWidget extends StatelessWidget {
 class CompactLoadingWidget extends StatelessWidget {
   final String? message;
   final double size;
+  final Color? baseColor;
+  final Color? highlightColor;
 
   const CompactLoadingWidget({
     super.key,
     this.message,
     this.size = 16,
+    this.baseColor,
+    this.highlightColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final effectiveBaseColor =
+        baseColor ?? AppColors.surfaceContainerHighest.withValues(alpha: 0.92);
+    final effectiveHighlightColor =
+        highlightColor ?? AppColors.surface.withValues(alpha: 0.98);
+
+    final indicator = LoadingShimmer(
+      isLoading: true,
+      baseColor: effectiveBaseColor,
+      highlightColor: effectiveHighlightColor,
+      child: _LoadingGlyph(size: size, color: effectiveBaseColor),
+    );
+
+    if (message == null) {
+      return indicator;
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: size,
-          height: size,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: theme.colorScheme.primary,
+        indicator,
+        const SizedBox(width: 8),
+        Text(
+          message!,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        if (message != null) ...[
-          const SizedBox(width: 8),
-          Text(
-            message!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
       ],
     );
   }
 }
 
 /// Shimmer loading widget for skeleton loading states
-class ShimmerLoadingWidget extends StatefulWidget {
+class ShimmerLoadingWidget extends StatelessWidget {
   final Widget child;
   final bool isLoading;
 
@@ -95,77 +115,57 @@ class ShimmerLoadingWidget extends StatefulWidget {
   });
 
   @override
-  State<ShimmerLoadingWidget> createState() => _ShimmerLoadingWidgetState();
+  Widget build(BuildContext context) {
+    return LoadingShimmer(isLoading: isLoading, child: child);
+  }
 }
 
-class _ShimmerLoadingWidgetState extends State<ShimmerLoadingWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class _LoadingGlyph extends StatelessWidget {
+  const _LoadingGlyph({required this.size, required this.color});
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    
-    if (widget.isLoading) {
-      _controller.repeat();
-    }
-  }
-
-  @override
-  void didUpdateWidget(ShimmerLoadingWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isLoading && !oldWidget.isLoading) {
-      _controller.repeat();
-    } else if (!widget.isLoading && oldWidget.isLoading) {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final double size;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isLoading) {
-      return widget.child;
-    }
+    final width = size * 1.8;
 
-    final theme = Theme.of(context);
-    
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                theme.colorScheme.surfaceContainerHighest,
-                theme.colorScheme.surface,
-                theme.colorScheme.surfaceContainerHighest,
-              ],
-              stops: [
-                _animation.value - 0.3,
-                _animation.value,
-                _animation.value + 0.3,
-              ].map((stop) => stop.clamp(0.0, 1.0)).toList(),
-            ).createShader(bounds);
-          },
-          child: widget.child,
-        );
-      },
+    return SizedBox(
+      width: width,
+      height: size,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _LoadingBar(width: size * 0.28, height: size * 0.58, color: color),
+          _LoadingBar(width: size * 0.28, height: size, color: color),
+          _LoadingBar(width: size * 0.28, height: size * 0.74, color: color),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingBar extends StatelessWidget {
+  const _LoadingBar({
+    required this.width,
+    required this.height,
+    required this.color,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(999),
+      ),
     );
   }
 }

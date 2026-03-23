@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:palakat_shared/core/theme/theme.dart';
 
 /// A common search bar widget that uses theme-based styling.
 ///
@@ -186,11 +187,13 @@ class _InputSearchWidgetState extends State<InputSearchWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final resolvedRadius = widget.borderRadius ?? SanctuaryLayout.radiusLarge;
+
     InputBorder? withRadius(InputBorder? border) {
-      final radius = widget.borderRadius;
-      if (radius == null) return border;
       if (border is OutlineInputBorder) {
-        return border.copyWith(borderRadius: BorderRadius.circular(radius));
+        return border.copyWith(
+          borderRadius: BorderRadius.circular(resolvedRadius),
+        );
       }
       return border;
     }
@@ -198,21 +201,72 @@ class _InputSearchWidgetState extends State<InputSearchWidget> {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _controller,
       builder: (context, value, child) {
-        final prefixIcon = widget.prefixIcon ?? const Icon(Icons.search);
+        final prefixIcon =
+            widget.prefixIcon ??
+            Icon(
+              Icons.search,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
+            );
         var decoration = InputDecoration(
           hintText: widget.hint,
           constraints: widget.constraints,
           prefixIcon: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 12),
-            child: Align(alignment: Alignment.centerLeft, child: prefixIcon),
+            padding: const EdgeInsetsDirectional.only(start: 12, end: 6),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                alignment: Alignment.center,
+                child: prefixIcon,
+              ),
+            ),
           ),
           suffixIcon: _shouldShowClearButton || widget.suffixIcon != null
               ? widget.suffixIcon ??
                     IconButton(
                       onPressed: _handleClearTap,
-                      icon: widget.clearIcon ?? const Icon(Icons.close),
+                      icon:
+                          widget.clearIcon ??
+                          Icon(
+                            Icons.close,
+                            size: 18,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                     )
               : null,
+          filled: true,
+          fillColor: Colors.transparent,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            borderSide: BorderSide(color: AppColors.ghostBorder(0.08)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            borderSide: BorderSide(color: AppColors.ghostBorder(0.08)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            borderSide: BorderSide(
+              color: AppColors.primary.withValues(alpha: 0.24),
+            ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            borderSide: BorderSide(color: AppColors.ghostBorder(0.06)),
+          ),
         ).applyDefaults(theme.inputDecorationTheme);
 
         final decorationConstraints = decoration.constraints;
@@ -265,16 +319,42 @@ class _InputSearchWidgetState extends State<InputSearchWidget> {
                 ),
         );
 
-        return TextField(
-          onTap: widget.onTap,
-          controller: _controller,
-          readOnly: widget.readOnly,
-          focusNode: widget.focusNode,
-          onChanged: _handleTextChanged,
-          onSubmitted: widget.onSubmitted,
-          onEditingComplete: widget.onEditingComplete,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: decoration,
+        final effectiveSuffixIcon = decoration.suffixIcon;
+        if (effectiveSuffixIcon != null) {
+          decoration = decoration.copyWith(
+            suffixIcon: Padding(
+              padding: const EdgeInsetsDirectional.only(end: 12, start: 6),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                alignment: Alignment.center,
+                child: effectiveSuffixIcon,
+              ),
+            ),
+          );
+        }
+
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(resolvedRadius),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+          ),
+          child: TextField(
+            onTap: widget.onTap,
+            controller: _controller,
+            readOnly: widget.readOnly,
+            focusNode: widget.focusNode,
+            onChanged: _handleTextChanged,
+            onSubmitted: widget.onSubmitted,
+            onEditingComplete: widget.onEditingComplete,
+            textAlignVertical: TextAlignVertical.center,
+            decoration: decoration,
+          ),
         );
       },
     );

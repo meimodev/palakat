@@ -159,11 +159,11 @@ void main() {
 Color _getExpectedStatusColor(ApprovalStatus status) {
   switch (status) {
     case ApprovalStatus.approved:
-      return BaseColor.green.shade600;
+      return AppColors.success.shade600;
     case ApprovalStatus.rejected:
-      return BaseColor.red.shade500;
+      return AppColors.error.shade500;
     case ApprovalStatus.unconfirmed:
-      return BaseColor.yellow.shade700;
+      return AppColors.warning.shade700;
   }
 }
 

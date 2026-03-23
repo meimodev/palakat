@@ -706,7 +706,8 @@ async function seedMainAccounts(passwordHash: string) {
         phone,
         name: `Main User ${i + 1}`,
         email: `mainuser${i + 1}@example.com`,
-        role: phone === '081111111111' ? AccountRole.ADMIN : AccountRole.USER,
+        role:
+          phone === '081111111111' ? AccountRole.SUPER_ADMIN : AccountRole.USER,
         passwordHash,
         claimed: true,
         isActive: true,
