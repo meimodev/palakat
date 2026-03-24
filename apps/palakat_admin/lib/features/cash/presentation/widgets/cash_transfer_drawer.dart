@@ -107,7 +107,10 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        AppSnackbars.showError(context, message: l10n.churchRequest_errorWithDetail('$e'));
+        AppSnackbars.showError(
+          context,
+          message: l10n.churchRequest_errorWithDetail('$e'),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

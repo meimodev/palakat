@@ -66,19 +66,14 @@ class _ExpandableSurfaceCardState extends State<ExpandableSurfaceCard>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final radius = BorderRadius.circular(SanctuaryLayout.radiusLarge);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.onSurface,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: radius,
+        boxShadow: SanctuaryDepth.ambient(opacity: 0.035, blur: 28),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,43 +81,79 @@ class _ExpandableSurfaceCardState extends State<ExpandableSurfaceCard>
           // Header (always visible)
           InkWell(
             onTap: _toggleExpanded,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Container(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SanctuaryLayout.radiusLarge),
+              bottom: Radius.circular(
+                _isExpanded ? 0 : SanctuaryLayout.radiusLarge,
+              ),
+            ),
+            child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.title != null)
-                          Text(
-                            widget.title!,
-                            style: theme.textTheme.titleLarge,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final titleBlock = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.title != null)
+                        Text(
+                          widget.title!,
+                          style: theme.textTheme.titleLarge,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      if (widget.subtitle != null)
+                        Text(
+                          widget.subtitle!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                        if (widget.subtitle != null)
-                          Text(
-                            widget.subtitle!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (widget.trailing != null) ...[
-                    widget.trailing!,
-                    const SizedBox(width: 8),
-                  ],
-                  AnimatedRotation(
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  );
+
+                  final expandIcon = AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                ],
+                  );
+
+                  if (widget.trailing == null || constraints.maxWidth >= 560) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: titleBlock),
+                        if (widget.trailing != null) ...[
+                          const SizedBox(width: 12),
+                          Flexible(child: widget.trailing!),
+                        ],
+                        const SizedBox(width: 8),
+                        expandIcon,
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleBlock,
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if (widget.trailing != null) widget.trailing!,
+                          expandIcon,
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

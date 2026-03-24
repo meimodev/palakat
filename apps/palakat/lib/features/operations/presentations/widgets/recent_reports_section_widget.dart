@@ -18,6 +18,8 @@ class RecentReportsSection extends StatelessWidget {
     required this.onRetry,
     this.pendingJobs = const [],
     this.isLoadingPendingJobs = false,
+    this.downloadedReportIds = const <int>{},
+    this.downloadingReportIds = const <int>{},
   });
 
   /// List of recent reports to display (max 5)
@@ -43,6 +45,10 @@ class RecentReportsSection extends StatelessWidget {
 
   /// Whether pending jobs are currently loading
   final bool isLoadingPendingJobs;
+
+  final Set<int> downloadedReportIds;
+
+  final Set<int> downloadingReportIds;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +96,8 @@ class RecentReportsSection extends StatelessWidget {
             reports: reports,
             onDownloadTap: onDownloadTap,
             onViewTap: onViewTap,
+            downloadedReportIds: downloadedReportIds,
+            downloadingReportIds: downloadingReportIds,
           ),
       ],
     );
@@ -120,11 +128,15 @@ class _ReportsList extends StatelessWidget {
     required this.reports,
     required this.onDownloadTap,
     required this.onViewTap,
+    required this.downloadedReportIds,
+    required this.downloadingReportIds,
   });
 
   final List<Report> reports;
   final ValueChanged<Report> onDownloadTap;
   final ValueChanged<Report>? onViewTap;
+  final Set<int> downloadedReportIds;
+  final Set<int> downloadingReportIds;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +150,8 @@ class _ReportsList extends StatelessWidget {
                 report: report,
                 onDownloadTap: () => onDownloadTap(report),
                 onViewTap: onViewTap != null ? () => onViewTap!(report) : null,
+                isDownloaded: downloadedReportIds.contains(report.id),
+                isDownloading: downloadingReportIds.contains(report.id),
               ),
             ),
           )
@@ -170,18 +184,22 @@ class RecentReportItem extends StatelessWidget {
     required this.report,
     required this.onDownloadTap,
     this.onViewTap,
+    this.isDownloaded = false,
+    this.isDownloading = false,
   });
 
   final Report report;
   final VoidCallback onDownloadTap;
   final VoidCallback? onViewTap;
+  final bool isDownloaded;
+  final bool isDownloading;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final createdAt = report.createdAt;
     final dateText = createdAt != null
-        ? '${createdAt.day}/${createdAt.month}/${createdAt.year}'
+        ? createdAt.EddMMMyyyy
         : l10n.msg_noGenerationDate;
 
     return Material(
@@ -203,29 +221,41 @@ class RecentReportItem extends StatelessWidget {
             spacing: 8.0,
             runSpacing: 8.0,
             children: [
-              if (report.format == ReportFormat.pdf && onViewTap != null)
-                IconButton(
-                  onPressed: onViewTap,
-                  icon: Icon(AppIcons.openExternal),
-                  iconSize: 20.0,
-                  color: AppColors.primary,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: EdgeInsets.all(10.0),
-                    minimumSize: Size(44.0, 44.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
+              // if (report.format == ReportFormat.pdf && onViewTap != null)
+              //   IconButton(
+              //     onPressed: onViewTap,
+              //     icon: Icon(AppIcons.openExternal),
+              //     iconSize: 14.0,
+              //     color: AppColors.surface,
+              //     style: IconButton.styleFrom(
+              //       backgroundColor: AppColors.primary,
+              //       padding: EdgeInsets.all(10.0),
+              //       minimumSize: Size(44.0, 44.0),
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(8.0),
+              //       ),
+              //     ),
+              //   ),
               IconButton(
-                onPressed: onDownloadTap,
-                icon: Icon(AppIcons.download),
-                iconSize: 20.0,
+                onPressed: isDownloading ? null : onDownloadTap,
+                icon: isDownloading
+                    ? CompactLoadingWidget(
+                        size: 14.0,
+                        baseColor: AppColors.primary.withValues(alpha: 0.24),
+                        highlightColor: AppColors.surface,
+                      )
+                    : Icon(
+                        isDownloaded ? AppIcons.checkCircle : AppIcons.download,
+                      ),
+                iconSize: 14.0,
                 color: AppColors.primary,
-                tooltip: l10n.tooltip_downloadReport,
+                tooltip: isDownloading
+                    ? l10n.loading_please_wait
+                    : isDownloaded
+                    ? l10n.msg_openingReport(report.name)
+                    : l10n.tooltip_downloadReport,
                 style: IconButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.surfaceContainer,
                   padding: EdgeInsets.all(10.0),
                   minimumSize: Size(44.0, 44.0),
                   shape: RoundedRectangleBorder(
@@ -268,10 +298,9 @@ class RecentReportItem extends StatelessWidget {
                 maxLines: shouldStack ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Gap.h6,
               Text(
                 dateText,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: AppColors.onSurfaceVariant,
                 ),
                 maxLines: 1,

@@ -56,9 +56,10 @@ class ValidatedTextFieldState extends State<ValidatedTextField> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ?? TextEditingController(text: widget.initialValue);
+    _controller =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = widget.focusNode ?? FocusNode();
-    
+
     _controller.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
   }
@@ -95,7 +96,7 @@ class ValidatedTextFieldState extends State<ValidatedTextField> {
 
     final combinedValidator = Validators.combine(widget.validators);
     final result = combinedValidator(_controller.text);
-    
+
     if (mounted) {
       setState(() {
         _validationResult = result;
@@ -124,14 +125,11 @@ class ValidatedTextFieldState extends State<ValidatedTextField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasError = _validationResult.isInvalid;
-    
+
     Widget? suffixIcon = widget.suffixIcon;
     if (widget.showValidationIcon && _hasBeenFocused) {
       if (hasError) {
-        suffixIcon = Icon(
-          Icons.error_outline,
-          color: theme.colorScheme.error,
-        );
+        suffixIcon = Icon(Icons.error_outline, color: theme.colorScheme.error);
       } else if (_controller.text.isNotEmpty) {
         suffixIcon = Icon(
           Icons.check_circle_outline,
@@ -190,7 +188,8 @@ class ValidatedDropdownField<T> extends StatefulWidget {
   });
 
   @override
-  State<ValidatedDropdownField<T>> createState() => ValidatedDropdownFieldState<T>();
+  State<ValidatedDropdownField<T>> createState() =>
+      ValidatedDropdownFieldState<T>();
 }
 
 class ValidatedDropdownFieldState<T> extends State<ValidatedDropdownField<T>> {
@@ -209,7 +208,7 @@ class ValidatedDropdownFieldState<T> extends State<ValidatedDropdownField<T>> {
 
     final combinedValidator = Validators.combine(widget.validators);
     final result = combinedValidator(_value);
-    
+
     if (mounted) {
       setState(() {
         _validationResult = result;
@@ -244,16 +243,18 @@ class ValidatedDropdownFieldState<T> extends State<ValidatedDropdownField<T>> {
             enabled: widget.enabled,
           ),
           items: widget.items,
-          onChanged: widget.enabled ? (T? newValue) {
-            setState(() {
-              _value = newValue;
-              _hasBeenTouched = true;
-            });
-            if (_hasBeenTouched) {
-              _validate();
-            }
-            widget.onChanged?.call(newValue);
-          } : null,
+          onChanged: widget.enabled
+              ? (T? newValue) {
+                  setState(() {
+                    _value = newValue;
+                    _hasBeenTouched = true;
+                  });
+                  if (_hasBeenTouched) {
+                    _validate();
+                  }
+                  widget.onChanged?.call(newValue);
+                }
+              : null,
         ),
       ],
     );
@@ -292,21 +293,21 @@ class ValidatedFormState extends State<ValidatedForm> {
   /// Validate all fields in the form
   bool validateAll() {
     bool isValid = true;
-    
+
     for (final key in _textFieldKeys) {
       final result = key.currentState?.validate();
       if (result?.isInvalid == true) {
         isValid = false;
       }
     }
-    
+
     for (final key in _dropdownKeys) {
       final result = key.currentState?.validate();
       if (result?.isInvalid == true) {
         isValid = false;
       }
     }
-    
+
     widget.onValidationChanged?.call();
     return isValid;
   }

@@ -15,6 +15,11 @@ class ReportScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportScreenState extends ConsumerState<ReportScreen> {
+  final Set<int> _cachedReportIds = <int>{};
+  final Set<int> _downloadingReportIds = <int>{};
+  String _cachedReportsSignature = '';
+  bool _isSyncingCachedReports = false;
+
   String _congregationSubtypeToApi(CongregationReportSubtype subtype) {
     switch (subtype) {
       case CongregationReportSubtype.wartaJemaat:
@@ -34,6 +39,239 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         return 'EXPENSE';
       case FinancialReportSubtype.mutation:
         return 'MUTATION';
+    }
+  }
+
+  String _reportCacheSignature(List<Report> reports) {
+    return reports
+        .map((report) => '${report.id ?? 'null'}:${report.fileId}')
+        .join('|');
+  }
+
+  void _scheduleCachedReportSync(List<Report> reports) {
+    final signature = _reportCacheSignature(reports);
+    if (_isSyncingCachedReports || signature == _cachedReportsSignature) {
+      return;
+    }
+
+    _isSyncingCachedReports = true;
+    Future.microtask(() => _syncCachedReportIds(reports, signature));
+  }
+
+  Future<void> _syncCachedReportIds(
+    List<Report> reports,
+    String signature,
+  ) async {
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final cachedIds = <int>{};
+
+    for (final report in reports) {
+      final reportId = report.id;
+      if (reportId == null) {
+        continue;
+      }
+
+      final result = await reportRepository.isReportCached(report: report);
+      bool isCached = false;
+      result.when(onSuccess: (value) => isCached = value, onFailure: (_) {});
+      if (isCached) {
+        cachedIds.add(reportId);
+      }
+    }
+
+    if (!mounted) {
+      _isSyncingCachedReports = false;
+      return;
+    }
+
+    setState(() {
+      _cachedReportIds
+        ..clear()
+        ..addAll(cachedIds);
+      _cachedReportsSignature = signature;
+    });
+    _isSyncingCachedReports = false;
+  }
+
+  void _setReportDownloading(int reportId, bool isDownloading) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      if (isDownloading) {
+        _downloadingReportIds.add(reportId);
+      } else {
+        _downloadingReportIds.remove(reportId);
+      }
+    });
+  }
+
+  void _markReportCached(int reportId) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _cachedReportIds.add(reportId);
+    });
+  }
+
+  void _showReportError(BuildContext context, String message) {
+    AppSnackbars.showError(
+      context,
+      title: context.l10n.msg_invalidUrl,
+      message: message,
+    );
+  }
+
+  Future<ReportFileHandle?> _resolveReportHandle(
+    BuildContext context,
+    Report report, {
+    bool forceRedownload = false,
+  }) async {
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final result = await reportRepository.resolveReportFile(
+      report: report,
+      forceRedownload: forceRedownload,
+    );
+
+    ReportFileHandle? fileHandle;
+    result.when(
+      onSuccess: (value) => fileHandle = value,
+      onFailure: (failure) => _showReportError(context, failure.message),
+    );
+    return fileHandle;
+  }
+
+  Future<bool> _openReportHandle(
+    ReportFileHandle fileHandle, {
+    required LaunchMode mode,
+  }) async {
+    final uri = Uri.tryParse(fileHandle.uri);
+    if (uri == null) {
+      return false;
+    }
+
+    try {
+      if (!await canLaunchUrl(uri)) {
+        return false;
+      }
+      return await launchUrl(uri, mode: mode);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _downloadReportHandle(ReportFileHandle fileHandle) async {
+    final uri = Uri.tryParse(fileHandle.uri);
+    if (uri == null) {
+      return false;
+    }
+
+    try {
+      await triggerBrowserDownload(uri, filename: fileHandle.filename);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _handleOpenReport(
+    BuildContext context,
+    Report report, {
+    required LaunchMode mode,
+  }) async {
+    final reportId = report.id;
+    if (reportId == null || _downloadingReportIds.contains(reportId)) {
+      return;
+    }
+
+    final fileHandle = await _resolveReportHandle(context, report);
+    if (fileHandle == null) {
+      return;
+    }
+
+    var opened = await _openReportHandle(fileHandle, mode: mode);
+    if (!opened && fileHandle.fromCache) {
+      if (!context.mounted) {
+        return;
+      }
+      final refreshedHandle = await _resolveReportHandle(
+        context,
+        report,
+        forceRedownload: true,
+      );
+      if (refreshedHandle != null) {
+        opened = await _openReportHandle(refreshedHandle, mode: mode);
+      }
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (!opened) {
+      _showReportError(context, context.l10n.msg_cannotOpenReportFile);
+      return;
+    }
+
+    _markReportCached(reportId);
+    AppSnackbars.showSuccess(
+      context,
+      title: context.l10n.msg_opening,
+      message: context.l10n.msg_openingReport(report.name),
+    );
+  }
+
+  Future<void> _handleDownloadReport(
+    BuildContext context,
+    Report report,
+  ) async {
+    final reportId = report.id;
+    if (reportId == null || _downloadingReportIds.contains(reportId)) {
+      return;
+    }
+
+    _setReportDownloading(reportId, true);
+    try {
+      final fileHandle = await _resolveReportHandle(context, report);
+      if (fileHandle == null) {
+        return;
+      }
+
+      var downloaded = await _downloadReportHandle(fileHandle);
+      if (!downloaded && fileHandle.fromCache) {
+        if (!context.mounted) {
+          return;
+        }
+        final refreshedHandle = await _resolveReportHandle(
+          context,
+          report,
+          forceRedownload: true,
+        );
+        if (refreshedHandle != null) {
+          downloaded = await _downloadReportHandle(refreshedHandle);
+        }
+      }
+
+      if (!context.mounted) {
+        return;
+      }
+
+      if (!downloaded) {
+        _showReportError(context, context.l10n.msg_cannotOpenReportFile);
+        return;
+      }
+
+      _markReportCached(reportId);
+      AppSnackbars.showSuccess(
+        context,
+        title: context.l10n.msg_opening,
+        message: context.l10n.msg_openingReport(report.name),
+      );
+    } finally {
+      _setReportDownloading(reportId, false);
     }
   }
 
@@ -103,6 +341,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
     final ReportController controller = ref.watch(
       reportControllerProvider.notifier,
     );
+    final reports = state.reports.value?.data ?? const <Report>[];
+
+    _scheduleCachedReportSync(reports);
 
     return Material(
       child: SingleChildScrollView(
@@ -183,7 +424,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                 children: [
                   AppTable<Report>(
                     loading: state.reports.isLoading,
-                    data: state.reports.value?.data ?? [],
+                    data: reports,
                     errorText: state.reports.hasError
                         ? state.reports.error.toString()
                         : null,
@@ -358,75 +599,45 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
         cellBuilder: (ctx, report) {
           final theme = Theme.of(ctx);
           final l10n = ctx.l10n;
-          final fileName = report.file.originalName;
-
-          Future<void> openReport({required LaunchMode mode}) async {
-            if (report.id == null) return;
-            final controller = ref.read(reportControllerProvider.notifier);
-            final resolved = await controller.downloadReport(report.id!);
-            if (!ctx.mounted) return;
-            final url = resolved != null ? Uri.tryParse(resolved) : null;
-            if (url == null) {
-              AppSnackbars.showError(
-                ctx,
-                title: l10n.msg_invalidUrl,
-                message: l10n.msg_cannotOpenReportFile,
-              );
-              return;
-            }
-            AppSnackbars.showSuccess(
-              ctx,
-              title: l10n.msg_opening,
-              message: l10n.msg_openingReport(report.name),
-            );
-            try {
-              await launchUrl(url, mode: mode);
-            } catch (_) {
-              // Swallow errors; optionally log if a logger is available
-            }
-          }
-
-          Future<void> downloadReport() async {
-            if (report.id == null) return;
-            final controller = ref.read(reportControllerProvider.notifier);
-            final resolved = await controller.downloadReport(report.id!);
-            if (!ctx.mounted) return;
-            final url = resolved != null ? Uri.tryParse(resolved) : null;
-            if (url == null) {
-              AppSnackbars.showError(
-                ctx,
-                title: l10n.msg_invalidUrl,
-                message: l10n.msg_cannotOpenReportFile,
-              );
-              return;
-            }
-            AppSnackbars.showSuccess(
-              ctx,
-              title: l10n.msg_opening,
-              message: l10n.msg_openingReport(report.name),
-            );
-            try {
-              await triggerBrowserDownload(url, filename: fileName);
-            } catch (_) {
-              // Swallow errors; optionally log if a logger is available
-            }
-          }
+          final reportId = report.id;
+          final isDownloading =
+              reportId != null && _downloadingReportIds.contains(reportId);
+          final isDownloaded =
+              reportId != null && _cachedReportIds.contains(reportId);
 
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (report.format == ReportFormat.pdf)
                 IconButton(
-                  onPressed: () => openReport(mode: LaunchMode.platformDefault),
+                  onPressed: isDownloading
+                      ? null
+                      : () => _handleOpenReport(
+                          ctx,
+                          report,
+                          mode: LaunchMode.platformDefault,
+                        ),
                   icon: const Icon(Icons.open_in_new),
                   color: theme.colorScheme.primary,
                   visualDensity: VisualDensity.compact,
                 ),
               IconButton(
-                onPressed: downloadReport,
-                icon: const Icon(Icons.download),
+                onPressed: isDownloading
+                    ? null
+                    : () => _handleDownloadReport(ctx, report),
+                icon: isDownloading
+                    ? const CompactLoadingWidget(size: 18)
+                    : Icon(
+                        isDownloaded
+                            ? Icons.download_done_rounded
+                            : Icons.download_rounded,
+                      ),
                 color: theme.colorScheme.primary,
-                tooltip: l10n.tooltip_downloadReport,
+                tooltip: isDownloading
+                    ? l10n.loading_please_wait
+                    : isDownloaded
+                    ? l10n.msg_openingReport(report.name)
+                    : l10n.tooltip_downloadReport,
                 visualDensity: VisualDensity.compact,
               ),
             ],

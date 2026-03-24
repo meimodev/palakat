@@ -413,7 +413,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     return ExpandableSurfaceCard(
       title: l10n.churchOperationsAccess_title,
       subtitle: l10n.churchOperationsAccess_subtitle,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       trailing: IconButton(
         onPressed: enabled && !_permissionPolicyLoading
             ? _loadPermissionPolicy
@@ -616,7 +616,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     return ExpandableSurfaceCard(
       title: l10n.card_basicInfo_title,
       subtitle: l10n.card_basicInfo_subtitle,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       trailing: FilledButton.icon(
         onPressed: infoAsync.hasValue
             ? () => _openEditDrawer(infoAsync.value!)
@@ -715,7 +715,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
     return ExpandableSurfaceCard(
       title: l10n.card_location_title,
       subtitle: l10n.card_location_subtitle,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       trailing: FilledButton.icon(
         onPressed: (state.church.hasValue && locationAsync.hasValue)
             ? () => _openLocationEditDrawer(state.church.value!)
@@ -766,7 +766,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
     return ExpandableSurfaceCard(
       title: l10n.card_columnManagement_title,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       subtitle: l10n.card_columnManagement_subtitle,
       trailing: FilledButton.icon(
         onPressed: () => _openAddColumnDrawer(state.church.value!.id!),
@@ -896,7 +896,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
 
     return ExpandableSurfaceCard(
       title: l10n.card_positionManagement_title,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       subtitle: l10n.card_positionManagement_subtitle,
       trailing: FilledButton.icon(
         onPressed: _openAddPositionDrawer,

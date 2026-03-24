@@ -26,6 +26,8 @@ class OperationCategoryCard extends StatelessWidget {
     this.onRecentReportsRetry,
     this.pendingReportJobs,
     this.isLoadingPendingReportJobs = false,
+    this.downloadedReportIds = const <int>{},
+    this.downloadingReportIds = const <int>{},
   });
 
   /// The category data to display
@@ -60,6 +62,10 @@ class OperationCategoryCard extends StatelessWidget {
 
   /// Loading state for pending report jobs
   final bool isLoadingPendingReportJobs;
+
+  final Set<int> downloadedReportIds;
+
+  final Set<int> downloadingReportIds;
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +169,8 @@ class OperationCategoryCard extends StatelessWidget {
                       onRetry: () => onRecentReportsRetry?.call(),
                       pendingJobs: pendingReportJobs ?? [],
                       isLoadingPendingJobs: isLoadingPendingReportJobs,
+                      downloadedReportIds: downloadedReportIds,
+                      downloadingReportIds: downloadingReportIds,
                     ),
                   ),
               ],

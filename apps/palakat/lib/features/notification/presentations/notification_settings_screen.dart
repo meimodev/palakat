@@ -340,7 +340,6 @@ class NotificationSettingsScreen extends ConsumerWidget {
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
         ),
-        activeThumbColor: AppColors.primary,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       ),
     );

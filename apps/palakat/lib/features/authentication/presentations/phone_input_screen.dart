@@ -49,11 +49,7 @@ class PhoneInputScreen extends ConsumerWidget {
       // Navigate to OTP verification screen when showOtpScreen becomes true
       if (next.showOtpScreen && (previous?.showOtpScreen != true)) {
         // Announce for screen readers
-        SemanticsService.sendAnnouncement(
-          View.of(context),
-          l10n.auth_otpSent,
-          TextDirection.ltr,
-        );
+        SemanticsService.announce(l10n.auth_otpSent, TextDirection.ltr);
         final rt = returnTo;
         if (rt != null && rt.isNotEmpty) {
           context.goNamed(
@@ -68,8 +64,7 @@ class PhoneInputScreen extends ConsumerWidget {
       // Announce errors for screen readers
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        SemanticsService.sendAnnouncement(
-          View.of(context),
+        SemanticsService.announce(
           '${l10n.err_error}: ${next.errorMessage}',
           TextDirection.ltr,
         );

@@ -38,6 +38,7 @@ dependencies:
   geolocator: ^13.0.2
   file_picker: ^10.3.3
   font_awesome_flutter: ^10.6.0
+  open_filex: ^4.7.0
 
   flutter_markdown: ^0.7.7
 

@@ -33,9 +33,7 @@ class MaritalStatusDropdown extends StatelessWidget {
     return DropdownButtonFormField<MaritalStatus>(
       initialValue: value,
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,
         fillColor: !enabled
             ? theme.colorScheme.surfaceContainerHighest

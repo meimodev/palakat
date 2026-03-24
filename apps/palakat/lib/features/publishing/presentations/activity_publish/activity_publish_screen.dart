@@ -231,7 +231,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               : context.l10n.publish_publishToColumnOnly_subtitleNoColumn,
           style: Theme.of(context).textTheme.bodyMedium!.toSecondary,
         ),
-        activeThumbColor: AppColors.primary,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       ),
     );
@@ -552,9 +551,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         Expanded(
           child: Text(
             context.l10n.publish_tapToSelectLocationOptional,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurfaceVariant),
           ),
         ),
         FaIcon(AppIcons.forward, size: 20.0, color: AppColors.neutral),

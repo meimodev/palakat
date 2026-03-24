@@ -235,7 +235,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 12,
                   ),
                   prefixIcon: Icon(Icons.view_column_outlined, size: 18),
                 ),
@@ -269,7 +269,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 12,
                   ),
                   prefixIcon: Icon(Icons.swap_horiz, size: 18),
                 ),
@@ -300,7 +300,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 12,
                   ),
                   prefixIcon: Icon(Icons.list_alt_outlined, size: 18),
                 ),
@@ -340,7 +340,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 12,
                   ),
                   prefixIcon: Icon(Icons.category_outlined, size: 18),
                 ),
@@ -372,7 +372,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 12,
                   ),
                   prefixIcon: Icon(
                     Icons.account_balance_wallet_outlined,
@@ -483,7 +483,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 8,
+                  vertical: 12,
                 ),
                 prefixIcon: Icon(Icons.description_outlined, size: 18),
               ),

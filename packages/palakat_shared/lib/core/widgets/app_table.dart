@@ -713,6 +713,10 @@ class _BuiltInFiltersBarState extends State<_BuiltInFiltersBar> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: widget.config.dropdownLabel,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
                 items: [
                   DropdownMenuItem<String?>(

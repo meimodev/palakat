@@ -1,3 +1,4 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../constants/enums.dart';
@@ -7,7 +8,7 @@ import '../models/result.dart';
 import '../models/response/response.dart';
 import '../services/file_transfer_progress_service.dart';
 import '../services/socket_service.dart';
-import '../utils/file_bytes_url.dart';
+import '../utils/report_file_cache.dart';
 
 part 'report_repository.g.dart';
 
@@ -17,10 +18,206 @@ ReportRepository reportRepository(Ref ref) {
   return ReportRepository(ref);
 }
 
+class ReportFileHandle {
+  const ReportFileHandle({
+    required this.uri,
+    required this.filename,
+    required this.fromCache,
+  });
+
+  final String uri;
+  final String filename;
+  final bool fromCache;
+}
+
 class ReportRepository {
   ReportRepository(this._ref);
 
   final Ref _ref;
+  static const _reportFileCacheBox = 'report_file_cache';
+  static const _reportFileCacheUriKey = 'uri';
+  static const _reportFileCacheFileIdKey = 'fileId';
+  static const _reportFileCacheFilenameKey = 'filename';
+
+  Future<Box<dynamic>> _ensureReportFileCacheBoxOpen() async {
+    if (!Hive.isBoxOpen(_reportFileCacheBox)) {
+      await Hive.openBox(_reportFileCacheBox);
+    }
+    return Hive.box(_reportFileCacheBox);
+  }
+
+  String _reportCacheKey(int reportId) => 'report.$reportId';
+
+  String _preferredReportFilename(Report report) {
+    final originalName = report.file.originalName?.trim();
+    if (originalName != null && originalName.isNotEmpty) {
+      return originalName;
+    }
+    final baseName = report.name.trim().isEmpty
+        ? 'report_${report.id ?? report.fileId}'
+        : report.name.trim();
+    final extension = switch (report.format) {
+      ReportFormat.pdf => '.pdf',
+      ReportFormat.xlsx => '.xlsx',
+    };
+    if (baseName.toLowerCase().endsWith(extension)) {
+      return baseName;
+    }
+    return '$baseName$extension';
+  }
+
+  Future<Map<String, dynamic>?> _readCacheRecord(int reportId) async {
+    final box = await _ensureReportFileCacheBoxOpen();
+    final raw = box.get(_reportCacheKey(reportId));
+    if (raw is Map) {
+      return raw.cast<String, dynamic>();
+    }
+    return null;
+  }
+
+  Future<void> _saveCacheRecord({
+    required Report report,
+    required String uri,
+    required String filename,
+  }) async {
+    final reportId = report.id;
+    if (reportId == null) {
+      return;
+    }
+    final box = await _ensureReportFileCacheBoxOpen();
+    await box.put(_reportCacheKey(reportId), {
+      _reportFileCacheUriKey: uri,
+      _reportFileCacheFileIdKey: report.fileId,
+      _reportFileCacheFilenameKey: filename,
+    });
+  }
+
+  Future<void> _clearCacheRecord(int reportId) async {
+    final record = await _readCacheRecord(reportId);
+    final uri = record?[_reportFileCacheUriKey] as String?;
+    if (uri != null && uri.trim().isNotEmpty) {
+      await deleteStoredReportFile(uri);
+    }
+    final box = await _ensureReportFileCacheBoxOpen();
+    await box.delete(_reportCacheKey(reportId));
+  }
+
+  Future<ReportFileHandle?> _readValidCachedReportFile(Report report) async {
+    final reportId = report.id;
+    if (reportId == null) {
+      return null;
+    }
+    final record = await _readCacheRecord(reportId);
+    if (record == null) {
+      return null;
+    }
+
+    final cachedFileIdRaw = record[_reportFileCacheFileIdKey];
+    final cachedFileId = cachedFileIdRaw is num
+        ? cachedFileIdRaw.toInt()
+        : null;
+    if (cachedFileId != null && cachedFileId != report.fileId) {
+      await _clearCacheRecord(reportId);
+      return null;
+    }
+
+    final uri = record[_reportFileCacheUriKey] as String?;
+    if (uri == null || uri.trim().isEmpty) {
+      await _clearCacheRecord(reportId);
+      return null;
+    }
+
+    final exists = await reportFileExists(uri);
+    if (!exists) {
+      await _clearCacheRecord(reportId);
+      return null;
+    }
+
+    final cachedFilename = (record[_reportFileCacheFilenameKey] as String?)
+        ?.trim();
+    return ReportFileHandle(
+      uri: uri,
+      filename: cachedFilename != null && cachedFilename.isNotEmpty
+          ? cachedFilename
+          : _preferredReportFilename(report),
+      fromCache: true,
+    );
+  }
+
+  Future<Result<bool, Failure>> isReportCached({required Report report}) async {
+    try {
+      final cached = await _readValidCachedReportFile(report);
+      return Result.success(cached != null);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<ReportFileHandle, Failure>> resolveReportFile({
+    required Report report,
+    bool forceRedownload = false,
+  }) async {
+    try {
+      if (!forceRedownload) {
+        final cached = await _readValidCachedReportFile(report);
+        if (cached != null) {
+          return Result.success(cached);
+        }
+      } else if (report.id != null) {
+        await _clearCacheRecord(report.id!);
+      }
+
+      final socket = _ref.read(socketServiceProvider);
+      final progress = _ref.read(
+        fileTransferProgressControllerProvider.notifier,
+      );
+      final progressId = progress.start(
+        direction: FileTransferDirection.download,
+        totalBytes: 0,
+        label: report.name,
+      );
+
+      try {
+        final dl = await socket.downloadFileBytes(
+          fileId: report.fileId,
+          onProgress: (received, total) {
+            progress.update(
+              progressId,
+              transferredBytes: received,
+              totalBytes: total,
+            );
+          },
+        );
+        if (dl.bytes.isEmpty) {
+          progress.fail(progressId, errorMessage: 'Empty file response');
+          return Result.failure(Failure('Empty file response'));
+        }
+
+        final filename = (dl.originalName?.trim().isNotEmpty ?? false)
+            ? dl.originalName!.trim()
+            : _preferredReportFilename(report);
+        final uri = await storeReportFile(
+          bytes: dl.bytes,
+          reportId: report.id ?? report.fileId,
+          filename: filename,
+          contentType: dl.contentType,
+        );
+        progress.complete(progressId);
+        await _saveCacheRecord(report: report, uri: uri, filename: filename);
+        return Result.success(
+          ReportFileHandle(uri: uri, filename: filename, fromCache: false),
+        );
+      } catch (e) {
+        progress.fail(
+          progressId,
+          errorMessage: Failure.fromException(e).message,
+        );
+        return Result.failure(Failure.fromException(e));
+      }
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
 
   Future<Result<PaginationResponseWrapper<Report>, Failure>> fetchReports({
     required PaginationRequestWrapper paginationRequest,
@@ -202,45 +399,36 @@ class ReportRepository {
   Future<Result<String, Failure>> downloadReport({
     required int reportId,
   }) async {
-    try {
-      final socket = _ref.read(socketServiceProvider);
-      final progress = _ref.read(
-        fileTransferProgressControllerProvider.notifier,
-      );
-      final body = await socket.rpc('report.get', {'id': reportId});
-      final Map<String, dynamic> reportJson =
-          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
-      if (reportJson.isEmpty) {
-        return Result.failure(Failure('Invalid report response payload'));
-      }
+    final reportResult = await fetchReport(reportId: reportId);
 
-      final report = Report.fromJson(reportJson);
-      final progressId = progress.start(
-        direction: FileTransferDirection.download,
-        totalBytes: 0,
-        label: report.name,
-      );
+    Report? report;
+    Failure? fetchFailure;
+    reportResult.when(
+      onSuccess: (data) => report = data,
+      onFailure: (failure) => fetchFailure = failure,
+    );
 
-      final dl = await socket.downloadFileBytes(
-        fileId: report.fileId,
-        onProgress: (received, total) {
-          progress.update(
-            progressId,
-            transferredBytes: received,
-            totalBytes: total,
-          );
-        },
+    if (fetchFailure != null || report == null) {
+      return Result.failure(
+        fetchFailure ?? Failure('Invalid report response payload'),
       );
-      progress.complete(progressId);
-      final url = await bytesToUrl(
-        bytes: dl.bytes,
-        filename: dl.originalName ?? report.name,
-        contentType: dl.contentType,
-      );
-      return Result.success(url);
-    } catch (e) {
-      return Result.failure(Failure.fromException(e));
     }
+
+    final resolved = await resolveReportFile(report: report!);
+    ReportFileHandle? fileHandle;
+    Failure? resolveFailure;
+    resolved.when(
+      onSuccess: (data) => fileHandle = data,
+      onFailure: (failure) => resolveFailure = failure,
+    );
+
+    if (resolveFailure != null || fileHandle == null) {
+      return Result.failure(
+        resolveFailure ?? Failure('Invalid report response payload'),
+      );
+    }
+
+    return Result.success(fileHandle!.uri);
   }
 
   // ========== Report Job Methods ==========

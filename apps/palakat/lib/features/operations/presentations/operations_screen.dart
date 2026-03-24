@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
@@ -27,6 +28,11 @@ class OperationsScreen extends ConsumerStatefulWidget {
 }
 
 class _OperationsScreenState extends ConsumerState<OperationsScreen> {
+  final Set<int> _cachedReportIds = <int>{};
+  final Set<int> _downloadingReportIds = <int>{};
+  String _cachedReportsSignature = '';
+  bool _isSyncingCachedReports = false;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +58,8 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     final l10n = context.l10n;
     final controller = ref.read(operationsControllerProvider.notifier);
     final state = ref.watch(operationsControllerProvider);
+
+    _scheduleCachedReportSync(state.recentReports);
 
     return ScaffoldWidget(
       child: SingleChildScrollView(
@@ -148,9 +156,139 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           onRecentReportsRetry: () => controller.fetchReportData(),
           pendingReportJobs: state.pendingReportJobs,
           isLoadingPendingReportJobs: state.loadingPendingReportJobs,
+          downloadedReportIds: _cachedReportIds,
+          downloadingReportIds: _downloadingReportIds,
         ),
       ],
     );
+  }
+
+  String _reportCacheSignature(List<Report> reports) {
+    return reports
+        .map((report) => '${report.id ?? 'null'}:${report.fileId}')
+        .join('|');
+  }
+
+  void _scheduleCachedReportSync(List<Report> reports) {
+    final signature = _reportCacheSignature(reports);
+    if (_isSyncingCachedReports || signature == _cachedReportsSignature) {
+      return;
+    }
+
+    _isSyncingCachedReports = true;
+    Future.microtask(() => _syncCachedReportIds(reports, signature));
+  }
+
+  Future<void> _syncCachedReportIds(
+    List<Report> reports,
+    String signature,
+  ) async {
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final cachedIds = <int>{};
+
+    for (final report in reports) {
+      final reportId = report.id;
+      if (reportId == null) {
+        continue;
+      }
+
+      final result = await reportRepository.isReportCached(report: report);
+      bool isCached = false;
+      result.when(onSuccess: (value) => isCached = value, onFailure: (_) {});
+      if (isCached) {
+        cachedIds.add(reportId);
+      }
+    }
+
+    if (!mounted) {
+      _isSyncingCachedReports = false;
+      return;
+    }
+
+    setState(() {
+      _cachedReportIds
+        ..clear()
+        ..addAll(cachedIds);
+      _cachedReportsSignature = signature;
+    });
+    _isSyncingCachedReports = false;
+  }
+
+  void _setReportDownloading(int reportId, bool isDownloading) {
+    if (!context.mounted) {
+      return;
+    }
+
+    setState(() {
+      if (isDownloading) {
+        _downloadingReportIds.add(reportId);
+      } else {
+        _downloadingReportIds.remove(reportId);
+      }
+    });
+  }
+
+  void _markReportCached(int reportId) {
+    if (!context.mounted) {
+      return;
+    }
+
+    setState(() {
+      _cachedReportIds.add(reportId);
+    });
+  }
+
+  void _showReportError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<ReportFileHandle?> _resolveReportHandle(
+    BuildContext context,
+    WidgetRef ref,
+    Report report, {
+    bool forceRedownload = false,
+  }) async {
+    final reportRepository = ref.read(reportRepositoryProvider);
+    final result = await reportRepository.resolveReportFile(
+      report: report,
+      forceRedownload: forceRedownload,
+    );
+
+    ReportFileHandle? fileHandle;
+    result.when(
+      onSuccess: (value) => fileHandle = value,
+      onFailure: (failure) => _showReportError(context, failure.message),
+    );
+    return fileHandle;
+  }
+
+  Future<bool> _openReportHandle(
+    ReportFileHandle fileHandle, {
+    required LaunchMode mode,
+  }) async {
+    final uri = Uri.tryParse(fileHandle.uri);
+    if (uri == null) {
+      return false;
+    }
+
+    try {
+      if (uri.scheme == 'file') {
+        final result = await OpenFilex.open(uri.toFilePath());
+        return result.type == ResultType.done;
+      }
+      if (!await canLaunchUrl(uri)) {
+        return false;
+      }
+      return await launchUrl(uri, mode: mode);
+    } catch (_) {
+      return false;
+    }
   }
 
   void _handleOperationTap(BuildContext context, OperationItem operation) {
@@ -197,47 +335,60 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     Report report,
   ) async {
     final l10n = context.l10n;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final reportId = report.id;
 
-    if (report.id == null) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(l10n.err_somethingWentWrong),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    if (reportId == null) {
+      _showReportError(context, l10n.err_somethingWentWrong);
       return;
     }
 
-    final reportRepository = ref.read(reportRepositoryProvider);
-    final result = await reportRepository.downloadReport(reportId: report.id!);
+    if (_downloadingReportIds.contains(reportId)) {
+      return;
+    }
 
-    result.when(
-      onSuccess: (url) async {
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text(l10n.err_somethingWentWrong),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
+    _setReportDownloading(reportId, true);
+    try {
+      final fileHandle = await _resolveReportHandle(context, ref, report);
+      if (fileHandle == null) {
+        return;
+      }
+
+      var opened = await _openReportHandle(
+        fileHandle,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!opened && fileHandle.fromCache) {
+        if (!context.mounted) {
+          return;
+        }
+        final refreshedHandle = await _resolveReportHandle(
+          context,
+          ref,
+          report,
+          forceRedownload: true,
+        );
+        if (refreshedHandle != null) {
+          opened = await _openReportHandle(
+            refreshedHandle,
+            mode: LaunchMode.externalApplication,
           );
         }
-      },
-      onFailure: (failure) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(failure.message),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-    );
+      }
+
+      if (!context.mounted) {
+        return;
+      }
+
+      if (!opened) {
+        _showReportError(context, l10n.err_somethingWentWrong);
+        return;
+      }
+
+      _markReportCached(reportId);
+    } finally {
+      _setReportDownloading(reportId, false);
+    }
   }
 
   Future<void> _handleReportView(
@@ -246,39 +397,49 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     Report report,
   ) async {
     final l10n = context.l10n;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     if (report.format != ReportFormat.pdf) return;
-    if (report.id == null) return;
+    final reportId = report.id;
+    if (reportId == null || _downloadingReportIds.contains(reportId)) return;
 
-    final reportRepository = ref.read(reportRepositoryProvider);
-    final result = await reportRepository.downloadReport(reportId: report.id!);
+    final fileHandle = await _resolveReportHandle(context, ref, report);
+    if (fileHandle == null) {
+      return;
+    }
 
-    result.when(
-      onSuccess: (url) async {
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.platformDefault);
-        } else {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text(l10n.err_somethingWentWrong),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-      onFailure: (failure) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(failure.message),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
+    var opened = await _openReportHandle(
+      fileHandle,
+      mode: LaunchMode.platformDefault,
     );
+
+    if (!opened && fileHandle.fromCache) {
+      if (!context.mounted) {
+        return;
+      }
+      final refreshedHandle = await _resolveReportHandle(
+        context,
+        ref,
+        report,
+        forceRedownload: true,
+      );
+      if (refreshedHandle != null) {
+        opened = await _openReportHandle(
+          refreshedHandle,
+          mode: LaunchMode.platformDefault,
+        );
+      }
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (!opened) {
+      _showReportError(context, l10n.err_somethingWentWrong);
+      return;
+    }
+
+    _markReportCached(reportId);
   }
 }
 
@@ -354,6 +515,8 @@ class _OperationCategoryList extends StatelessWidget {
     this.onRecentReportsRetry,
     this.pendingReportJobs,
     this.isLoadingPendingReportJobs = false,
+    this.downloadedReportIds = const <int>{},
+    this.downloadingReportIds = const <int>{},
   });
 
   final List<OperationCategory> categories;
@@ -367,6 +530,8 @@ class _OperationCategoryList extends StatelessWidget {
   final VoidCallback? onRecentReportsRetry;
   final List<ReportJob>? pendingReportJobs;
   final bool isLoadingPendingReportJobs;
+  final Set<int> downloadedReportIds;
+  final Set<int> downloadingReportIds;
 
   @override
   Widget build(BuildContext context) {
@@ -402,6 +567,12 @@ class _OperationCategoryList extends StatelessWidget {
             isLoadingPendingReportJobs: isReportsCategory
                 ? isLoadingPendingReportJobs
                 : false,
+            downloadedReportIds: isReportsCategory
+                ? downloadedReportIds
+                : const <int>{},
+            downloadingReportIds: isReportsCategory
+                ? downloadingReportIds
+                : const <int>{},
           ),
         );
       },
