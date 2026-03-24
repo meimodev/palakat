@@ -234,7 +234,9 @@ class _SongDbUpdateBanner extends StatelessWidget {
                                 subtitle,
                                 style: Theme.of(context).textTheme.bodyMedium!
                                     .copyWith(
-                                      color: AppColors.onPrimary.withValues(alpha: 0.82),
+                                      color: AppColors.onPrimary.withValues(
+                                        alpha: 0.82,
+                                      ),
                                       fontWeight: FontWeight.w600,
                                     ),
                                 maxLines: shouldStack ? 3 : 2,
@@ -380,16 +382,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
       hasError: state.errorMessage != null && state.isLoading == false,
       errorMessage: state.errorMessage,
       onRetry: () => controller.refreshSongs(),
-      shimmerPlaceholder: Column(
-        children: [
-          PalakatShimmerPlaceholders.listItemCard(),
-          // 8px grid spacing (Requirement 2.4)
-          Gap.h8,
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h8,
-          PalakatShimmerPlaceholders.listItemCard(),
-        ],
-      ),
+      shimmerPlaceholder: PalakatShimmerPlaceholders.listSection(),
       child: state.filteredSongs.isEmpty
           ? SongBookAnimatedPresence(
               visible: state.filteredSongs.isEmpty,

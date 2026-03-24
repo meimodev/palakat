@@ -107,6 +107,8 @@ export class ReportQueueService {
       throw new BadRequestException('Invalid user');
     }
 
+    await this.reportService.assertHasMatchingData(dto, churchId);
+
     const job = await this.prisma.reportJob.create({
       data: {
         type: dto.type,
@@ -135,7 +137,7 @@ export class ReportQueueService {
       this.realtime.emitToRoom(`account.${userId}`, 'reportJob.created', {
         data: job,
       });
-    } catch (_) {}
+    } catch {}
 
     return {
       message: 'Report generation queued',
@@ -310,7 +312,7 @@ export class ReportQueueService {
           },
         },
       );
-    } catch (_) {}
+    } catch {}
 
     try {
       // Validate and convert params to ReportGenerateDto
@@ -377,7 +379,7 @@ export class ReportQueueService {
             jobId: job.id,
           },
         );
-      } catch (_) {}
+      } catch {}
 
       this.logger.log(
         `Report job ${job.id} completed, report ${report.id} created`,
@@ -413,7 +415,7 @@ export class ReportQueueService {
             },
           },
         );
-      } catch (_) {}
+      } catch {}
 
       await this.notifyReportFailed(job, error.message || 'Unknown error');
     }

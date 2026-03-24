@@ -3850,16 +3850,20 @@
       }
     }
   },
-  "dashboard_recentActivitiesEmpty": "Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.",
+  "dashboard_recentActivitiesEmpty": "Aktivitas transaksi dan pembaruan anggota terbaru akan ditampilkan di sini.",
   "@dashboard_recentActivitiesEmpty": {
     "description": "Empty state text for recent activities section"
   },
 
   "msg_reportQueued": "Laporan Anda sedang dibuat. Anda akan diberi tahu saat sudah siap.",
-  "msg_reportQueuedShort": "Laporan dalam antrian",
-  "msg_reportReady": "Laporan Anda siap diunduh!",
+  "msg_reportQueuedShort": "Laporan masuk antrean",
+  "msg_reportReady": "Laporan Anda siap untuk diunduh!",
   "msg_reportFailed": "Pembuatan laporan gagal. Silakan coba lagi.",
+  "msg_reportNoMatchInfoTitle": "Tidak ada data yang cocok dengan konfigurasi laporan ini.",
+  "msg_reportNoMatchInfoSubtitle": "Coba ubah rentang tanggal atau sesuaikan filter yang dipilih, lalu buat laporan lagi.",
   "msg_tapToDownload": "Ketuk untuk mengunduh",
+  "msg_noGenerationDate": "Belum ada tanggal pembuatan",
+  "msg_pendingJobWillAppearSoon": "Status laporan Anda akan muncul di sini setelah antrean dimulai.",
 
   "lbl_pendingReports": "Laporan Tertunda",
   "lbl_reportJobs": "Daftar Laporan",

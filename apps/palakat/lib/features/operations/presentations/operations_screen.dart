@@ -68,15 +68,8 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
                   state.errorMessage != null && state.loadingScreen == false,
               errorMessage: state.errorMessage,
               onRetry: () => controller.fetchData(),
-              shimmerPlaceholder: Column(
-                children: [
-                  PalakatShimmerPlaceholders.membershipCard(),
-                  Gap.h16,
-                  PalakatShimmerPlaceholders.listItemCard(),
-                  Gap.h16,
-                  PalakatShimmerPlaceholders.listItemCard(),
-                ],
-              ),
+              shimmerPlaceholder:
+                  PalakatShimmerPlaceholders.operationsOverview(),
               child: _buildContent(context, ref, state, controller),
             ),
           ],

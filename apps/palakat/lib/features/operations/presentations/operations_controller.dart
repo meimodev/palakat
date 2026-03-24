@@ -200,6 +200,12 @@ class OperationsController extends _$OperationsController {
       status: ReportJobStatus.processing,
     );
 
+    final failedResult = await _reportRepository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.failed,
+    );
+
     final List<ReportJob> allPendingJobs = [];
     String? errorMessage;
 
@@ -213,6 +219,15 @@ class OperationsController extends _$OperationsController {
     );
 
     processingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage ??= failure.message;
+      },
+    );
+
+    failedResult.when(
       onSuccess: (response) {
         allPendingJobs.addAll(response.data);
       },

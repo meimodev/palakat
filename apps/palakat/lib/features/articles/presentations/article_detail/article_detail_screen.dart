@@ -71,9 +71,7 @@ class ArticleDetailScreen extends ConsumerWidget {
                             color: AppColors.surfaceContainerLow,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                16.0,
-                              ),
+                              borderRadius: BorderRadius.circular(16.0),
                               side: BorderSide(
                                 color: AppColors.outlineVariant,
                                 width: 1,
@@ -84,10 +82,11 @@ class ArticleDetailScreen extends ConsumerWidget {
                               child: Text(
                                 l10n.noData_available,
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                  color: AppColors.onSurface,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: Theme.of(context).textTheme.titleMedium!
+                                    .copyWith(
+                                      color: AppColors.onSurface,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                             ),
                           ),
@@ -104,15 +103,7 @@ class ArticleDetailScreen extends ConsumerWidget {
 
   Widget _buildShimmerPlaceholder() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          PalakatShimmerPlaceholders.infoCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.infoCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.infoCard(),
-        ],
-      ),
+      child: PalakatShimmerPlaceholders.infoSection(),
     );
   }
 }
@@ -226,9 +217,9 @@ class _Content extends StatelessWidget {
                 padding: EdgeInsets.all(16.0),
                 child: Text(
                   context.l10n.noData_available,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.onSurface,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurface),
                 ),
               ),
             ),
@@ -259,10 +250,7 @@ class _LikeBar extends StatelessWidget {
     final isLiked = liked ?? false;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.0,
-        vertical: 12.0,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         border: Border(top: BorderSide(color: AppColors.tertiary, width: 1)),

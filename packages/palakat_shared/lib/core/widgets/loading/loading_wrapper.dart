@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_shared/core/theme/theme.dart';
 import '../loading_shimmer.dart';
 import '../error/error_display_widget.dart';
 
@@ -76,12 +75,9 @@ class LoadingWrapper extends StatelessWidget {
   }
 
   Widget _defaultShimmerPlaceholder() {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ShimmerPlaceholders.pageLayout(
+      sections: 2,
+      sectionPlaceholder: ShimmerPlaceholders.listItemCard(),
     );
   }
 }

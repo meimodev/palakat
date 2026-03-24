@@ -84,13 +84,7 @@ class BirthdaysWidget extends ConsumerWidget {
       hasError: async.hasError && (errorMessage != null),
       errorMessage: errorMessage,
       onRetry: () => ref.invalidate(thisWeekBirthdaysProvider),
-      shimmerPlaceholder: Column(
-        children: [
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h8,
-          PalakatShimmerPlaceholders.listItemCard(),
-        ],
-      ),
+      shimmerPlaceholder: PalakatShimmerPlaceholders.listSection(count: 2),
       child: Builder(
         builder: (_) {
           final items = async.value ?? const <BirthdayItem>[];

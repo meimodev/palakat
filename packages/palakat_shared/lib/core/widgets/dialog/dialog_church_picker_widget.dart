@@ -90,10 +90,7 @@ class _DialogChurchPickerWidgetState extends State<_DialogChurchPickerWidget> {
       children: [
         // Search field
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 8.0,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
@@ -127,15 +124,7 @@ class _DialogChurchPickerWidgetState extends State<_DialogChurchPickerWidget> {
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: LoadingShimmer(
                     isLoading: true,
-                    child: Column(
-                      children: [
-                        ShimmerPlaceholders.listTile(),
-                        Gap.h6,
-                        ShimmerPlaceholders.listTile(),
-                        Gap.h6,
-                        ShimmerPlaceholders.listTile(),
-                      ],
-                    ),
+                    child: ShimmerPlaceholders.listTileSection(),
                   ),
                 )
               : _churches.isEmpty

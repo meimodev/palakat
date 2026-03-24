@@ -117,15 +117,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 detailState.loadingScreen == false,
             errorMessage: detailState.errorMessage,
             onRetry: () => controller.fetch(activityId),
-            shimmerPlaceholder: Column(
-              children: [
-                PalakatShimmerPlaceholders.infoCard(),
-                Gap.h12,
-                PalakatShimmerPlaceholders.infoCard(),
-                Gap.h12,
-                PalakatShimmerPlaceholders.approvalCard(),
-              ],
-            ),
+            shimmerPlaceholder:
+                PalakatShimmerPlaceholders.approvalDetailLayout(),
             child: activity == null
                 ? ApprovalAnimatedPresence(
                     visible: true,
@@ -511,7 +504,9 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.onSecondaryContainer.withValues(alpha: 0.18),
+                      color: AppColors.onSecondaryContainer.withValues(
+                        alpha: 0.18,
+                      ),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -613,7 +608,10 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: AppColors.success.shade100,
                   borderRadius: BorderRadius.circular(4.0),
-                  border: Border.all(color: AppColors.success.shade200, width: 1),
+                  border: Border.all(
+                    color: AppColors.success.shade200,
+                    width: 1,
+                  ),
                   boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
                 ),
                 child: Text(

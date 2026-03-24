@@ -89,9 +89,9 @@ class DocumentScreen extends ConsumerWidget {
                     horizontal: 8,
                   ),
                   child: LoadingShimmer(
-                    child: ShimmerPlaceholders.text(
-                      width: double.infinity,
+                    child: ShimmerPlaceholders.input(
                       height: 40,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),

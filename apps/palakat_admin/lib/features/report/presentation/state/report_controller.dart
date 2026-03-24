@@ -169,6 +169,12 @@ class ReportController extends _$ReportController {
       status: ReportJobStatus.processing,
     );
 
+    final failedResult = await repository.fetchMyReportJobs(
+      page: 1,
+      pageSize: 10,
+      status: ReportJobStatus.failed,
+    );
+
     final List<ReportJob> allPendingJobs = [];
     String? errorMessage;
 
@@ -182,6 +188,15 @@ class ReportController extends _$ReportController {
     );
 
     processingResult.when(
+      onSuccess: (response) {
+        allPendingJobs.addAll(response.data);
+      },
+      onFailure: (failure) {
+        errorMessage ??= failure.message;
+      },
+    );
+
+    failedResult.when(
       onSuccess: (response) {
         allPendingJobs.addAll(response.data);
       },

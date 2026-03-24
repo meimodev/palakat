@@ -154,15 +154,7 @@ class SongDetailScreen extends ConsumerWidget {
                     key: const ValueKey('song-detail-loading'),
                     child: LoadingShimmer(
                       isLoading: true,
-                      child: Column(
-                        children: [
-                          PalakatShimmerPlaceholders.infoCard(),
-                          Gap.h12,
-                          PalakatShimmerPlaceholders.infoCard(),
-                          Gap.h12,
-                          PalakatShimmerPlaceholders.infoCard(),
-                        ],
-                      ),
+                      child: PalakatShimmerPlaceholders.infoSection(),
                     ),
                   ),
                   error: (err, stack) => KeyedSubtree(

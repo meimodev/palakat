@@ -57,45 +57,36 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
               if (!mounted) return;
               final l10n = context.l10n;
               final controller = ref.read(reportControllerProvider.notifier);
-              try {
-                final success = await controller.queueReport({
-                  'type': reportType,
-                  'format': format.name.toUpperCase(),
-                  if (input != null) 'input': input.name.toUpperCase(),
-                  if (congregationSubtype != null)
-                    'congregationSubtype': _congregationSubtypeToApi(
-                      congregationSubtype,
-                    ),
-                  if (activityType != null)
-                    'activityType': activityType.name.toUpperCase(),
-                  if (financialSubtype != null)
-                    'financialSubtype': _financialReportSubtypeToApi(
-                      financialSubtype,
-                    ),
-                  if (columnId != null &&
-                      financialSubtype != FinancialReportSubtype.mutation &&
-                      congregationSubtype !=
-                          CongregationReportSubtype.wartaJemaat)
-                    'columnId': columnId,
-                  if (range != null) 'startDate': range.start.toIso8601String(),
-                  if (range != null) 'endDate': range.end.toIso8601String(),
-                });
+              final success = await controller.queueReport({
+                'type': reportType,
+                'format': format.name.toUpperCase(),
+                if (input != null) 'input': input.name.toUpperCase(),
+                if (congregationSubtype != null)
+                  'congregationSubtype': _congregationSubtypeToApi(
+                    congregationSubtype,
+                  ),
+                if (activityType != null)
+                  'activityType': activityType.name.toUpperCase(),
+                if (financialSubtype != null)
+                  'financialSubtype': _financialReportSubtypeToApi(
+                    financialSubtype,
+                  ),
+                if (columnId != null &&
+                    financialSubtype != FinancialReportSubtype.mutation &&
+                    congregationSubtype !=
+                        CongregationReportSubtype.wartaJemaat)
+                  'columnId': columnId,
+                if (range != null) 'startDate': range.start.toIso8601String(),
+                if (range != null) 'endDate': range.end.toIso8601String(),
+              });
 
-                if (!mounted) return;
-                if (success) {
-                  DrawerUtils.closeDrawer(context);
-                  AppSnackbars.showSuccess(
-                    context,
-                    title: l10n.msg_reportQueuedShort,
-                    message: l10n.msg_reportQueued,
-                  );
-                }
-              } catch (e) {
-                if (!mounted) return;
-                AppSnackbars.showError(
+              if (!mounted) return;
+              if (success) {
+                DrawerUtils.closeDrawer(context);
+                AppSnackbars.showSuccess(
                   context,
-                  title: l10n.msg_reportFailed,
-                  message: e.toString(),
+                  title: l10n.msg_reportQueuedShort,
+                  message: l10n.msg_reportQueued,
                 );
               }
             },
@@ -574,11 +565,27 @@ class _PendingJobCard extends StatelessWidget {
 
   final ReportJob job;
 
+  bool _isNoMatchMessage(String? message) {
+    if (message == null) return false;
+    final normalized = message.trim().toLowerCase();
+    return normalized.contains('no ') &&
+        normalized.contains('matched') &&
+        normalized.contains('report configuration');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final statusInfo = _getStatusInfo(context, job.status);
+    final jobError = job.errorMessage?.trim();
+    final isNoMatchFailure = _isNoMatchMessage(jobError);
+    final failedMessage =
+        job.status == ReportJobStatus.failed &&
+            jobError != null &&
+            jobError.isNotEmpty
+        ? jobError
+        : null;
 
     final createdAt = job.createdAt;
     final dateText = createdAt != null
@@ -624,6 +631,67 @@ class _PendingJobCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
+                if (failedMessage != null) ...[
+                  if (isNoMatchFailure)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withValues(
+                          alpha: 0.45,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                        ),
+                      ),
+                      child: material.Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  l10n.msg_reportNoMatchInfoTitle,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            l10n.msg_reportNoMatchInfoSubtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Text(
+                      failedMessage,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                ],
                 Row(
                   children: [
                     Container(

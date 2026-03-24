@@ -45,6 +45,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
   cm.Column? _selectedColumn;
   bool _generating = false;
   String? _errorMessage;
+  String? _emptyResultMessage;
 
   @override
   void initState() {
@@ -64,6 +65,21 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
     return _dateRangePreset.getDateRange();
   }
 
+  bool _isNoMatchMessage(String text) {
+    final normalized = text.toLowerCase();
+    return normalized.contains('no ') &&
+        normalized.contains('matched') &&
+        normalized.contains('report configuration');
+  }
+
+  String _resolveErrorMessage(Object error) {
+    final text = error.toString().trim();
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length).trim();
+    }
+    return text.isEmpty ? context.l10n.msg_generateReportFailed : text;
+  }
+
   Future<void> _generateReport() async {
     final effectiveRange = _getEffectiveDateRange();
     if (effectiveRange == null) {
@@ -76,6 +92,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
     setState(() {
       _generating = true;
       _errorMessage = null;
+      _emptyResultMessage = null;
     });
 
     try {
@@ -107,8 +124,15 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
       widget.onClose();
     } catch (e) {
       if (!mounted) return;
+      final message = _resolveErrorMessage(e);
       setState(() {
-        _errorMessage = context.l10n.msg_generateReportFailed;
+        if (_isNoMatchMessage(message)) {
+          _emptyResultMessage = message;
+          _errorMessage = null;
+        } else {
+          _errorMessage = message;
+          _emptyResultMessage = null;
+        }
         _generating = false;
       });
     } finally {
@@ -146,17 +170,69 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
       onClose: widget.onClose,
       isLoading: _generating,
       loadingMessage: l10n.loading_please_wait,
-      errorMessage: _errorMessage,
+      errorMessage: _emptyResultMessage == null ? _errorMessage : null,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_emptyResultMessage != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withValues(
+                  alpha: 0.45,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.22),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.msg_reportNoMatchInfoTitle,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.msg_reportNoMatchInfoSubtitle,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           if (showColumnDropdown) ...[
             LabeledField(
               label: l10n.lbl_selectColumn,
               child: DropdownButtonFormField<cm.Column?>(
                 initialValue: _selectedColumn,
                 decoration: const InputDecoration(
-                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -191,7 +267,6 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<DocumentInput>(
                 initialValue: _documentInput,
                 decoration: const InputDecoration(
-                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -223,7 +298,6 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<CongregationReportSubtype>(
                 initialValue: _congregationSubtype,
                 decoration: const InputDecoration(
-                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -264,7 +338,6 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<ActivityType?>(
                 initialValue: _activityType,
                 decoration: const InputDecoration(
-                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -297,7 +370,6 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
               child: DropdownButtonFormField<FinancialReportSubtype>(
                 initialValue: _financialSubtype,
                 decoration: const InputDecoration(
-                  
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -409,7 +481,6 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             child: DropdownButtonFormField<ReportFormat>(
               initialValue: _format,
               decoration: const InputDecoration(
-                
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,

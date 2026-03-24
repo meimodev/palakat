@@ -1571,6 +1571,8 @@
   "msg_reportQueuedShort": "Report queued",
   "msg_reportReady": "Your report is ready for download!",
   "msg_reportFailed": "Report generation failed. Please try again.",
+  "msg_reportNoMatchInfoTitle": "No data matched this report configuration.",
+  "msg_reportNoMatchInfoSubtitle": "Try changing the date range or adjusting the selected filters, then generate the report again.",
   "msg_tapToDownload": "Tap to download",
 
   "lbl_pendingReports": "Pending Reports",

@@ -52,18 +52,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: LoadingShimmer(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        PalakatShimmerPlaceholders.activityCard(),
-                        Gap.h16,
-                        PalakatShimmerPlaceholders.infoCard(),
-                        Gap.h16,
-                        PalakatShimmerPlaceholders.listItemCard(),
-                        Gap.h16,
-                        PalakatShimmerPlaceholders.infoCard(),
-                      ],
-                    ),
+                    child: PalakatShimmerPlaceholders.activityDetailLayout(),
                   ),
                 ),
               ),

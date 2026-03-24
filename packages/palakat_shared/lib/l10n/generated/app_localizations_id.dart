@@ -3459,6 +3459,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get msg_reportFailed => 'Pembuatan laporan gagal. Silakan coba lagi.';
 
   @override
+  String get msg_reportNoMatchInfoTitle =>
+      'Tidak ada data yang cocok dengan konfigurasi laporan ini.';
+
+  @override
+  String get msg_reportNoMatchInfoSubtitle =>
+      'Coba ubah rentang tanggal atau sesuaikan filter yang dipilih, lalu buat laporan lagi.';
+
+  @override
   String get msg_tapToDownload => 'Ketuk untuk mengunduh';
 
   @override
@@ -3536,8 +3544,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Notifikasi yang memerlukan persetujuan Anda';
 
   @override
-  String get notificationChannel_generalAnnouncements_name =>
-      'Pengumuman Umum';
+  String get notificationChannel_generalAnnouncements_name => 'Pengumuman Umum';
 
   @override
   String get notificationChannel_generalAnnouncements_description =>

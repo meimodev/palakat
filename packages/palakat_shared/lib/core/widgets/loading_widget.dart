@@ -8,34 +8,34 @@ class AppLoadingWidget extends StatelessWidget {
   final String? message;
   final double? size;
 
-  const AppLoadingWidget({
-    super.key,
-    this.message,
-    this.size,
-  });
+  const AppLoadingWidget({super.key, this.message, this.size});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final indicatorSize = size ?? 48;
+    final cardWidth = (indicatorSize * 5.5).clamp(220.0, 320.0).toDouble();
+    final cardHeight = message == null ? 104.0 : 124.0;
 
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: indicatorSize * 0.36,
-              vertical: indicatorSize * 0.28,
+          LoadingShimmer(
+            isLoading: true,
+            child: ShimmerPlaceholders.simpleCard(
+              width: cardWidth,
+              height: cardHeight,
+              padding: EdgeInsets.symmetric(
+                horizontal: indicatorSize * 0.42,
+                vertical: indicatorSize * 0.34,
+              ),
+              backgroundColor: AppColors.surfaceContainerLow,
+              placeholderColor: AppColors.surfaceContainerHighest.withValues(
+                alpha: 0.92,
+              ),
             ),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.ghostBorder(0.06)),
-              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
-            ),
-            child: CompactLoadingWidget(size: indicatorSize * 0.58),
           ),
           if (message != null) ...[
             const SizedBox(height: 16),

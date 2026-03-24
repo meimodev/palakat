@@ -1,547 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
 
 /// Shimmer placeholder widgets specifically for Palakat app components
 class PalakatShimmerPlaceholders {
-  /// Shimmer placeholder for membership card
-  static Widget membershipCard() {
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.58),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(width: 1, color: AppColors.ghostBorder(0.06)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16.0,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Gap.h8,
-                      Container(
-                        height: 12.0,
-                        width: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Gap.h16,
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Container(
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+  static Widget text({
+    double width = 100,
+    double height = 16,
+    BorderRadius? borderRadius,
+  }) {
+    return ShimmerPlaceholders.text(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
     );
   }
 
-  /// Shimmer placeholder for activity card
-  static Widget activityCard({double? height}) {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        height: height ?? 92,
-        padding: EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 32.0,
-                  height: 32.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16.0,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Gap.h6,
-                      Container(
-                        height: 12.0,
-                        width: 80.0,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Container(
-              height: 12.0,
-              width: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ],
-        ),
-      ),
+  static Widget button({
+    double? width,
+    double height = 48,
+    BorderRadius? borderRadius,
+    bool expanded = false,
+  }) {
+    return ShimmerPlaceholders.button(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
+      expanded: expanded,
     );
   }
 
-  /// Shimmer placeholder for list item card
-  static Widget listItemCard() {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.hardEdge,
-      child: Padding(
-        padding: EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            Container(
-              width: 32.0,
-              height: 32.0,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-            Gap.w12,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 16.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  Gap.h6,
-                  Container(
-                    height: 12.0,
-                    width: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Gap.w12,
-            Container(
-              width: 20.0,
-              height: 20.0,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
-      ),
+  static Widget input({
+    double? width,
+    double height = 48,
+    bool includeLabel = false,
+    double labelWidth = 96,
+    BorderRadius? borderRadius,
+  }) {
+    return ShimmerPlaceholders.input(
+      width: width,
+      height: height,
+      includeLabel: includeLabel,
+      labelWidth: labelWidth,
+      borderRadius: borderRadius,
     );
   }
 
-  /// Shimmer placeholder for announcement card
-  static Widget announcementCard() {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16.0,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Gap.h6,
-                      Container(
-                        height: 12.0,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Gap.h12,
-            Container(
-              height: 12.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Gap.h6,
-            Container(
-              height: 12.0,
-              width: 200,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  static Widget listItemCard() => ShimmerPlaceholders.listItemCard();
 
-  /// Shimmer placeholder for approval card
-  static Widget approvalCard() {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16.0,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Gap.h8,
-                      Container(
-                        height: 12.0,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Gap.h16,
-            Container(
-              height: 12.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Gap.h8,
-            Container(
-              height: 12.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Gap.h12,
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 24.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                Gap.w8,
-                Container(
-                  height: 24.0,
-                  width: 80.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  static Widget activityCard({double? height}) =>
+      ShimmerPlaceholders.activityCard(height: height);
 
-  /// Shimmer placeholder for info card (used in detail screens)
-  static Widget infoCard() {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Container(
-                    height: 16.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Gap.h16,
-            ...List.generate(3, (index) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 20.0,
-                      height: 20.0,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Gap.w12,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 12.0,
-                            width: 80.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          Gap.h6,
-                          Container(
-                            height: 16.0,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
+  static Widget membershipCard() => ShimmerPlaceholders.membershipCard();
 
-  /// Generic shimmer card for simple use cases
+  static Widget announcementCard() => ShimmerPlaceholders.announcementCard();
+
+  static Widget approvalCard() => ShimmerPlaceholders.approvalCard();
+
+  static Widget infoCard() => ShimmerPlaceholders.infoCard();
+
   static Widget simpleCard({
     double? width,
     double height = 120,
     EdgeInsets padding = const EdgeInsets.all(16),
   }) {
-    return Material(
-      color: AppColors.surfaceContainerLow.withValues(alpha: 0.52),
-      elevation: 0,
-      shadowColor: AppColors.onSurface.withValues(alpha: 0.02),
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        width: width,
-        height: height,
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 20,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Gap.h8,
-            Container(
-              height: 14,
-              width: 200,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Gap.h8,
-            Container(
-              height: 14,
-              width: 150,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                Container(
-                  height: 12,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  height: 12,
-                  width: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return ShimmerPlaceholders.simpleCard(
+      width: width,
+      height: height,
+      padding: padding,
     );
   }
+
+  static Widget listSection({int count = 3, double gap = 8}) =>
+      ShimmerPlaceholders.listSection(count: count, gap: gap);
+
+  static Widget activitySection({int count = 3, double gap = 8}) =>
+      ShimmerPlaceholders.activitySection(count: count, gap: gap);
+
+  static Widget approvalSection({int count = 3, double gap = 20}) =>
+      ShimmerPlaceholders.approvalSection(count: count, gap: gap);
+
+  static Widget infoSection({int count = 3, double gap = 12}) =>
+      ShimmerPlaceholders.infoSection(count: count, gap: gap);
+
+  static Widget listTileSection({int count = 3, double gap = 6}) =>
+      ShimmerPlaceholders.listTileSection(count: count, gap: gap);
+
+  static Widget operationsOverview() =>
+      ShimmerPlaceholders.operationsOverview();
+
+  static Widget approvalDetailLayout() =>
+      ShimmerPlaceholders.approvalDetailLayout();
+
+  static Widget activityDetailLayout() =>
+      ShimmerPlaceholders.activityDetailLayout();
 }

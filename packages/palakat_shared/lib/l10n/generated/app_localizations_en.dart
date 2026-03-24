@@ -3450,6 +3450,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg_reportFailed => 'Report generation failed. Please try again.';
 
   @override
+  String get msg_reportNoMatchInfoTitle =>
+      'No data matched this report configuration.';
+
+  @override
+  String get msg_reportNoMatchInfoSubtitle =>
+      'Try changing the date range or adjusting the selected filters, then generate the report again.';
+
+  @override
   String get msg_tapToDownload => 'Tap to download';
 
   @override

@@ -132,6 +132,241 @@ export class ReportService {
     return membership.churchId;
   }
 
+  private normalizeReportDate(value?: Date | string): Date | undefined {
+    if (value == null) return undefined;
+
+    if (value instanceof Date) {
+      if (Number.isNaN(value.getTime())) {
+        throw new BadRequestException('Invalid report date range');
+      }
+
+      return value;
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException('Invalid report date range');
+    }
+
+    return parsed;
+  }
+
+  private buildNoMatchingDataMessage(type: ReportGenerateType): string {
+    switch (type) {
+      case ReportGenerateType.INCOMING_DOCUMENT:
+        return 'No incoming document data matched the selected report configuration';
+      case ReportGenerateType.OUTCOMING_DOCUMENT:
+        return 'No outgoing document data matched the selected report configuration';
+      case ReportGenerateType.CONGREGATION:
+        return 'No congregation data matched the selected report configuration';
+      case ReportGenerateType.ACTIVITY:
+        return 'No activity data matched the selected report configuration';
+      case ReportGenerateType.FINANCIAL:
+        return 'No financial data matched the selected report configuration';
+      case ReportGenerateType.SERVICES:
+        return 'No service data matched the selected report configuration';
+    }
+  }
+
+  async assertHasMatchingData(
+    dto: ReportGenerateDto,
+    churchId: number,
+  ): Promise<void> {
+    if (!dto?.type) {
+      throw new BadRequestException('type is required');
+    }
+
+    const type = dto.type;
+    const startDate = this.normalizeReportDate(dto.startDate as Date | string);
+    const endDate = this.normalizeReportDate(dto.endDate as Date | string);
+
+    if ((startDate == null) != (endDate == null)) {
+      throw new BadRequestException('Invalid report date range');
+    }
+
+    if (startDate && endDate && startDate > endDate) {
+      throw new BadRequestException('Invalid report date range');
+    }
+
+    const congregationSubtype =
+      type === ReportGenerateType.CONGREGATION
+        ? (dto.congregationSubtype ?? CongregationReportSubtype.WARTA_JEMAAT)
+        : dto.congregationSubtype;
+
+    const columnId =
+      type === ReportGenerateType.CONGREGATION ||
+      type === ReportGenerateType.ACTIVITY
+        ? dto.columnId
+        : undefined;
+
+    const input =
+      type === ReportGenerateType.INCOMING_DOCUMENT ||
+      type === ReportGenerateType.OUTCOMING_DOCUMENT
+        ? (dto.input ??
+          (type === ReportGenerateType.INCOMING_DOCUMENT
+            ? DocumentInput.INCOME
+            : DocumentInput.OUTCOME))
+        : dto.input;
+
+    const activityType =
+      type === ReportGenerateType.ACTIVITY ? dto.activityType : undefined;
+
+    const financialSubtype =
+      type === ReportGenerateType.FINANCIAL
+        ? (dto.financialSubtype ?? FinancialReportSubtype.REVENUE)
+        : dto.financialSubtype;
+
+    let matchingCount = 0;
+
+    switch (type) {
+      case ReportGenerateType.INCOMING_DOCUMENT:
+      case ReportGenerateType.OUTCOMING_DOCUMENT:
+        matchingCount = await this.prisma.document.count({
+          where: {
+            churchId,
+            input,
+            ...(startDate && endDate
+              ? {
+                  createdAt: {
+                    gte: startDate,
+                    lte: endDate,
+                  },
+                }
+              : {}),
+          },
+        });
+        break;
+      case ReportGenerateType.CONGREGATION: {
+        const membershipBaseWhere: Prisma.MembershipWhereInput = {
+          churchId,
+          ...(columnId != null ? { columnId } : {}),
+          ...(startDate && endDate
+            ? {
+                createdAt: {
+                  gte: startDate,
+                  lte: endDate,
+                },
+              }
+            : {}),
+        };
+
+        if (congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT) {
+          matchingCount = await this.prisma.membership.count({
+            where: membershipBaseWhere,
+          });
+          break;
+        }
+
+        if (congregationSubtype === CongregationReportSubtype.HUT_JEMAAT) {
+          matchingCount = await this.prisma.membership.count({
+            where: {
+              ...membershipBaseWhere,
+              ...(startDate && endDate
+                ? {
+                    account: {
+                      dob: {
+                        gte: startDate,
+                        lte: endDate,
+                      },
+                    },
+                  }
+                : {}),
+            },
+          });
+          break;
+        }
+
+        matchingCount = await this.prisma.membership.count({
+          where: membershipBaseWhere,
+        });
+        break;
+      }
+      case ReportGenerateType.ACTIVITY:
+        matchingCount = await this.prisma.activity.count({
+          where: {
+            supervisor: {
+              churchId,
+            },
+            ...(columnId != null ? { columnId } : {}),
+            ...(activityType ? { activityType } : {}),
+            ...(startDate && endDate
+              ? {
+                  date: {
+                    gte: startDate,
+                    lte: endDate,
+                  },
+                }
+              : {}),
+          },
+        });
+        break;
+      case ReportGenerateType.FINANCIAL:
+        if (financialSubtype === FinancialReportSubtype.REVENUE) {
+          matchingCount = await this.prisma.revenue.count({
+            where: {
+              churchId,
+              ...(startDate && endDate
+                ? {
+                    createdAt: {
+                      gte: startDate,
+                      lte: endDate,
+                    },
+                  }
+                : {}),
+            },
+          });
+          break;
+        }
+
+        if (financialSubtype === FinancialReportSubtype.EXPENSE) {
+          matchingCount = await this.prisma.expense.count({
+            where: {
+              churchId,
+              ...(startDate && endDate
+                ? {
+                    createdAt: {
+                      gte: startDate,
+                      lte: endDate,
+                    },
+                  }
+                : {}),
+            },
+          });
+          break;
+        }
+
+        const [cashAccountsCount, cashMutationsCount] =
+          await this.prisma.$transaction([
+            this.prisma.cashAccount.count({
+              where: { churchId },
+            }),
+            this.prisma.cashMutation.count({
+              where: {
+                churchId,
+                ...(startDate && endDate
+                  ? {
+                      happenedAt: {
+                        gte: startDate,
+                        lte: endDate,
+                      },
+                    }
+                  : {}),
+              },
+            }),
+          ]);
+        matchingCount = Math.max(cashAccountsCount, cashMutationsCount);
+        break;
+      case ReportGenerateType.SERVICES:
+        throw new BadRequestException(
+          'Report generation for SERVICES is not supported yet',
+        );
+    }
+
+    if (matchingCount <= 0) {
+      throw new BadRequestException(this.buildNoMatchingDataMessage(type));
+    }
+  }
+
   private async renderPdfBuffer(params: {
     title: string;
     lines: string[];
@@ -549,6 +784,21 @@ export class ReportService {
       type === ReportGenerateType.FINANCIAL
         ? (dto.financialSubtype ?? FinancialReportSubtype.REVENUE)
         : dto.financialSubtype;
+
+    await this.assertHasMatchingData(
+      {
+        type,
+        format,
+        input,
+        startDate,
+        endDate,
+        congregationSubtype,
+        columnId,
+        activityType,
+        financialSubtype,
+      },
+      churchId,
+    );
 
     const church = await this.prisma.church.findUnique({
       where: { id: churchId },
@@ -1328,190 +1578,11 @@ export class ReportService {
             });
     }
 
-    const lines: string[] = [
-      `Church ID: ${churchId}`,
-      startDate ? `Start: ${new Date(startDate).toISOString()}` : 'Start: -',
-      endDate ? `End: ${new Date(endDate).toISOString()}` : 'End: -',
-      '',
-      'This report is a generated artifact.',
-    ];
-
-    if (input) {
-      lines.splice(1, 0, `Input: ${input}`);
+    if (!buffer) {
+      throw new BadRequestException(
+        `Report generation for ${type} is not supported yet`,
+      );
     }
-
-    if (congregationSubtype) {
-      lines.push('', `Congregation Subtype: ${congregationSubtype}`);
-    }
-
-    if (columnId != null) {
-      lines.push(`Column ID: ${columnId}`);
-    }
-
-    if (activityType) {
-      lines.push(`Activity Type: ${activityType}`);
-    }
-
-    if (financialSubtype) {
-      lines.push(`Financial Subtype: ${financialSubtype}`);
-    }
-
-    if (
-      !buffer &&
-      (type === ReportGenerateType.INCOMING_DOCUMENT ||
-        type === ReportGenerateType.OUTCOMING_DOCUMENT)
-    ) {
-      const documentsCount = await this.prisma.document.count({
-        where: {
-          churchId,
-          input,
-          ...(startDate && endDate
-            ? {
-                createdAt: {
-                  gte: startDate,
-                  lte: endDate,
-                },
-              }
-            : {}),
-        },
-      });
-      lines.push('', `Documents: ${documentsCount}`);
-    }
-
-    if (!buffer && type === ReportGenerateType.CONGREGATION) {
-      const membersCount = await this.prisma.membership.count({
-        where: {
-          churchId,
-          ...(columnId != null ? { columnId } : {}),
-        },
-      });
-      lines.push('', `Members: ${membersCount}`);
-    }
-
-    if (!buffer && type === ReportGenerateType.ACTIVITY) {
-      const activitiesCount = await this.prisma.activity.count({
-        where: {
-          supervisor: {
-            churchId,
-          },
-          ...(columnId != null ? { columnId } : {}),
-          ...(activityType ? { activityType } : {}),
-          ...(startDate && endDate
-            ? {
-                date: {
-                  gte: startDate,
-                  lte: endDate,
-                },
-              }
-            : {}),
-        },
-      });
-      lines.push('', `Activities: ${activitiesCount}`);
-    }
-
-    if (!buffer && type === ReportGenerateType.FINANCIAL) {
-      const includeRevenue =
-        financialSubtype === FinancialReportSubtype.REVENUE ||
-        financialSubtype === FinancialReportSubtype.MUTATION;
-      const includeExpense =
-        financialSubtype === FinancialReportSubtype.EXPENSE ||
-        financialSubtype === FinancialReportSubtype.MUTATION;
-
-      const [revenueAgg, expenseAgg] = await this.prisma.$transaction([
-        includeRevenue
-          ? this.prisma.revenue.aggregate({
-              where: {
-                churchId,
-                ...(startDate && endDate
-                  ? {
-                      createdAt: {
-                        gte: startDate,
-                        lte: endDate,
-                      },
-                    }
-                  : {}),
-              },
-              _count: { _all: true },
-              _sum: { amount: true },
-            })
-          : this.prisma.revenue.aggregate({
-              where: { id: -1 },
-              _count: { _all: true },
-              _sum: { amount: true },
-            }),
-        includeExpense
-          ? this.prisma.expense.aggregate({
-              where: {
-                churchId,
-                ...(startDate && endDate
-                  ? {
-                      createdAt: {
-                        gte: startDate,
-                        lte: endDate,
-                      },
-                    }
-                  : {}),
-              },
-              _count: { _all: true },
-              _sum: { amount: true },
-            })
-          : this.prisma.expense.aggregate({
-              where: { id: -1 },
-              _count: { _all: true },
-              _sum: { amount: true },
-            }),
-      ]);
-
-      const revenueTotal = includeRevenue ? (revenueAgg._sum.amount ?? 0) : 0;
-      const expenseTotal = includeExpense ? (expenseAgg._sum.amount ?? 0) : 0;
-      const net = revenueTotal - expenseTotal;
-
-      const revenueCount = includeRevenue ? (revenueAgg._count?._all ?? 0) : 0;
-      const expenseCount = includeExpense ? (expenseAgg._count?._all ?? 0) : 0;
-
-      if (financialSubtype === FinancialReportSubtype.REVENUE) {
-        lines.push(
-          '',
-          `Revenue (count): ${revenueCount}`,
-          `Revenue (total): ${revenueTotal}`,
-        );
-      } else if (financialSubtype === FinancialReportSubtype.EXPENSE) {
-        lines.push(
-          '',
-          `Expense (count): ${expenseCount}`,
-          `Expense (total): ${expenseTotal}`,
-        );
-      } else {
-        lines.push(
-          '',
-          `Revenue (count): ${revenueCount}`,
-          `Revenue (total): ${revenueTotal}`,
-          `Expense (count): ${expenseCount}`,
-          `Expense (total): ${expenseTotal}`,
-          `Net: ${net}`,
-        );
-      }
-    }
-
-    buffer =
-      buffer ??
-      (format === ReportFormat.XLSX
-        ? await this.renderXlsxBuffer({
-            title,
-            lines,
-            letterhead: letterheadInfo,
-            logoBuffer,
-          })
-        : await this.renderPdfBuffer({
-            title,
-            lines,
-            letterhead: letterheadInfo,
-            logoBuffer,
-            generatedAt,
-            qrPngBuffer,
-            publicId,
-            churchName,
-          }));
 
     const fileSha256 = signPdf ? this.sha256Hex(buffer) : undefined;
 

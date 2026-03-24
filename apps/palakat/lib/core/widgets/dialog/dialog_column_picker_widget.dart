@@ -240,15 +240,7 @@ class _DialogColumnPickerWidgetState
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: LoadingShimmer(
                       isLoading: true,
-                      child: Column(
-                        children: [
-                          PalakatShimmerPlaceholders.listItemCard(),
-                          Gap.h8,
-                          PalakatShimmerPlaceholders.listItemCard(),
-                          Gap.h8,
-                          PalakatShimmerPlaceholders.listItemCard(),
-                        ],
-                      ),
+                      child: PalakatShimmerPlaceholders.listSection(),
                     ),
                   ),
                 )

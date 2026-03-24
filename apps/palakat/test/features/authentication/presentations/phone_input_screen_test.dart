@@ -9,6 +9,8 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/authentication/data/firebase_auth_repository.dart';
 import 'package:palakat/features/authentication/presentations/phone_input_screen.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/core/widgets/button/button_widget.dart';
+import 'package:palakat_shared/models.dart';
 
 // Mock classes
 class MockAuthRepository extends Mock implements AuthRepository {}
@@ -19,6 +21,10 @@ class MockFirebaseAuthRepository extends Mock
 void main() {
   late MockAuthRepository mockAuthRepo;
   late MockFirebaseAuthRepository mockFirebaseAuthRepo;
+
+  setUpAll(() {
+    registerFallbackValue(Duration.zero);
+  });
 
   setUp(() {
     mockAuthRepo = MockAuthRepository();
@@ -124,12 +130,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find the phone input field
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
+      final phoneInput = find.byType(TextFormField);
       expect(phoneInput, findsOneWidget);
 
       // Verify keyboard type is phone
-      final textField = tester.widget<TextField>(phoneInput);
-      expect(textField.keyboardType, TextInputType.phone);
+      final editableText = tester.widget<EditableText>(
+        find.descendant(of: phoneInput, matching: find.byType(EditableText)),
+      );
+      expect(editableText.keyboardType, TextInputType.phone);
     });
 
     testWidgets('phone input updates state on text change', (tester) async {
@@ -137,12 +145,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter phone number
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
-      await tester.enterText(phoneInput, '81234567890');
+      final phoneInput = find.byType(TextFormField);
+      await tester.enterText(phoneInput, '081234567890');
       await tester.pumpAndSettle();
 
       // Verify text is entered
-      expect(find.text('81234567890'), findsOneWidget);
+      expect(find.text('0812-3456-7890'), findsWidgets);
     });
 
     testWidgets('continue button is enabled by default', (tester) async {
@@ -165,8 +173,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter valid phone number
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
-      await tester.enterText(phoneInput, '81234567890');
+      final phoneInput = find.byType(TextFormField);
+      await tester.enterText(phoneInput, '081234567890');
       await tester.pumpAndSettle();
 
       // Mock Firebase to delay response
@@ -178,16 +186,22 @@ void main() {
           onVerificationFailed: any(named: 'onVerificationFailed'),
           timeout: any(named: 'timeout'),
         ),
-      ).thenAnswer(
-        (_) async => await Future.delayed(const Duration(seconds: 2)),
-      );
+      ).thenAnswer((_) async {
+        await Future.delayed(const Duration(seconds: 2));
+        return Result.success(null);
+      });
 
       // Tap continue button
       await tester.tap(find.text('Continue'));
       await tester.pump();
 
       // Verify loading indicator appears
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      final continueButtons = tester
+          .widgetList<ButtonWidget>(find.byType(ButtonWidget))
+          .where((widget) => widget.text == 'Continue');
+      expect(continueButtons.any((widget) => widget.isLoading), isTrue);
+
+      await tester.pump(const Duration(seconds: 91));
     });
 
     testWidgets('phone input is disabled during OTP sending', (tester) async {
@@ -195,8 +209,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter valid phone number
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
-      await tester.enterText(phoneInput, '81234567890');
+      final phoneInput = find.byType(TextFormField);
+      await tester.enterText(phoneInput, '081234567890');
       await tester.pumpAndSettle();
 
       // Mock Firebase to delay response
@@ -208,22 +222,25 @@ void main() {
           onVerificationFailed: any(named: 'onVerificationFailed'),
           timeout: any(named: 'timeout'),
         ),
-      ).thenAnswer(
-        (_) async => await Future.delayed(const Duration(seconds: 2)),
-      );
+      ).thenAnswer((_) async {
+        await Future.delayed(const Duration(seconds: 2));
+        return Result.success(null);
+      });
 
       // Tap continue button
       await tester.tap(find.text('Continue'));
       await tester.pump();
 
-      // Verify input is disabled (opacity reduced)
-      final opacity = tester.widget<Opacity>(
+      // Verify input is disabled
+      final ignorePointers = tester.widgetList<IgnorePointer>(
         find.ancestor(
-          of: find.widgetWithText(TextField, 'Enter phone number'),
-          matching: find.byType(Opacity),
+          of: find.byType(TextFormField),
+          matching: find.byType(IgnorePointer),
         ),
       );
-      expect(opacity.opacity, 0.5);
+      expect(ignorePointers.any((widget) => widget.ignoring), isTrue);
+
+      await tester.pump(const Duration(seconds: 91));
     });
 
     testWidgets('error message displays when validation fails', (tester) async {
@@ -255,7 +272,7 @@ void main() {
       expect(find.text('Please enter phone number'), findsOneWidget);
 
       // Enter phone number
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
+      final phoneInput = find.byType(TextFormField);
       await tester.enterText(phoneInput, '812');
       await tester.pumpAndSettle();
 
@@ -268,8 +285,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter valid phone number
-      final phoneInput = find.widgetWithText(TextField, 'Enter phone number');
-      await tester.enterText(phoneInput, '81234567890');
+      final phoneInput = find.byType(TextFormField);
+      await tester.enterText(phoneInput, '081234567890');
       await tester.pumpAndSettle();
 
       // Mock Firebase to return network error

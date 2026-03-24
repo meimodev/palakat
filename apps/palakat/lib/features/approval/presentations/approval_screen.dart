@@ -209,15 +209,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   ) {
     if (state.loadingScreen) {
       return SliverToBoxAdapter(
-        child: Column(
-          children: [
-            PalakatShimmerPlaceholders.approvalCard(),
-            Gap.h20,
-            PalakatShimmerPlaceholders.approvalCard(),
-            Gap.h20,
-            PalakatShimmerPlaceholders.approvalCard(),
-          ],
-        ),
+        child: PalakatShimmerPlaceholders.approvalSection(),
       );
     }
 

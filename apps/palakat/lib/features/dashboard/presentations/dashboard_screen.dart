@@ -242,15 +242,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                             state.thisWeekActivitiesLoading == false,
                         errorMessage: state.errorMessage,
                         onRetry: () => controller.fetchThisWeekActivities(),
-                        shimmerPlaceholder: Column(
-                          children: [
-                            PalakatShimmerPlaceholders.activityCard(),
-                            Gap.h8,
-                            PalakatShimmerPlaceholders.activityCard(),
-                            Gap.h8,
-                            PalakatShimmerPlaceholders.activityCard(),
-                          ],
-                        ),
+                        shimmerPlaceholder:
+                            PalakatShimmerPlaceholders.activitySection(),
                         child: ActivityWidget(
                           onPressedViewAll: () async {
                             await context.pushNamed(

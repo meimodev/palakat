@@ -6296,6 +6296,18 @@ abstract class AppLocalizations {
   /// **'Report generation failed. Please try again.'**
   String get msg_reportFailed;
 
+  /// No description provided for @msg_reportNoMatchInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No data matched this report configuration.'**
+  String get msg_reportNoMatchInfoTitle;
+
+  /// No description provided for @msg_reportNoMatchInfoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try changing the date range or adjusting the selected filters, then generate the report again.'**
+  String get msg_reportNoMatchInfoSubtitle;
+
   /// No description provided for @msg_tapToDownload.
   ///
   /// In en, this message translates to:

@@ -626,34 +626,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       ),
       child: infoAsync.when(
         loading: () => LoadingShimmer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              ShimmerPlaceholders.text(width: 220, height: 16),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ShimmerPlaceholders.text(
-                      width: double.infinity,
-                      height: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ShimmerPlaceholders.text(
-                      width: double.infinity,
-                      height: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ShimmerPlaceholders.text(width: double.infinity, height: 48),
-              const SizedBox(height: 16),
-            ],
-          ),
+          child: ShimmerPlaceholders.detailSection(includeWideBlock: true),
         ),
         error: (e, st) =>
             _cardError(onRetry: () => churchController.fetchChurch()),
@@ -752,32 +725,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       ),
       child: locationAsync.when(
         loading: () => LoadingShimmer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              ShimmerPlaceholders.text(width: double.infinity, height: 16),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ShimmerPlaceholders.text(
-                      width: double.infinity,
-                      height: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ShimmerPlaceholders.text(
-                      width: double.infinity,
-                      height: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+          child: ShimmerPlaceholders.detailSection(includeHeader: false),
         ),
         error: (e, st) => _cardError(
           onRetry: () => churchController.fetchLocation(
@@ -834,7 +782,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: LoadingShimmer(
-              child: ShimmerPlaceholders.table(rows: 4, columns: 3),
+              child: ShimmerPlaceholders.tableSection(rows: 4, columns: 3),
             ),
           ),
         ),
@@ -964,7 +912,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: LoadingShimmer(
-              child: ShimmerPlaceholders.table(rows: 4, columns: 2),
+              child: ShimmerPlaceholders.tableSection(rows: 4, columns: 2),
             ),
           ),
         ),

@@ -110,17 +110,7 @@ class _SupervisedActivitiesListScreenState
 
   Widget _buildShimmerPlaceholder() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.listItemCard(),
-          Gap.h12,
-          PalakatShimmerPlaceholders.listItemCard(),
-        ],
-      ),
+      child: PalakatShimmerPlaceholders.listSection(count: 4, gap: 12),
     );
   }
 

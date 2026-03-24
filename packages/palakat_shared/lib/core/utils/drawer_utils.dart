@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:palakat_shared/core/theme/theme.dart';
 
 /// Utility class for managing drawer transitions and overlays
 class DrawerUtils {
@@ -20,7 +19,7 @@ class DrawerUtils {
       routeSettings: const RouteSettings(name: _drawerRouteName),
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: AppColors.onSurfaceVariant,
+      // barrierColor: Colors.transparent,
       transitionDuration: duration,
       pageBuilder: (context, animation, secondaryAnimation) {
         return Align(

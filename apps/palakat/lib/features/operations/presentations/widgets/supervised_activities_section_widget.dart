@@ -100,15 +100,7 @@ class SupervisedActivitiesSection extends StatelessWidget {
   }
 
   Widget _buildShimmerPlaceholder() {
-    return Column(
-      children: [
-        PalakatShimmerPlaceholders.listItemCard(),
-        Gap.h8,
-        PalakatShimmerPlaceholders.listItemCard(),
-        Gap.h8,
-        PalakatShimmerPlaceholders.listItemCard(),
-      ],
-    );
+    return PalakatShimmerPlaceholders.listSection();
   }
 }
 

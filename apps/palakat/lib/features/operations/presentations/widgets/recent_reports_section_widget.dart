@@ -96,15 +96,7 @@ class RecentReportsSection extends StatelessWidget {
   }
 
   Widget _buildShimmerPlaceholder() {
-    return Column(
-      children: [
-        PalakatShimmerPlaceholders.listItemCard(),
-        Gap.h8,
-        PalakatShimmerPlaceholders.listItemCard(),
-        Gap.h8,
-        PalakatShimmerPlaceholders.listItemCard(),
-      ],
-    );
+    return PalakatShimmerPlaceholders.listSection();
   }
 }
 
@@ -289,10 +281,7 @@ class RecentReportItem extends StatelessWidget {
           );
 
           return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: shouldStack
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -378,6 +367,13 @@ class _PendingJobItem extends StatelessWidget {
     final dateText = createdAt != null
         ? '${createdAt.day}/${createdAt.month}/${createdAt.year}'
         : l10n.msg_noGenerationDate;
+    final jobError = job.errorMessage?.trim();
+    final failedMessage =
+        job.status == ReportJobStatus.failed &&
+            jobError != null &&
+            jobError.isNotEmpty
+        ? jobError
+        : null;
 
     final statusInfo = _getStatusInfo(context, job.status);
 
@@ -395,10 +391,7 @@ class _PendingJobItem extends StatelessWidget {
               MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
           return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -416,7 +409,9 @@ class _PendingJobItem extends StatelessWidget {
                   child: statusInfo.isAnimated
                       ? CompactLoadingWidget(
                           size: 16.0,
-                          baseColor: statusInfo.iconColor.withValues(alpha: 0.24),
+                          baseColor: statusInfo.iconColor.withValues(
+                            alpha: 0.24,
+                          ),
                           highlightColor: AppColors.surface,
                         )
                       : Icon(
@@ -442,20 +437,33 @@ class _PendingJobItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Gap.h4,
+                      if (failedMessage != null) ...[
+                        Text(
+                          failedMessage,
+                          style: Theme.of(context).textTheme.bodySmall!
+                              .copyWith(
+                                color: AppColors.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                          maxLines: shouldStackMeta ? 3 : 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Gap.h4,
+                      ],
                       if (shouldStackMeta) ...[
                         Text(
                           statusInfo.statusText,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: statusInfo.iconColor,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(
+                                color: statusInfo.iconColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                         Gap.h4,
                         Text(
                           dateText,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!
+                              .copyWith(color: AppColors.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -467,16 +475,16 @@ class _PendingJobItem extends StatelessWidget {
                           children: [
                             Text(
                               statusInfo.statusText,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: statusInfo.iconColor,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(
+                                    color: statusInfo.iconColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                             Text(
                               '• $dateText',
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: AppColors.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(color: AppColors.onSurfaceVariant),
                             ),
                           ],
                         ),

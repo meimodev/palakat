@@ -132,9 +132,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: LoadingShimmer(
-              child: Column(
-                children: [ShimmerPlaceholders.table(rows: 5, columns: 5)],
-              ),
+              child: ShimmerPlaceholders.tableSection(rows: 5, columns: 5),
             ),
           ),
         ),
@@ -194,14 +192,10 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: LoadingShimmer(
-              child: Column(
-                children: [
-                  // Search bar shimmer
-                  ShimmerPlaceholders.text(width: double.infinity, height: 48),
-                  const SizedBox(height: 16),
-                  // Table shimmer
-                  ShimmerPlaceholders.table(rows: 5, columns: 5),
-                ],
+              child: ShimmerPlaceholders.tableSection(
+                rows: 5,
+                columns: 5,
+                includeSearch: true,
               ),
             ),
           ),

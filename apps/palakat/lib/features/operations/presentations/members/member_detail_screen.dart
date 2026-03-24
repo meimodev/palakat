@@ -61,15 +61,7 @@ class MemberDetailScreen extends ConsumerWidget {
               hasError: hasError,
               errorMessage: errorMessage,
               onRetry: () => ref.invalidate(memberDetailProvider(membershipId)),
-              shimmerPlaceholder: Column(
-                children: [
-                  PalakatShimmerPlaceholders.infoCard(),
-                  Gap.h12,
-                  PalakatShimmerPlaceholders.infoCard(),
-                  Gap.h12,
-                  PalakatShimmerPlaceholders.infoCard(),
-                ],
-              ),
+              shimmerPlaceholder: PalakatShimmerPlaceholders.infoSection(),
               child: membership == null
                   ? OperationsAnimatedPresence(
                       visible: true,
