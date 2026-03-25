@@ -296,10 +296,21 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
 
     // Navigate to the operation's route
     if (operation.routeParams != null && operation.routeParams!.isNotEmpty) {
-      context.pushNamed(
-        operation.routeName,
-        extra: RouteParam(params: operation.routeParams!),
-      );
+      if (operation.routeName == AppRoute.activityPublish) {
+        final type = operation.routeParams![RouteParamKey.activityType];
+        context.pushNamed(
+          operation.routeName,
+          queryParameters: {
+            if (type is ActivityType) RouteParamKey.activityType: type.name,
+          },
+          extra: RouteParam(params: operation.routeParams!),
+        );
+      } else {
+        context.pushNamed(
+          operation.routeName,
+          extra: RouteParam(params: operation.routeParams!),
+        );
+      }
     } else {
       context.pushNamed(operation.routeName);
     }

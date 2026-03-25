@@ -439,6 +439,13 @@ export class ActivitiesService {
       (activityData as any).date = normalizedDate;
     }
 
+    if (
+      activityData.activityType === 'ANNOUNCEMENT' &&
+      (activityData as any).date == null
+    ) {
+      (activityData as any).date = new Date();
+    }
+
     const isClientToken = Boolean(user?.clientId);
     let effectiveSupervisorId: number | undefined;
     let membership: {

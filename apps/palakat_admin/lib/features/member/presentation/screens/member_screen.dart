@@ -148,7 +148,7 @@ class _MemberScreenState extends ConsumerState<MemberScreen> {
                       QuickStatCard(
                         label: context.l10n.lbl_sidi,
                         value: state.counts.value?.sidi.toString() ?? "",
-                        icon: Icons.emoji_people_outlined,
+                        icon: Icons.man,
                         iconColor: AppColors.success,
                         iconBackgroundColor: AppColors.success,
                         isLoading: state.counts.isLoading,

@@ -101,7 +101,18 @@ final operationsRouting = GoRoute(
       name: AppRoute.activityPublish,
       pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
-        final type = params?[RouteParamKey.activityType] as ActivityType?;
+        ActivityType? type =
+            params?[RouteParamKey.activityType] as ActivityType?;
+        final typeName = state.uri.queryParameters[RouteParamKey.activityType];
+
+        if (type == null && typeName != null) {
+          for (final candidate in ActivityType.values) {
+            if (candidate.name == typeName) {
+              type = candidate;
+              break;
+            }
+          }
+        }
 
         assert(type != null, 'RouteParamKey.activityType cannot be null');
 

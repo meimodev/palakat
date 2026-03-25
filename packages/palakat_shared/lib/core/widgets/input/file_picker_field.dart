@@ -53,6 +53,7 @@ class FilePickerField extends StatelessWidget {
     this.previewHeight = 140,
     this.showImagePreview = true,
     this.canClear = true,
+    this.showPickButtonWhenValueSelected = true,
   });
 
   final FilePickerValue? value;
@@ -71,6 +72,7 @@ class FilePickerField extends StatelessWidget {
   final bool showImagePreview;
 
   final bool canClear;
+  final bool showPickButtonWhenValueSelected;
 
   Future<void> _pickFile(BuildContext context) async {
     if (!enabled) return;
@@ -102,7 +104,9 @@ class FilePickerField extends StatelessWidget {
     final hasImageBytes = hasValue && value!.bytes != null && value!.isImage;
     final hasPreviewUrl = previewUrl != null && previewUrl!.trim().isNotEmpty;
     final showPreview =
-        showImagePreview && (hasImageBytes || hasPreviewUrl || isLoadingPreview);
+        showImagePreview &&
+        (hasImageBytes || hasPreviewUrl || isLoadingPreview);
+    final shouldShowPickButton = !hasValue || showPickButtonWhenValueSelected;
 
     final borderColor = theme.colorScheme.outlineVariant;
     final borderRadius = BorderRadius.circular(12);
@@ -131,20 +135,21 @@ class FilePickerField extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextButton.icon(
-                onPressed: enabled ? () => _pickFile(context) : null,
-                icon: const Icon(Icons.upload_file_outlined),
-                label: Text(pickButtonLabel ?? 'Choose file'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
+              if (shouldShowPickButton)
+                TextButton.icon(
+                  onPressed: enabled ? () => _pickFile(context) : null,
+                  icon: const Icon(Icons.upload_file_outlined),
+                  label: Text(pickButtonLabel ?? 'Choose file'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    alignment: AlignmentDirectional.centerStart,
                   ),
-                  alignment: AlignmentDirectional.centerStart,
                 ),
-              ),
               if (hasValue) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: shouldShowPickButton ? 12 : 0),
                 Row(
                   children: [
                     Icon(
@@ -191,106 +196,105 @@ class FilePickerField extends StatelessWidget {
                             child: Center(
                               child: CompactLoadingWidget(
                                 size: 18,
-                                baseColor: theme.colorScheme.surfaceContainerHighest,
+                                baseColor:
+                                    theme.colorScheme.surfaceContainerHighest,
                                 highlightColor: theme.colorScheme.surface,
                               ),
                             ),
                           )
                         : hasImageBytes
-                            ? Image.memory(
-                                value!.bytes!,
+                        ? Image.memory(
+                            value!.bytes!,
+                            height: previewHeight,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return SizedBox(
                                 height: previewHeight,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return SizedBox(
-                                    height: previewHeight,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.broken_image_outlined,
-                                            size: 48,
-                                            color: theme.colorScheme.error
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Failed to load image',
-                                            style: theme.textTheme.bodySmall
-                                                ?.copyWith(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image_outlined,
+                                        size: 48,
+                                        color: theme.colorScheme.error
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Failed to load image',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
                                               color: theme.colorScheme.error,
                                             ),
-                                          ),
-                                        ],
                                       ),
-                                    ),
-                                  );
-                                },
-                              )
-                            : hasPreviewUrl
-                                ? Image.network(
-                                    previewUrl!,
-                                    height: previewHeight,
-                                    fit: BoxFit.contain,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return SizedBox(
-                                        height: previewHeight,
-                                        child: Center(
-                                          child: LoadingShimmer(
-                                            isLoading: true,
-                                            child: CompactLoadingWidget(
-                                              size: 18,
-                                              baseColor: theme.colorScheme.surfaceContainerHighest,
-                                              highlightColor: theme.colorScheme.surface,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
-                                      return SizedBox(
-                                        height: previewHeight,
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.broken_image_outlined,
-                                                size: 48,
-                                                color: theme.colorScheme.error
-                                                    .withValues(alpha: 0.7),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'Failed to load image',
-                                                style: theme.textTheme.bodySmall
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme.error,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : SizedBox(
-                                    height: previewHeight,
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.image_outlined,
-                                        size: 48,
-                                        color: theme.colorScheme.onSurfaceVariant
-                                            .withValues(alpha: 0.5),
-                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : hasPreviewUrl
+                        ? Image.network(
+                            previewUrl!,
+                            height: previewHeight,
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return SizedBox(
+                                height: previewHeight,
+                                child: Center(
+                                  child: LoadingShimmer(
+                                    isLoading: true,
+                                    child: CompactLoadingWidget(
+                                      size: 18,
+                                      baseColor: theme
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                      highlightColor: theme.colorScheme.surface,
                                     ),
                                   ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return SizedBox(
+                                height: previewHeight,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image_outlined,
+                                        size: 48,
+                                        color: theme.colorScheme.error
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Failed to load image',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: theme.colorScheme.error,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : SizedBox(
+                            height: previewHeight,
+                            child: Center(
+                              child: Icon(
+                                Icons.image_outlined,
+                                size: 48,
+                                color: theme.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
                   ),
                 ),
               ],

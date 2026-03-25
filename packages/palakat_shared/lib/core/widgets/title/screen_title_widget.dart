@@ -164,10 +164,10 @@ class ScreenTitleWidget extends StatelessWidget {
                 onPressedIcon: leadIcon != null ? onPressedLeadIcon! : null,
                 useSanctuaryShell: true,
               ),
-              Gap.w12,
+              Gap.w16,
               Expanded(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       title,

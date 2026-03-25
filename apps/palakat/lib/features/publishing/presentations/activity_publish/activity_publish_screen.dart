@@ -29,6 +29,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
       ref
           .read(activityPublishControllerProvider(widget.type).notifier)
           .fetchAuthorInfo();
@@ -41,106 +44,144 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     final controller = ref.read(provider.notifier);
     final state = ref.watch(provider);
     final l10n = context.l10n;
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
-    return ScaffoldWidget(
-      loading: state.loading,
-      persistBottomWidget: OperationsReveal(
-        delay: const Duration(milliseconds: 180),
-        child: _buildSubmitButton(state, controller),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            OperationsReveal(
-              child: ScreenTitleWidget.titleSecondary(
-                title: '${l10n.btn_create} ${state.type.displayName}',
+    return PopScope(
+      canPop: !isKeyboardVisible,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: ScaffoldWidget(
+        loading: state.loading,
+        persistBottomWidget: OperationsReveal(
+          delay: const Duration(milliseconds: 180),
+          child: _buildSubmitButton(state, controller),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OperationsReveal(
+                child: ScreenTitleWidget.titleSecondary(
+                  title: '${l10n.btn_create} ${state.type.displayName}',
+                ),
               ),
-            ),
-            Gap.h16,
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  OperationsReveal(
-                    delay: const Duration(milliseconds: 40),
-                    child: _buildActivityTypeIndicator(),
-                  ),
-                  Gap.h12,
-                  OperationsReveal(
-                    delay: const Duration(milliseconds: 60),
-                    child: _buildPublisherSection(state),
-                  ),
-                  Gap.h16,
-                  OperationsReveal(
-                    delay: const Duration(milliseconds: 80),
-                    child: _buildBasicInfoSection(state, controller, context),
-                  ),
-                  Gap.h16,
-                  if (widget.type != ActivityType.announcement) ...[
+              Gap.h16,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     OperationsReveal(
-                      delay: const Duration(milliseconds: 100),
-                      child: _buildLocationSection(state, controller, context),
+                      delay: const Duration(milliseconds: 40),
+                      child: _buildActivityTypeIndicator(state),
+                    ),
+                    Gap.h12,
+                    OperationsReveal(
+                      delay: const Duration(milliseconds: 60),
+                      child: _buildPublisherSection(state),
                     ),
                     Gap.h16,
                     OperationsReveal(
-                      delay: const Duration(milliseconds: 120),
-                      child: _buildScheduleSection(state, controller, context),
+                      delay: const Duration(milliseconds: 80),
+                      child: _buildBasicInfoSection(state, controller, context),
                     ),
                     Gap.h16,
-                    OperationsReveal(
-                      delay: const Duration(milliseconds: 140),
-                      child: _buildFinancialRecordSection(
-                        state,
-                        controller,
-                        context,
+                    if (widget.type != ActivityType.announcement) ...[
+                      OperationsReveal(
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildLocationSection(
+                          state,
+                          controller,
+                          context,
+                        ),
                       ),
-                    ),
-                    Gap.h16,
+                      Gap.h16,
+                      OperationsReveal(
+                        delay: const Duration(milliseconds: 120),
+                        child: _buildScheduleSection(
+                          state,
+                          controller,
+                          context,
+                        ),
+                      ),
+                      Gap.h16,
+                      OperationsReveal(
+                        delay: const Duration(milliseconds: 140),
+                        child: _buildFinancialRecordSection(
+                          state,
+                          controller,
+                          context,
+                        ),
+                      ),
+                      Gap.h16,
+                    ],
+                    if (widget.type == ActivityType.announcement)
+                      OperationsReveal(
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildAnnouncementSection(
+                          state,
+                          controller,
+                          context,
+                        ),
+                      ),
+                    Gap.h24,
                   ],
-                  if (widget.type == ActivityType.announcement)
-                    OperationsReveal(
-                      delay: const Duration(milliseconds: 100),
-                      child: _buildAnnouncementSection(
-                        state,
-                        controller,
-                        context,
-                      ),
-                    ),
-                  Gap.h24,
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildActivityTypeIndicator() {
+  Widget _buildActivityTypeIndicator(ActivityPublishState state) {
     final typeConfig = _getTypeConfig();
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-      decoration: BoxDecoration(
-        color: typeConfig.backgroundColor,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: typeConfig.borderColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(typeConfig.icon, size: 18.0, color: typeConfig.iconColor),
-          Gap.w8,
-          Text(
-            typeConfig.label,
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color: typeConfig.textColor,
-              fontWeight: FontWeight.w600,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          decoration: BoxDecoration(
+            color: typeConfig.backgroundColor,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: typeConfig.borderColor),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(typeConfig.icon, size: 18.0, color: typeConfig.iconColor),
+              Gap.w8,
+              Text(
+                typeConfig.label,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: typeConfig.textColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: AppColors.outlineVariant),
+          ),
+          child: Text(
+            state.currentDate ?? '',
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -255,7 +296,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '${context.l10n.publish_targetAudienceBipra}$columnContext ${context.l10n.lbl_optional}',
+          '${context.l10n.publish_targetAudienceBipra}$columnContext ',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
             color: AppColors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
@@ -269,8 +310,11 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               title: context.l10n.publish_selectTargetGroup,
               columnName: shouldShowColumnContext ? state.authorColumn : null,
             );
+            if (!mounted) return;
             if (res != null) {
-              controller.onSelectedBipra(res);
+              ref
+                  .read(activityPublishControllerProvider(widget.type).notifier)
+                  .onSelectedBipra(res);
             }
           },
           child: Container(
@@ -325,24 +369,12 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         Gap.w12,
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.l10n.lbl_general,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: AppColors.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Gap.h4,
-              Text(
-                context.l10n.publish_targetGroup,
-                style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ],
+          child: Text(
+            context.l10n.lbl_general,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         FaIcon(AppIcons.forward, size: 20.0, color: AppColors.onSurfaceVariant),
@@ -373,7 +405,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           alignment: Alignment.center,
           child: Text(
             bipra.abv,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
               color: AppColors.surfaceContainerLowest,
               fontWeight: FontWeight.w700,
             ),
@@ -381,57 +413,21 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
         ),
         Gap.w12,
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                bipra.name,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: AppColors.onSecondaryContainer,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Gap.h4,
-              Row(
-                children: [
-                  FaIcon(
-                    AppIcons.group,
-                    size: 12.0,
-                    color: AppColors.onSecondaryContainer,
-                  ),
-                  Gap.w4,
-                  Text(
-                    context.l10n.publish_targetGroup,
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: AppColors.onSecondaryContainer,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          child: Text(
+            bipra.name,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSecondaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Tooltip(
-              message: context.l10n.btn_clear,
-              child: GestureDetector(
-                onTap: () => controller.onSelectedBipra(null),
-                child: FaIcon(
-                  AppIcons.clear,
-                  size: 18.0,
-                  color: AppColors.onSecondaryContainer,
-                ),
-              ),
-            ),
-            Gap.w12,
-            FaIcon(
-              AppIcons.edit,
-              size: 18.0,
-              color: AppColors.onSecondaryContainer,
-            ),
-          ],
+        IconButton(
+          onPressed: () => controller.onSelectedBipra(null),
+          icon: FaIcon(
+            AppIcons.clear,
+            size: 18.0,
+            color: AppColors.onSecondaryContainer,
+          ),
         ),
       ],
     );
@@ -493,8 +489,11 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                 },
               ),
             );
+            if (!mounted) return;
             if (res != null) {
-              controller.onSelectedMapLocation(res);
+              ref
+                  .read(activityPublishControllerProvider(widget.type).notifier)
+                  .onSelectedMapLocation(res);
             }
           },
           child: Container(
@@ -693,8 +692,11 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               initialDatePickerMode: DatePickerMode.day,
               lastDate: DateTime(DateTime.now().year + 5),
             );
+            if (!mounted) return;
             if (res != null) {
-              controller.onSelectedDate(res);
+              ref
+                  .read(activityPublishControllerProvider(widget.type).notifier)
+                  .onSelectedDate(res);
             }
           },
           child: Container(
@@ -792,8 +794,11 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               context: context,
               initialTime: state.selectedTime,
             );
+            if (!mounted) return;
             if (res != null) {
-              controller.onSelectedTime(res);
+              ref
+                  .read(activityPublishControllerProvider(widget.type).notifier)
+                  .onSelectedTime(res);
             }
           },
           child: Container(
@@ -1032,13 +1037,21 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
               : null,
           pickButtonLabel: context.l10n.publish_uploadFile,
           helperText: context.l10n.publish_supportedFileTypes,
+          showImagePreview: false,
+          showPickButtonWhenValueSelected: false,
           allowedExtensions: const ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
           onChanged: (picked) {
-            if (picked == null) {
-              controller.clearSelectedFile();
+            if (!mounted) {
               return;
             }
-            controller.onSelectedFile(
+            final currentController = ref.read(
+              activityPublishControllerProvider(widget.type).notifier,
+            );
+            if (picked == null) {
+              currentController.clearSelectedFile();
+              return;
+            }
+            currentController.onSelectedFile(
               fileName: picked.name,
               filePath: picked.path,
               fileBytes: picked.bytes,
@@ -1065,7 +1078,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           children: [
             Row(
               children: [
-                // Avatar
                 Container(
                   width: 40.0,
                   height: 40.0,
@@ -1081,7 +1093,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                   ),
                 ),
                 Gap.w12,
-                // Author name and church
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1115,22 +1126,6 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
                         ],
                       ),
                     ],
-                  ),
-                ),
-                // Date
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: AppColors.outlineVariant),
-                  ),
-                  child: Text(
-                    state.currentDate ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
                   ),
                 ),
               ],
@@ -1337,7 +1332,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
 
     // Step 3: Handle returned finance data
     if (financeData != null && mounted) {
-      controller.onAttachedFinance(financeData);
+      ref
+          .read(activityPublishControllerProvider(widget.type).notifier)
+          .onAttachedFinance(financeData);
     }
   }
 
@@ -1365,7 +1362,9 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
 
     // Update with new finance data if returned
     if (financeData != null && mounted) {
-      controller.onAttachedFinance(financeData);
+      ref
+          .read(activityPublishControllerProvider(widget.type).notifier)
+          .onAttachedFinance(financeData);
     }
   }
 
@@ -1394,8 +1393,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       ),
     );
 
-    if (confirmed == true) {
-      controller.removeAttachedFinance();
+    if (confirmed == true && mounted) {
+      ref
+          .read(activityPublishControllerProvider(widget.type).notifier)
+          .removeAttachedFinance();
     }
   }
 }

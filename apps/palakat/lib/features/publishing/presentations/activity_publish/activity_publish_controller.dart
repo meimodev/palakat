@@ -39,6 +39,14 @@ AppLocalizations _l10n() {
 class ActivityPublishController extends _$ActivityPublishController {
   @override
   ActivityPublishState build(ActivityType activityType) {
+    if (activityType == ActivityType.announcement) {
+      final now = DateTime.now();
+      return ActivityPublishState(
+        type: activityType,
+        selectedDate: now,
+        date: now.EEEEddMMMyyyyShort,
+      );
+    }
     return ActivityPublishState(type: activityType);
   }
 
@@ -56,6 +64,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   Future<void> validateForm() async {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(loading: true);
 
     if (state.type == ActivityType.service ||
@@ -102,6 +113,9 @@ class ActivityPublishController extends _$ActivityPublishController {
     }
 
     await Future.delayed(const Duration(milliseconds: 400));
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(loading: false);
   }
 
@@ -184,8 +198,14 @@ class ActivityPublishController extends _$ActivityPublishController {
   /// Returns true on success, false on validation failure or API error.
   /// Requirements: 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4
   Future<bool> submit() async {
+    if (!ref.mounted) {
+      return false;
+    }
     // Step 1: Validate form first
     await validateForm();
+    if (!ref.mounted) {
+      return false;
+    }
 
     // Step 2: If invalid, return false
     if (!state.isFormValid) {
@@ -245,6 +265,9 @@ class ActivityPublishController extends _$ActivityPublishController {
               );
             },
           );
+          if (!ref.mounted) {
+            return false;
+          }
           progress.complete(progressId);
 
           final data = uploaded['data'];
@@ -267,13 +290,18 @@ class ActivityPublishController extends _$ActivityPublishController {
         }
       }
 
-      // Step 4: Build CreateActivityRequest from state
-      // Use selectedBipra directly instead of parsing from string
-      final bipra = state.selectedBipra;
-
-      // Combine selectedDate and selectedTime into a single DateTime
       DateTime? activityDate;
-      if (state.selectedDate != null) {
+      if (state.type == ActivityType.announcement) {
+        activityDate = DateTime.now();
+        if (!ref.mounted) {
+          return false;
+        }
+        state = state.copyWith(
+          selectedDate: activityDate,
+          date: activityDate.EEEEddMMMyyyyShort,
+          errorDate: null,
+        );
+      } else if (state.selectedDate != null) {
         activityDate = state.selectedDate!;
         if (state.selectedTime != null) {
           activityDate = DateTime(
@@ -285,6 +313,10 @@ class ActivityPublishController extends _$ActivityPublishController {
           );
         }
       }
+
+      // Step 4: Build CreateActivityRequest from state
+      // Use selectedBipra directly instead of parsing from string
+      final bipra = state.selectedBipra;
 
       // Get location data from selectedMapLocation
       final location = state.selectedMapLocation;
@@ -325,6 +357,9 @@ class ActivityPublishController extends _$ActivityPublishController {
       // The backend will create finance record alongside activity if provided
       final activityRepository = ref.read(activityRepositoryProvider);
       final result = await activityRepository.createActivity(request: request);
+      if (!ref.mounted) {
+        return false;
+      }
 
       // Step 6 & 7: Handle success/failure
       bool success = false;
@@ -335,6 +370,10 @@ class ActivityPublishController extends _$ActivityPublishController {
         },
         onFailure: (failure) {
           // Handle failure: set loading false, set errorMessage, return false
+          if (!ref.mounted) {
+            success = false;
+            return;
+          }
           state = state.copyWith(loading: false, errorMessage: failure.message);
           success = false;
         },
@@ -346,10 +385,16 @@ class ActivityPublishController extends _$ActivityPublishController {
       }
 
       // Success - activity created and finance records linked (if provided)
+      if (!ref.mounted) {
+        return false;
+      }
       state = state.copyWith(loading: false);
       return true;
     } catch (e) {
       // Handle unexpected errors
+      if (!ref.mounted) {
+        return false;
+      }
       state = state.copyWith(
         loading: false,
         errorMessage: _l10n().err_somethingWentWrong,
@@ -366,6 +411,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   void onSelectedBipra(Bipra? bipra) {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       selectedBipra: bipra,
       bipra: bipra?.name,
@@ -392,6 +440,9 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onSelectedMapLocation(Location? location) {
     if (location == null) return;
+    if (!ref.mounted) {
+      return;
+    }
     final hasCoordinates =
         location.latitude != null && location.longitude != null;
     final displayName = location.name.isNotEmpty
@@ -414,6 +465,9 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onSelectedDate(DateTime? date) {
     if (date == null) return;
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       selectedDate: date,
       date: date.EEEEddMMMyyyyShort,
@@ -429,6 +483,9 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   void onSelectedTime(TimeOfDay? time) {
     if (time == null) return;
+    if (!ref.mounted) {
+      return;
+    }
     final formattedTime =
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     state = state.copyWith(
@@ -460,6 +517,9 @@ class ActivityPublishController extends _$ActivityPublishController {
     Uint8List? fileBytes,
     int? fileSizeBytes,
   }) {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       file: fileName,
       filePath: filePath,
@@ -473,6 +533,9 @@ class ActivityPublishController extends _$ActivityPublishController {
 
   /// Clears the selected file.
   void clearSelectedFile() {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       file: null,
       filePath: null,
@@ -546,6 +609,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   /// Fetches author info from the signed-in account and updates state
   /// Requirements: 7.1, 7.2, 7.3
   Future<void> fetchAuthorInfo() async {
+    if (!ref.mounted) {
+      return;
+    }
     final localStorage = ref.read(localStorageServiceProvider);
     final currentAuth = localStorage.currentAuth;
 
@@ -579,6 +645,9 @@ class ActivityPublishController extends _$ActivityPublishController {
     // Format current date using the date extension
     final currentDate = DateTime.now().EEEEddMMMyyyyShort;
 
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       authorName: authorName,
       churchName: churchName,
@@ -590,6 +659,9 @@ class ActivityPublishController extends _$ActivityPublishController {
   }
 
   void onSelectedReminder(Reminder? reminder) {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(
       selectedReminder: reminder,
       reminder: reminder?.name,
@@ -601,12 +673,18 @@ class ActivityPublishController extends _$ActivityPublishController {
   /// Sets the attached finance data (revenue or expense).
   /// Requirements: 1.4
   void onAttachedFinance(FinanceData? data) {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(attachedFinance: data);
   }
 
   /// Removes the attached financial record and restores the "Add Financial Record" button.
   /// Requirements: 1.5
   void removeAttachedFinance() {
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(attachedFinance: null);
   }
 }

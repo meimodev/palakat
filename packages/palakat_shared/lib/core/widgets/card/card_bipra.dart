@@ -38,12 +38,17 @@ class CardBipra extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary],
+                    colors: [
+                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -52,7 +57,7 @@ class CardBipra extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   bipra.abv,
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: AppColors.surfaceContainerLowest,
                     fontWeight: FontWeight.bold,
                   ),
@@ -69,45 +74,12 @@ class CardBipra extends StatelessWidget {
                       (columnName != null && columnName!.isNotEmpty)
                           ? '${bipra.name} (${columnName!})'
                           : bipra.name,
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                    ),
-                    Gap.h4,
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.group_outlined,
-                            size: 12.0,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          Gap.w4,
-                          Text(
-                            'Group',
-                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),
