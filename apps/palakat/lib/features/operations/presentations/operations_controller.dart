@@ -385,9 +385,7 @@ class OperationsController extends _$OperationsController {
         description: l10n.reportDesc_incomingDocument,
         icon: AppIcons.document,
         routeName: AppRoute.reportGenerate,
-        routeParams: {
-          RouteParamKey.reportType: ReportGenerateType.incomingDocument,
-        },
+        routeParams: {RouteParamKey.reportType: ReportGenerateType.document},
         isEnabled: canReportGenerate,
       ),
       OperationItem(

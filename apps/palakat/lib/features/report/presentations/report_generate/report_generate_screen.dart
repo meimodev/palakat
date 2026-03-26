@@ -43,9 +43,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
         ? state.customDateRange
         : state.dateRangePreset.getDateRange();
 
-    final showDocumentInput =
-        state.reportType == ReportGenerateType.incomingDocument ||
-        state.reportType == ReportGenerateType.outcomingDocument;
+    final showDocumentInput = state.reportType == ReportGenerateType.document;
     final showCongregationSubtype =
         state.reportType == ReportGenerateType.congregation;
     final showColumn =
@@ -161,8 +159,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
               hint: l10n.lbl_reportType,
               currentInputValue: state.reportType,
               options: const [
-                ReportGenerateType.incomingDocument,
-                ReportGenerateType.outcomingDocument,
+                ReportGenerateType.document,
                 ReportGenerateType.congregation,
                 ReportGenerateType.activity,
                 ReportGenerateType.financial,
@@ -174,8 +171,7 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
                   context,
                   title: l10n.lbl_reportType,
                   options: const [
-                    ReportGenerateType.incomingDocument,
-                    ReportGenerateType.outcomingDocument,
+                    ReportGenerateType.document,
                     ReportGenerateType.congregation,
                     ReportGenerateType.activity,
                     ReportGenerateType.financial,
@@ -348,10 +344,8 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
   static String _reportTypeLabel(BuildContext context, ReportGenerateType t) {
     final l10n = context.l10n;
     switch (t) {
-      case ReportGenerateType.incomingDocument:
+      case ReportGenerateType.document:
         return l10n.reportType_incomingDocument;
-      case ReportGenerateType.outcomingDocument:
-        return l10n.reportType_outcomingDocument;
       case ReportGenerateType.congregation:
         return l10n.reportType_congregation;
       case ReportGenerateType.activity:

@@ -147,7 +147,7 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     final churchId = membership?.church?.id;
 
     final initial = ReportGenerateState(
-      reportType: ReportGenerateType.incomingDocument,
+      reportType: ReportGenerateType.document,
       format: ReportFormat.pdf,
       documentInput: DocumentInput.income,
       congregationSubtype: CongregationReportSubtype.wartaJemaat,
@@ -230,17 +230,11 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     );
     final usesActivityType = type == ReportGenerateType.activity;
 
-    final isDocumentReport =
-        type == ReportGenerateType.incomingDocument ||
-        type == ReportGenerateType.outcomingDocument;
-    final wasDocumentReport =
-        state.reportType == ReportGenerateType.incomingDocument ||
-        state.reportType == ReportGenerateType.outcomingDocument;
+    final isDocumentReport = type == ReportGenerateType.document;
+    final wasDocumentReport = state.reportType == ReportGenerateType.document;
 
     final nextDocumentInput = isDocumentReport && !wasDocumentReport
-        ? (type == ReportGenerateType.outcomingDocument
-              ? DocumentInput.outcome
-              : DocumentInput.income)
+        ? DocumentInput.income
         : null;
 
     state = state.copyWith(
@@ -346,9 +340,7 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
       final queueResult = await repo.queueReportGeneration(
         type: state.reportType,
         format: state.format,
-        input:
-            state.reportType == ReportGenerateType.incomingDocument ||
-                state.reportType == ReportGenerateType.outcomingDocument
+        input: state.reportType == ReportGenerateType.document
             ? state.documentInput
             : null,
         congregationSubtype: state.reportType == ReportGenerateType.congregation

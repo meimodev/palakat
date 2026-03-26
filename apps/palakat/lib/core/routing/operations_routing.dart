@@ -54,9 +54,6 @@ final operationsRouting = GoRoute(
       pageBuilder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.reportType] as ReportGenerateType?;
-        final normalizedType = type == ReportGenerateType.outcomingDocument
-            ? ReportGenerateType.incomingDocument
-            : type;
         final mediaQuery = MediaQuery.maybeOf(context);
         final reduceMotion =
             (mediaQuery?.disableAnimations ?? false) ||
@@ -64,7 +61,7 @@ final operationsRouting = GoRoute(
 
         return CustomTransitionPage<void>(
           key: state.pageKey,
-          child: ReportGenerateScreen(initialReportType: normalizedType),
+          child: ReportGenerateScreen(initialReportType: type),
           transitionDuration: reduceMotion
               ? Duration.zero
               : const Duration(milliseconds: 260),

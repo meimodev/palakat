@@ -12,7 +12,7 @@ abstract class Report with _$Report {
   const factory Report({
     int? id,
     required String name,
-    @Default(ReportGenerateType.incomingDocument) ReportGenerateType type,
+    @Default(ReportGenerateType.document) ReportGenerateType type,
     @Default(ReportFormat.pdf) ReportFormat format,
     Map<String, dynamic>? params,
     required GeneratedBy generatedBy,

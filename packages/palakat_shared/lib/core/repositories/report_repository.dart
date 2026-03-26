@@ -266,10 +266,8 @@ class ReportRepository {
 
   String _reportGenerateTypeToApi(ReportGenerateType type) {
     switch (type) {
-      case ReportGenerateType.incomingDocument:
-        return 'INCOMING_DOCUMENT';
-      case ReportGenerateType.outcomingDocument:
-        return 'OUTCOMING_DOCUMENT';
+      case ReportGenerateType.document:
+        return 'DOCUMENT';
       case ReportGenerateType.congregation:
         return 'CONGREGATION';
       case ReportGenerateType.services:

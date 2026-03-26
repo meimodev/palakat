@@ -529,21 +529,28 @@ class _PendingJobItem extends StatelessWidget {
   }
 
   String _getJobName(BuildContext context, ReportJob job) {
-    final l10n = context.l10n;
     switch (job.type) {
-      case ReportGenerateType.incomingDocument:
-        return l10n.reportType_incomingDocument;
-      case ReportGenerateType.outcomingDocument:
-        return l10n.reportType_outcomingDocument;
+      case ReportGenerateType.document:
+        return _documentReportLabel(context, job.params);
       case ReportGenerateType.congregation:
-        return l10n.reportType_congregation;
+        return context.l10n.reportType_congregation;
       case ReportGenerateType.services:
-        return l10n.reportType_services;
+        return context.l10n.reportType_services;
       case ReportGenerateType.activity:
-        return l10n.reportType_activity;
+        return context.l10n.reportType_activity;
       case ReportGenerateType.financial:
-        return l10n.reportType_financial;
+        return context.l10n.reportType_financial;
     }
+  }
+
+  String _documentReportLabel(
+    BuildContext context,
+    Map<String, dynamic>? params,
+  ) {
+    final input = params?['input']?.toString().toUpperCase();
+    return input == 'OUTCOME'
+        ? context.l10n.reportType_outcomingDocument
+        : context.l10n.reportType_incomingDocument;
   }
 
   _StatusInfo _getStatusInfo(BuildContext context, ReportJobStatus status) {

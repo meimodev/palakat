@@ -9,6 +9,7 @@ import {
   AccountRole,
   Bipra,
   Book,
+  DocumentInput,
   FinancialType,
   Gender,
   MaritalStatus,
@@ -2023,12 +2024,14 @@ async function seedDocuments(
       const hasFile = i !== 2;
       const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(globalIndex).padStart(4, '0')}`;
       const documentType = randomElement(documentTypes);
+      const input = i % 2 === 0 ? DocumentInput.INCOME : DocumentInput.OUTCOME;
       const file = hasFile ? pool.shift() : null;
 
       const document = await prisma.document.create({
         data: {
           name: `${documentType} - ${church.name}`,
           accountNumber,
+          input,
           churchId: church.id,
           fileId: file ? file.id : null,
         },

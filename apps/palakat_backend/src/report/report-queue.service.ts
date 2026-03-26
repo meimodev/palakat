@@ -14,6 +14,7 @@ import { PusherBeamsService } from '../notification/pusher-beams.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import {
   Prisma,
+  DocumentInput,
   ReportJobStatus,
   NotificationType,
   ReportGenerateType,
@@ -421,12 +422,15 @@ export class ReportQueueService {
     }
   }
 
-  private formatReportType(type: ReportGenerateType): string {
+  private formatReportType(
+    type: ReportGenerateType,
+    params?: Record<string, unknown> | null,
+  ): string {
     switch (type) {
-      case ReportGenerateType.INCOMING_DOCUMENT:
-        return 'Incoming Document';
-      case ReportGenerateType.OUTCOMING_DOCUMENT:
-        return 'Outgoing Document';
+      case ReportGenerateType.DOCUMENT:
+        return String(params?.input).toUpperCase() === DocumentInput.OUTCOME
+          ? 'Outgoing Document'
+          : 'Incoming Document';
       case ReportGenerateType.CONGREGATION:
         return 'Congregation';
       case ReportGenerateType.SERVICES:
@@ -445,7 +449,12 @@ export class ReportQueueService {
       const interest = this.pusherBeams.formatAccountInterest(
         job.requestedById,
       );
-      const reportTypeName = this.formatReportType(job.type);
+      const reportTypeName = this.formatReportType(
+        job.type,
+        (report?.params as Record<string, unknown> | null | undefined) ??
+          (job?.params as Record<string, unknown> | null | undefined) ??
+          null,
+      );
 
       await this.prisma.notification.create({
         data: {
@@ -486,7 +495,10 @@ export class ReportQueueService {
       const interest = this.pusherBeams.formatAccountInterest(
         job.requestedById,
       );
-      const reportTypeName = this.formatReportType(job.type);
+      const reportTypeName = this.formatReportType(
+        job.type,
+        (job?.params as Record<string, unknown> | null | undefined) ?? null,
+      );
 
       await this.prisma.notification.create({
         data: {

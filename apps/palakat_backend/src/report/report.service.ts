@@ -151,12 +151,15 @@ export class ReportService {
     return parsed;
   }
 
-  private buildNoMatchingDataMessage(type: ReportGenerateType): string {
+  private buildNoMatchingDataMessage(
+    type: ReportGenerateType,
+    input?: DocumentInput,
+  ): string {
     switch (type) {
-      case ReportGenerateType.INCOMING_DOCUMENT:
-        return 'No incoming document data matched the selected report configuration';
-      case ReportGenerateType.OUTCOMING_DOCUMENT:
-        return 'No outgoing document data matched the selected report configuration';
+      case ReportGenerateType.DOCUMENT:
+        return input === DocumentInput.OUTCOME
+          ? 'No outgoing document data matched the selected report configuration'
+          : 'No incoming document data matched the selected report configuration';
       case ReportGenerateType.CONGREGATION:
         return 'No congregation data matched the selected report configuration';
       case ReportGenerateType.ACTIVITY:
@@ -200,12 +203,8 @@ export class ReportService {
         : undefined;
 
     const input =
-      type === ReportGenerateType.INCOMING_DOCUMENT ||
-      type === ReportGenerateType.OUTCOMING_DOCUMENT
-        ? (dto.input ??
-          (type === ReportGenerateType.INCOMING_DOCUMENT
-            ? DocumentInput.INCOME
-            : DocumentInput.OUTCOME))
+      type === ReportGenerateType.DOCUMENT
+        ? (dto.input ?? DocumentInput.INCOME)
         : dto.input;
 
     const activityType =
@@ -219,8 +218,7 @@ export class ReportService {
     let matchingCount = 0;
 
     switch (type) {
-      case ReportGenerateType.INCOMING_DOCUMENT:
-      case ReportGenerateType.OUTCOMING_DOCUMENT:
+      case ReportGenerateType.DOCUMENT:
         matchingCount = await this.prisma.document.count({
           where: {
             churchId,
@@ -363,7 +361,9 @@ export class ReportService {
     }
 
     if (matchingCount <= 0) {
-      throw new BadRequestException(this.buildNoMatchingDataMessage(type));
+      throw new BadRequestException(
+        this.buildNoMatchingDataMessage(type, input),
+      );
     }
   }
 
@@ -769,12 +769,8 @@ export class ReportService {
         : undefined;
 
     const input =
-      type === ReportGenerateType.INCOMING_DOCUMENT ||
-      type === ReportGenerateType.OUTCOMING_DOCUMENT
-        ? (dto.input ??
-          (type === ReportGenerateType.INCOMING_DOCUMENT
-            ? DocumentInput.INCOME
-            : DocumentInput.OUTCOME))
+      type === ReportGenerateType.DOCUMENT
+        ? (dto.input ?? DocumentInput.INCOME)
         : dto.input;
 
     const activityType =
@@ -825,14 +821,12 @@ export class ReportService {
       : undefined;
     const logoBuffer = getGmimLogoBuffer();
 
-    const isDocumentReport =
-      type === ReportGenerateType.INCOMING_DOCUMENT ||
-      type === ReportGenerateType.OUTCOMING_DOCUMENT;
+    const isDocumentReport = type === ReportGenerateType.DOCUMENT;
 
     const title = isDocumentReport
-      ? type === ReportGenerateType.INCOMING_DOCUMENT
-        ? 'Laporan Dokumen Masuk'
-        : 'Laporan Dokumen Keluar'
+      ? input === DocumentInput.OUTCOME
+        ? 'Laporan Dokumen Keluar'
+        : 'Laporan Dokumen Masuk'
       : [
           'Report',
           type,
@@ -876,10 +870,7 @@ export class ReportService {
 
     let buffer: Buffer | undefined;
 
-    if (
-      type === ReportGenerateType.INCOMING_DOCUMENT ||
-      type === ReportGenerateType.OUTCOMING_DOCUMENT
-    ) {
+    if (type === ReportGenerateType.DOCUMENT) {
       const documents = await this.prisma.document.findMany({
         where: {
           churchId,
@@ -1654,7 +1645,7 @@ export class ReportService {
     const report = await this.prisma.report.create({
       data: {
         name: title,
-        type,
+        type: isDocumentReport ? ReportGenerateType.DOCUMENT : type,
         format,
         params: reportParams,
         generatedBy: GeneratedBy.SYSTEM,

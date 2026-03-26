@@ -450,8 +450,7 @@ enum GeneratedBy {
 }
 
 enum ReportGenerateType {
-  INCOMING_DOCUMENT
-  OUTCOMING_DOCUMENT
+  DOCUMENT
   CONGREGATION
   SERVICES
   ACTIVITY
@@ -496,7 +495,7 @@ model FileManager {
 model Report {
   id          Int         @id @default(autoincrement())
   name        String
-  type        ReportGenerateType @default(INCOMING_DOCUMENT)
+  type        ReportGenerateType @default(DOCUMENT)
   format      ReportFormat       @default(PDF)
   params      Json?
   generatedBy GeneratedBy

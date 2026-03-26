@@ -375,7 +375,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                     title: l10n.reportType_incomingDocument,
                     icon: Icons.mail_outline,
                     color: AppColors.primary,
-                    onGenerate: () => _showGenerateDrawer('INCOMING_DOCUMENT'),
+                    onGenerate: () => _showGenerateDrawer('DOCUMENT'),
                   ),
                   _GenerateCard(
                     title: l10n.reportType_congregation,
@@ -942,10 +942,11 @@ class _PendingJobCard extends StatelessWidget {
   String _getJobName(BuildContext context, ReportJob job) {
     final l10n = context.l10n;
     switch (job.type) {
-      case ReportGenerateType.incomingDocument:
-        return l10n.reportType_incomingDocument;
-      case ReportGenerateType.outcomingDocument:
-        return l10n.reportType_outcomingDocument;
+      case ReportGenerateType.document:
+        final input = job.params?['input']?.toString().toUpperCase();
+        return input == 'OUTCOME'
+            ? l10n.reportType_outcomingDocument
+            : l10n.reportType_incomingDocument;
       case ReportGenerateType.congregation:
         return l10n.reportType_congregation;
       case ReportGenerateType.services:
