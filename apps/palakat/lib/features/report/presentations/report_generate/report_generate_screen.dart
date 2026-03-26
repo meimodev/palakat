@@ -9,9 +9,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/column.dart' as model;
 
 class ReportGenerateScreen extends ConsumerStatefulWidget {
-  const ReportGenerateScreen({super.key, this.initialReportType});
-
-  final ReportGenerateType? initialReportType;
+  const ReportGenerateScreen({super.key});
 
   @override
   ConsumerState<ReportGenerateScreen> createState() =>
@@ -23,13 +21,9 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
   void initState() {
     super.initState();
 
-    final initial = widget.initialReportType;
-    if (initial == null) return;
-
     Future.microtask(() {
-      ref
-          .read(reportGenerateControllerProvider.notifier)
-          .setReportType(initial);
+      final controller = ref.read(reportGenerateControllerProvider.notifier);
+      controller.setReportType(ReportGenerateType.document);
     });
   }
 
@@ -154,39 +148,6 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
 
           OperationsReveal(
             delay: const Duration(milliseconds: 40),
-            child: InputWidget<ReportGenerateType>.dropdown(
-              label: l10n.lbl_reportType,
-              hint: l10n.lbl_reportType,
-              currentInputValue: state.reportType,
-              options: const [
-                ReportGenerateType.document,
-                ReportGenerateType.congregation,
-                ReportGenerateType.activity,
-                ReportGenerateType.financial,
-              ],
-              optionLabel: (t) => _reportTypeLabel(context, t),
-              onChanged: controller.setReportType,
-              onPressedWithResult: () async {
-                return await _showEnumBottomSheet<ReportGenerateType>(
-                  context,
-                  title: l10n.lbl_reportType,
-                  options: const [
-                    ReportGenerateType.document,
-                    ReportGenerateType.congregation,
-                    ReportGenerateType.activity,
-                    ReportGenerateType.financial,
-                  ],
-                  current: state.reportType,
-                  optionLabel: (t) => _reportTypeLabel(context, t),
-                );
-              },
-            ),
-          ),
-
-          Gap.h12,
-
-          OperationsReveal(
-            delay: const Duration(milliseconds: 80),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -339,22 +300,6 @@ class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
         ],
       ),
     );
-  }
-
-  static String _reportTypeLabel(BuildContext context, ReportGenerateType t) {
-    final l10n = context.l10n;
-    switch (t) {
-      case ReportGenerateType.document:
-        return l10n.reportType_incomingDocument;
-      case ReportGenerateType.congregation:
-        return l10n.reportType_congregation;
-      case ReportGenerateType.activity:
-        return l10n.reportType_activity;
-      case ReportGenerateType.financial:
-        return l10n.reportType_financial;
-      case ReportGenerateType.services:
-        return l10n.reportType_services;
-    }
   }
 
   static String _congregationSubtypeLabel(

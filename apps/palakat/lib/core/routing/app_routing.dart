@@ -107,6 +107,7 @@ class RouteParamKey {
   static const String financeType = 'financeType';
   static const String isStandalone = 'isStandalone';
   static const String reportType = 'reportType';
+  static const String documentInput = 'documentInput';
 
   /// Flag indicating navigation from approval context (Req 6.2, 6.3)
   /// When true, activity detail screen should be in read-only mode

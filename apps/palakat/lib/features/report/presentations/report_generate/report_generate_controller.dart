@@ -230,16 +230,8 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
     );
     final usesActivityType = type == ReportGenerateType.activity;
 
-    final isDocumentReport = type == ReportGenerateType.document;
-    final wasDocumentReport = state.reportType == ReportGenerateType.document;
-
-    final nextDocumentInput = isDocumentReport && !wasDocumentReport
-        ? DocumentInput.income
-        : null;
-
     state = state.copyWith(
       reportType: type,
-      documentInput: nextDocumentInput,
       clearSelectedColumn: !usesColumn,
       clearActivityType: !usesActivityType,
       clearErrorMessage: true,

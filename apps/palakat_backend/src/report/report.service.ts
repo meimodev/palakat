@@ -1,13 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import {
+  ActivityType,
   DocumentInput,
   GeneratedBy,
+  ApprovalStatus,
   Prisma,
   ReportFormat,
   ReportGenerateType,
 } from '../generated/prisma/client';
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
+import * as ExcelJS from 'exceljs';
 import { PassThrough } from 'stream';
 import { PrismaService } from '../prisma.service';
 import { ReportListQueryDto } from './dto/report-list.dto';
@@ -104,6 +107,34 @@ export class ReportService {
     }`;
   }
 
+  private buildDocumentActivityWhere(
+    churchId: number,
+    startDate?: Date,
+    endDate?: Date,
+  ): Prisma.ActivityWhereInput {
+    return {
+      supervisor: {
+        churchId,
+      },
+      activityType: ActivityType.ANNOUNCEMENT,
+      approvers: {
+        some: {},
+        every: {
+          status: ApprovalStatus.APPROVED,
+        },
+      },
+      ...(startDate && endDate
+        ? {
+            date: {
+              not: null,
+              gte: startDate,
+              lte: endDate,
+            },
+          }
+        : {}),
+    };
+  }
+
   private resolvePublicBaseUrl(): string {
     const base = process.env.PUBLIC_BASE_URL;
     if (base && base.trim().length) return base.trim().replace(/\/$/, '');
@@ -158,8 +189,8 @@ export class ReportService {
     switch (type) {
       case ReportGenerateType.DOCUMENT:
         return input === DocumentInput.OUTCOME
-          ? 'No outgoing document data matched the selected report configuration'
-          : 'No incoming document data matched the selected report configuration';
+          ? 'No outgoing document activity data matched the selected report configuration'
+          : 'No incoming document activity data matched the selected report configuration';
       case ReportGenerateType.CONGREGATION:
         return 'No congregation data matched the selected report configuration';
       case ReportGenerateType.ACTIVITY:
@@ -219,18 +250,9 @@ export class ReportService {
 
     switch (type) {
       case ReportGenerateType.DOCUMENT:
-        matchingCount = await this.prisma.document.count({
+        matchingCount = await this.prisma.activity.count({
           where: {
-            churchId,
-            input,
-            ...(startDate && endDate
-              ? {
-                  createdAt: {
-                    gte: startDate,
-                    lte: endDate,
-                  },
-                }
-              : {}),
+            ...this.buildDocumentActivityWhere(churchId, startDate, endDate),
           },
         });
         break;
@@ -543,9 +565,6 @@ export class ReportService {
     };
     logoBuffer?: Buffer;
   }): Promise<Buffer> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ExcelJS = require('exceljs');
-
     const detectXlsxImageExtension = (
       buffer: Buffer,
     ): 'png' | 'jpeg' | undefined => {
@@ -612,10 +631,11 @@ export class ReportService {
 
     if (hasLogo && logoExt && params.logoBuffer) {
       try {
-        const imageId = workbook.addImage({
+        const imageOptions: any = {
           buffer: params.logoBuffer,
           extension: logoExt,
-        });
+        };
+        const imageId = workbook.addImage(imageOptions);
         sheet.addImage(imageId, {
           tl: { col: 0, row: 0 },
           ext: { width: 72, height: 72 },
@@ -871,45 +891,66 @@ export class ReportService {
     let buffer: Buffer | undefined;
 
     if (type === ReportGenerateType.DOCUMENT) {
-      const documents = await this.prisma.document.findMany({
-        where: {
-          churchId,
-          input,
-          ...(startDate && endDate
-            ? {
-                createdAt: {
-                  gte: startDate,
-                  lte: endDate,
-                },
-              }
-            : {}),
-        },
+      const activities = await this.prisma.activity.findMany({
+        where: this.buildDocumentActivityWhere(churchId, startDate, endDate),
         include: {
           file: true,
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       });
+
+      const activityFileIds = activities
+        .map((activity) => activity.fileId)
+        .filter((fileId): fileId is number => fileId != null);
+
+      const documents = activityFileIds.length
+        ? await this.prisma.document.findMany({
+            where: {
+              churchId,
+              input,
+              fileId: {
+                in: activityFileIds,
+              },
+            },
+            select: {
+              fileId: true,
+              accountNumber: true,
+            },
+          })
+        : [];
+
+      const documentsByFileId = new Map(
+        documents
+          .filter((document) => document.fileId != null)
+          .map((document) => [document.fileId as number, document]),
+      );
 
       const sections: TableSection[] = [
         {
           columns: [
-            { header: 'Name', key: 'name', weight: 3 },
-            { header: 'Account No', key: 'accountNumber', weight: 2 },
-            { header: 'Date', key: 'createdAt', weight: 2 },
+            { header: 'Title', key: 'title', weight: 3 },
+            { header: 'Description', key: 'description', weight: 4 },
+            { header: 'No', key: 'no', weight: 2 },
+            { header: 'Date', key: 'date', weight: 2 },
             { header: 'File', key: 'fileName', weight: 3 },
           ],
-          rows: documents.map((d) => {
+          rows: activities.map((activity) => {
             const fileName =
-              d.file?.originalName ??
-              (d.file?.path ? String(d.file.path).split('/').pop() : '') ??
+              activity.file?.originalName ??
+              (activity.file?.path
+                ? String(activity.file.path).split('/').pop()
+                : '') ??
               '';
 
             return {
-              name: d.name,
-              accountNumber: d.accountNumber,
-              createdAt: this.formatIndonesianDate(d.createdAt),
+              title: activity.title,
+              description: activity.description ?? '',
+              no:
+                activity.fileId != null
+                  ? (documentsByFileId.get(activity.fileId)?.accountNumber ??
+                    '')
+                  : '',
+              date: this.formatIndonesianDate(activity.date),
               fileName,
             };
           }),

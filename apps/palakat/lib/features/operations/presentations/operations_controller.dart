@@ -380,12 +380,11 @@ class OperationsController extends _$OperationsController {
     // Reports category - available to users with positions
     final reportsOperations = <OperationItem>[
       OperationItem(
-        id: 'report_incoming_document',
+        id: 'report_document',
         title: l10n.reportType_incomingDocument,
         description: l10n.reportDesc_incomingDocument,
         icon: AppIcons.document,
         routeName: AppRoute.reportGenerate,
-        routeParams: {RouteParamKey.reportType: ReportGenerateType.document},
         isEnabled: canReportGenerate,
       ),
       OperationItem(

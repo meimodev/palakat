@@ -89,7 +89,7 @@ class _InputVariantBinaryOptionWidgetState<T>
               ),
             ),
             color: isActive
-                ? theme.colorScheme.primaryContainer
+                ? theme.colorScheme.primary
                 : theme.colorScheme.surface,
             shadowColor: AppColors.onSurface,
             elevation: isActive ? 2 : 1,
@@ -107,11 +107,12 @@ class _InputVariantBinaryOptionWidgetState<T>
                 child: Center(
                   child: Text(
                     widget.optionLabel(e),
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isActive
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurfaceVariant,
+                          ? theme.colorScheme.surface
+                          : theme.colorScheme.primary,
                     ),
                   ),
                 ),
