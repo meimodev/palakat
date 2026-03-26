@@ -75,3 +75,6 @@ lerna-debug.log*
 
 # OS
 Thumbs.db
+
+#windsurf
+.windsurf/
