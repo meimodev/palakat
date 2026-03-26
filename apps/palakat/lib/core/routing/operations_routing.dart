@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat/features/report/presentations/report_generate/report_generate_controller.dart';
 import 'package:palakat_shared/core/models/models.dart';
 
 final operationsRouting = GoRoute(
@@ -52,6 +54,11 @@ final operationsRouting = GoRoute(
       path: 'report-generate',
       name: AppRoute.reportGenerate,
       pageBuilder: (context, state) {
+        final params = (state.extra as RouteParam?)?.params;
+        final reportType =
+            params?[RouteParamKey.reportType] as ReportGenerateType?;
+        final documentInput =
+            params?[RouteParamKey.documentInput] as DocumentInput?;
         final mediaQuery = MediaQuery.maybeOf(context);
         final reduceMotion =
             (mediaQuery?.disableAnimations ?? false) ||
@@ -59,7 +66,17 @@ final operationsRouting = GoRoute(
 
         return CustomTransitionPage<void>(
           key: state.pageKey,
-          child: const ReportGenerateScreen(),
+          child: ProviderScope(
+            overrides: [
+              reportGenerateRouteArgsProvider.overrideWithValue(
+                ReportGenerateRouteArgs(
+                  reportType: reportType!,
+                  documentInput: documentInput,
+                ),
+              ),
+            ],
+            child: const ReportGenerateScreen(),
+          ),
           transitionDuration: reduceMotion
               ? Duration.zero
               : const Duration(milliseconds: 260),

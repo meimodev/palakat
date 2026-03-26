@@ -18,16 +18,6 @@ class ReportGenerateScreen extends ConsumerStatefulWidget {
 
 class _ReportGenerateScreenState extends ConsumerState<ReportGenerateScreen> {
   @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      final controller = ref.read(reportGenerateControllerProvider.notifier);
-      controller.setReportType(ReportGenerateType.document);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final controller = ref.read(reportGenerateControllerProvider.notifier);

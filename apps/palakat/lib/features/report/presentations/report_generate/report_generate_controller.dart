@@ -45,6 +45,18 @@ class GeneratedReportDownload {
 }
 
 @immutable
+class ReportGenerateRouteArgs {
+  final ReportGenerateType reportType;
+  final DocumentInput? documentInput;
+
+  const ReportGenerateRouteArgs({required this.reportType, this.documentInput});
+}
+
+final reportGenerateRouteArgsProvider = Provider<ReportGenerateRouteArgs?>(
+  (ref) => null,
+);
+
+@immutable
 class ReportGenerateState {
   final ReportGenerateType reportType;
   final ReportFormat format;
@@ -145,11 +157,14 @@ class ReportGenerateController extends Notifier<ReportGenerateState> {
 
     final membership = localStorage.currentMembership;
     final churchId = membership?.church?.id;
+    final routeArgs = ref.read(reportGenerateRouteArgsProvider);
+    final reportType = routeArgs?.reportType ?? ReportGenerateType.document;
+    final documentInput = routeArgs?.documentInput ?? DocumentInput.income;
 
     final initial = ReportGenerateState(
-      reportType: ReportGenerateType.document,
+      reportType: reportType,
       format: ReportFormat.pdf,
-      documentInput: DocumentInput.income,
+      documentInput: documentInput,
       congregationSubtype: CongregationReportSubtype.wartaJemaat,
       activityType: null,
       financialSubtype: FinancialReportSubtype.revenue,
