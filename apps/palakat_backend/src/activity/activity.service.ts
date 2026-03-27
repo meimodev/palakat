@@ -431,7 +431,6 @@ export class ActivitiesService {
       finance,
       publishToColumnOnly,
       fileId,
-      documentId,
       ...activityData
     } = createActivityDto;
 
@@ -469,6 +468,9 @@ export class ActivitiesService {
           id: true,
           churchId: true,
           columnId: true,
+          church: {
+            select: { documentAccountNumber: true },
+          },
         },
       });
 
@@ -494,6 +496,9 @@ export class ActivitiesService {
           id: true,
           churchId: true,
           columnId: true,
+          church: {
+            select: { documentAccountNumber: true },
+          },
         },
       });
     }
@@ -531,27 +536,6 @@ export class ActivitiesService {
       }
     }
 
-    if (documentId !== undefined && documentId !== null) {
-      if (activityData.activityType !== 'ANNOUNCEMENT') {
-        throw new BadRequestException(
-          'documentId is only supported for announcements',
-        );
-      }
-
-      const document = await (this.prisma as any).document.findUnique({
-        where: { id: documentId },
-        select: { id: true, churchId: true },
-      });
-
-      if (!document) {
-        throw new NotFoundException('Document not found');
-      }
-
-      if (document.churchId !== membership.churchId) {
-        throw new BadRequestException('Invalid church context for document');
-      }
-    }
-
     // Build the activity create data
     const createData: any = {
       ...activityData,
@@ -563,10 +547,6 @@ export class ActivitiesService {
 
     if (fileId !== undefined && fileId !== null) {
       createData.file = { connect: { id: fileId } };
-    }
-
-    if (documentId !== undefined && documentId !== null) {
-      createData.document = { connect: { id: documentId } };
     }
 
     if (publishToColumnOnly === true) {
@@ -657,6 +637,19 @@ export class ActivitiesService {
           } else {
             await tx.expense.create({ data: financeData });
           }
+        }
+
+        // Auto-create document for all ANNOUNCEMENT activities
+        if (newActivity.activityType === 'ANNOUNCEMENT') {
+          await tx.document.create({
+            data: {
+              name: newActivity.title,
+              accountNumber: finance?.accountNumber ?? membership.church?.documentAccountNumber ?? 'MAIN-0000',
+              input: finance ? (finance.type === 'REVENUE' ? 'INCOME' : 'OUTCOME') : 'INCOME',
+              churchId: membership.churchId,
+              activityId: newActivity.id,
+            },
+          });
         }
 
         // Create approver records if any were resolved
@@ -812,7 +805,6 @@ export class ActivitiesService {
       supervisorId,
       publishToColumnOnly,
       fileId,
-      documentId,
       ...updateData
     } = updateActivityDto;
 
@@ -858,35 +850,6 @@ export class ActivitiesService {
       }
 
       data.file = { connect: { id: fileId } };
-    }
-
-    if ((updateActivityDto as any).documentId === null) {
-      data.document = { disconnect: true };
-    } else if (documentId !== undefined && documentId !== null) {
-      const document = await (this.prisma as any).document.findUnique({
-        where: { id: documentId },
-        select: { id: true, churchId: true },
-      });
-
-      if (!document) {
-        throw new NotFoundException('Document not found');
-      }
-
-      const activity = await (this.prisma as any).activity.findUnique({
-        where: { id },
-        select: { supervisor: { select: { churchId: true } } },
-      });
-
-      const activityChurchId = activity?.supervisor?.churchId;
-      if (!activityChurchId) {
-        throw new NotFoundException(`Activity with ID ${id} not found`);
-      }
-
-      if (document.churchId !== activityChurchId) {
-        throw new BadRequestException('Invalid church context for document');
-      }
-
-      data.document = { connect: { id: documentId } };
     }
 
     // Handle supervisor update if provided

@@ -87,6 +87,7 @@ export class DocumentService {
         include: {
           church: true,
           file: true,
+          activity: true,
         },
       }),
     ]);
@@ -104,6 +105,7 @@ export class DocumentService {
       include: {
         church: true,
         file: true,
+        activity: true,
       },
     });
     return {
@@ -121,9 +123,14 @@ export class DocumentService {
     };
   }
 
-  async create(createDocumentDto: Prisma.DocumentCreateInput) {
+  async create(createDocumentDto: Prisma.DocumentCreateInput & { activityId?: number }) {
+    const payload: any = { ...createDocumentDto };
+    if (payload.activityId) {
+      payload.activity = { connect: { id: payload.activityId } };
+      delete payload.activityId;
+    }
     const document = await this.prisma.document.create({
-      data: createDocumentDto,
+      data: payload,
     });
     return {
       message: 'Document created successfully',
@@ -138,6 +145,7 @@ export class DocumentService {
       include: {
         church: true,
         file: true,
+        activity: true,
       },
     });
     return {

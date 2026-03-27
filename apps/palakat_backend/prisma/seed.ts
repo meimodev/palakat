@@ -1439,7 +1439,7 @@ async function createActivityWithConnectedModels(
   financialType: ActivityFinancialType,
   dateOverride?: Date,
   forceAllApproversApproved?: boolean,
-  documentId?: number,
+  linkedDocumentId?: number,
 ) {
   const baseActivityData = generateActivityData(activityType, bipra, index);
   const activityData = dateOverride
@@ -1472,9 +1472,15 @@ async function createActivityWithConnectedModels(
       supervisorId,
       locationId,
       columnId: shouldBeColumnOnly ? supervisorMembership!.columnId : null,
-      documentId,
     },
   });
+
+  if (linkedDocumentId) {
+    await (prisma as any).document.update({
+      where: { id: linkedDocumentId },
+      data: { activityId: activity.id },
+    });
+  }
 
   // Determine financial data for approver resolution
   let revenueFinancialAccountId: number | undefined;
@@ -2096,7 +2102,7 @@ async function seedDocuments(
           'none', // financialType
           undefined, // dateOverride
           true, // forceAllApproversApproved
-          document.id // documentId
+          document.id // linkedDocumentId
         );
       }
 
@@ -2126,11 +2132,12 @@ async function seedAnnouncementAttachments(
     const announcements = await prisma.activity.findMany({
       where: {
         activityType: ActivityType.ANNOUNCEMENT,
-        OR: [{ fileId: null }, { documentId: null }],
+        OR: [{ fileId: null }, { document: { is: null } }],
         supervisor: {
           churchId: church.id,
         },
       },
+      include: { document: true },
       take: maxAttach,
       orderBy: { id: 'asc' },
     } as any);
@@ -2144,7 +2151,7 @@ async function seedAnnouncementAttachments(
 
       const updateData: any = {};
       if (file && !activity.fileId) updateData.fileId = file.id;
-      if (doc && !(activity as any).documentId) updateData.documentId = doc.id;
+      if (doc && !(activity as any).document) updateData.document = { connect: { id: doc.id } };
 
       if (Object.keys(updateData).length > 0) {
         await prisma.activity.update({

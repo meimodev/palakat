@@ -351,7 +351,6 @@ class ActivityPublishController extends _$ActivityPublishController {
         activityType: state.type,
         reminder: state.selectedReminder,
         finance: finance,
-        documentId: state.selectedDocument?.id,
       );
 
       // Step 5: Call ActivityRepository.createActivity
@@ -689,19 +688,4 @@ class ActivityPublishController extends _$ActivityPublishController {
     state = state.copyWith(attachedFinance: null);
   }
 
-  /// Sets the attached document data.
-  void onSelectedDocument(Document? document) {
-    if (!ref.mounted) {
-      return;
-    }
-    state = state.copyWith(selectedDocument: document);
-  }
-
-  /// Removes the attached document.
-  void removeSelectedDocument() {
-    if (!ref.mounted) {
-      return;
-    }
-    state = state.copyWith(selectedDocument: null);
-  }
 }

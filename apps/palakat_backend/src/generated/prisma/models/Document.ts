@@ -30,12 +30,14 @@ export type DocumentAvgAggregateOutputType = {
   id: number | null
   churchId: number | null
   fileId: number | null
+  activityId: number | null
 }
 
 export type DocumentSumAggregateOutputType = {
   id: number | null
   churchId: number | null
   fileId: number | null
+  activityId: number | null
 }
 
 export type DocumentMinAggregateOutputType = {
@@ -47,6 +49,7 @@ export type DocumentMinAggregateOutputType = {
   updatedAt: Date | null
   churchId: number | null
   fileId: number | null
+  activityId: number | null
   publicId: string | null
   verifyTokenHash: string | null
   revokedAt: Date | null
@@ -63,6 +66,7 @@ export type DocumentMaxAggregateOutputType = {
   updatedAt: Date | null
   churchId: number | null
   fileId: number | null
+  activityId: number | null
   publicId: string | null
   verifyTokenHash: string | null
   revokedAt: Date | null
@@ -79,6 +83,7 @@ export type DocumentCountAggregateOutputType = {
   updatedAt: number
   churchId: number
   fileId: number
+  activityId: number
   publicId: number
   verifyTokenHash: number
   revokedAt: number
@@ -92,12 +97,14 @@ export type DocumentAvgAggregateInputType = {
   id?: true
   churchId?: true
   fileId?: true
+  activityId?: true
 }
 
 export type DocumentSumAggregateInputType = {
   id?: true
   churchId?: true
   fileId?: true
+  activityId?: true
 }
 
 export type DocumentMinAggregateInputType = {
@@ -109,6 +116,7 @@ export type DocumentMinAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  activityId?: true
   publicId?: true
   verifyTokenHash?: true
   revokedAt?: true
@@ -125,6 +133,7 @@ export type DocumentMaxAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  activityId?: true
   publicId?: true
   verifyTokenHash?: true
   revokedAt?: true
@@ -141,6 +150,7 @@ export type DocumentCountAggregateInputType = {
   updatedAt?: true
   churchId?: true
   fileId?: true
+  activityId?: true
   publicId?: true
   verifyTokenHash?: true
   revokedAt?: true
@@ -244,6 +254,7 @@ export type DocumentGroupByOutputType = {
   updatedAt: Date
   churchId: number
   fileId: number | null
+  activityId: number | null
   publicId: string | null
   verifyTokenHash: string | null
   revokedAt: Date | null
@@ -283,6 +294,7 @@ export type DocumentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
   fileId?: Prisma.IntNullableFilter<"Document"> | number | null
+  activityId?: Prisma.IntNullableFilter<"Document"> | number | null
   publicId?: Prisma.StringNullableFilter<"Document"> | string | null
   verifyTokenHash?: Prisma.StringNullableFilter<"Document"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"Document"> | Date | string | null
@@ -290,7 +302,7 @@ export type DocumentWhereInput = {
   fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
-  activities?: Prisma.ActivityListRelationFilter
+  activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
 }
 
 export type DocumentOrderByWithRelationInput = {
@@ -302,6 +314,7 @@ export type DocumentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activityId?: Prisma.SortOrderInput | Prisma.SortOrder
   publicId?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -309,12 +322,13 @@ export type DocumentOrderByWithRelationInput = {
   fileSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   church?: Prisma.ChurchOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
-  activities?: Prisma.ActivityOrderByRelationAggregateInput
+  activity?: Prisma.ActivityOrderByWithRelationInput
 }
 
 export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   fileId?: number
+  activityId?: number
   publicId?: string
   AND?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   OR?: Prisma.DocumentWhereInput[]
@@ -331,8 +345,8 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
-  activities?: Prisma.ActivityListRelationFilter
-}, "id" | "fileId" | "publicId">
+  activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
+}, "id" | "fileId" | "activityId" | "publicId">
 
 export type DocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -343,6 +357,7 @@ export type DocumentOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activityId?: Prisma.SortOrderInput | Prisma.SortOrder
   publicId?: Prisma.SortOrderInput | Prisma.SortOrder
   verifyTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -367,6 +382,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   churchId?: Prisma.IntWithAggregatesFilter<"Document"> | number
   fileId?: Prisma.IntNullableWithAggregatesFilter<"Document"> | number | null
+  activityId?: Prisma.IntNullableWithAggregatesFilter<"Document"> | number | null
   publicId?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   verifyTokenHash?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Document"> | Date | string | null
@@ -387,7 +403,7 @@ export type DocumentCreateInput = {
   fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
-  activities?: Prisma.ActivityCreateNestedManyWithoutDocumentInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutDocumentInput
 }
 
 export type DocumentUncheckedCreateInput = {
@@ -399,12 +415,12 @@ export type DocumentUncheckedCreateInput = {
   updatedAt?: Date | string
   churchId: number
   fileId?: number | null
+  activityId?: number | null
   publicId?: string | null
   verifyTokenHash?: string | null
   revokedAt?: Date | string | null
   revokedReason?: string | null
   fileSha256?: string | null
-  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutDocumentInput
 }
 
 export type DocumentUpdateInput = {
@@ -420,7 +436,7 @@ export type DocumentUpdateInput = {
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
-  activities?: Prisma.ActivityUpdateManyWithoutDocumentNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutDocumentNestedInput
 }
 
 export type DocumentUncheckedUpdateInput = {
@@ -432,12 +448,12 @@ export type DocumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  activities?: Prisma.ActivityUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
 export type DocumentCreateManyInput = {
@@ -449,6 +465,7 @@ export type DocumentCreateManyInput = {
   updatedAt?: Date | string
   churchId: number
   fileId?: number | null
+  activityId?: number | null
   publicId?: string | null
   verifyTokenHash?: string | null
   revokedAt?: Date | string | null
@@ -478,6 +495,7 @@ export type DocumentUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -509,6 +527,7 @@ export type DocumentCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  activityId?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
   verifyTokenHash?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
@@ -520,6 +539,7 @@ export type DocumentAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  activityId?: Prisma.SortOrder
 }
 
 export type DocumentMaxOrderByAggregateInput = {
@@ -531,6 +551,7 @@ export type DocumentMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  activityId?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
   verifyTokenHash?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
@@ -547,6 +568,7 @@ export type DocumentMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  activityId?: Prisma.SortOrder
   publicId?: Prisma.SortOrder
   verifyTokenHash?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
@@ -558,6 +580,7 @@ export type DocumentSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  activityId?: Prisma.SortOrder
 }
 
 export type DocumentCreateNestedManyWithoutChurchInput = {
@@ -602,20 +625,36 @@ export type DocumentUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
 }
 
-export type DocumentCreateNestedOneWithoutActivitiesInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivitiesInput, Prisma.DocumentUncheckedCreateWithoutActivitiesInput>
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivitiesInput
+export type DocumentCreateNestedOneWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivityInput
   connect?: Prisma.DocumentWhereUniqueInput
 }
 
-export type DocumentUpdateOneWithoutActivitiesNestedInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivitiesInput, Prisma.DocumentUncheckedCreateWithoutActivitiesInput>
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivitiesInput
-  upsert?: Prisma.DocumentUpsertWithoutActivitiesInput
+export type DocumentUncheckedCreateNestedOneWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivityInput
+  connect?: Prisma.DocumentWhereUniqueInput
+}
+
+export type DocumentUpdateOneWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivityInput
+  upsert?: Prisma.DocumentUpsertWithoutActivityInput
   disconnect?: Prisma.DocumentWhereInput | boolean
   delete?: Prisma.DocumentWhereInput | boolean
   connect?: Prisma.DocumentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutActivitiesInput, Prisma.DocumentUpdateWithoutActivitiesInput>, Prisma.DocumentUncheckedUpdateWithoutActivitiesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutActivityInput, Prisma.DocumentUpdateWithoutActivityInput>, Prisma.DocumentUncheckedUpdateWithoutActivityInput>
+}
+
+export type DocumentUncheckedUpdateOneWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutActivityInput
+  upsert?: Prisma.DocumentUpsertWithoutActivityInput
+  disconnect?: Prisma.DocumentWhereInput | boolean
+  delete?: Prisma.DocumentWhereInput | boolean
+  connect?: Prisma.DocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutActivityInput, Prisma.DocumentUpdateWithoutActivityInput>, Prisma.DocumentUncheckedUpdateWithoutActivityInput>
 }
 
 export type DocumentCreateNestedOneWithoutFileInput = {
@@ -666,7 +705,7 @@ export type DocumentCreateWithoutChurchInput = {
   revokedReason?: string | null
   fileSha256?: string | null
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
-  activities?: Prisma.ActivityCreateNestedManyWithoutDocumentInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutDocumentInput
 }
 
 export type DocumentUncheckedCreateWithoutChurchInput = {
@@ -677,12 +716,12 @@ export type DocumentUncheckedCreateWithoutChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
+  activityId?: number | null
   publicId?: string | null
   verifyTokenHash?: string | null
   revokedAt?: Date | string | null
   revokedReason?: string | null
   fileSha256?: string | null
-  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutDocumentInput
 }
 
 export type DocumentCreateOrConnectWithoutChurchInput = {
@@ -723,6 +762,7 @@ export type DocumentScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   churchId?: Prisma.IntFilter<"Document"> | number
   fileId?: Prisma.IntNullableFilter<"Document"> | number | null
+  activityId?: Prisma.IntNullableFilter<"Document"> | number | null
   publicId?: Prisma.StringNullableFilter<"Document"> | string | null
   verifyTokenHash?: Prisma.StringNullableFilter<"Document"> | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"Document"> | Date | string | null
@@ -730,7 +770,7 @@ export type DocumentScalarWhereInput = {
   fileSha256?: Prisma.StringNullableFilter<"Document"> | string | null
 }
 
-export type DocumentCreateWithoutActivitiesInput = {
+export type DocumentCreateWithoutActivityInput = {
   name: string
   accountNumber: string
   input?: $Enums.DocumentInput
@@ -745,7 +785,7 @@ export type DocumentCreateWithoutActivitiesInput = {
   file?: Prisma.FileManagerCreateNestedOneWithoutDocumentInput
 }
 
-export type DocumentUncheckedCreateWithoutActivitiesInput = {
+export type DocumentUncheckedCreateWithoutActivityInput = {
   id?: number
   name: string
   accountNumber: string
@@ -761,23 +801,23 @@ export type DocumentUncheckedCreateWithoutActivitiesInput = {
   fileSha256?: string | null
 }
 
-export type DocumentCreateOrConnectWithoutActivitiesInput = {
+export type DocumentCreateOrConnectWithoutActivityInput = {
   where: Prisma.DocumentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DocumentCreateWithoutActivitiesInput, Prisma.DocumentUncheckedCreateWithoutActivitiesInput>
+  create: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
 }
 
-export type DocumentUpsertWithoutActivitiesInput = {
-  update: Prisma.XOR<Prisma.DocumentUpdateWithoutActivitiesInput, Prisma.DocumentUncheckedUpdateWithoutActivitiesInput>
-  create: Prisma.XOR<Prisma.DocumentCreateWithoutActivitiesInput, Prisma.DocumentUncheckedCreateWithoutActivitiesInput>
+export type DocumentUpsertWithoutActivityInput = {
+  update: Prisma.XOR<Prisma.DocumentUpdateWithoutActivityInput, Prisma.DocumentUncheckedUpdateWithoutActivityInput>
+  create: Prisma.XOR<Prisma.DocumentCreateWithoutActivityInput, Prisma.DocumentUncheckedCreateWithoutActivityInput>
   where?: Prisma.DocumentWhereInput
 }
 
-export type DocumentUpdateToOneWithWhereWithoutActivitiesInput = {
+export type DocumentUpdateToOneWithWhereWithoutActivityInput = {
   where?: Prisma.DocumentWhereInput
-  data: Prisma.XOR<Prisma.DocumentUpdateWithoutActivitiesInput, Prisma.DocumentUncheckedUpdateWithoutActivitiesInput>
+  data: Prisma.XOR<Prisma.DocumentUpdateWithoutActivityInput, Prisma.DocumentUncheckedUpdateWithoutActivityInput>
 }
 
-export type DocumentUpdateWithoutActivitiesInput = {
+export type DocumentUpdateWithoutActivityInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
@@ -792,7 +832,7 @@ export type DocumentUpdateWithoutActivitiesInput = {
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
 }
 
-export type DocumentUncheckedUpdateWithoutActivitiesInput = {
+export type DocumentUncheckedUpdateWithoutActivityInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -820,7 +860,7 @@ export type DocumentCreateWithoutFileInput = {
   revokedReason?: string | null
   fileSha256?: string | null
   church: Prisma.ChurchCreateNestedOneWithoutDocumentsInput
-  activities?: Prisma.ActivityCreateNestedManyWithoutDocumentInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutDocumentInput
 }
 
 export type DocumentUncheckedCreateWithoutFileInput = {
@@ -831,12 +871,12 @@ export type DocumentUncheckedCreateWithoutFileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
+  activityId?: number | null
   publicId?: string | null
   verifyTokenHash?: string | null
   revokedAt?: Date | string | null
   revokedReason?: string | null
   fileSha256?: string | null
-  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutDocumentInput
 }
 
 export type DocumentCreateOrConnectWithoutFileInput = {
@@ -867,7 +907,7 @@ export type DocumentUpdateWithoutFileInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   church?: Prisma.ChurchUpdateOneRequiredWithoutDocumentsNestedInput
-  activities?: Prisma.ActivityUpdateManyWithoutDocumentNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutDocumentNestedInput
 }
 
 export type DocumentUncheckedUpdateWithoutFileInput = {
@@ -878,12 +918,12 @@ export type DocumentUncheckedUpdateWithoutFileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  activities?: Prisma.ActivityUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
 export type DocumentCreateManyChurchInput = {
@@ -894,6 +934,7 @@ export type DocumentCreateManyChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   fileId?: number | null
+  activityId?: number | null
   publicId?: string | null
   verifyTokenHash?: string | null
   revokedAt?: Date | string | null
@@ -913,7 +954,7 @@ export type DocumentUpdateWithoutChurchInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   file?: Prisma.FileManagerUpdateOneWithoutDocumentNestedInput
-  activities?: Prisma.ActivityUpdateManyWithoutDocumentNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutDocumentNestedInput
 }
 
 export type DocumentUncheckedUpdateWithoutChurchInput = {
@@ -924,12 +965,12 @@ export type DocumentUncheckedUpdateWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  activities?: Prisma.ActivityUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
 export type DocumentUncheckedUpdateManyWithoutChurchInput = {
@@ -940,6 +981,7 @@ export type DocumentUncheckedUpdateManyWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifyTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -947,35 +989,6 @@ export type DocumentUncheckedUpdateManyWithoutChurchInput = {
   fileSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-
-/**
- * Count Type DocumentCountOutputType
- */
-
-export type DocumentCountOutputType = {
-  activities: number
-}
-
-export type DocumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  activities?: boolean | DocumentCountOutputTypeCountActivitiesArgs
-}
-
-/**
- * DocumentCountOutputType without action
- */
-export type DocumentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DocumentCountOutputType
-   */
-  select?: Prisma.DocumentCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * DocumentCountOutputType without action
- */
-export type DocumentCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ActivityWhereInput
-}
 
 
 export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -987,6 +1000,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  activityId?: boolean
   publicId?: boolean
   verifyTokenHash?: boolean
   revokedAt?: boolean
@@ -994,8 +1008,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
-  activities?: boolean | Prisma.Document$activitiesArgs<ExtArgs>
-  _count?: boolean | Prisma.DocumentCountOutputTypeDefaultArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
 
 export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1007,6 +1020,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  activityId?: boolean
   publicId?: boolean
   verifyTokenHash?: boolean
   revokedAt?: boolean
@@ -1014,6 +1028,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
 
 export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1025,6 +1040,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  activityId?: boolean
   publicId?: boolean
   verifyTokenHash?: boolean
   revokedAt?: boolean
@@ -1032,6 +1048,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   fileSha256?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
 
 export type DocumentSelectScalar = {
@@ -1043,6 +1060,7 @@ export type DocumentSelectScalar = {
   updatedAt?: boolean
   churchId?: boolean
   fileId?: boolean
+  activityId?: boolean
   publicId?: boolean
   verifyTokenHash?: boolean
   revokedAt?: boolean
@@ -1050,20 +1068,21 @@ export type DocumentSelectScalar = {
   fileSha256?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "activityId" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
-  activities?: boolean | Prisma.Document$activitiesArgs<ExtArgs>
-  _count?: boolean | Prisma.DocumentCountOutputTypeDefaultArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }
 export type DocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }
 export type DocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
+  activity?: boolean | Prisma.Document$activityArgs<ExtArgs>
 }
 
 export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1071,7 +1090,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     church: Prisma.$ChurchPayload<ExtArgs>
     file: Prisma.$FileManagerPayload<ExtArgs> | null
-    activities: Prisma.$ActivityPayload<ExtArgs>[]
+    activity: Prisma.$ActivityPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1082,6 +1101,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     updatedAt: Date
     churchId: number
     fileId: number | null
+    activityId: number | null
     publicId: string | null
     verifyTokenHash: string | null
     revokedAt: Date | null
@@ -1483,7 +1503,7 @@ export interface Prisma__DocumentClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   file<T extends Prisma.Document$fileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$fileArgs<ExtArgs>>): Prisma.Prisma__FileManagerClient<runtime.Types.Result.GetResult<Prisma.$FileManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  activities<T extends Prisma.Document$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activity<T extends Prisma.Document$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1521,6 +1541,7 @@ export interface DocumentFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly churchId: Prisma.FieldRef<"Document", 'Int'>
   readonly fileId: Prisma.FieldRef<"Document", 'Int'>
+  readonly activityId: Prisma.FieldRef<"Document", 'Int'>
   readonly publicId: Prisma.FieldRef<"Document", 'String'>
   readonly verifyTokenHash: Prisma.FieldRef<"Document", 'String'>
   readonly revokedAt: Prisma.FieldRef<"Document", 'DateTime'>
@@ -1941,9 +1962,9 @@ export type Document$fileArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Document.activities
+ * Document.activity
  */
-export type Document$activitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Document$activityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Activity
    */
@@ -1957,11 +1978,6 @@ export type Document$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.ActivityInclude<ExtArgs> | null
   where?: Prisma.ActivityWhereInput
-  orderBy?: Prisma.ActivityOrderByWithRelationInput | Prisma.ActivityOrderByWithRelationInput[]
-  cursor?: Prisma.ActivityWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ActivityScalarFieldEnum | Prisma.ActivityScalarFieldEnum[]
 }
 
 /**
