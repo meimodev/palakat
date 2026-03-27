@@ -80,6 +80,10 @@ export class CreateActivityDto {
   @IsInt()
   fileId?: number;
 
+  @IsOptional()
+  @IsInt()
+  documentId?: number;
+
   @IsEnum(ActivityType)
   activityType: ActivityType;
 

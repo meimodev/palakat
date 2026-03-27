@@ -76,6 +76,7 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
     String? note,
 
     int? fileId,
+    int? documentId,
 
     /// The type of activity being created
     required ActivityType activityType,

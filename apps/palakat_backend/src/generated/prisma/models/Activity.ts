@@ -32,6 +32,7 @@ export type ActivityAvgAggregateOutputType = {
   columnId: number | null
   locationId: number | null
   fileId: number | null
+  documentId: number | null
 }
 
 export type ActivitySumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type ActivitySumAggregateOutputType = {
   columnId: number | null
   locationId: number | null
   fileId: number | null
+  documentId: number | null
 }
 
 export type ActivityMinAggregateOutputType = {
@@ -53,6 +55,7 @@ export type ActivityMinAggregateOutputType = {
   date: Date | null
   note: string | null
   fileId: number | null
+  documentId: number | null
   activityType: $Enums.ActivityType | null
   reminder: $Enums.Reminder | null
   createdAt: Date | null
@@ -70,6 +73,7 @@ export type ActivityMaxAggregateOutputType = {
   date: Date | null
   note: string | null
   fileId: number | null
+  documentId: number | null
   activityType: $Enums.ActivityType | null
   reminder: $Enums.Reminder | null
   createdAt: Date | null
@@ -87,6 +91,7 @@ export type ActivityCountAggregateOutputType = {
   date: number
   note: number
   fileId: number
+  documentId: number
   activityType: number
   reminder: number
   createdAt: number
@@ -101,6 +106,7 @@ export type ActivityAvgAggregateInputType = {
   columnId?: true
   locationId?: true
   fileId?: true
+  documentId?: true
 }
 
 export type ActivitySumAggregateInputType = {
@@ -109,6 +115,7 @@ export type ActivitySumAggregateInputType = {
   columnId?: true
   locationId?: true
   fileId?: true
+  documentId?: true
 }
 
 export type ActivityMinAggregateInputType = {
@@ -122,6 +129,7 @@ export type ActivityMinAggregateInputType = {
   date?: true
   note?: true
   fileId?: true
+  documentId?: true
   activityType?: true
   reminder?: true
   createdAt?: true
@@ -139,6 +147,7 @@ export type ActivityMaxAggregateInputType = {
   date?: true
   note?: true
   fileId?: true
+  documentId?: true
   activityType?: true
   reminder?: true
   createdAt?: true
@@ -156,6 +165,7 @@ export type ActivityCountAggregateInputType = {
   date?: true
   note?: true
   fileId?: true
+  documentId?: true
   activityType?: true
   reminder?: true
   createdAt?: true
@@ -260,6 +270,7 @@ export type ActivityGroupByOutputType = {
   date: Date | null
   note: string | null
   fileId: number | null
+  documentId: number | null
   activityType: $Enums.ActivityType
   reminder: $Enums.Reminder | null
   createdAt: Date
@@ -300,6 +311,7 @@ export type ActivityWhereInput = {
   date?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
   note?: Prisma.StringNullableFilter<"Activity"> | string | null
   fileId?: Prisma.IntNullableFilter<"Activity"> | number | null
+  documentId?: Prisma.IntNullableFilter<"Activity"> | number | null
   activityType?: Prisma.EnumActivityTypeFilter<"Activity"> | $Enums.ActivityType
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
@@ -309,6 +321,7 @@ export type ActivityWhereInput = {
   approvers?: Prisma.ApproverListRelationFilter
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
+  document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
   revenue?: Prisma.XOR<Prisma.RevenueNullableScalarRelationFilter, Prisma.RevenueWhereInput> | null
   expense?: Prisma.XOR<Prisma.ExpenseNullableScalarRelationFilter, Prisma.ExpenseWhereInput> | null
   notifications?: Prisma.NotificationListRelationFilter
@@ -325,6 +338,7 @@ export type ActivityOrderByWithRelationInput = {
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   activityType?: Prisma.SortOrder
   reminder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -334,6 +348,7 @@ export type ActivityOrderByWithRelationInput = {
   approvers?: Prisma.ApproverOrderByRelationAggregateInput
   location?: Prisma.LocationOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
+  document?: Prisma.DocumentOrderByWithRelationInput
   revenue?: Prisma.RevenueOrderByWithRelationInput
   expense?: Prisma.ExpenseOrderByWithRelationInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
@@ -353,6 +368,7 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   locationId?: Prisma.IntNullableFilter<"Activity"> | number | null
   date?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
   note?: Prisma.StringNullableFilter<"Activity"> | string | null
+  documentId?: Prisma.IntNullableFilter<"Activity"> | number | null
   activityType?: Prisma.EnumActivityTypeFilter<"Activity"> | $Enums.ActivityType
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
@@ -362,6 +378,7 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   approvers?: Prisma.ApproverListRelationFilter
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
+  document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
   revenue?: Prisma.XOR<Prisma.RevenueNullableScalarRelationFilter, Prisma.RevenueWhereInput> | null
   expense?: Prisma.XOR<Prisma.ExpenseNullableScalarRelationFilter, Prisma.ExpenseWhereInput> | null
   notifications?: Prisma.NotificationListRelationFilter
@@ -378,6 +395,7 @@ export type ActivityOrderByWithAggregationInput = {
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   fileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   activityType?: Prisma.SortOrder
   reminder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -403,6 +421,7 @@ export type ActivityScalarWhereWithAggregatesInput = {
   date?: Prisma.DateTimeNullableWithAggregatesFilter<"Activity"> | Date | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"Activity"> | string | null
   fileId?: Prisma.IntNullableWithAggregatesFilter<"Activity"> | number | null
+  documentId?: Prisma.IntNullableWithAggregatesFilter<"Activity"> | number | null
   activityType?: Prisma.EnumActivityTypeWithAggregatesFilter<"Activity"> | $Enums.ActivityType
   reminder?: Prisma.EnumReminderNullableWithAggregatesFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Activity"> | Date | string
@@ -424,6 +443,7 @@ export type ActivityCreateInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -440,6 +460,7 @@ export type ActivityUncheckedCreateInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -465,6 +486,7 @@ export type ActivityUpdateInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -481,6 +503,7 @@ export type ActivityUncheckedUpdateInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -502,6 +525,7 @@ export type ActivityCreateManyInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -531,6 +555,7 @@ export type ActivityUncheckedUpdateManyInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -558,6 +583,7 @@ export type ActivityCountOrderByAggregateInput = {
   date?: Prisma.SortOrder
   note?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -570,6 +596,7 @@ export type ActivityAvgOrderByAggregateInput = {
   columnId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
 }
 
 export type ActivityMaxOrderByAggregateInput = {
@@ -583,6 +610,7 @@ export type ActivityMaxOrderByAggregateInput = {
   date?: Prisma.SortOrder
   note?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -600,6 +628,7 @@ export type ActivityMinOrderByAggregateInput = {
   date?: Prisma.SortOrder
   note?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -612,6 +641,7 @@ export type ActivitySumOrderByAggregateInput = {
   columnId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
 }
 
 export type ActivityNullableScalarRelationFilter = {
@@ -840,6 +870,48 @@ export type ActivityUncheckedUpdateOneWithoutFileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityUpdateToOneWithWhereWithoutFileInput, Prisma.ActivityUpdateWithoutFileInput>, Prisma.ActivityUncheckedUpdateWithoutFileInput>
 }
 
+export type ActivityCreateNestedManyWithoutDocumentInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput> | Prisma.ActivityCreateWithoutDocumentInput[] | Prisma.ActivityUncheckedCreateWithoutDocumentInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutDocumentInput | Prisma.ActivityCreateOrConnectWithoutDocumentInput[]
+  createMany?: Prisma.ActivityCreateManyDocumentInputEnvelope
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+}
+
+export type ActivityUncheckedCreateNestedManyWithoutDocumentInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput> | Prisma.ActivityCreateWithoutDocumentInput[] | Prisma.ActivityUncheckedCreateWithoutDocumentInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutDocumentInput | Prisma.ActivityCreateOrConnectWithoutDocumentInput[]
+  createMany?: Prisma.ActivityCreateManyDocumentInputEnvelope
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+}
+
+export type ActivityUpdateManyWithoutDocumentNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput> | Prisma.ActivityCreateWithoutDocumentInput[] | Prisma.ActivityUncheckedCreateWithoutDocumentInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutDocumentInput | Prisma.ActivityCreateOrConnectWithoutDocumentInput[]
+  upsert?: Prisma.ActivityUpsertWithWhereUniqueWithoutDocumentInput | Prisma.ActivityUpsertWithWhereUniqueWithoutDocumentInput[]
+  createMany?: Prisma.ActivityCreateManyDocumentInputEnvelope
+  set?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  disconnect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  delete?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  update?: Prisma.ActivityUpdateWithWhereUniqueWithoutDocumentInput | Prisma.ActivityUpdateWithWhereUniqueWithoutDocumentInput[]
+  updateMany?: Prisma.ActivityUpdateManyWithWhereWithoutDocumentInput | Prisma.ActivityUpdateManyWithWhereWithoutDocumentInput[]
+  deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
+}
+
+export type ActivityUncheckedUpdateManyWithoutDocumentNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput> | Prisma.ActivityCreateWithoutDocumentInput[] | Prisma.ActivityUncheckedCreateWithoutDocumentInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutDocumentInput | Prisma.ActivityCreateOrConnectWithoutDocumentInput[]
+  upsert?: Prisma.ActivityUpsertWithWhereUniqueWithoutDocumentInput | Prisma.ActivityUpsertWithWhereUniqueWithoutDocumentInput[]
+  createMany?: Prisma.ActivityCreateManyDocumentInputEnvelope
+  set?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  disconnect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  delete?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  update?: Prisma.ActivityUpdateWithWhereUniqueWithoutDocumentInput | Prisma.ActivityUpdateWithWhereUniqueWithoutDocumentInput[]
+  updateMany?: Prisma.ActivityUpdateManyWithWhereWithoutDocumentInput | Prisma.ActivityUpdateManyWithWhereWithoutDocumentInput[]
+  deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
+}
+
 export type ActivityCreateNestedOneWithoutNotificationsInput = {
   create?: Prisma.XOR<Prisma.ActivityCreateWithoutNotificationsInput, Prisma.ActivityUncheckedCreateWithoutNotificationsInput>
   connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutNotificationsInput
@@ -870,6 +942,7 @@ export type ActivityCreateWithoutColumnInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -885,6 +958,7 @@ export type ActivityUncheckedCreateWithoutColumnInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -935,6 +1009,7 @@ export type ActivityScalarWhereInput = {
   date?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
   note?: Prisma.StringNullableFilter<"Activity"> | string | null
   fileId?: Prisma.IntNullableFilter<"Activity"> | number | null
+  documentId?: Prisma.IntNullableFilter<"Activity"> | number | null
   activityType?: Prisma.EnumActivityTypeFilter<"Activity"> | $Enums.ActivityType
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
@@ -955,6 +1030,7 @@ export type ActivityCreateWithoutSupervisorInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -970,6 +1046,7 @@ export type ActivityUncheckedCreateWithoutSupervisorInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1021,6 +1098,7 @@ export type ActivityCreateWithoutRevenueInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
@@ -1036,6 +1114,7 @@ export type ActivityUncheckedCreateWithoutRevenueInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1076,6 +1155,7 @@ export type ActivityUpdateWithoutRevenueInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
@@ -1091,6 +1171,7 @@ export type ActivityUncheckedUpdateWithoutRevenueInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1115,6 +1196,7 @@ export type ActivityCreateWithoutExpenseInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
@@ -1130,6 +1212,7 @@ export type ActivityUncheckedCreateWithoutExpenseInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1170,6 +1253,7 @@ export type ActivityUpdateWithoutExpenseInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
@@ -1185,6 +1269,7 @@ export type ActivityUncheckedUpdateWithoutExpenseInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1208,6 +1293,7 @@ export type ActivityCreateWithoutLocationInput = {
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -1223,6 +1309,7 @@ export type ActivityUncheckedCreateWithoutLocationInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1273,6 +1360,7 @@ export type ActivityCreateWithoutApproversInput = {
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -1289,6 +1377,7 @@ export type ActivityUncheckedCreateWithoutApproversInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1328,6 +1417,7 @@ export type ActivityUpdateWithoutApproversInput = {
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -1344,6 +1434,7 @@ export type ActivityUncheckedUpdateWithoutApproversInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1367,6 +1458,7 @@ export type ActivityCreateWithoutFileInput = {
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
@@ -1382,6 +1474,7 @@ export type ActivityUncheckedCreateWithoutFileInput = {
   locationId?: number | null
   date?: Date | string | null
   note?: string | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1422,6 +1515,7 @@ export type ActivityUpdateWithoutFileInput = {
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -1437,6 +1531,7 @@ export type ActivityUncheckedUpdateWithoutFileInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1445,6 +1540,73 @@ export type ActivityUncheckedUpdateWithoutFileInput = {
   revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
+}
+
+export type ActivityCreateWithoutDocumentInput = {
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  date?: Date | string | null
+  note?: string | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
+  column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
+  approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
+  location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
+  file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
+  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
+}
+
+export type ActivityUncheckedCreateWithoutDocumentInput = {
+  id?: number
+  supervisorId: number
+  columnId?: number | null
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  locationId?: number | null
+  date?: Date | string | null
+  note?: string | null
+  fileId?: number | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
+  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
+  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
+}
+
+export type ActivityCreateOrConnectWithoutDocumentInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput>
+}
+
+export type ActivityCreateManyDocumentInputEnvelope = {
+  data: Prisma.ActivityCreateManyDocumentInput | Prisma.ActivityCreateManyDocumentInput[]
+  skipDuplicates?: boolean
+}
+
+export type ActivityUpsertWithWhereUniqueWithoutDocumentInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  update: Prisma.XOR<Prisma.ActivityUpdateWithoutDocumentInput, Prisma.ActivityUncheckedUpdateWithoutDocumentInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutDocumentInput, Prisma.ActivityUncheckedCreateWithoutDocumentInput>
+}
+
+export type ActivityUpdateWithWhereUniqueWithoutDocumentInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  data: Prisma.XOR<Prisma.ActivityUpdateWithoutDocumentInput, Prisma.ActivityUncheckedUpdateWithoutDocumentInput>
+}
+
+export type ActivityUpdateManyWithWhereWithoutDocumentInput = {
+  where: Prisma.ActivityScalarWhereInput
+  data: Prisma.XOR<Prisma.ActivityUpdateManyMutationInput, Prisma.ActivityUncheckedUpdateManyWithoutDocumentInput>
 }
 
 export type ActivityCreateWithoutNotificationsInput = {
@@ -1462,6 +1624,7 @@ export type ActivityCreateWithoutNotificationsInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivitiesInput
   revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
   expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
 }
@@ -1477,6 +1640,7 @@ export type ActivityUncheckedCreateWithoutNotificationsInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1517,6 +1681,7 @@ export type ActivityUpdateWithoutNotificationsInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
 }
@@ -1532,6 +1697,7 @@ export type ActivityUncheckedUpdateWithoutNotificationsInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1551,6 +1717,7 @@ export type ActivityCreateManyColumnInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1571,6 +1738,7 @@ export type ActivityUpdateWithoutColumnInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -1586,6 +1754,7 @@ export type ActivityUncheckedUpdateWithoutColumnInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1606,6 +1775,7 @@ export type ActivityUncheckedUpdateManyWithoutColumnInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1622,6 +1792,7 @@ export type ActivityCreateManySupervisorInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1642,6 +1813,7 @@ export type ActivityUpdateWithoutSupervisorInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -1657,6 +1829,7 @@ export type ActivityUncheckedUpdateWithoutSupervisorInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1677,6 +1850,7 @@ export type ActivityUncheckedUpdateManyWithoutSupervisorInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1693,6 +1867,7 @@ export type ActivityCreateManyLocationInput = {
   date?: Date | string | null
   note?: string | null
   fileId?: number | null
+  documentId?: number | null
   activityType: $Enums.ActivityType
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
@@ -1713,6 +1888,7 @@ export type ActivityUpdateWithoutLocationInput = {
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivitiesNestedInput
   revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
   expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
@@ -1728,6 +1904,7 @@ export type ActivityUncheckedUpdateWithoutLocationInput = {
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1745,6 +1922,82 @@ export type ActivityUncheckedUpdateManyWithoutLocationInput = {
   bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  documentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ActivityCreateManyDocumentInput = {
+  id?: number
+  supervisorId: number
+  columnId?: number | null
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  locationId?: number | null
+  date?: Date | string | null
+  note?: string | null
+  fileId?: number | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ActivityUpdateWithoutDocumentInput = {
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
+  column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
+  approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
+  location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
+  file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
+  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
+}
+
+export type ActivityUncheckedUpdateWithoutDocumentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
+  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
+  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
+}
+
+export type ActivityUncheckedUpdateManyWithoutDocumentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1805,6 +2058,7 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   date?: boolean
   note?: boolean
   fileId?: boolean
+  documentId?: boolean
   activityType?: boolean
   reminder?: boolean
   createdAt?: boolean
@@ -1814,6 +2068,7 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   approvers?: boolean | Prisma.Activity$approversArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
   revenue?: boolean | Prisma.Activity$revenueArgs<ExtArgs>
   expense?: boolean | Prisma.Activity$expenseArgs<ExtArgs>
   notifications?: boolean | Prisma.Activity$notificationsArgs<ExtArgs>
@@ -1831,6 +2086,7 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   date?: boolean
   note?: boolean
   fileId?: boolean
+  documentId?: boolean
   activityType?: boolean
   reminder?: boolean
   createdAt?: boolean
@@ -1839,6 +2095,7 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
 }, ExtArgs["result"]["activity"]>
 
 export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1852,6 +2109,7 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   date?: boolean
   note?: boolean
   fileId?: boolean
+  documentId?: boolean
   activityType?: boolean
   reminder?: boolean
   createdAt?: boolean
@@ -1860,6 +2118,7 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
 }, ExtArgs["result"]["activity"]>
 
 export type ActivitySelectScalar = {
@@ -1873,19 +2132,21 @@ export type ActivitySelectScalar = {
   date?: boolean
   note?: boolean
   fileId?: boolean
+  documentId?: boolean
   activityType?: boolean
   reminder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supervisorId" | "columnId" | "bipra" | "title" | "description" | "locationId" | "date" | "note" | "fileId" | "activityType" | "reminder" | "createdAt" | "updatedAt", ExtArgs["result"]["activity"]>
+export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supervisorId" | "columnId" | "bipra" | "title" | "description" | "locationId" | "date" | "note" | "fileId" | "documentId" | "activityType" | "reminder" | "createdAt" | "updatedAt", ExtArgs["result"]["activity"]>
 export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   approvers?: boolean | Prisma.Activity$approversArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
   revenue?: boolean | Prisma.Activity$revenueArgs<ExtArgs>
   expense?: boolean | Prisma.Activity$expenseArgs<ExtArgs>
   notifications?: boolean | Prisma.Activity$notificationsArgs<ExtArgs>
@@ -1896,12 +2157,14 @@ export type ActivityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
 }
 export type ActivityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
+  document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
 }
 
 export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1912,6 +2175,7 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     approvers: Prisma.$ApproverPayload<ExtArgs>[]
     location: Prisma.$LocationPayload<ExtArgs> | null
     file: Prisma.$FileManagerPayload<ExtArgs> | null
+    document: Prisma.$DocumentPayload<ExtArgs> | null
     revenue: Prisma.$RevenuePayload<ExtArgs> | null
     expense: Prisma.$ExpensePayload<ExtArgs> | null
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
@@ -1927,6 +2191,7 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     date: Date | null
     note: string | null
     fileId: number | null
+    documentId: number | null
     activityType: $Enums.ActivityType
     reminder: $Enums.Reminder | null
     createdAt: Date
@@ -2330,6 +2595,7 @@ export interface Prisma__ActivityClient<T, Null = never, ExtArgs extends runtime
   approvers<T extends Prisma.Activity$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   location<T extends Prisma.Activity$locationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$locationArgs<ExtArgs>>): Prisma.Prisma__LocationClient<runtime.Types.Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   file<T extends Prisma.Activity$fileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$fileArgs<ExtArgs>>): Prisma.Prisma__FileManagerClient<runtime.Types.Result.GetResult<Prisma.$FileManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  document<T extends Prisma.Activity$documentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$documentArgs<ExtArgs>>): Prisma.Prisma__DocumentClient<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   revenue<T extends Prisma.Activity$revenueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$revenueArgs<ExtArgs>>): Prisma.Prisma__RevenueClient<runtime.Types.Result.GetResult<Prisma.$RevenuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   expense<T extends Prisma.Activity$expenseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$expenseArgs<ExtArgs>>): Prisma.Prisma__ExpenseClient<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   notifications<T extends Prisma.Activity$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2372,6 +2638,7 @@ export interface ActivityFieldRefs {
   readonly date: Prisma.FieldRef<"Activity", 'DateTime'>
   readonly note: Prisma.FieldRef<"Activity", 'String'>
   readonly fileId: Prisma.FieldRef<"Activity", 'Int'>
+  readonly documentId: Prisma.FieldRef<"Activity", 'Int'>
   readonly activityType: Prisma.FieldRef<"Activity", 'ActivityType'>
   readonly reminder: Prisma.FieldRef<"Activity", 'Reminder'>
   readonly createdAt: Prisma.FieldRef<"Activity", 'DateTime'>
@@ -2850,6 +3117,25 @@ export type Activity$fileArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.FileManagerInclude<ExtArgs> | null
   where?: Prisma.FileManagerWhereInput
+}
+
+/**
+ * Activity.document
+ */
+export type Activity$documentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Document
+   */
+  select?: Prisma.DocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Document
+   */
+  omit?: Prisma.DocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocumentInclude<ExtArgs> | null
+  where?: Prisma.DocumentWhereInput
 }
 
 /**

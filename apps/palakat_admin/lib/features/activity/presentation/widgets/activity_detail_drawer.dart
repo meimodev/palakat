@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/activity/activity.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
+import 'package:palakat_admin/features/auth/application/auth_controller.dart';
+import 'package:palakat_admin/repositories.dart';
+import 'package:palakat_admin/models.dart' hide Column;
 
 class ActivityDetailDrawer extends ConsumerStatefulWidget {
   final int activityId;
@@ -22,6 +25,11 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
   bool _isLoading = true;
   String? _errorMessage;
   Activity? _activity;
+  
+  int? _selectedDocumentId;
+  List<Document> _availableDocuments = [];
+  bool _isLoadingDocuments = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -41,8 +49,13 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
       if (mounted) {
         setState(() {
           _activity = activity;
+          _selectedDocumentId = activity?.documentId;
           _isLoading = false;
         });
+
+        if (activity?.activityType == ActivityType.announcement) {
+          _fetchDocuments();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -50,6 +63,68 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
           _errorMessage = e.toString();
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _fetchDocuments() async {
+    setState(() => _isLoadingDocuments = true);
+    try {
+      final repository = ref.read(documentRepositoryProvider);
+      final auth = ref.read(authControllerProvider).value;
+      final churchId = auth!.account.membership!.church!.id!;
+
+      final result = await repository.fetchDocuments(
+        paginationRequest: PaginationRequestWrapper(
+          data: GetFetchDocumentsRequest(churchId: churchId),
+          page: 1,
+          pageSize: 100,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+        ),
+      );
+
+      if (mounted) {
+        result.when(
+          onSuccess: (docs) {
+            setState(() {
+              _availableDocuments = docs.data;
+              _isLoadingDocuments = false;
+            });
+          },
+          onFailure: (_) => setState(() => _isLoadingDocuments = false),
+        );
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingDocuments = false);
+    }
+  }
+
+  Future<void> _saveDocument() async {
+    if (_activity == null) return;
+    setState(() => _isSaving = true);
+    try {
+      final controller = ref.read(activityControllerProvider.notifier);
+      // documentId mapping for saving
+      final editingActivity = _activity!.copyWith(documentId: _selectedDocumentId);
+
+      await controller.saveActivity(editingActivity);
+
+      if (mounted) {
+        setState(() {
+          _activity = editingActivity;
+          _isSaving = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil menyimpan dokumen')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
       }
     }
   }
@@ -226,6 +301,52 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     ],
                   ),
 
+                if (_activity!.activityType == ActivityType.announcement) ...[
+                  const SizedBox(height: 24),
+                  InfoSection(
+                    title: l10n.nav_document,
+                    children: [
+                      if (_isLoadingDocuments)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        DropdownButtonFormField<int?>(
+                          value: _selectedDocumentId,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          hint: const Text('Pilih dokumen varian'),
+                          items: [
+                            const DropdownMenuItem<int?>(
+                              value: null,
+                              child: Text('Tidak ada dokumen'),
+                            ),
+                            ..._availableDocuments.map((d) => DropdownMenuItem(
+                              value: d.id,
+                              child: Text('${d.input.name.toUpperCase()}: ${d.accountNumber}'),
+                            )),
+                          ],
+                          onChanged: (id) => setState(() => _selectedDocumentId = id),
+                        ),
+                    ],
+                  ),
+                ] else if (_activity!.documentId != null || _activity!.document != null) ...[
+                  const SizedBox(height: 24),
+                  InfoSection(
+                    title: l10n.nav_document,
+                    children: [
+                      InfoRow(
+                        label: l10n.tbl_documentName,
+                        value: _activity!.document?.name ?? l10n.lbl_na,
+                      ),
+                      InfoRow(
+                        label: 'Document ID',
+                        value: _activity!.document?.accountNumber ?? l10n.lbl_na,
+                      ),
+                    ],
+                  ),
+                ],
+
                 if (_activity!.location != null) ...[
                   const SizedBox(height: 24),
                   InfoSection(
@@ -253,7 +374,26 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
               ],
             ),
       footer: Column(
-        children: [InfoBoxWidget(message: l10n.publish_publishedNotice)],
+        children: [
+          if (_activity?.activityType == ActivityType.announcement && _selectedDocumentId != _activity?.documentId)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _isSaving ? null : _saveDocument,
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Save Document Link'),
+                ),
+              ),
+            ),
+          InfoBoxWidget(message: l10n.publish_publishedNotice),
+        ],
       ),
     );
   }

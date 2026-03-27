@@ -4,6 +4,7 @@ import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/location.dart';
 import 'package:flutter/foundation.dart';
+import 'package:palakat_shared/core/models/document.dart';
 
 part 'activity_publish_state.freezed.dart';
 
@@ -58,5 +59,7 @@ abstract class ActivityPublishState with _$ActivityPublishState {
     // Attached finance data (revenue or expense)
     // Requirements: 1.4, 5.1
     FinanceData? attachedFinance,
+    // Attached Document
+    Document? selectedDocument,
   }) = _ActivityPublishState;
 }

@@ -297,6 +297,7 @@ class OperationsController extends _$OperationsController {
         state = state.copyWith(
           loadingSupervisedActivities: false,
           supervisedActivitiesError: failure.message,
+          accountName: "should be some string",
         );
       },
     );

@@ -195,6 +195,7 @@ class ActivityController extends _$ActivityController {
         note: activity.note,
         activityType: activity.activityType,
         reminder: activity.reminder,
+        documentId: activity.documentId,
       );
       final result = await repository.createActivity(request: request);
       result.when(

@@ -178,6 +178,7 @@ model Activity {
   date          DateTime?
   note          String?
   fileId        Int?           @unique
+  documentId    Int?
   activityType  ActivityType
   reminder      Reminder?
   createdAt     DateTime       @default(now())
@@ -187,6 +188,7 @@ model Activity {
   approvers     Approver[]
   location      Location?      @relation(fields: [locationId], references: [id])
   file          FileManager?    @relation(fields: [fileId], references: [id])
+  document      Document?      @relation(fields: [documentId], references: [id], onDelete: SetNull)
   revenue       Revenue?
   expense       Expense?
   notifications Notification[]
@@ -197,6 +199,7 @@ model Activity {
   @@index([columnId])
   @@index([activityType])
   @@index([bipra])
+  @@index([documentId])
 }
 
 model Revenue {
@@ -533,6 +536,7 @@ model Document {
   church        Church       @relation(fields: [churchId], references: [id])
   fileId        Int?         @unique
   file          FileManager? @relation(fields: [fileId], references: [id])
+  activities    Activity[]
 
   publicId       String?   @unique
   verifyTokenHash String?

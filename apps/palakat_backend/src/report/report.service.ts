@@ -111,12 +111,20 @@ export class ReportService {
     churchId: number,
     startDate?: Date,
     endDate?: Date,
+    input?: DocumentInput,
   ): Prisma.ActivityWhereInput {
     return {
       supervisor: {
         churchId,
       },
       activityType: ActivityType.ANNOUNCEMENT,
+      document: input
+        ? {
+            input,
+          }
+        : {
+            isNot: null,
+          },
       approvers: {
         some: {},
         every: {
@@ -252,7 +260,12 @@ export class ReportService {
       case ReportGenerateType.DOCUMENT:
         matchingCount = await this.prisma.activity.count({
           where: {
-            ...this.buildDocumentActivityWhere(churchId, startDate, endDate),
+            ...this.buildDocumentActivityWhere(
+              churchId,
+              startDate,
+              endDate,
+              input,
+            ),
           },
         });
         break;
@@ -788,10 +801,7 @@ export class ReportService {
         ? dto.columnId
         : undefined;
 
-    const input =
-      type === ReportGenerateType.DOCUMENT
-        ? (dto.input ?? DocumentInput.INCOME)
-        : dto.input;
+    const input = dto.input ?? DocumentInput.INCOME;
 
     const activityType =
       type === ReportGenerateType.ACTIVITY ? dto.activityType : undefined;
@@ -892,38 +902,18 @@ export class ReportService {
 
     if (type === ReportGenerateType.DOCUMENT) {
       const activities = await this.prisma.activity.findMany({
-        where: this.buildDocumentActivityWhere(churchId, startDate, endDate),
+        where: this.buildDocumentActivityWhere(
+          churchId,
+          startDate,
+          endDate,
+          input,
+        ),
         include: {
           file: true,
+          document: true,
         },
         orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       });
-
-      const activityFileIds = activities
-        .map((activity) => activity.fileId)
-        .filter((fileId): fileId is number => fileId != null);
-
-      const documents = activityFileIds.length
-        ? await this.prisma.document.findMany({
-            where: {
-              churchId,
-              input,
-              fileId: {
-                in: activityFileIds,
-              },
-            },
-            select: {
-              fileId: true,
-              accountNumber: true,
-            },
-          })
-        : [];
-
-      const documentsByFileId = new Map(
-        documents
-          .filter((document) => document.fileId != null)
-          .map((document) => [document.fileId as number, document]),
-      );
 
       const sections: TableSection[] = [
         {
@@ -945,11 +935,7 @@ export class ReportService {
             return {
               title: activity.title,
               description: activity.description ?? '',
-              no:
-                activity.fileId != null
-                  ? (documentsByFileId.get(activity.fileId)?.accountNumber ??
-                    '')
-                  : '',
+              no: activity.document?.accountNumber ?? '',
               date: this.formatIndonesianDate(activity.date),
               fileName,
             };

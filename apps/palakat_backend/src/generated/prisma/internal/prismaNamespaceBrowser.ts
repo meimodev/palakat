@@ -226,6 +226,7 @@ export const ActivityScalarFieldEnum = {
   date: 'date',
   note: 'note',
   fileId: 'fileId',
+  documentId: 'documentId',
   activityType: 'activityType',
   reminder: 'reminder',
   createdAt: 'createdAt',

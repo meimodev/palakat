@@ -1439,6 +1439,7 @@ async function createActivityWithConnectedModels(
   financialType: ActivityFinancialType,
   dateOverride?: Date,
   forceAllApproversApproved?: boolean,
+  documentId?: number,
 ) {
   const baseActivityData = generateActivityData(activityType, bipra, index);
   const activityData = dateOverride
@@ -1471,6 +1472,7 @@ async function createActivityWithConnectedModels(
       supervisorId,
       locationId,
       columnId: shouldBeColumnOnly ? supervisorMembership!.columnId : null,
+      documentId,
     },
   });
 
@@ -1576,6 +1578,7 @@ async function createActivityWithConnectedModels(
 async function seedMainAccountActivities(
   mainMemberships: MembershipWithChurch[],
   financialAccounts: FinancialAccountWithType[],
+  documents: { id: number; churchId: number }[],
 ) {
   console.log(
     '📅 Creating activities for main accounts (25 each with all variations)...',
@@ -1612,6 +1615,15 @@ async function seedMainAccountActivities(
       const dateOverride = weekDateOverrideMap.get(i);
       const forceAllApproversApproved = true;
 
+      const doc =
+        variation.type === ActivityType.ANNOUNCEMENT &&
+        documents.length > 0 &&
+        randomBoolean(0.3)
+          ? randomElement(
+              documents.filter((d) => d.churchId === mainMembership.churchId),
+            )
+          : undefined;
+
       const activity = await createActivityWithConnectedModels(
         mainMembership.id,
         mainMembership.churchId,
@@ -1622,6 +1634,7 @@ async function seedMainAccountActivities(
         financialType,
         dateOverride,
         forceAllApproversApproved,
+        doc?.id,
       );
 
       activities.push({
@@ -1638,6 +1651,15 @@ async function seedMainAccountActivities(
       // Cycle through financial types: revenue, expense, none
       const financialType = financialTypes[i % financialTypes.length];
 
+      const doc =
+        variation.type === ActivityType.ANNOUNCEMENT &&
+        documents.length > 0 &&
+        randomBoolean(0.3)
+          ? randomElement(
+              documents.filter((d) => d.churchId === mainMembership.churchId),
+            )
+          : undefined;
+
       const activity = await createActivityWithConnectedModels(
         mainMembership.id,
         mainMembership.churchId,
@@ -1646,6 +1668,9 @@ async function seedMainAccountActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        undefined,
+        undefined,
+        doc?.id,
       );
 
       activities.push({
@@ -1665,6 +1690,7 @@ async function seedExtraChurchActivities(
   mainChurches: ChurchWithColumns[],
   extraMemberships: MembershipWithChurch[],
   financialAccounts: FinancialAccountWithType[],
+  documents: { id: number; churchId: number }[],
 ) {
   console.log(
     '📅 Creating extra activities for churches (25 each, not connected to main accounts)...',
@@ -1712,6 +1738,13 @@ async function seedExtraChurchActivities(
       const dateOverride = weekDateOverrideMap.get(i);
       const forceAllApproversApproved = true;
 
+      const doc =
+        variation.type === ActivityType.ANNOUNCEMENT &&
+        documents.length > 0 &&
+        randomBoolean(0.3)
+          ? randomElement(documents.filter((d) => d.churchId === church.id))
+          : undefined;
+
       const activity = await createActivityWithConnectedModels(
         supervisor.id,
         church.id,
@@ -1722,6 +1755,7 @@ async function seedExtraChurchActivities(
         financialType,
         dateOverride,
         forceAllApproversApproved,
+        doc?.id,
       );
 
       activities.push({
@@ -1741,6 +1775,13 @@ async function seedExtraChurchActivities(
       // Cycle through financial types: revenue, expense, none
       const financialType = financialTypes[i % financialTypes.length];
 
+      const doc =
+        variation.type === ActivityType.ANNOUNCEMENT &&
+        documents.length > 0 &&
+        randomBoolean(0.3)
+          ? randomElement(documents.filter((d) => d.churchId === church.id))
+          : undefined;
+
       const activity = await createActivityWithConnectedModels(
         supervisor.id,
         church.id,
@@ -1749,6 +1790,9 @@ async function seedExtraChurchActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        undefined,
+        undefined,
+        doc?.id,
       );
 
       activities.push({
@@ -2002,6 +2046,8 @@ async function seedSongDbFile(churches: ChurchWithColumns[]) {
 async function seedDocuments(
   churches: ChurchWithColumns[],
   filesByChurch: Record<number, { id: number }[]>,
+  memberships: MembershipWithChurch[],
+  financialAccounts: FinancialAccountWithType[],
 ) {
   console.log('📄 Creating documents...');
 
@@ -2019,6 +2065,7 @@ async function seedDocuments(
   let globalIndex = 0;
   for (const church of churches) {
     const pool = filesByChurch[church.id] ?? [];
+    const churchMembers = memberships.filter((m) => m.churchId === church.id);
 
     for (let i = 0; i < CONFIG.documentsPerChurch; i++) {
       const hasFile = i !== 2;
@@ -2037,6 +2084,22 @@ async function seedDocuments(
         },
       });
 
+      if (churchMembers.length > 0 && randomBoolean(0.5)) {
+        const supervisor = randomElement(churchMembers);
+        await createActivityWithConnectedModels(
+          supervisor.id,
+          church.id,
+          ActivityType.ANNOUNCEMENT,
+          null, // bipra
+          globalIndex * 100, // randomized index to avoid collisions
+          financialAccounts,
+          'none', // financialType
+          undefined, // dateOverride
+          true, // forceAllApproversApproved
+          document.id // documentId
+        );
+      }
+
       documents.push(document);
       globalIndex++;
     }
@@ -2049,19 +2112,21 @@ async function seedDocuments(
 async function seedAnnouncementAttachments(
   churches: ChurchWithColumns[],
   filesByChurch: Record<number, { id: number }[]>,
+  documents: { id: number; churchId: number }[],
 ) {
   console.log('📎 Attaching files to some announcement activities...');
 
   let attached = 0;
   for (const church of churches) {
     const pool = filesByChurch[church.id] ?? [];
-    const maxAttach = Math.min(3, pool.length);
+    const churchDocs = documents.filter((d) => d.churchId === church.id);
+    const maxAttach = Math.min(3, Math.max(pool.length, churchDocs.length));
     if (maxAttach === 0) continue;
 
     const announcements = await prisma.activity.findMany({
       where: {
         activityType: ActivityType.ANNOUNCEMENT,
-        fileId: null,
+        OR: [{ fileId: null }, { documentId: null }],
         supervisor: {
           churchId: church.id,
         },
@@ -2072,12 +2137,22 @@ async function seedAnnouncementAttachments(
 
     for (const activity of announcements) {
       const file = pool.shift();
-      if (!file) break;
-      await prisma.activity.update({
-        where: { id: activity.id },
-        data: { fileId: file.id },
-      } as any);
-      attached++;
+      const doc =
+        churchDocs.length > 0 && randomBoolean(0.5)
+          ? randomElement(churchDocs)
+          : null;
+
+      const updateData: any = {};
+      if (file && !activity.fileId) updateData.fileId = file.id;
+      if (doc && !(activity as any).documentId) updateData.documentId = doc.id;
+
+      if (Object.keys(updateData).length > 0) {
+        await prisma.activity.update({
+          where: { id: activity.id },
+          data: updateData,
+        } as any);
+        attached++;
+      }
     }
   }
 
@@ -2418,14 +2493,28 @@ async function main() {
     // Create approval rules with activity type and financial type filters
     await seedApprovalRules(mainChurches, financialAccounts);
 
+    // Create files and documents BEFORE activities
+    const filesByChurch = await seedFiles(mainChurches);
+    const documents = await seedDocuments(
+      mainChurches,
+      filesByChurch,
+      allMemberships,
+      financialAccounts,
+    );
+
     // Create activities for main accounts (25 each) - uses automatic approver linking
-    await seedMainAccountActivities(mainMemberships, financialAccounts);
+    await seedMainAccountActivities(
+      mainMemberships,
+      financialAccounts,
+      documents,
+    );
 
     // Create extra activities for each church (25 each, not connected to main accounts)
     await seedExtraChurchActivities(
       mainChurches,
       extraMemberships,
       financialAccounts,
+      documents,
     );
 
     // Create songs
@@ -2435,10 +2524,8 @@ async function main() {
 
     await seedSongDbFile(mainChurches);
 
-    // Create files, reports, and documents
-    const filesByChurch = await seedFiles(mainChurches);
-    await seedDocuments(mainChurches, filesByChurch);
-    await seedAnnouncementAttachments(mainChurches, filesByChurch);
+    // Attach documents and files
+    await seedAnnouncementAttachments(mainChurches, filesByChurch, documents);
 
     // Create extra accounts without membership and church requests
     const accountsWithoutMembership =

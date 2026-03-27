@@ -11,6 +11,7 @@ import 'package:palakat/features/operations/presentations/operations_motion_widg
 import 'package:palakat/features/presentation.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/repositories/document_repository.dart';
 import 'package:palakat_shared/core/widgets/input/file_picker_field.dart'
     as shared;
 
@@ -1003,6 +1004,8 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           maxLines: 4,
         ),
         Gap.h12,
+        _buildDocumentPickerField(state, controller, context),
+        Gap.h12,
         _buildFileUploadField(state, controller),
       ],
     );
@@ -1398,6 +1401,152 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
           .read(activityPublishControllerProvider(widget.type).notifier)
           .removeAttachedFinance();
     }
+  }
+
+  Widget _buildDocumentPickerField(
+    ActivityPublishState state,
+    ActivityPublishController controller,
+    BuildContext context,
+  ) {
+    final hasDocument = state.selectedDocument != null;
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '${l10n.nav_document} ${l10n.lbl_optional}',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurfaceVariant,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Gap.h6,
+        GestureDetector(
+          onTap: () async {
+            final doc = await _showDocumentPickerBottomSheet(context);
+            if (doc != null && mounted) {
+              controller.onSelectedDocument(doc);
+            }
+          },
+          child: Container(
+            padding: EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: hasDocument
+                  ? AppColors.primary.shade50
+                  : AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(
+                color: hasDocument
+                    ? AppColors.primary.shade200
+                    : AppColors.outlineVariant,
+              ),
+            ),
+            child: hasDocument
+                ? Row(
+                    children: [
+                      Icon(AppIcons.article, color: AppColors.primary, size: 20),
+                      Gap.w12,
+                      Expanded(
+                        child: Text(
+                          '${state.selectedDocument!.accountNumber} - ${state.selectedDocument!.name}',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: AppColors.onSurface,
+                                fontWeight: FontWeight.w600,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => controller.removeSelectedDocument(),
+                        icon: Icon(AppIcons.clear, color: AppColors.error, size: 20),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      )
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Icon(AppIcons.article, color: AppColors.onSurfaceVariant, size: 20),
+                      Gap.w12,
+                      Expanded(
+                        child: Text(
+                          'Select Document',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      Icon(AppIcons.forward, color: AppColors.onSurfaceVariant, size: 20),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<Document?> _showDocumentPickerBottomSheet(BuildContext context) async {
+    final repo = ref.read(documentRepositoryProvider);
+    final res = await repo.fetchDocuments(
+      paginationRequest: PaginationRequestWrapper<GetFetchDocumentsRequest>(page: 1, pageSize: 100, data: const GetFetchDocumentsRequest()),
+    );
+    final docs = res.when(
+      onSuccess: (data) => data.data,
+      onFailure: (_) => <Document>[],
+    ) ?? <Document>[];
+    if (!context.mounted) return null;
+
+    return await showModalBottomSheet<Document>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) {
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Text(
+                    context.l10n.nav_document,
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                if (docs.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(context.l10n.noData_documents),
+                  ),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final doc = docs[index];
+                      return ListTile(
+                        leading: Icon(AppIcons.article, color: AppColors.onSurfaceVariant),
+                        title: Text(doc.accountNumber),
+                        subtitle: Text(doc.name),
+                        onTap: () => Navigator.of(context).pop<Document>(doc),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: 12.0),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 

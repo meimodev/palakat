@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/approver.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
+import 'package:palakat_shared/core/models/document.dart';
 import 'package:palakat_shared/core/models/file_manager.dart';
 import 'package:palakat_shared/core/models/location.dart';
 import 'package:palakat_shared/core/models/membership.dart';
@@ -24,6 +25,8 @@ abstract class Activity with _$Activity {
     String? note,
     int? fileId,
     FileManager? file,
+    int? documentId,
+    Document? document,
     @Default(ActivityType.service) ActivityType activityType,
     Reminder? reminder,
     required DateTime createdAt,

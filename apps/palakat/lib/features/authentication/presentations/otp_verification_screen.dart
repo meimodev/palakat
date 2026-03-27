@@ -75,7 +75,8 @@ class OtpVerificationScreen extends ConsumerWidget {
       // Announce errors for screen readers
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        SemanticsService.announce(
+        SemanticsService.sendAnnouncement(
+          View.of(context),
           '${l10n.err_error}: ${next.errorMessage}',
           TextDirection.ltr,
         );
@@ -83,7 +84,8 @@ class OtpVerificationScreen extends ConsumerWidget {
 
       // Announce verification success
       if (next.showSuccessFeedback && (previous?.showSuccessFeedback != true)) {
-        SemanticsService.announce(
+        SemanticsService.sendAnnouncement(
+          View.of(context),
           l10n.auth_verificationSuccessful,
           TextDirection.ltr,
         );
