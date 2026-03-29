@@ -11,6 +11,7 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationService } from '../notification/notification.service';
+import { DocumentInput } from 'src/generated/prisma/enums';
 
 /**
  * Service for managing church activities.
@@ -644,8 +645,8 @@ export class ActivitiesService {
           await tx.document.create({
             data: {
               name: newActivity.title,
-              accountNumber: finance?.accountNumber ?? membership.church?.documentAccountNumber ?? 'MAIN-0000',
-              input: finance ? (finance.type === 'REVENUE' ? 'INCOME' : 'OUTCOME') : 'INCOME',
+              accountNumber: '0',
+              input: DocumentInput.INCOME,
               churchId: membership.churchId,
               activityId: newActivity.id,
             },

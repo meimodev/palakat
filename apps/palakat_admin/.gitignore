@@ -50,4 +50,5 @@ app.*.map.json
 
 # Environment files
 .env
+.env.bak
 .vercel

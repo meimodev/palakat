@@ -41,6 +41,23 @@ if [[ ${#scripts[@]} -eq 0 ]]; then
     exit 1
 fi
 
+OVERRIDE_IP=""
+NEW_ARGS=()
+while [[ $# -gt 0 ]]; do
+    if [[ "$1" == "--ip" ]]; then
+        if [[ -z "$2" ]]; then
+            echo "❌ Missing value for --ip"
+            exit 1
+        fi
+        OVERRIDE_IP="$2"
+        shift 2
+    else
+        NEW_ARGS+=("$1")
+        shift
+    fi
+done
+set -- "${NEW_ARGS[@]}"
+
 show_help() {
     echo "Usage: $0 [SCRIPT_NAME] [ENVIRONMENT] [SCRIPT_OPTIONS...]"
     echo ""
@@ -63,8 +80,64 @@ show_help() {
     echo "Supported environments: local, staging, production"
     echo ""
     echo "Options:"
+    echo "  --ip IP_ADDRESS       Override API_BASE_URL with the provided IP for local/staging"
     echo "  -h, --help            Show this help message"
     echo "  -l, --list            List available scripts"
+}
+
+get_app_env_file() {
+    case "$1" in
+        android) echo "apps/palakat/.env" ;;
+        admin) echo "apps/palakat_admin/.env" ;;
+        super_admin) echo "apps/palakat_super_admin/.env" ;;
+        *) echo "" ;;
+    esac
+}
+
+run_with_env_override() {
+    local script_name="$1"
+    shift
+    local cmd=("$@")
+    
+    local env_file=""
+    local full_env_file=""
+    local backup_file=""
+    
+    if [[ -n "$OVERRIDE_IP" ]]; then
+        env_file="$(get_app_env_file "$script_name")"
+        if [[ -n "$env_file" ]]; then
+            full_env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$env_file"
+            if [[ -f "$full_env_file" ]]; then
+                backup_file="${full_env_file}.bak"
+                cp "$full_env_file" "$backup_file"
+                
+                awk -v ip="$OVERRIDE_IP" '
+                    /^[[:space:]]*\[.*\]/ {
+                        section = $0;
+                        gsub(/^[[:space:]]*\[|\][[:space:]]*$/, "", section);
+                        section = tolower(section);
+                    }
+                    (section == "local" || section == "staging") && /^[[:space:]]*API_BASE_URL[[:space:]]*=/ {
+                        sub(/=.*/, "=http://" ip)
+                    }
+                    { print }
+                ' "$backup_file" > "$full_env_file"
+                
+                # Restore trap
+                trap 'if [[ -f "$backup_file" ]]; then mv "$backup_file" "$full_env_file"; fi' EXIT INT TERM
+            fi
+        fi
+    fi
+    
+    "${cmd[@]}"
+    local exit_code=$?
+    
+    if [[ -n "$backup_file" && -f "$backup_file" ]]; then
+        mv "$backup_file" "$full_env_file"
+        trap - EXIT INT TERM
+    fi
+    
+    exit $exit_code
 }
 
 # Handle help flag
@@ -143,7 +216,7 @@ if [[ -n "$1" ]]; then
         fi
         command+=("$@")
 
-        exec "${command[@]}"
+        run_with_env_override "$selected_script_name" "${command[@]}"
     else
         echo "Script not found: $target"
         echo ""
@@ -222,4 +295,4 @@ if [[ -n "$selected_env" ]]; then
     command+=(--env "$selected_env")
 fi
 
-exec "${command[@]}"
+run_with_env_override "$selected_script_name" "${command[@]}"

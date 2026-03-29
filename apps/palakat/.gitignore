@@ -9,6 +9,7 @@
 .history
 .svn/
 .env
+.env.bak
 
 # Generated File
 *.g.dart
