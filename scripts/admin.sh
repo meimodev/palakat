@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Palakat Admin Development Script
 # This script starts the Palakat admin app

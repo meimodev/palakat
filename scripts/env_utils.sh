@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 normalize_env_name() {
     printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]'
@@ -138,5 +138,11 @@ missing_env_keys_text() {
 
 create_temp_env_file() {
     local prefix="$1"
-    mktemp "${TMPDIR:-/tmp}/${prefix}.XXXXXX.env"
+    local temp_dir="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}"
+
+    if [ ! -d "$temp_dir" ]; then
+        temp_dir="/tmp"
+    fi
+
+    mktemp "${temp_dir%/}/${prefix}.XXXXXX.env"
 }

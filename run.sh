@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Interactive script runner for Palakat monorepo
 # Lists all available scripts and lets you choose which one to run
@@ -26,7 +26,7 @@ is_env_aware_script() {
 # Get all .sh files
 scripts=()
 script_names=()
-while IFS= read -r -d '' file; do
+while IFS= read -r file; do
     filename=$(basename "$file")
     if [[ "$filename" == "env_utils.sh" ]]; then
         continue
@@ -34,7 +34,7 @@ while IFS= read -r -d '' file; do
     scripts+=("$filename")
     # Store name without .sh extension for matching
     script_names+=("${filename%.sh}")
-done < <(find "$SCRIPTS_DIR" -maxdepth 1 -name "*.sh" -print0 | sort -z)
+done < <(find "$SCRIPTS_DIR" -maxdepth 1 -type f -name "*.sh" | sort)
 
 if [[ ${#scripts[@]} -eq 0 ]]; then
     echo "No scripts found in $SCRIPTS_DIR"

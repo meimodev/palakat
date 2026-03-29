@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to run Palakat Flutter app on Android emulator
 # Checks if emulator is running, starts one if not, then runs the app

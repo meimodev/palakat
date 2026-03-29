@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Palakat Backend Development Script
 # This script starts Docker, initializes the local database, and runs the backend
