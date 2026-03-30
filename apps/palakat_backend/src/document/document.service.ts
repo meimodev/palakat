@@ -15,6 +15,12 @@ import {
 } from './document-renderer';
 import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
 
+type DocumentMetadataRow = {
+  id: number;
+  certificateType: string | null;
+  certificateTitle: string | null;
+};
+
 @Injectable()
 export class DocumentService {
   constructor(
@@ -52,6 +58,64 @@ export class DocumentService {
 
     const port = process.env.PORT || '3000';
     return `http://localhost:${port}`;
+  }
+
+  private async getDocumentMetadataMap(
+    documentIds: number[],
+  ): Promise<Map<number, Omit<DocumentMetadataRow, 'id'>>> {
+    if (documentIds.length === 0) {
+      return new Map();
+    }
+
+    const rows = await this.prisma.$queryRaw<DocumentMetadataRow[]>`
+      SELECT "id", "certificateType", "certificateTitle"
+      FROM "Document"
+      WHERE "id" IN (${Prisma.join(documentIds)})
+    `;
+
+    return new Map(
+      rows.map((row) => [
+        row.id,
+        {
+          certificateType: row.certificateType,
+          certificateTitle: row.certificateTitle,
+        },
+      ]),
+    );
+  }
+
+  private async getDocumentMetadata(
+    documentId: number,
+  ): Promise<Omit<DocumentMetadataRow, 'id'> | null> {
+    const metadataMap = await this.getDocumentMetadataMap([documentId]);
+    return metadataMap.get(documentId) ?? null;
+  }
+
+  private withDocumentMetadata<T extends { id: number }>(
+    document: T,
+    metadata?: Omit<DocumentMetadataRow, 'id'> | null,
+  ) {
+    return {
+      ...document,
+      certificateType: metadata?.certificateType ?? null,
+      certificateTitle: metadata?.certificateTitle ?? null,
+    };
+  }
+
+  private async persistDocumentMetadata(
+    documentId: number,
+    metadata: {
+      certificateType?: string | null;
+      certificateTitle?: string | null;
+    },
+  ): Promise<void> {
+    await this.prisma.$executeRaw`
+      UPDATE "Document"
+      SET
+        "certificateType" = ${metadata.certificateType ?? null},
+        "certificateTitle" = ${metadata.certificateTitle ?? null}
+      WHERE "id" = ${documentId}
+    `;
   }
 
   async getDocuments(query: DocumentListQueryDto) {
@@ -92,9 +156,15 @@ export class DocumentService {
       }),
     ]);
 
+    const metadataMap = await this.getDocumentMetadataMap(
+      documents.map((document) => document.id),
+    );
+
     return {
       message: 'Documents fetched successfully',
-      data: documents,
+      data: documents.map((document) =>
+        this.withDocumentMetadata(document, metadataMap.get(document.id)),
+      ),
       total,
     };
   }
@@ -108,9 +178,10 @@ export class DocumentService {
         activity: true,
       },
     });
+    const metadata = await this.getDocumentMetadata(document.id);
     return {
       message: 'Document fetched successfully',
-      data: document,
+      data: this.withDocumentMetadata(document, metadata),
     };
   }
 
@@ -123,7 +194,9 @@ export class DocumentService {
     };
   }
 
-  async create(createDocumentDto: Prisma.DocumentCreateInput & { activityId?: number }) {
+  async create(
+    createDocumentDto: Prisma.DocumentCreateInput & { activityId?: number },
+  ) {
     const payload: any = { ...createDocumentDto };
     if (payload.activityId) {
       payload.activity = { connect: { id: payload.activityId } };
@@ -168,6 +241,10 @@ export class DocumentService {
           })
         : null;
 
+    const persistedMetadata = document?.id
+      ? await this.getDocumentMetadata(document.id)
+      : null;
+
     if (document && document.churchId !== churchId) {
       throw new BadRequestException('Invalid church context');
     }
@@ -207,7 +284,21 @@ export class DocumentService {
       throw new BadRequestException('accountNumber is required');
     }
 
-    const title = String(dto?.title ?? created.name);
+    const requestedCertificateType =
+      typeof dto?.certificateType === 'string' &&
+      dto.certificateType.trim().length
+        ? dto.certificateType.trim()
+        : null;
+    const requestedCertificateTitle =
+      typeof dto?.certificateTitle === 'string' &&
+      dto.certificateTitle.trim().length
+        ? dto.certificateTitle.trim()
+        : null;
+    const certificateType =
+      requestedCertificateType ?? persistedMetadata?.certificateType ?? null;
+    const certificateTitle =
+      requestedCertificateTitle ?? persistedMetadata?.certificateTitle ?? null;
+    const title = String(dto?.title ?? certificateTitle ?? created.name);
     const sections = (
       Array.isArray(dto?.sections) ? dto.sections : []
     ) as any[];
@@ -321,9 +412,16 @@ export class DocumentService {
       include: { church: true, file: true },
     });
 
+    await this.persistDocumentMetadata(created.id, {
+      certificateType,
+      certificateTitle: certificateTitle ?? (certificateType ? title : null),
+    });
+
+    const metadata = await this.getDocumentMetadata(updated.id);
+
     return {
       message: 'Document generated',
-      data: updated,
+      data: this.withDocumentMetadata(updated, metadata),
       verificationUrl,
     };
   }

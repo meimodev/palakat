@@ -53,26 +53,53 @@ export class MembershipService {
     const {
       churchId,
       columnId,
+      search,
+      requireColumnId,
       skip,
       take,
       sortBy = 'id',
       sortOrder = 'desc',
     } = query ?? ({} as any);
-    const where: any = {};
+    const normalizedSearch =
+      typeof search === 'string' && search.trim().length > 0
+        ? search.trim()
+        : undefined;
+    const and: any[] = [];
+
+    if (requireColumnId && !columnId) {
+      throw new BadRequestException('columnId is required for this request');
+    }
 
     if (churchId) {
-      where.OR = [
-        { churchId },
-        {
-          column: {
-            churchId,
+      and.push({
+        OR: [
+          { churchId },
+          {
+            column: {
+              churchId,
+            },
           },
-        },
-      ];
+        ],
+      });
     }
     if (columnId) {
-      where.columnId = columnId;
+      and.push({ columnId });
     }
+    if (normalizedSearch) {
+      and.push({
+        account: {
+          is: {
+            OR: [
+              { name: { contains: normalizedSearch, mode: 'insensitive' } },
+              { phone: { contains: normalizedSearch, mode: 'insensitive' } },
+            ],
+          },
+        },
+      });
+    }
+
+    const where: any =
+      and.length === 0 ? {} : and.length === 1 ? and[0] : { AND: and };
 
     const [total, memberships] = await (this.prisma as any).$transaction([
       this.prisma.membership.count({ where }),

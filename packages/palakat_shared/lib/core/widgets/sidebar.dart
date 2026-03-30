@@ -310,19 +310,19 @@ class _NavItemState extends State<_NavItem>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.01,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _iconScaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.04,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -358,14 +358,14 @@ class _NavItemState extends State<_NavItem>
               onEnter: (_) => _handleHover(true),
               onExit: (_) => _handleHover(false),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOutCubic,
                 decoration: BoxDecoration(
                   color: widget.selected
                       ? AppColors.surfaceContainerHighest
                       : _isHovered
-                      ? AppColors.surfaceContainerLow
-                      : Colors.transparent,
+                      ? AppColors.surfaceContainerHighest
+                      : AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(
                     SanctuaryLayout.radiusLarge,
                   ),
@@ -388,7 +388,8 @@ class _NavItemState extends State<_NavItem>
                       return Transform.scale(
                         scale: _iconScaleAnimation.value,
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic,
                           height: 36,
                           width: 36,
                           decoration: BoxDecoration(
@@ -411,7 +412,8 @@ class _NavItemState extends State<_NavItem>
                     },
                   ),
                   title: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeOutCubic,
                     style: theme.textTheme.bodyMedium!.copyWith(
                       fontWeight: widget.selected
                           ? FontWeight.w600

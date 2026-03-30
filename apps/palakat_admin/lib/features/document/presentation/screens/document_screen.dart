@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/features/document/presentation/widgets/surat_keterangan_jemaat_drawer.dart';
+import 'package:palakat_admin/features/document/presentation/widgets/surat_kredensi_drawer.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_screen_state.dart';
 import 'package:palakat_admin/extensions.dart';
@@ -129,6 +131,28 @@ class DocumentScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            SurfaceCard(
+              title: l10n.certificate_suratKeteranganJemaat_title,
+              subtitle: l10n.certificate_suratKeteranganJemaat_subtitle,
+              trailing: FilledButton.icon(
+                onPressed: () => _openSuratKeteranganJemaatDrawer(context),
+                icon: const Icon(Icons.description),
+                label: Text(l10n.btn_generateCertificate),
+              ),
+              child: const SizedBox.shrink(),
+            ),
+            const SizedBox(height: 16),
+            SurfaceCard(
+              title: l10n.certificate_suratKredensi_title,
+              subtitle: l10n.certificate_suratKredensi_subtitle,
+              trailing: FilledButton.icon(
+                onPressed: () => _openSuratKredensiDrawer(context),
+                icon: const Icon(Icons.description),
+                label: Text(l10n.btn_generateCertificate),
+              ),
+              child: const SizedBox.shrink(),
+            ),
           ],
         ),
       ),
@@ -147,12 +171,32 @@ class DocumentScreen extends ConsumerWidget {
         flex: 3,
         cellBuilder: (ctx, document) {
           final theme = Theme.of(ctx);
-          return Text(
-            document.name,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-            overflow: TextOverflow.ellipsis,
+          final certificateTitle = document.certificateTitle?.trim();
+          final displayTitle =
+              certificateTitle != null && certificateTitle.isNotEmpty
+              ? certificateTitle
+              : document.name;
+          final showSubtitle = displayTitle != document.name;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                displayTitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (showSubtitle)
+                Text(
+                  document.name,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
           );
         },
       ),
@@ -211,6 +255,10 @@ class DocumentScreen extends ConsumerWidget {
           final theme = Theme.of(ctx);
           final l10n = ctx.l10n;
           final fileId = document.fileId;
+          final openingLabel =
+              (document.certificateTitle?.trim().isNotEmpty ?? false)
+              ? document.certificateTitle!
+              : document.name;
 
           Future<void> openFile(int id) async {
             final fileRepo = ref.read(fileManagerRepositoryProvider);
@@ -245,7 +293,7 @@ class DocumentScreen extends ConsumerWidget {
             AppSnackbars.showSuccess(
               ctx,
               title: l10n.msg_opening,
-              message: l10n.msg_openingReport(document.name),
+              message: l10n.msg_openingReport(openingLabel),
             );
             try {
               await launchUrl(uri);
@@ -365,6 +413,24 @@ class DocumentScreen extends ConsumerWidget {
         onClose: () {
           DrawerUtils.closeDrawer(context);
         },
+      ),
+    );
+  }
+
+  void _openSuratKeteranganJemaatDrawer(BuildContext context) {
+    DrawerUtils.showDrawer(
+      context: context,
+      drawer: SuratKeteranganJemaatDrawer(
+        onClose: () => DrawerUtils.closeDrawer(context),
+      ),
+    );
+  }
+
+  void _openSuratKredensiDrawer(BuildContext context) {
+    DrawerUtils.showDrawer(
+      context: context,
+      drawer: SuratKredensiDrawer(
+        onClose: () => DrawerUtils.closeDrawer(context),
       ),
     );
   }

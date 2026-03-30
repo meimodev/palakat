@@ -914,6 +914,18 @@ abstract class AppLocalizations {
   /// **'Create and publish announcements'**
   String get operationsItem_publish_announcement_desc;
 
+  /// No description provided for @operationsItem_suratKeteranganJemaat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Keterangan Jemaat'**
+  String get operationsItem_suratKeteranganJemaat_title;
+
+  /// No description provided for @operationsItem_suratKeteranganJemaat_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate congregation certificates for members in your column'**
+  String get operationsItem_suratKeteranganJemaat_desc;
+
   /// No description provided for @operationsItem_add_income_title.
   ///
   /// In en, this message translates to:
@@ -1292,6 +1304,30 @@ abstract class AppLocalizations {
   /// **'A record of all approved church documents.'**
   String get admin_documentDirectory_subtitle;
 
+  /// No description provided for @certificate_suratKeteranganJemaat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Keterangan Jemaat'**
+  String get certificate_suratKeteranganJemaat_title;
+
+  /// No description provided for @certificate_suratKeteranganJemaat_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a congregation certificate PDF for the selected member.'**
+  String get certificate_suratKeteranganJemaat_subtitle;
+
+  /// No description provided for @certificate_suratKredensi_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Kredensi'**
+  String get certificate_suratKredensi_title;
+
+  /// No description provided for @certificate_suratKredensi_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a credential certificate PDF for the selected member.'**
+  String get certificate_suratKredensi_subtitle;
+
   /// No description provided for @admin_church_title.
   ///
   /// In en, this message translates to:
@@ -1513,6 +1549,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generate Report'**
   String get btn_generateReport;
+
+  /// No description provided for @btn_generateCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate PDF'**
+  String get btn_generateCertificate;
 
   /// No description provided for @btn_recordPayment.
   ///
@@ -1777,6 +1819,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Column'**
   String get lbl_selectColumn;
+
+  /// No description provided for @lbl_selectMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Member'**
+  String get lbl_selectMember;
 
   /// No description provided for @lbl_searchChurches.
   ///
@@ -3122,6 +3170,18 @@ abstract class AppLocalizations {
   /// **'Update the template used for new documents'**
   String get drawer_editDocumentId_subtitle;
 
+  /// No description provided for @drawer_suratKeteranganJemaat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Keterangan Jemaat'**
+  String get drawer_suratKeteranganJemaat_title;
+
+  /// No description provided for @drawer_suratKredensi_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Kredensi'**
+  String get drawer_suratKredensi_title;
+
   /// No description provided for @drawer_paymentHistory_title.
   ///
   /// In en, this message translates to:
@@ -4345,6 +4405,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by position name'**
   String get hint_searchPositions;
+
+  /// No description provided for @hint_searchMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Search member by name or phone'**
+  String get hint_searchMember;
 
   /// No description provided for @tbl_billId.
   ///
@@ -6295,6 +6361,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report generation failed. Please try again.'**
   String get msg_reportFailed;
+
+  /// No description provided for @msg_certificateGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate generated successfully.'**
+  String get msg_certificateGenerated;
 
   /// No description provided for @msg_reportNoMatchInfoTitle.
   ///

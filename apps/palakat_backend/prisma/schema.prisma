@@ -527,6 +527,8 @@ model Document {
   id            Int          @id @default(autoincrement())
   name          String
   accountNumber String
+  certificateType  String?
+  certificateTitle String?
   input         DocumentInput @default(INCOME)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt

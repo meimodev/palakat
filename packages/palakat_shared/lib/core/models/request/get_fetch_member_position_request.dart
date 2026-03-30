@@ -10,6 +10,7 @@ abstract class GetFetchMemberPosition with _$GetFetchMemberPosition {
   const factory GetFetchMemberPosition({
     int? churchId,
     int? columnId,
+    bool? requireColumnId,
     String? position,
     String? search,
   }) = _GetFetchMemberPosition;

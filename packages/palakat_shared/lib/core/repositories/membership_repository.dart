@@ -10,6 +10,8 @@ import '../services/socket_service.dart';
 
 part 'membership_repository.g.dart';
 
+typedef MembershipPickerPage = ({List<Membership> items, bool hasMore});
+
 @riverpod
 MembershipRepository membershipRepository(Ref ref) {
   ref.keepAlive();
@@ -89,6 +91,32 @@ class MembershipRepository {
     } catch (e) {
       return Result.failure(Failure.fromException(e));
     }
+  }
+
+  Future<Result<MembershipPickerPage, Failure>> fetchMemberPickerPage({
+    required GetFetchMemberPosition request,
+    int page = 1,
+    int pageSize = 50,
+    String sortBy = 'createdAt',
+    String sortOrder = 'desc',
+  }) async {
+    final result = await fetchMemberPositionsPagination(
+      paginationRequest: PaginationRequestWrapper(
+        page: page,
+        pageSize: pageSize,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
+        data: request,
+      ),
+    );
+
+    return result.when(
+      onSuccess: (response) => Result.success((
+        items: response.data,
+        hasMore: response.pagination.hasNext,
+      )),
+      onFailure: (failure) => Result.failure(failure),
+    )!;
   }
 
   Future<Result<Account, Failure>> fetchAccount({

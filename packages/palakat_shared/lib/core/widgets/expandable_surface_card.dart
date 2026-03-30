@@ -122,29 +122,34 @@ class _ExpandableSurfaceCardState extends State<ExpandableSurfaceCard>
                     ),
                   );
 
-                  if (widget.trailing == null || constraints.maxWidth >= 560) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: titleBlock),
-                        if (widget.trailing != null) ...[
-                          const SizedBox(width: 12),
-                          Flexible(child: widget.trailing!),
-                        ],
-                        const SizedBox(width: 8),
-                        expandIcon,
-                      ],
-                    );
-                  }
+                  // if (widget.trailing == null || constraints.maxWidth >= 560) {
+                  //   return Row(
+                  //     mainAxisSize: MainAxisSize.max,
+                  //     children: [
+                  //       Expanded(child: titleBlock),
+                  //       Flexible(
+                  //         child: Row(
+                  //           mainAxisSize: MainAxisSize.max,
+                  //           children: [
+                  //             if (widget.trailing != null) widget.trailing!,
+                  //             const SizedBox(width: 8),
+                  //             expandIcon,
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   );
+                  // }
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      titleBlock,
-                      const SizedBox(height: 12),
+                      Expanded(child: titleBlock),
+                      const SizedBox(width: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
+                        direction: Axis.horizontal,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           if (widget.trailing != null) widget.trailing!,

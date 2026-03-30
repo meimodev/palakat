@@ -279,6 +279,8 @@
   "operationsItem_publish_event_desc": "Buat dan publikasikan acara gereja",
   "operationsItem_publish_announcement_title": "Publikasikan Pengumuman",
   "operationsItem_publish_announcement_desc": "Buat dan publikasikan pengumuman",
+  "operationsItem_suratKeteranganJemaat_title": "Surat Keterangan Jemaat",
+  "operationsItem_suratKeteranganJemaat_desc": "Buat surat keterangan jemaat untuk anggota di kolom Anda",
   "operationsItem_add_income_title": "Tambah Pendapatan",
   "operationsItem_add_income_desc": "Catat pendapatan gereja dan persembahan",
   "operationsItem_add_expense_title": "Tambah Pengeluaran",
@@ -482,6 +484,10 @@
   "@admin_documentDirectory_subtitle": {
     "description": "Card subtitle for document directory"
   },
+  "certificate_suratKeteranganJemaat_title": "Surat Keterangan Jemaat",
+  "certificate_suratKeteranganJemaat_subtitle": "Buat PDF surat keterangan jemaat untuk anggota yang dipilih.",
+  "certificate_suratKredensi_title": "Surat Kredensi",
+  "certificate_suratKredensi_subtitle": "Buat PDF surat kredensi untuk anggota yang dipilih.",
   "admin_church_title": "Profil Gereja",
   "@admin_church_title": {
     "description": "Admin screen title for church profile"
@@ -608,6 +614,10 @@
   "btn_generateReport": "Buat Laporan",
   "@btn_generateReport": {
     "description": "Button text for generate report"
+  },
+  "btn_generateCertificate": "Buat PDF",
+  "@btn_generateCertificate": {
+    "description": "Button text for generate certificate"
   },
   "btn_recordPayment": "Catat Pembayaran",
   "@btn_recordPayment": {
@@ -777,6 +787,10 @@
   "lbl_selectColumn": "Pilih Kolom",
   "@lbl_selectColumn": {
     "description": "Label for select column dialog"
+  },
+  "lbl_selectMember": "Pilih Anggota",
+  "@lbl_selectMember": {
+    "description": "Label for select member dialog"
   },
   "lbl_searchChurches": "Cari gereja...",
   "@lbl_searchChurches": {
@@ -1686,6 +1700,14 @@
   "@drawer_editDocumentId_subtitle": {
     "description": "Drawer subtitle for editing document identity number"
   },
+  "drawer_suratKeteranganJemaat_title": "Surat Keterangan Jemaat",
+  "@drawer_suratKeteranganJemaat_title": {
+    "description": "Drawer title for surat keterangan jemaat"
+  },
+  "drawer_suratKredensi_title": "Surat Kredensi",
+  "@drawer_suratKredensi_title": {
+    "description": "Drawer title for surat kredensi"
+  },
   "drawer_paymentHistory_title": "Riwayat Pembayaran",
   "@drawer_paymentHistory_title": {
     "description": "Drawer title for payment history"
@@ -2388,6 +2410,7 @@
     "description": "Hint for current password field"
   },
   "hint_enterNewPassword": "Masukkan kata sandi baru",
+  "hint_searchMember": "Cari anggota berdasarkan nama atau telepon",
   "@hint_enterNewPassword": {
     "description": "Hint for new password field"
   },
@@ -3859,6 +3882,7 @@
   "msg_reportQueuedShort": "Laporan masuk antrean",
   "msg_reportReady": "Laporan Anda siap untuk diunduh!",
   "msg_reportFailed": "Pembuatan laporan gagal. Silakan coba lagi.",
+  "msg_certificateGenerated": "Sertifikat berhasil dibuat.",
   "msg_reportNoMatchInfoTitle": "Tidak ada data yang cocok dengan konfigurasi laporan ini.",
   "msg_reportNoMatchInfoSubtitle": "Coba ubah rentang tanggal atau sesuaikan filter yang dipilih, lalu buat laporan lagi.",
   "msg_tapToDownload": "Ketuk untuk mengunduh",

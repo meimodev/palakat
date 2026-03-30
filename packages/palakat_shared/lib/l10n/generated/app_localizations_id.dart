@@ -477,6 +477,14 @@ class AppLocalizationsId extends AppLocalizations {
       'Buat dan publikasikan pengumuman';
 
   @override
+  String get operationsItem_suratKeteranganJemaat_title =>
+      'Surat Keterangan Jemaat';
+
+  @override
+  String get operationsItem_suratKeteranganJemaat_desc =>
+      'Buat surat keterangan jemaat untuk anggota di kolom Anda';
+
+  @override
   String get operationsItem_add_income_title => 'Tambah Pendapatan';
 
   @override
@@ -698,6 +706,21 @@ class AppLocalizationsId extends AppLocalizations {
       'Catatan semua dokumen gereja yang telah disetujui.';
 
   @override
+  String get certificate_suratKeteranganJemaat_title =>
+      'Surat Keterangan Jemaat';
+
+  @override
+  String get certificate_suratKeteranganJemaat_subtitle =>
+      'Buat PDF surat keterangan jemaat untuk anggota yang dipilih.';
+
+  @override
+  String get certificate_suratKredensi_title => 'Surat Kredensi';
+
+  @override
+  String get certificate_suratKredensi_subtitle =>
+      'Buat PDF surat kredensi untuk anggota yang dipilih.';
+
+  @override
   String get admin_church_title => 'Profil Gereja';
 
   @override
@@ -828,6 +851,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get btn_generateReport => 'Buat Laporan';
+
+  @override
+  String get btn_generateCertificate => 'Buat PDF';
 
   @override
   String get btn_recordPayment => 'Catat Pembayaran';
@@ -964,6 +990,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_selectColumn => 'Pilih Kolom';
+
+  @override
+  String get lbl_selectMember => 'Pilih Anggota';
 
   @override
   String get lbl_searchChurches => 'Cari gereja...';
@@ -1730,6 +1759,12 @@ class AppLocalizationsId extends AppLocalizations {
       'Perbarui template yang digunakan untuk dokumen baru';
 
   @override
+  String get drawer_suratKeteranganJemaat_title => 'Surat Keterangan Jemaat';
+
+  @override
+  String get drawer_suratKredensi_title => 'Surat Kredensi';
+
+  @override
   String get drawer_paymentHistory_title => 'Riwayat Pembayaran';
 
   @override
@@ -2391,6 +2426,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get hint_searchPositions => 'Cari berdasarkan nama jabatan';
+
+  @override
+  String get hint_searchMember => 'Cari anggota berdasarkan nama atau telepon';
 
   @override
   String get tbl_billId => 'ID Tagihan';
@@ -3457,6 +3495,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_reportFailed => 'Pembuatan laporan gagal. Silakan coba lagi.';
+
+  @override
+  String get msg_certificateGenerated => 'Sertifikat berhasil dibuat.';
 
   @override
   String get msg_reportNoMatchInfoTitle =>

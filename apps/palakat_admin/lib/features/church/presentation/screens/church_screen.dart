@@ -398,7 +398,6 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
   }
 
   Widget _buildPermissionPolicySection(ThemeData theme) {
-    final enabled = state.church.hasValue;
     final positionsAsync = state.positions;
     final availablePositions = positionsAsync.value ?? const <MemberPosition>[];
     final l10n = context.l10n;
@@ -414,13 +413,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
       title: l10n.churchOperationsAccess_title,
       subtitle: l10n.churchOperationsAccess_subtitle,
       initiallyExpanded: false,
-      trailing: IconButton(
-        onPressed: enabled && !_permissionPolicyLoading
-            ? _loadPermissionPolicy
-            : null,
-        icon: const Icon(Icons.refresh),
-        tooltip: context.l10n.btn_retry,
-      ),
+
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: _permissionPolicyLoading || positionsAsync.isLoading

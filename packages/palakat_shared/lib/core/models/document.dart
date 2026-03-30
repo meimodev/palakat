@@ -13,6 +13,8 @@ abstract class Document with _$Document {
     int? id,
     required String name,
     required String accountNumber,
+    String? certificateType,
+    String? certificateTitle,
     @Default(DocumentInput.income) DocumentInput input,
     DateTime? createdAt,
     DateTime? updatedAt,

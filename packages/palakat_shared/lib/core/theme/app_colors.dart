@@ -3,30 +3,30 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const MaterialColor primary = MaterialColor(0xFF000000, {
-    50: Color(0xFFF3F3F3),
-    100: Color(0xFFE2E2E2),
-    200: Color(0xFFC6C6C6),
-    300: Color(0xFFA6A6A6),
-    400: Color(0xFF777777),
-    500: Color(0xFF5E5E5E),
-    600: Color(0xFF474747),
-    700: Color(0xFF3B3B3B),
-    800: Color(0xFF1A1A1A),
-    900: Color(0xFF000000),
+  static const MaterialColor primary = MaterialColor(0xFF921573, {
+    50: Color(0xFFF2E3EE),
+    100: Color(0xFFE5C7DD),
+    200: Color(0xFFD19DC4),
+    300: Color(0xFFC077AE),
+    400: Color(0xFFAC4D95),
+    500: Color(0xFF9F3184),
+    600: Color(0xFF8C146E),
+    700: Color(0xFF801265),
+    800: Color(0xFF72105A),
+    900: Color(0xFF600E4C),
   });
 
-  static const MaterialColor secondary = MaterialColor(0xFF424242, {
-    50: Color(0xFFF2F4F3),
-    100: Color(0xFFD6D4D3),
-    200: Color(0xFFC8C6C6),
-    300: Color(0xFFACABAB),
-    400: Color(0xFF8D8C8C),
-    500: Color(0xFF6F6E6E),
-    600: Color(0xFF5F5E5E),
-    700: Color(0xFF4D4C4C),
-    800: Color(0xFF424242),
-    900: Color(0xFF2F3131),
+  static const MaterialColor secondary = MaterialColor(0xFF6B1D84, {
+    50: Color(0xFFEDE4F0),
+    100: Color(0xFFDBC9E1),
+    200: Color(0xFFC1A0CB),
+    300: Color(0xFFA97CB8),
+    400: Color(0xFF8F53A2),
+    500: Color(0xFF7D3893),
+    600: Color(0xFF671C7F),
+    700: Color(0xFF5E1A74),
+    800: Color(0xFF531767),
+    900: Color(0xFF471357),
   });
 
   static const MaterialColor neutral = MaterialColor(0xFFF5F5F5, {
@@ -42,46 +42,46 @@ class AppColors {
     900: Color(0xFF1A1A1A),
   });
 
-  static const MaterialColor success = MaterialColor(0xFF2D6A4F, {
-    50: Color(0xFFEAF4EF),
-    100: Color(0xFFD1E6DA),
-    200: Color(0xFFA3D1B7),
-    300: Color(0xFF7AB898),
-    400: Color(0xFF5E9B7D),
-    500: Color(0xFF458162),
-    600: Color(0xFF2D6A4F),
-    700: Color(0xFF22513D),
-    800: Color(0xFF183A2C),
-    900: Color(0xFF0F251C),
+  static const MaterialColor success = MaterialColor(0xFF2F7A64, {
+    50: Color(0xFFE6EFEC),
+    100: Color(0xFFCDDFDA),
+    200: Color(0xFFA8C7BE),
+    300: Color(0xFF86B2A5),
+    400: Color(0xFF619A89),
+    500: Color(0xFF488A77),
+    600: Color(0xFF2D7560),
+    700: Color(0xFF296B58),
+    800: Color(0xFF255F4E),
+    900: Color(0xFF1F5142),
   });
 
-  static const MaterialColor error = MaterialColor(0xFF9B2226, {
-    50: Color(0xFFFBE9EA),
-    100: Color(0xFFF6D2D4),
-    200: Color(0xFFEEA7AA),
-    300: Color(0xFFE37A7F),
-    400: Color(0xFFD85057),
-    500: Color(0xFFBF343C),
-    600: Color(0xFF9B2226),
-    700: Color(0xFF7B0613),
-    800: Color(0xFF5A040D),
-    900: Color(0xFF410002),
+  static const MaterialColor error = MaterialColor(0xFFAD2E4F, {
+    50: Color(0xFFF5E6EA),
+    100: Color(0xFFEBCDD5),
+    200: Color(0xFFDDA7B5),
+    300: Color(0xFFCF8699),
+    400: Color(0xFFC16079),
+    500: Color(0xFFB74764),
+    600: Color(0xFFA62C4C),
+    700: Color(0xFF982846),
+    800: Color(0xFF87243E),
+    900: Color(0xFF721E34),
   });
 
-  static const MaterialColor warning = MaterialColor(0xFF8A6A2E, {
-    50: Color(0xFFFAF2E6),
-    100: Color(0xFFF1DFC0),
-    200: Color(0xFFE6C98D),
-    300: Color(0xFFD7AF58),
-    400: Color(0xFFBC8B3E),
-    500: Color(0xFFA67934),
-    600: Color(0xFF8A6A2E),
-    700: Color(0xFF6D5323),
-    800: Color(0xFF513D19),
-    900: Color(0xFF372910),
+  static const MaterialColor warning = MaterialColor(0xFFA56A1F, {
+    50: Color(0xFFF4EDE4),
+    100: Color(0xFFE9DBC9),
+    200: Color(0xFFD9C0A1),
+    300: Color(0xFFCBA97D),
+    400: Color(0xFFBB8E55),
+    500: Color(0xFFB07C3A),
+    600: Color(0xFF9E661E),
+    700: Color(0xFF915D1B),
+    800: Color(0xFF815318),
+    900: Color(0xFF6D4614),
   });
 
-  static const Color tertiary = Color(0xFFE0E0E0);
+  static const Color tertiary = Color(0xFFB81D5B);
   static const Color surface = Color(0xFFF9F9F9);
   static const Color background = surface;
   static const Color surfaceDim = Color(0xFFDADADA);
@@ -95,14 +95,14 @@ class AppColors {
 
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFFFFFFFF);
-  static const Color primaryContainer = Color(0xFF3B3B3B);
+  static const Color primaryContainer = Color(0xFF801265);
   static const Color onSecondary = Color(0xFFFFFFFF);
-  static const Color secondaryContainer = Color(0xFFD6D4D3);
-  static const Color onSecondaryContainer = Color(0xFF1B1C1C);
-  static const Color onTertiary = Color(0xFF000000);
+  static const Color secondaryContainer = Color(0xFFDBC9E1);
+  static const Color onSecondaryContainer = Color(0xFF471357);
+  static const Color onTertiary = Color(0xFFFFFFFF);
   static const Color onError = Color(0xFFFFFFFF);
-  static const Color errorContainer = Color(0xFFFFDAD6);
-  static const Color onErrorContainer = Color(0xFF410002);
+  static const Color errorContainer = Color(0xFFEBCDD5);
+  static const Color onErrorContainer = Color(0xFF721E34);
   static const Color onSurface = Color(0xFF1A1C1C);
   static const Color onSurfaceVariant = Color(0xFF474747);
   static const Color onBackground = onSurface;
@@ -110,12 +110,12 @@ class AppColors {
   static const Color outlineVariant = Color(0xFFC6C6C6);
   static const Color inverseSurface = Color(0xFF2F3131);
   static const Color inverseOnSurface = Color(0xFFF1F1F1);
-  static const Color inversePrimary = Color(0xFFC6C6C6);
+  static const Color inversePrimary = Color(0xFFD19DC4);
 
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF000000), Color(0xFF3B3B3B)],
+    colors: [Color(0xFF921573), Color(0xFF6B1D84)],
   );
 
   static Color ghostBorder([double opacity = 0.15]) =>

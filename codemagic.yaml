@@ -1,0 +1,233 @@
+workflows:
+  palakat-mobile-ci:
+    name: Palakat Mobile CI
+    instance_type: linux_x2
+    max_build_duration: 120
+    environment:
+      flutter: 3.41.5
+      android_signing:
+        - palakat_android_release_keystore
+      groups:
+        - palakat_mobile_env
+      vars:
+        PALAKAT_ENV: staging
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/.gradle/caches
+        - ~/.gradle/wrapper
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+        - pattern: develop
+          include: true
+          source: true
+    scripts:
+      - name: Get workspace dependencies
+        script: dart pub get
+
+      - name: Get shared package dependencies
+        script: flutter pub get
+        working_directory: packages/palakat_shared
+
+      - name: Get mobile app dependencies
+        script: flutter pub get
+        working_directory: apps/palakat
+
+      - name: Generate shared code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: packages/palakat_shared
+
+      - name: Generate mobile code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: apps/palakat
+
+      - name: Write mobile env file
+        script: |
+          set -euo pipefail
+
+          if [ -z "${PALAKAT_APP_ENV_FILE:-}" ]; then
+            echo "PALAKAT_APP_ENV_FILE is empty"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          raw = os.environ['PALAKAT_APP_ENV_FILE']
+          normalized = raw.replace('\r\n', '\n').replace('\r', '\n')
+          if '\n' not in normalized and '\\n' in normalized:
+              normalized = normalized.replace('\\n', '\n')
+
+          path = Path('apps/palakat/.env')
+          path.write_text(normalized.rstrip('\n') + '\n', encoding='utf-8')
+          PY
+
+          grep -q '^API_BASE_URL=' apps/palakat/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat/.env
+
+      - name: Analyze mobile app
+        script: flutter analyze
+        working_directory: apps/palakat
+
+      - name: Run mobile tests
+        script: flutter test
+        working_directory: apps/palakat
+
+      - name: Build Android APK
+        script: flutter build apk --release --dart-define=PALAKAT_ENV=${PALAKAT_ENV}
+        working_directory: apps/palakat
+
+    artifacts:
+      - apps/palakat/build/app/outputs/flutter-apk/*.apk
+
+  palakat-mobile-android-release:
+    name: Palakat Mobile Android Release
+    instance_type: linux_x2
+    max_build_duration: 120
+    environment:
+      flutter: 3.41.5
+      android_signing:
+        - palakat_android_release_keystore
+      groups:
+        - palakat_mobile_env
+      vars:
+        PALAKAT_ENV: production
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/.gradle/caches
+        - ~/.gradle/wrapper
+    scripts:
+      - name: Get workspace dependencies
+        script: dart pub get
+
+      - name: Get shared package dependencies
+        script: flutter pub get
+        working_directory: packages/palakat_shared
+
+      - name: Get mobile app dependencies
+        script: flutter pub get
+        working_directory: apps/palakat
+
+      - name: Generate shared code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: packages/palakat_shared
+
+      - name: Generate mobile code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: apps/palakat
+
+      - name: Write mobile env file
+        script: |
+          set -euo pipefail
+
+          if [ -z "${PALAKAT_APP_ENV_FILE:-}" ]; then
+            echo "PALAKAT_APP_ENV_FILE is empty"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          raw = os.environ['PALAKAT_APP_ENV_FILE']
+          normalized = raw.replace('\r\n', '\n').replace('\r', '\n')
+          if '\n' not in normalized and '\\n' in normalized:
+              normalized = normalized.replace('\\n', '\n')
+
+          path = Path('apps/palakat/.env')
+          path.write_text(normalized.rstrip('\n') + '\n', encoding='utf-8')
+          PY
+
+          grep -q '^API_BASE_URL=' apps/palakat/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat/.env
+
+      - name: Build Android App Bundle
+        script: flutter build appbundle --release --dart-define=PALAKAT_ENV=${PALAKAT_ENV}
+        working_directory: apps/palakat
+
+    artifacts:
+      - apps/palakat/build/app/outputs/bundle/release/*.aab
+
+  palakat-mobile-ios-release:
+    name: Palakat Mobile iOS Release
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      flutter: 3.41.5
+      xcode: latest
+      groups:
+        - palakat_mobile_env
+      vars:
+        PALAKAT_ENV: production
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.meimodev.palakat.palakat
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/Library/Caches/CocoaPods
+        - ~/Library/Developer/Xcode/DerivedData
+    scripts:
+      - name: Get workspace dependencies
+        script: dart pub get
+
+      - name: Get shared package dependencies
+        script: flutter pub get
+        working_directory: packages/palakat_shared
+
+      - name: Get mobile app dependencies
+        script: flutter pub get
+        working_directory: apps/palakat
+
+      - name: Generate shared code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: packages/palakat_shared
+
+      - name: Generate mobile code
+        script: dart run build_runner build --delete-conflicting-outputs
+        working_directory: apps/palakat
+
+      - name: Write mobile env file
+        script: |
+          set -euo pipefail
+
+          if [ -z "${PALAKAT_APP_ENV_FILE:-}" ]; then
+            echo "PALAKAT_APP_ENV_FILE is empty"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          raw = os.environ['PALAKAT_APP_ENV_FILE']
+          normalized = raw.replace('\r\n', '\n').replace('\r', '\n')
+          if '\n' not in normalized and '\\n' in normalized:
+              normalized = normalized.replace('\\n', '\n')
+
+          path = Path('apps/palakat/.env')
+          path.write_text(normalized.rstrip('\n') + '\n', encoding='utf-8')
+          PY
+
+          grep -q '^API_BASE_URL=' apps/palakat/.env
+          grep -q '^API_BASE_VERSION=' apps/palakat/.env
+
+      - name: Set up iOS signing profiles
+        script: xcode-project use-profiles
+        working_directory: apps/palakat/ios
+
+      - name: Build iOS IPA
+        script: flutter build ipa --release --dart-define=PALAKAT_ENV=${PALAKAT_ENV}
+        working_directory: apps/palakat
+
+    artifacts:
+      - apps/palakat/build/ios/ipa/*.ipa
+      - apps/palakat/build/ios/archive/*.xcarchive

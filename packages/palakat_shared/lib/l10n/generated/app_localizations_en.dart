@@ -474,6 +474,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create and publish announcements';
 
   @override
+  String get operationsItem_suratKeteranganJemaat_title =>
+      'Surat Keterangan Jemaat';
+
+  @override
+  String get operationsItem_suratKeteranganJemaat_desc =>
+      'Generate congregation certificates for members in your column';
+
+  @override
   String get operationsItem_add_income_title => 'Add Revenue';
 
   @override
@@ -694,6 +702,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'A record of all approved church documents.';
 
   @override
+  String get certificate_suratKeteranganJemaat_title =>
+      'Surat Keterangan Jemaat';
+
+  @override
+  String get certificate_suratKeteranganJemaat_subtitle =>
+      'Generate a congregation certificate PDF for the selected member.';
+
+  @override
+  String get certificate_suratKredensi_title => 'Surat Kredensi';
+
+  @override
+  String get certificate_suratKredensi_subtitle =>
+      'Generate a credential certificate PDF for the selected member.';
+
+  @override
   String get admin_church_title => 'Church Profile';
 
   @override
@@ -824,6 +847,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btn_generateReport => 'Generate Report';
+
+  @override
+  String get btn_generateCertificate => 'Generate PDF';
 
   @override
   String get btn_recordPayment => 'Record Payment';
@@ -960,6 +986,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_selectColumn => 'Select Column';
+
+  @override
+  String get lbl_selectMember => 'Select Member';
 
   @override
   String get lbl_searchChurches => 'Search churches...';
@@ -1729,6 +1758,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Update the template used for new documents';
 
   @override
+  String get drawer_suratKeteranganJemaat_title => 'Surat Keterangan Jemaat';
+
+  @override
+  String get drawer_suratKredensi_title => 'Surat Kredensi';
+
+  @override
   String get drawer_paymentHistory_title => 'Payment History';
 
   @override
@@ -2385,6 +2420,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hint_searchPositions => 'Search by position name';
+
+  @override
+  String get hint_searchMember => 'Search member by name or phone';
 
   @override
   String get tbl_billId => 'Bill ID';
@@ -3448,6 +3486,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_reportFailed => 'Report generation failed. Please try again.';
+
+  @override
+  String get msg_certificateGenerated => 'Certificate generated successfully.';
 
   @override
   String get msg_reportNoMatchInfoTitle =>

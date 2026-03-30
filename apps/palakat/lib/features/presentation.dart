@@ -42,6 +42,7 @@ export 'operations/presentations/members/member_invite_screen.dart';
 export 'operations/presentations/members/member_create_screen.dart';
 export 'operations/presentations/members/member_detail_screen.dart';
 export 'operations/presentations/members/member_birthdays_screen.dart';
+export 'operations/presentations/certificate/surat_keterangan_jemaat_screen.dart';
 export 'report/presentations/report_generate/report_generate_screen.dart';
 export 'publishing/presentations/activity_publish/activity_publish_controller.dart';
 export 'publishing/presentations/activity_publish/activity_publish_screen.dart';

@@ -8,11 +8,11 @@ Our brand identity is built on a foundation of modern aesthetics and clear commu
 
 ### Color Palette
 
-We utilize a sophisticated monochrome palette to ensure consistency and focus on content.
+We utilize a rich magenta-led palette to strengthen brand recognition while keeping the neutral surface system calm and readable.
 
-* **Primary Color:** `#000000` (Black) - Used for primary actions, headlines, and key elements.
-* **Secondary Color:** `#424242` (Dark Grey) - Supports primary elements, less prominent UI components.
-* **Tertiary Color:** `#E0E0E0` (Light Grey) - An accent for highlights, dividers, or subtle backgrounds.
+* **Primary Color:** `#921573` (Magenta) - Used for primary actions, headlines, and key elements.
+* **Secondary Color:** `#6B1D84` (Violet) - Supports primary elements and less prominent UI components.
+* **Tertiary Color:** `#B81D5B` (Rose) - An accent for highlights, dividers, or subtle emphasis.
 * **Neutral Color:** `#F8F8F8` (Off-White) - The foundational background color, providing visual breathing room.
 
 ### Typography

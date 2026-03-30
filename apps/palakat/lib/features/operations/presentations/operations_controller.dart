@@ -347,6 +347,14 @@ class OperationsController extends _$OperationsController {
         routeParams: {RouteParamKey.activityType: ActivityType.announcement},
         isEnabled: canPublish,
       ),
+      OperationItem(
+        id: 'surat_keterangan_jemaat',
+        title: l10n.operationsItem_suratKeteranganJemaat_title,
+        description: l10n.operationsItem_suratKeteranganJemaat_desc,
+        icon: AppIcons.document,
+        routeName: AppRoute.suratKeteranganJemaat,
+        isEnabled: canPublish,
+      ),
     ];
 
     // Financial category - available to users with positions
