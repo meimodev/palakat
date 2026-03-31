@@ -1,6 +1,15 @@
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import * as ExcelJS from 'exceljs';
+
+const BRAND_PRIMARY_HEX = '#921573';
+const BRAND_SECONDARY_HEX = '#6B1D84';
+const BRAND_BORDER_HEX = '#E5C7DD';
+const BRAND_SURFACE_HEX = '#F2E3EE';
+const BRAND_PRIMARY_ARGB = 'FF921573';
+const BRAND_SECONDARY_ARGB = 'FF6B1D84';
+const BRAND_BORDER_ARGB = 'FFE5C7DD';
+const BRAND_SURFACE_ARGB = 'FFF2E3EE';
 
 export type ReportLetterhead = {
   title?: string | null;
@@ -183,7 +192,7 @@ function renderPdfLetterhead(params: {
   if (headerLines.length) {
     doc
       .fontSize(14)
-      .fillColor('#000000')
+      .fillColor(BRAND_PRIMARY_HEX)
       .text(headerLines[0] ?? '', textX, headerStartY, {
         align: 'left',
         width: textWidth,
@@ -208,7 +217,7 @@ function renderPdfLetterhead(params: {
   doc
     .moveTo(doc.page.margins.left, ruleY)
     .lineTo(doc.page.width - doc.page.margins.right, ruleY)
-    .strokeColor('#DDDDDD')
+    .strokeColor(BRAND_BORDER_HEX)
     .lineWidth(1)
     .stroke();
   doc.moveDown();
@@ -238,7 +247,7 @@ function renderPdfVerifyBlock(params: {
   doc.save();
   doc
     .rect(x, y, availableWidth, boxHeight)
-    .strokeColor('#DDDDDD')
+    .strokeColor(BRAND_BORDER_HEX)
     .lineWidth(1)
     .stroke();
 
@@ -280,7 +289,7 @@ function renderPdfVerifyBlock(params: {
   )}`;
   const pagesLabel = `Total pages: ${params.totalPages}`;
 
-  doc.fontSize(11).fillColor('#0f172a');
+  doc.fontSize(11).fillColor(BRAND_PRIMARY_HEX);
   doc.text(churchName || 'Report verification', textX, qrY, {
     width: textWidth,
     lineBreak: false,
@@ -415,13 +424,13 @@ export async function renderPdfTableReportBuffer(params: {
 
   doc
     .fontSize(18)
-    .fillColor('#000000')
+    .fillColor(BRAND_PRIMARY_HEX)
     .text(params.title, { align: params.titleAlign ?? 'left' });
   doc.moveDown();
 
   for (const section of params.sections) {
     if (section.title && section.title.trim().length) {
-      doc.fontSize(12).fillColor('#000000').text(section.title);
+      doc.fontSize(12).fillColor(BRAND_SECONDARY_HEX).text(section.title);
       doc.moveDown(0.5);
     }
 
@@ -437,7 +446,7 @@ export async function renderPdfTableReportBuffer(params: {
     const headerFontSize = 10;
     const bodyFontSize = 9;
 
-    doc.fontSize(headerFontSize).fillColor('#000000');
+    doc.fontSize(headerFontSize).fillColor(BRAND_SECONDARY_HEX);
     const headerHeight = columns.reduce(
       (max, col, i) => {
         const w = Math.max(0, colWidths[i] - padding * 2);
@@ -453,16 +462,20 @@ export async function renderPdfTableReportBuffer(params: {
     const renderTableHeader = (y: number) => {
       let x = doc.page.margins.left;
 
-      doc.fontSize(headerFontSize).fillColor('#000000');
+      doc.fontSize(headerFontSize).fillColor(BRAND_SECONDARY_HEX);
       for (let i = 0; i < columns.length; i++) {
         const col = columns[i];
         const w = colWidths[i];
 
-        doc.rect(x, y, w, headerHeight).fillAndStroke('#F2F2F2', '#DDDDDD');
-        doc.fillColor('#000000').text(col.header, x + padding, y + padding, {
-          width: w - padding * 2,
-          align: col.align ?? 'left',
-        });
+        doc
+          .rect(x, y, w, headerHeight)
+          .fillAndStroke(BRAND_SURFACE_HEX, BRAND_BORDER_HEX);
+        doc
+          .fillColor(BRAND_SECONDARY_HEX)
+          .text(col.header, x + padding, y + padding, {
+            width: w - padding * 2,
+            align: col.align ?? 'left',
+          });
 
         x += w;
       }
@@ -495,7 +508,7 @@ export async function renderPdfTableReportBuffer(params: {
         renderPageHeader();
         y = doc.y;
         if (section.title && section.title.trim().length) {
-          doc.fontSize(12).fillColor('#000000').text(section.title);
+          doc.fontSize(12).fillColor(BRAND_SECONDARY_HEX).text(section.title);
           doc.moveDown(0.5);
           y = doc.y;
         }
@@ -510,7 +523,7 @@ export async function renderPdfTableReportBuffer(params: {
 
         doc
           .rect(x, y, w, rowHeight)
-          .strokeColor('#DDDDDD')
+          .strokeColor(BRAND_BORDER_HEX)
           .lineWidth(0.5)
           .stroke();
 
@@ -646,7 +659,7 @@ export async function renderXlsxTableReportBuffer(params: {
   }
 
   const titleRow = sheet.addRow([params.title]);
-  titleRow.font = { bold: true, size: 16 };
+  titleRow.font = { bold: true, size: 16, color: { argb: BRAND_PRIMARY_ARGB } };
   if (params.titleAlign === 'center') {
     const maxColumns = Math.max(
       1,
@@ -671,7 +684,11 @@ export async function renderXlsxTableReportBuffer(params: {
   for (const section of params.sections) {
     if (section.title && section.title.trim().length) {
       const sectionRow = sheet.addRow([section.title]);
-      sectionRow.font = { bold: true, size: 12 };
+      sectionRow.font = {
+        bold: true,
+        size: 12,
+        color: { argb: BRAND_SECONDARY_ARGB },
+      };
       sheet.addRow([]);
     }
 
@@ -681,17 +698,17 @@ export async function renderXlsxTableReportBuffer(params: {
 
     headerRow.eachCell((cell, colNumber) => {
       const col = section.columns[colNumber - 1];
-      cell.font = { bold: true };
+      cell.font = { bold: true, color: { argb: BRAND_SECONDARY_ARGB } };
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FFF2F2F2' },
+        fgColor: { argb: BRAND_SURFACE_ARGB },
       };
       cell.border = {
-        top: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-        left: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-        bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-        right: { style: 'thin', color: { argb: 'FFDDDDDD' } },
+        top: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+        left: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+        bottom: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+        right: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
       };
       cell.alignment = {
         vertical: 'middle',
@@ -708,10 +725,10 @@ export async function renderXlsxTableReportBuffer(params: {
       r.eachCell((cell, colNumber) => {
         const col = section.columns[colNumber - 1];
         cell.border = {
-          top: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-          left: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-          bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-          right: { style: 'thin', color: { argb: 'FFDDDDDD' } },
+          top: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+          left: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+          bottom: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
+          right: { style: 'thin', color: { argb: BRAND_BORDER_ARGB } },
         };
         cell.alignment = {
           vertical: 'top',
@@ -773,7 +790,7 @@ export async function renderPdfBulletinReportBuffer(params: {
 
   doc
     .fontSize(18)
-    .fillColor('#000000')
+    .fillColor(BRAND_PRIMARY_HEX)
     .text(params.title, { align: params.titleAlign ?? 'left' });
   doc.moveDown();
 
@@ -789,7 +806,7 @@ export async function renderPdfBulletinReportBuffer(params: {
   for (const section of params.sections) {
     if (section.title && section.title.trim().length) {
       ensureSpace(24);
-      doc.fontSize(12).fillColor('#000000').text(section.title);
+      doc.fontSize(12).fillColor(BRAND_SECONDARY_HEX).text(section.title);
       doc.moveDown(0.5);
     }
 
@@ -890,7 +907,7 @@ export async function renderXlsxBulletinReportBuffer(params: {
   }
 
   const titleRow = sheet.addRow([params.title]);
-  titleRow.font = { bold: true, size: 16 };
+  titleRow.font = { bold: true, size: 16, color: { argb: BRAND_PRIMARY_ARGB } };
 
   sheet.addRow([]);
 
@@ -902,7 +919,11 @@ export async function renderXlsxBulletinReportBuffer(params: {
   for (const section of params.sections) {
     if (section.title && section.title.trim().length) {
       const sectionRow = sheet.addRow([section.title]);
-      sectionRow.font = { bold: true, size: 12 };
+      sectionRow.font = {
+        bold: true,
+        size: 12,
+        color: { argb: BRAND_SECONDARY_ARGB },
+      };
     }
 
     for (const line of section.lines) {

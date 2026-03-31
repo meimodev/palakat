@@ -44,6 +44,8 @@ export type DocumentMinAggregateOutputType = {
   id: number | null
   name: string | null
   accountNumber: string | null
+  certificateType: string | null
+  certificateTitle: string | null
   input: $Enums.DocumentInput | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,8 @@ export type DocumentMaxAggregateOutputType = {
   id: number | null
   name: string | null
   accountNumber: string | null
+  certificateType: string | null
+  certificateTitle: string | null
   input: $Enums.DocumentInput | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -78,6 +82,8 @@ export type DocumentCountAggregateOutputType = {
   id: number
   name: number
   accountNumber: number
+  certificateType: number
+  certificateTitle: number
   input: number
   createdAt: number
   updatedAt: number
@@ -111,6 +117,8 @@ export type DocumentMinAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  certificateType?: true
+  certificateTitle?: true
   input?: true
   createdAt?: true
   updatedAt?: true
@@ -128,6 +136,8 @@ export type DocumentMaxAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  certificateType?: true
+  certificateTitle?: true
   input?: true
   createdAt?: true
   updatedAt?: true
@@ -145,6 +155,8 @@ export type DocumentCountAggregateInputType = {
   id?: true
   name?: true
   accountNumber?: true
+  certificateType?: true
+  certificateTitle?: true
   input?: true
   createdAt?: true
   updatedAt?: true
@@ -249,6 +261,8 @@ export type DocumentGroupByOutputType = {
   id: number
   name: string
   accountNumber: string
+  certificateType: string | null
+  certificateTitle: string | null
   input: $Enums.DocumentInput
   createdAt: Date
   updatedAt: Date
@@ -289,6 +303,8 @@ export type DocumentWhereInput = {
   id?: Prisma.IntFilter<"Document"> | number
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  certificateType?: Prisma.StringNullableFilter<"Document"> | string | null
+  certificateTitle?: Prisma.StringNullableFilter<"Document"> | string | null
   input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -309,6 +325,8 @@ export type DocumentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  certificateType?: Prisma.SortOrderInput | Prisma.SortOrder
+  certificateTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -335,6 +353,8 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  certificateType?: Prisma.StringNullableFilter<"Document"> | string | null
+  certificateTitle?: Prisma.StringNullableFilter<"Document"> | string | null
   input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -352,6 +372,8 @@ export type DocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  certificateType?: Prisma.SortOrderInput | Prisma.SortOrder
+  certificateTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -377,6 +399,8 @@ export type DocumentScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Document"> | number
   name?: Prisma.StringWithAggregatesFilter<"Document"> | string
   accountNumber?: Prisma.StringWithAggregatesFilter<"Document"> | string
+  certificateType?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  certificateTitle?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   input?: Prisma.EnumDocumentInputWithAggregatesFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
@@ -393,6 +417,8 @@ export type DocumentScalarWhereWithAggregatesInput = {
 export type DocumentCreateInput = {
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -410,6 +436,8 @@ export type DocumentUncheckedCreateInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -426,6 +454,8 @@ export type DocumentUncheckedCreateInput = {
 export type DocumentUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,6 +473,8 @@ export type DocumentUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -460,6 +492,8 @@ export type DocumentCreateManyInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -476,6 +510,8 @@ export type DocumentCreateManyInput = {
 export type DocumentUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -490,6 +526,8 @@ export type DocumentUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -522,6 +560,8 @@ export type DocumentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  certificateType?: Prisma.SortOrder
+  certificateTitle?: Prisma.SortOrder
   input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -546,6 +586,8 @@ export type DocumentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  certificateType?: Prisma.SortOrder
+  certificateTitle?: Prisma.SortOrder
   input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -563,6 +605,8 @@ export type DocumentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
+  certificateType?: Prisma.SortOrder
+  certificateTitle?: Prisma.SortOrder
   input?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -696,6 +740,8 @@ export type EnumDocumentInputFieldUpdateOperationsInput = {
 export type DocumentCreateWithoutChurchInput = {
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -712,6 +758,8 @@ export type DocumentUncheckedCreateWithoutChurchInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -757,6 +805,8 @@ export type DocumentScalarWhereInput = {
   id?: Prisma.IntFilter<"Document"> | number
   name?: Prisma.StringFilter<"Document"> | string
   accountNumber?: Prisma.StringFilter<"Document"> | string
+  certificateType?: Prisma.StringNullableFilter<"Document"> | string | null
+  certificateTitle?: Prisma.StringNullableFilter<"Document"> | string | null
   input?: Prisma.EnumDocumentInputFilter<"Document"> | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -773,6 +823,8 @@ export type DocumentScalarWhereInput = {
 export type DocumentCreateWithoutActivityInput = {
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -789,6 +841,8 @@ export type DocumentUncheckedCreateWithoutActivityInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -820,6 +874,8 @@ export type DocumentUpdateToOneWithWhereWithoutActivityInput = {
 export type DocumentUpdateWithoutActivityInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -836,6 +892,8 @@ export type DocumentUncheckedUpdateWithoutActivityInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -851,6 +909,8 @@ export type DocumentUncheckedUpdateWithoutActivityInput = {
 export type DocumentCreateWithoutFileInput = {
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -867,6 +927,8 @@ export type DocumentUncheckedCreateWithoutFileInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -898,6 +960,8 @@ export type DocumentUpdateToOneWithWhereWithoutFileInput = {
 export type DocumentUpdateWithoutFileInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -914,6 +978,8 @@ export type DocumentUncheckedUpdateWithoutFileInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -930,6 +996,8 @@ export type DocumentCreateManyChurchInput = {
   id?: number
   name: string
   accountNumber: string
+  certificateType?: string | null
+  certificateTitle?: string | null
   input?: $Enums.DocumentInput
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -945,6 +1013,8 @@ export type DocumentCreateManyChurchInput = {
 export type DocumentUpdateWithoutChurchInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -961,6 +1031,8 @@ export type DocumentUncheckedUpdateWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -977,6 +1049,8 @@ export type DocumentUncheckedUpdateManyWithoutChurchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  certificateTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   input?: Prisma.EnumDocumentInputFieldUpdateOperationsInput | $Enums.DocumentInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -995,6 +1069,8 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  certificateType?: boolean
+  certificateTitle?: boolean
   input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1015,6 +1091,8 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  certificateType?: boolean
+  certificateTitle?: boolean
   input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1035,6 +1113,8 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  certificateType?: boolean
+  certificateTitle?: boolean
   input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1055,6 +1135,8 @@ export type DocumentSelectScalar = {
   id?: boolean
   name?: boolean
   accountNumber?: boolean
+  certificateType?: boolean
+  certificateTitle?: boolean
   input?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1068,7 +1150,7 @@ export type DocumentSelectScalar = {
   fileSha256?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "activityId" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accountNumber" | "certificateType" | "certificateTitle" | "input" | "createdAt" | "updatedAt" | "churchId" | "fileId" | "activityId" | "publicId" | "verifyTokenHash" | "revokedAt" | "revokedReason" | "fileSha256", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   file?: boolean | Prisma.Document$fileArgs<ExtArgs>
@@ -1096,6 +1178,8 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     name: string
     accountNumber: string
+    certificateType: string | null
+    certificateTitle: string | null
     input: $Enums.DocumentInput
     createdAt: Date
     updatedAt: Date
@@ -1536,6 +1620,8 @@ export interface DocumentFieldRefs {
   readonly id: Prisma.FieldRef<"Document", 'Int'>
   readonly name: Prisma.FieldRef<"Document", 'String'>
   readonly accountNumber: Prisma.FieldRef<"Document", 'String'>
+  readonly certificateType: Prisma.FieldRef<"Document", 'String'>
+  readonly certificateTitle: Prisma.FieldRef<"Document", 'String'>
   readonly input: Prisma.FieldRef<"Document", 'DocumentInput'>
   readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>

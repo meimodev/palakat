@@ -94,6 +94,17 @@ get_app_env_file() {
     esac
 }
 
+preserve_child_interactive_mode() {
+    case "$1" in
+        backend)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 run_with_env_override() {
     local script_name="$1"
     shift
@@ -293,6 +304,9 @@ echo "────────────────────────�
 command=(bash "$SCRIPTS_DIR/$selected")
 if [[ -n "$selected_env" ]]; then
     command+=(--env "$selected_env")
+fi
+if preserve_child_interactive_mode "$selected_script_name"; then
+    command+=(--interactive)
 fi
 
 run_with_env_override "$selected_script_name" "${command[@]}"

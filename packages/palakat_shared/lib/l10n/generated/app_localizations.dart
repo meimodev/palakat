@@ -3500,6 +3500,18 @@ abstract class AppLocalizations {
   /// **'Date Range'**
   String get lbl_dateRange;
 
+  /// No description provided for @lbl_purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get lbl_purpose;
+
+  /// No description provided for @lbl_effectiveDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective Date'**
+  String get lbl_effectiveDate;
+
   /// No description provided for @lbl_allTime.
   ///
   /// In en, this message translates to:

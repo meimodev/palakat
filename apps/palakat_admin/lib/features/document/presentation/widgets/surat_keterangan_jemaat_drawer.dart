@@ -6,8 +6,6 @@ import 'package:palakat_admin/features/document/presentation/state/document_cont
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/models/result.dart';
-import 'package:palakat_shared/core/repositories/membership_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SuratKeteranganJemaatDrawer extends ConsumerStatefulWidget {
@@ -130,23 +128,10 @@ class _SuratKeteranganJemaatDrawerState
           final theme = Theme.of(dialogContext);
           final name = item.account?.name ?? l10n.lbl_na;
           final phone = item.account?.phone;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (phone != null && phone.trim().isNotEmpty)
-                Text(
-                  phone,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-            ],
+          return _MemberPickerOption(
+            title: name,
+            subtitle: phone,
+            accentColor: theme.colorScheme.primary,
           );
         },
       ),
@@ -271,7 +256,6 @@ class _SuratKeteranganJemaatDrawerState
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
     final selectedName = _selectedMembership?.account?.name;
     final selectedPhone = _selectedMembership?.account?.phone;
@@ -289,51 +273,17 @@ class _SuratKeteranganJemaatDrawerState
         children: [
           LabeledField(
             label: l10n.lbl_selectMember,
-            child: InkWell(
+            child: _MemberPickerField(
+              title: selectedName ?? l10n.lbl_selectMember,
+              subtitle:
+                  (selectedPhone != null && selectedPhone.trim().isNotEmpty)
+                  ? selectedPhone
+                  : l10n.hint_searchMember,
+              hasSelection: selectedName != null,
+              enabled: !_isLoading,
               onTap: _isLoading ? null : _openMemberPicker,
-              borderRadius: BorderRadius.circular(12),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: l10n.hint_searchMember,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: const Icon(Icons.arrow_drop_down),
-                ),
-                child: Text(selectedName ?? l10n.lbl_selectMember),
-              ),
             ),
           ),
-          const SizedBox(height: 16),
-          if (selectedName != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    selectedName,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (selectedPhone != null &&
-                      selectedPhone.trim().isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      selectedPhone,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
         ],
       ),
       footer: SizedBox(
@@ -344,6 +294,170 @@ class _SuratKeteranganJemaatDrawerState
           label: Text(l10n.btn_generateCertificate),
         ),
       ),
+    );
+  }
+}
+
+class _MemberPickerField extends StatelessWidget {
+  const _MemberPickerField({
+    required this.title,
+    required this.subtitle,
+    required this.hasSelection,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool hasSelection;
+  final bool enabled;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final backgroundColor = hasSelection
+        ? theme.colorScheme.primaryContainer.withValues(alpha: 0.35)
+        : theme.colorScheme.surfaceContainerLow;
+    final borderColor = hasSelection
+        ? theme.colorScheme.primary.withValues(alpha: 0.28)
+        : theme.colorScheme.outlineVariant;
+    final iconBackgroundColor = hasSelection
+        ? theme.colorScheme.primary.withValues(alpha: 0.12)
+        : theme.colorScheme.surfaceContainerHighest;
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.72,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: iconBackgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    hasSelection
+                        ? Icons.person_outline_rounded
+                        : Icons.person_search_outlined,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MemberPickerOption extends StatelessWidget {
+  const _MemberPickerOption({
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasSubtitle = subtitle != null && subtitle!.trim().isNotEmpty;
+
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.person_outline_rounded,
+            size: 18,
+            color: accentColor,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (hasSubtitle)
+                Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

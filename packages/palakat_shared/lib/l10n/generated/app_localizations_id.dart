@@ -1934,6 +1934,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_dateRange => 'Rentang Tanggal';
 
   @override
+  String get lbl_purpose => 'Tujuan';
+
+  @override
+  String get lbl_effectiveDate => 'Tanggal Berlaku';
+
+  @override
   String get lbl_allTime => 'Sepanjang Waktu';
 
   @override

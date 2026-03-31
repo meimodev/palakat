@@ -112,6 +112,26 @@ class DocumentScreen extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _DocumentActionCard(
+                  title: l10n.certificate_suratKeteranganJemaat_title,
+                  icon: Icons.description_outlined,
+                  color: theme.colorScheme.primary,
+                  onTap: () => _openSuratKeteranganJemaatDrawer(context),
+                ),
+                _DocumentActionCard(
+                  title: l10n.certificate_suratKredensi_title,
+                  icon: Icons.verified_outlined,
+                  color: theme.colorScheme.primary,
+                  onTap: () => _openSuratKredensiDrawer(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
             // Document Directory Section
             SurfaceCard(
               title: l10n.admin_documentDirectory_title,
@@ -130,28 +150,6 @@ class DocumentScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            SurfaceCard(
-              title: l10n.certificate_suratKeteranganJemaat_title,
-              subtitle: l10n.certificate_suratKeteranganJemaat_subtitle,
-              trailing: FilledButton.icon(
-                onPressed: () => _openSuratKeteranganJemaatDrawer(context),
-                icon: const Icon(Icons.description),
-                label: Text(l10n.btn_generateCertificate),
-              ),
-              child: const SizedBox.shrink(),
-            ),
-            const SizedBox(height: 16),
-            SurfaceCard(
-              title: l10n.certificate_suratKredensi_title,
-              subtitle: l10n.certificate_suratKredensi_subtitle,
-              trailing: FilledButton.icon(
-                onPressed: () => _openSuratKredensiDrawer(context),
-                icon: const Icon(Icons.description),
-                label: Text(l10n.btn_generateCertificate),
-              ),
-              child: const SizedBox.shrink(),
             ),
           ],
         ),
@@ -431,6 +429,70 @@ class DocumentScreen extends ConsumerWidget {
       context: context,
       drawer: SuratKredensiDrawer(
         onClose: () => DrawerUtils.closeDrawer(context),
+      ),
+    );
+  }
+}
+
+class _DocumentActionCard extends StatelessWidget {
+  const _DocumentActionCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: 240,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, color: color, size: 24),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(title, style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

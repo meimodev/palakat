@@ -1868,6 +1868,14 @@
   "@lbl_dateRange": {
     "description": "Label for date range"
   },
+  "lbl_purpose": "Tujuan",
+  "@lbl_purpose": {
+    "description": "Label for purpose field"
+  },
+  "lbl_effectiveDate": "Tanggal Berlaku",
+  "@lbl_effectiveDate": {
+    "description": "Label for effective date field"
+  },
   "lbl_allTime": "Sepanjang Waktu",
   "@lbl_allTime": {
     "description": "Label for all time"

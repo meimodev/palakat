@@ -1932,6 +1932,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_dateRange => 'Date Range';
 
   @override
+  String get lbl_purpose => 'Purpose';
+
+  @override
+  String get lbl_effectiveDate => 'Effective Date';
+
+  @override
   String get lbl_allTime => 'All Time';
 
   @override

@@ -816,6 +816,8 @@
   "lbl_positionName": "Position Name",
   "lbl_reportType": "Report Type",
   "lbl_dateRange": "Date Range",
+  "lbl_purpose": "Purpose",
+  "lbl_effectiveDate": "Effective Date",
   "lbl_allTime": "All Time",
   "lbl_revenueId": "Revenue ID",
   "lbl_expenseId": "Expense ID",

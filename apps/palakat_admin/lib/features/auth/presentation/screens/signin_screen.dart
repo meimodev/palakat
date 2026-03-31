@@ -112,7 +112,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final compactSignIn = size.width < 720;
-    final cardWidth = compactSignIn ? 560.0 : 460.0;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -123,129 +122,127 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               constraints.maxWidth,
             );
 
-            final formPanel = ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: cardWidth),
-              child: SurfaceCard(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: compactSignIn ? 4 : 8,
-                    vertical: 4,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            borderRadius: BorderRadius.circular(
-                              SanctuaryLayout.radiusLarge,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.onPrimary,
+            final formPanel = SurfaceCard(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: compactSignIn ? 4 : 8,
+                  vertical: 4,
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(
+                            SanctuaryLayout.radiusLarge,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          context.l10n.auth_welcomeBack,
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: const Icon(
+                          Icons.lock_outline_rounded,
+                          color: AppColors.onPrimary,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          context.l10n.auth_signInSubtitle,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        context.l10n.auth_welcomeBack,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(height: 28),
-                        TextFormField(
-                          controller: _identifierCtrl,
-                          decoration: InputDecoration(
-                            labelText:
-                                '${context.l10n.lbl_email} / ${context.l10n.lbl_phone}',
-                            hintText: context.l10n.hint_signInCredentials,
-                          ),
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.emailAddress,
-                          autofillHints: const [
-                            AutofillHints.username,
-                            AutofillHints.email,
-                          ],
-                          onChanged: (value) {
-                            if (_isFormatting) return;
-                            if (value.contains('@') ||
-                                _containsAsciiLetter(value)) {
-                              return;
-                            }
-                            final digits = _normalizePhoneDigits(value);
-                            final limited = digits.length > 13
-                                ? digits.substring(0, 13)
-                                : digits;
-                            final formatted = _formatLocalPhone(limited);
-                            if (formatted != value) {
-                              _isFormatting = true;
-                              final baseOffset = formatted.length;
-                              _identifierCtrl.value = TextEditingValue(
-                                text: formatted,
-                                selection: TextSelection.collapsed(
-                                  offset: baseOffset,
-                                ),
-                              );
-                              _isFormatting = false;
-                            }
-                          },
-                          validator: (v) => AuthValidators.identifier()
-                              .asFormFieldValidator(v),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.l10n.auth_signInSubtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(height: 14),
-                        TextFormField(
-                          controller: _passwordCtrl,
-                          obscureText: _obscure,
-                          decoration: InputDecoration(
-                            labelText: context.l10n.lbl_password,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscure
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _obscure = !_obscure),
-                            ),
-                          ),
-                          autofillHints: const [AutofillHints.password],
-                          onFieldSubmitted: (_) => _submit(),
-                          validator: (v) => Validators.required(
-                            context.l10n.validation_passwordRequired,
-                          ).asFormFieldValidator(v),
+                      ),
+                      const SizedBox(height: 28),
+                      TextFormField(
+                        controller: _identifierCtrl,
+                        decoration: InputDecoration(
+                          labelText:
+                              '${context.l10n.lbl_email} / ${context.l10n.lbl_phone}',
+                          hintText: context.l10n.hint_signInCredentials,
                         ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 52,
-                          child: FilledButton(
-                            onPressed: isLoading ? null : _submit,
-                            child: isLoading
-                                ? const CompactLoadingWidget(size: 22)
-                                : Text(context.l10n.btn_signIn),
-                          ),
-                        ),
-                        if (asyncAuth.hasError && appError != null) ...[
-                          const SizedBox(height: 14),
-                          CompactErrorWidget(
-                            error: appError,
-                            isSignInContext: true,
-                          ),
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [
+                          AutofillHints.username,
+                          AutofillHints.email,
                         ],
+                        onChanged: (value) {
+                          if (_isFormatting) return;
+                          if (value.contains('@') ||
+                              _containsAsciiLetter(value)) {
+                            return;
+                          }
+                          final digits = _normalizePhoneDigits(value);
+                          final limited = digits.length > 13
+                              ? digits.substring(0, 13)
+                              : digits;
+                          final formatted = _formatLocalPhone(limited);
+                          if (formatted != value) {
+                            _isFormatting = true;
+                            final baseOffset = formatted.length;
+                            _identifierCtrl.value = TextEditingValue(
+                              text: formatted,
+                              selection: TextSelection.collapsed(
+                                offset: baseOffset,
+                              ),
+                            );
+                            _isFormatting = false;
+                          }
+                        },
+                        validator: (v) =>
+                            AuthValidators.identifier().asFormFieldValidator(v),
+                      ),
+                      const SizedBox(height: 14),
+                      TextFormField(
+                        controller: _passwordCtrl,
+                        obscureText: _obscure,
+                        decoration: InputDecoration(
+                          labelText: context.l10n.lbl_password,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        autofillHints: const [AutofillHints.password],
+                        onFieldSubmitted: (_) => _submit(),
+                        validator: (v) => Validators.required(
+                          context.l10n.validation_passwordRequired,
+                        ).asFormFieldValidator(v),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 52,
+                        child: FilledButton(
+                          onPressed: isLoading ? null : _submit,
+                          child: isLoading
+                              ? const CompactLoadingWidget(size: 22)
+                              : Text(context.l10n.btn_signIn),
+                        ),
+                      ),
+                      if (asyncAuth.hasError && appError != null) ...[
+                        const SizedBox(height: 14),
+                        CompactErrorWidget(
+                          error: appError,
+                          isSignInContext: true,
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -280,47 +277,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    'The Digital Sanctuary',
+                    'Palakat Admin ',
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'A calmer operational workspace for church stewardship, member care, and ministry coordination.',
+                    'Kelola sistem aplikasi gereja anda, secara lengkap dan real-time',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(
-                        SanctuaryLayout.radius,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Operational integrity validated',
-                          style: theme.textTheme.labelMedium,
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -339,6 +305,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   child: compactSignIn
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
                           children: [
                             brandPanel,
                             const SizedBox(height: 24),

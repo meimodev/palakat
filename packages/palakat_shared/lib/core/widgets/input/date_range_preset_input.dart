@@ -64,16 +64,34 @@ class DateRangePresetInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentPreset = preset ?? _detectPreset(start, end, allowedPresets);
+    final opensDirectlyToCustomPicker =
+        allowedPresets.length == 1 &&
+        allowedPresets.first == DateRangePreset.custom;
+    final effectiveCurrentValue =
+        opensDirectlyToCustomPicker && start == null && end == null
+        ? null
+        : currentPreset;
 
     return InputWidget<DateRangePreset>.dropdown(
       label: label,
       hint:
           hint ?? (label.isEmpty ? DateRangePreset.allTime.displayName : label),
-      currentInputValue: currentPreset,
+      currentInputValue: effectiveCurrentValue,
       options: allowedPresets,
       optionLabel: (p) => p.displayName,
       customDisplayBuilder: (_) => _buildCustomDisplay(context, currentPreset),
       onPressedWithResult: () async {
+        if (opensDirectlyToCustomPicker) {
+          final applied = await _applyPreset(
+            context,
+            DateRangePreset.custom,
+            start,
+            end,
+          );
+          if (!applied) return null;
+          return DateRangePreset.custom;
+        }
+
         final selected = await _pickPresetBottomSheet(
           context,
           current: currentPreset,

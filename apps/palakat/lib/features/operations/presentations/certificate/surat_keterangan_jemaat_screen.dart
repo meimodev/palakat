@@ -6,7 +6,6 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
-import 'package:palakat_shared/core/models/result.dart';
 import 'package:palakat_shared/core/repositories/document_repository.dart';
 import 'package:palakat_shared/core/repositories/file_manager_repository.dart';
 import 'package:palakat_shared/core/repositories/membership_repository.dart';
@@ -159,24 +158,9 @@ class _SuratKeteranganJemaatScreenState
           return name.contains(query) || phone.contains(query);
         },
         itemBuilder: (item) {
-          final theme = Theme.of(dialogContext);
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.account?.name ?? l10n.lbl_na,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if ((item.account?.phone ?? '').trim().isNotEmpty)
-                Text(
-                  item.account!.phone!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-            ],
+          return _MemberPickerOption(
+            title: item.account?.name ?? l10n.lbl_na,
+            subtitle: item.account?.phone,
           );
         },
       ),
@@ -313,7 +297,6 @@ class _SuratKeteranganJemaatScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
     final displayError = _scopeBlockedMessage ?? _errorMessage;
     final selectedName = _selectedMembership?.account?.name;
     final selectedPhone = _selectedMembership?.account?.phone;
@@ -372,58 +355,18 @@ class _SuratKeteranganJemaatScreenState
               icon: AppIcons.document,
               title: l10n.drawer_suratKeteranganJemaat_title,
               children: [
-                InkWell(
+                _MemberPickerField(
+                  title: selectedName ?? l10n.lbl_selectMember,
+                  subtitle:
+                      (selectedPhone != null && selectedPhone.trim().isNotEmpty)
+                      ? selectedPhone
+                      : l10n.hint_searchMember,
+                  hasSelection: selectedName != null,
+                  enabled: !_isLoadingMembers && _scopeBlockedMessage == null,
                   onTap: _isLoadingMembers || _scopeBlockedMessage != null
                       ? null
                       : _openMemberPicker,
-                  borderRadius: BorderRadius.circular(12),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: l10n.lbl_selectMember,
-                      hintText: l10n.hint_searchMember,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: const Icon(Icons.arrow_drop_down),
-                    ),
-                    child: Text(selectedName ?? l10n.lbl_selectMember),
-                  ),
                 ),
-                if (selectedName != null) ...[
-                  Gap.h12,
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(
-                        SanctuaryLayout.radiusLarge,
-                      ),
-                      border: Border.all(color: AppColors.ghostBorder(0.06)),
-                      boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          selectedName,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.onSurface,
-                          ),
-                        ),
-                        if ((selectedPhone ?? '').trim().isNotEmpty) ...[
-                          Gap.h4,
-                          Text(
-                            selectedPhone!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -436,6 +379,175 @@ class _SuratKeteranganJemaatScreenState
     if (msg.trim().isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+    );
+  }
+}
+
+class _MemberPickerField extends StatelessWidget {
+  const _MemberPickerField({
+    required this.title,
+    required this.subtitle,
+    required this.hasSelection,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool hasSelection;
+  final bool enabled;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.72,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: hasSelection
+                  ? AppColors.primaryContainer.withValues(alpha: 0.36)
+                  : AppColors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+              border: Border.all(
+                color: hasSelection
+                    ? AppColors.primary.withValues(alpha: 0.2)
+                    : AppColors.ghostBorder(0.08),
+              ),
+              boxShadow: SanctuaryDepth.ambient(
+                opacity: hasSelection ? 0.024 : 0.02,
+                blur: hasSelection ? 10 : 8,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: hasSelection
+                        ? AppColors.primary.withValues(alpha: 0.12)
+                        : AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: hasSelection
+                          ? AppColors.primary.withValues(alpha: 0.12)
+                          : AppColors.ghostBorder(0.06),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    hasSelection
+                        ? Icons.person_outline_rounded
+                        : Icons.person_search_outlined,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Gap.w12,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                      Gap.h2,
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Gap.w8,
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MemberPickerOption extends StatelessWidget {
+  const _MemberPickerOption({required this.title, required this.subtitle});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasSubtitle = subtitle != null && subtitle!.trim().isNotEmpty;
+
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.person_outline_rounded,
+            size: 18,
+            color: AppColors.primary,
+          ),
+        ),
+        Gap.w12,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurface,
+                ),
+              ),
+              if (hasSubtitle)
+                Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

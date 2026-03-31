@@ -31,6 +31,10 @@ import {
 } from './dto/report-generate.dto';
 import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
 
+const BRAND_PRIMARY_HEX = '#921573';
+const BRAND_BORDER_HEX = '#E5C7DD';
+const BRAND_PRIMARY_ARGB = 'FF921573';
+
 @Injectable()
 export class ReportService {
   constructor(
@@ -458,7 +462,7 @@ export class ReportService {
         const textX = params.logoBuffer?.length ? doc.x + 84 : doc.x;
         doc
           .fontSize(14)
-          .fillColor('#000000')
+          .fillColor(BRAND_PRIMARY_HEX)
           .text(headerLines[0] ?? '', textX, headerStartY, { align: 'left' });
 
         doc.fontSize(10).fillColor('#222222');
@@ -471,13 +475,16 @@ export class ReportService {
         doc
           .moveTo(doc.page.margins.left, ruleY)
           .lineTo(doc.page.width - doc.page.margins.right, ruleY)
-          .strokeColor('#DDDDDD')
+          .strokeColor(BRAND_BORDER_HEX)
           .lineWidth(1)
           .stroke();
         doc.moveDown();
       }
 
-      doc.fontSize(18).text(params.title, { align: 'left' });
+      doc
+        .fontSize(18)
+        .fillColor(BRAND_PRIMARY_HEX)
+        .text(params.title, { align: 'left' });
       doc.moveDown(0.5);
       doc
         .fontSize(10)
@@ -515,7 +522,7 @@ export class ReportService {
 
         doc
           .rect(x, y, availableWidth, boxHeight)
-          .strokeColor('#DDDDDD')
+          .strokeColor(BRAND_BORDER_HEX)
           .lineWidth(1)
           .stroke();
 
@@ -537,7 +544,7 @@ export class ReportService {
         )}`;
         const pagesLabel = `Total pages: ${totalPages}`;
 
-        doc.fontSize(11).fillColor('#0f172a');
+        doc.fontSize(11).fillColor(BRAND_PRIMARY_HEX);
         doc.text(churchName || 'Report verification', textX, qrY, {
           width: textWidth,
           lineBreak: false,
@@ -635,6 +642,12 @@ export class ReportService {
           vertical: 'middle',
           indent: 12,
         };
+        if (i === 0 && line) {
+          row.getCell(1).font = {
+            bold: true,
+            color: { argb: BRAND_PRIMARY_ARGB },
+          };
+        }
       }
     }
 
@@ -658,7 +671,12 @@ export class ReportService {
       }
     }
 
-    sheet.addRow([params.title]);
+    const titleRow = sheet.addRow([params.title]);
+    titleRow.getCell(1).font = {
+      bold: true,
+      size: 16,
+      color: { argb: BRAND_PRIMARY_ARGB },
+    };
     sheet.addRow([`Generated at: ${new Date().toISOString()}`]);
     sheet.addRow([]);
 

@@ -2758,6 +2758,8 @@ export const DocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   accountNumber: 'accountNumber',
+  certificateType: 'certificateType',
+  certificateTitle: 'certificateTitle',
   input: 'input',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

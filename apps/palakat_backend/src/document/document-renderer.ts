@@ -1,5 +1,9 @@
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
+
+const BRAND_PRIMARY_HEX = '#921573';
+const BRAND_SECONDARY_HEX = '#6B1D84';
+const BRAND_BORDER_HEX = '#E5C7DD';
 
 export type DocumentLetterhead = {
   title?: string | null;
@@ -48,7 +52,7 @@ function renderPdfLetterhead(params: {
   if (headerLines.length) {
     doc
       .fontSize(14)
-      .fillColor('#000000')
+      .fillColor(BRAND_PRIMARY_HEX)
       .text(headerLines[0] ?? '', textX, headerStartY, {
         align: 'left',
         width: textWidth,
@@ -73,7 +77,7 @@ function renderPdfLetterhead(params: {
   doc
     .moveTo(doc.page.margins.left, ruleY)
     .lineTo(doc.page.width - doc.page.margins.right, ruleY)
-    .strokeColor('#DDDDDD')
+    .strokeColor(BRAND_BORDER_HEX)
     .lineWidth(1)
     .stroke();
   doc.moveDown();
@@ -98,7 +102,7 @@ function renderQrBlock(params: {
 
   doc
     .rect(leftX, y, blockWidth, blockHeight)
-    .strokeColor('#DDDDDD')
+    .strokeColor(BRAND_BORDER_HEX)
     .lineWidth(1)
     .stroke();
 
@@ -134,9 +138,12 @@ function renderQrBlock(params: {
   const textX = qrX + qrSize + 12;
   const textWidth = rightX - blockPadding - textX;
 
-  doc.fontSize(11).fillColor('#000000').text('Verification', textX, qrY, {
-    width: textWidth,
-  });
+  doc
+    .fontSize(11)
+    .fillColor(BRAND_PRIMARY_HEX)
+    .text('Verification', textX, qrY, {
+      width: textWidth,
+    });
 
   doc
     .fontSize(9)
@@ -205,7 +212,10 @@ export async function renderPdfSignedDocumentBuffer(params: {
 
   renderPageHeader();
 
-  doc.fontSize(18).fillColor('#000000').text(params.title, { align: 'left' });
+  doc
+    .fontSize(18)
+    .fillColor(BRAND_PRIMARY_HEX)
+    .text(params.title, { align: 'left' });
   doc.moveDown(0.75);
 
   doc
@@ -226,7 +236,7 @@ export async function renderPdfSignedDocumentBuffer(params: {
 
   for (const section of params.sections ?? []) {
     if (section.title && section.title.trim().length) {
-      doc.fontSize(12).fillColor('#000000').text(section.title);
+      doc.fontSize(12).fillColor(BRAND_SECONDARY_HEX).text(section.title);
       doc.moveDown(0.5);
     }
 
