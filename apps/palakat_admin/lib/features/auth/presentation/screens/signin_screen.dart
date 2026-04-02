@@ -110,14 +110,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     });
 
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
-    final compactSignIn = size.width < 720;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final compactSignIn = constraints.maxWidth < 720;
             final horizontalPadding = SanctuaryLayout.horizontalPadding(
               constraints.maxWidth,
             );
@@ -132,8 +131,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
                         width: 52,
@@ -258,7 +256,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     width: 64,
@@ -293,32 +291,43 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ),
             );
 
+            final content = compactSignIn
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      brandPanel,
+                      const SizedBox(height: 24),
+                      formPanel,
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(flex: 7, child: brandPanel),
+                      const SizedBox(width: 32),
+                      Expanded(flex: 4, child: formPanel),
+                    ],
+                  );
+
             return Align(
               alignment: Alignment.center,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1360),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 24,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 24,
+                ),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 48,
                   ),
-                  child: compactSignIn
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            brandPanel,
-                            const SizedBox(height: 24),
-                            formPanel,
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(flex: 7, child: brandPanel),
-                            const SizedBox(width: 32),
-                            Expanded(flex: 4, child: formPanel),
-                          ],
-                        ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1360),
+                      child: content,
+                    ),
+                  ),
                 ),
               ),
             );

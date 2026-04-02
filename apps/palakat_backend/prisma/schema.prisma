@@ -25,7 +25,8 @@ model Church {
   phoneNumber             String?
   email                   String?
   description             String?
-  documentAccountNumber   String?
+  documentAccountNumber   Int                      @default(0)
+  documentPrefixAccountNumber String?
   sourceChurchId          Int?                     @unique
   regionId                Int?
   permissionPolicy        ChurchPermissionPolicy?

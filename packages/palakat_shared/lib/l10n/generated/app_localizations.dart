@@ -1283,13 +1283,13 @@ abstract class AppLocalizations {
   /// No description provided for @admin_documentIdentityNumber_title.
   ///
   /// In en, this message translates to:
-  /// **'Document Identity Number'**
+  /// **'Document Number Counter'**
   String get admin_documentIdentityNumber_title;
 
   /// No description provided for @admin_documentIdentityNumber_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Current template used for new documents.'**
+  /// **'Current sequential suffix counter used when auto-numbering outgoing documents.'**
   String get admin_documentIdentityNumber_subtitle;
 
   /// No description provided for @admin_documentDirectory_title.
@@ -1897,6 +1897,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Template'**
   String get lbl_template;
+
+  /// No description provided for @lbl_documentNumberCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sequential Suffix Counter'**
+  String get lbl_documentNumberCounter;
 
   /// No description provided for @lbl_format.
   ///
@@ -3161,13 +3167,13 @@ abstract class AppLocalizations {
   /// No description provided for @drawer_editDocumentId_title.
   ///
   /// In en, this message translates to:
-  /// **'Edit Document Identity Number'**
+  /// **'Edit Document Number Counter'**
   String get drawer_editDocumentId_title;
 
   /// No description provided for @drawer_editDocumentId_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Update the template used for new documents'**
+  /// **'Update the sequential suffix counter used for new outgoing documents'**
   String get drawer_editDocumentId_subtitle;
 
   /// No description provided for @drawer_suratKeteranganJemaat_title.
@@ -3433,6 +3439,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email (Optional)'**
   String get lbl_emailOptional;
+
+  /// No description provided for @lbl_documentPrefixAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Document Prefix'**
+  String get lbl_documentPrefixAccountNumber;
 
   /// No description provided for @lbl_descriptionOptional.
   ///
@@ -4226,11 +4238,29 @@ abstract class AppLocalizations {
   /// **'Enter email address'**
   String get hint_enterEmailAddress;
 
+  /// No description provided for @hint_enterDocumentPrefixAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the document number prefix'**
+  String get hint_enterDocumentPrefixAccountNumber;
+
   /// No description provided for @hint_describeYourChurch.
   ///
   /// In en, this message translates to:
   /// **'Describe your church (visible to members)'**
   String get hint_describeYourChurch;
+
+  /// No description provided for @helper_documentPrefixAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Used as the leading prefix for auto-numbered outgoing documents.'**
+  String get helper_documentPrefixAccountNumber;
+
+  /// No description provided for @helper_documentNumberCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores only the running numeric suffix. The full outgoing number is composed from the church prefix, year, Roman month, and this counter.'**
+  String get helper_documentNumberCounter;
 
   /// No description provided for @hint_enterChurchAddress.
   ///
@@ -4406,6 +4436,12 @@ abstract class AppLocalizations {
   /// **'Search by account number or description...'**
   String get hint_searchAccountNumberDescription;
 
+  /// No description provided for @hint_searchMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Search member by name or phone'**
+  String get hint_searchMember;
+
   /// No description provided for @dlg_selectPosition_title.
   ///
   /// In en, this message translates to:
@@ -4417,12 +4453,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by position name'**
   String get hint_searchPositions;
-
-  /// No description provided for @hint_searchMember.
-  ///
-  /// In en, this message translates to:
-  /// **'Search member by name or phone'**
-  String get hint_searchMember;
 
   /// No description provided for @tbl_billId.
   ///
@@ -6576,7 +6606,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Column {columnName}'**
-  String membershipCard_column(Object columnName);
+  String membershipCard_column(String columnName);
 
   /// No description provided for @membershipCard_welcome.
   ///
@@ -6606,7 +6636,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'No {title} available'**
-  String segmentTitle_emptyState(Object title);
+  String segmentTitle_emptyState(String title);
 }
 
 class _AppLocalizationsDelegate

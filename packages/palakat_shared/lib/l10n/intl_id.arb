@@ -468,11 +468,11 @@
   "@admin_documentSettings_subtitle": {
     "description": "Admin screen subtitle for document settings"
   },
-  "admin_documentIdentityNumber_title": "Nomor Identitas Dokumen",
+  "admin_documentIdentityNumber_title": "Counter Nomor Dokumen",
   "@admin_documentIdentityNumber_title": {
     "description": "Card title for document identity number settings"
   },
-  "admin_documentIdentityNumber_subtitle": "Template saat ini yang digunakan untuk dokumen baru.",
+  "admin_documentIdentityNumber_subtitle": "Counter suffix berurutan saat ini yang digunakan saat memberi nomor otomatis pada dokumen keluar.",
   "@admin_documentIdentityNumber_subtitle": {
     "description": "Card subtitle for document identity number settings"
   },
@@ -829,6 +829,10 @@
   "lbl_template": "Template",
   "@lbl_template": {
     "description": "Label for template"
+  },
+  "lbl_documentNumberCounter": "Counter Suffix Berurutan",
+  "@lbl_documentNumberCounter": {
+    "description": "Label for sequential document number counter"
   },
   "lbl_format": "Format",
   "@lbl_format": {
@@ -1692,11 +1696,11 @@
   "@drawer_generateReport_subtitle": {
     "description": "Drawer subtitle for generating report"
   },
-  "drawer_editDocumentId_title": "Ubah Nomor Identitas Dokumen",
+  "drawer_editDocumentId_title": "Ubah Counter Nomor Dokumen",
   "@drawer_editDocumentId_title": {
     "description": "Drawer title for editing document identity number"
   },
-  "drawer_editDocumentId_subtitle": "Perbarui template yang digunakan untuk dokumen baru",
+  "drawer_editDocumentId_subtitle": "Perbarui counter suffix berurutan yang digunakan untuk dokumen keluar baru",
   "@drawer_editDocumentId_subtitle": {
     "description": "Drawer subtitle for editing document identity number"
   },
@@ -1819,6 +1823,10 @@
   "lbl_emailOptional": "Email (Opsional)",
   "@lbl_emailOptional": {
     "description": "Label for optional email field"
+  },
+  "lbl_documentPrefixAccountNumber": "Prefix Dokumen",
+  "@lbl_documentPrefixAccountNumber": {
+    "description": "Label for document prefix field"
   },
   "lbl_descriptionOptional": "Deskripsi (Opsional)",
   "@lbl_descriptionOptional": {
@@ -2361,9 +2369,21 @@
   "@hint_enterEmailAddress": {
     "description": "Hint for email address field"
   },
+  "hint_enterDocumentPrefixAccountNumber": "Masukkan prefix nomor dokumen",
+  "@hint_enterDocumentPrefixAccountNumber": {
+    "description": "Hint for document prefix field"
+  },
   "hint_describeYourChurch": "Deskripsikan gereja Anda (terlihat oleh anggota)",
   "@hint_describeYourChurch": {
     "description": "Hint for church description field"
+  },
+  "helper_documentPrefixAccountNumber": "Digunakan sebagai prefix awal untuk dokumen keluar yang diberi nomor otomatis.",
+  "@helper_documentPrefixAccountNumber": {
+    "description": "Helper text for document prefix field"
+  },
+  "helper_documentNumberCounter": "Hanya menyimpan suffix numerik berjalan. Nomor dokumen keluar lengkap disusun dari prefix gereja, tahun, bulan Romawi, dan counter ini.",
+  "@helper_documentNumberCounter": {
+    "description": "Helper text for sequential document number counter"
   },
   "hint_enterChurchAddress": "Masukkan alamat gereja",
   "@hint_enterChurchAddress": {

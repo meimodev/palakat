@@ -60,10 +60,16 @@ class ChurchRepository {
     required Map<String, dynamic> update,
   }) async {
     try {
+      final resolvedUpdate = Map<String, dynamic>.from(update);
+      final documentAccountNumber = resolvedUpdate['documentAccountNumber'];
+      if (documentAccountNumber is String) {
+        resolvedUpdate['documentAccountNumber'] =
+            int.tryParse(documentAccountNumber) ?? 0;
+      }
       final socket = _ref.read(socketServiceProvider);
       final body = await socket.rpc('church.update', {
         'id': churchId,
-        'dto': update,
+        'dto': resolvedUpdate,
       });
       final Map<String, dynamic> json =
           (body['data'] as Map?)?.cast<String, dynamic>() ?? {};

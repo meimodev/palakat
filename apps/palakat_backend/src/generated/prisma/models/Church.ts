@@ -28,6 +28,7 @@ export type AggregateChurch = {
 
 export type ChurchAvgAggregateOutputType = {
   id: number | null
+  documentAccountNumber: number | null
   sourceChurchId: number | null
   regionId: number | null
   locationId: number | null
@@ -35,6 +36,7 @@ export type ChurchAvgAggregateOutputType = {
 
 export type ChurchSumAggregateOutputType = {
   id: number | null
+  documentAccountNumber: number | null
   sourceChurchId: number | null
   regionId: number | null
   locationId: number | null
@@ -46,7 +48,8 @@ export type ChurchMinAggregateOutputType = {
   phoneNumber: string | null
   email: string | null
   description: string | null
-  documentAccountNumber: string | null
+  documentAccountNumber: number | null
+  documentPrefixAccountNumber: string | null
   sourceChurchId: number | null
   regionId: number | null
   createdAt: Date | null
@@ -60,7 +63,8 @@ export type ChurchMaxAggregateOutputType = {
   phoneNumber: string | null
   email: string | null
   description: string | null
-  documentAccountNumber: string | null
+  documentAccountNumber: number | null
+  documentPrefixAccountNumber: string | null
   sourceChurchId: number | null
   regionId: number | null
   createdAt: Date | null
@@ -75,6 +79,7 @@ export type ChurchCountAggregateOutputType = {
   email: number
   description: number
   documentAccountNumber: number
+  documentPrefixAccountNumber: number
   sourceChurchId: number
   regionId: number
   createdAt: number
@@ -86,6 +91,7 @@ export type ChurchCountAggregateOutputType = {
 
 export type ChurchAvgAggregateInputType = {
   id?: true
+  documentAccountNumber?: true
   sourceChurchId?: true
   regionId?: true
   locationId?: true
@@ -93,6 +99,7 @@ export type ChurchAvgAggregateInputType = {
 
 export type ChurchSumAggregateInputType = {
   id?: true
+  documentAccountNumber?: true
   sourceChurchId?: true
   regionId?: true
   locationId?: true
@@ -105,6 +112,7 @@ export type ChurchMinAggregateInputType = {
   email?: true
   description?: true
   documentAccountNumber?: true
+  documentPrefixAccountNumber?: true
   sourceChurchId?: true
   regionId?: true
   createdAt?: true
@@ -119,6 +127,7 @@ export type ChurchMaxAggregateInputType = {
   email?: true
   description?: true
   documentAccountNumber?: true
+  documentPrefixAccountNumber?: true
   sourceChurchId?: true
   regionId?: true
   createdAt?: true
@@ -133,6 +142,7 @@ export type ChurchCountAggregateInputType = {
   email?: true
   description?: true
   documentAccountNumber?: true
+  documentPrefixAccountNumber?: true
   sourceChurchId?: true
   regionId?: true
   createdAt?: true
@@ -233,7 +243,8 @@ export type ChurchGroupByOutputType = {
   phoneNumber: string | null
   email: string | null
   description: string | null
-  documentAccountNumber: string | null
+  documentAccountNumber: number
+  documentPrefixAccountNumber: string | null
   sourceChurchId: number | null
   regionId: number | null
   createdAt: Date
@@ -270,7 +281,8 @@ export type ChurchWhereInput = {
   phoneNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   email?: Prisma.StringNullableFilter<"Church"> | string | null
   description?: Prisma.StringNullableFilter<"Church"> | string | null
-  documentAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
+  documentAccountNumber?: Prisma.IntFilter<"Church"> | number
+  documentPrefixAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   sourceChurchId?: Prisma.IntNullableFilter<"Church"> | number | null
   regionId?: Prisma.IntNullableFilter<"Church"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Church"> | Date | string
@@ -302,7 +314,8 @@ export type ChurchOrderByWithRelationInput = {
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  documentAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentAccountNumber?: Prisma.SortOrder
+  documentPrefixAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrderInput | Prisma.SortOrder
   regionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -339,7 +352,8 @@ export type ChurchWhereUniqueInput = Prisma.AtLeast<{
   phoneNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   email?: Prisma.StringNullableFilter<"Church"> | string | null
   description?: Prisma.StringNullableFilter<"Church"> | string | null
-  documentAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
+  documentAccountNumber?: Prisma.IntFilter<"Church"> | number
+  documentPrefixAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   regionId?: Prisma.IntNullableFilter<"Church"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Church"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Church"> | Date | string
@@ -369,7 +383,8 @@ export type ChurchOrderByWithAggregationInput = {
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  documentAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentAccountNumber?: Prisma.SortOrder
+  documentPrefixAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrderInput | Prisma.SortOrder
   regionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -391,7 +406,8 @@ export type ChurchScalarWhereWithAggregatesInput = {
   phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Church"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Church"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Church"> | string | null
-  documentAccountNumber?: Prisma.StringNullableWithAggregatesFilter<"Church"> | string | null
+  documentAccountNumber?: Prisma.IntWithAggregatesFilter<"Church"> | number
+  documentPrefixAccountNumber?: Prisma.StringNullableWithAggregatesFilter<"Church"> | string | null
   sourceChurchId?: Prisma.IntNullableWithAggregatesFilter<"Church"> | number | null
   regionId?: Prisma.IntNullableWithAggregatesFilter<"Church"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Church"> | Date | string
@@ -404,7 +420,8 @@ export type ChurchCreateInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -434,7 +451,8 @@ export type ChurchUncheckedCreateInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -463,7 +481,8 @@ export type ChurchUpdateInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -493,7 +512,8 @@ export type ChurchUncheckedUpdateInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -523,7 +543,8 @@ export type ChurchCreateManyInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -536,7 +557,8 @@ export type ChurchUpdateManyMutationInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -548,7 +570,8 @@ export type ChurchUncheckedUpdateManyInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -573,6 +596,7 @@ export type ChurchCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   description?: Prisma.SortOrder
   documentAccountNumber?: Prisma.SortOrder
+  documentPrefixAccountNumber?: Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -582,6 +606,7 @@ export type ChurchCountOrderByAggregateInput = {
 
 export type ChurchAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  documentAccountNumber?: Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
@@ -594,6 +619,7 @@ export type ChurchMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   description?: Prisma.SortOrder
   documentAccountNumber?: Prisma.SortOrder
+  documentPrefixAccountNumber?: Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -608,6 +634,7 @@ export type ChurchMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   description?: Prisma.SortOrder
   documentAccountNumber?: Prisma.SortOrder
+  documentPrefixAccountNumber?: Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -617,6 +644,7 @@ export type ChurchMinOrderByAggregateInput = {
 
 export type ChurchSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  documentAccountNumber?: Prisma.SortOrder
   sourceChurchId?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
@@ -947,7 +975,8 @@ export type ChurchCreateWithoutRegionInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -976,7 +1005,8 @@ export type ChurchUncheckedCreateWithoutRegionInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1034,7 +1064,8 @@ export type ChurchScalarWhereInput = {
   phoneNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   email?: Prisma.StringNullableFilter<"Church"> | string | null
   description?: Prisma.StringNullableFilter<"Church"> | string | null
-  documentAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
+  documentAccountNumber?: Prisma.IntFilter<"Church"> | number
+  documentPrefixAccountNumber?: Prisma.StringNullableFilter<"Church"> | string | null
   sourceChurchId?: Prisma.IntNullableFilter<"Church"> | number | null
   regionId?: Prisma.IntNullableFilter<"Church"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Church"> | Date | string
@@ -1047,7 +1078,8 @@ export type ChurchCreateWithoutPermissionPolicyInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1076,7 +1108,8 @@ export type ChurchUncheckedCreateWithoutPermissionPolicyInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1120,7 +1153,8 @@ export type ChurchUpdateWithoutPermissionPolicyInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1149,7 +1183,8 @@ export type ChurchUncheckedUpdateWithoutPermissionPolicyInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1177,7 +1212,8 @@ export type ChurchCreateWithoutColumnsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1206,7 +1242,8 @@ export type ChurchUncheckedCreateWithoutColumnsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1250,7 +1287,8 @@ export type ChurchUpdateWithoutColumnsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1279,7 +1317,8 @@ export type ChurchUncheckedUpdateWithoutColumnsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1307,7 +1346,8 @@ export type ChurchCreateWithoutMembershipsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1336,7 +1376,8 @@ export type ChurchUncheckedCreateWithoutMembershipsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1380,7 +1421,8 @@ export type ChurchUpdateWithoutMembershipsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1409,7 +1451,8 @@ export type ChurchUncheckedUpdateWithoutMembershipsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1437,7 +1480,8 @@ export type ChurchCreateWithoutMembershipPositionsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1466,7 +1510,8 @@ export type ChurchUncheckedCreateWithoutMembershipPositionsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1510,7 +1555,8 @@ export type ChurchUpdateWithoutMembershipPositionsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1539,7 +1585,8 @@ export type ChurchUncheckedUpdateWithoutMembershipPositionsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1567,7 +1614,8 @@ export type ChurchCreateWithoutApprovalRulesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1596,7 +1644,8 @@ export type ChurchUncheckedCreateWithoutApprovalRulesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1640,7 +1689,8 @@ export type ChurchUpdateWithoutApprovalRulesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1669,7 +1719,8 @@ export type ChurchUncheckedUpdateWithoutApprovalRulesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1697,7 +1748,8 @@ export type ChurchCreateWithoutRevenuesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1726,7 +1778,8 @@ export type ChurchUncheckedCreateWithoutRevenuesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1770,7 +1823,8 @@ export type ChurchUpdateWithoutRevenuesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1799,7 +1853,8 @@ export type ChurchUncheckedUpdateWithoutRevenuesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1827,7 +1882,8 @@ export type ChurchCreateWithoutExpensesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1856,7 +1912,8 @@ export type ChurchUncheckedCreateWithoutExpensesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -1900,7 +1957,8 @@ export type ChurchUpdateWithoutExpensesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1929,7 +1987,8 @@ export type ChurchUncheckedUpdateWithoutExpensesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1957,7 +2016,8 @@ export type ChurchCreateWithoutCashAccountsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1986,7 +2046,8 @@ export type ChurchUncheckedCreateWithoutCashAccountsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2030,7 +2091,8 @@ export type ChurchUpdateWithoutCashAccountsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2059,7 +2121,8 @@ export type ChurchUncheckedUpdateWithoutCashAccountsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2087,7 +2150,8 @@ export type ChurchCreateWithoutCashMutationsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2116,7 +2180,8 @@ export type ChurchUncheckedCreateWithoutCashMutationsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2160,7 +2225,8 @@ export type ChurchUpdateWithoutCashMutationsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2189,7 +2255,8 @@ export type ChurchUncheckedUpdateWithoutCashMutationsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2217,7 +2284,8 @@ export type ChurchCreateWithoutLocationInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2246,7 +2314,8 @@ export type ChurchUncheckedCreateWithoutLocationInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2290,7 +2359,8 @@ export type ChurchUpdateWithoutLocationInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2319,7 +2389,8 @@ export type ChurchUncheckedUpdateWithoutLocationInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2347,7 +2418,8 @@ export type ChurchCreateWithoutFilesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2376,7 +2448,8 @@ export type ChurchUncheckedCreateWithoutFilesInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2420,7 +2493,8 @@ export type ChurchUpdateWithoutFilesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2449,7 +2523,8 @@ export type ChurchUncheckedUpdateWithoutFilesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2477,7 +2552,8 @@ export type ChurchCreateWithoutReportsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2506,7 +2582,8 @@ export type ChurchUncheckedCreateWithoutReportsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2550,7 +2627,8 @@ export type ChurchUpdateWithoutReportsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2579,7 +2657,8 @@ export type ChurchUncheckedUpdateWithoutReportsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2607,7 +2686,8 @@ export type ChurchCreateWithoutDocumentsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2636,7 +2716,8 @@ export type ChurchUncheckedCreateWithoutDocumentsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2680,7 +2761,8 @@ export type ChurchUpdateWithoutDocumentsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2709,7 +2791,8 @@ export type ChurchUncheckedUpdateWithoutDocumentsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2737,7 +2820,8 @@ export type ChurchCreateWithoutChurchRequestsApprovedInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2766,7 +2850,8 @@ export type ChurchUncheckedCreateWithoutChurchRequestsApprovedInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2810,7 +2895,8 @@ export type ChurchUpdateWithoutChurchRequestsApprovedInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2839,7 +2925,8 @@ export type ChurchUncheckedUpdateWithoutChurchRequestsApprovedInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2867,7 +2954,8 @@ export type ChurchCreateWithoutMembershipInvitationsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2896,7 +2984,8 @@ export type ChurchUncheckedCreateWithoutMembershipInvitationsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -2940,7 +3029,8 @@ export type ChurchUpdateWithoutMembershipInvitationsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2969,7 +3059,8 @@ export type ChurchUncheckedUpdateWithoutMembershipInvitationsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2997,7 +3088,8 @@ export type ChurchCreateWithoutFinancialAccountNumbersInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3026,7 +3118,8 @@ export type ChurchUncheckedCreateWithoutFinancialAccountNumbersInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -3070,7 +3163,8 @@ export type ChurchUpdateWithoutFinancialAccountNumbersInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3099,7 +3193,8 @@ export type ChurchUncheckedUpdateWithoutFinancialAccountNumbersInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3127,7 +3222,8 @@ export type ChurchCreateWithoutReportJobsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3156,7 +3252,8 @@ export type ChurchUncheckedCreateWithoutReportJobsInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   regionId?: number | null
   createdAt?: Date | string
@@ -3200,7 +3297,8 @@ export type ChurchUpdateWithoutReportJobsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3229,7 +3327,8 @@ export type ChurchUncheckedUpdateWithoutReportJobsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   regionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3258,7 +3357,8 @@ export type ChurchCreateManyRegionInput = {
   phoneNumber?: string | null
   email?: string | null
   description?: string | null
-  documentAccountNumber?: string | null
+  documentAccountNumber?: number
+  documentPrefixAccountNumber?: string | null
   sourceChurchId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3270,7 +3370,8 @@ export type ChurchUpdateWithoutRegionInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3299,7 +3400,8 @@ export type ChurchUncheckedUpdateWithoutRegionInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3328,7 +3430,8 @@ export type ChurchUncheckedUpdateManyWithoutRegionInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  documentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentAccountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  documentPrefixAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceChurchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3499,6 +3602,7 @@ export type ChurchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   email?: boolean
   description?: boolean
   documentAccountNumber?: boolean
+  documentPrefixAccountNumber?: boolean
   sourceChurchId?: boolean
   regionId?: boolean
   createdAt?: boolean
@@ -3532,6 +3636,7 @@ export type ChurchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   email?: boolean
   description?: boolean
   documentAccountNumber?: boolean
+  documentPrefixAccountNumber?: boolean
   sourceChurchId?: boolean
   regionId?: boolean
   createdAt?: boolean
@@ -3548,6 +3653,7 @@ export type ChurchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   email?: boolean
   description?: boolean
   documentAccountNumber?: boolean
+  documentPrefixAccountNumber?: boolean
   sourceChurchId?: boolean
   regionId?: boolean
   createdAt?: boolean
@@ -3564,6 +3670,7 @@ export type ChurchSelectScalar = {
   email?: boolean
   description?: boolean
   documentAccountNumber?: boolean
+  documentPrefixAccountNumber?: boolean
   sourceChurchId?: boolean
   regionId?: boolean
   createdAt?: boolean
@@ -3571,7 +3678,7 @@ export type ChurchSelectScalar = {
   locationId?: boolean
 }
 
-export type ChurchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phoneNumber" | "email" | "description" | "documentAccountNumber" | "sourceChurchId" | "regionId" | "createdAt" | "updatedAt" | "locationId", ExtArgs["result"]["church"]>
+export type ChurchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phoneNumber" | "email" | "description" | "documentAccountNumber" | "documentPrefixAccountNumber" | "sourceChurchId" | "regionId" | "createdAt" | "updatedAt" | "locationId", ExtArgs["result"]["church"]>
 export type ChurchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   permissionPolicy?: boolean | Prisma.Church$permissionPolicyArgs<ExtArgs>
   location?: boolean | Prisma.LocationDefaultArgs<ExtArgs>
@@ -3630,7 +3737,8 @@ export type $ChurchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     phoneNumber: string | null
     email: string | null
     description: string | null
-    documentAccountNumber: string | null
+    documentAccountNumber: number
+    documentPrefixAccountNumber: string | null
     sourceChurchId: number | null
     regionId: number | null
     createdAt: Date
@@ -4082,7 +4190,8 @@ export interface ChurchFieldRefs {
   readonly phoneNumber: Prisma.FieldRef<"Church", 'String'>
   readonly email: Prisma.FieldRef<"Church", 'String'>
   readonly description: Prisma.FieldRef<"Church", 'String'>
-  readonly documentAccountNumber: Prisma.FieldRef<"Church", 'String'>
+  readonly documentAccountNumber: Prisma.FieldRef<"Church", 'Int'>
+  readonly documentPrefixAccountNumber: Prisma.FieldRef<"Church", 'String'>
   readonly sourceChurchId: Prisma.FieldRef<"Church", 'Int'>
   readonly regionId: Prisma.FieldRef<"Church", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Church", 'DateTime'>

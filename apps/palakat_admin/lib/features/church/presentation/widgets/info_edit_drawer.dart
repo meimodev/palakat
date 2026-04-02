@@ -24,6 +24,7 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
+  late TextEditingController _documentPrefixAccountNumberController;
   late TextEditingController _descriptionController;
   bool _saving = false;
   String? _errorMessage;
@@ -37,6 +38,9 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
       text: widget.church.phoneNumber ?? '',
     );
     _emailController = TextEditingController(text: widget.church.email ?? '');
+    _documentPrefixAccountNumberController = TextEditingController(
+      text: widget.church.documentPrefixAccountNumber ?? '',
+    );
     _descriptionController = TextEditingController(
       text: widget.church.description ?? '',
     );
@@ -56,6 +60,8 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
       _nameController.text = latest.name;
       _phoneController.text = latest.phoneNumber ?? '';
       _emailController.text = latest.email ?? '';
+      _documentPrefixAccountNumberController.text =
+          latest.documentPrefixAccountNumber ?? '';
       _descriptionController.text = latest.description ?? '';
     } catch (e) {
       if (!mounted) return;
@@ -72,6 +78,7 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _documentPrefixAccountNumberController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -86,6 +93,10 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
       email: _emailController.text.trim().isEmpty
           ? null
           : _emailController.text.trim(),
+      documentPrefixAccountNumber:
+          _documentPrefixAccountNumberController.text.trim().isEmpty
+          ? null
+          : _documentPrefixAccountNumberController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
@@ -169,6 +180,19 @@ class _InfoEditDrawerState extends ConsumerState<InfoEditDrawer> {
                     ),
                     validator: (value) =>
                         Validators.email().asFormFieldValidator(value),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                LabeledField(
+                  label: l10n.lbl_documentPrefixAccountNumber,
+                  child: TextFormField(
+                    controller: _documentPrefixAccountNumberController,
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: InputDecoration(
+                      hintText: l10n.hint_enterDocumentPrefixAccountNumber,
+                      helperText: l10n.helper_documentPrefixAccountNumber,
+                    ),
+                    validator: (_) => null,
                   ),
                 ),
                 const SizedBox(height: 16),

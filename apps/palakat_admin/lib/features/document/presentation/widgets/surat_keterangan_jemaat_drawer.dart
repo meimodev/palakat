@@ -6,7 +6,7 @@ import 'package:palakat_admin/features/document/presentation/state/document_cont
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 
 class SuratKeteranganJemaatDrawer extends ConsumerStatefulWidget {
   const SuratKeteranganJemaatDrawer({super.key, required this.onClose});
@@ -145,13 +145,29 @@ class _SuratKeteranganJemaatDrawerState
     }
   }
 
-  Future<void> _generateCertificate() async {
+  Future<void> _createActivity() async {
     final l10n = context.l10n;
     final selectedMembership = _selectedMembership;
+    final selectedMemberName = selectedMembership?.account?.name.trim();
+    final supervisorMembershipId = ref
+        .read(authControllerProvider)
+        .value
+        ?.account
+        .membership
+        ?.id;
 
     if (selectedMembership?.id == null) {
       setState(() {
         _errorMessage = l10n.err_requiredField;
+      });
+      return;
+    }
+
+    if (selectedMemberName == null ||
+        selectedMemberName.isEmpty ||
+        supervisorMembershipId == null) {
+      setState(() {
+        _errorMessage = l10n.msg_operationFailed;
       });
       return;
     }
@@ -161,25 +177,58 @@ class _SuratKeteranganJemaatDrawerState
       _errorMessage = null;
     });
 
-    final result = await ref
-        .read(documentRepositoryProvider)
-        .generateCertificate(
-          certificateType: CertificateType.suratKeteranganJemaat,
-          membershipId: selectedMembership!.id,
-          name: selectedMembership.account?.name,
-          accountNumber: selectedMembership.account?.phone,
+    final activityTitle =
+        '${l10n.certificate_suratKeteranganJemaat_title} - $selectedMemberName';
+    final activityResult = await ref
+        .read(activityRepositoryProvider)
+        .createActivity(
+          request: CreateActivityRequest(
+            supervisorId: supervisorMembershipId,
+            title: activityTitle,
+            activityType: ActivityType.announcement,
+          ),
         );
 
-    if (!mounted) {
+    int? linkedDocumentId;
+    String? message;
+    activityResult.when(
+      onSuccess: (activity) {
+        linkedDocumentId = activity.document?.id ?? activity.documentId;
+      },
+      onFailure: (failure) {
+        message = failure.message;
+      },
+    );
+
+    if (message != null) {
+      setState(() {
+        _errorMessage = message;
+        _isLoading = false;
+      });
       return;
     }
 
-    int? fileId;
-    String? message;
-    result.when(
-      onSuccess: (payload) {
-        fileId = payload.document.fileId;
-      },
+    if (linkedDocumentId == null) {
+      setState(() {
+        _errorMessage = l10n.msg_operationFailed;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    final documentResult = await ref
+        .read(documentRepositoryProvider)
+        .updateDocument(
+          documentId: linkedDocumentId!,
+          update: {
+            'name': selectedMemberName,
+            'certificateType': CertificateType.suratKeteranganJemaat.name,
+            'certificateTitle': l10n.certificate_suratKeteranganJemaat_title,
+          },
+        );
+
+    documentResult.when(
+      onSuccess: (_) {},
       onFailure: (failure) {
         message = failure.message;
       },
@@ -195,62 +244,19 @@ class _SuratKeteranganJemaatDrawerState
 
     await ref.read(documentControllerProvider.notifier).refresh();
 
-    if (fileId == null) {
-      setState(() {
-        _errorMessage = l10n.err_noData;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final fileResult = await ref
-        .read(fileManagerRepositoryProvider)
-        .resolveDownloadUrl(fileId: fileId!);
-
     if (!mounted) {
       return;
     }
 
-    String? resolvedUrl;
-    fileResult.when(
-      onSuccess: (url) {
-        resolvedUrl = url;
-      },
-      onFailure: (failure) {
-        message = failure.message;
-      },
+    AppSnackbars.showSuccess(
+      context,
+      title: l10n.msg_created,
+      message: l10n.certificate_suratKeteranganJemaat_title,
     );
 
-    if (message != null) {
-      setState(() {
-        _errorMessage = message;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final uri = Uri.tryParse(resolvedUrl ?? '');
-    if (uri == null) {
-      setState(() {
-        _errorMessage = l10n.msg_invalidUrl;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final launched = await launchUrl(uri);
-    if (!mounted) {
-      return;
-    }
-
-    if (!launched) {
-      setState(() {
-        _errorMessage = l10n.msg_cannotOpenReportFile;
-        _isLoading = false;
-      });
-      return;
-    }
-
+    setState(() {
+      _isLoading = false;
+    });
     widget.onClose();
   }
 
@@ -289,9 +295,9 @@ class _SuratKeteranganJemaatDrawerState
       footer: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: _isLoading ? null : _generateCertificate,
-          icon: const Icon(Icons.description),
-          label: Text(l10n.btn_generateCertificate),
+          onPressed: _isLoading ? null : _createActivity,
+          icon: const Icon(Icons.add_task_outlined),
+          label: Text(l10n.btn_create),
         ),
       ),
     );

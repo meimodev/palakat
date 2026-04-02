@@ -12,7 +12,8 @@ abstract class Church with _$Church {
   const factory Church({
     int? id,
     required String name,
-    String? documentAccountNumber,
+    @Default(0) int documentAccountNumber,
+    String? documentPrefixAccountNumber,
     String? phoneNumber,
     String? email,
     String? description,

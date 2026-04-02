@@ -645,8 +645,8 @@ export class ActivitiesService {
           await tx.document.create({
             data: {
               name: newActivity.title,
-              accountNumber: '0',
-              input: DocumentInput.INCOME,
+              accountNumber: '',
+              input: DocumentInput.OUTCOME,
               churchId: membership.churchId,
               activityId: newActivity.id,
             },

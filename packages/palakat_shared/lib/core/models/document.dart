@@ -30,7 +30,7 @@ abstract class Document with _$Document {
 
 @freezed
 abstract class DocumentSettings with _$DocumentSettings {
-  const factory DocumentSettings({required String identityNumberTemplate}) =
+  const factory DocumentSettings({required int identityNumberTemplate}) =
       _DocumentSettings;
 
   factory DocumentSettings.fromJson(Map<String, dynamic> json) =>

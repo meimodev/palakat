@@ -645,6 +645,12 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
               ),
               const SizedBox(height: 16),
               _buildInfoRow(
+                l10n.lbl_documentPrefixAccountNumber,
+                church.documentPrefixAccountNumber ?? l10n.lbl_na,
+                theme,
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow(
                 l10n.lbl_descriptionOptional,
                 church.description ?? l10n.lbl_na,
                 theme,

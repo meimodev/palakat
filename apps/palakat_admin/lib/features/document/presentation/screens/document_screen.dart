@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_admin/features/document/presentation/widgets/surat_keterangan_jemaat_drawer.dart';
 import 'package:palakat_admin/features/document/presentation/widgets/surat_kredensi_drawer.dart';
@@ -51,7 +52,7 @@ class DocumentScreen extends ConsumerWidget {
                   onPressed: () => _openIdentityDrawer(
                     context,
                     ref,
-                    settings?.identityNumberTemplate ?? '',
+                    settings?.identityNumberTemplate ?? 0,
                   ),
                   icon: const Icon(Icons.edit),
                   label: Text(l10n.btn_edit),
@@ -64,7 +65,7 @@ class DocumentScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        '${l10n.lbl_template}:',
+                        '${l10n.lbl_documentNumberCounter}:',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
@@ -73,7 +74,7 @@ class DocumentScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          settings?.identityNumberTemplate ?? '',
+                          '${settings?.identityNumberTemplate ?? 0}',
                           style: theme.textTheme.titleMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -390,7 +391,7 @@ class DocumentScreen extends ConsumerWidget {
   void _openIdentityDrawer(
     BuildContext context,
     WidgetRef ref,
-    String currentTemplate,
+    int currentTemplate,
   ) {
     final l10n = context.l10n;
     DrawerUtils.showDrawer(
@@ -399,7 +400,11 @@ class DocumentScreen extends ConsumerWidget {
         currentTemplate: currentTemplate,
         onSave: (val) async {
           final repo = ref.read(documentRepositoryProvider);
-          await repo.updateIdentityTemplate(val);
+          final result = await repo.updateIdentityTemplate(val);
+          result.when(
+            onSuccess: (_) {},
+            onFailure: (failure) => throw Exception(failure.message),
+          );
           // Refresh provider and show snackbar after successful save
           ref.invalidate(documentSettingsProvider);
           if (context.mounted) {
@@ -499,8 +504,8 @@ class _DocumentActionCard extends StatelessWidget {
 }
 
 class _IdentityNumberEditDrawer extends StatefulWidget {
-  final String currentTemplate;
-  final Future<void> Function(String) onSave;
+  final int currentTemplate;
+  final Future<void> Function(int) onSave;
   final VoidCallback onClose;
 
   const _IdentityNumberEditDrawer({
@@ -515,14 +520,17 @@ class _IdentityNumberEditDrawer extends StatefulWidget {
 }
 
 class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controller;
-  final bool _isLoading = false;
+  bool _isLoading = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.currentTemplate);
+    _controller = TextEditingController(
+      text: widget.currentTemplate.toString(),
+    );
   }
 
   @override
@@ -537,6 +545,40 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
     });
   }
 
+  Future<void> _saveChanges() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final value = int.tryParse(_controller.text.trim());
+    if (value == null) {
+      setState(() {
+        _errorMessage = context.l10n.validation_invalidNumber;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await widget.onSave(value);
+      if (!mounted) return;
+      widget.onClose();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -549,26 +591,49 @@ class _IdentityNumberEditDrawerState extends State<_IdentityNumberEditDrawer> {
       loadingMessage: l10n.loading_saving,
       errorMessage: _errorMessage,
       onRetry: _errorMessage != null ? _handleRetry : null,
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      content: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.lbl_documentNumberCounter,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.tag),
+                helperText: l10n.helper_documentNumberCounter,
+              ),
+              validator: (value) {
+                if ((value ?? '').trim().isEmpty) {
+                  return l10n.validation_requiredField;
+                }
+                if (int.tryParse((value ?? '').trim()) == null) {
+                  return l10n.validation_invalidNumber;
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+      footer: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            l10n.lbl_template,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
+          FilledButton(
+            onPressed: _isLoading ? null : _saveChanges,
+            child: Text(l10n.btn_saveChanges),
           ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: l10n.hint_documentIdExample,
-              border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.tag),
-            ),
-          ),
-          const SizedBox(height: 16),
         ],
       ),
     );

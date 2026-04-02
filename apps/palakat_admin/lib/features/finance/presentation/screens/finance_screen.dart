@@ -261,9 +261,7 @@ class FinanceScreen extends ConsumerWidget {
             displayAmount,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w800,
-              color: isRevenue
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
+              color: isRevenue ? AppColors.success : theme.colorScheme.error,
             ),
           );
         },

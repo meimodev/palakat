@@ -34,8 +34,8 @@ class DocumentController extends _$DocumentController {
       ),
     );
 
-    result.when(
-      onSuccess: (documents) {
+    result.when<void>(
+      onSuccess: (PaginationResponseWrapper<Document> documents) {
         state = state.copyWith(documents: AsyncData(documents));
       },
       onFailure: (failure) {

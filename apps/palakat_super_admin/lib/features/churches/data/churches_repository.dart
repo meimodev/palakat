@@ -57,7 +57,7 @@ class ChurchesRepository {
     String? phoneNumber,
     String? email,
     String? description,
-    String? documentAccountNumber,
+    int? documentAccountNumber,
   }) async {
     final trimmedName = name.trim();
     final trimmedLocName = locationName.trim();
@@ -94,7 +94,7 @@ class ChurchesRepository {
     Object? phoneNumber = notProvided,
     Object? email = notProvided,
     Object? description = notProvided,
-    Object? documentAccountNumber = notProvided,
+    int? documentAccountNumber,
     String? locationName,
     Object? latitude = notProvided,
     Object? longitude = notProvided,
@@ -104,7 +104,7 @@ class ChurchesRepository {
       if (phoneNumber != notProvided) 'phoneNumber': phoneNumber,
       if (email != notProvided) 'email': email,
       if (description != notProvided) 'description': description,
-      if (documentAccountNumber != notProvided)
+      if (documentAccountNumber != null)
         'documentAccountNumber': documentAccountNumber,
       if (locationName != null ||
           latitude != notProvided ||

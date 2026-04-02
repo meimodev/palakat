@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat_shared/core/models/column.dart' as cm;
@@ -63,8 +64,8 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       _nameController.text = church.name;
       _phoneController.text = church.phoneNumber ?? '';
       _emailController.text = church.email ?? '';
-      _documentAccountNumberController.text =
-          church.documentAccountNumber ?? '';
+      _documentAccountNumberController.text = church.documentAccountNumber
+          .toString();
       _descriptionController.text = church.description ?? '';
 
       _locationNameController.text = church.location?.name ?? '';
@@ -90,6 +91,15 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
     return null;
   }
 
+  String? _validateOptionalInt(String? input) {
+    final trimmed = (input ?? '').trim();
+    if (trimmed.isEmpty) return null;
+    if (int.tryParse(trimmed) == null) {
+      return context.l10n.validation_invalidNumber;
+    }
+    return null;
+  }
+
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -101,6 +111,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
       final phone = _phoneController.text.trim();
       final email = _emailController.text.trim();
       final doc = _documentAccountNumberController.text.trim();
+      final documentAccountNumber = doc.isEmpty ? null : int.tryParse(doc) ?? 0;
       final description = _descriptionController.text.trim();
 
       final locName = _locationNameController.text.trim();
@@ -113,7 +124,7 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
           phoneNumber: phone.isEmpty ? null : phone,
           email: email.isEmpty ? null : email,
           description: description.isEmpty ? null : description,
-          documentAccountNumber: doc.isEmpty ? null : doc,
+          documentAccountNumber: documentAccountNumber,
           locationName: locName,
           latitude: latitude,
           longitude: longitude,
@@ -150,6 +161,15 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
         return parsed;
       }
 
+      int? optionalIntDelta(int currentValue, String newValue) {
+        final trimmed = newValue.trim();
+        final parsed = trimmed.isEmpty ? 0 : int.tryParse(trimmed);
+        if (parsed == null || parsed == currentValue) {
+          return null;
+        }
+        return parsed;
+      }
+
       final update = await repo.updateChurch(
         id: widget.churchId!,
         name: name == current.name ? null : name,
@@ -159,8 +179,8 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
           current.description ?? '',
           description,
         ),
-        documentAccountNumber: optionalStringDelta(
-          current.documentAccountNumber ?? '',
+        documentAccountNumber: optionalIntDelta(
+          current.documentAccountNumber,
           doc,
         ),
         locationName: (locName == (current.location?.name ?? ''))
@@ -366,6 +386,9 @@ class _ChurchEditorScreenState extends ConsumerState<ChurchEditorScreen> {
                     labelText: '${l10n.lbl_accountNumber} ${l10n.lbl_optional}',
                   ),
                   enabled: !_loading,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: _validateOptionalInt,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(

@@ -688,11 +688,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage document identity numbers and view recent approvals.';
 
   @override
-  String get admin_documentIdentityNumber_title => 'Document Identity Number';
+  String get admin_documentIdentityNumber_title => 'Document Number Counter';
 
   @override
   String get admin_documentIdentityNumber_subtitle =>
-      'Current template used for new documents.';
+      'Current sequential suffix counter used when auto-numbering outgoing documents.';
 
   @override
   String get admin_documentDirectory_title => 'Document Directory';
@@ -1030,6 +1030,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_template => 'Template';
+
+  @override
+  String get lbl_documentNumberCounter => 'Sequential Suffix Counter';
 
   @override
   String get lbl_format => 'Format';
@@ -1751,11 +1754,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Configure the newly generate report';
 
   @override
-  String get drawer_editDocumentId_title => 'Edit Document Identity Number';
+  String get drawer_editDocumentId_title => 'Edit Document Number Counter';
 
   @override
   String get drawer_editDocumentId_subtitle =>
-      'Update the template used for new documents';
+      'Update the sequential suffix counter used for new outgoing documents';
 
   @override
   String get drawer_suratKeteranganJemaat_title => 'Surat Keterangan Jemaat';
@@ -1897,6 +1900,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_emailOptional => 'Email (Optional)';
+
+  @override
+  String get lbl_documentPrefixAccountNumber => 'Document Prefix';
 
   @override
   String get lbl_descriptionOptional => 'Description (Optional)';
@@ -2325,8 +2331,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_enterEmailAddress => 'Enter email address';
 
   @override
+  String get hint_enterDocumentPrefixAccountNumber =>
+      'Enter the document number prefix';
+
+  @override
   String get hint_describeYourChurch =>
       'Describe your church (visible to members)';
+
+  @override
+  String get helper_documentPrefixAccountNumber =>
+      'Used as the leading prefix for auto-numbered outgoing documents.';
+
+  @override
+  String get helper_documentNumberCounter =>
+      'Stores only the running numeric suffix. The full outgoing number is composed from the church prefix, year, Roman month, and this counter.';
 
   @override
   String get hint_enterChurchAddress => 'Enter church address';
@@ -2422,13 +2440,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search by account number or description...';
 
   @override
+  String get hint_searchMember => 'Search member by name or phone';
+
+  @override
   String get dlg_selectPosition_title => 'Select Position';
 
   @override
   String get hint_searchPositions => 'Search by position name';
-
-  @override
-  String get hint_searchMember => 'Search member by name or phone';
 
   @override
   String get tbl_billId => 'Bill ID';
@@ -3607,7 +3625,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membershipCard_notSet => 'Not set';
 
   @override
-  String membershipCard_column(Object columnName) {
+  String membershipCard_column(String columnName) {
     return 'Column $columnName';
   }
 
@@ -3626,7 +3644,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Review or update your membership details';
 
   @override
-  String segmentTitle_emptyState(Object title) {
+  String segmentTitle_emptyState(String title) {
     return 'No $title available';
   }
 }

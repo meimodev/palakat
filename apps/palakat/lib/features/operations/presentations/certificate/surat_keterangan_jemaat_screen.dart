@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
+import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/repositories/document_repository.dart';
@@ -201,6 +202,7 @@ class _SuratKeteranganJemaatScreenState
         .read(documentRepositoryProvider)
         .generateCertificate(
           certificateType: CertificateType.suratKeteranganJemaat,
+          input: DocumentInput.outcome,
           membershipId: selectedMembership!.id,
           name: selectedMembership.account?.name,
           accountNumber: selectedMembership.account?.phone,

@@ -10,6 +10,58 @@ export class ChurchService {
     private prisma: PrismaService,
     private helperService: HelperService,
   ) {}
+
+  private normalizeDocumentPrefixAccountNumber(
+    value: unknown,
+  ): string | null | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    if (value === null) {
+      return null;
+    }
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    const normalized = value.trim().toUpperCase().replace(/\/+/g, '/');
+
+    const withoutEdgeSlashes = normalized.replace(/^\/+|\/+$/g, '');
+    return withoutEdgeSlashes.length ? withoutEdgeSlashes : null;
+  }
+
+  private normalizeCreateChurchInput(
+    createChurchDto: Prisma.ChurchCreateInput,
+  ): Prisma.ChurchCreateInput {
+    const normalized = { ...createChurchDto };
+    normalized.documentPrefixAccountNumber =
+      this.normalizeDocumentPrefixAccountNumber(
+        createChurchDto.documentPrefixAccountNumber,
+      ) ?? null;
+    return normalized;
+  }
+
+  private normalizeUpdateChurchInput(
+    updateChurchDto: Prisma.ChurchUpdateInput,
+  ): Prisma.ChurchUpdateInput {
+    const normalized: Prisma.ChurchUpdateInput = { ...updateChurchDto };
+    if (!('documentPrefixAccountNumber' in updateChurchDto)) {
+      return normalized;
+    }
+
+    const value = updateChurchDto.documentPrefixAccountNumber;
+    if (value && typeof value === 'object' && 'set' in value) {
+      normalized.documentPrefixAccountNumber = {
+        set: this.normalizeDocumentPrefixAccountNumber(value.set) ?? null,
+      };
+      return normalized;
+    }
+
+    normalized.documentPrefixAccountNumber =
+      this.normalizeDocumentPrefixAccountNumber(value) ?? null;
+    return normalized;
+  }
+
   async getChurches(query: ChurchListQueryDto) {
     const {
       search,
@@ -118,7 +170,7 @@ export class ChurchService {
 
   async create(createChurchDto: Prisma.ChurchCreateInput) {
     const church = await this.prisma.church.create({
-      data: createChurchDto,
+      data: this.normalizeCreateChurchInput(createChurchDto),
     });
     return {
       message: 'Church created successfully',
@@ -129,7 +181,7 @@ export class ChurchService {
   async update(id: number, updateChurchDto: Prisma.ChurchUpdateInput) {
     const church = await this.prisma.church.update({
       where: { id },
-      data: updateChurchDto,
+      data: this.normalizeUpdateChurchInput(updateChurchDto),
       include: {
         location: true,
         columns: true,

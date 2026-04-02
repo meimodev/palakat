@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/constants.dart';
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -204,20 +204,22 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
         .read(documentRepositoryProvider)
         .generateCertificate(
           certificateType: CertificateType.suratKredensi,
+          input: DocumentInput.outcome,
           membershipId: selectedMembership!.id,
           name: selectedMembership.account?.name,
           accountNumber: selectedMembership.account?.phone,
         );
 
-    if (!mounted) {
-      return;
-    }
-
     int? fileId;
+    String? openingLabel;
     String? message;
     result.when(
       onSuccess: (payload) {
         fileId = payload.document.fileId;
+        final certificateTitle = payload.document.certificateTitle?.trim();
+        openingLabel = certificateTitle != null && certificateTitle.isNotEmpty
+            ? certificateTitle
+            : payload.document.name;
       },
       onFailure: (failure) {
         message = failure.message;
@@ -234,9 +236,13 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
 
     await ref.read(documentControllerProvider.notifier).refresh();
 
+    if (!mounted) {
+      return;
+    }
+
     if (fileId == null) {
       setState(() {
-        _errorMessage = l10n.err_noData;
+        _errorMessage = l10n.msg_operationFailed;
         _isLoading = false;
       });
       return;
@@ -277,7 +283,15 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
       return;
     }
 
+    AppSnackbars.showSuccess(
+      context,
+      title: l10n.msg_opening,
+      message: l10n.msg_openingReport(
+        openingLabel ?? l10n.certificate_suratKredensi_title,
+      ),
+    );
     final launched = await launchUrl(uri);
+
     if (!mounted) {
       return;
     }
@@ -290,6 +304,9 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
       return;
     }
 
+    setState(() {
+      _isLoading = false;
+    });
     widget.onClose();
   }
 
@@ -303,7 +320,6 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
         : null;
     final selectedName = selectedMembership?.account?.name;
     final selectedPhone = selectedMembership?.account?.phone;
-    final effectiveDateRange = _effectiveDateRange;
 
     return SideDrawer(
       title: l10n.drawer_suratKredensi_title,
@@ -446,8 +462,8 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
                   label: '',
                   hint: l10n.lbl_effectiveDate,
                   preset: _effectiveDatePreset,
-                  start: effectiveDateRange?.start,
-                  end: effectiveDateRange?.end,
+                  start: _effectiveDateRange?.start,
+                  end: _effectiveDateRange?.end,
                   allowedPresets: const [DateRangePreset.custom],
                   onCustomDateRangeSelected: (range) {
                     setState(() {
@@ -492,7 +508,7 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
         width: double.infinity,
         child: FilledButton.icon(
           onPressed: _isLoading ? null : _generateCertificate,
-          icon: const Icon(Icons.description),
+          icon: const Icon(Icons.picture_as_pdf_outlined),
           label: Text(l10n.btn_generateCertificate),
         ),
       ),

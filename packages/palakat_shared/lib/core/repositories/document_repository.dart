@@ -1,14 +1,5 @@
+import 'package:palakat_shared/palakat_shared.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat_shared/core/models/document.dart';
-import 'package:palakat_shared/core/models/app_error.dart';
-import 'package:palakat_shared/core/models/membership.dart';
-import 'package:palakat_shared/core/models/result.dart';
-import 'package:palakat_shared/core/models/request/request.dart';
-import 'package:palakat_shared/core/models/response/response.dart';
-import 'package:palakat_shared/core/repositories/church_repository.dart';
-import 'package:palakat_shared/core/repositories/membership_repository.dart';
-import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
-import 'package:palakat_shared/core/services/socket_service.dart';
 
 part 'document_repository.g.dart';
 
@@ -82,6 +73,7 @@ class DocumentRepository {
     int? membershipId,
     String? name,
     String? accountNumber,
+    DocumentInput input = DocumentInput.outcome,
     List<String>? sections,
   }) async {
     try {
@@ -137,6 +129,10 @@ class DocumentRepository {
         'title': title,
         'certificateType': certificateType.name,
         'certificateTitle': title,
+        'input': switch (input) {
+          DocumentInput.income => 'INCOME',
+          DocumentInput.outcome => 'OUTCOME',
+        },
         'name': resolvedName,
         'accountNumber': resolvedAccountNumber,
         if (membershipId != null) 'membershipId': membershipId,
@@ -156,6 +152,31 @@ class DocumentRepository {
         document: Document.fromJson(json),
         verificationUrl: verificationUrl,
       ));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  Future<Result<Document, Failure>> updateDocument({
+    required int documentId,
+    required Map<String, dynamic> update,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('document.update', {
+        'id': documentId,
+        'dto': update,
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid update document response payload'),
+        );
+      }
+
+      return Result.success(Document.fromJson(json));
     } catch (e) {
       return Result.failure(Failure.fromException(e));
     }
@@ -181,11 +202,6 @@ class DocumentRepository {
         onSuccess: (church) {
           // Extract documentAccountNumber
           final documentAccountNumber = church.documentAccountNumber;
-          if (documentAccountNumber == null || documentAccountNumber.isEmpty) {
-            return Result.failure(
-              Failure('Document account number not found in church profile'),
-            );
-          }
           return Result.success(
             DocumentSettings(identityNumberTemplate: documentAccountNumber),
           );
@@ -199,7 +215,7 @@ class DocumentRepository {
   }
 
   Future<Result<DocumentSettings, Failure>> updateIdentityTemplate(
-    String newTemplate,
+    int newTemplate,
   ) async {
     try {
       // Get churchId from authenticated user
@@ -223,11 +239,6 @@ class DocumentRepository {
         onSuccess: (updatedChurch) {
           // Return updated document settings
           final documentAccountNumber = updatedChurch.documentAccountNumber;
-          if (documentAccountNumber == null || documentAccountNumber.isEmpty) {
-            return Result.failure(
-              Failure('Document account number not found after update'),
-            );
-          }
           return Result.success(
             DocumentSettings(identityNumberTemplate: documentAccountNumber),
           );

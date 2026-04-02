@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
-import { Prisma } from '../generated/prisma/client';
+import { DocumentInput, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { DocumentListQueryDto } from './dto/document-list.dto';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
@@ -108,14 +108,34 @@ export class DocumentService {
       certificateType?: string | null;
       certificateTitle?: string | null;
     },
+    db: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<void> {
-    await this.prisma.$executeRaw`
+    await db.$executeRaw`
       UPDATE "Document"
       SET
         "certificateType" = ${metadata.certificateType ?? null},
         "certificateTitle" = ${metadata.certificateTitle ?? null}
       WHERE "id" = ${documentId}
     `;
+  }
+
+  private normalizeMetadataValue(value: unknown): string | null | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return null;
+    }
+
+    if (typeof value === 'object' && value !== null && 'set' in value) {
+      return this.normalizeMetadataValue(
+        (value as { set?: unknown | null }).set,
+      );
+    }
+
+    const normalized = String(value).trim();
+    return normalized.length > 0 ? normalized : null;
   }
 
   async getDocuments(query: DocumentListQueryDto) {
@@ -212,19 +232,109 @@ export class DocumentService {
   }
 
   async update(id: number, updateDocumentDto: Prisma.DocumentUpdateInput) {
-    const document = await this.prisma.document.update({
-      where: { id },
-      data: updateDocumentDto,
-      include: {
-        church: true,
-        file: true,
-        activity: true,
-      },
+    const payload: any = { ...updateDocumentDto };
+    const hasCertificateType = Object.prototype.hasOwnProperty.call(
+      payload,
+      'certificateType',
+    );
+    const hasCertificateTitle = Object.prototype.hasOwnProperty.call(
+      payload,
+      'certificateTitle',
+    );
+    const certificateType = hasCertificateType
+      ? payload.certificateType
+      : undefined;
+    const certificateTitle = hasCertificateTitle
+      ? payload.certificateTitle
+      : undefined;
+
+    delete payload.certificateType;
+    delete payload.certificateTitle;
+
+    const document = await this.prisma.$transaction(async (tx) => {
+      const updatedDocument = await tx.document.update({
+        where: { id },
+        data: payload,
+        include: {
+          church: true,
+          file: true,
+          activity: true,
+        },
+      });
+
+      if (hasCertificateType || hasCertificateTitle) {
+        const existingMetadata = await this.getDocumentMetadata(id);
+        await this.persistDocumentMetadata(
+          id,
+          {
+            certificateType: hasCertificateType
+              ? this.normalizeMetadataValue(certificateType)
+              : (existingMetadata?.certificateType ?? null),
+            certificateTitle: hasCertificateTitle
+              ? this.normalizeMetadataValue(certificateTitle)
+              : (existingMetadata?.certificateTitle ?? null),
+          },
+          tx,
+        );
+      }
+
+      return updatedDocument;
     });
+
+    const metadata = await this.getDocumentMetadata(document.id);
     return {
       message: 'Document updated successfully',
-      data: document,
+      data: this.withDocumentMetadata(document, metadata),
     };
+  }
+
+  private resolveDocumentInput(value: unknown): DocumentInput {
+    return String(value).trim().toUpperCase() === DocumentInput.OUTCOME
+      ? DocumentInput.OUTCOME
+      : DocumentInput.INCOME;
+  }
+
+  private hasAssignedOutcomeAccountNumber(value: string | null | undefined) {
+    return (value?.trim().length ?? 0) > 0;
+  }
+
+  private toRomanMonth(month: number): string {
+    const romanMonths = [
+      'I',
+      'II',
+      'III',
+      'IV',
+      'V',
+      'VI',
+      'VII',
+      'VIII',
+      'IX',
+      'X',
+      'XI',
+      'XII',
+    ];
+    const romanMonth = romanMonths[month - 1];
+    if (!romanMonth) {
+      throw new BadRequestException('Invalid document generation month');
+    }
+    return romanMonth;
+  }
+
+  private composeOutcomeAccountNumber(
+    prefix: string,
+    counter: number,
+    issuedAt: Date,
+  ): string {
+    const normalizedPrefix = prefix.trim();
+    if (!normalizedPrefix) {
+      throw new BadRequestException(
+        'documentPrefixAccountNumber is required for auto-numbered outcome documents',
+      );
+    }
+
+    return `${normalizedPrefix}/${issuedAt.getFullYear()}/${this.toRomanMonth(
+      issuedAt.getMonth() + 1,
+    )}/${counter}`;
   }
 
   async generate(dto: any, user?: any) {
@@ -256,32 +366,19 @@ export class DocumentService {
     const newName = dto?.name != null ? String(dto.name) : '';
     const newAccountNumber =
       dto?.accountNumber != null ? String(dto.accountNumber) : '';
+    const resolvedInput = this.resolveDocumentInput(
+      document?.input ?? dto?.input,
+    );
+    const shouldAutoAssignAccountNumber =
+      resolvedInput === DocumentInput.OUTCOME;
+
     if (!document) {
       if (!newName.trim()) {
         throw new BadRequestException('name is required');
       }
-      if (!newAccountNumber.trim()) {
+      if (!shouldAutoAssignAccountNumber && !newAccountNumber.trim()) {
         throw new BadRequestException('accountNumber is required');
       }
-    }
-
-    const created =
-      document ??
-      (await this.prisma.document.create({
-        data: {
-          name: newName,
-          accountNumber: newAccountNumber,
-          input: dto?.input,
-          church: { connect: { id: churchId } },
-        } as any,
-        include: { church: true, file: true },
-      }));
-
-    if (!created.name || !created.name.trim()) {
-      throw new BadRequestException('name is required');
-    }
-    if (!created.accountNumber || !created.accountNumber.trim()) {
-      throw new BadRequestException('accountNumber is required');
     }
 
     const requestedCertificateType =
@@ -298,7 +395,9 @@ export class DocumentService {
       requestedCertificateType ?? persistedMetadata?.certificateType ?? null;
     const certificateTitle =
       requestedCertificateTitle ?? persistedMetadata?.certificateTitle ?? null;
-    const title = String(dto?.title ?? certificateTitle ?? created.name);
+    const title = String(
+      dto?.title ?? certificateTitle ?? document?.name ?? newName,
+    );
     const sections = (
       Array.isArray(dto?.sections) ? dto.sections : []
     ) as any[];
@@ -348,74 +447,146 @@ export class DocumentService {
 
     const logoBuffer = getGmimLogoBuffer();
 
-    const pdfBuffer = await renderPdfSignedDocumentBuffer({
-      title,
-      name: created.name,
-      accountNumber: created.accountNumber,
-      sections: normalizedSections,
-      letterhead: church?.name
-        ? buildGmimLetterhead({
-            churchName: church.name,
-            locationName: church.location?.name,
-            phoneNumber: church.phoneNumber,
-            email: church.email,
-          })
-        : undefined,
-      logoBuffer,
-      qrPngBuffer,
-      publicId,
-    });
+    const updated = await this.prisma.$transaction(
+      async (tx) => {
+        const issuedAt = new Date();
+        let accountNumber = document?.accountNumber ?? newAccountNumber;
+        const shouldAssignOutcomeAccountNumber =
+          shouldAutoAssignAccountNumber &&
+          (!document ||
+            !this.hasAssignedOutcomeAccountNumber(document?.accountNumber));
 
-    const fileSha256 = this.sha256Hex(pdfBuffer);
-    const sizeInKB = Number((pdfBuffer.length / 1024).toFixed(2));
+        if (shouldAssignOutcomeAccountNumber) {
+          const updatedChurch = await (tx as any).church.update({
+            where: { id: churchId },
+            data: {
+              documentAccountNumber: {
+                increment: 1,
+              },
+            },
+            select: {
+              documentAccountNumber: true,
+              documentPrefixAccountNumber: true,
+            },
+          });
+          accountNumber = this.composeOutcomeAccountNumber(
+            updatedChurch.documentPrefixAccountNumber ?? '',
+            updatedChurch.documentAccountNumber,
+            issuedAt,
+          );
+        }
 
-    const bucket = this.firebaseAdmin.bucket();
-    const bucketName = bucket.name as string;
+        const created = document
+          ? shouldAssignOutcomeAccountNumber
+            ? await tx.document.update({
+                where: { id: document.id },
+                data: {
+                  accountNumber,
+                },
+                include: { church: true, file: true },
+              })
+            : document
+          : await tx.document.create({
+              data: {
+                name: newName,
+                accountNumber,
+                input: resolvedInput,
+                church: { connect: { id: churchId } },
+              } as any,
+              include: { church: true, file: true },
+            });
 
-    const now = new Date();
-    const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\..+$/, '');
-    const objectName = `DOCUMENT_${publicId}_${stamp}.pdf`;
-    const path = `churches/${churchId}/documents/${objectName}`;
-    const contentType = 'application/pdf';
+        if (!created.name || !created.name.trim()) {
+          throw new BadRequestException('name is required');
+        }
+        if (!created.accountNumber || !created.accountNumber.trim()) {
+          throw new BadRequestException('accountNumber is required');
+        }
 
-    await bucket.file(path).save(pdfBuffer, {
-      contentType,
-      metadata: {
-        metadata: {
-          churchId: String(churchId),
-          documentId: String(created.id),
-          publicId: String(publicId),
-        },
+        const pdfBuffer = await renderPdfSignedDocumentBuffer({
+          title,
+          name: created.name,
+          accountNumber: created.accountNumber,
+          sections: normalizedSections,
+          letterhead: church?.name
+            ? buildGmimLetterhead({
+                churchName: church.name,
+                locationName: church.location?.name,
+                phoneNumber: church.phoneNumber,
+                email: church.email,
+              })
+            : undefined,
+          logoBuffer,
+          qrPngBuffer,
+          publicId,
+        });
+
+        const fileSha256 = this.sha256Hex(pdfBuffer);
+        const sizeInKB = Number((pdfBuffer.length / 1024).toFixed(2));
+
+        const bucket = this.firebaseAdmin.bucket();
+        const bucketName = bucket.name as string;
+
+        const now = new Date();
+        const stamp = now
+          .toISOString()
+          .replace(/[-:]/g, '')
+          .replace(/\..+$/, '');
+        const objectName = `DOCUMENT_${publicId}_${stamp}.pdf`;
+        const path = `churches/${churchId}/documents/${objectName}`;
+        const contentType = 'application/pdf';
+
+        await bucket.file(path).save(pdfBuffer, {
+          contentType,
+          metadata: {
+            metadata: {
+              churchId: String(churchId),
+              documentId: String(created.id),
+              publicId: String(publicId),
+            },
+          },
+        });
+
+        const file = await tx.fileManager.create({
+          data: {
+            provider: 'FIREBASE_STORAGE',
+            bucket: bucketName,
+            path,
+            sizeInKB,
+            contentType,
+            originalName: objectName,
+            churchId,
+          },
+        });
+
+        const updatedDocument = await tx.document.update({
+          where: { id: created.id },
+          data: {
+            fileId: file.id,
+            publicId,
+            verifyTokenHash,
+            fileSha256,
+          } as any,
+          include: { church: true, file: true },
+        });
+
+        await this.persistDocumentMetadata(
+          created.id,
+          {
+            certificateType,
+            certificateTitle:
+              certificateTitle ?? (certificateType ? title : null),
+          },
+          tx,
+        );
+
+        return updatedDocument;
       },
-    });
-
-    const file = await this.prisma.fileManager.create({
-      data: {
-        provider: 'FIREBASE_STORAGE',
-        bucket: bucketName,
-        path,
-        sizeInKB,
-        contentType,
-        originalName: objectName,
-        churchId,
+      {
+        maxWait: 5000,
+        timeout: 30000,
       },
-    });
-
-    const updated = await this.prisma.document.update({
-      where: { id: created.id },
-      data: {
-        fileId: file.id,
-        publicId,
-        verifyTokenHash,
-        fileSha256,
-      } as any,
-      include: { church: true, file: true },
-    });
-
-    await this.persistDocumentMetadata(created.id, {
-      certificateType,
-      certificateTitle: certificateTitle ?? (certificateType ? title : null),
-    });
+    );
 
     const metadata = await this.getDocumentMetadata(updated.id);
 

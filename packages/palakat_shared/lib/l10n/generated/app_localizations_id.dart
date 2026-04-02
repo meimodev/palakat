@@ -692,11 +692,11 @@ class AppLocalizationsId extends AppLocalizations {
       'Kelola nomor identitas dokumen dan lihat persetujuan terbaru.';
 
   @override
-  String get admin_documentIdentityNumber_title => 'Nomor Identitas Dokumen';
+  String get admin_documentIdentityNumber_title => 'Counter Nomor Dokumen';
 
   @override
   String get admin_documentIdentityNumber_subtitle =>
-      'Template saat ini yang digunakan untuk dokumen baru.';
+      'Counter suffix berurutan saat ini yang digunakan saat memberi nomor otomatis pada dokumen keluar.';
 
   @override
   String get admin_documentDirectory_title => 'Direktori Dokumen';
@@ -1033,6 +1033,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_template => 'Template';
+
+  @override
+  String get lbl_documentNumberCounter => 'Counter Suffix Berurutan';
 
   @override
   String get lbl_format => 'Format';
@@ -1752,11 +1755,11 @@ class AppLocalizationsId extends AppLocalizations {
       'Konfigurasi laporan yang baru dibuat';
 
   @override
-  String get drawer_editDocumentId_title => 'Ubah Nomor Identitas Dokumen';
+  String get drawer_editDocumentId_title => 'Ubah Counter Nomor Dokumen';
 
   @override
   String get drawer_editDocumentId_subtitle =>
-      'Perbarui template yang digunakan untuk dokumen baru';
+      'Perbarui counter suffix berurutan yang digunakan untuk dokumen keluar baru';
 
   @override
   String get drawer_suratKeteranganJemaat_title => 'Surat Keterangan Jemaat';
@@ -1899,6 +1902,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_emailOptional => 'Email (Opsional)';
+
+  @override
+  String get lbl_documentPrefixAccountNumber => 'Prefix Dokumen';
 
   @override
   String get lbl_descriptionOptional => 'Deskripsi (Opsional)';
@@ -2331,8 +2337,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_enterEmailAddress => 'Masukkan alamat email';
 
   @override
+  String get hint_enterDocumentPrefixAccountNumber =>
+      'Masukkan prefix nomor dokumen';
+
+  @override
   String get hint_describeYourChurch =>
       'Deskripsikan gereja Anda (terlihat oleh anggota)';
+
+  @override
+  String get helper_documentPrefixAccountNumber =>
+      'Digunakan sebagai prefix awal untuk dokumen keluar yang diberi nomor otomatis.';
+
+  @override
+  String get helper_documentNumberCounter =>
+      'Hanya menyimpan suffix numerik berjalan. Nomor dokumen keluar lengkap disusun dari prefix gereja, tahun, bulan Romawi, dan counter ini.';
 
   @override
   String get hint_enterChurchAddress => 'Masukkan alamat gereja';
@@ -2428,13 +2446,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Cari nomor akun atau deskripsi...';
 
   @override
+  String get hint_searchMember => 'Cari anggota berdasarkan nama atau telepon';
+
+  @override
   String get dlg_selectPosition_title => 'Pilih Jabatan';
 
   @override
   String get hint_searchPositions => 'Cari berdasarkan nama jabatan';
-
-  @override
-  String get hint_searchMember => 'Cari anggota berdasarkan nama atau telepon';
 
   @override
   String get tbl_billId => 'ID Tagihan';
@@ -2975,7 +2993,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get msg_noGenerationDate => 'Tidak ada tanggal pembuatan';
+  String get msg_noGenerationDate => 'Belum ada tanggal pembuatan';
 
   @override
   String get msg_exportComingSoon => 'Fitur ekspor akan segera hadir';
@@ -3487,17 +3505,17 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dashboard_recentActivitiesEmpty =>
-      'Transaksi terbaru dan pembaruan anggota akan ditampilkan di sini.';
+      'Aktivitas transaksi dan pembaruan anggota terbaru akan ditampilkan di sini.';
 
   @override
   String get msg_reportQueued =>
       'Laporan Anda sedang dibuat. Anda akan diberi tahu saat sudah siap.';
 
   @override
-  String get msg_reportQueuedShort => 'Laporan dalam antrian';
+  String get msg_reportQueuedShort => 'Laporan masuk antrean';
 
   @override
-  String get msg_reportReady => 'Laporan Anda siap diunduh!';
+  String get msg_reportReady => 'Laporan Anda siap untuk diunduh!';
 
   @override
   String get msg_reportFailed => 'Pembuatan laporan gagal. Silakan coba lagi.';
@@ -3616,7 +3634,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get membershipCard_notSet => 'Belum diatur';
 
   @override
-  String membershipCard_column(Object columnName) {
+  String membershipCard_column(String columnName) {
     return 'Kolom $columnName';
   }
 
@@ -3635,7 +3653,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Tinjau atau perbarui detail keanggotaan Anda';
 
   @override
-  String segmentTitle_emptyState(Object title) {
+  String segmentTitle_emptyState(String title) {
     return 'Tidak ada $title tersedia';
   }
 }

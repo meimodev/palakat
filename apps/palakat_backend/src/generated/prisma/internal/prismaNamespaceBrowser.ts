@@ -114,6 +114,7 @@ export const ChurchScalarFieldEnum = {
   email: 'email',
   description: 'description',
   documentAccountNumber: 'documentAccountNumber',
+  documentPrefixAccountNumber: 'documentPrefixAccountNumber',
   sourceChurchId: 'sourceChurchId',
   regionId: 'regionId',
   createdAt: 'createdAt',

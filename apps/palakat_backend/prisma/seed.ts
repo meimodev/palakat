@@ -771,7 +771,8 @@ async function seedMainChurches(): Promise<ChurchWithColumns[]> {
         phoneNumber: generateNumericPhoneNumber(),
         email: `${name.toLowerCase().replace(/\s+/g, '-')}@example.com`,
         description: `Gereja utama ${name} untuk main account ${i + 1}.`,
-        documentAccountNumber: `MAIN-${String(i + 1).padStart(4, '0')}`,
+        documentAccountNumber: 0 as any,
+        documentPrefixAccountNumber: `GMIM-${CHURCH_LOCATIONS[i].toUpperCase().replace(/\s+/g, '-')}`,
         locationId: location.id,
         columns: {
           create: columns.map((col) => ({ name: col })),
@@ -2072,12 +2073,19 @@ async function seedDocuments(
   for (const church of churches) {
     const pool = filesByChurch[church.id] ?? [];
     const churchMembers = memberships.filter((m) => m.churchId === church.id);
+    let documentAccountNumberCounter = 0;
 
     for (let i = 0; i < CONFIG.documentsPerChurch; i++) {
       const hasFile = i !== 2;
-      const accountNumber = `DOC-${String(church.id).padStart(3, '0')}-${String(globalIndex).padStart(4, '0')}`;
       const documentType = randomElement(documentTypes);
       const input = i % 2 === 0 ? DocumentInput.INCOME : DocumentInput.OUTCOME;
+      if (input === DocumentInput.OUTCOME) {
+        documentAccountNumberCounter += 1;
+      }
+      const accountNumber =
+        input === DocumentInput.OUTCOME
+          ? String(documentAccountNumberCounter)
+          : String(globalIndex + 1);
       const file = hasFile ? pool.shift() : null;
 
       const document = await prisma.document.create({
@@ -2102,13 +2110,20 @@ async function seedDocuments(
           'none', // financialType
           undefined, // dateOverride
           true, // forceAllApproversApproved
-          document.id // linkedDocumentId
+          document.id, // linkedDocumentId
         );
       }
 
       documents.push(document);
       globalIndex++;
     }
+
+    await (prisma as any).church.update({
+      where: { id: church.id },
+      data: {
+        documentAccountNumber: documentAccountNumberCounter,
+      },
+    });
   }
 
   console.log(`✅ Created ${documents.length} documents`);
@@ -2151,7 +2166,8 @@ async function seedAnnouncementAttachments(
 
       const updateData: any = {};
       if (file && !activity.fileId) updateData.fileId = file.id;
-      if (doc && !(activity as any).document) updateData.document = { connect: { id: doc.id } };
+      if (doc && !(activity as any).document)
+        updateData.document = { connect: { id: doc.id } };
 
       if (Object.keys(updateData).length > 0) {
         await prisma.activity.update({
