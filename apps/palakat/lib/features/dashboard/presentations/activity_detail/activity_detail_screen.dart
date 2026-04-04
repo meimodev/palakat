@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/activity_alarm/presentations/activity_alarm_motion_widget.dart';
@@ -125,6 +126,10 @@ class ActivityDetailScreen extends ConsumerWidget {
     // **Feature: approval-card-detail-redesign, Property 7: Activity detail from approval context has no action buttons**
     final showSelfApprovalButtons =
         state.isSupervisorApprovalPending && !isFromApprovalContext;
+    final primaryDocumentDownload = _resolvePrimaryDocumentDownload(
+      context,
+      activity,
+    );
 
     return ScaffoldWidget(
       persistBottomWidget: showSelfApprovalButtons
@@ -156,39 +161,50 @@ class ActivityDetailScreen extends ConsumerWidget {
                     delay: const Duration(milliseconds: 40),
                     child: _buildActivityTypeIndicator(activity, context),
                   ),
-                  Gap.h12,
+                  if (primaryDocumentDownload != null) ...[
+                    Gap.h12,
+                    ActivityAlarmReveal(
+                      delay: const Duration(milliseconds: 60),
+                      child: _buildPrimaryDocumentSection(
+                        context,
+                        ref,
+                        primaryDocumentDownload,
+                      ),
+                    ),
+                  ],
+                  Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 60),
+                    delay: const Duration(milliseconds: 80),
                     child: _buildBasicInfoSection(context, ref, activity),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 80),
+                    delay: const Duration(milliseconds: 100),
                     child: _buildNoteSection(context, activity),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 100),
+                    delay: const Duration(milliseconds: 120),
                     child: _buildScheduleSection(context, activity),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 120),
+                    delay: const Duration(milliseconds: 140),
                     child: _buildLocationSection(context, activity),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 140),
+                    delay: const Duration(milliseconds: 160),
                     child: _buildFinanceSection(context, activity),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 160),
+                    delay: const Duration(milliseconds: 180),
                     child: _buildApproversSection(context, activity, state),
                   ),
                   Gap.h16,
                   ActivityAlarmReveal(
-                    delay: const Duration(milliseconds: 180),
+                    delay: const Duration(milliseconds: 200),
                     child: _buildSupervisorSection(context, activity),
                   ),
                   Gap.h24,
@@ -620,7 +636,9 @@ class ActivityDetailScreen extends ConsumerWidget {
   ) {
     final l10n = context.l10n;
     final hasBipra = activity.bipra != null;
-    final hasFile = activity.fileId != null;
+    final hasPrimaryDocumentSlot =
+        activity.documentId != null || activity.document != null;
+    final hasFile = activity.fileId != null && !hasPrimaryDocumentSlot;
 
     final fileName =
         activity.file?.originalName ??
@@ -665,34 +683,22 @@ class ActivityDetailScreen extends ConsumerWidget {
           label: l10n.lbl_updatedAt,
           value: updatedAtText,
         ),
-        Gap.h12,
-        _buildInfoRow(
-          context: context,
-          icon: AppIcons.document,
-          iconColor: AppColors.primary,
-          label: l10n.tbl_file,
-          value: hasFile ? fileName : l10n.lbl_na,
-          onTap: hasFile
-              ? () async {
-                  final repo = ref.read(fileManagerRepositoryProvider);
-                  final result = await repo.resolveDownloadUrl(
-                    fileId: activity.fileId!,
-                  );
-                  result.when(
-                    onSuccess: (url) => _openUrl(url),
-                    onFailure: (failure) {
-                      final msg = failure.message.trim();
-                      if (msg.isEmpty) {
-                        return;
-                      }
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(msg)));
-                    },
-                  );
-                }
-              : null,
-        ),
+        if (hasFile) ...[
+          Gap.h12,
+          _buildInfoRow(
+            context: context,
+            icon: AppIcons.document,
+            iconColor: AppColors.primary,
+            label: l10n.tbl_file,
+            value: fileName,
+            onTap: () => _downloadFile(
+              context,
+              ref,
+              fileId: activity.fileId!,
+              filename: fileName,
+            ),
+          ),
+        ],
         Gap.h12,
         if (hasBipra)
           _buildBipraInfo(context, activity)
@@ -718,6 +724,260 @@ class ActivityDetailScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPrimaryDocumentSection(
+    BuildContext context,
+    WidgetRef ref,
+    _ActivityDocumentDownloadState downloadState,
+  ) {
+    final l10n = context.l10n;
+    final slotBorderColor = downloadState.isReady
+        ? AppColors.primary.shade200
+        : AppColors.outlineVariant;
+    final slotBackgroundColor = downloadState.isReady
+        ? AppColors.primary.shade50
+        : AppColors.surfaceContainerLow;
+    final slotIconColor = downloadState.isReady
+        ? AppColors.primary.shade700
+        : AppColors.onSurfaceVariant;
+    final slotTextStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+      color: downloadState.isReady
+          ? AppColors.onSurface
+          : AppColors.onSurfaceVariant,
+      fontWeight: FontWeight.w500,
+      fontStyle: downloadState.isReady ? FontStyle.normal : FontStyle.italic,
+    );
+
+    return _buildSectionCard(
+      title: l10n.nav_document,
+      context: context,
+      subtitle: downloadState.documentName,
+      icon: AppIcons.document,
+      iconBgColor: AppColors.primary.shade100,
+      iconColor: AppColors.primary.shade700,
+      children: [
+        _buildInfoRow(
+          context: context,
+          icon: AppIcons.document,
+          iconColor: AppColors.primary,
+          label: l10n.tbl_documentName,
+          value: downloadState.documentName,
+        ),
+        Gap.h12,
+        _buildInfoRow(
+          context: context,
+          icon: AppIcons.bankAccount,
+          iconColor: AppColors.secondary,
+          label: l10n.lbl_accountNumber,
+          value: downloadState.documentAccountNumber,
+        ),
+        Gap.h12,
+        _buildInfoRow(
+          context: context,
+          icon: AppIcons.verified,
+          iconColor: downloadState.approvalStatus.foregroundColor,
+          label: l10n.section_approvalStatus,
+          value: downloadState.approvalStatus.displayLabel,
+        ),
+        Gap.h12,
+        Container(
+          padding: EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: slotBackgroundColor,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: slotBorderColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    child: Icon(
+                      downloadState.isReady
+                          ? Icons.download_rounded
+                          : Icons.schedule_rounded,
+                      size: 18.0,
+                      color: slotIconColor,
+                    ),
+                  ),
+                  Gap.w12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.tbl_file,
+                          style: Theme.of(context).textTheme.labelMedium!
+                              .copyWith(
+                                color: AppColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        Gap.h4,
+                        Text(
+                          downloadState.displayLabel,
+                          style: slotTextStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Gap.h12,
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: downloadState.fileId == null
+                      ? null
+                      : () => _downloadFile(
+                          context,
+                          ref,
+                          fileId: downloadState.fileId!,
+                          filename: downloadState.filename,
+                        ),
+                  icon: Icon(Icons.download_rounded, size: 18.0),
+                  label: Text(l10n.tooltip_downloadReport),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  _ActivityDocumentDownloadState? _resolvePrimaryDocumentDownload(
+    BuildContext context,
+    Activity activity,
+  ) {
+    final document = activity.document;
+    if (activity.documentId == null && document == null) {
+      return null;
+    }
+
+    final l10n = context.l10n;
+    final approvalStatus = activity.approvers.approvalStatus;
+    final fileName =
+        document?.file?.originalName ??
+        (document?.file?.path?.split('/').last ??
+            ((document?.certificateTitle?.trim().isNotEmpty ?? false)
+                ? document!.certificateTitle!
+                : document?.name ?? l10n.lbl_na));
+    final documentName =
+        (document?.certificateTitle?.trim().isNotEmpty ?? false)
+        ? document!.certificateTitle!
+        : document?.name ?? l10n.lbl_na;
+
+    return _ActivityDocumentDownloadState(
+      documentName: documentName,
+      documentAccountNumber: document?.accountNumber ?? l10n.lbl_na,
+      approvalStatus: approvalStatus,
+      fileId: document?.fileId,
+      filename: fileName,
+      displayLabel: document?.fileId != null
+          ? fileName
+          : approvalStatus == ApprovalStatus.approved
+          ? l10n.loading_please_wait
+          : '${l10n.section_approvalStatus}: ${approvalStatus.displayLabel}',
+    );
+  }
+
+  Future<FileDownloadHandle?> _resolveFileHandle(
+    BuildContext context,
+    WidgetRef ref, {
+    required int fileId,
+    required String filename,
+    bool forceRedownload = false,
+  }) async {
+    final repo = ref.read(fileManagerRepositoryProvider);
+    final result = await repo.resolveCachedFile(
+      fileId: fileId,
+      filename: filename,
+      forceRedownload: forceRedownload,
+    );
+
+    FileDownloadHandle? fileHandle;
+    result.when(
+      onSuccess: (value) => fileHandle = value,
+      onFailure: (failure) {
+        final msg = failure.message.trim();
+        if (msg.isEmpty) {
+          return;
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
+      },
+    );
+    return fileHandle;
+  }
+
+  Future<bool> _openDownloadedFile(FileDownloadHandle fileHandle) async {
+    final uri = Uri.tryParse(fileHandle.uri);
+    if (uri == null) {
+      return false;
+    }
+
+    try {
+      if (uri.scheme == 'file') {
+        final result = await OpenFilex.open(uri.toFilePath());
+        return result.type == ResultType.done;
+      }
+      if (!await canLaunchUrl(uri)) {
+        return false;
+      }
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _downloadFile(
+    BuildContext context,
+    WidgetRef ref, {
+    required int fileId,
+    required String filename,
+  }) async {
+    final fileHandle = await _resolveFileHandle(
+      context,
+      ref,
+      fileId: fileId,
+      filename: filename,
+    );
+    if (fileHandle == null) {
+      return;
+    }
+
+    var opened = await _openDownloadedFile(fileHandle);
+    if (!opened && fileHandle.fromCache) {
+      if (!context.mounted) {
+        return;
+      }
+      final refreshedHandle = await _resolveFileHandle(
+        context,
+        ref,
+        fileId: fileId,
+        filename: filename,
+        forceRedownload: true,
+      );
+      if (refreshedHandle != null) {
+        opened = await _openDownloadedFile(refreshedHandle);
+      }
+    }
+
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.msg_cannotOpenReportFile)),
+      );
+    }
   }
 
   Widget _buildInfoRow({
@@ -1170,14 +1430,6 @@ class ActivityDetailScreen extends ConsumerWidget {
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
-  }
-
-  Future<void> _openUrl(String urlString) async {
-    final uri = Uri.tryParse(urlString);
-    if (uri == null) return;
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
@@ -1677,4 +1929,24 @@ class _TypeConfig {
     required this.iconColor,
     required this.textColor,
   });
+}
+
+class _ActivityDocumentDownloadState {
+  final String documentName;
+  final String documentAccountNumber;
+  final ApprovalStatus approvalStatus;
+  final int? fileId;
+  final String filename;
+  final String displayLabel;
+
+  const _ActivityDocumentDownloadState({
+    required this.documentName,
+    required this.documentAccountNumber,
+    required this.approvalStatus,
+    required this.fileId,
+    required this.filename,
+    required this.displayLabel,
+  });
+
+  bool get isReady => fileId != null;
 }

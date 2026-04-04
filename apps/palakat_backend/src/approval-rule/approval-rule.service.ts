@@ -174,12 +174,15 @@ export class ApprovalRuleService {
 
   async create(createApprovalRuleDto: CreateApprovalRuleDto) {
     const {
+      name,
+      description,
+      active,
+      activityType,
       churchId,
       positionIds,
       positions,
       financialAccountNumberId,
       financialType,
-      ...rest
     } = createApprovalRuleDto;
 
     const normalizedPositionIds =
@@ -197,7 +200,7 @@ export class ApprovalRuleService {
     }
 
     // When a financial account is linked, use its description as the rule name
-    let ruleName = rest.name;
+    let ruleName = name;
     if (financialAccountNumberId) {
       const financialAccount =
         await this.prismaService.financialAccountNumber.findUnique({
@@ -210,9 +213,11 @@ export class ApprovalRuleService {
     }
 
     const data: Prisma.ApprovalRuleCreateInput = {
-      ...rest,
       name: ruleName,
-      financialType,
+      ...(description !== undefined ? { description } : {}),
+      ...(active !== undefined ? { active } : {}),
+      ...(activityType !== undefined ? { activityType } : {}),
+      ...(financialType !== undefined ? { financialType } : {}),
       church: { connect: { id: churchId } },
       ...(normalizedPositionIds && normalizedPositionIds.length > 0
         ? {
@@ -264,12 +269,15 @@ export class ApprovalRuleService {
 
   async update(id: number, updateApprovalRuleDto: UpdateApprovalRuleDto) {
     const {
+      name,
+      description,
+      active,
+      activityType,
       churchId,
       positionIds,
       positions,
       financialAccountNumberId,
       financialType,
-      ...rest
     } = updateApprovalRuleDto;
 
     const normalizedPositionIds =
@@ -310,7 +318,7 @@ export class ApprovalRuleService {
     }
 
     // When a financial account is linked, use its description as the rule name
-    let ruleName = rest.name;
+    let ruleName = name;
     if (effectiveAccountId) {
       const financialAccount =
         await this.prismaService.financialAccountNumber.findUnique({
@@ -323,7 +331,9 @@ export class ApprovalRuleService {
     }
 
     const data: Prisma.ApprovalRuleUpdateInput = {
-      ...rest,
+      ...(description !== undefined ? { description } : {}),
+      ...(active !== undefined ? { active } : {}),
+      ...(activityType !== undefined ? { activityType } : {}),
       ...(ruleName !== undefined ? { name: ruleName } : {}),
       ...(financialType !== undefined ? { financialType } : {}),
       ...(churchId !== undefined

@@ -40,11 +40,7 @@ import { ChurchPermissionPolicyService } from '../church-permission-policy/churc
 import { RpcRequest, RpcResponse } from './realtime.types';
 import { mapErrorToRpc } from './realtime.utils';
 import { RealtimeEmitterService } from './realtime-emitter.service';
-import {
-  stripKeys,
-  transformToIdArrays,
-  transformToSetFormat,
-} from 'src/utils';
+import { stripKeys, transformToIdArrays, transformToSetFormat } from '../utils';
 
 @Injectable()
 export class RpcRouterService {

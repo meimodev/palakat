@@ -1,12 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/constants.dart';
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/widgets.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 
 class SuratKeteranganJemaatDrawer extends ConsumerStatefulWidget {
   const SuratKeteranganJemaatDrawer({super.key, required this.onClose});
@@ -179,12 +181,22 @@ class _SuratKeteranganJemaatDrawerState
 
     final activityTitle =
         '${l10n.certificate_suratKeteranganJemaat_title} - $selectedMemberName';
+    final activityNote = jsonEncode({
+      'certificateType': CertificateType.suratKeteranganJemaat.name,
+      'subjectMembership': {
+        'membershipId': selectedMembership?.id,
+        'name': selectedMemberName,
+        'churchName': selectedMembership?.church?.name,
+        'columnName': selectedMembership?.column?.name,
+      },
+    });
     final activityResult = await ref
         .read(activityRepositoryProvider)
         .createActivity(
           request: CreateActivityRequest(
             supervisorId: supervisorMembershipId,
             title: activityTitle,
+            note: activityNote,
             activityType: ActivityType.announcement,
           ),
         );

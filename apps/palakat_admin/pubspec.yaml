@@ -81,6 +81,10 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.11.1
 
+  # icon generation
+  flutter_launcher_icons: "^0.14.4"
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -123,5 +127,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: false
+  ios: false
+  image_path: "../../assets/icon_mobile.png"
+  web:
+    generate: true
+    image_path: "../../assets/icon_mobile.png"
+    background_color: "#ffffff"
+
 
 scripts: derry.yaml

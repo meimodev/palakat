@@ -4,21 +4,50 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
-import { DocumentInput, Prisma } from '../generated/prisma/client';
+import {
+  ApprovalStatus,
+  DocumentInput,
+  Prisma,
+} from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { DocumentListQueryDto } from './dto/document-list.dto';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
 import * as QRCode from 'qrcode';
 import {
   renderPdfSignedDocumentBuffer,
+  type DocumentMetaRow,
+  type DocumentSubTitle,
   type DocumentSection,
 } from './document-renderer';
-import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
+import { buildGmimLetterhead, getGmimLogoBuffer } from '../utils';
 
 type DocumentMetadataRow = {
   id: number;
   certificateType: string | null;
   certificateTitle: string | null;
+};
+
+type SuratKeteranganJemaatActivityNote = {
+  certificateType?: string;
+  subjectMembership?: {
+    membershipId?: number;
+    name?: string;
+    churchName?: string;
+    columnName?: string;
+  };
+};
+
+type SuratKredensiDescription = {
+  purpose: string | null;
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  members: string[];
+};
+
+type CertificateRenderData = {
+  metaRows: DocumentMetaRow[];
+  sections: DocumentSection[];
+  subtitle?: DocumentSubTitle | null;
 };
 
 @Injectable()
@@ -138,6 +167,348 @@ export class DocumentService {
     return normalized.length > 0 ? normalized : null;
   }
 
+  private getDocumentActivityInclude() {
+    return {
+      column: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      supervisor: {
+        select: {
+          id: true,
+          church: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          column: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          account: {
+            select: {
+              id: true,
+              name: true,
+              phone: true,
+              dob: true,
+            },
+          },
+        },
+      },
+      approvers: {
+        select: {
+          id: true,
+          membershipId: true,
+          activityId: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          membership: {
+            select: {
+              id: true,
+              account: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  dob: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    } satisfies Prisma.ActivityInclude;
+  }
+
+  private normalizeTextValue(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  private parseJsonObject(
+    value: string | null | undefined,
+  ): Record<string, any> | null {
+    if (!value || !value.trim()) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, any>)
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private parseSuratKeteranganJemaatActivityNote(
+    note: string | null | undefined,
+  ): SuratKeteranganJemaatActivityNote | null {
+    const parsed = this.parseJsonObject(note);
+    if (!parsed) {
+      return null;
+    }
+
+    const subjectMembership =
+      parsed.subjectMembership && typeof parsed.subjectMembership === 'object'
+        ? parsed.subjectMembership
+        : null;
+
+    return {
+      certificateType: this.normalizeTextValue(parsed.certificateType),
+      subjectMembership: subjectMembership
+        ? {
+            membershipId:
+              typeof subjectMembership.membershipId === 'number'
+                ? subjectMembership.membershipId
+                : undefined,
+            name: this.normalizeTextValue(subjectMembership.name),
+            churchName: this.normalizeTextValue(subjectMembership.churchName),
+            columnName: this.normalizeTextValue(subjectMembership.columnName),
+          }
+        : undefined,
+    };
+  }
+
+  private parseSuratKredensiDescription(
+    description: string | null | undefined,
+  ): SuratKredensiDescription {
+    const fallback: SuratKredensiDescription = {
+      purpose: null,
+      effectiveFrom: null,
+      effectiveTo: null,
+      members: [],
+    };
+
+    if (!description || !description.trim()) {
+      return fallback;
+    }
+
+    const blocks = description
+      .split(/\r?\n\s*\r?\n/g)
+      .map((block) => block.trim())
+      .filter((block) => block.length > 0);
+
+    if (blocks.length === 0) {
+      return fallback;
+    }
+
+    const result: SuratKredensiDescription = {
+      ...fallback,
+      purpose: blocks[0]
+        ?.split(/\r?\n/g)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .join(' '),
+    };
+
+    for (const block of blocks.slice(1)) {
+      const lines = block
+        .split(/\r?\n/g)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      if (lines.length === 0) {
+        continue;
+      }
+
+      const heading = lines[0].toLowerCase();
+      if (
+        heading.includes('tanggal efektif') ||
+        heading.includes('effective date')
+      ) {
+        for (const line of lines.slice(1)) {
+          const normalized = line.toLowerCase();
+          const separatorIndex = line.indexOf(':');
+          const value =
+            separatorIndex >= 0
+              ? this.normalizeTextValue(line.substring(separatorIndex + 1))
+              : this.normalizeTextValue(line);
+          if (!value) {
+            continue;
+          }
+
+          if (
+            normalized.startsWith('dari:') ||
+            normalized.startsWith('from:')
+          ) {
+            result.effectiveFrom = value;
+          } else if (
+            normalized.startsWith('sampai:') ||
+            normalized.startsWith('to:')
+          ) {
+            result.effectiveTo = value;
+          }
+        }
+        continue;
+      }
+
+      if (heading.includes('anggota') || heading.includes('members')) {
+        result.members = lines
+          .slice(1)
+          .map((line) => line.replace(/^[-•]\s*/, '').trim())
+          .filter((line) => line.length > 0);
+      }
+    }
+
+    return result;
+  }
+
+  private formatIndonesianDate(value: Date): string {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    return `${value.getDate()} ${months[value.getMonth()] ?? ''} ${value.getFullYear()}`.trim();
+  }
+
+  private buildSuratKeteranganJemaatRenderData(params: {
+    activity: any;
+    church: {
+      name: string | null;
+    } | null;
+    documentName: string;
+    accountNumber: string;
+  }): CertificateRenderData {
+    const activityNote = this.parseSuratKeteranganJemaatActivityNote(
+      params.activity?.note,
+    );
+    const subjectName =
+      activityNote?.subjectMembership?.name ??
+      this.normalizeTextValue(params.documentName) ??
+      '-';
+    const churchName =
+      activityNote?.subjectMembership?.churchName ??
+      this.normalizeTextValue(params.church?.name) ??
+      this.normalizeTextValue(params.activity?.supervisor?.church?.name) ??
+      '-';
+    const columnName =
+      activityNote?.subjectMembership?.columnName ??
+      this.normalizeTextValue(params.activity?.column?.name) ??
+      this.normalizeTextValue(params.activity?.supervisor?.column?.name) ??
+      '-';
+
+    return {
+      subtitle: {
+        label: 'Atas Nama',
+        value: subjectName,
+      },
+      metaRows: [
+        { label: 'Nomor Dokumen', value: params.accountNumber },
+        { label: 'Nama Anggota', value: subjectName },
+        { label: 'Gereja', value: churchName },
+        { label: 'Kolom', value: columnName },
+      ],
+      sections: [
+        {
+          lines: [
+            'Yang bertanda tangan di bawah ini menerangkan bahwa:',
+            '',
+            `Nama: ${subjectName}`,
+            `Gereja: ${churchName}`,
+            `Kolom: ${columnName}`,
+            '',
+            `${subjectName} adalah benar anggota jemaat yang terdaftar pada ${churchName} dan berada dalam ${columnName}.`,
+            'Surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.',
+          ],
+        },
+      ],
+    };
+  }
+
+  private buildSuratKredensiRenderData(params: {
+    activity: any;
+    church: {
+      name: string | null;
+    } | null;
+    accountNumber: string;
+  }): CertificateRenderData {
+    const parsed = this.parseSuratKredensiDescription(
+      params.activity?.description,
+    );
+    const churchName = this.normalizeTextValue(params.church?.name) ?? '-';
+    const purpose = parsed.purpose ?? 'pelayanan yang ditetapkan gereja';
+    const effectiveFrom =
+      parsed.effectiveFrom ??
+      (params.activity?.date instanceof Date
+        ? this.formatIndonesianDate(params.activity.date)
+        : null) ??
+      '-';
+    const effectiveTo = parsed.effectiveTo ?? effectiveFrom;
+    const members =
+      parsed.members.length > 0
+        ? parsed.members
+        : [params.activity?.title ?? '-'];
+
+    return {
+      subtitle: {
+        label: 'Keperluan',
+        value: purpose,
+      },
+      metaRows: [
+        { label: 'Nomor Dokumen', value: params.accountNumber },
+        { label: 'Gereja', value: churchName },
+        { label: 'Berlaku Mulai', value: effectiveFrom },
+        { label: 'Berlaku Sampai', value: effectiveTo },
+      ],
+      sections: [
+        {
+          lines: [
+            'Yang bertanda tangan di bawah ini menyatakan bahwa:',
+            '',
+            `${churchName} memberikan izin atau kredensi untuk ${purpose}.`,
+            `Kredensi ini berlaku sejak ${effectiveFrom} sampai dengan ${effectiveTo}.`,
+            '',
+            'Kredensi ini diberikan kepada:',
+            ...members.map((member) => `- ${member}`),
+            '',
+            'Surat kredensi ini dibuat untuk dipergunakan sebagaimana mestinya.',
+          ],
+        },
+      ],
+    };
+  }
+
+  private buildCertificateRenderData(params: {
+    certificateType: string | null;
+    activity: any;
+    church: {
+      name: string | null;
+    } | null;
+    documentName: string;
+    accountNumber: string;
+  }): CertificateRenderData | null {
+    switch (params.certificateType) {
+      case 'suratKeteranganJemaat':
+        return this.buildSuratKeteranganJemaatRenderData(params);
+      case 'suratKredensi':
+        return this.buildSuratKredensiRenderData(params);
+      default:
+        return null;
+    }
+  }
+
   async getDocuments(query: DocumentListQueryDto) {
     const {
       search,
@@ -171,7 +542,9 @@ export class DocumentService {
         include: {
           church: true,
           file: true,
-          activity: true,
+          activity: {
+            include: this.getDocumentActivityInclude(),
+          },
         },
       }),
     ]);
@@ -195,7 +568,9 @@ export class DocumentService {
       include: {
         church: true,
         file: true,
-        activity: true,
+        activity: {
+          include: this.getDocumentActivityInclude(),
+        },
       },
     });
     const metadata = await this.getDocumentMetadata(document.id);
@@ -258,7 +633,9 @@ export class DocumentService {
         include: {
           church: true,
           file: true,
-          activity: true,
+          activity: {
+            include: this.getDocumentActivityInclude(),
+          },
         },
       });
 
@@ -347,7 +724,13 @@ export class DocumentService {
       typeof inputId === 'number'
         ? await this.prisma.document.findUniqueOrThrow({
             where: { id: inputId },
-            include: { church: true, file: true },
+            include: {
+              church: true,
+              file: true,
+              activity: {
+                include: this.getDocumentActivityInclude(),
+              },
+            },
           })
         : null;
 
@@ -361,6 +744,25 @@ export class DocumentService {
 
     if (document?.verifyTokenHash && !regenerate) {
       throw new ConflictException('Document already generated');
+    }
+
+    if (document) {
+      if (!document.activity) {
+        throw new BadRequestException('Document is not linked to any activity');
+      }
+
+      const approvers = document.activity.approvers ?? [];
+      const isApproved =
+        approvers.length > 0 &&
+        approvers.every(
+          (approver) => approver.status === ApprovalStatus.APPROVED,
+        );
+
+      if (!isApproved) {
+        throw new BadRequestException(
+          'Document activity must be approved before generating document',
+        );
+      }
     }
 
     const newName = dto?.name != null ? String(dto.name) : '';
@@ -483,7 +885,13 @@ export class DocumentService {
                 data: {
                   accountNumber,
                 },
-                include: { church: true, file: true },
+                include: {
+                  church: true,
+                  file: true,
+                  activity: {
+                    include: this.getDocumentActivityInclude(),
+                  },
+                },
               })
             : document
           : await tx.document.create({
@@ -493,7 +901,13 @@ export class DocumentService {
                 input: resolvedInput,
                 church: { connect: { id: churchId } },
               } as any,
-              include: { church: true, file: true },
+              include: {
+                church: true,
+                file: true,
+                activity: {
+                  include: this.getDocumentActivityInclude(),
+                },
+              },
             });
 
         if (!created.name || !created.name.trim()) {
@@ -503,11 +917,23 @@ export class DocumentService {
           throw new BadRequestException('accountNumber is required');
         }
 
+        const certificateRenderData = certificateType
+          ? this.buildCertificateRenderData({
+              certificateType,
+              activity: created.activity,
+              church,
+              documentName: created.name,
+              accountNumber: created.accountNumber,
+            })
+          : null;
+
         const pdfBuffer = await renderPdfSignedDocumentBuffer({
           title,
+          subtitle: certificateRenderData?.subtitle,
           name: created.name,
           accountNumber: created.accountNumber,
-          sections: normalizedSections,
+          metaRows: certificateRenderData?.metaRows,
+          sections: certificateRenderData?.sections ?? normalizedSections,
           letterhead: church?.name
             ? buildGmimLetterhead({
                 churchName: church.name,
@@ -567,7 +993,13 @@ export class DocumentService {
             verifyTokenHash,
             fileSha256,
           } as any,
-          include: { church: true, file: true },
+          include: {
+            church: true,
+            file: true,
+            activity: {
+              include: this.getDocumentActivityInclude(),
+            },
+          },
         });
 
         await this.persistDocumentMetadata(

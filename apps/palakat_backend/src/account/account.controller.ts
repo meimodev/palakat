@@ -19,11 +19,7 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AccountListQueryDto } from './dto/account-list.dto';
 import { AccountCountQueryDto } from './dto/account-count.dto';
-import {
-  stripKeys,
-  transformToIdArrays,
-  transformToSetFormat,
-} from 'src/utils';
+import { stripKeys, transformToIdArrays, transformToSetFormat } from '../utils';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('account')

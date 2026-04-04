@@ -81,6 +81,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: "^0.14.4"
   build_runner: ^2.6.0
   flutter_lints: ^6.0.0
   custom_lint: ^0.8.0
@@ -132,6 +133,14 @@ flutter_gen:
 
 # derry config
 scripts: derry.yaml
+
+#flutter launcher icons config
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "../../assets/icon_mobile.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#DFBEE6"
 
 # Dependency overrides to resolve conflicts
 dependency_overrides:

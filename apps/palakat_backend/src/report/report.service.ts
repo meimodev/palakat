@@ -9,7 +9,7 @@ import {
   ReportFormat,
   ReportGenerateType,
 } from '../generated/prisma/client';
-import PDFDocument from 'pdfkit';
+import * as PDFDocument from 'pdfkit';
 import * as ExcelJS from 'exceljs';
 import { PassThrough } from 'stream';
 import { PrismaService } from '../prisma.service';
@@ -29,10 +29,12 @@ import {
   FinancialReportSubtype,
   ReportGenerateDto,
 } from './dto/report-generate.dto';
-import { buildGmimLetterhead, getGmimLogoBuffer } from 'src/utils';
+import { buildGmimLetterhead, getGmimLogoBuffer } from '../utils';
 
 const BRAND_PRIMARY_HEX = '#921573';
 const BRAND_BORDER_HEX = '#E5C7DD';
+const BRAND_SURFACE_HEX = '#F2E3EE';
+const DOCUMENT_MUTED_HEX = '#64748B';
 const BRAND_PRIMARY_ARGB = 'FF921573';
 
 @Injectable()
@@ -424,7 +426,7 @@ export class ReportService {
     const generatedAt = params.generatedAt ?? new Date();
     const doc = new PDFDocument({
       size: 'A4',
-      margin: 48,
+      margins: { top: 48, left: 48, right: 48, bottom: 72 },
       bufferPages: true,
       info: {
         Title: params.title,
@@ -460,14 +462,22 @@ export class ReportService {
         }
 
         const textX = params.logoBuffer?.length ? doc.x + 84 : doc.x;
+        const textWidth = doc.page.width - doc.page.margins.right - textX;
+
+        doc.font('Helvetica-Bold');
         doc
           .fontSize(14)
           .fillColor(BRAND_PRIMARY_HEX)
-          .text(headerLines[0] ?? '', textX, headerStartY, { align: 'left' });
+          .text(headerLines[0] ?? '', textX, headerStartY, {
+            align: 'left',
+            width: textWidth,
+          });
 
-        doc.fontSize(10).fillColor('#222222');
+        doc.font('Helvetica').fontSize(10).fillColor('#222222');
         for (const line of headerLines.slice(1)) {
-          doc.text(line, textX);
+          doc.text(line, textX, doc.y, {
+            width: textWidth,
+          });
         }
 
         doc.moveDown(0.5);
@@ -481,24 +491,47 @@ export class ReportService {
         doc.moveDown();
       }
 
+      doc.font('Helvetica-Bold');
       doc
         .fontSize(18)
         .fillColor(BRAND_PRIMARY_HEX)
-        .text(params.title, { align: 'left' });
-      doc.moveDown(0.5);
+        .text(params.title, doc.page.margins.left, doc.y, {
+          width:
+            doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          align: 'left',
+          lineGap: 2,
+        });
+      doc.moveDown(0.45);
       doc
+        .font('Helvetica')
         .fontSize(10)
-        .fillColor('#444444')
-        .text(`Generated at: ${generatedAt.toISOString()}`);
-      doc.moveDown();
+        .fillColor(DOCUMENT_MUTED_HEX)
+        .text(
+          `Generated at: ${generatedAt.toISOString()}`,
+          doc.page.margins.left,
+          doc.y,
+          {
+            width:
+              doc.page.width - doc.page.margins.left - doc.page.margins.right,
+            align: 'left',
+            lineGap: 1.5,
+          },
+        );
+      doc.moveDown(0.8);
 
-      doc.fillColor('#000000').fontSize(12);
+      doc.font('Helvetica').fillColor('#1F2937').fontSize(11);
       for (const line of params.lines) {
-        doc.text(line);
+        doc.text(line, doc.page.margins.left, doc.y, {
+          width:
+            doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          align: 'justify',
+          paragraphGap: 3,
+          lineGap: 2,
+        });
       }
 
       if (params.qrPngBuffer && params.publicId) {
-        doc.moveDown();
+        doc.moveDown(0.8);
 
         const availableWidth =
           doc.page.width - doc.page.margins.left - doc.page.margins.right;
@@ -521,10 +554,8 @@ export class ReportService {
         const y = doc.y;
 
         doc
-          .rect(x, y, availableWidth, boxHeight)
-          .strokeColor(BRAND_BORDER_HEX)
-          .lineWidth(1)
-          .stroke();
+          .roundedRect(x, y, availableWidth, boxHeight, 12)
+          .fillAndStroke(BRAND_SURFACE_HEX, BRAND_BORDER_HEX);
 
         const qrX = x + padding;
         const qrY = y + padding;
@@ -544,14 +575,14 @@ export class ReportService {
         )}`;
         const pagesLabel = `Total pages: ${totalPages}`;
 
-        doc.fontSize(11).fillColor(BRAND_PRIMARY_HEX);
+        doc.font('Helvetica-Bold').fontSize(11.5).fillColor(BRAND_PRIMARY_HEX);
         doc.text(churchName || 'Report verification', textX, qrY, {
           width: textWidth,
           lineBreak: false,
           ellipsis: true,
         });
 
-        doc.fontSize(8).fillColor('#475569');
+        doc.font('Helvetica').fontSize(8.75).fillColor(DOCUMENT_MUTED_HEX);
         doc.text(generatedLabel, textX, doc.y + 6, {
           width: textWidth,
         });
@@ -559,10 +590,11 @@ export class ReportService {
           width: textWidth,
         });
 
-        doc.fontSize(8).fillColor('#64748b');
+        doc.font('Helvetica-Bold').fontSize(8.5).fillColor('#334155');
         doc.text(`/verify/report/${params.publicId}`, textX, doc.y + 8, {
           width: textWidth,
         });
+        doc.font('Helvetica').fontSize(8).fillColor('#64748b');
         doc.text(`Code: ${params.publicId}`, textX, doc.y + 2, {
           width: textWidth,
         });

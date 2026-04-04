@@ -167,16 +167,22 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
   }
 
   void _openColumnEditDrawer(cm.Column column) async {
+    final resolvedChurchId = state.church.value?.id ?? column.churchId;
+    if (resolvedChurchId == null) {
+      return;
+    }
+
     DrawerUtils.showDrawer(
       context: context,
       drawer: ColumnEditDrawer(
         columnId: column.id,
-        churchId: column.churchId,
+        churchId: resolvedChurchId,
         onSave: (updatedColumn) async {
           try {
             await churchController.saveColumn(updatedColumn);
             if (!mounted) return;
             final churchId = state.church.value?.id ?? updatedColumn.churchId;
+            if (churchId == null) return;
             churchController.fetchColumns(churchId);
             if (!mounted) return;
             AppSnackbars.showSuccess(
@@ -202,6 +208,7 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
               .then((_) async {
                 if (!mounted) return;
                 final churchId = state.church.value?.id ?? column.churchId;
+                if (churchId == null) return;
                 churchController.fetchColumns(churchId);
                 if (!mounted) return;
                 AppSnackbars.showSuccess(
@@ -238,7 +245,9 @@ class _ChurchScreenState extends ConsumerState<ChurchScreen> {
           try {
             await churchController.createColumn(newColumn);
             if (!mounted) return;
-            churchController.fetchColumns(newColumn.churchId);
+            final nextChurchId = state.church.value?.id ?? newColumn.churchId;
+            if (nextChurchId == null) return;
+            churchController.fetchColumns(nextChurchId);
             if (!mounted) return;
             AppSnackbars.showSuccess(
               context,

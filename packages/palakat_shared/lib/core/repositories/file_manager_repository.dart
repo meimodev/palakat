@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../config/app_config.dart';
@@ -8,6 +9,7 @@ import '../models/result.dart';
 import '../services/file_transfer_progress_service.dart';
 import '../services/socket_service.dart';
 import '../utils/file_bytes_url.dart';
+import '../utils/report_file_cache.dart';
 
 part 'file_manager_repository.g.dart';
 
@@ -15,10 +17,192 @@ part 'file_manager_repository.g.dart';
 FileManagerRepository fileManagerRepository(Ref ref) =>
     FileManagerRepository(ref);
 
+class FileDownloadHandle {
+  const FileDownloadHandle({
+    required this.uri,
+    required this.filename,
+    required this.fromCache,
+  });
+
+  final String uri;
+  final String filename;
+  final bool fromCache;
+}
+
 class FileManagerRepository {
   FileManagerRepository(this._ref);
 
   final Ref _ref;
+  static const _fileDownloadCacheBox = 'file_download_cache';
+  static const _fileDownloadCacheUriKey = 'uri';
+  static const _fileDownloadCacheFileIdKey = 'fileId';
+  static const _fileDownloadCacheFilenameKey = 'filename';
+
+  Future<Box<dynamic>> _ensureFileDownloadCacheBoxOpen() async {
+    if (!Hive.isBoxOpen(_fileDownloadCacheBox)) {
+      await Hive.openBox(_fileDownloadCacheBox);
+    }
+    return Hive.box(_fileDownloadCacheBox);
+  }
+
+  String _fileCacheKey(int fileId) => 'file.$fileId';
+
+  String _preferredFilename(int fileId, {String? filename}) {
+    final trimmed = filename?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) {
+      return trimmed;
+    }
+    return 'file_$fileId';
+  }
+
+  Future<Map<String, dynamic>?> _readCacheRecord(int fileId) async {
+    final box = await _ensureFileDownloadCacheBoxOpen();
+    final raw = box.get(_fileCacheKey(fileId));
+    if (raw is Map) {
+      return raw.cast<String, dynamic>();
+    }
+    return null;
+  }
+
+  Future<void> _saveCacheRecord({
+    required int fileId,
+    required String uri,
+    required String filename,
+  }) async {
+    final box = await _ensureFileDownloadCacheBoxOpen();
+    await box.put(_fileCacheKey(fileId), {
+      _fileDownloadCacheUriKey: uri,
+      _fileDownloadCacheFileIdKey: fileId,
+      _fileDownloadCacheFilenameKey: filename,
+    });
+  }
+
+  Future<void> _clearCacheRecord(int fileId) async {
+    final record = await _readCacheRecord(fileId);
+    final uri = record?[_fileDownloadCacheUriKey] as String?;
+    if (uri != null && uri.trim().isNotEmpty) {
+      await deleteStoredReportFile(uri);
+    }
+    final box = await _ensureFileDownloadCacheBoxOpen();
+    await box.delete(_fileCacheKey(fileId));
+  }
+
+  Future<FileDownloadHandle?> _readValidCachedFile({
+    required int fileId,
+    String? filename,
+  }) async {
+    final record = await _readCacheRecord(fileId);
+    if (record == null) {
+      return null;
+    }
+
+    final cachedFileIdRaw = record[_fileDownloadCacheFileIdKey];
+    final cachedFileId = cachedFileIdRaw is num
+        ? cachedFileIdRaw.toInt()
+        : null;
+    if (cachedFileId != null && cachedFileId != fileId) {
+      await _clearCacheRecord(fileId);
+      return null;
+    }
+
+    final uri = record[_fileDownloadCacheUriKey] as String?;
+    if (uri == null || uri.trim().isEmpty) {
+      await _clearCacheRecord(fileId);
+      return null;
+    }
+
+    final exists = await reportFileExists(uri);
+    if (!exists) {
+      await _clearCacheRecord(fileId);
+      return null;
+    }
+
+    final cachedFilename = (record[_fileDownloadCacheFilenameKey] as String?)
+        ?.trim();
+    return FileDownloadHandle(
+      uri: uri,
+      filename: cachedFilename != null && cachedFilename.isNotEmpty
+          ? cachedFilename
+          : _preferredFilename(fileId, filename: filename),
+      fromCache: true,
+    );
+  }
+
+  Future<Result<FileDownloadHandle, Failure>> resolveCachedFile({
+    required int fileId,
+    String? filename,
+    bool forceRedownload = false,
+  }) async {
+    try {
+      if (!forceRedownload) {
+        final cached = await _readValidCachedFile(
+          fileId: fileId,
+          filename: filename,
+        );
+        if (cached != null) {
+          return Result.success(cached);
+        }
+      } else {
+        await _clearCacheRecord(fileId);
+      }
+
+      final progress = _ref.read(fileTransferProgressControllerProvider.notifier);
+      final progressId = progress.start(
+        direction: FileTransferDirection.download,
+        totalBytes: 0,
+        label: filename?.trim().isNotEmpty == true ? filename!.trim() : 'file#$fileId',
+      );
+
+      try {
+        final socket = _ref.read(socketServiceProvider);
+        final dl = await socket.downloadFileBytes(
+          fileId: fileId,
+          onProgress: (received, total) {
+            progress.update(
+              progressId,
+              transferredBytes: received,
+              totalBytes: total,
+            );
+          },
+        );
+        if (dl.bytes.isEmpty) {
+          progress.fail(progressId, errorMessage: 'Empty file response');
+          return Result.failure(Failure('Empty file response'));
+        }
+
+        final resolvedFilename = (dl.originalName?.trim().isNotEmpty ?? false)
+            ? dl.originalName!.trim()
+            : _preferredFilename(fileId, filename: filename);
+        final uri = await storeReportFile(
+          bytes: dl.bytes,
+          reportId: fileId,
+          filename: resolvedFilename,
+          contentType: dl.contentType,
+        );
+        progress.complete(progressId);
+        await _saveCacheRecord(
+          fileId: fileId,
+          uri: uri,
+          filename: resolvedFilename,
+        );
+        return Result.success(
+          FileDownloadHandle(
+            uri: uri,
+            filename: resolvedFilename,
+            fromCache: false,
+          ),
+        );
+      } catch (e) {
+        progress.fail(
+          progressId,
+          errorMessage: Failure.fromException(e).message,
+        );
+        return Result.failure(Failure.fromException(e));
+      }
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
 
   Future<Result<FileManager, Failure>> finalize({
     required int churchId,

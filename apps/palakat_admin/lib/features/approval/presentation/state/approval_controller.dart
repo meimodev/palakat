@@ -27,6 +27,22 @@ class ApprovalController extends _$ApprovalController {
   Church get church =>
       ref.read(authControllerProvider).value!.account.membership!.church!;
 
+  Map<String, dynamic> _ruleWritePayload(ApprovalRule rule) {
+    return {
+      'name': rule.name,
+      'description': rule.description,
+      'active': rule.active,
+      'churchId': rule.churchId ?? rule.church?.id,
+      'positionIds': rule.positions
+          .map((position) => position.id)
+          .whereType<int>()
+          .toList(),
+      'activityType': rule.activityType?.name.toUpperCase(),
+      'financialType': rule.financialType?.name.toUpperCase(),
+      'financialAccountNumberId': rule.financialAccountNumberId,
+    };
+  }
+
   Future<void> _fetchRules() async {
     state = state.copyWith(rules: const AsyncValue.loading());
     try {
@@ -136,10 +152,10 @@ class ApprovalController extends _$ApprovalController {
   Future<void> saveRule(ApprovalRule rule) async {
     try {
       final repository = ref.read(approvalRepositoryProvider);
-      final data = rule.toJson();
+      final data = _ruleWritePayload(rule);
 
       final result = rule.id == null || rule.id == 0
-          ? await repository.createApprovalRule(data..remove('id'))
+          ? await repository.createApprovalRule(data)
           : await repository.updateApprovalRule(ruleId: rule.id!, data: data);
 
       result.when(

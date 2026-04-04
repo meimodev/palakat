@@ -59,7 +59,7 @@ class AuthErrorDisplay extends StatelessWidget {
                   child: Text(
                     message,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.onErrorContainer,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

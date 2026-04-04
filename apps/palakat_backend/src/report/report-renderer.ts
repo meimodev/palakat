@@ -1,4 +1,4 @@
-import PDFDocument from 'pdfkit';
+import * as PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import * as ExcelJS from 'exceljs';
 
@@ -190,6 +190,7 @@ function renderPdfLetterhead(params: {
   const textWidth = doc.page.width - doc.page.margins.right - textX;
 
   if (headerLines.length) {
+    doc.font('Helvetica-Bold');
     doc
       .fontSize(14)
       .fillColor(BRAND_PRIMARY_HEX)
@@ -198,7 +199,7 @@ function renderPdfLetterhead(params: {
         width: textWidth,
       });
 
-    doc.fontSize(10).fillColor('#222222');
+    doc.font('Helvetica').fontSize(10).fillColor('#222222');
     for (const line of headerLines.slice(1)) {
       doc.text(line, textX, doc.y, {
         width: textWidth,
@@ -246,10 +247,8 @@ function renderPdfVerifyBlock(params: {
 
   doc.save();
   doc
-    .rect(x, y, availableWidth, boxHeight)
-    .strokeColor(BRAND_BORDER_HEX)
-    .lineWidth(1)
-    .stroke();
+    .roundedRect(x, y, availableWidth, boxHeight, 12)
+    .fillAndStroke(BRAND_SURFACE_HEX, BRAND_BORDER_HEX);
 
   const qrX = x + padding;
   const qrY = y + padding;
@@ -289,14 +288,14 @@ function renderPdfVerifyBlock(params: {
   )}`;
   const pagesLabel = `Total pages: ${params.totalPages}`;
 
-  doc.fontSize(11).fillColor(BRAND_PRIMARY_HEX);
+  doc.font('Helvetica-Bold').fontSize(11.5).fillColor(BRAND_PRIMARY_HEX);
   doc.text(churchName || 'Report verification', textX, qrY, {
     width: textWidth,
     lineBreak: false,
     ellipsis: true,
   });
 
-  doc.fontSize(8).fillColor('#475569');
+  doc.font('Helvetica').fontSize(8.75).fillColor('#475569');
   doc.text(generatedLabel, textX, doc.y + 6, {
     width: textWidth,
   });
@@ -304,10 +303,11 @@ function renderPdfVerifyBlock(params: {
     width: textWidth,
   });
 
-  doc.fontSize(8).fillColor('#64748b');
+  doc.font('Helvetica-Bold').fontSize(8.5).fillColor('#334155');
   doc.text(`Verify: /verify/report/${params.publicId}`, textX, doc.y + 8, {
     width: textWidth,
   });
+  doc.font('Helvetica').fontSize(8).fillColor('#64748b');
   doc.text(`Code: ${params.publicId}`, textX, doc.y + 2, {
     width: textWidth,
   });
@@ -422,17 +422,33 @@ export async function renderPdfTableReportBuffer(params: {
 
   renderPageHeader();
 
+  doc.font('Helvetica-Bold');
   doc
     .fontSize(18)
     .fillColor(BRAND_PRIMARY_HEX)
-    .text(params.title, { align: params.titleAlign ?? 'left' });
-  doc.moveDown();
+    .text(params.title, doc.page.margins.left, doc.y, {
+      width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+      align: params.titleAlign ?? 'left',
+      lineGap: 2,
+    });
+  doc.moveDown(0.6);
 
   for (const section of params.sections) {
     if (section.title && section.title.trim().length) {
-      doc.fontSize(12).fillColor(BRAND_SECONDARY_HEX).text(section.title);
-      doc.moveDown(0.5);
+      doc.font('Helvetica-Bold');
+      doc
+        .fontSize(12)
+        .fillColor(BRAND_SECONDARY_HEX)
+        .text(section.title, doc.page.margins.left, doc.y, {
+          width:
+            doc.page.width - doc.page.margins.left - doc.page.margins.right,
+          align: 'left',
+          lineGap: 1.5,
+        });
+      doc.moveDown(0.35);
     }
+
+    doc.font('Helvetica');
 
     const columns = section.columns;
     const colWidths = buildColumnWidths({
@@ -552,7 +568,7 @@ export async function renderPdfTableReportBuffer(params: {
       y += rowHeight;
     }
 
-    doc.y = y + 12;
+    doc.y = y + 14;
   }
 
   if (params.qrPngBuffer && params.publicId) {

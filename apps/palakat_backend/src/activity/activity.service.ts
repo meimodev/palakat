@@ -11,7 +11,7 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationService } from '../notification/notification.service';
-import { DocumentInput } from 'src/generated/prisma/enums';
+import { DocumentInput } from '../generated/prisma/enums';
 
 /**
  * Service for managing church activities.
@@ -392,7 +392,11 @@ export class ActivitiesService {
           },
         },
         file: true,
-        document: true,
+        document: {
+          include: {
+            file: true,
+          },
+        },
       },
     });
 

@@ -1,18 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/operations/presentations/operations_motion_widget.dart';
-import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/models/models.dart' hide Column;
+import 'package:palakat_shared/core/repositories/activity_repository.dart';
 import 'package:palakat_shared/core/repositories/document_repository.dart';
-import 'package:palakat_shared/core/repositories/file_manager_repository.dart';
 import 'package:palakat_shared/core/repositories/membership_repository.dart';
 import 'package:palakat_shared/core/services/local_storage_service_provider.dart';
 import 'package:palakat_shared/core/widgets/searchable_dialog_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SuratKeteranganJemaatScreen extends ConsumerStatefulWidget {
   const SuratKeteranganJemaatScreen({super.key});
@@ -175,9 +175,14 @@ class _SuratKeteranganJemaatScreenState
     }
   }
 
-  Future<void> _generate() async {
+  Future<void> _createActivity() async {
     final l10n = context.l10n;
     final selectedMembership = _selectedMembership;
+    final localStorage = ref.read(localStorageServiceProvider);
+    final supervisorMembershipId =
+        localStorage.currentMembership?.id ??
+        localStorage.currentAuth?.account.membership?.id;
+    final selectedMemberName = selectedMembership?.account?.name.trim();
 
     if (_scopeBlockedMessage != null) {
       setState(() {
@@ -193,30 +198,48 @@ class _SuratKeteranganJemaatScreenState
       return;
     }
 
+    if (selectedMemberName == null ||
+        selectedMemberName.isEmpty ||
+        supervisorMembershipId == null) {
+      setState(() {
+        _errorMessage = l10n.msg_operationFailed;
+      });
+      return;
+    }
+
     setState(() {
       _isGenerating = true;
       _errorMessage = null;
     });
 
-    final result = await ref
-        .read(documentRepositoryProvider)
-        .generateCertificate(
-          certificateType: CertificateType.suratKeteranganJemaat,
-          input: DocumentInput.outcome,
-          membershipId: selectedMembership!.id,
-          name: selectedMembership.account?.name,
-          accountNumber: selectedMembership.account?.phone,
+    final activityTitle =
+        '${l10n.certificate_suratKeteranganJemaat_title} - $selectedMemberName';
+    final activityNote = jsonEncode({
+      'certificateType': CertificateType.suratKeteranganJemaat.name,
+      'subjectMembership': {
+        'membershipId': selectedMembership?.id,
+        'name': selectedMemberName,
+        'churchName': selectedMembership?.church?.name,
+        'columnName': selectedMembership?.column?.name,
+      },
+    });
+    final activityResult = await ref
+        .read(activityRepositoryProvider)
+        .createActivity(
+          request: CreateActivityRequest(
+            supervisorId: supervisorMembershipId,
+            publishToColumnOnly: true,
+            title: activityTitle,
+            note: activityNote,
+            activityType: ActivityType.announcement,
+          ),
         );
 
-    if (!mounted) {
-      return;
-    }
-
-    int? fileId;
     String? failureMessage;
-    result.when(
-      onSuccess: (payload) {
-        fileId = payload.document.fileId;
+    int? linkedDocumentId;
+    activityResult.when(
+      onSuccess: (activity) {
+        linkedDocumentId = activity.document?.id ?? activity.documentId;
       },
       onFailure: (failure) {
         failureMessage = failure.message;
@@ -231,7 +254,7 @@ class _SuratKeteranganJemaatScreenState
       return;
     }
 
-    if (fileId == null) {
+    if (linkedDocumentId == null) {
       setState(() {
         _isGenerating = false;
         _errorMessage = l10n.msg_operationFailed;
@@ -239,19 +262,19 @@ class _SuratKeteranganJemaatScreenState
       return;
     }
 
-    final fileResult = await ref
-        .read(fileManagerRepositoryProvider)
-        .resolveDownloadUrl(fileId: fileId!);
+    final documentResult = await ref
+        .read(documentRepositoryProvider)
+        .updateDocument(
+          documentId: linkedDocumentId!,
+          update: {
+            'name': selectedMemberName,
+            'certificateType': CertificateType.suratKeteranganJemaat.name,
+            'certificateTitle': l10n.certificate_suratKeteranganJemaat_title,
+          },
+        );
 
-    if (!mounted) {
-      return;
-    }
-
-    String? resolvedUrl;
-    fileResult.when(
-      onSuccess: (url) {
-        resolvedUrl = url;
-      },
+    documentResult.when(
+      onSuccess: (_) {},
       onFailure: (failure) {
         failureMessage = failure.message;
       },
@@ -261,29 +284,6 @@ class _SuratKeteranganJemaatScreenState
       setState(() {
         _isGenerating = false;
         _errorMessage = failureMessage;
-      });
-      return;
-    }
-
-    final uri = Uri.tryParse(resolvedUrl ?? '');
-    if (uri == null) {
-      setState(() {
-        _isGenerating = false;
-        _errorMessage = l10n.msg_invalidUrl;
-      });
-      return;
-    }
-
-    final launched = await launchUrl(uri);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (!launched) {
-      setState(() {
-        _isGenerating = false;
-        _errorMessage = l10n.msg_cannotOpenReportFile;
       });
       return;
     }
@@ -292,7 +292,11 @@ class _SuratKeteranganJemaatScreenState
       _isGenerating = false;
     });
 
-    _showSnackBar(context, l10n.msg_certificateGenerated);
+    if (!mounted) {
+      return;
+    }
+
+    _showSnackBar(context, l10n.msg_created);
     context.pop(true);
   }
 
@@ -316,11 +320,11 @@ class _SuratKeteranganJemaatScreenState
             top: 6.0,
           ),
           child: ButtonWidget.primary(
-            text: l10n.btn_generateCertificate,
+            text: l10n.btn_create,
             isLoading: _isGenerating,
             onTap: _isGenerating || _scopeBlockedMessage != null
                 ? null
-                : _generate,
+                : _createActivity,
           ),
         ),
       ),

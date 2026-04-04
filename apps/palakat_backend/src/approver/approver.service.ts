@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   Inject,
@@ -10,14 +11,66 @@ import { CreateApproverDto } from './dto/create-approver.dto';
 import { UpdateApproverDto } from './dto/update-approver.dto';
 import { ApproverListQueryDto } from './dto/approver-list.dto';
 import { NotificationService } from '../notification/notification.service';
+import { ApprovalStatus } from '../generated/prisma/client';
+import { DocumentService } from '../document/document.service';
 
 @Injectable()
 export class ApproverService {
   constructor(
     private prisma: PrismaService,
+    private documentService: DocumentService,
     @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
   ) {}
+
+  private isFullyApproved(activity: any): boolean {
+    const approvers = Array.isArray(activity?.approvers)
+      ? activity.approvers
+      : [];
+    return (
+      approvers.length > 0 &&
+      approvers.every(
+        (approver: any) => approver?.status === ApprovalStatus.APPROVED,
+      )
+    );
+  }
+
+  private async maybeAutoGenerateLinkedDocument(approver: any): Promise<void> {
+    const activity = approver?.activity;
+    const linkedDocument = activity?.document;
+    const requesterUserId = approver?.membership?.account?.id;
+
+    if (!activity || !linkedDocument || typeof requesterUserId !== 'number') {
+      return;
+    }
+
+    if (
+      typeof linkedDocument?.id !== 'number' ||
+      linkedDocument.fileId != null
+    ) {
+      return;
+    }
+
+    if (!this.isFullyApproved(activity)) {
+      return;
+    }
+
+    try {
+      await this.documentService.generate(
+        {
+          id: linkedDocument.id,
+          regenerate: false,
+        },
+        { userId: requesterUserId },
+      );
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        return;
+      }
+
+      throw error;
+    }
+  }
 
   async create(
     createApproverDto: CreateApproverDto,
@@ -290,6 +343,12 @@ export class ApproverService {
                 status: true,
               },
             },
+            document: {
+              include: {
+                church: true,
+                file: true,
+              },
+            },
           },
         },
         membership: {
@@ -306,6 +365,10 @@ export class ApproverService {
         },
       },
     });
+
+    if (updateApproverDto.status === ApprovalStatus.APPROVED) {
+      await this.maybeAutoGenerateLinkedDocument(approver);
+    }
 
     // Send approval status change notifications
     // Handle notification errors without blocking approval update

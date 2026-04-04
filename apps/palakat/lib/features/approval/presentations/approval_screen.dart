@@ -60,12 +60,13 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final hasActiveDateFilter =
         state.filterStartDate != null || state.filterEndDate != null;
     final showDateFilter = _showDateFilter || hasActiveDateFilter;
+    final colors = Theme.of(context).colorScheme;
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       child: RefreshIndicator(
         onRefresh: () => controller.refresh(),
-        color: AppColors.primary,
+        color: colors.primary,
         child: CustomScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
@@ -116,12 +117,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                           icon: Icon(
                             Icons.calendar_today,
                             size: 16.0,
-                            color: AppColors.primary,
+                            color: colors.primary,
                           ),
                           label: Text(l10n.approval_filterByDate),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: BorderSide(color: AppColors.tertiary),
+                            foregroundColor: colors.primary,
+                            side: BorderSide(color: colors.tertiary),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
@@ -169,7 +170,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               ),
             ),
             // Approvals list
-            _buildApprovalsList(context, state, controller),
+            _buildApprovalsList(context, state, controller, colors),
             // Loading more indicator
             if (state.isLoadingMore)
               SliverToBoxAdapter(
@@ -190,7 +191,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                     child: Text(
                       l10n.approval_noMoreApprovals,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: AppColors.onSurfaceVariant,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -206,6 +207,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     BuildContext context,
     ApprovalState state,
     ApprovalController controller,
+    ColorScheme colors,
   ) {
     if (state.loadingScreen) {
       return SliverToBoxAdapter(
@@ -224,17 +226,24 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
     // When showing all, display grouped sections
     if (state.statusFilter == ApprovalFilterStatus.all) {
-      return _buildGroupedList(context, state, controller);
+      return _buildGroupedList(context, state, controller, colors);
     }
 
     // When filtering by specific status, show flat list
-    return _buildFlatList(context, state.filteredApprovals, state, controller);
+    return _buildFlatList(
+      context,
+      state.filteredApprovals,
+      state,
+      controller,
+      colors,
+    );
   }
 
   Widget _buildGroupedList(
     BuildContext context,
     ApprovalState state,
     ApprovalController controller,
+    ColorScheme colors,
   ) {
     final sections = <Widget>[];
     var sectionIndex = 0;
@@ -249,9 +258,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             context.l10n.approval_sectionPendingYourAction,
             state.pendingMyAction,
             state,
+            colors,
             controller,
             icon: AppIcons.pending,
-            color: AppColors.primary,
+            color: colors.primary,
           ),
         ),
       );
@@ -268,6 +278,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             context.l10n.approval_sectionPendingOthers,
             state.pendingOthers,
             state,
+            colors,
             controller,
             icon: AppIcons.inProgress,
             color: AppColors.warning,
@@ -287,6 +298,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             context.l10n.status_approved,
             state.approved,
             state,
+            colors,
             controller,
             icon: AppIcons.success,
             color: AppColors.success,
@@ -306,6 +318,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             context.l10n.status_rejected,
             state.rejected,
             state,
+            colors,
             controller,
             icon: AppIcons.reject,
             color: AppColors.error,
@@ -319,7 +332,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       return SliverToBoxAdapter(
         child: ApprovalAnimatedPresence(
           visible: true,
-          child: _buildEmptyState(context),
+          child: _buildEmptyState(context, colors),
         ),
       );
     }
@@ -332,6 +345,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     String title,
     List<Activity> activities,
     ApprovalState state,
+    ColorScheme colors,
     ApprovalController controller, {
     required IconData icon,
     required Color color,
@@ -389,7 +403,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                             style: Theme.of(context).textTheme.titleMedium!
                                 .copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.onSurface,
+                                  color: colors.onSurface,
                                 ),
                           ),
                         ),
@@ -410,7 +424,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                       title,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.onSurface,
+                        color: colors.onSurface,
                       ),
                     ),
                   ),
@@ -438,12 +452,13 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     List<Activity> activities,
     ApprovalState state,
     ApprovalController controller,
+    ColorScheme colors,
   ) {
     if (activities.isEmpty) {
       return SliverToBoxAdapter(
         child: ApprovalAnimatedPresence(
           visible: true,
-          child: _buildEmptyState(context),
+          child: _buildEmptyState(context, colors),
         ),
       );
     }
@@ -584,7 +599,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     }).toList();
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, ColorScheme colors) {
     return Material(
       color: AppColors.surfaceContainerLow,
       elevation: 0,
@@ -601,8 +616,8 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               width: 56.0,
               height: 56.0,
               decoration: BoxDecoration(
-                color: AppColors.primary,
-                border: Border.all(color: AppColors.surfaceContainerLowest),
+                color: colors.primary,
+                border: Border.all(color: colors.surfaceContainerLowest),
                 borderRadius: BorderRadius.circular(16.0),
                 boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 12),
               ),
@@ -610,7 +625,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               child: FaIcon(
                 AppIcons.approval,
                 size: 24.0,
-                color: AppColors.onPrimary,
+                color: colors.onPrimary,
               ),
             ),
             Gap.h12,
@@ -618,7 +633,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
               context.l10n.approval_emptyTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                color: AppColors.onSurface,
+                color: colors.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -626,9 +641,9 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             Text(
               context.l10n.approval_emptySubtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: colors.onSurfaceVariant),
             ),
           ],
         ),

@@ -3,7 +3,7 @@
     "short_name": "palakat_admin",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#921573",
+    "background_color": "#ffffff",
     "theme_color": "#921573",
     "description": "A new Flutter project.",
     "orientation": "portrait-primary",

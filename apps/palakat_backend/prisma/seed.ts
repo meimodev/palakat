@@ -878,12 +878,12 @@ async function seedExtraMembersForChurches(
   return extraMemberships;
 }
 
-// Extended position names to ensure we have enough for all approval rule variations
 const EXTENDED_POSITION_NAMES = [
   'Ketua Jemaat',
   'Wakil Ketua Jemaat',
   'Sekretaris',
   'Bendahara',
+  'Admin Gereja',
   'Penatua Kaum Bapa',
   'Penatua Kaum Ibu',
   'Penatua Pemuda',
@@ -2516,14 +2516,24 @@ async function main() {
     // Create approval rules with activity type and financial type filters
     await seedApprovalRules(mainChurches, financialAccounts);
 
+    const shouldSeedDocuments = process.env.SEED_DOCUMENTS === 'true';
+
     // Create files and documents BEFORE activities
     const filesByChurch = await seedFiles(mainChurches);
-    const documents = await seedDocuments(
-      mainChurches,
-      filesByChurch,
-      allMemberships,
-      financialAccounts,
-    );
+    const documents = shouldSeedDocuments
+      ? await seedDocuments(
+          mainChurches,
+          filesByChurch,
+          allMemberships,
+          financialAccounts,
+        )
+      : [];
+
+    if (!shouldSeedDocuments) {
+      console.log(
+        'ℹ️ Skipping document model seeding. Set SEED_DOCUMENTS=true to enable it.',
+      );
+    }
 
     // Create activities for main accounts (25 each) - uses automatic approver linking
     await seedMainAccountActivities(

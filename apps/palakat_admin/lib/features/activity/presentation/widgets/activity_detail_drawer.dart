@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/core/utils/download_url.dart'
+    show triggerBrowserDownload;
 import 'package:palakat_admin/features/activity/activity.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
-import 'package:palakat_admin/repositories.dart';
-import 'package:palakat_admin/widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ActivityDetailDrawer extends ConsumerStatefulWidget {
   final int activityId;
@@ -19,6 +18,24 @@ class ActivityDetailDrawer extends ConsumerStatefulWidget {
   @override
   ConsumerState<ActivityDetailDrawer> createState() =>
       _ActivityDetailDrawerState();
+}
+
+class _ActivityDocumentDownloadState {
+  final String documentName;
+  final String documentAccountNumber;
+  final ApprovalStatus approvalStatus;
+  final int? fileId;
+  final String displayLabel;
+
+  const _ActivityDocumentDownloadState({
+    required this.documentName,
+    required this.documentAccountNumber,
+    required this.approvalStatus,
+    required this.fileId,
+    required this.displayLabel,
+  });
+
+  bool get isReady => fileId != null;
 }
 
 class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
@@ -57,32 +74,23 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
     }
   }
 
-  Future<void> _openDocumentFile(int fileId) async {
+  Future<FileDownloadHandle?> _resolveFileHandle(
+    int fileId, {
+    required String filename,
+    bool forceRedownload = false,
+  }) async {
     final l10n = context.l10n;
     try {
       final fileRepo = ref.read(fileManagerRepositoryProvider);
-      final result = await fileRepo.resolveDownloadUrl(fileId: fileId);
-      
-      if (!mounted) return;
+      final result = await fileRepo.resolveCachedFile(
+        fileId: fileId,
+        filename: filename,
+        forceRedownload: forceRedownload,
+      );
 
+      FileDownloadHandle? fileHandle;
       result.when(
-        onSuccess: (url) async {
-          final uri = Uri.tryParse(url);
-          if (uri != null) {
-            AppSnackbars.showSuccess(
-              context,
-              title: l10n.msg_opening,
-              message: l10n.msg_openingReport(_activity!.document?.name ?? ''),
-            );
-            await launchUrl(uri);
-          } else {
-            AppSnackbars.showError(
-              context,
-              title: l10n.msg_invalidUrl,
-              message: l10n.msg_cannotOpenReportFile,
-            );
-          }
-        },
+        onSuccess: (value) => fileHandle = value,
         onFailure: (failure) {
           AppSnackbars.showError(
             context,
@@ -91,6 +99,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
           );
         },
       );
+      return fileHandle;
     } catch (e) {
       if (mounted) {
         AppSnackbars.showError(
@@ -99,12 +108,158 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
           message: e.toString(),
         );
       }
+      return null;
     }
+  }
+
+  Future<bool> _downloadResolvedFile(FileDownloadHandle fileHandle) async {
+    final uri = Uri.tryParse(fileHandle.uri);
+    if (uri == null) {
+      return false;
+    }
+
+    try {
+      await triggerBrowserDownload(uri, filename: fileHandle.filename);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openDocumentFile(
+    int fileId, {
+    String? openingLabel,
+  }) async {
+    final l10n = context.l10n;
+    final filename = (openingLabel?.trim().isNotEmpty ?? false)
+        ? openingLabel!.trim()
+        : (_activity?.document?.file?.originalName ??
+              _activity?.document?.file?.path?.split('/').last ??
+              _activity?.document?.name ??
+              'file_$fileId');
+
+    final fileHandle = await _resolveFileHandle(fileId, filename: filename);
+    if (fileHandle == null) {
+      return;
+    }
+
+    var downloaded = await _downloadResolvedFile(fileHandle);
+    if (!downloaded && fileHandle.fromCache) {
+      if (!mounted) {
+        return;
+      }
+      final refreshedHandle = await _resolveFileHandle(
+        fileId,
+        filename: filename,
+        forceRedownload: true,
+      );
+      if (refreshedHandle != null) {
+        downloaded = await _downloadResolvedFile(refreshedHandle);
+      }
+    }
+
+    if (!downloaded && mounted) {
+      AppSnackbars.showError(
+        context,
+        title: l10n.msg_invalidUrl,
+        message: l10n.msg_cannotOpenReportFile,
+      );
+    }
+  }
+
+  _ActivityDocumentDownloadState? _resolvePrimaryDocumentDownload(
+    Activity activity,
+  ) {
+    final document = activity.document;
+    if (activity.documentId == null && document == null) {
+      return null;
+    }
+
+    final l10n = context.l10n;
+    final approvalStatus = activity.approvers.approvalStatus;
+    final documentName =
+        (document?.certificateTitle?.trim().isNotEmpty ?? false)
+        ? document!.certificateTitle!
+        : document?.name ?? l10n.lbl_na;
+    final fileName =
+        document?.file?.originalName ??
+        (document?.file?.path?.split('/').last ?? documentName);
+
+    return _ActivityDocumentDownloadState(
+      documentName: documentName,
+      documentAccountNumber: document?.accountNumber ?? l10n.lbl_na,
+      approvalStatus: approvalStatus,
+      fileId: document?.fileId,
+      displayLabel: document?.fileId != null
+          ? fileName
+          : approvalStatus == ApprovalStatus.approved
+          ? l10n.loading_please_wait
+          : '${l10n.section_approvalStatus}: ${approvalStatus.displayLabel}',
+    );
+  }
+
+  Widget _buildPrimaryDocumentSection(
+    _ActivityDocumentDownloadState downloadState,
+  ) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+
+    return InfoSection(
+      title: l10n.nav_document,
+      children: [
+        InfoRow(
+          label: l10n.tbl_documentName,
+          value: downloadState.documentName,
+        ),
+        InfoRow(
+          label: l10n.lbl_accountNumber,
+          value: downloadState.documentAccountNumber,
+        ),
+        InfoRow(
+          label: l10n.section_approvalStatus,
+          value: downloadState.approvalStatus.displayLabel,
+        ),
+        InfoRow(
+          label: l10n.tbl_file,
+          value: '',
+          valueWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                downloadState.displayLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: downloadState.isReady
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: downloadState.isReady
+                      ? FontStyle.normal
+                      : FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: downloadState.fileId == null
+                    ? null
+                    : () => _openDocumentFile(
+                        downloadState.fileId!,
+                        openingLabel: downloadState.documentName,
+                      ),
+                icon: const Icon(Icons.download, size: 16),
+                label: Text(l10n.tooltip_downloadReport),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final primaryDocumentDownload =
+        _activity == null ? null : _resolvePrimaryDocumentDownload(_activity!);
     return SideDrawer(
       title: l10n.drawer_activityDetails_title,
       subtitle: l10n.drawer_activityDetails_subtitle,
@@ -173,6 +328,11 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                     ),
                   ],
                 ),
+
+                if (primaryDocumentDownload != null) ...[
+                  const SizedBox(height: 24),
+                  _buildPrimaryDocumentSection(primaryDocumentDownload),
+                ],
 
                 const SizedBox(height: 24),
 
@@ -273,33 +433,6 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                       ),
                     ],
                   ),
-
-                if (_activity!.documentId != null || _activity!.document != null) ...[
-                  const SizedBox(height: 24),
-                  InfoSection(
-                    title: l10n.nav_document,
-                    children: [
-                      InfoRow(
-                        label: l10n.tbl_documentName,
-                        value: _activity!.document?.name ?? l10n.lbl_na,
-                      ),
-                      InfoRow(
-                        label: 'Document ID',
-                        value: _activity!.document?.accountNumber ?? l10n.lbl_na,
-                      ),
-                      if (_activity!.document?.fileId != null)
-                        InfoRow(
-                          label: l10n.tbl_file,
-                          value: '',
-                          valueWidget: OutlinedButton.icon(
-                            onPressed: () => _openDocumentFile(_activity!.document!.fileId!),
-                            icon: const Icon(Icons.download, size: 16),
-                            label: Text(l10n.tooltip_downloadReport),
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
 
                 if (_activity!.location != null) ...[
                   const SizedBox(height: 24),

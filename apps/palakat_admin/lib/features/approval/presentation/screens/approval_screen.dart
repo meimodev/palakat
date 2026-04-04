@@ -259,11 +259,15 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           return Chip(
             label: Text(
               rule.active ? ctx.l10n.lbl_active : ctx.l10n.status_inactive,
-              style: theme.textTheme.labelSmall,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: rule.active
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.onSurface,
+              ),
             ),
             backgroundColor: rule.active
                 ? theme.colorScheme.primaryContainer
-                : theme.colorScheme.surfaceContainerHighest,
+                : theme.colorScheme.onSurfaceVariant,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             padding: const EdgeInsets.symmetric(horizontal: 8),
           );

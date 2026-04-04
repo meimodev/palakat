@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as QRCode from 'qrcode';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
-import { DocumentInput } from '../generated/prisma/client';
+import { ApprovalStatus, DocumentInput } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { renderPdfSignedDocumentBuffer } from './document-renderer';
 import { DocumentService } from './document.service';
@@ -82,6 +82,43 @@ describe('DocumentService', () => {
     jest.useRealTimers();
   });
 
+  const approvedActivity = {
+    id: 11,
+    title: 'Approved Activity',
+    date: new Date('2026-04-01T08:00:00.000Z'),
+    activityType: 'ANNOUNCEMENT',
+    createdAt: new Date('2026-04-01T08:00:00.000Z'),
+    updatedAt: new Date('2026-04-01T08:00:00.000Z'),
+    supervisor: {
+      id: 3,
+      account: {
+        id: 4,
+        name: 'Supervisor',
+        phone: '08123456789',
+        dob: new Date('1990-01-01T00:00:00.000Z'),
+      },
+    },
+    approvers: [
+      {
+        id: 1,
+        membershipId: 2,
+        activityId: 11,
+        status: ApprovalStatus.APPROVED,
+        createdAt: new Date('2026-04-01T08:00:00.000Z'),
+        updatedAt: new Date('2026-04-01T08:00:00.000Z'),
+        membership: {
+          id: 2,
+          account: {
+            id: 5,
+            name: 'Approver',
+            phone: '089999999999',
+            dob: new Date('1991-01-01T00:00:00.000Z'),
+          },
+        },
+      },
+    ],
+  };
+
   it('assigns composed outcome account numbers for newly generated outcome documents', async () => {
     const createdDocument = {
       id: 7,
@@ -154,13 +191,17 @@ describe('DocumentService', () => {
           accountNumber: 'GMIM-MANADO/2026/IV/43',
           input: DocumentInput.OUTCOME,
         }),
-        include: { church: true, file: true },
+        include: expect.objectContaining({ church: true, file: true }),
       }),
     );
     expect(mockedRenderPdfSignedDocumentBuffer).toHaveBeenCalledWith(
       expect.objectContaining({
         accountNumber: 'GMIM-MANADO/2026/IV/43',
         name: 'Surat Keterangan Jemaat',
+        subtitle: {
+          label: 'Atas Nama',
+          value: 'Surat Keterangan Jemaat',
+        },
       }),
     );
     expect(result.data.accountNumber).toBe('GMIM-MANADO/2026/IV/43');
@@ -176,6 +217,7 @@ describe('DocumentService', () => {
       verifyTokenHash: 'existing-token-hash',
       church: { id: 1 },
       file: null,
+      activity: approvedActivity,
     };
 
     const updatedDocument = {
@@ -240,6 +282,10 @@ describe('DocumentService', () => {
       expect.objectContaining({
         accountNumber: '42',
         name: 'Surat Kredensi',
+        subtitle: {
+          label: 'Keperluan',
+          value: 'pelayanan yang ditetapkan gereja',
+        },
       }),
     );
     expect(tx.document.update).toHaveBeenCalledTimes(1);
@@ -252,12 +298,62 @@ describe('DocumentService', () => {
           verifyTokenHash: expect.any(String),
           fileSha256: expect.any(String),
         }),
-        include: { church: true, file: true },
+        include: expect.objectContaining({ church: true, file: true }),
       }),
     );
     expect(
       tx.document.update.mock.calls[0][0].data.accountNumber,
     ).toBeUndefined();
     expect(result.data.accountNumber).toBe('42');
+  });
+
+  it('rejects regeneration when the existing document has no linked activity', async () => {
+    mockPrismaService.membership.findUnique.mockResolvedValue({ churchId: 1 });
+    mockPrismaService.document.findUniqueOrThrow.mockResolvedValue({
+      id: 8,
+      name: 'Surat Jemaat',
+      churchId: 1,
+      accountNumber: '43',
+      input: DocumentInput.OUTCOME,
+      verifyTokenHash: 'existing-token-hash',
+      church: { id: 1 },
+      file: null,
+      activity: null,
+    });
+    mockPrismaService.$queryRaw.mockResolvedValueOnce([]);
+
+    await expect(
+      service.generate({ id: 8, regenerate: true }, { userId: 10 }),
+    ).rejects.toThrow('Document is not linked to any activity');
+  });
+
+  it('rejects regeneration when the linked activity is not approved', async () => {
+    mockPrismaService.membership.findUnique.mockResolvedValue({ churchId: 1 });
+    mockPrismaService.document.findUniqueOrThrow.mockResolvedValue({
+      id: 9,
+      name: 'Surat Jemaat',
+      churchId: 1,
+      accountNumber: '44',
+      input: DocumentInput.OUTCOME,
+      verifyTokenHash: 'existing-token-hash',
+      church: { id: 1 },
+      file: null,
+      activity: {
+        ...approvedActivity,
+        approvers: [
+          {
+            ...approvedActivity.approvers[0],
+            status: ApprovalStatus.UNCONFIRMED,
+          },
+        ],
+      },
+    });
+    mockPrismaService.$queryRaw.mockResolvedValueOnce([]);
+
+    await expect(
+      service.generate({ id: 9, regenerate: true }, { userId: 10 }),
+    ).rejects.toThrow(
+      'Document activity must be approved before generating document',
+    );
   });
 });

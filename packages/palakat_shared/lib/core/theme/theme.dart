@@ -62,6 +62,7 @@ ThemeData buildAppTheme() {
     error: AppColors.error,
     onError: AppColors.onError,
     errorContainer: AppColors.errorContainer,
+    onErrorContainer: AppColors.onErrorContainer,
     surface: AppColors.surface,
     onSurface: AppColors.onSurface,
     surfaceTint: AppColors.primaryContainer,

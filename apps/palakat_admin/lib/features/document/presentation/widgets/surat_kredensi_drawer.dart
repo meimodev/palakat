@@ -8,7 +8,6 @@ import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/widgets.dart';
 import 'package:palakat_shared/core/theme/theme.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SuratKredensiDrawer extends ConsumerStatefulWidget {
   const SuratKredensiDrawer({super.key, required this.onClose});
@@ -48,9 +47,9 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
 
   bool _validateForm() {
     final l10n = context.l10n;
-    final memberError = _selectedMemberships.length == 1
-        ? null
-        : l10n.validation_selectionRequired;
+    final memberError = _selectedMemberships.isEmpty
+        ? l10n.validation_selectionRequired
+        : null;
     final purposeError = _purposeController.text.trim().isEmpty
         ? l10n.validation_required
         : null;
@@ -174,53 +173,154 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
     );
 
     if (selected != null) {
-      final memberError = selected.length == 1
-          ? null
-          : (_memberError != null ? l10n.validation_selectionRequired : null);
       setState(() {
         _selectedMemberships = selected;
         _errorMessage = null;
-        _memberError = memberError;
+        _memberError = selected.isEmpty
+            ? l10n.validation_selectionRequired
+            : null;
       });
     }
   }
 
-  Future<void> _generateCertificate() async {
+  String _formatEffectiveDate(DateTime value) {
+    return MaterialLocalizations.of(context).formatFullDate(value);
+  }
+
+  String _formatMemberLabel(Membership membership) {
+    final l10n = context.l10n;
+    final memberId = membership.id?.toString();
+    final accountName = membership.account?.name.trim();
+
+    if (memberId != null &&
+        memberId.isNotEmpty &&
+        accountName != null &&
+        accountName.isNotEmpty) {
+      return l10n.lbl_memberWithId(memberId, accountName);
+    }
+
+    if (accountName != null && accountName.isNotEmpty) {
+      return accountName;
+    }
+
+    return l10n.lbl_na;
+  }
+
+  String _buildActivityDescription() {
+    final l10n = context.l10n;
+    final effectiveDateRange = _effectiveDateRange;
+    final purpose = _purposeController.text.trim();
+    final startText = effectiveDateRange == null
+        ? l10n.lbl_na
+        : _formatEffectiveDate(effectiveDateRange.start);
+    final endText = effectiveDateRange == null
+        ? l10n.lbl_na
+        : _formatEffectiveDate(effectiveDateRange.end);
+    final memberLines = _selectedMemberships
+        .map((membership) => '- ${_formatMemberLabel(membership)}')
+        .join('\n');
+
+    return '$purpose\n\n'
+        '${l10n.lbl_effectiveDate}:\n'
+        '${l10n.lbl_from}: $startText\n'
+        '${l10n.lbl_to}: $endText\n\n'
+        '${l10n.nav_members}:\n'
+        '$memberLines';
+  }
+
+  Future<void> _createActivity() async {
     if (!_validateForm()) {
       return;
     }
 
-    final selectedMembership = _selectedMemberships.length == 1
+    final selectedMembership = _selectedMemberships.isNotEmpty
         ? _selectedMemberships.first
         : null;
     final l10n = context.l10n;
+    final selectedMemberName = selectedMembership?.account?.name.trim();
+    final supervisorMembershipId = ref
+        .read(authControllerProvider)
+        .value
+        ?.account
+        .membership
+        ?.id;
+
+    if (selectedMembership?.id == null) {
+      setState(() {
+        _errorMessage = l10n.err_requiredField;
+      });
+      return;
+    }
+
+    if (selectedMemberName == null ||
+        selectedMemberName.isEmpty ||
+        supervisorMembershipId == null) {
+      setState(() {
+        _errorMessage = l10n.msg_operationFailed;
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    final result = await ref
-        .read(documentRepositoryProvider)
-        .generateCertificate(
-          certificateType: CertificateType.suratKredensi,
-          input: DocumentInput.outcome,
-          membershipId: selectedMembership!.id,
-          name: selectedMembership.account?.name,
-          accountNumber: selectedMembership.account?.phone,
+    final activityTitle =
+        '${l10n.certificate_suratKredensi_title} - $selectedMemberName';
+    final activityDescription = _buildActivityDescription();
+    final activityResult = await ref
+        .read(activityRepositoryProvider)
+        .createActivity(
+          request: CreateActivityRequest(
+            supervisorId: supervisorMembershipId,
+            title: activityTitle,
+            description: activityDescription,
+            date: _effectiveDateRange!.start,
+            activityType: ActivityType.announcement,
+          ),
         );
 
-    int? fileId;
-    String? openingLabel;
+    int? linkedDocumentId;
     String? message;
-    result.when(
-      onSuccess: (payload) {
-        fileId = payload.document.fileId;
-        final certificateTitle = payload.document.certificateTitle?.trim();
-        openingLabel = certificateTitle != null && certificateTitle.isNotEmpty
-            ? certificateTitle
-            : payload.document.name;
+    activityResult.when(
+      onSuccess: (activity) {
+        linkedDocumentId = activity.document?.id ?? activity.documentId;
       },
+      onFailure: (failure) {
+        message = failure.message;
+      },
+    );
+
+    if (message != null) {
+      setState(() {
+        _errorMessage = message;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (linkedDocumentId == null) {
+      setState(() {
+        _errorMessage = l10n.msg_operationFailed;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    final documentResult = await ref
+        .read(documentRepositoryProvider)
+        .updateDocument(
+          documentId: linkedDocumentId!,
+          update: {
+            'name': selectedMemberName,
+            'certificateType': CertificateType.suratKredensi.name,
+            'certificateTitle': l10n.certificate_suratKredensi_title,
+          },
+        );
+
+    documentResult.when(
+      onSuccess: (_) {},
       onFailure: (failure) {
         message = failure.message;
       },
@@ -240,69 +340,11 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
       return;
     }
 
-    if (fileId == null) {
-      setState(() {
-        _errorMessage = l10n.msg_operationFailed;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final fileResult = await ref
-        .read(fileManagerRepositoryProvider)
-        .resolveDownloadUrl(fileId: fileId!);
-
-    if (!mounted) {
-      return;
-    }
-
-    String? resolvedUrl;
-    fileResult.when(
-      onSuccess: (url) {
-        resolvedUrl = url;
-      },
-      onFailure: (failure) {
-        message = failure.message;
-      },
-    );
-
-    if (message != null) {
-      setState(() {
-        _errorMessage = message;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final uri = Uri.tryParse(resolvedUrl ?? '');
-    if (uri == null) {
-      setState(() {
-        _errorMessage = l10n.msg_invalidUrl;
-        _isLoading = false;
-      });
-      return;
-    }
-
     AppSnackbars.showSuccess(
       context,
-      title: l10n.msg_opening,
-      message: l10n.msg_openingReport(
-        openingLabel ?? l10n.certificate_suratKredensi_title,
-      ),
+      title: l10n.msg_created,
+      message: l10n.certificate_suratKredensi_title,
     );
-    final launched = await launchUrl(uri);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (!launched) {
-      setState(() {
-        _errorMessage = l10n.msg_cannotOpenReportFile;
-        _isLoading = false;
-      });
-      return;
-    }
 
     setState(() {
       _isLoading = false;
@@ -416,11 +458,9 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
                                     .toList();
                                 setState(() {
                                   _selectedMemberships = updatedMemberships;
-                                  _memberError = updatedMemberships.length == 1
-                                      ? null
-                                      : (_memberError != null
-                                            ? l10n.validation_selectionRequired
-                                            : null);
+                                  _memberError = updatedMemberships.isEmpty
+                                      ? l10n.validation_selectionRequired
+                                      : null;
                                 });
                               },
                         tooltip: phone != null && phone.isNotEmpty
@@ -507,9 +547,9 @@ class _SuratKredensiDrawerState extends ConsumerState<SuratKredensiDrawer> {
       footer: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: _isLoading ? null : _generateCertificate,
-          icon: const Icon(Icons.picture_as_pdf_outlined),
-          label: Text(l10n.btn_generateCertificate),
+          onPressed: _isLoading ? null : _createActivity,
+          icon: const Icon(Icons.add_task_outlined),
+          label: Text(l10n.btn_create),
         ),
       ),
     );
@@ -825,6 +865,111 @@ class _MultiMembershipPickerDialogState<T>
     });
   }
 
+  Widget _buildEmptyState() {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    final action = _isAsyncMode && _asyncErrorMessage != null
+        ? Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: TextButton(
+              onPressed: () => _fetchAsyncPage(reset: true),
+              child: Text(l10n.btn_retry),
+            ),
+          )
+        : null;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.search_off,
+                  size: 22,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              Gap.h16,
+              Text(
+                _asyncErrorMessage ??
+                    widget.emptyStateMessage ??
+                    l10n.err_noData,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (action != null) action,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAsyncFooter() {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    if (_isLoadingMore) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: AppLoadingWidget(size: 22),
+      );
+    }
+
+    if (_asyncErrorMessage != null && _visibleItems.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          children: [
+            Text(
+              _asyncErrorMessage!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap.h8,
+            TextButton(
+              onPressed: () => _fetchAsyncPage(reset: false),
+              child: Text(l10n.btn_retry),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!_hasMore) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: TextButton(
+        onPressed: () => _fetchAsyncPage(reset: false),
+        child: Text(l10n.pagination_next),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1039,111 +1184,6 @@ class _MultiMembershipPickerDialogState<T>
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-
-    final action = _isAsyncMode && _asyncErrorMessage != null
-        ? Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: TextButton(
-              onPressed: () => _fetchAsyncPage(reset: true),
-              child: Text(l10n.btn_retry),
-            ),
-          )
-        : null;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.search_off,
-                  size: 22,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              Gap.h16,
-              Text(
-                _asyncErrorMessage ??
-                    widget.emptyStateMessage ??
-                    l10n.err_noData,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: AppColors.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              if (action != null) action,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAsyncFooter() {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-
-    if (_isLoadingMore) {
-      return const Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: AppLoadingWidget(size: 22),
-      );
-    }
-
-    if (_asyncErrorMessage != null && _visibleItems.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          children: [
-            Text(
-              _asyncErrorMessage!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Gap.h8,
-            TextButton(
-              onPressed: () => _fetchAsyncPage(reset: false),
-              child: Text(l10n.btn_retry),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (!_hasMore) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: TextButton(
-        onPressed: () => _fetchAsyncPage(reset: false),
-        child: Text(l10n.pagination_next),
       ),
     );
   }

@@ -11,6 +11,7 @@ import { ApproverService } from './approver.service';
 import { PrismaService } from '../prisma.service';
 import { NotificationService } from '../notification/notification.service';
 import { ApprovalStatus } from '../generated/prisma/client';
+import { DocumentService } from '../document/document.service';
 
 describe('ApproverService', () => {
   let service: ApproverService;
@@ -63,11 +64,16 @@ describe('ApproverService', () => {
     notifyApprovalStatusChanged: jest.fn(),
   };
 
+  const mockDocumentService = {
+    generate: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ApproverService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: DocumentService, useValue: mockDocumentService },
         { provide: NotificationService, useValue: mockNotificationService },
       ],
     }).compile();
@@ -264,6 +270,66 @@ describe('ApproverService', () => {
         data: { status: 'APPROVED' },
         include: expect.any(Object),
       });
+    });
+
+    it('should auto-generate certificate on final approval for supported types', async () => {
+      mockPrismaService.approver.update.mockResolvedValue({
+        ...updatedApprover,
+        activity: {
+          ...mockApprover.activity,
+          approvers: [
+            { id: 1, membershipId: 1, status: 'APPROVED' as ApprovalStatus },
+            { id: 2, membershipId: 2, status: 'APPROVED' as ApprovalStatus },
+          ],
+          document: {
+            id: 22,
+            certificateType: 'suratKeteranganJemaat',
+            fileId: null,
+            verifyTokenHash: null,
+          },
+        },
+      });
+      mockDocumentService.generate.mockResolvedValue({
+        message: 'Document generated',
+        data: {},
+      });
+
+      await service.update(1, {
+        status: 'APPROVED' as ApprovalStatus,
+      });
+
+      expect(mockDocumentService.generate).toHaveBeenCalledWith(
+        {
+          id: 22,
+          regenerate: false,
+        },
+        { userId: 1 },
+      );
+    });
+
+    it('should not auto-generate certificate before final approval', async () => {
+      mockPrismaService.approver.update.mockResolvedValue({
+        ...updatedApprover,
+        activity: {
+          ...mockApprover.activity,
+          approvers: [
+            { id: 1, membershipId: 1, status: 'APPROVED' as ApprovalStatus },
+            { id: 2, membershipId: 2, status: 'UNCONFIRMED' as ApprovalStatus },
+          ],
+          document: {
+            id: 22,
+            certificateType: 'suratKredensi',
+            fileId: null,
+            verifyTokenHash: null,
+          },
+        },
+      });
+
+      await service.update(1, {
+        status: 'APPROVED' as ApprovalStatus,
+      });
+
+      expect(mockDocumentService.generate).not.toHaveBeenCalled();
     });
 
     it('should throw when approver not found', async () => {

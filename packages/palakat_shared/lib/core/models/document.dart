@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/church.dart';
 import 'package:palakat_shared/core/models/file_manager.dart';
 
@@ -20,6 +21,8 @@ abstract class Document with _$Document {
     DateTime? updatedAt,
     required int churchId,
     Church? church,
+    int? activityId,
+    @JsonKey(includeToJson: false) Activity? activity,
     int? fileId,
     FileManager? file,
   }) = _Document;

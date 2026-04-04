@@ -5,6 +5,8 @@ import 'package:palakat_admin/features/document/presentation/widgets/surat_keter
 import 'package:palakat_admin/features/document/presentation/widgets/surat_kredensi_drawer.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_controller.dart';
 import 'package:palakat_admin/features/document/presentation/state/document_screen_state.dart';
+import 'package:palakat_admin/core/utils/download_url.dart'
+    show triggerBrowserDownload;
 import 'package:palakat_admin/extensions.dart';
 import 'package:palakat_admin/models.dart' hide Column;
 import 'package:palakat_admin/repositories.dart';
@@ -226,6 +228,29 @@ class DocumentScreen extends ConsumerWidget {
         },
       ),
       AppTableColumn<Document>(
+        title: l10n.tbl_approval,
+        flex: 2,
+        cellBuilder: (ctx, document) {
+          final activity = document.activity;
+          if (activity == null) {
+            final theme = Theme.of(ctx);
+            return Text(
+              ctx.l10n.noData_activityLink,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            );
+          }
+
+          return CompactStatusChip.forApproval(
+            ctx,
+            activity.approvers.approvalStatus,
+          );
+        },
+      ),
+      AppTableColumn<Document>(
         title: l10n.tbl_file,
         flex: 2,
         cellBuilder: (ctx, document) {
@@ -254,12 +279,24 @@ class DocumentScreen extends ConsumerWidget {
           final theme = Theme.of(ctx);
           final l10n = ctx.l10n;
           final fileId = document.fileId;
+          final activity = document.activity;
+          final approvalStatus = activity?.approvers.approvalStatus;
+          final generationBlockedMessage = switch (approvalStatus) {
+            null => l10n.noData_activityLink,
+            ApprovalStatus.approved => null,
+            _ =>
+              '${l10n.section_approvalStatus}: ${approvalStatus.displayLabel}',
+          };
           final openingLabel =
               (document.certificateTitle?.trim().isNotEmpty ?? false)
               ? document.certificateTitle!
               : document.name;
 
-          Future<void> openFile(int id) async {
+          Future<void> openFile(
+            int id, {
+            bool asDownload = false,
+            String? filename,
+          }) async {
             final fileRepo = ref.read(fileManagerRepositoryProvider);
             final result = await fileRepo.resolveDownloadUrl(fileId: id);
             if (!ctx.mounted) return;
@@ -295,13 +332,26 @@ class DocumentScreen extends ConsumerWidget {
               message: l10n.msg_openingReport(openingLabel),
             );
             try {
-              await launchUrl(uri);
+              if (asDownload) {
+                await triggerBrowserDownload(uri, filename: filename);
+              } else {
+                await launchUrl(uri);
+              }
             } catch (_) {}
           }
 
           Future<void> generateSigned() async {
             final docId = document.id;
             if (docId == null) return;
+
+            if (generationBlockedMessage != null) {
+              AppSnackbars.showError(
+                ctx,
+                title: l10n.msg_generateReportFailed,
+                message: generationBlockedMessage,
+              );
+              return;
+            }
 
             final docRepo = ref.read(documentRepositoryProvider);
             final res = await docRepo.generateSignedDocument(
@@ -338,14 +388,23 @@ class DocumentScreen extends ConsumerWidget {
                 onPressed: () async {
                   await generateSigned();
                 },
-                icon: const Icon(Icons.qr_code),
-                color: theme.colorScheme.primary,
-                tooltip: l10n.btn_generateReport,
+                icon: const Icon(Icons.auto_awesome),
+                color: generationBlockedMessage == null
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant,
+                tooltip: l10n.btn_generateCertificate,
               ),
               if (fileId != null)
                 IconButton(
                   onPressed: () async {
-                    await openFile(fileId);
+                    final fileName =
+                        document.file?.originalName ??
+                        document.file?.path?.split('/').last;
+                    await openFile(
+                      fileId,
+                      asDownload: true,
+                      filename: fileName,
+                    );
                   },
                   icon: const Icon(Icons.download),
                   color: theme.colorScheme.primary,

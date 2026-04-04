@@ -411,11 +411,19 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (
-      account.role !== AccountRole.ADMIN &&
-      account.role !== AccountRole.SUPER_ADMIN
-    ) {
-      throw new ForbiddenException('Admin account required');
+    const allowedPositionNames = ['Ketua Jemaat', 'Admin Gereja'];
+    const isAdminRole =
+      account.role === AccountRole.ADMIN ||
+      account.role === AccountRole.SUPER_ADMIN;
+    const hasAdminPosition = account.membership?.membershipPositions?.some(
+      (position: { name: string }) =>
+        allowedPositionNames.includes(position.name),
+    );
+
+    if (!isAdminRole && !hasAdminPosition) {
+      throw new ForbiddenException(
+        'Admin account or authorized position required',
+      );
     }
 
     if (!account.isActive) {

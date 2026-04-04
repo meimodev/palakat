@@ -11,7 +11,7 @@ abstract class Column with _$Column {
     required String name,
     DateTime? createdAt,
     DateTime? updatedAt,
-    required int churchId,
+    int? churchId,
   }) = _Column;
 
   factory Column.fromJson(Map<String, dynamic> json) => _$ColumnFromJson(json);
