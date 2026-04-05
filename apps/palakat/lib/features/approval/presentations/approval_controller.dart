@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:palakat/features/approval/presentations/approval_state.dart';
+import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:palakat/features/approval/presentations/approval_state.dart';
 
 part 'approval_controller.g.dart';
 
@@ -15,8 +17,19 @@ class ApprovalController extends _$ApprovalController {
 
   @override
   ApprovalState build() {
-    fetchData();
-    return const ApprovalState();
+    final initialState = _createInitialState();
+    Future.microtask(fetchData);
+    return initialState;
+  }
+
+  ApprovalState _createInitialState() {
+    final dateRange = _resolveDateRange(DateRangePreset.thisWeek);
+    return ApprovalState(
+      statusFilter: ApprovalFilterStatus.pendingMyAction,
+      datePreset: DateRangePreset.thisWeek,
+      filterStartDate: dateRange?.start,
+      filterEndDate: dateRange?.end,
+    );
   }
 
   void fetchData() async {
@@ -28,10 +41,7 @@ class ApprovalController extends _$ApprovalController {
     final result = await _authRepository.getSignedInAccount();
     result.when(
       onSuccess: (account) {
-        state = state.copyWith(
-          membership: account?.membership,
-          loadingScreen: false,
-        );
+        state = state.copyWith(membership: account?.membership);
       },
       onFailure: (failure) {
         state = state.copyWith(
@@ -46,7 +56,10 @@ class ApprovalController extends _$ApprovalController {
   /// [isLoadMore] - if true, appends to existing list; if false, replaces list
   Future<void> fetchActivities({bool isLoadMore = false}) async {
     final membership = state.membership;
-    if (membership == null) return;
+    if (membership == null) {
+      state = state.copyWith(loadingScreen: false);
+      return;
+    }
 
     // Don't fetch if already loading more or no more data
     if (isLoadMore && (state.isLoadingMore || !state.hasMoreData)) return;
@@ -60,7 +73,11 @@ class ApprovalController extends _$ApprovalController {
     final request = PaginationRequestWrapper<GetFetchActivitiesRequest>(
       page: page,
       pageSize: state.pageSize,
-      data: GetFetchActivitiesRequest(membershipId: membership.id),
+      data: GetFetchActivitiesRequest(
+        membershipId: membership.id,
+        startDate: state.filterStartDate,
+        endDate: state.filterEndDate,
+      ),
     );
 
     final result = await _activityRepository.fetchActivities(
@@ -69,7 +86,6 @@ class ApprovalController extends _$ApprovalController {
 
     result.when(
       onSuccess: (response) {
-        final previousStatusFilter = state.statusFilter;
         final newActivities = response.data;
         final total = response.pagination.total;
 
@@ -92,21 +108,9 @@ class ApprovalController extends _$ApprovalController {
           currentPage: page,
           totalItems: total,
           hasMoreData: hasMore,
+          errorMessage: null,
         );
         _groupActivitiesByStatus();
-        if (!isLoadMore) {
-          final hasPendingMyAction = state.pendingMyAction.isNotEmpty;
-          ApprovalFilterStatus nextStatusFilter = previousStatusFilter;
-
-          if (previousStatusFilter == ApprovalFilterStatus.pendingMyAction &&
-              !hasPendingMyAction) {
-            nextStatusFilter = ApprovalFilterStatus.all;
-          }
-
-          if (nextStatusFilter != previousStatusFilter) {
-            state = state.copyWith(statusFilter: nextStatusFilter);
-          }
-        }
         _applyFilters();
       },
       onFailure: (failure) {
@@ -205,15 +209,36 @@ class ApprovalController extends _$ApprovalController {
     return _ActivityUserStatus.pendingOthers;
   }
 
-  // Date filter controls
-  void setDateRange({DateTime? start, DateTime? end}) {
-    state = state.copyWith(filterStartDate: start, filterEndDate: end);
-    _applyFilters();
-  }
+  Future<void> applyFilters({
+    required ApprovalFilterStatus statusFilter,
+    required DateRangePreset datePreset,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final normalizedStart = startDate == null ? null : _atStartOfDay(startDate);
+    final normalizedEnd = endDate == null ? null : _atEndOfDay(endDate);
+    final dateChanged =
+        state.datePreset != datePreset ||
+        !_isSameDateTime(state.filterStartDate, normalizedStart) ||
+        !_isSameDateTime(state.filterEndDate, normalizedEnd);
 
-  void clearDateFilter() {
-    state = state.copyWith(filterStartDate: null, filterEndDate: null);
+    state = state.copyWith(
+      statusFilter: statusFilter,
+      datePreset: datePreset,
+      filterStartDate: normalizedStart,
+      filterEndDate: normalizedEnd,
+      currentPage: dateChanged ? 1 : state.currentPage,
+      hasMoreData: dateChanged ? true : state.hasMoreData,
+      isLoadingMore: false,
+    );
     _applyFilters();
+
+    if (!dateChanged) {
+      return;
+    }
+
+    state = state.copyWith(loadingScreen: true);
+    await fetchActivities(isLoadMore: false);
   }
 
   /// Set the status filter and update the filtered list
@@ -234,8 +259,6 @@ class ApprovalController extends _$ApprovalController {
   }
 
   void _applyFilters() {
-    final start = state.filterStartDate;
-    final end = state.filterEndDate;
     final statusFilter = state.statusFilter;
 
     // Get the base list based on status filter
@@ -264,24 +287,17 @@ class ApprovalController extends _$ApprovalController {
         break;
     }
 
-    // Apply date filter if set
-    if (start == null && end == null) {
-      state = state.copyWith(filteredApprovals: baseList);
-      return;
-    }
+    state = state.copyWith(filteredApprovals: baseList);
+  }
 
-    bool inRange(DateTime d) {
-      final sOk = start == null || !d.isBefore(_atStartOfDay(start));
-      final eOk = end == null || !d.isAfter(_atEndOfDay(end));
-      return sOk && eOk;
-    }
+  DateTimeRange? _resolveDateRange(DateRangePreset preset) {
+    return preset.getDateRange();
+  }
 
-    final filtered = baseList.where((a) {
-      final activityDate = a.createdAt;
-      return inRange(activityDate);
-    }).toList();
-
-    state = state.copyWith(filteredApprovals: filtered);
+  bool _isSameDateTime(DateTime? first, DateTime? second) {
+    if (first == null && second == null) return true;
+    if (first == null || second == null) return false;
+    return first.isAtSameMomentAs(second);
   }
 
   DateTime _atStartOfDay(DateTime d) => DateTime(d.year, d.month, d.day);

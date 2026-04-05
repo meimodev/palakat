@@ -303,13 +303,37 @@
   "@approval_filterAll": {
     "description": "Filter label for showing all approvals"
   },
-  "approval_filterMyAction": "Ke Saya",
+  "approval_filterMyAction": "Tindakan Saya",
   "@approval_filterMyAction": {
     "description": "Filter label for approvals requiring my action"
+  },
+  "approval_filterPendingOthers": "Menunggu Lainnya",
+  "@approval_filterPendingOthers": {
+    "description": "Filter label for approvals pending other approvers"
   },
   "approval_filterByDate": "Filter berdasarkan tanggal",
   "@approval_filterByDate": {
     "description": "Label for date filter in approval screen"
+  },
+  "approval_filterSheetTitle": "Filter Persetujuan",
+  "@approval_filterSheetTitle": {
+    "description": "Title for the approval filter bottom sheet"
+  },
+  "approval_filterSectionStatus": "Status",
+  "@approval_filterSectionStatus": {
+    "description": "Section label for approval status filters"
+  },
+  "approval_filterSectionDate": "Tanggal",
+  "@approval_filterSectionDate": {
+    "description": "Section label for approval date filters"
+  },
+  "approval_filterReset": "Reset",
+  "@approval_filterReset": {
+    "description": "Reset action label for the approval filter bottom sheet"
+  },
+  "approval_filterApply": "Terapkan",
+  "@approval_filterApply": {
+    "description": "Apply action label for the approval filter bottom sheet"
   },
   "approval_noMoreApprovals": "Tidak ada persetujuan lagi",
   "@approval_noMoreApprovals": {
@@ -319,7 +343,7 @@
   "@approval_sectionPendingYourAction": {
     "description": "Section header for approvals pending current user's action"
   },
-  "approval_sectionPendingOthers": "Ke Lainnya",
+  "approval_sectionPendingOthers": "Menunggu Lainnya",
   "@approval_sectionPendingOthers": {
     "description": "Section header for approvals pending others"
   },
@@ -347,6 +371,14 @@
   "approval_emptySubtitle": "Coba sesuaikan filter Anda",
   "@approval_emptySubtitle": {
     "description": "Empty state subtitle for approval screen"
+  },
+  "approval_tryAllSuggestionMessage": "Tidak ada persetujuan untuk Tindakan Saya dalam rentang ini. Coba lihat Semua.",
+  "@approval_tryAllSuggestionMessage": {
+    "description": "Info box message suggesting switching to all approvals when the default my-action filter is empty"
+  },
+  "approval_tryAllSuggestionAction": "Coba Semua",
+  "@approval_tryAllSuggestionAction": {
+    "description": "Action label for switching the approval filter to all"
   },
   "approval_errorTitle": "Gagal memuat persetujuan",
   "@approval_errorTitle": {

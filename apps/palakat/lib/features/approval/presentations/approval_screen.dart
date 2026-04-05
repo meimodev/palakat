@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/approval/presentations/approval_controller.dart';
@@ -9,8 +10,8 @@ import 'package:palakat/features/approval/presentations/approval_motion_widget.d
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
-import 'package:palakat/features/approval/presentations/widgets/status_filter_chips.dart';
-import 'package:palakat/core/constants/constants.dart';
+import 'package:palakat/features/approval/presentations/widgets/approval_filter_bottom_sheet.dart';
+import 'package:palakat_shared/core/widgets/info_box/info_box_with_action_widget.dart';
 import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 
@@ -24,7 +25,6 @@ class ApprovalScreen extends ConsumerStatefulWidget {
 class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   // Track which activity is currently being processed
   int? _processingActivityId;
-  bool _isDateFilterExpanded = false;
 
   // Scroll controller for infinite scrolling
   late ScrollController _scrollController;
@@ -56,9 +56,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final controller = ref.read(approvalControllerProvider.notifier);
     final state = ref.watch(approvalControllerProvider);
     final l10n = context.l10n;
-    final hasActiveDateFilter =
-        state.filterStartDate != null || state.filterEndDate != null;
-    final showDateFilter = _isDateFilterExpanded || hasActiveDateFilter;
     final colors = Theme.of(context).colorScheme;
 
     return ScaffoldWidget(
@@ -82,66 +79,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   Gap.h16,
                   ApprovalReveal(
                     delay: const Duration(milliseconds: 80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: StatusFilterChips(
-                                selectedFilter: state.statusFilter,
-                                onFilterChanged: (filter) {
-                                  controller.setStatusFilter(filter);
-                                },
-                                pendingMyActionCount:
-                                    state.pendingMyAction.length,
-                                pendingOthersCount: state.pendingOthers.length,
-                                approvedCount: state.approved.length,
-                                rejectedCount: state.rejected.length,
-                              ),
-                            ),
-                            Gap.w8,
-                            _buildDateFilterChip(
-                              context: context,
-                              hasActiveDateFilter: hasActiveDateFilter,
-                              onTap: () {
-                                setState(() {
-                                  _isDateFilterExpanded =
-                                      !_isDateFilterExpanded;
-                                });
-                              },
-                              onClear: () {
-                                controller.clearDateFilter();
-                                setState(() {
-                                  _isDateFilterExpanded = false;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        ApprovalAnimatedPresence(
-                          visible: showDateFilter,
-                          child: Column(
-                            children: [
-                              Gap.h12,
-                              DateRangePresetInput(
-                                label: l10n.approval_filterByDate,
-                                start: state.filterStartDate,
-                                end: state.filterEndDate,
-                                onChanged: (s, e) {
-                                  if (s == null && e == null) {
-                                    controller.clearDateFilter();
-                                  } else {
-                                    controller.setDateRange(start: s, end: e);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: _buildFilterToolbar(context, state, controller),
                   ),
                   Gap.h16,
                 ],
@@ -178,6 +116,63 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterToolbar(
+    BuildContext context,
+    ApprovalState state,
+    ApprovalController controller,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+    final summary = _buildFilterSummary(context, state);
+
+    return Row(
+      children: [
+        _CombinedFilterButton(
+          activeFilterCount: state.activeFilterCount,
+          hasActiveFilters: state.hasActiveFilters,
+          onTap: () async {
+            final result = await showApprovalFilterBottomSheet(
+              context: context,
+              initialStatus: state.statusFilter,
+              initialDatePreset: state.datePreset,
+              initialStartDate: state.filterStartDate,
+              initialEndDate: state.filterEndDate,
+            );
+            if (result == null || !mounted) return;
+            await controller.applyFilters(
+              statusFilter: result.statusFilter,
+              datePreset: result.datePreset,
+              startDate: result.startDate,
+              endDate: result.endDate,
+            );
+          },
+        ),
+        Gap.w12,
+        Expanded(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16.0),
+              border: Border.all(color: AppColors.outlineVariant),
+              boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
+            ),
+            child: Text(
+              summary,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: state.hasActiveFilters
+                    ? colors.onSurface
+                    : colors.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -310,7 +305,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       return SliverToBoxAdapter(
         child: ApprovalAnimatedPresence(
           visible: true,
-          child: _buildEmptyState(context, colors),
+          child: _buildEmptyContent(context, state, controller, colors),
         ),
       );
     }
@@ -328,17 +323,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     required IconData icon,
     required Color color,
   }) {
-    // Apply date filter to section activities
-    final filteredActivities = _applyDateFilter(
-      activities,
-      state.filterStartDate,
-      state.filterEndDate,
-    );
-
-    if (filteredActivities.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     return Padding(
       padding: EdgeInsets.only(bottom: 12.0),
       child: Column(
@@ -359,7 +343,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                 ),
               ),
               Text(
-                '(${filteredActivities.length})',
+                '(${activities.length})',
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: colors.onSurfaceVariant,
@@ -369,7 +353,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           ),
           Gap.h8,
           // Activity cards
-          ...filteredActivities.map(
+          ...activities.map(
             (activity) => Padding(
               padding: EdgeInsets.only(bottom: 20.0),
               child: _buildActivityCard(context, activity, state, controller),
@@ -391,7 +375,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       return SliverToBoxAdapter(
         child: ApprovalAnimatedPresence(
           visible: true,
-          child: _buildEmptyState(context, colors),
+          child: _buildEmptyContent(context, state, controller, colors),
         ),
       );
     }
@@ -511,25 +495,32 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     return null;
   }
 
-  List<Activity> _applyDateFilter(
-    List<Activity> activities,
-    DateTime? start,
-    DateTime? end,
+  Widget _buildEmptyContent(
+    BuildContext context,
+    ApprovalState state,
+    ApprovalController controller,
+    ColorScheme colors,
   ) {
-    if (start == null && end == null) return activities;
+    final shouldSuggestAll =
+        state.statusFilter == ApprovalFilterStatus.pendingMyAction &&
+        state.filteredApprovals.isEmpty;
 
-    return activities.where((a) {
-      final activityDate = a.createdAt;
-      final sOk =
-          start == null ||
-          !activityDate.isBefore(DateTime(start.year, start.month, start.day));
-      final eOk =
-          end == null ||
-          !activityDate.isAfter(
-            DateTime(end.year, end.month, end.day, 23, 59, 59, 999),
-          );
-      return sOk && eOk;
-    }).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (shouldSuggestAll) ...[
+          InfoBoxWithActionWidget(
+            message: context.l10n.approval_tryAllSuggestionMessage,
+            actionText: context.l10n.approval_tryAllSuggestionAction,
+            onActionPressed: () {
+              controller.setStatusFilter(ApprovalFilterStatus.all);
+            },
+          ),
+          Gap.h12,
+        ],
+        _buildEmptyState(context, colors),
+      ],
+    );
   }
 
   Widget _buildEmptyState(BuildContext context, ColorScheme colors) {
@@ -538,7 +529,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: AppColors.neutral, width: 1),
+        side: BorderSide(color: AppColors.outlineVariant, width: 1),
       ),
       child: Padding(
         padding: EdgeInsets.all(24.0),
@@ -596,63 +587,101 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     );
   }
 
-  Widget _buildDateFilterChip({
-    required BuildContext context,
-    required bool hasActiveDateFilter,
-    required VoidCallback onTap,
-    required VoidCallback onClear,
-  }) {
+  String _buildFilterSummary(BuildContext context, ApprovalState state) {
+    return '${_statusLabel(context, state.statusFilter)} • ${state.datePreset.displayName}';
+  }
+
+  String _statusLabel(BuildContext context, ApprovalFilterStatus status) {
+    switch (status) {
+      case ApprovalFilterStatus.all:
+        return context.l10n.approval_filterAll;
+      case ApprovalFilterStatus.pendingMyAction:
+        return context.l10n.approval_filterMyAction;
+      case ApprovalFilterStatus.pendingOthers:
+        return context.l10n.approval_filterPendingOthers;
+      case ApprovalFilterStatus.approved:
+        return context.l10n.status_approved;
+      case ApprovalFilterStatus.rejected:
+        return context.l10n.status_rejected;
+    }
+  }
+}
+
+class _CombinedFilterButton extends StatelessWidget {
+  const _CombinedFilterButton({
+    required this.activeFilterCount,
+    required this.hasActiveFilters,
+    required this.onTap,
+  });
+
+  final int activeFilterCount;
+  final bool hasActiveFilters;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     return Material(
-      color: hasActiveDateFilter
+      color: hasActiveFilters
           ? colors.primary
-          : AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(20.0),
+          : AppColors.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(16.0),
       child: InkWell(
+        borderRadius: BorderRadius.circular(16.0),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20.0),
-        child: SizedBox(
-          width: 44.0,
-          height: 44.0,
+        child: Container(
+          width: 56.0,
+          height: 56.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: hasActiveFilters
+                  ? colors.primary.withValues(alpha: 0.32)
+                  : AppColors.outlineVariant,
+            ),
+            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
+          ),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               Center(
                 child: Icon(
-                  Icons.calendar_today,
-                  size: 18.0,
-                  color: hasActiveDateFilter
-                      ? colors.onPrimary
-                      : colors.primary,
+                  AppIcons.filterList,
+                  size: 20.0,
+                  color: hasActiveFilters ? colors.onPrimary : colors.primary,
                 ),
               ),
-              if (hasActiveDateFilter)
-                Positioned(
-                  right: 2.0,
-                  top: 2.0,
-                  child: GestureDetector(
-                    onTap: onClear,
-                    child: Container(
-                      width: 16.0,
-                      height: 16.0,
-                      decoration: BoxDecoration(
-                        color: hasActiveDateFilter
-                            ? colors.onPrimary
-                            : colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.close,
-                        size: 10.0,
-                        color: hasActiveDateFilter
-                            ? colors.primary
-                            : colors.onPrimary,
-                      ),
+              Positioned(
+                right: -4.0,
+                top: -4.0,
+                child: Container(
+                  constraints: BoxConstraints(minWidth: 22.0, minHeight: 22.0),
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                  decoration: BoxDecoration(
+                    color: hasActiveFilters
+                        ? colors.onPrimary
+                        : AppColors.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(999.0),
+                    border: Border.all(
+                      color: hasActiveFilters
+                          ? colors.primary.withValues(alpha: 0.18)
+                          : AppColors.outlineVariant,
+                    ),
+                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$activeFilterCount',
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      color: hasActiveFilters
+                          ? colors.primary
+                          : colors.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
+              ),
             ],
           ),
         ),

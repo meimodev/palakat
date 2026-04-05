@@ -1022,11 +1022,47 @@ abstract class AppLocalizations {
   /// **'My Action'**
   String get approval_filterMyAction;
 
+  /// No description provided for @approval_filterPendingOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Others'**
+  String get approval_filterPendingOthers;
+
   /// No description provided for @approval_filterByDate.
   ///
   /// In en, this message translates to:
   /// **'Filter by date'**
   String get approval_filterByDate;
+
+  /// No description provided for @approval_filterSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Filters'**
+  String get approval_filterSheetTitle;
+
+  /// No description provided for @approval_filterSectionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get approval_filterSectionStatus;
+
+  /// No description provided for @approval_filterSectionDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get approval_filterSectionDate;
+
+  /// No description provided for @approval_filterReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get approval_filterReset;
+
+  /// No description provided for @approval_filterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get approval_filterApply;
 
   /// No description provided for @approval_noMoreApprovals.
   ///
@@ -1075,6 +1111,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try adjusting your filters'**
   String get approval_emptySubtitle;
+
+  /// No description provided for @approval_tryAllSuggestionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No approvals need your action in this range. Try viewing All instead.'**
+  String get approval_tryAllSuggestionMessage;
+
+  /// No description provided for @approval_tryAllSuggestionAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try All'**
+  String get approval_tryAllSuggestionAction;
 
   /// No description provided for @approval_errorTitle.
   ///

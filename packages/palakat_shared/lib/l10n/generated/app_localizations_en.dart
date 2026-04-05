@@ -535,7 +535,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approval_filterMyAction => 'My Action';
 
   @override
+  String get approval_filterPendingOthers => 'Pending Others';
+
+  @override
   String get approval_filterByDate => 'Filter by date';
+
+  @override
+  String get approval_filterSheetTitle => 'Approval Filters';
+
+  @override
+  String get approval_filterSectionStatus => 'Status';
+
+  @override
+  String get approval_filterSectionDate => 'Date';
+
+  @override
+  String get approval_filterReset => 'Reset';
+
+  @override
+  String get approval_filterApply => 'Apply';
 
   @override
   String get approval_noMoreApprovals => 'No more approvals';
@@ -569,6 +587,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get approval_emptySubtitle => 'Try adjusting your filters';
+
+  @override
+  String get approval_tryAllSuggestionMessage =>
+      'No approvals need your action in this range. Try viewing All instead.';
+
+  @override
+  String get approval_tryAllSuggestionAction => 'Try All';
 
   @override
   String get approval_errorTitle => 'Could not load approvals';

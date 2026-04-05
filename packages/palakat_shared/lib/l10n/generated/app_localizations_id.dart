@@ -538,7 +538,25 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_filterMyAction => 'Tindakan Saya';
 
   @override
+  String get approval_filterPendingOthers => 'Menunggu Lainnya';
+
+  @override
   String get approval_filterByDate => 'Filter berdasarkan tanggal';
+
+  @override
+  String get approval_filterSheetTitle => 'Filter Persetujuan';
+
+  @override
+  String get approval_filterSectionStatus => 'Status';
+
+  @override
+  String get approval_filterSectionDate => 'Tanggal';
+
+  @override
+  String get approval_filterReset => 'Reset';
+
+  @override
+  String get approval_filterApply => 'Terapkan';
 
   @override
   String get approval_noMoreApprovals => 'Tidak ada persetujuan lagi';
@@ -547,7 +565,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_sectionPendingYourAction => 'Menunggu Tindakan Anda';
 
   @override
-  String get approval_sectionPendingOthers => 'Menunggu Tindakan Lain';
+  String get approval_sectionPendingOthers => 'Menunggu Lainnya';
 
   @override
   String get approval_allCaughtUpTitle => 'Semua selesai!';
@@ -572,6 +590,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get approval_emptySubtitle => 'Coba sesuaikan filter Anda';
+
+  @override
+  String get approval_tryAllSuggestionMessage =>
+      'Tidak ada persetujuan untuk Tindakan Saya dalam rentang ini. Coba lihat Semua.';
+
+  @override
+  String get approval_tryAllSuggestionAction => 'Coba Semua';
 
   @override
   String get approval_errorTitle => 'Gagal memuat persetujuan';
