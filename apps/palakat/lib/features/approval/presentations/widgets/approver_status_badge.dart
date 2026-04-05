@@ -17,6 +17,7 @@ class ApproverStatusBadge extends StatelessWidget {
     required this.status,
     this.iconSize,
     this.showLabel = true,
+    this.colorOverride,
   });
 
   /// The approval status to display
@@ -27,6 +28,8 @@ class ApproverStatusBadge extends StatelessWidget {
 
   /// Whether to show the status label text. Defaults to true.
   final bool showLabel;
+
+  final Color? colorOverride;
 
   /// Returns the appropriate icon for the given approval status.
   ///
@@ -89,7 +92,7 @@ class ApproverStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = getStatusColor(status);
+    final color = colorOverride ?? getStatusColor(status);
     final icon = getStatusIcon(status);
     final label = getStatusLabelLocalized(context, status);
     final size = iconSize ?? 22.0;

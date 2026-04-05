@@ -198,7 +198,7 @@
 
   "approval_title": "Approvals",
   "approval_filterAll": "All",
-  "approval_filterMyAction": "My Action",
+  "approval_filterMyAction": "For Me",
   "approval_filterByDate": "Filter by date",
   "approval_noMoreApprovals": "No more approvals",
   "approval_sectionPendingYourAction": "Pending Your Action",

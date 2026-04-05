@@ -9,7 +9,6 @@ import 'package:palakat/features/approval/presentations/approval_motion_widget.d
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
-import 'package:palakat/features/approval/presentations/widgets/pending_action_badge.dart';
 import 'package:palakat/features/approval/presentations/widgets/status_filter_chips.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/extensions.dart';
@@ -25,7 +24,7 @@ class ApprovalScreen extends ConsumerStatefulWidget {
 class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   // Track which activity is currently being processed
   int? _processingActivityId;
-  bool _showDateFilter = false;
+  bool _isDateFilterExpanded = false;
 
   // Scroll controller for infinite scrolling
   late ScrollController _scrollController;
@@ -59,7 +58,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final l10n = context.l10n;
     final hasActiveDateFilter =
         state.filterStartDate != null || state.filterEndDate != null;
-    final showDateFilter = _showDateFilter || hasActiveDateFilter;
+    final showDateFilter = _isDateFilterExpanded || hasActiveDateFilter;
     final colors = Theme.of(context).colorScheme;
 
     return ScaffoldWidget(
@@ -82,85 +81,64 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   ),
                   Gap.h16,
                   ApprovalReveal(
-                    delay: const Duration(milliseconds: 40),
-                    child: PendingActionBadge(
-                      count: state.pendingMyAction.length,
-                    ),
-                  ),
-                  Gap.h16,
-                  ApprovalReveal(
                     delay: const Duration(milliseconds: 80),
-                    child: StatusFilterChips(
-                      selectedFilter: state.statusFilter,
-                      onFilterChanged: (filter) {
-                        controller.setStatusFilter(filter);
-                      },
-                      pendingMyActionCount: state.pendingMyAction.length,
-                      pendingOthersCount: state.pendingOthers.length,
-                      approvedCount: state.approved.length,
-                      rejectedCount: state.rejected.length,
-                    ),
-                  ),
-                  Gap.h12,
-                  ApprovalReveal(
-                    delay: const Duration(milliseconds: 120),
-                    child: Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _showDateFilter = !showDateFilter;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.calendar_today,
-                            size: 16.0,
-                            color: colors.primary,
-                          ),
-                          label: Text(l10n.approval_filterByDate),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: colors.primary,
-                            side: BorderSide(color: colors.tertiary),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 8.0,
-                            ),
-                          ),
-                        ),
-                        if (hasActiveDateFilter)
-                          ButtonWidget.text(
-                            text: l10n.btn_clear,
-                            onTap: () {
-                              controller.clearDateFilter();
-                              setState(() {
-                                _showDateFilter = false;
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
-                  ApprovalAnimatedPresence(
-                    visible: showDateFilter,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Gap.h12,
-                        DateRangePresetInput(
-                          label: l10n.approval_filterByDate,
-                          start: state.filterStartDate,
-                          end: state.filterEndDate,
-                          onChanged: (s, e) {
-                            if (s == null && e == null) {
-                              controller.clearDateFilter();
-                            } else {
-                              controller.setDateRange(start: s, end: e);
-                            }
-                          },
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: StatusFilterChips(
+                                selectedFilter: state.statusFilter,
+                                onFilterChanged: (filter) {
+                                  controller.setStatusFilter(filter);
+                                },
+                                pendingMyActionCount:
+                                    state.pendingMyAction.length,
+                                pendingOthersCount: state.pendingOthers.length,
+                                approvedCount: state.approved.length,
+                                rejectedCount: state.rejected.length,
+                              ),
+                            ),
+                            Gap.w8,
+                            _buildDateFilterChip(
+                              context: context,
+                              hasActiveDateFilter: hasActiveDateFilter,
+                              onTap: () {
+                                setState(() {
+                                  _isDateFilterExpanded =
+                                      !_isDateFilterExpanded;
+                                });
+                              },
+                              onClear: () {
+                                controller.clearDateFilter();
+                                setState(() {
+                                  _isDateFilterExpanded = false;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        ApprovalAnimatedPresence(
+                          visible: showDateFilter,
+                          child: Column(
+                            children: [
+                              Gap.h12,
+                              DateRangePresetInput(
+                                label: l10n.approval_filterByDate,
+                                start: state.filterStartDate,
+                                end: state.filterEndDate,
+                                onChanged: (s, e) {
+                                  if (s == null && e == null) {
+                                    controller.clearDateFilter();
+                                  } else {
+                                    controller.setDateRange(start: s, end: e);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -362,79 +340,34 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.0),
+      padding: EdgeInsets.only(bottom: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section header
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final shouldStack =
-                  constraints.maxWidth < 340 ||
-                  MediaQuery.textScalerOf(context).scale(1) > 1.1;
-              final countBadge = Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4.0),
-                  border: Border.all(color: color.withValues(alpha: 0.18)),
-                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
-                ),
+          Row(
+            children: [
+              FaIcon(icon, size: 16.0, color: color),
+              Gap.w8,
+              Expanded(
                 child: Text(
-                  filteredActivities.length.toString(),
-                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: color,
+                    color: colors.onSurface,
                   ),
                 ),
-              );
-
-              if (shouldStack) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        FaIcon(icon, size: 20.0, color: color),
-                        Gap.w8,
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.onSurface,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap.h8,
-                    countBadge,
-                  ],
-                );
-              }
-
-              return Row(
-                children: [
-                  FaIcon(icon, size: 20.0, color: color),
-                  Gap.w8,
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colors.onSurface,
-                      ),
-                    ),
-                  ),
-                  Gap.w8,
-                  countBadge,
-                ],
-              );
-            },
+              ),
+              Text(
+                '(${filteredActivities.length})',
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-          Gap.h12,
+          Gap.h8,
           // Activity cards
           ...filteredActivities.map(
             (activity) => Padding(
@@ -660,6 +593,70 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       message: message,
       onRetry: () => controller.fetchData(),
       padding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _buildDateFilterChip({
+    required BuildContext context,
+    required bool hasActiveDateFilter,
+    required VoidCallback onTap,
+    required VoidCallback onClear,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Material(
+      color: hasActiveDateFilter
+          ? colors.primary
+          : AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(20.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20.0),
+        child: SizedBox(
+          width: 44.0,
+          height: 44.0,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Center(
+                child: Icon(
+                  Icons.calendar_today,
+                  size: 18.0,
+                  color: hasActiveDateFilter
+                      ? colors.onPrimary
+                      : colors.primary,
+                ),
+              ),
+              if (hasActiveDateFilter)
+                Positioned(
+                  right: 2.0,
+                  top: 2.0,
+                  child: GestureDetector(
+                    onTap: onClear,
+                    child: Container(
+                      width: 16.0,
+                      height: 16.0,
+                      decoration: BoxDecoration(
+                        color: hasActiveDateFilter
+                            ? colors.onPrimary
+                            : colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.close,
+                        size: 10.0,
+                        color: hasActiveDateFilter
+                            ? colors.primary
+                            : colors.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

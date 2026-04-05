@@ -69,14 +69,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
   build_runner: ^2.6.0
   riverpod_generator: ^3.0.3
+  
   # Code generation for immutable data classes
   freezed: ^3.2.3
   json_serializable: ^6.11.1
@@ -85,10 +81,6 @@ dev_dependencies:
   flutter_launcher_icons: "^0.14.4"
 
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
 
   generate: true
@@ -131,10 +123,10 @@ flutter:
 flutter_launcher_icons:
   android: false
   ios: false
-  image_path: "../../assets/icon_mobile.png"
+  image_path: "../../assets/icon_mobile_solid.jpg"
   web:
     generate: true
-    image_path: "../../assets/icon_mobile.png"
+    image_path: "../../assets/icon_mobile_solid.jpg"
     background_color: "#ffffff"
 
 

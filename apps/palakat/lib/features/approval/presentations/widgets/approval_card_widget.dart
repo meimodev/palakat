@@ -5,7 +5,6 @@ import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
-import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
 
 class ApprovalCardWidget extends StatelessWidget {
   const ApprovalCardWidget({
@@ -78,189 +77,117 @@ class ApprovalCardWidget extends StatelessWidget {
 
     return Material(
       color: _getStatusBackgroundColor(overall),
-      elevation: 2,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.secondary,
+      elevation: 1,
+      shadowColor: AppColors.onSurface.withValues(alpha: 0.08),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(12.0),
         side: BorderSide(color: _getStatusBorderColor(overall), width: 1),
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Activity type and financial badges row
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final shouldStackHeader =
-                      constraints.maxWidth < 360 ||
-                      MediaQuery.textScalerOf(context).scale(1) > 1.1;
-                  final badgeGroup = Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: [
-                      _ActivityTypeBadge(activityType: approval.activityType),
-                      if (hasFinancial)
-                        _FinancialIndicatorBadge(isRevenue: isRevenue),
-                    ],
-                  );
-
-                  if (shouldStackHeader) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        badgeGroup,
-                        Gap.h8,
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: FaIcon(
-                            AppIcons.forward,
-                            size: 24.0,
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    children: [
-                      Expanded(child: badgeGroup),
-                      Gap.w8,
-                      FaIcon(
-                        AppIcons.forward,
-                        size: 24.0,
+              Row(
+                children: [
+                  FaIcon(
+                    _getActivityTypeIcon(approval.activityType),
+                    size: 14.0,
+                    color: _getActivityTypeColor(approval.activityType),
+                  ),
+                  Gap.w6,
+                  Text(
+                    approval.activityType.displayName,
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: _getActivityTypeColor(approval.activityType),
+                    ),
+                  ),
+                  if (hasFinancial) ...[
+                    Gap.w6,
+                    Container(
+                      width: 4.0,
+                      height: 4.0,
+                      decoration: BoxDecoration(
+                        color: AppColors.onSurfaceVariant,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Gap.w6,
+                    Text(
+                      isRevenue
+                          ? context.l10n.admin_revenue_title
+                          : context.l10n.operationsItem_add_expense_title,
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        fontWeight: FontWeight.w600,
                         color: AppColors.onSurfaceVariant,
                       ),
-                    ],
-                  );
-                },
+                    ),
+                  ],
+                ],
               ),
+              Gap.h6,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      approval.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                  ),
+                  Gap.w8,
+                  FaIcon(
+                    AppIcons.forward,
+                    size: 18.0,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+              Gap.h6,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      approval.supervisor.account?.name ??
+                          context.l10n.lbl_unknown,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Gap.w6,
+                  Text(
+                    '•',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                  Gap.w6,
+                  Text(
+                    "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              Gap.h6,
+              _buildApproverSummary(context, approval),
               Gap.h8,
-              // Title row
-              Text(
-                approval.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-              Gap.h12,
-              // Supervisor and date info
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final shouldStackInfo =
-                      constraints.maxWidth < 380 ||
-                      MediaQuery.textScalerOf(context).scale(1) > 1.1;
-                  final supervisorInfo = Row(
-                    children: [
-                      Container(
-                        width: 32.0,
-                        height: 32.0,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: FaIcon(
-                          AppIcons.person,
-                          size: 16.0,
-                          color: AppColors.onPrimary,
-                        ),
-                      ),
-                      Gap.w8,
-                      Expanded(
-                        child: Text(
-                          approval.supervisor.account?.name ??
-                              context.l10n.lbl_unknown,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.onSurface,
-                              ),
-                          maxLines: shouldStackInfo ? 2 : 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  );
-                  final dateInfo = Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FaIcon(
-                        AppIcons.time,
-                        size: 18.0,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                      Gap.w6,
-                      Flexible(
-                        child: Text(
-                          "${approval.createdAt.slashDate} ${approval.createdAt.HHmm}",
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(color: AppColors.onSurfaceVariant),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  );
-
-                  if (shouldStackInfo) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        supervisorInfo,
-                        Gap.h8,
-                        Padding(
-                          padding: EdgeInsets.only(left: 40.0),
-                          child: dateInfo,
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    children: [
-                      Expanded(child: supervisorInfo),
-                      Gap.w12,
-                      Flexible(child: dateInfo),
-                    ],
-                  );
-                },
-              ),
-              // Approvers list
-              if (approval.approvers.isNotEmpty) ...[
-                Gap.h12,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: approval.approvers.map((ap) {
-                    final name = ap.membership?.account?.name ?? '-';
-                    // Check if this approver is the current user by membershipId
-                    final approverMembershipId =
-                        ap.membershipId ?? ap.membership?.id;
-                    final isCurrentUser =
-                        currentMembershipId != null &&
-                        approverMembershipId != null &&
-                        approverMembershipId == currentMembershipId;
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 6.0),
-                      child: ApproverChip(
-                        name: name,
-                        status: ap.status,
-                        updatedAt: ap.updatedAt,
-                        isCurrentUser: isCurrentUser,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-              Gap.h12,
               // Conditional actions / status
               if (overall == ApprovalStatus.unconfirmed) ...[
                 // Show unconfirmed status pill above actions when the pending approver is not me
@@ -284,7 +211,7 @@ class ApprovalCardWidget extends StatelessWidget {
                             onTap: onReject,
                           ),
                         ),
-                        Gap.w12,
+                        Gap.w8,
                         Expanded(
                           child: _ActionIconButton(
                             icon: AppIcons.approve,
@@ -304,112 +231,77 @@ class ApprovalCardWidget extends StatelessWidget {
       ),
     );
   }
-}
 
-/// Badge widget for displaying activity type
-class _ActivityTypeBadge extends StatelessWidget {
-  const _ActivityTypeBadge({required this.activityType});
+  Widget _buildApproverSummary(BuildContext context, Activity approval) {
+    final approvedCount = approval.approvers
+        .where((approver) => approver.status == ApprovalStatus.approved)
+        .length;
+    final totalCount = approval.approvers.length;
 
-  final ActivityType activityType;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Wrap(
+          spacing: 4.0,
+          runSpacing: 4.0,
+          children: approval.approvers
+              .map((approver) => _buildApproverStatusDot(approver.status))
+              .toList(),
+        ),
+        Gap.w8,
+        Expanded(
+          child: Text(
+            '$approvedCount/$totalCount ${context.l10n.status_approved}',
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    Color backgroundColor;
-    Color textColor;
-    IconData icon;
-    String label;
-
-    switch (activityType) {
-      case ActivityType.service:
-        backgroundColor = AppColors.primary.shade100;
-        textColor = AppColors.primary.shade700;
-        icon = AppIcons.church;
-        label = l10n.activityType_service;
-        break;
-      case ActivityType.event:
-        backgroundColor = AppColors.primary.shade100;
-        textColor = AppColors.primary.shade700;
-        icon = AppIcons.event;
-        label = l10n.activityType_event;
-        break;
-      case ActivityType.announcement:
-        backgroundColor = AppColors.warning.shade100;
-        textColor = AppColors.warning.shade700;
-        icon = AppIcons.announcement;
-        label = l10n.activityType_announcement;
-        break;
-    }
+  Widget _buildApproverStatusDot(ApprovalStatus status) {
+    final color = switch (status) {
+      ApprovalStatus.approved => AppColors.success,
+      ApprovalStatus.rejected => AppColors.error,
+      ApprovalStatus.unconfirmed => AppColors.warning,
+    };
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+      width: 16.0,
+      height: 16.0,
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(color: textColor.withValues(alpha: 0.18)),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
+        color: color.withValues(alpha: 0.16),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FaIcon(icon, size: 18.0, color: textColor),
-          Gap.w6,
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-        ],
+      alignment: Alignment.center,
+      child: Container(
+        width: 6.0,
+        height: 6.0,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }
-}
 
-/// Badge widget for displaying financial indicator (revenue/expense)
-class _FinancialIndicatorBadge extends StatelessWidget {
-  const _FinancialIndicatorBadge({required this.isRevenue});
+  IconData _getActivityTypeIcon(ActivityType type) {
+    return switch (type) {
+      ActivityType.service => AppIcons.church,
+      ActivityType.event => AppIcons.event,
+      ActivityType.announcement => AppIcons.announcement,
+    };
+  }
 
-  final bool isRevenue;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final backgroundColor = isRevenue
-        ? AppColors.success.shade100
-        : AppColors.error.shade100;
-    final textColor = isRevenue
-        ? AppColors.success.shade700
-        : AppColors.error.shade700;
-    final icon = isRevenue ? AppIcons.revenue : AppIcons.expense;
-    final label = isRevenue
-        ? l10n.admin_revenue_title
-        : l10n.operationsItem_add_expense_title;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(color: textColor.withValues(alpha: 0.18)),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FaIcon(icon, size: 18.0, color: textColor),
-          Gap.w6,
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-        ],
-      ),
-    );
+  Color _getActivityTypeColor(ActivityType type) {
+    return switch (type) {
+      ActivityType.service => AppColors.primary.shade700,
+      ActivityType.event => AppColors.primary.shade700,
+      ActivityType.announcement => AppColors.warning.shade700,
+    };
   }
 }
 
@@ -435,14 +327,14 @@ class _ActionIconButton extends StatelessWidget {
         onTap: onTap,
         overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
         child: Container(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
             color: AppColors.surfaceContainerLowest,
             border: Border.all(color: color),
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
-          child: Center(child: FaIcon(icon, size: 22.0, color: color)),
+          child: Center(child: FaIcon(icon, size: 18.0, color: color)),
         ),
       ),
     );

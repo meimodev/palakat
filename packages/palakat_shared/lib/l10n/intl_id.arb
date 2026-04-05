@@ -303,7 +303,7 @@
   "@approval_filterAll": {
     "description": "Filter label for showing all approvals"
   },
-  "approval_filterMyAction": "Tindakan Saya",
+  "approval_filterMyAction": "Ke Saya",
   "@approval_filterMyAction": {
     "description": "Filter label for approvals requiring my action"
   },
@@ -319,7 +319,7 @@
   "@approval_sectionPendingYourAction": {
     "description": "Section header for approvals pending current user's action"
   },
-  "approval_sectionPendingOthers": "Menunggu Tindakan Lain",
+  "approval_sectionPendingOthers": "Ke Lainnya",
   "@approval_sectionPendingOthers": {
     "description": "Section header for approvals pending others"
   },

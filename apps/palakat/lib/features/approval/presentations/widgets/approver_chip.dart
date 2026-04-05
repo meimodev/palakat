@@ -36,10 +36,19 @@ class ApproverChip extends StatelessWidget {
           final shouldStackStatus =
               constraints.maxWidth < 340 ||
               MediaQuery.textScalerOf(context).scale(1) > 1.1;
+          final foregroundColor = isCurrentUser
+              ? AppColors.onPrimary
+              : AppColors.onSurface;
+          final secondaryForegroundColor = isCurrentUser
+              ? AppColors.onPrimary.withValues(alpha: 0.78)
+              : AppColors.onSurfaceVariant;
+          final statusForegroundColor = isCurrentUser
+              ? AppColors.onPrimary
+              : ApproverStatusBadge.getStatusColor(status);
           final statusLabel = Text(
             ApproverStatusBadge.getStatusLabelLocalized(context, status),
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              color: ApproverStatusBadge.getStatusColor(status),
+              color: statusForegroundColor,
               fontWeight: FontWeight.w600,
             ),
           );
@@ -51,6 +60,7 @@ class ApproverChip extends StatelessWidget {
                 status: status,
                 iconSize: 22.0,
                 showLabel: false,
+                colorOverride: isCurrentUser ? AppColors.onPrimary : null,
               ),
               Gap.w12,
               Expanded(
@@ -67,9 +77,7 @@ class ApproverChip extends StatelessWidget {
                           name,
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
-                                color: isCurrentUser
-                                    ? AppColors.primary
-                                    : AppColors.onSurface,
+                                color: foregroundColor,
                                 fontWeight: isCurrentUser
                                     ? FontWeight.w700
                                     : FontWeight.w600,
@@ -82,9 +90,13 @@ class ApproverChip extends StatelessWidget {
                               vertical: 4.0,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppColors.onPrimary.withValues(
+                                alpha: 0.12,
+                              ),
                               border: Border.all(
-                                color: AppColors.surfaceContainerLowest,
+                                color: AppColors.onPrimary.withValues(
+                                  alpha: 0.18,
+                                ),
                               ),
                               borderRadius: BorderRadius.circular(4.0),
                               boxShadow: SanctuaryDepth.ambient(
@@ -96,7 +108,7 @@ class ApproverChip extends StatelessWidget {
                               context.l10n.lbl_you,
                               style: Theme.of(context).textTheme.labelMedium!
                                   .copyWith(
-                                    color: AppColors.surfaceContainerLowest,
+                                    color: AppColors.onPrimary,
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -111,9 +123,7 @@ class ApproverChip extends StatelessWidget {
                           "${updatedAt!.slashDate} ${updatedAt!.HHmm}",
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
-                                color: isCurrentUser
-                                    ? AppColors.primary
-                                    : AppColors.onSurfaceVariant,
+                                color: secondaryForegroundColor,
                                 fontWeight: FontWeight.w400,
                               ),
                         ),
@@ -143,10 +153,7 @@ class ApproverChip extends StatelessWidget {
           color: AppColors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(
-              color: AppColors.surfaceContainerLowest,
-              width: 1,
-            ),
+            side: BorderSide(color: AppColors.surfaceContainerLowest, width: 1),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),

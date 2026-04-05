@@ -150,37 +150,26 @@ class ApprovalDetailScreen extends ConsumerWidget {
       children: [
         ApprovalReveal(
           delay: const Duration(milliseconds: 40),
-          child: _buildHeaderSection(context, activity),
+          child: _buildActivityInfoCard(context, activity),
         ),
-        Gap.h12,
+        Gap.h8,
         ApprovalReveal(
           delay: const Duration(milliseconds: 80),
           child: _buildApproversCard(context, activity),
         ),
-        Gap.h12,
-        ApprovalReveal(
-          delay: const Duration(milliseconds: 120),
-          child: _buildActivitySummaryCard(context, activity),
-        ),
         if (activity.hasRevenue == true || activity.hasExpense == true) ...[
-          Gap.h12,
+          Gap.h8,
           ApprovalReveal(
-            delay: const Duration(milliseconds: 160),
+            delay: const Duration(milliseconds: 120),
             child: _buildFinancialCard(context, activity),
           ),
         ],
-        if (activity.location != null) ...[
-          Gap.h12,
+        if (activity.location != null ||
+            (activity.note?.trim().isNotEmpty ?? false)) ...[
+          Gap.h8,
           ApprovalReveal(
-            delay: const Duration(milliseconds: 200),
-            child: _buildLocationCard(context, activity),
-          ),
-        ],
-        if (activity.note?.trim().isNotEmpty ?? false) ...[
-          Gap.h12,
-          ApprovalReveal(
-            delay: const Duration(milliseconds: 240),
-            child: _buildNoteCard(context, activity),
+            delay: const Duration(milliseconds: 160),
+            child: _buildAdditionalInfoCard(context, activity),
           ),
         ],
         if (overall == ApprovalStatus.unconfirmed &&
@@ -189,29 +178,29 @@ class ApprovalDetailScreen extends ConsumerWidget {
                   ap.status == ApprovalStatus.approved &&
                   ap.membership?.id == currentMembershipId,
             )) ...[
-          Gap.h12,
+          Gap.h8,
           ApprovalReveal(
-            delay: const Duration(milliseconds: 280),
+            delay: const Duration(milliseconds: 200),
             child: InfoBoxWidget(message: l10n.approvalDetail_waitingOthers),
           ),
         ],
-        Gap.h12,
+        Gap.h8,
         if (overall == ApprovalStatus.unconfirmed) ...[
           if (!isMinePending)
             ApprovalReveal(
-              delay: const Duration(milliseconds: 300),
+              delay: const Duration(milliseconds: 240),
               child: ApprovalStatusPill(status: overall),
             ),
           if (!isMinePending) Gap.h8,
         ] else ...[
           ApprovalReveal(
-            delay: const Duration(milliseconds: 300),
+            delay: const Duration(milliseconds: 240),
             child: ApprovalStatusPill(status: overall),
           ),
         ],
-        Gap.h16,
+        Gap.h12,
         ApprovalReveal(
-          delay: const Duration(milliseconds: 340),
+          delay: const Duration(milliseconds: 280),
           child: _buildViewActivityDetailsButton(context, activity),
         ),
       ],
@@ -385,44 +374,40 @@ class ApprovalDetailScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader({
     required BuildContext context,
-    required Widget leading,
-    required Widget title,
+    required IconData icon,
+    required String title,
+    required Color iconColor,
     Widget? trailing,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final shouldStack =
-            constraints.maxWidth < 380 ||
-            MediaQuery.textScalerOf(context).scale(1) > 1.1;
+    return Row(
+      children: [
+        FaIcon(icon, size: 20.0, color: iconColor),
+        Gap.w8,
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
+            ),
+          ),
+        ),
+        if (trailing != null) trailing,
+      ],
+    );
+  }
 
-        if (shouldStack) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  leading,
-                  Gap.w12,
-                  Expanded(child: title),
-                ],
-              ),
-              if (trailing != null) ...[
-                Gap.h12,
-                Align(alignment: Alignment.centerLeft, child: trailing),
-              ],
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            leading,
-            Gap.w12,
-            Expanded(child: title),
-            if (trailing != null) trailing,
-          ],
-        );
-      },
+  Widget _buildInfoCard({Key? key, required Widget child}) {
+    return Material(
+      key: key,
+      clipBehavior: Clip.hardEdge,
+      color: AppColors.surfaceContainerLowest,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        side: BorderSide(color: AppColors.neutral, width: 1),
+      ),
+      child: Padding(padding: EdgeInsets.all(12.0), child: child),
     );
   }
 
@@ -479,80 +464,85 @@ class ApprovalDetailScreen extends ConsumerWidget {
     );
   }
 
-  /// Builds the header section with activity title and type badge
-  /// Requirements: 4.1
-  Widget _buildHeaderSection(BuildContext context, Activity activity) {
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 2,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.secondary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader(
-              context: context,
-              leading: Container(
-                width: 48.0,
-                height: 48.0,
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryContainer,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.onSecondaryContainer.withValues(
-                        alpha: 0.18,
-                      ),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.event,
-                  size: 24.0,
-                  color: AppColors.onSecondaryContainer,
-                ),
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activity.title,
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onSurface,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Gap.h4,
-                  Text(
-                    '${context.l10n.lbl_activityId}: #${activity.id}',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildActivityInfoCard(BuildContext context, Activity activity) {
+    final l10n = context.l10n;
+
+    return _buildInfoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionHeader(
+            context: context,
+            icon: AppIcons.info,
+            title: l10n.approvalDetail_activitySummary_title,
+            iconColor: AppColors.primary,
+          ),
+          Gap.h12,
+          Text(
+            activity.title,
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
             ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Gap.h4,
+          Text(
+            '${l10n.lbl_activityId}: #${activity.id}',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall!.copyWith(color: AppColors.onSurfaceVariant),
+          ),
+          Gap.h12,
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: [
+              _buildActivityTypeBadge(context, activity.activityType),
+              if (activity.bipra != null)
+                _buildBipraBadge(context, activity.bipra!),
+            ],
+          ),
+          Gap.h12,
+          Divider(color: AppColors.neutral, height: 1),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.person,
+            iconColor: AppColors.primary.shade600,
+            label: l10n.tbl_supervisor,
+            value: activity.supervisor.account?.name ?? l10n.lbl_unknown,
+          ),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.time,
+            iconColor: AppColors.warning.shade600,
+            label: l10n.lbl_date,
+            value: (() {
+              final dt = activity.date;
+              return "${dt.EEEEddMMMyyyy} ${dt.HHmm}";
+            })(),
+          ),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.createdAt,
+            iconColor: AppColors.onSurfaceVariant,
+            label: l10n.lbl_createdAt,
+            value: (() {
+              final dt = activity.createdAt;
+              return "${dt.EEEEddMMMyyyy} ${dt.HHmm} • ${dt.toFromNow}";
+            })(),
+          ),
+          if (activity.description?.isNotEmpty ?? false) ...[
             Gap.h12,
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: [
-                _buildActivityTypeBadge(context, activity.activityType),
-                if (activity.bipra != null)
-                  _buildBipraBadge(context, activity.bipra!),
-              ],
+            _buildInfoRow(
+              icon: AppIcons.description,
+              iconColor: AppColors.primary,
+              label: l10n.lbl_description,
+              value: activity.description!,
             ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -561,185 +551,45 @@ class ApprovalDetailScreen extends ConsumerWidget {
   /// Requirements: 4.2
   Widget _buildApproversCard(BuildContext context, Activity activity) {
     final l10n = context.l10n;
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 2,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.success,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader(
-              context: context,
-              leading: Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: AppColors.success.shade100,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.success.withValues(alpha: 0.16),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.approval,
-                  size: 20.0,
-                  color: AppColors.success.shade700,
-                ),
-              ),
-              title: Text(
-                l10n.tbl_approvers,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-              trailing: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: AppColors.success.shade100,
-                  borderRadius: BorderRadius.circular(4.0),
-                  border: Border.all(
-                    color: AppColors.success.shade200,
-                    width: 1,
-                  ),
-                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
-                ),
-                child: Text(
-                  activity.approvers.length.toString(),
-                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                    color: AppColors.success.shade700,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+    return _buildInfoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionHeader(
+            context: context,
+            icon: AppIcons.approval,
+            title: l10n.tbl_approvers,
+            iconColor: AppColors.onSurface,
+            trailing: Text(
+              '(${activity.approvers.length})',
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: AppColors.onSurface,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Gap.h16,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: activity.approvers.map((ap) {
-                final name = ap.membership?.account?.name ?? l10n.lbl_unknown;
-                // Check if this approver is the current user by membershipId
-                final approverMembershipId =
-                    ap.membershipId ?? ap.membership?.id;
-                final isCurrentUser =
-                    currentMembershipId != null &&
-                    approverMembershipId != null &&
-                    approverMembershipId == currentMembershipId;
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
-                  child: ApproverChip(
-                    name: name,
-                    status: ap.status,
-                    updatedAt: ap.updatedAt,
-                    isCurrentUser: isCurrentUser,
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds the activity summary card with supervisor, date, and description
-  /// Requirements: 4.3
-  Widget _buildActivitySummaryCard(BuildContext context, Activity activity) {
-    final l10n = context.l10n;
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 1,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader(
-              context: context,
-              leading: Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+          ),
+          Gap.h12,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: activity.approvers.map((ap) {
+              final name = ap.membership?.account?.name ?? l10n.lbl_unknown;
+              final approverMembershipId = ap.membershipId ?? ap.membership?.id;
+              final isCurrentUser =
+                  currentMembershipId != null &&
+                  approverMembershipId != null &&
+                  approverMembershipId == currentMembershipId;
+              return Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: ApproverChip(
+                  name: name,
+                  status: ap.status,
+                  updatedAt: ap.updatedAt,
+                  isCurrentUser: isCurrentUser,
                 ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.info,
-                  size: 20.0,
-                  color: AppColors.onPrimary,
-                ),
-              ),
-              title: Text(
-                l10n.approvalDetail_activitySummary_title,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ),
-            Gap.h16,
-            // Supervisor info
-            _buildInfoRow(
-              icon: AppIcons.person,
-              iconColor: AppColors.primary.shade600,
-              label: l10n.tbl_supervisor,
-              value: activity.supervisor.account?.name ?? l10n.lbl_unknown,
-            ),
-            Gap.h12,
-            // Date info
-            _buildInfoRow(
-              icon: AppIcons.time,
-              iconColor: AppColors.warning.shade600,
-              label: l10n.lbl_date,
-              value: (() {
-                final dt = activity.date;
-                return "${dt.EEEEddMMMyyyy} ${dt.HHmm}";
-              })(),
-            ),
-            Gap.h12,
-            // Created at
-            _buildInfoRow(
-              icon: AppIcons.createdAt,
-              iconColor: AppColors.onSurfaceVariant,
-              label: l10n.lbl_createdAt,
-              value: (() {
-                final dt = activity.createdAt;
-                return "${dt.EEEEddMMMyyyy} ${dt.HHmm} • ${dt.toFromNow}";
-              })(),
-            ),
-            if (activity.description?.isNotEmpty ?? false) ...[
-              Gap.h12,
-              _buildInfoRow(
-                icon: AppIcons.description,
-                iconColor: AppColors.primary,
-                label: l10n.lbl_description,
-                value: activity.description!,
-              ),
-            ],
-          ],
-        ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
@@ -756,122 +606,76 @@ class ApprovalDetailScreen extends ConsumerWidget {
         : l10n.financeType_expense;
     final baseColor = isRevenue ? AppColors.success : AppColors.error;
 
-    return Material(
+    return _buildInfoCard(
       key: const Key('financial_section'),
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 1,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: baseColor[50],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader(
-              context: context,
-              leading: Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: baseColor[100],
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: baseColor[200]!.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  isRevenue ? AppIcons.revenue : AppIcons.expense,
-                  size: 20.0,
-                  color: baseColor[700],
-                ),
-              ),
-              title: Text(
-                l10n.approvalDetail_financialData_title,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-              trailing: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                decoration: BoxDecoration(
-                  color: baseColor[50],
-                  borderRadius: BorderRadius.circular(4.0),
-                  border: Border.all(color: baseColor[200]!, width: 1),
-                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
-                ),
-                child: Text(
-                  financeType,
-                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                    color: baseColor[700],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionHeader(
+            context: context,
+            icon: isRevenue ? AppIcons.revenue : AppIcons.expense,
+            title: l10n.approvalDetail_financialData_title,
+            iconColor: baseColor.shade700,
+            trailing: Text(
+              financeType,
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: baseColor.shade700,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            Gap.h16,
-            // Amount
-            _buildInfoRow(
-              icon: AppIcons.money,
-              iconColor: baseColor.shade600,
-              label: l10n.lbl_amount,
-              value: financeData?.amount != null
-                  ? formatRupiah(financeData!.amount!)
-                  : '-',
-            ),
+          ),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.money,
+            iconColor: baseColor.shade600,
+            label: l10n.lbl_amount,
+            value: financeData?.amount != null
+                ? formatRupiah(financeData!.amount!)
+                : '-',
+          ),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.bankAccount,
+            iconColor: AppColors.primary.shade600,
+            label: l10n.lbl_accountNumber,
+            value:
+                financeData?.financialAccountNumber?.accountNumber ??
+                financeData?.accountNumber ??
+                '-',
+          ),
+          if (financeData?.financialAccountNumber?.description != null) ...[
             Gap.h12,
-            // Account Number
             _buildInfoRow(
-              icon: AppIcons.bankAccount,
-              iconColor: AppColors.primary.shade600,
-              label: l10n.lbl_accountNumber,
-              value:
-                  financeData?.financialAccountNumber?.accountNumber ??
-                  financeData?.accountNumber ??
-                  '-',
-            ),
-            if (financeData?.financialAccountNumber?.description != null) ...[
-              Gap.h12,
-              _buildInfoRow(
-                icon: AppIcons.description,
-                iconColor: AppColors.tertiary,
-                label: l10n.approvalDetail_accountDescription_label,
-                value: financeData!.financialAccountNumber!.description!,
-              ),
-            ],
-            Gap.h12,
-            // Payment Method
-            _buildInfoRow(
-              icon: AppIcons.payment,
-              iconColor: AppColors.primary,
-              label: l10n.tbl_paymentMethod,
-              value: (() {
-                final method = financeData?.paymentMethod;
-                if (method == null || method.isEmpty) return '-';
-                switch (method) {
-                  case 'CASH':
-                    return l10n.paymentMethod_cash;
-                  case 'CASHLESS':
-                    return l10n.paymentMethod_cashless;
-                  default:
-                    return method.toCamelCase;
-                }
-              })(),
+              icon: AppIcons.description,
+              iconColor: AppColors.tertiary,
+              label: l10n.approvalDetail_accountDescription_label,
+              value: financeData!.financialAccountNumber!.description!,
             ),
           ],
-        ),
+          Gap.h12,
+          _buildInfoRow(
+            icon: AppIcons.payment,
+            iconColor: AppColors.primary,
+            label: l10n.tbl_paymentMethod,
+            value: (() {
+              final method = financeData?.paymentMethod;
+              if (method == null || method.isEmpty) return '-';
+              switch (method) {
+                case 'CASH':
+                  return l10n.paymentMethod_cash;
+                case 'CASHLESS':
+                  return l10n.paymentMethod_cashless;
+                default:
+                  return method.toCamelCase;
+              }
+            })(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildLocationCard(BuildContext context, Activity activity) {
+  Widget _buildAdditionalInfoCard(BuildContext context, Activity activity) {
     final l10n = context.l10n;
     final location = activity.location;
     final hasCoordinates =
@@ -882,77 +686,45 @@ class ApprovalDetailScreen extends ConsumerWidget {
         ? "${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}"
         : '-';
 
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 1,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.error,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader(
-              context: context,
-              leading: Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: AppColors.error,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.error.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: FaIcon(
-                  AppIcons.mapPin,
-                  size: 20.0,
-                  color: AppColors.error,
-                ),
-              ),
-              title: Text(
-                l10n.card_location_title,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                ),
-              ),
-              trailing: location != null
-                  ? IconButton(
-                      tooltip: l10n.approvalDetail_viewOnMapTooltip,
-                      onPressed: () {
-                        context.pushNamed(
-                          AppRoute.publishingMap,
-                          extra: RouteParam(
-                            params: {
-                              RouteParamKey.mapOperationType:
-                                  MapOperationType.read,
-                              RouteParamKey.location: location.toJson(),
-                            },
-                          ),
-                        );
-                      },
-                      icon: FaIcon(
-                        AppIcons.map,
-                        size: 20.0,
-                        color: AppColors.primary,
-                      ),
-                      style: ButtonStyle(
-                        overlayColor: WidgetStateProperty.all(
-                          AppColors.primary.withValues(alpha: 0.12),
+    return _buildInfoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionHeader(
+            context: context,
+            icon: AppIcons.notes,
+            title: 'Additional Info',
+            iconColor: AppColors.warning.shade700,
+            trailing: location != null
+                ? IconButton(
+                    tooltip: l10n.approvalDetail_viewOnMapTooltip,
+                    onPressed: () {
+                      context.pushNamed(
+                        AppRoute.publishingMap,
+                        extra: RouteParam(
+                          params: {
+                            RouteParamKey.mapOperationType:
+                                MapOperationType.read,
+                            RouteParamKey.location: location.toJson(),
+                          },
                         ),
+                      );
+                    },
+                    icon: FaIcon(
+                      AppIcons.map,
+                      size: 18.0,
+                      color: AppColors.primary,
+                    ),
+                    style: ButtonStyle(
+                      overlayColor: WidgetStateProperty.all(
+                        AppColors.primary.withValues(alpha: 0.12),
                       ),
-                    )
-                  : null,
-            ),
-            Gap.h16,
+                    ),
+                  )
+                : null,
+          ),
+          if (location != null) ...[
+            Gap.h12,
             _buildInfoRow(
               icon: AppIcons.location,
               iconColor: AppColors.error.shade500,
@@ -966,87 +738,25 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 iconColor: AppColors.primary.shade500,
                 label: l10n.lbl_coordinates,
                 value:
-                    "${location!.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}",
+                    "${location.latitude!.toStringAsFixed(5)}, ${location.longitude!.toStringAsFixed(5)}",
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoteCard(BuildContext context, Activity activity) {
-    final l10n = context.l10n;
-    return Material(
-      clipBehavior: Clip.hardEdge,
-      color: AppColors.surfaceContainerLowest,
-      elevation: 1,
-      shadowColor: AppColors.onSurface,
-      surfaceTintColor: AppColors.warning,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.shade100,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.warning.withValues(alpha: 0.18),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    AppIcons.notes,
-                    size: 20.0,
-                    color: AppColors.warning.shade700,
-                  ),
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    l10n.lbl_note,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Gap.h16,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FaIcon(
-                  AppIcons.notes,
-                  size: 20.0,
-                  color: AppColors.warning.shade600,
-                ),
-                Gap.w12,
-                Expanded(
-                  child: Text(
-                    activity.note ?? "-",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.onSurface,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ],
+          if (location != null &&
+              (activity.note?.trim().isNotEmpty ?? false)) ...[
+            Gap.h12,
+            Divider(color: AppColors.neutral, height: 1),
+          ],
+          if (activity.note?.trim().isNotEmpty ?? false) ...[
+            Gap.h12,
+            _buildInfoRow(
+              icon: AppIcons.notes,
+              iconColor: AppColors.warning.shade600,
+              label: l10n.lbl_note,
+              value: activity.note ?? '-',
             ),
           ],
-        ),
+        ],
       ),
     );
   }
