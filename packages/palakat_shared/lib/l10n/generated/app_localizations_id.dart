@@ -535,10 +535,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get approval_filterAll => 'Semua';
 
   @override
-  String get approval_filterMyAction => 'Tindakan Saya';
+  String get approval_filterMyAction => 'Ke saya';
 
   @override
-  String get approval_filterPendingOthers => 'Menunggu Lainnya';
+  String get approval_filterPendingOthers => 'Untuk Lainnya';
 
   @override
   String get approval_filterByDate => 'Filter berdasarkan tanggal';
@@ -593,7 +593,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get approval_tryAllSuggestionMessage =>
-      'Tidak ada persetujuan untuk Tindakan Saya dalam rentang ini. Coba lihat Semua.';
+      'Tidak ada persetujuan untuk Ke saya dalam rentang ini. Coba lihat Semua.';
 
   @override
   String get approval_tryAllSuggestionAction => 'Coba Semua';

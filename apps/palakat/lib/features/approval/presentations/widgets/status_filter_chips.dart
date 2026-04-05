@@ -49,7 +49,7 @@ class StatusFilterChips extends StatelessWidget {
           ),
           Gap.w8,
           _FilterChip(
-            label: l10n.approval_sectionPendingOthers,
+            label: l10n.approval_filterPendingOthers,
             count: pendingOthersCount,
             isSelected: selectedFilter == ApprovalFilterStatus.pendingOthers,
             onTap: () => onFilterChanged(ApprovalFilterStatus.pendingOthers),

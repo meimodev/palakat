@@ -303,11 +303,11 @@
   "@approval_filterAll": {
     "description": "Filter label for showing all approvals"
   },
-  "approval_filterMyAction": "Tindakan Saya",
+  "approval_filterMyAction": "Ke saya",
   "@approval_filterMyAction": {
     "description": "Filter label for approvals requiring my action"
   },
-  "approval_filterPendingOthers": "Menunggu Lainnya",
+  "approval_filterPendingOthers": "Untuk Lainnya",
   "@approval_filterPendingOthers": {
     "description": "Filter label for approvals pending other approvers"
   },
@@ -372,7 +372,7 @@
   "@approval_emptySubtitle": {
     "description": "Empty state subtitle for approval screen"
   },
-  "approval_tryAllSuggestionMessage": "Tidak ada persetujuan untuk Tindakan Saya dalam rentang ini. Coba lihat Semua.",
+  "approval_tryAllSuggestionMessage": "Tidak ada persetujuan untuk Ke saya dalam rentang ini. Coba lihat Semua.",
   "@approval_tryAllSuggestionMessage": {
     "description": "Info box message suggesting switching to all approvals when the default my-action filter is empty"
   },
