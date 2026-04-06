@@ -42,11 +42,79 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
   bool _isLoading = true;
   String? _errorMessage;
   Activity? _activity;
+  ProviderSubscription<AsyncValue<RealtimeEvent>>? _realtimeSubscription;
+  late final SocketService _socket;
+  late SocketConnectionStatus _previousConnectionStatus;
+  late final VoidCallback _socketStatusListener;
 
   @override
   void initState() {
     super.initState();
+    _socket = ref.read(socketServiceProvider);
+    _previousConnectionStatus = _socket.connectionStatus;
+    _socketStatusListener = () {
+      final nextStatus = _socket.connectionStatus;
+      final didReconnect =
+          _previousConnectionStatus != SocketConnectionStatus.connected &&
+          nextStatus == SocketConnectionStatus.connected;
+      _previousConnectionStatus = nextStatus;
+
+      if (!didReconnect || !mounted) {
+        return;
+      }
+
+      _fetchActivity();
+    };
+    _socket.connectionStatusListenable.addListener(_socketStatusListener);
+    _realtimeSubscription = ref.listenManual(realtimeEventProvider, (
+      previous,
+      next,
+    ) {
+      final event = next.asData?.value;
+      if (event == null) {
+        return;
+      }
+
+      final eventActivityId = _extractEventActivityId(event);
+      if (eventActivityId != widget.activityId) {
+        return;
+      }
+
+      if (event.name == 'activity.updated' && mounted) {
+        _fetchActivity();
+      }
+
+      if (event.name == 'activity.deleted' && mounted) {
+        widget.onClose();
+      }
+    });
     _fetchActivity();
+  }
+
+  @override
+  void dispose() {
+    _realtimeSubscription?.close();
+    _socket.connectionStatusListenable.removeListener(_socketStatusListener);
+    super.dispose();
+  }
+
+  int? _extractEventActivityId(RealtimeEvent event) {
+    if (event.name != 'activity.updated' && event.name != 'activity.deleted') {
+      return null;
+    }
+
+    final data = event.payload['data'];
+    if (data is Map<String, dynamic>) {
+      final value = data['activityId'];
+      return value is int ? value : int.tryParse('$value');
+    }
+
+    if (data is Map) {
+      final value = data['activityId'];
+      return value is int ? value : int.tryParse('$value');
+    }
+
+    return null;
   }
 
   Future<void> _fetchActivity() async {
@@ -126,10 +194,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
     }
   }
 
-  Future<void> _openDocumentFile(
-    int fileId, {
-    String? openingLabel,
-  }) async {
+  Future<void> _openDocumentFile(int fileId, {String? openingLabel}) async {
     final l10n = context.l10n;
     final filename = (openingLabel?.trim().isNotEmpty ?? false)
         ? openingLabel!.trim()
@@ -258,8 +323,9 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final primaryDocumentDownload =
-        _activity == null ? null : _resolvePrimaryDocumentDownload(_activity!);
+    final primaryDocumentDownload = _activity == null
+        ? null
+        : _resolvePrimaryDocumentDownload(_activity!);
     return SideDrawer(
       title: l10n.drawer_activityDetails_title,
       subtitle: l10n.drawer_activityDetails_subtitle,
@@ -461,9 +527,7 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
               ],
             ),
       footer: Column(
-        children: [
-          InfoBoxWidget(message: l10n.publish_publishedNotice),
-        ],
+        children: [InfoBoxWidget(message: l10n.publish_publishedNotice)],
       ),
     );
   }

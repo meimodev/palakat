@@ -3,9 +3,15 @@ import { ApproverService } from './approver.service';
 import { PrismaModule } from '../prisma.module';
 import { NotificationModule } from '../notification/notification.module';
 import { DocumentModule } from '../document/document.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 
 @Module({
-  imports: [PrismaModule, DocumentModule, forwardRef(() => NotificationModule)],
+  imports: [
+    PrismaModule,
+    DocumentModule,
+    forwardRef(() => NotificationModule),
+    RealtimeModule,
+  ],
   providers: [ApproverService],
   exports: [ApproverService],
 })

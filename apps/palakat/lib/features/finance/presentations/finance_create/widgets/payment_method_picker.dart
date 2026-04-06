@@ -39,6 +39,7 @@ class PaymentMethodPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasError = errorText != null && errorText!.isNotEmpty;
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -48,8 +49,8 @@ class PaymentMethodPicker extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            color: AppColors.neutral,
+          style: theme.textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -120,18 +121,11 @@ class _PaymentMethodCard extends StatelessWidget {
               : AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
-            color: isSelected ? config.selectedBorderColor : AppColors.neutral,
-            width: isSelected ? 2 : 1,
+            color: isSelected
+                ? config.selectedBorderColor
+                : AppColors.outlineVariant,
+            width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: config.selectedBorderColor.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
         child: Column(
           children: [
@@ -140,20 +134,23 @@ class _PaymentMethodCard extends StatelessWidget {
               width: 40.0,
               height: 40.0,
               decoration: BoxDecoration(
-                color: isSelected ? config.iconBgColor : AppColors.neutral,
+                color: isSelected
+                    ? config.iconBgColor
+                    : AppColors.surfaceContainerLow,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
                       ? config.selectedBorderColor.withValues(alpha: 0.24)
                       : AppColors.ghostBorder(0.08),
                 ),
-                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
               ),
               alignment: Alignment.center,
               child: FaIcon(
                 config.icon,
                 size: 20.0,
-                color: isSelected ? config.iconColor : AppColors.neutral,
+                color: isSelected
+                    ? config.iconColor
+                    : AppColors.onSurfaceVariant,
               ),
             ),
             Gap.h8,
@@ -161,7 +158,7 @@ class _PaymentMethodCard extends StatelessWidget {
             Text(
               config.label,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: isSelected ? config.textColor : AppColors.neutral,
+                color: isSelected ? config.textColor : AppColors.onSurface,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
@@ -172,7 +169,7 @@ class _PaymentMethodCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 color: isSelected
                     ? config.textColor.withValues(alpha: 0.8)
-                    : AppColors.neutral,
+                    : AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -218,9 +215,9 @@ class _PaymentMethodCard extends StatelessWidget {
           icon: AppIcons.cash,
           label: l10n.paymentMethod_cash,
           description: l10n.paymentMethod_cash_desc,
-          selectedBgColor: AppColors.secondary,
+          selectedBgColor: AppColors.secondary.withValues(alpha: 0.08),
           selectedBorderColor: AppColors.secondary,
-          iconBgColor: AppColors.secondary,
+          iconBgColor: AppColors.secondary.withValues(alpha: 0.12),
           iconColor: AppColors.secondary,
           textColor: AppColors.secondary,
         );
@@ -229,9 +226,9 @@ class _PaymentMethodCard extends StatelessWidget {
           icon: AppIcons.payment,
           label: l10n.paymentMethod_cashless,
           description: l10n.paymentMethod_cashless_desc,
-          selectedBgColor: AppColors.primary,
+          selectedBgColor: AppColors.primary.withValues(alpha: 0.08),
           selectedBorderColor: AppColors.primary,
-          iconBgColor: AppColors.primary,
+          iconBgColor: AppColors.primary.withValues(alpha: 0.12),
           iconColor: AppColors.primary,
           textColor: AppColors.primary,
         );

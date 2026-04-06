@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 
+enum FormSectionWidgetStyle { standard, compact }
+
 class FormSectionWidget extends StatelessWidget {
   const FormSectionWidget({
     super.key,
@@ -9,6 +11,7 @@ class FormSectionWidget extends StatelessWidget {
     required this.children,
     this.subtitle,
     this.showDivider = true,
+    this.style = FormSectionWidgetStyle.standard,
   });
 
   final String title;
@@ -16,10 +19,12 @@ class FormSectionWidget extends StatelessWidget {
   final String? subtitle;
   final List<Widget> children;
   final bool showDivider;
+  final FormSectionWidgetStyle style;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isCompact = style == FormSectionWidgetStyle.compact;
 
     return Material(
       color: Colors.transparent,
@@ -34,10 +39,12 @@ class FormSectionWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
-          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 20),
+          boxShadow: isCompact
+              ? null
+              : SanctuaryDepth.ambient(opacity: 0.03, blur: 20),
         ),
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(isCompact ? 14.0 : 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -45,10 +52,13 @@ class FormSectionWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 44.0,
-                    height: 44.0,
+                    width: isCompact ? 40.0 : 44.0,
+                    height: isCompact ? 40.0 : 44.0,
                     decoration: BoxDecoration(
                       color: AppColors.surfaceContainerLow,
+                      border: isCompact
+                          ? Border.all(color: AppColors.ghostBorder(0.08))
+                          : null,
                       borderRadius: BorderRadius.circular(
                         SanctuaryLayout.radius,
                       ),
@@ -83,20 +93,23 @@ class FormSectionWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              Gap.h16,
+              if (isCompact) ...[Gap.h12, Gap.h2] else Gap.h16,
               ...children,
-              if (showDivider) ...[
-                Gap.h16,
-                Container(
-                  height: 4.0,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(
-                      SanctuaryLayout.pillRadius,
+              if (showDivider)
+                if (isCompact)
+                  Gap.h4
+                else ...[
+                  Gap.h16,
+                  Container(
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(
+                        SanctuaryLayout.pillRadius,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
             ],
           ),
         ),

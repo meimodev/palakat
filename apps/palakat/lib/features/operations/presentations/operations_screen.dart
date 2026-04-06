@@ -32,16 +32,15 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
   final Set<int> _downloadingReportIds = <int>{};
   String _cachedReportsSignature = '';
   bool _isSyncingCachedReports = false;
+  ProviderSubscription<ReportGenerateState>? _reportGenerateSubscription;
 
   @override
   void initState() {
     super.initState();
     // Listen for report generation state changes to refresh report data
-    Future.microtask(() {
-      ref.listen<ReportGenerateState>(reportGenerateControllerProvider, (
-        previous,
-        next,
-      ) {
+    _reportGenerateSubscription = ref.listenManual<ReportGenerateState>(
+      reportGenerateControllerProvider,
+      (previous, next) {
         // Refresh report data when a report job was just queued
         // (isGenerating changed from true to false and no error)
         if (previous?.isGenerating == true &&
@@ -49,8 +48,14 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             next.errorMessage == null) {
           ref.read(operationsControllerProvider.notifier).refreshReportData();
         }
-      });
-    });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _reportGenerateSubscription?.close();
+    super.dispose();
   }
 
   @override
@@ -69,7 +74,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             OperationsReveal(
               child: ScreenTitleWidget.titleOnly(title: l10n.operations_title),
             ),
-            Gap.h16,
+            Gap.h12,
             LoadingWrapper(
               loading: state.loadingScreen,
               hasError:
@@ -118,11 +123,10 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             onTap: () => _handleMembershipTap(context, state.membership!),
           ),
         ),
-        Gap.h4,
         if (state.supervisedActivities.isNotEmpty ||
             state.loadingSupervisedActivities ||
             state.supervisedActivitiesError != null) ...[
-          Gap.h4,
+          Gap.h12,
           OperationsReveal(
             delay: Duration(
               milliseconds: 80 + (((state.categories as List).length) * 40),
@@ -138,7 +142,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
             ),
           ),
         ],
-        Gap.h16,
+        Gap.h12,
         _OperationCategoryList(
           categories: state.categories,
           onExpansionChanged: (categoryId, isExpanded) {
@@ -551,7 +555,7 @@ class _OperationCategoryList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
       // 8px grid spacing (Requirement 3.4)
-      separatorBuilder: (context, index) => Gap.h8,
+      separatorBuilder: (context, index) => Gap.h6,
       itemBuilder: (context, index) {
         final category = categories[index];
         final isReportsCategory = category.id == 'reports';

@@ -98,7 +98,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final borderColor = hasError
         ? theme.colorScheme.error
-        : theme.colorScheme.outline;
+        : theme.colorScheme.outlineVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,11 +120,11 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
             clipBehavior: Clip.hardEdge,
             shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(24),
-              side: BorderSide(color: borderColor, width: 1.5),
+              side: BorderSide(color: borderColor, width: 1.2),
             ),
             color: theme.colorScheme.surface,
             shadowColor: theme.shadowColor.withValues(alpha: 0.04),
-            elevation: 1,
+            elevation: 0,
             child: InkWell(
               onTap: _isEnabled ? () => _handleTap(context) : null,
               child: Padding(

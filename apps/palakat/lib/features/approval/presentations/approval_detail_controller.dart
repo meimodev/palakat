@@ -1,4 +1,5 @@
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:palakat/features/approval/presentations/approval_detail_state.dart';
 
@@ -13,9 +14,75 @@ class ApprovalDetailController extends _$ApprovalDetailController {
 
   @override
   ApprovalDetailState build({required int activityId}) {
+    final socket = ref.read(socketServiceProvider);
+    var previousConnectionStatus = socket.connectionStatus;
+
+    void onSocketStatusChanged() {
+      final nextStatus = socket.connectionStatus;
+      final didReconnect =
+          previousConnectionStatus != SocketConnectionStatus.connected &&
+          nextStatus == SocketConnectionStatus.connected;
+      previousConnectionStatus = nextStatus;
+
+      if (!didReconnect) {
+        return;
+      }
+
+      Future.microtask(() => fetch(activityId));
+    }
+
+    socket.connectionStatusListenable.addListener(onSocketStatusChanged);
+    ref.onDispose(() {
+      socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
+    });
+
+    ref.listen(realtimeEventProvider, (_, next) {
+      final event = next.asData?.value;
+      if (event == null) {
+        return;
+      }
+
+      final eventActivityId = _extractActivityId(event);
+      if (eventActivityId != activityId) {
+        return;
+      }
+
+      if (event.name == 'activity.updated') {
+        Future.microtask(() => fetch(activityId));
+      }
+
+      if (event.name == 'activity.deleted') {
+        state = state.copyWith(
+          activity: null,
+          loadingScreen: false,
+          isActionLoading: false,
+          errorMessage: null,
+        );
+      }
+    });
+
     // Schedule fetch after provider initialization completes
     Future.microtask(() => fetch(activityId));
     return const ApprovalDetailState();
+  }
+
+  int? _extractActivityId(RealtimeEvent event) {
+    if (event.name != 'activity.updated' && event.name != 'activity.deleted') {
+      return null;
+    }
+
+    final data = event.payload['data'];
+    if (data is Map<String, dynamic>) {
+      final value = data['activityId'];
+      return value is int ? value : int.tryParse('$value');
+    }
+
+    if (data is Map) {
+      final value = data['activityId'];
+      return value is int ? value : int.tryParse('$value');
+    }
+
+    return null;
   }
 
   /// Fetch activity details from the API

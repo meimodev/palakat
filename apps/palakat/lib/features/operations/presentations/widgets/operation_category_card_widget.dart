@@ -70,11 +70,11 @@ class OperationCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerLow,
+      color: AppColors.surfaceContainerLowest,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: AppColors.neutral, width: 1),
+        side: BorderSide(color: AppColors.ghostBorder(0.08), width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -125,7 +125,7 @@ class OperationCategoryCard extends StatelessWidget {
             padding: EdgeInsets.only(
               left: 8.0,
               right: 8.0,
-              bottom: 12.0,
+              bottom: 10.0,
               top: 8.0,
             ),
             child: Column(
@@ -158,7 +158,7 @@ class OperationCategoryCard extends StatelessWidget {
                         pendingReportJobs!.isNotEmpty) ||
                     isLoadingPendingReportJobs)
                   Padding(
-                    padding: EdgeInsets.only(top: 8.0),
+                    padding: EdgeInsets.only(top: 6.0),
                     child: RecentReportsSection(
                       reports: recentReports ?? [],
                       isLoading: isLoadingRecentReports,
@@ -215,13 +215,13 @@ class _ReportTypeTile extends StatelessWidget {
       opacity: isEnabled ? 1.0 : OperationItemCard.disabledOpacity,
       child: Material(
         color: AppColors.surfaceContainerLowest,
-        elevation: 1,
+        elevation: 0,
         shadowColor: AppColors.onSurface,
-        surfaceTintColor: AppColors.primary,
+        surfaceTintColor: Colors.transparent,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
-          side: BorderSide(color: AppColors.neutral, width: 1),
+          side: BorderSide(color: AppColors.ghostBorder(0.08), width: 1),
         ),
         child: InkWell(
           onTap: isEnabled ? onTap : null,
@@ -238,13 +238,20 @@ class _ReportTypeTile extends StatelessWidget {
                 height: shouldStack ? 32.0 : 28.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isEnabled ? AppColors.primary : AppColors.neutral,
+                  color: isEnabled
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : AppColors.surfaceContainerLow,
+                  border: Border.all(
+                    color: isEnabled
+                        ? AppColors.primary.withValues(alpha: 0.16)
+                        : AppColors.ghostBorder(0.08),
+                  ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Icon(
                   icon,
                   color: isEnabled
-                      ? AppColors.neutral
+                      ? AppColors.primary
                       : AppColors.onSurface.withValues(alpha: 0.38),
                   size: shouldStack ? 16.0 : 14.0,
                 ),
@@ -264,7 +271,7 @@ class _ReportTypeTile extends StatelessWidget {
               );
 
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
                 child: shouldStack
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +331,7 @@ class _CategoryHeader extends StatelessWidget {
         splashColor: AppColors.primary.withValues(alpha: 0.1),
         highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 14.0),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final shouldStack =
@@ -332,21 +339,18 @@ class _CategoryHeader extends StatelessWidget {
                   MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
               final icon = Container(
-                width: 40.0,
-                height: 40.0,
+                width: 34.0,
+                height: 34.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                  ),
+                  color: AppColors.surfaceContainerLow,
+                  border: Border.all(color: AppColors.ghostBorder(0.08)),
                   borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
                 ),
                 child: Icon(
                   category.icon,
-                  color: AppColors.primary,
-                  size: 24.0,
+                  color: AppColors.onSurfaceVariant,
+                  size: 20.0,
                 ),
               );
 
@@ -360,42 +364,21 @@ class _CategoryHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               );
 
-              final countBadge = Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                  ),
-                  borderRadius: BorderRadius.circular(4.0),
-                  boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
-                ),
-                child: Text(
-                  '${category.operations.length}',
-                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              );
-
               final expandIcon = AnimatedRotation(
                 turns: category.isExpanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   AppIcons.keyboardArrowDown,
-                  color: AppColors.primary,
-                  size: 24.0,
+                  color: AppColors.onSurfaceVariant,
+                  size: 22.0,
                 ),
               );
 
               return Row(
                 children: [
                   icon,
-                  Gap.w12,
+                  Gap.w10,
                   Expanded(child: title),
-                  countBadge,
-                  Gap.w8,
                   expandIcon,
                 ],
               );

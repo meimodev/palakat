@@ -38,13 +38,13 @@ class PositionSummaryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
-          boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 20),
+          boxShadow: SanctuaryDepth.ambient(opacity: 0.015, blur: 12),
         ),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(14.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -84,32 +84,35 @@ class _PositionSummaryHeader extends StatelessWidget {
       children: [
         // Icon container with teal accent (Requirement 3.1)
         Container(
-          width: 44.0,
-          height: 44.0,
+          width: 40.0,
+          height: 40.0,
           decoration: BoxDecoration(
-            color: AppColors.secondary.shade200,
-            border: Border.all(color: AppColors.primary.shade400),
+            color: AppColors.surfaceContainerLow,
+            border: Border.all(color: AppColors.ghostBorder(0.1)),
             borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
-            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
           ),
           alignment: Alignment.center,
-          child: Icon(AppIcons.badge, size: 18.0, color: AppColors.primary),
+          child: Icon(
+            AppIcons.badge,
+            size: 18.0,
+            color: AppColors.onSurfaceVariant,
+          ),
         ),
-        Gap.w12,
+        Gap.w10,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 accountName,
-                style: theme.textTheme.labelMedium!.copyWith(
+                style: theme.textTheme.titleMedium!.copyWith(
                   color: AppColors.onSurface,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Gap.h2,
+              Gap.h4,
               Text(
                 membership.church?.name ?? 'Your positions',
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -155,19 +158,18 @@ class _PositionChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // 8px grid spacing - 8px horizontal, 4px vertical (Requirement 3.4)
-      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
       decoration: BoxDecoration(
         // Teal accent color at low opacity (Requirement 3.1)
-        color: AppColors.surfaceContainerHighest,
+        color: AppColors.surfaceContainerLow,
         border: Border.all(color: AppColors.ghostBorder(0.08), width: 1),
         // 8px border radius for chips (Design spec)
         borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
       ),
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelMedium!.copyWith(
-          color: AppColors.onSurface,
+          color: AppColors.onSurfaceVariant,
           fontWeight: FontWeight.w600,
         ),
       ),

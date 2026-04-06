@@ -32,6 +32,10 @@ class RealtimeEventsService {
     _listen('notification.updated');
     _listen('notification.deleted');
 
+    _listen('activity.created');
+    _listen('activity.updated');
+    _listen('activity.deleted');
+
     _listen('reportJob.created');
     _listen('reportJob.updated');
     _listen('report.ready');

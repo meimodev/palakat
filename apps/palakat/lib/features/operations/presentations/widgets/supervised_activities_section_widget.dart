@@ -54,23 +54,22 @@ class SupervisedActivitiesSection extends StatelessWidget {
     }
 
     return Material(
-      color: AppColors.surfaceContainerLow,
+      color: AppColors.surfaceContainerLowest,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: AppColors.neutral, width: 1),
+        side: BorderSide(color: AppColors.ghostBorder(0.08), width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _SectionHeader(
-            activityCount: activities.length,
             onSeeAllTap: onSeeAllTap,
             showSeeAll: !isLoading && error == null && activities.isNotEmpty,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 10.0),
+            padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
             child: _buildContent(),
           ),
         ],
@@ -106,39 +105,35 @@ class SupervisedActivitiesSection extends StatelessWidget {
 
 /// Expandable header with icon, title, count badge, and expand/collapse indicator
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.activityCount,
-    required this.onSeeAllTap,
-    required this.showSeeAll,
-  });
+  const _SectionHeader({required this.onSeeAllTap, required this.showSeeAll});
 
-  final int activityCount;
   final VoidCallback onSeeAllTap;
   final bool showSeeAll;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainer,
+      color: Colors.transparent,
       child: Padding(
-        padding: EdgeInsets.all(12.0),
+        padding: EdgeInsets.fromLTRB(14.0, 14.0, 14.0, 10.0),
         child: Row(
           children: [
             Container(
-              width: 36.0,
-              height: 36.0,
+              width: 32.0,
+              height: 32.0,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.15),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                ),
+                color: AppColors.surfaceContainerLow,
+                border: Border.all(color: AppColors.ghostBorder(0.08)),
                 borderRadius: BorderRadius.circular(8.0),
-                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
               ),
-              child: Icon(AppIcons.event, color: AppColors.primary, size: 20.0),
+              child: Icon(
+                AppIcons.event,
+                color: AppColors.onSurfaceVariant,
+                size: 18.0,
+              ),
             ),
-            Gap.w10,
+            Gap.w8,
             Expanded(
               child: Text(
                 context.l10n.supervisedActivities_title,
@@ -155,7 +150,7 @@ class _SectionHeader extends StatelessWidget {
                 onPressed: onSeeAllTap,
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),

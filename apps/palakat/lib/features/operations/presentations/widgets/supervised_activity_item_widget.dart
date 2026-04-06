@@ -30,7 +30,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
 
     if (approvers.isEmpty) {
       return _ApprovalStatusInfo(
-        color: AppColors.neutral,
+        color: AppColors.outline,
         label: context.l10n.msg_noApproversAssigned,
       );
     }
@@ -70,7 +70,10 @@ class SupervisedActivityItemWidget extends StatelessWidget {
 
     return Material(
       color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppColors.ghostBorder(0.08)),
+      ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: onTap,
@@ -102,7 +105,7 @@ class SupervisedActivityItemWidget extends StatelessWidget {
                         Text(
                           activity.date.ddMmmmYyyy,
                           style: Theme.of(context).textTheme.labelMedium!
-                              .copyWith(color: AppColors.secondary.shade100),
+                              .copyWith(color: AppColors.onSurfaceVariant),
                         ),
                         Gap.w8,
                         Container(
@@ -158,7 +161,6 @@ class _ActivityTypeBadge extends StatelessWidget {
         color: _getBadgeColor().withValues(alpha: 0.1),
         border: Border.all(color: _getBadgeColor().withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(4),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Text(
         activityType.displayName,
@@ -195,7 +197,6 @@ class _FinanceTypeBadge extends StatelessWidget {
         color: financeType.color.withValues(alpha: 0.1),
         border: Border.all(color: financeType.color.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(80),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -222,7 +223,6 @@ class _StatusInfoBadge extends StatelessWidget {
         color: statusInfoColor.withValues(alpha: 0.075),
         border: Border.all(color: statusInfoColor.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(4),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 6),
       ),
       child: Text(
         statusInfo,

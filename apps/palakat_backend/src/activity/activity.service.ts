@@ -11,6 +11,7 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationService } from '../notification/notification.service';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { DocumentInput } from '../generated/prisma/enums';
 
 /**
@@ -65,7 +66,35 @@ export class ActivitiesService {
     private prisma: PrismaService,
     private approverResolver: ApproverResolverService,
     private notificationService: NotificationService,
+    private realtime: RealtimeEmitterService,
   ) {}
+
+  private emitActivityEvent(params: {
+    eventName: 'activity.created' | 'activity.updated' | 'activity.deleted';
+    activityId: number;
+    churchId: number;
+    supervisorId?: number | null;
+    approverMembershipIds?: Array<number | null | undefined>;
+    updatedAt?: unknown;
+  }): void {
+    try {
+      this.realtime.emitActivityEvent({
+        eventName: params.eventName,
+        activityId: params.activityId,
+        churchId: params.churchId,
+        affectedMembershipIds: [
+          params.supervisorId,
+          ...(params.approverMembershipIds ?? []),
+        ],
+        updatedAt: params.updatedAt,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to emit ${params.eventName} for activity ${params.activityId}: ${error.message}`,
+        error.stack,
+      );
+    }
+  }
 
   async findAll(query: ActivityListQueryDto, user?: any) {
     const {
@@ -417,9 +446,35 @@ export class ActivitiesService {
   }
 
   async remove(id: number) {
-    await (this.prisma as any).activity.delete({
+    const activity = await (this.prisma as any).activity.delete({
       where: { id },
+      include: {
+        supervisor: {
+          select: {
+            churchId: true,
+          },
+        },
+        approvers: {
+          select: {
+            membershipId: true,
+          },
+        },
+      },
     });
+
+    if (typeof activity.supervisor?.churchId === 'number') {
+      this.emitActivityEvent({
+        eventName: 'activity.deleted',
+        activityId: activity.id,
+        churchId: activity.supervisor.churchId,
+        supervisorId: activity.supervisorId,
+        approverMembershipIds: activity.approvers.map(
+          (approver: any) => approver.membershipId,
+        ),
+        updatedAt: activity.updatedAt,
+      });
+    }
+
     return {
       message: 'Activity deleted successfully',
     };
@@ -743,6 +798,19 @@ export class ActivitiesService {
       );
     }
 
+    if (activity) {
+      this.emitActivityEvent({
+        eventName: 'activity.created',
+        activityId: activity.id,
+        churchId: membership.churchId,
+        supervisorId: activity.supervisorId,
+        approverMembershipIds: activity.approvers?.map(
+          (approver: any) => approver.membershipId,
+        ),
+        updatedAt: activity.updatedAt,
+      });
+    }
+
     return {
       message: 'Activity created successfully',
       data: activity,
@@ -976,6 +1044,20 @@ export class ActivitiesService {
         document: true,
       },
     });
+
+    if (typeof activity.supervisor?.churchId === 'number') {
+      this.emitActivityEvent({
+        eventName: 'activity.updated',
+        activityId: activity.id,
+        churchId: activity.supervisor.churchId,
+        supervisorId: activity.supervisorId,
+        approverMembershipIds: activity.approvers?.map(
+          (approver: any) => approver.membershipId,
+        ),
+        updatedAt: activity.updatedAt,
+      });
+    }
+
     return {
       message: 'Activity updated successfully',
       data: activity,

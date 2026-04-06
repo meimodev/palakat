@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ActivitiesService } from './activity.service';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationModule } from '../notification/notification.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 
 /**
  * Activity module for managing church activities.
@@ -12,7 +13,7 @@ import { NotificationModule } from '../notification/notification.module';
  * **Validates: Requirements 8.3**
  */
 @Module({
-  imports: [NotificationModule],
+  imports: [NotificationModule, RealtimeModule],
   providers: [ActivitiesService, ApproverResolverService],
 })
 export class ActivitiesModule {}

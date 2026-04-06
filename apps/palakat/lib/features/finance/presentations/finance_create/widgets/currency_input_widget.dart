@@ -121,6 +121,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
   @override
   Widget build(BuildContext context) {
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -130,8 +131,8 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
           widget.label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            color: AppColors.neutral,
+          style: theme.textTheme.titleMedium!.copyWith(
+            color: AppColors.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -144,7 +145,7 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
             side: BorderSide(
               color: hasError
                   ? AppColors.error.withValues(alpha: 0.5)
-                  : AppColors.neutral,
+                  : AppColors.outlineVariant,
             ),
           ),
           child: Row(
@@ -161,8 +162,8 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                 ),
                 child: Text(
                   'Rp',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: AppColors.neutral,
+                  style: theme.textTheme.titleMedium!.copyWith(
+                    color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -179,9 +180,9 @@ class _CurrencyInputWidgetState extends State<CurrencyInputWidget> {
                   ).textTheme.bodyMedium!.copyWith(color: AppColors.onSurface),
                   decoration: InputDecoration(
                     hintText: widget.hint,
-                    hintStyle: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium!.copyWith(color: AppColors.neutral),
+                    hintStyle: theme.textTheme.bodyMedium!.copyWith(
+                      color: AppColors.onSurfaceVariant.withValues(alpha: 0.75),
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 14.0,

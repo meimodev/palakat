@@ -268,7 +268,51 @@ describe('ApproverService', () => {
       expect(mockPrismaService.approver.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { status: 'APPROVED' },
-        include: expect.any(Object),
+        include: {
+          activity: {
+            include: {
+              supervisor: {
+                include: {
+                  account: {
+                    select: {
+                      id: true,
+                      name: true,
+                      phone: true,
+                      dob: true,
+                    },
+                  },
+                },
+              },
+              approvers: {
+                select: {
+                  id: true,
+                  membershipId: true,
+                  status: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+              document: {
+                include: {
+                  church: true,
+                  file: true,
+                },
+              },
+            },
+          },
+          membership: {
+            include: {
+              account: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  dob: true,
+                },
+              },
+            },
+          },
+        },
       });
     });
 

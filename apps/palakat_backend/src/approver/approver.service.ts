@@ -13,6 +13,7 @@ import { ApproverListQueryDto } from './dto/approver-list.dto';
 import { NotificationService } from '../notification/notification.service';
 import { ApprovalStatus } from '../generated/prisma/client';
 import { DocumentService } from '../document/document.service';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 
 @Injectable()
 export class ApproverService {
@@ -21,6 +22,8 @@ export class ApproverService {
     private documentService: DocumentService,
     @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
+    @Inject(forwardRef(() => RealtimeEmitterService))
+    private realtime: RealtimeEmitterService,
   ) {}
 
   private isFullyApproved(activity: any): boolean {
@@ -70,6 +73,26 @@ export class ApproverService {
 
       throw error;
     }
+  }
+
+  private emitActivityUpdatedEvent(activity: any): void {
+    const churchId = activity?.supervisor?.churchId;
+    if (typeof churchId !== 'number' || typeof activity?.id !== 'number') {
+      return;
+    }
+
+    this.realtime.emitActivityEvent({
+      eventName: 'activity.updated',
+      activityId: activity.id,
+      churchId,
+      affectedMembershipIds: [
+        activity.supervisorId,
+        ...(activity.approvers ?? []).map(
+          (approver: any) => approver.membershipId,
+        ),
+      ],
+      updatedAt: activity.updatedAt,
+    });
   }
 
   async create(
@@ -341,6 +364,8 @@ export class ApproverService {
                 id: true,
                 membershipId: true,
                 status: true,
+                createdAt: true,
+                updatedAt: true,
               },
             },
             document: {
@@ -365,6 +390,8 @@ export class ApproverService {
         },
       },
     });
+
+    this.emitActivityUpdatedEvent(approver.activity);
 
     if (updateApproverDto.status === ApprovalStatus.APPROVED) {
       await this.maybeAutoGenerateLinkedDocument(approver);

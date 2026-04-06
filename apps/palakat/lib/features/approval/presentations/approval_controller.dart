@@ -3,6 +3,7 @@ import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/models/models.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'approval_controller.g.dart';
@@ -17,9 +18,106 @@ class ApprovalController extends _$ApprovalController {
 
   @override
   ApprovalState build() {
+    final socket = ref.read(socketServiceProvider);
+    var previousConnectionStatus = socket.connectionStatus;
+
+    void onSocketStatusChanged() {
+      final nextStatus = socket.connectionStatus;
+      final didReconnect =
+          previousConnectionStatus != SocketConnectionStatus.connected &&
+          nextStatus == SocketConnectionStatus.connected;
+      previousConnectionStatus = nextStatus;
+
+      if (!didReconnect) {
+        return;
+      }
+
+      if (state.membership == null) {
+        return;
+      }
+
+      Future.microtask(_refreshFirstPageFromRealtime);
+    }
+
+    socket.connectionStatusListenable.addListener(onSocketStatusChanged);
+    ref.onDispose(() {
+      socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
+    });
+
+    ref.listen(realtimeEventProvider, (_, next) {
+      final event = next.asData?.value;
+      if (event == null) {
+        return;
+      }
+
+      if (!_shouldRefreshForRealtimeEvent(event)) {
+        return;
+      }
+
+      Future.microtask(_refreshFirstPageFromRealtime);
+    });
+
     final initialState = _createInitialState();
     Future.microtask(fetchData);
     return initialState;
+  }
+
+  bool _isActivityEventName(String eventName) {
+    return eventName == 'activity.created' ||
+        eventName == 'activity.updated' ||
+        eventName == 'activity.deleted';
+  }
+
+  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
+    final data = event.payload['data'];
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is Map) {
+      return data.map((key, value) => MapEntry(key.toString(), value));
+    }
+    return null;
+  }
+
+  List<int> _extractAffectedMembershipIds(RealtimeEvent event) {
+    final data = _extractEventData(event);
+    final rawIds = data?['affectedMembershipIds'];
+    if (rawIds is! List) {
+      return const [];
+    }
+
+    return rawIds
+        .map((value) => value is int ? value : int.tryParse('$value'))
+        .whereType<int>()
+        .toList(growable: false);
+  }
+
+  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
+    if (!_isActivityEventName(event.name)) {
+      return false;
+    }
+
+    final membershipId = state.membership?.id;
+    if (membershipId == null) {
+      return false;
+    }
+
+    final affectedMembershipIds = _extractAffectedMembershipIds(event);
+    return affectedMembershipIds.contains(membershipId);
+  }
+
+  Future<void> _refreshFirstPageFromRealtime() async {
+    if (state.membership == null) {
+      return;
+    }
+
+    state = state.copyWith(
+      currentPage: 1,
+      hasMoreData: true,
+      isLoadingMore: false,
+    );
+
+    await fetchActivities(isLoadMore: false);
   }
 
   ApprovalState _createInitialState() {

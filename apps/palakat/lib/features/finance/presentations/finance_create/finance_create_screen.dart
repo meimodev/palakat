@@ -59,7 +59,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             OperationsReveal(child: _buildHeader(state)),
-            Gap.h16,
+            Gap.h12,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 12.0),
               child: Column(
@@ -69,13 +69,13 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
                     delay: const Duration(milliseconds: 40),
                     child: _buildFinanceTypeIndicator(),
                   ),
-                  Gap.h16,
+                  Gap.h12,
                   OperationsReveal(
                     delay: const Duration(milliseconds: 80),
                     child: _buildFormSection(state, controller),
                   ),
                   if (widget.isStandalone) ...[
-                    Gap.h16,
+                    Gap.h12,
                     OperationsReveal(
                       delay: const Duration(milliseconds: 120),
                       child: _buildActivityPickerSection(state, controller),
@@ -108,19 +108,18 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     final borderColor = isRevenue ? AppColors.secondary : AppColors.error;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
-        border: Border.all(color: borderColor.withValues(alpha: 0.18)),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.03, blur: 18),
+        color: accentColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+        border: Border.all(color: borderColor.withValues(alpha: 0.16)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 36.0,
-            height: 36.0,
+            width: 32.0,
+            height: 32.0,
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
@@ -133,11 +132,13 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
             ),
           ),
           Gap.w8,
-          Text(
-            widget.financeType.displayName,
-            style: theme.textTheme.titleMedium!.copyWith(
-              color: AppColors.onSurface,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              widget.financeType.displayName,
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: AppColors.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -153,6 +154,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     return FormSectionWidget(
       title: l10n.section_financialRecord,
       icon: AppIcons.wallet,
+      style: FormSectionWidgetStyle.compact,
       children: [
         // Amount input with Rupiah formatting
         CurrencyInputWidget(
@@ -193,6 +195,7 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
     return FormSectionWidget(
       title: l10n.tbl_activity,
       icon: AppIcons.event,
+      style: FormSectionWidgetStyle.compact,
       children: [
         ActivityPickerWidget(
           selectedActivity: state.selectedActivity,
@@ -225,73 +228,52 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
       surfaceTintColor: Colors.transparent,
       child: Container(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 12.0,
+          bottom: MediaQuery.of(context).padding.bottom + 10.0,
           left: 12.0,
           right: 12.0,
-          top: 12.0,
+          top: 10.0,
         ),
         decoration: BoxDecoration(
           color: AppColors.background.withValues(alpha: 0.96),
         ),
         child: SafeArea(
           top: false,
-          child: Material(
-            color: Colors.transparent,
-            elevation: 0,
-            shadowColor: Colors.transparent,
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),
-              side: BorderSide(color: AppColors.ghostBorder(0.08)),
-            ),
-            child: Container(
-              padding: EdgeInsets.all(14.0),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(
-                  SanctuaryLayout.radiusLarge,
-                ),
-                boxShadow: SanctuaryDepth.ambient(opacity: 0.04, blur: 22),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Helper text for embedded mode to clarify the action
-                  // Requirements: 4.4
-                  if (!widget.isStandalone) ...[
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 10.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(
-                          SanctuaryLayout.radius,
-                        ),
-                      ),
-                      child: Text(
-                        l10n.publish_financialRecordSubtitle,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          height: 1.35,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Gap.h12,
-                  ],
-                  // Prominent button with clear labeling
-                  // Requirements: 4.1
-                  ButtonWidget.primary(
-                    text: buttonText,
-                    isLoading: state.loading,
-                    onTap: () => _handleSubmit(controller),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Helper text for embedded mode to clarify the action
+              // Requirements: 4.4
+              if (!widget.isStandalone) ...[
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 10.0,
                   ),
-                ],
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
+                    border: Border.all(color: AppColors.ghostBorder(0.08)),
+                  ),
+                  child: Text(
+                    l10n.publish_financialRecordSubtitle,
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      height: 1.35,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Gap.h10,
+              ],
+              // Prominent button with clear labeling
+              // Requirements: 4.1
+              ButtonWidget.primary(
+                text: buttonText,
+                isLoading: state.loading,
+                onTap: () => _handleSubmit(controller),
               ),
-            ),
+            ],
           ),
         ),
       ),

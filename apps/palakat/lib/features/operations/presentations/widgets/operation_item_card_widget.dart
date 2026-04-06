@@ -37,10 +37,10 @@ class OperationItemCard extends StatelessWidget {
         color: AppColors.surfaceContainerLowest,
         elevation: 0,
         shadowColor: AppColors.onSurface,
-        surfaceTintColor: AppColors.neutral,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
-          side: BorderSide(color: AppColors.neutral, width: 1),
+          side: BorderSide(color: AppColors.ghostBorder(0.08), width: 1),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -60,7 +60,7 @@ class OperationItemCard extends StatelessWidget {
                     MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
                 return Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(12.0),
                   child: isCompact
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,23 +195,24 @@ class _OperationIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: isCompact ? 26.0 : 32.0,
-      height: isCompact ? 26.0 : 32.0,
+      width: isCompact ? 28.0 : 34.0,
+      height: isCompact ? 28.0 : 34.0,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isEnabled ? AppColors.primary : AppColors.secondary.shade200,
+        color: isEnabled
+            ? AppColors.primary.withValues(alpha: 0.1)
+            : AppColors.surfaceContainerLow,
         border: Border.all(
           color: isEnabled
-              ? AppColors.primary.withValues(alpha: 0.2)
+              ? AppColors.primary.withValues(alpha: 0.18)
               : AppColors.ghostBorder(0.08),
         ),
         borderRadius: BorderRadius.circular(8.0),
-        boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
       ),
       child: Icon(
         icon,
-        color: isEnabled ? AppColors.neutral : AppColors.secondary,
-        size: isCompact ? 12.0 : 14.0,
+        color: isEnabled ? AppColors.primary : AppColors.onSurfaceVariant,
+        size: isCompact ? 13.0 : 15.0,
       ),
     );
   }

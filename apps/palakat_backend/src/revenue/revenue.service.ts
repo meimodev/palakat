@@ -9,14 +9,19 @@ export class RevenueService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Resolves the accountNumber string from a FinancialAccountNumber if provided.
-   * If financialAccountNumberId is provided, fetches the account number from the linked record.
-   * Otherwise, uses the provided accountNumber string.
+   * Resolves the persisted account number and optional linked financial account.
+   * When only accountNumber is provided, this attempts to normalize it against
+   * the church-scoped FinancialAccountNumber table so returned relations stay
+   * populated server-side.
    */
-  private async resolveAccountNumber(
+  private async resolveFinancialAccount(
+    churchId: number,
     financialAccountNumberId?: number,
     accountNumber?: string,
-  ): Promise<string> {
+  ): Promise<{
+    accountNumber: string;
+    financialAccountNumberId: number | null;
+  }> {
     if (financialAccountNumberId) {
       const financialAccount = await (
         this.prisma as any
@@ -30,16 +35,39 @@ export class RevenueService {
         );
       }
 
-      return financialAccount.accountNumber;
+      return {
+        accountNumber: financialAccount.accountNumber,
+        financialAccountNumberId: financialAccount.id,
+      };
     }
 
-    if (!accountNumber) {
+    const normalizedAccountNumber = accountNumber?.trim();
+
+    if (!normalizedAccountNumber) {
       throw new BadRequestException(
         'Either accountNumber or financialAccountNumberId must be provided',
       );
     }
 
-    return accountNumber;
+    const financialAccount = await (
+      this.prisma as any
+    ).financialAccountNumber.findUnique({
+      where: {
+        churchId_accountNumber: {
+          churchId,
+          accountNumber: normalizedAccountNumber,
+        },
+      },
+      select: {
+        id: true,
+        accountNumber: true,
+      },
+    });
+
+    return {
+      accountNumber: financialAccount?.accountNumber ?? normalizedAccountNumber,
+      financialAccountNumberId: financialAccount?.id ?? null,
+    };
   }
 
   async findAll(query: RevenueListQueryDto) {
@@ -184,8 +212,8 @@ export class RevenueService {
       }
     }
 
-    // Resolve the account number from FinancialAccountNumber if provided
-    const resolvedAccountNumber = await this.resolveAccountNumber(
+    const resolvedFinancialAccount = await this.resolveFinancialAccount(
+      rest.churchId,
       financialAccountNumberId,
       accountNumber,
     );
@@ -193,20 +221,36 @@ export class RevenueService {
     const data: any = {
       ...rest,
       activityId,
-      accountNumber: resolvedAccountNumber,
+      accountNumber: resolvedFinancialAccount.accountNumber,
     };
 
-    // Link to FinancialAccountNumber if provided
-    if (financialAccountNumberId) {
-      data.financialAccountNumber = {
-        connect: { id: financialAccountNumberId },
-      };
+    if (resolvedFinancialAccount.financialAccountNumberId != null) {
+      data.financialAccountNumberId =
+        resolvedFinancialAccount.financialAccountNumberId;
     }
 
     const revenue = await (this.prisma as any).revenue.create({
       data,
       include: {
-        activity: true,
+        activity: {
+          include: {
+            approvers: true,
+            supervisor: {
+              include: {
+                account: {
+                  select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    dob: true,
+                  },
+                },
+                membershipPositions: true,
+              },
+            },
+            location: true,
+          },
+        },
         financialAccountNumber: true,
       },
     });
@@ -236,34 +280,73 @@ export class RevenueService {
       }
     }
 
+    const currentRevenue = await (this.prisma as any).revenue.findUniqueOrThrow(
+      {
+        where: { id },
+        select: { churchId: true },
+      },
+    );
+
+    const effectiveChurchId = rest.churchId ?? currentRevenue.churchId;
     const data: any = { ...rest, activityId };
 
     // If financialAccountNumberId is provided, resolve and update the account number
     if (financialAccountNumberId !== undefined) {
       if (financialAccountNumberId === null) {
-        // Disconnect the financial account number
-        data.financialAccountNumber = { disconnect: true };
+        data.financialAccountNumberId = null;
+        if (accountNumber !== undefined) {
+          const normalizedAccountNumber = accountNumber.trim();
+          if (!normalizedAccountNumber) {
+            throw new BadRequestException(
+              'Either accountNumber or financialAccountNumberId must be provided',
+            );
+          }
+          data.accountNumber = normalizedAccountNumber;
+        }
       } else {
-        // Resolve the account number from the linked FinancialAccountNumber
-        const resolvedAccountNumber = await this.resolveAccountNumber(
+        const resolvedFinancialAccount = await this.resolveFinancialAccount(
+          effectiveChurchId,
           financialAccountNumberId,
-          undefined,
+          accountNumber,
         );
-        data.accountNumber = resolvedAccountNumber;
-        data.financialAccountNumber = {
-          connect: { id: financialAccountNumberId },
-        };
+        data.accountNumber = resolvedFinancialAccount.accountNumber;
+        data.financialAccountNumberId =
+          resolvedFinancialAccount.financialAccountNumberId;
       }
     } else if (accountNumber !== undefined) {
-      // If only accountNumber is provided (no financialAccountNumberId), update it directly
-      data.accountNumber = accountNumber;
+      const resolvedFinancialAccount = await this.resolveFinancialAccount(
+        effectiveChurchId,
+        undefined,
+        accountNumber,
+      );
+      data.accountNumber = resolvedFinancialAccount.accountNumber;
+      data.financialAccountNumberId =
+        resolvedFinancialAccount.financialAccountNumberId;
     }
 
     const revenue = await (this.prisma as any).revenue.update({
       where: { id },
       data,
       include: {
-        activity: true,
+        activity: {
+          include: {
+            approvers: true,
+            supervisor: {
+              include: {
+                account: {
+                  select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    dob: true,
+                  },
+                },
+                membershipPositions: true,
+              },
+            },
+            location: true,
+          },
+        },
         financialAccountNumber: true,
       },
     });

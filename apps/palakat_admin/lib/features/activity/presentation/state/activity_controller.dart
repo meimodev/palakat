@@ -5,6 +5,7 @@ import 'package:palakat_admin/features/auth/application/auth_controller.dart';
 import 'package:palakat_admin/models.dart';
 import 'package:palakat_admin/repositories.dart';
 import 'package:palakat_admin/utils.dart';
+import 'package:palakat_shared/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'activity_controller.g.dart';
@@ -18,9 +19,41 @@ class ActivityController extends _$ActivityController {
   @override
   ActivityScreenState build() {
     _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 300));
+    final socket = ref.read(socketServiceProvider);
+    var previousConnectionStatus = socket.connectionStatus;
+
+    void onSocketStatusChanged() {
+      final nextStatus = socket.connectionStatus;
+      final didReconnect =
+          previousConnectionStatus != SocketConnectionStatus.connected &&
+          nextStatus == SocketConnectionStatus.connected;
+      previousConnectionStatus = nextStatus;
+
+      if (!didReconnect || _currentChurchId == null) {
+        return;
+      }
+
+      Future.microtask(_fetchActivities);
+    }
+
+    socket.connectionStatusListenable.addListener(onSocketStatusChanged);
     ref.onDispose(() {
       _isDisposed = true;
+      socket.connectionStatusListenable.removeListener(onSocketStatusChanged);
       _searchDebouncer.dispose();
+    });
+
+    ref.listen(realtimeEventProvider, (_, next) {
+      final event = next.asData?.value;
+      if (event == null) {
+        return;
+      }
+
+      if (!_shouldRefreshForRealtimeEvent(event)) {
+        return;
+      }
+
+      Future.microtask(_fetchActivities);
     });
 
     final initial = const ActivityScreenState();
@@ -32,6 +65,48 @@ class ActivityController extends _$ActivityController {
 
   Church get church =>
       ref.read(authControllerProvider).value!.account.membership!.church!;
+
+  int? get _currentChurchId {
+    return ref
+        .read(authControllerProvider)
+        .value
+        ?.account
+        .membership
+        ?.church
+        ?.id;
+  }
+
+  Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
+    final data = event.payload['data'];
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is Map) {
+      return data.map((key, value) => MapEntry(key.toString(), value));
+    }
+    return null;
+  }
+
+  bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
+    if (event.name != 'activity.created' &&
+        event.name != 'activity.updated' &&
+        event.name != 'activity.deleted') {
+      return false;
+    }
+
+    final churchId = _currentChurchId;
+    if (churchId == null) {
+      return false;
+    }
+
+    final eventData = _extractEventData(event);
+    final eventChurchId = eventData?['churchId'];
+    final normalizedChurchId = eventChurchId is int
+        ? eventChurchId
+        : int.tryParse('$eventChurchId');
+
+    return normalizedChurchId == churchId;
+  }
 
   Future<void> _fetchActivities() async {
     if (_isDisposed) return;
