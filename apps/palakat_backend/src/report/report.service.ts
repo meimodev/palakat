@@ -225,8 +225,25 @@ export class ReportService {
     }
 
     const type = dto.type;
-    const startDate = this.normalizeReportDate(dto.startDate as Date | string);
-    const endDate = this.normalizeReportDate(dto.endDate as Date | string);
+    const congregationSubtype =
+      type === ReportGenerateType.CONGREGATION
+        ? (dto.congregationSubtype ?? CongregationReportSubtype.WARTA_JEMAAT)
+        : dto.congregationSubtype;
+
+    const rawStartDate = this.normalizeReportDate(
+      dto.startDate as Date | string,
+    );
+    const rawEndDate = this.normalizeReportDate(dto.endDate as Date | string);
+    const startDate =
+      type === ReportGenerateType.CONGREGATION &&
+      congregationSubtype === CongregationReportSubtype.KEANGGOTAAN
+        ? undefined
+        : rawStartDate;
+    const endDate =
+      type === ReportGenerateType.CONGREGATION &&
+      congregationSubtype === CongregationReportSubtype.KEANGGOTAAN
+        ? undefined
+        : rawEndDate;
 
     if ((startDate == null) != (endDate == null)) {
       throw new BadRequestException('Invalid report date range');
@@ -235,11 +252,6 @@ export class ReportService {
     if (startDate && endDate && startDate > endDate) {
       throw new BadRequestException('Invalid report date range');
     }
-
-    const congregationSubtype =
-      type === ReportGenerateType.CONGREGATION
-        ? (dto.congregationSubtype ?? CongregationReportSubtype.WARTA_JEMAAT)
-        : dto.congregationSubtype;
 
     const columnId =
       type === ReportGenerateType.CONGREGATION ||
@@ -837,13 +849,24 @@ export class ReportService {
   ) {
     const type = dto.type;
     const format = dto.format ?? ReportFormat.PDF;
-    const startDate = dto.startDate;
-    const endDate = dto.endDate;
 
     const congregationSubtype =
       type === ReportGenerateType.CONGREGATION
         ? (dto.congregationSubtype ?? CongregationReportSubtype.WARTA_JEMAAT)
         : dto.congregationSubtype;
+
+    const rawStartDate = dto.startDate;
+    const rawEndDate = dto.endDate;
+    const startDate =
+      type === ReportGenerateType.CONGREGATION &&
+      congregationSubtype === CongregationReportSubtype.KEANGGOTAAN
+        ? undefined
+        : rawStartDate;
+    const endDate =
+      type === ReportGenerateType.CONGREGATION &&
+      congregationSubtype === CongregationReportSubtype.KEANGGOTAAN
+        ? undefined
+        : rawEndDate;
 
     const columnId =
       type === ReportGenerateType.CONGREGATION ||

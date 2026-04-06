@@ -61,6 +61,11 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
     return _dateRangePreset.getDateRange();
   }
 
+  bool get _requiresDateRange {
+    return widget.reportType != 'CONGREGATION' ||
+        _congregationSubtype != CongregationReportSubtype.keanggotaan;
+  }
+
   bool _isNoMatchMessage(String text) {
     final normalized = text.toLowerCase();
     return normalized.contains('no ') &&
@@ -77,8 +82,8 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
   }
 
   Future<void> _generateReport() async {
-    final effectiveRange = _getEffectiveDateRange();
-    if (effectiveRange == null) {
+    final effectiveRange = _requiresDateRange ? _getEffectiveDateRange() : null;
+    if (_requiresDateRange && effectiveRange == null) {
       setState(() {
         _errorMessage = context.l10n.validation_invalidRange;
       });
@@ -149,6 +154,7 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
         widget.reportType == 'FINANCIAL';
     final showActivityType = widget.reportType == 'ACTIVITY';
     final showFinancialSubtype = widget.reportType == 'FINANCIAL';
+    final showDateRange = _requiresDateRange;
     final enableColumnDropdown =
         (widget.reportType != 'FINANCIAL' ||
             _financialSubtype != FinancialReportSubtype.mutation) &&
@@ -392,81 +398,83 @@ class _ReportGenerateDrawerState extends ConsumerState<ReportGenerateDrawer> {
             const SizedBox(height: 16),
           ],
 
-          LabeledField(
-            label: l10n.lbl_dateRange,
-            child: Builder(
-              builder: (context) {
-                final effective = _getEffectiveDateRange();
-                return DateRangePresetInput(
-                  label: '',
-                  hint: l10n.lbl_dateRange,
-                  preset: _dateRangePreset,
-                  start: effective?.start,
-                  end: effective?.end,
-                  allowedPresets: DateRangePreset.values
-                      .where((p) => p != DateRangePreset.allTime)
-                      .toList(),
-                  onCustomDateRangeSelected: (range) {
-                    setState(() => _customDateRange = range);
-                  },
-                  onPresetChanged: (preset) {
-                    setState(() {
-                      _dateRangePreset = preset;
-                      if (preset != DateRangePreset.custom) {
-                        _customDateRange = null;
-                      }
-                    });
-                  },
-                  onChanged: (start, end) {},
-                );
-              },
+          if (showDateRange) ...[
+            LabeledField(
+              label: l10n.lbl_dateRange,
+              child: Builder(
+                builder: (context) {
+                  final effective = _getEffectiveDateRange();
+                  return DateRangePresetInput(
+                    label: '',
+                    hint: l10n.lbl_dateRange,
+                    preset: _dateRangePreset,
+                    start: effective?.start,
+                    end: effective?.end,
+                    allowedPresets: DateRangePreset.values
+                        .where((p) => p != DateRangePreset.allTime)
+                        .toList(),
+                    onCustomDateRangeSelected: (range) {
+                      setState(() => _customDateRange = range);
+                    },
+                    onPresetChanged: (preset) {
+                      setState(() {
+                        _dateRangePreset = preset;
+                        if (preset != DateRangePreset.custom) {
+                          _customDateRange = null;
+                        }
+                      });
+                    },
+                    onChanged: (start, end) {},
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Builder(
-                    builder: (context) {
-                      final effectiveRange = _getEffectiveDateRange();
-                      if (effectiveRange == null) {
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Builder(
+                      builder: (context) {
+                        final effectiveRange = _getEffectiveDateRange();
+                        if (effectiveRange == null) {
+                          return Text(
+                            l10n.validation_invalidRange,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          );
+                        }
+                        final format = DateFormat.yMMMMEEEEd();
                         return Text(
-                          l10n.validation_invalidRange,
+                          l10n.lbl_dateRangeStartEnd(
+                            format.format(effectiveRange.start),
+                            format.format(effectiveRange.end),
+                          ),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                         );
-                      }
-                      final format = DateFormat.yMMMMEEEEd();
-                      return Text(
-                        l10n.lbl_dateRangeStartEnd(
-                          format.format(effectiveRange.start),
-                          format.format(effectiveRange.end),
-                        ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
+          ],
           LabeledField(
             label: l10n.lbl_format,
             child: DropdownButtonFormField<ReportFormat>(
