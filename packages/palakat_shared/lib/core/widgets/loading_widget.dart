@@ -15,7 +15,7 @@ class AppLoadingWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final indicatorSize = size ?? 48;
     final cardWidth = (indicatorSize * 5.5).clamp(220.0, 320.0).toDouble();
-    final cardHeight = message == null ? 104.0 : 124.0;
+    final cardHeight = message == null ? 124.0 : 144.0;
 
     return Center(
       child: Column(
@@ -24,21 +24,13 @@ class AppLoadingWidget extends StatelessWidget {
         children: [
           LoadingShimmer(
             isLoading: true,
-            child: ShimmerPlaceholders.simpleCard(
+            child: ShimmerPlaceholders.blockingCard(
               width: cardWidth,
               height: cardHeight,
-              padding: EdgeInsets.symmetric(
-                horizontal: indicatorSize * 0.42,
-                vertical: indicatorSize * 0.34,
-              ),
-              backgroundColor: AppColors.surfaceContainerLow,
-              placeholderColor: AppColors.surfaceContainerHighest.withValues(
-                alpha: 0.92,
-              ),
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: 16),
+            Gap.h16,
             Text(
               message!,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -59,6 +51,9 @@ class CompactLoadingWidget extends StatelessWidget {
   final double size;
   final Color? baseColor;
   final Color? highlightColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final EdgeInsetsGeometry? padding;
 
   const CompactLoadingWidget({
     super.key,
@@ -66,15 +61,23 @@ class CompactLoadingWidget extends StatelessWidget {
     this.size = 16,
     this.baseColor,
     this.highlightColor,
+    this.backgroundColor,
+    this.borderColor,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveBaseColor =
-        baseColor ?? AppColors.surfaceContainerHighest.withValues(alpha: 0.92);
+        baseColor ?? theme.colorScheme.primary.withValues(alpha: 0.28);
     final effectiveHighlightColor =
-        highlightColor ?? AppColors.surface.withValues(alpha: 0.98);
+        highlightColor ?? theme.colorScheme.primary.withValues(alpha: 0.96);
+    final effectiveBackgroundColor =
+        backgroundColor ??
+        theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.78);
+    final effectiveBorderColor =
+        borderColor ?? theme.colorScheme.outlineVariant.withValues(alpha: 0.42);
 
     final indicator = LoadingShimmer(
       isLoading: true,
@@ -83,21 +86,79 @@ class CompactLoadingWidget extends StatelessWidget {
       child: _LoadingGlyph(size: size, color: effectiveBaseColor),
     );
 
+    final shell = Container(
+      constraints: BoxConstraints(
+        minWidth: size * 2.5,
+        minHeight: size * 2.25,
+      ),
+      padding:
+          padding ??
+          EdgeInsets.symmetric(
+            horizontal: size * 0.42,
+            vertical: size * 0.34,
+          ),
+      decoration: BoxDecoration(
+        color: effectiveBackgroundColor,
+        borderRadius: BorderRadius.circular(size * 0.95),
+        border: Border.all(color: effectiveBorderColor),
+      ),
+      child: Center(child: indicator),
+    );
+
     if (message == null) {
-      return indicator;
+      return shell;
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
+      children: [shell, Gap.w8, Text(message!)],
+    );
+  }
+}
+
+class LoadingActionContent extends StatelessWidget {
+  const LoadingActionContent({
+    super.key,
+    required this.isLoading,
+    required this.child,
+    this.loaderSize = 18,
+    this.loaderBaseColor,
+    this.loaderHighlightColor,
+    this.loaderBackgroundColor,
+    this.loaderBorderColor,
+    this.duration = const Duration(milliseconds: 180),
+  });
+
+  final bool isLoading;
+  final Widget child;
+  final double loaderSize;
+  final Color? loaderBaseColor;
+  final Color? loaderHighlightColor;
+  final Color? loaderBackgroundColor;
+  final Color? loaderBorderColor;
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        indicator,
-        const SizedBox(width: 8),
-        Text(
-          message!,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+        IgnorePointer(
+          ignoring: isLoading,
+          child: AnimatedOpacity(
+            opacity: isLoading ? 0 : 1,
+            duration: duration,
+            child: child,
           ),
         ),
+        if (isLoading)
+          CompactLoadingWidget(
+            size: loaderSize,
+            baseColor: loaderBaseColor,
+            highlightColor: loaderHighlightColor,
+            backgroundColor: loaderBackgroundColor,
+            borderColor: loaderBorderColor,
+          ),
       ],
     );
   }

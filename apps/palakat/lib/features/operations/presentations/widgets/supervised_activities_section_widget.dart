@@ -99,7 +99,7 @@ class SupervisedActivitiesSection extends StatelessWidget {
   }
 
   Widget _buildShimmerPlaceholder() {
-    return PalakatShimmerPlaceholders.listSection();
+    return ShimmerPlaceholders.listSection();
   }
 }
 

@@ -393,14 +393,30 @@ class ButtonWidget extends StatelessWidget {
   /// [INFO] GET COLOR
   ///
   /// function to get loading widget
-  Widget _getLoadingWidget(BuildContext context) {
+  Color _getLoadingBaseColor(BuildContext context) {
     final indicatorColor = _getTextStyle(context)?.color ?? AppColors.onPrimary;
+    return indicatorColor.withValues(alpha: 0.52);
+  }
 
-    return CompactLoadingWidget(
-      size: _isIconOnly ? 12.0 : 18.0,
-      baseColor: indicatorColor.withValues(alpha: 0.52),
-      highlightColor: indicatorColor.withValues(alpha: 0.95),
-    );
+  Color _getLoadingHighlightColor(BuildContext context) {
+    final indicatorColor = _getTextStyle(context)?.color ?? AppColors.onPrimary;
+    return indicatorColor.withValues(alpha: 0.95);
+  }
+
+  Color _getLoadingBackgroundColor(BuildContext context) {
+    if (_buttonType == _ButtonType.primary) {
+      return AppColors.onPrimary.withValues(alpha: 0.14);
+    }
+
+    return AppColors.surfaceContainerLowest.withValues(alpha: 0.92);
+  }
+
+  Color _getLoadingBorderColor(BuildContext context) {
+    if (_buttonType == _ButtonType.primary) {
+      return AppColors.onPrimary.withValues(alpha: 0.18);
+    }
+
+    return (outlineColor ?? AppColors.outlineVariant).withValues(alpha: 0.56);
   }
 
   @override
@@ -425,18 +441,14 @@ class ButtonWidget extends StatelessWidget {
             border: _getBorder(),
             borderRadius: _getBorderRadius(),
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Visibility(visible: isLoading, child: _getLoadingWidget(context)),
-              Visibility(
-                visible: !isLoading,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: _contentButton(context),
-              ),
-            ],
+          child: LoadingActionContent(
+            isLoading: isLoading,
+            loaderSize: _isIconOnly ? 12.0 : 18.0,
+            loaderBaseColor: _getLoadingBaseColor(context),
+            loaderHighlightColor: _getLoadingHighlightColor(context),
+            loaderBackgroundColor: _getLoadingBackgroundColor(context),
+            loaderBorderColor: _getLoadingBorderColor(context),
+            child: _contentButton(context),
           ),
         ),
       ),

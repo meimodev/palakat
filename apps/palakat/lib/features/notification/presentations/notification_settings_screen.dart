@@ -50,7 +50,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 _buildPreferencesSection(context, ref, settings),
             loading: () => LoadingShimmer(
               isLoading: true,
-              child: PalakatShimmerPlaceholders.infoCard(),
+              child: ShimmerPlaceholders.infoCard(),
             ),
             error: (error, stack) => Center(
               child: Text(
@@ -172,7 +172,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 padding: EdgeInsets.only(top: 8.0),
                 child: LoadingShimmer(
                   isLoading: true,
-                  child: PalakatShimmerPlaceholders.simpleCard(height: 64),
+                  child: ShimmerPlaceholders.simpleCard(height: 64),
                 ),
               ),
               error: (error, stack) => Text(

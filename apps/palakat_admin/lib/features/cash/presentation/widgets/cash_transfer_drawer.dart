@@ -239,9 +239,11 @@ class _CashTransferDrawerState extends State<CashTransferDrawer> {
           );
           final confirmButton = FilledButton(
             onPressed: _isLoading ? null : _handleTransfer,
-            child: _isLoading
-                ? const CompactLoadingWidget(size: 20)
-                : Text(l10n.btn_confirm),
+            child: LoadingActionContent(
+              isLoading: _isLoading,
+              loaderSize: 20,
+              child: Text(l10n.btn_confirm),
+            ),
           );
 
           if (constraints.maxWidth < 420) {

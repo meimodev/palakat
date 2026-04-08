@@ -95,7 +95,7 @@ class ViewAllScreen extends ConsumerWidget {
                 ref.invalidate(thisWeekBirthdaysProvider);
               }
             },
-            shimmerPlaceholder: PalakatShimmerPlaceholders.activitySection(),
+            shimmerPlaceholder: ShimmerPlaceholders.activitySection(),
             child: Builder(
               builder: (_) {
                 final activities = async.value ?? const <Activity>[];

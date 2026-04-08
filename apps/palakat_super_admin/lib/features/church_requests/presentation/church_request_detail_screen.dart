@@ -5,6 +5,8 @@ import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
 import '../data/church_requests_repository.dart';
 
+enum _ChurchRequestDecision { approve, reject }
+
 class ChurchRequestDetailScreen extends ConsumerStatefulWidget {
   const ChurchRequestDetailScreen({super.key, required this.id});
 
@@ -18,7 +20,8 @@ class ChurchRequestDetailScreen extends ConsumerStatefulWidget {
 class _ChurchRequestDetailScreenState
     extends ConsumerState<ChurchRequestDetailScreen> {
   ChurchRequest? _request;
-  bool _loading = false;
+  bool _isLoadingRequest = false;
+  _ChurchRequestDecision? _pendingDecision;
 
   String _statusLabel(BuildContext context, RequestStatus status) {
     final l10n = context.l10n;
@@ -46,13 +49,13 @@ class _ChurchRequestDetailScreenState
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
+    setState(() => _isLoadingRequest = true);
     try {
       final repo = ref.read(churchRequestsRepositoryProvider);
       final req = await repo.fetchChurchRequest(widget.id);
       if (mounted) setState(() => _request = req);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _isLoadingRequest = false);
     }
   }
 
@@ -88,7 +91,7 @@ class _ChurchRequestDetailScreenState
 
     if (confirmed != true) return;
 
-    setState(() => _loading = true);
+    setState(() => _pendingDecision = _ChurchRequestDecision.approve);
     try {
       final repo = ref.read(churchRequestsRepositoryProvider);
       await repo.approve(id: widget.id, decisionNote: noteController.text);
@@ -100,7 +103,7 @@ class _ChurchRequestDetailScreenState
         AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _pendingDecision = null);
     }
   }
 
@@ -134,7 +137,7 @@ class _ChurchRequestDetailScreenState
 
     if (confirmed != true) return;
 
-    setState(() => _loading = true);
+    setState(() => _pendingDecision = _ChurchRequestDecision.reject);
     try {
       final repo = ref.read(churchRequestsRepositoryProvider);
       await repo.reject(id: widget.id, decisionNote: noteController.text);
@@ -146,7 +149,7 @@ class _ChurchRequestDetailScreenState
         AppSnackbars.showError(context, message: e.toString());
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _pendingDecision = null);
     }
   }
 
@@ -154,6 +157,7 @@ class _ChurchRequestDetailScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final isBusy = _isLoadingRequest || _pendingDecision != null;
 
     final request = _request;
 
@@ -169,10 +173,9 @@ class _ChurchRequestDetailScreenState
               '${l10n.churchRequest_title} #${widget.id}',
               style: theme.textTheme.headlineMedium,
             ),
-            if (_loading) const CompactLoadingWidget(size: 18),
           ],
         ),
-        const SizedBox(height: 16),
+        Gap.h16,
         SurfaceCard(
           title: l10n.churchRequest_title,
           subtitle: l10n.churchRequest_churchInformation,
@@ -180,23 +183,52 @@ class _ChurchRequestDetailScreenState
             spacing: 8,
             runSpacing: 8,
             children: [
-              OutlinedButton.icon(
-                onPressed: _loading ? null : _reject,
-                icon: const Icon(Icons.cancel_outlined),
-                label: Text(l10n.btn_reject),
+              OutlinedButton(
+                onPressed: isBusy || request == null ? null : _reject,
+                child: LoadingActionContent(
+                  isLoading: _pendingDecision == _ChurchRequestDecision.reject,
+                  loaderSize: 14,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.cancel_outlined),
+                      Gap.w8,
+                      Text(l10n.btn_reject),
+                    ],
+                  ),
+                ),
               ),
-              FilledButton.icon(
-                onPressed: _loading ? null : _approve,
-                icon: const Icon(Icons.check_circle_outline),
-                label: Text(l10n.btn_approve),
+              FilledButton(
+                onPressed: isBusy || request == null ? null : _approve,
+                child: LoadingActionContent(
+                  isLoading: _pendingDecision == _ChurchRequestDecision.approve,
+                  loaderSize: 14,
+                  loaderBaseColor: theme.colorScheme.onPrimary.withValues(
+                    alpha: 0.28,
+                  ),
+                  loaderHighlightColor: theme.colorScheme.onPrimary,
+                  loaderBackgroundColor: theme.colorScheme.primary.withValues(
+                    alpha: 0.12,
+                  ),
+                  loaderBorderColor: theme.colorScheme.onPrimary.withValues(
+                    alpha: 0.18,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check_circle_outline),
+                      Gap.w8,
+                      Text(l10n.btn_approve),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
-          child: request == null
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: AppLoadingWidget(),
-                )
+          child: request == null && _isLoadingRequest
+              ? const _ChurchRequestDetailLoadingBody()
+              : request == null
+              ? const SizedBox.shrink()
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -251,6 +283,91 @@ class _ChurchRequestDetailScreenState
   }
 }
 
+class _ChurchRequestDetailLoadingBody extends StatelessWidget {
+  const _ChurchRequestDetailLoadingBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return LoadingShimmer(
+      isLoading: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: const [
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(multiline: true),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+          _ChurchRequestDetailPlaceholderRow(),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChurchRequestDetailPlaceholderRow extends StatelessWidget {
+  const _ChurchRequestDetailPlaceholderRow({this.multiline = false});
+
+  final bool multiline;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = multiline || constraints.maxWidth < 680;
+          final labelWidth = (constraints.maxWidth * 0.28)
+              .clamp(120.0, 160.0)
+              .toDouble();
+          final labelWidget = ShimmerPlaceholders.text(width: 88, height: 12);
+          final valueWidget = multiline
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerPlaceholders.text(
+                      width: double.infinity,
+                      height: 14,
+                    ),
+                    Gap.h6,
+                    ShimmerPlaceholders.text(
+                      width: constraints.maxWidth * 0.72,
+                      height: 14,
+                    ),
+                  ],
+                )
+              : ShimmerPlaceholders.text(
+                  width: stacked
+                      ? constraints.maxWidth * 0.72
+                      : (constraints.maxWidth - labelWidth - 12)
+                            .clamp(120.0, constraints.maxWidth)
+                            .toDouble(),
+                  height: 14,
+                );
+
+          if (stacked) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [labelWidget, Gap.h6, valueWidget],
+            );
+          }
+
+          return Row(
+            children: [
+              SizedBox(width: labelWidth, child: labelWidget),
+              Gap.w12,
+              Expanded(child: valueWidget),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _Row extends StatelessWidget {
   const _Row({
     required this.label,
@@ -285,14 +402,14 @@ class _Row extends StatelessWidget {
           if (stacked) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [labelWidget, const SizedBox(height: 4), valueWidget],
+              children: [labelWidget, Gap.h4, valueWidget],
             );
           }
 
           return Row(
             children: [
               SizedBox(width: labelWidth, child: labelWidget),
-              const SizedBox(width: 12),
+              Gap.w12,
               Expanded(child: valueWidget),
             ],
           );

@@ -631,27 +631,18 @@ class _TimerAndResendButton extends StatelessWidget {
               ),
             ),
           ] else ...[
-            if (isLoading)
-              Semantics(
-                label: l10n.loading_please_wait,
-                child: CompactLoadingWidget(
-                  size: 16.0,
-                  baseColor: AppColors.secondary.withValues(alpha: 0.24),
-                  highlightColor: AppColors.surface,
-                ),
-              )
-            else
-              Semantics(
-                label: resendCodeLabel,
-                hint: resendCodeLabel,
-                button: true,
-                child: ButtonWidget.text(
-                  text: resendCodeLabel,
-                  onTap: onResend,
-                  buttonSize: ButtonSize.small,
-                  textColor: AppColors.secondary,
-                ),
+            Semantics(
+              label: isLoading ? l10n.loading_please_wait : resendCodeLabel,
+              hint: resendCodeLabel,
+              button: true,
+              child: ButtonWidget.text(
+                text: resendCodeLabel,
+                onTap: onResend,
+                buttonSize: ButtonSize.small,
+                textColor: AppColors.secondary,
+                isLoading: isLoading,
               ),
+            ),
           ],
         ],
       ),

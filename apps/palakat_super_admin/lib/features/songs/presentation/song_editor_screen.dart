@@ -378,9 +378,11 @@ class _SongEditorScreenState extends ConsumerState<SongEditorScreen> {
               children: [
                 FilledButton.icon(
                   onPressed: _loading ? null : _save,
-                  icon: _loading
-                      ? const CompactLoadingWidget(size: 18)
-                      : const Icon(Icons.save),
+                  icon: LoadingActionContent(
+                    isLoading: _loading,
+                    loaderSize: 18,
+                    child: const Icon(Icons.save),
+                  ),
                   label: Text(l10n.btn_save),
                 ),
                 if (!isNew)

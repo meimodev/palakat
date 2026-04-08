@@ -291,23 +291,15 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                       Gap.h20,
                       ActivityAlarmAnimatedPresence(
                         visible: _starting,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CompactLoadingWidget(
-                              size: 18.0,
-                              baseColor: AppColors.warning.withValues(alpha: 0.24),
-                              highlightColor: AppColors.surfaceContainerLowest,
-                            ),
-                            Gap.w10,
-                            Text(
-                              l10n.activityAlarm_startingAudio,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: AppColors.surfaceContainerLowest,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                        child: CompactLoadingWidget(
+                          message: l10n.activityAlarm_startingAudio,
+                          size: 18.0,
+                          baseColor: AppColors.warning.withValues(alpha: 0.24),
+                          highlightColor: AppColors.surfaceContainerLowest,
+                          backgroundColor: AppColors.onSurface.withValues(alpha: 0.24),
+                          borderColor: AppColors.surfaceContainerLowest.withValues(
+                            alpha: 0.18,
+                          ),
                         ),
                       ),
                     ],

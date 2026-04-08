@@ -82,7 +82,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
               errorMessage: state.errorMessage,
               onRetry: () => controller.fetchData(),
               shimmerPlaceholder:
-                  PalakatShimmerPlaceholders.operationsOverview(),
+                  ShimmerPlaceholders.operationsOverview(),
               child: _buildContent(context, ref, state, controller),
             ),
           ],

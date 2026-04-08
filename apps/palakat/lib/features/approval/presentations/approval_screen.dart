@@ -4,7 +4,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/routing/app_routing.dart';
-import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/core/widgets/widgets.dart'
+    hide
+        InfoBoxWithActionWidget,
+        LoadingShimmer,
+        ScaffoldWidget,
+        ShimmerPlaceholders;
+import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
+import 'package:palakat_shared/core/widgets/mobile/scaffold_widget.dart';
 import 'package:palakat/features/approval/presentations/approval_controller.dart';
 import 'package:palakat/features/approval/presentations/approval_motion_widget.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
@@ -94,7 +101,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   padding: EdgeInsets.only(bottom: 20.0),
                   child: LoadingShimmer(
                     isLoading: true,
-                    child: PalakatShimmerPlaceholders.approvalCard(),
+                    child: ShimmerPlaceholders.approvalCard(),
                   ),
                 ),
               ),
@@ -183,9 +190,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     ColorScheme colors,
   ) {
     if (state.loadingScreen) {
-      return SliverToBoxAdapter(
-        child: PalakatShimmerPlaceholders.approvalSection(),
-      );
+      return SliverToBoxAdapter(child: ShimmerPlaceholders.approvalSection());
     }
 
     if (state.errorMessage != null) {
@@ -623,9 +628,7 @@ class _CombinedFilterButton extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Material(
-      color: hasActiveFilters
-          ? colors.primary
-          : AppColors.surfaceContainerLow,
+      color: hasActiveFilters ? colors.primary : AppColors.surfaceContainerLow,
       borderRadius: BorderRadius.circular(16.0),
       child: InkWell(
         borderRadius: BorderRadius.circular(16.0),

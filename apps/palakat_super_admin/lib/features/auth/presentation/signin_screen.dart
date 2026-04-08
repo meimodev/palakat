@@ -223,9 +223,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         height: 52,
                         child: FilledButton(
                           onPressed: isLoading ? null : submit,
-                          child: isLoading
-                              ? const CompactLoadingWidget(size: 18)
-                              : Text(l10n.btn_signIn),
+                          child: LoadingActionContent(
+                            isLoading: isLoading,
+                            loaderSize: 18,
+                            child: Text(l10n.btn_signIn),
+                          ),
                         ),
                       ),
                     ],

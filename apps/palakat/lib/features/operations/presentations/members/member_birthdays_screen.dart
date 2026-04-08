@@ -71,7 +71,7 @@ class MemberBirthdaysScreen extends ConsumerWidget {
               hasError: state.errorMessage != null && !state.isLoading,
               errorMessage: state.errorMessage,
               onRetry: controller.fetchMembers,
-              shimmerPlaceholder: PalakatShimmerPlaceholders.listSection(),
+              shimmerPlaceholder: ShimmerPlaceholders.listSection(),
               child: _BirthdaysContent(items: items),
             ),
           ),

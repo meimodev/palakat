@@ -32,9 +32,9 @@ class _LoadingShimmerState extends State<LoadingShimmer>
     super.initState();
     _controller = AnimationController(duration: widget.duration, vsync: this);
     _animation = Tween<double>(
-      begin: -0.3,
-      end: 1.3,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+      begin: -0.35,
+      end: 1.35,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
     if (widget.isLoading) {
       _controller.repeat();
@@ -64,10 +64,10 @@ class _LoadingShimmerState extends State<LoadingShimmer>
     final theme = Theme.of(context);
     final baseColor =
         widget.baseColor ??
-        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.92);
+        theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.94);
     final highlightColor =
         widget.highlightColor ??
-        theme.colorScheme.surface.withValues(alpha: 0.98);
+        theme.colorScheme.surfaceContainerLowest.withValues(alpha: 0.98);
 
     if (!widget.isLoading) {
       return widget.child;
@@ -255,6 +255,55 @@ class ShimmerPlaceholders {
     );
   }
 
+  static Widget iconAction({
+    double size = 40,
+    BorderRadius? borderRadius,
+  }) {
+    return _surfaceBlock(
+      width: size,
+      height: size,
+      borderRadius: borderRadius ?? BorderRadius.circular(14),
+    );
+  }
+
+  static Widget inlineStatus({
+    double labelWidth = 96,
+    double trailingWidth = 64,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        iconAction(size: 28, borderRadius: BorderRadius.circular(10)),
+        const SizedBox(width: 10),
+        text(width: labelWidth, height: 12),
+        const SizedBox(width: 10),
+        text(width: trailingWidth, height: 12),
+      ],
+    );
+  }
+
+  static Widget media({
+    double? width,
+    double? height,
+    BorderRadius? borderRadius,
+  }) {
+    return _surfacePanel(
+      width: width,
+      height: height,
+      padding: EdgeInsets.zero,
+      borderRadius: borderRadius ?? BorderRadius.circular(16),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: _panelBlockColor),
+          Center(
+            child: iconAction(size: 42, borderRadius: BorderRadius.circular(14)),
+          ),
+        ],
+      ),
+    );
+  }
+
   static Widget input({
     double? width,
     double height = 48,
@@ -431,6 +480,57 @@ class ShimmerPlaceholders {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: _withGaps(children, 16),
+    );
+  }
+
+  static Widget drawerLayout({
+    int sections = 2,
+    bool includeInfo = true,
+  }) {
+    final children = <Widget>[
+      sectionHeader(
+        titleWidth: 176,
+        subtitleWidth: 112,
+        includeTrailing: false,
+      ),
+      ...List.generate(
+        sections,
+        (index) => formSection(
+          fields: index == 0 ? 3 : 2,
+          includeHeader: index == 0,
+          includePrimaryButton: false,
+        ),
+      ),
+      if (includeInfo) infoCard(),
+      button(expanded: true, height: 48),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: _withGaps(children, 16),
+    );
+  }
+
+  static Widget blockingCard({
+    double width = 248,
+    double height = 136,
+  }) {
+    return _surfacePanel(
+      width: width,
+      height: height,
+      borderRadius: BorderRadius.circular(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          iconAction(size: 44, borderRadius: BorderRadius.circular(16)),
+          const SizedBox(height: 16),
+          text(width: 120, height: 14),
+          const SizedBox(height: 8),
+          text(width: 156, height: 12),
+        ],
+      ),
     );
   }
 

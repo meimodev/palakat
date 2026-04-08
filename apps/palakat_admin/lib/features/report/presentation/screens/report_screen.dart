@@ -625,13 +625,15 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                 onPressed: isDownloading
                     ? null
                     : () => _handleDownloadReport(ctx, report),
-                icon: isDownloading
-                    ? const CompactLoadingWidget(size: 18)
-                    : Icon(
-                        isDownloaded
-                            ? Icons.download_done_rounded
-                            : Icons.download_rounded,
-                      ),
+                icon: LoadingActionContent(
+                  isLoading: isDownloading,
+                  loaderSize: 18,
+                  child: Icon(
+                    isDownloaded
+                        ? Icons.download_done_rounded
+                        : Icons.download_rounded,
+                  ),
+                ),
                 color: theme.colorScheme.primary,
                 tooltip: isDownloading
                     ? l10n.loading_please_wait
@@ -822,9 +824,15 @@ class _PendingJobCard extends StatelessWidget {
               color: statusInfo.iconBackgroundColor,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: statusInfo.isAnimated
-                ? CompactLoadingWidget(size: 20)
-                : Icon(statusInfo.icon, color: statusInfo.iconColor, size: 20),
+            child: LoadingActionContent(
+              isLoading: statusInfo.isAnimated,
+              loaderSize: 20,
+              loaderBaseColor: statusInfo.iconColor.withValues(alpha: 0.24),
+              loaderHighlightColor: statusInfo.iconColor,
+              loaderBackgroundColor: theme.colorScheme.surface,
+              loaderBorderColor: statusInfo.iconColor.withValues(alpha: 0.16),
+              child: Icon(statusInfo.icon, color: statusInfo.iconColor, size: 20),
+            ),
           ),
           const SizedBox(width: 12),
           // Job details

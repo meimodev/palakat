@@ -74,13 +74,15 @@ class ReportButtonWidget extends StatelessWidget {
                   boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
                 ),
                 alignment: Alignment.center,
-                child: isLoading
-                    ? CompactLoadingWidget(
-                        size: 18.0,
-                        baseColor: _accentColor.withValues(alpha: 0.24),
-                        highlightColor: AppColors.surface,
-                      )
-                    : Icon(icon, color: _accentColor, size: 24.0),
+                child: LoadingActionContent(
+                  isLoading: isLoading,
+                  loaderSize: 18.0,
+                  loaderBaseColor: _accentColor.withValues(alpha: 0.28),
+                  loaderHighlightColor: AppColors.surface,
+                  loaderBackgroundColor: AppColors.surface.withValues(alpha: 0.88),
+                  loaderBorderColor: _accentColor.withValues(alpha: 0.16),
+                  child: Icon(icon, color: _accentColor, size: 24.0),
+                ),
               ),
 
               Gap.w16,
@@ -115,14 +117,17 @@ class ReportButtonWidget extends StatelessWidget {
               Gap.w8,
 
               // Arrow Icon
-              if (!isLoading)
-                Icon(
+              AnimatedOpacity(
+                opacity: isLoading ? 0 : 1,
+                duration: const Duration(milliseconds: 180),
+                child: Icon(
                   AppIcons.forward,
                   color: isDisabled
                       ? AppColors.onSurface.withValues(alpha: 0.38)
                       : AppColors.onSurfaceVariant,
                   size: 24.0,
                 ),
+              ),
             ],
           ),
         ),

@@ -103,7 +103,7 @@ class ArticleDetailScreen extends ConsumerWidget {
 
   Widget _buildShimmerPlaceholder() {
     return SingleChildScrollView(
-      child: PalakatShimmerPlaceholders.infoSection(),
+      child: ShimmerPlaceholders.infoSection(),
     );
   }
 }

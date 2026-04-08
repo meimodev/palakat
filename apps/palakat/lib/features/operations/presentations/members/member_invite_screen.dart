@@ -162,7 +162,7 @@ class _InviteResultSection extends StatelessWidget {
     if (isSearching) {
       return OperationsAnimatedPresence(
         visible: true,
-        child: PalakatShimmerPlaceholders.listSection(count: 2, gap: 12),
+        child: ShimmerPlaceholders.listSection(count: 2, gap: 12),
       );
     }
 

@@ -106,18 +106,22 @@ class _SongsListScreenState extends ConsumerState<SongsListScreen> {
                 onPressed: asyncDb.isLoading
                     ? null
                     : () => _reload(context, discardDraft: state.hasDraft),
-                icon: asyncDb.isLoading
-                    ? const CompactLoadingWidget(size: 18)
-                    : const Icon(Icons.refresh),
+                icon: LoadingActionContent(
+                  isLoading: asyncDb.isLoading,
+                  loaderSize: 18,
+                  child: const Icon(Icons.refresh),
+                ),
                 label: Text(l10n.btn_retry),
               ),
               FilledButton.tonalIcon(
                 onPressed: _saving || asyncDb.isLoading
                     ? null
                     : () => _save(context),
-                icon: _saving
-                    ? const CompactLoadingWidget(size: 18)
-                    : const Icon(Icons.cloud_upload_outlined),
+                icon: LoadingActionContent(
+                  isLoading: _saving,
+                  loaderSize: 18,
+                  child: const Icon(Icons.cloud_upload_outlined),
+                ),
                 label: Text(l10n.songs_publishAction),
               ),
               FilledButton.icon(

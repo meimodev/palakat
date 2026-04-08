@@ -6,7 +6,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/models/member_position.dart';
 import 'package:palakat_shared/core/widgets/input/date_range_preset_input.dart';
 import 'package:palakat_shared/core/widgets/pagination_bar.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:palakat_shared/core/widgets/loading/loading.dart';
 import 'package:palakat_shared/core/widgets/search_field.dart';
 
 /// Generic, reusable data table for consistent tables across the app.
@@ -411,38 +411,45 @@ class _ShimmerLoadingPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = theme.colorScheme.surfaceContainerHighest;
-    final highlightColor = theme.colorScheme.surface;
 
-    return Column(
-      children: List.generate(5, (index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          child: Shimmer.fromColors(
-            baseColor: baseColor,
-            highlightColor: highlightColor,
+    return LoadingShimmer(
+      isLoading: true,
+      child: Column(
+        children: List.generate(5, (index) {
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: theme.colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+            ),
             child: Row(
               children: [
-                // Simulate column widths
                 for (int i = 0; i < columns.length; i++) ...[
                   Expanded(
                     flex: (columns[i] as AppTableColumn).flex,
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: baseColor,
-                        borderRadius: BorderRadius.circular(4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        height: i == 0 ? 16 : 14,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                       ),
                     ),
                   ),
                   if (i < columns.length - 1) const SizedBox(width: 12),
                 ],
-                const SizedBox(width: 20), // Space for chevron
+                const SizedBox(width: 20),
               ],
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }

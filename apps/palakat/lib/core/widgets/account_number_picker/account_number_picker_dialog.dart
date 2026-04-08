@@ -209,7 +209,7 @@ class _AccountNumberPickerDialogContentState
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: LoadingShimmer(
             isLoading: true,
-            child: PalakatShimmerPlaceholders.listSection(),
+            child: ShimmerPlaceholders.listSection(),
           ),
         ),
       );
@@ -284,7 +284,7 @@ class _AccountNumberPickerDialogContentState
             padding: EdgeInsets.symmetric(vertical: 12.0),
             child: LoadingShimmer(
               isLoading: true,
-              child: PalakatShimmerPlaceholders.listItemCard(),
+              child: ShimmerPlaceholders.listItemCard(),
             ),
           );
         }

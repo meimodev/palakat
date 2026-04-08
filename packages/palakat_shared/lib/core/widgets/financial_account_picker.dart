@@ -174,22 +174,13 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
     final l10n = context.l10n;
 
     if (widget.isLoading) {
-      return Row(
-        children: [
-          CompactLoadingWidget(
-            size: 16,
-            baseColor: theme.colorScheme.surfaceContainerHighest,
-            highlightColor: theme.colorScheme.surface,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            l10n.loading_data,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
+      return CompactLoadingWidget(
+        message: l10n.loading_data,
+        size: 16,
+        baseColor: theme.colorScheme.primary.withValues(alpha: 0.28),
+        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.92),
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        borderColor: theme.colorScheme.outlineVariant,
       );
     }
 
@@ -225,7 +216,13 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
     final theme = Theme.of(context);
 
     if (widget.isLoading) {
-      return const SizedBox(width: 12, height: 12);
+      return CompactLoadingWidget(
+        size: 12,
+        baseColor: theme.colorScheme.primary.withValues(alpha: 0.28),
+        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.92),
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
+        borderColor: theme.colorScheme.outlineVariant,
+      );
     }
 
     return Icon(

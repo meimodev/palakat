@@ -109,7 +109,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
                                 child: LoadingShimmer(
                                   isLoading: true,
                                   child:
-                                      PalakatShimmerPlaceholders.listItemCard(),
+                                      ShimmerPlaceholders.listItemCard(),
                                 ),
                               );
                             }
@@ -146,7 +146,7 @@ class _ArticlesListScreenState extends ConsumerState<ArticlesListScreen> {
 
   Widget _buildShimmerPlaceholder() {
     return SingleChildScrollView(
-      child: PalakatShimmerPlaceholders.listSection(),
+      child: ShimmerPlaceholders.listSection(),
     );
   }
 }

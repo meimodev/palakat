@@ -168,9 +168,11 @@ class _CashAccountEditDrawerState extends State<CashAccountEditDrawer> {
           );
           final saveButton = FilledButton(
             onPressed: _isLoading ? null : _handleSave,
-            child: _isLoading
-                ? const CompactLoadingWidget(size: 20)
-                : Text(isEditMode ? l10n.btn_update : l10n.btn_create),
+            child: LoadingActionContent(
+              isLoading: _isLoading,
+              loaderSize: 20,
+              child: Text(isEditMode ? l10n.btn_update : l10n.btn_create),
+            ),
           );
 
           if (constraints.maxWidth < 420) {

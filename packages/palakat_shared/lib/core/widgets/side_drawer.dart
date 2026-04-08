@@ -110,63 +110,74 @@ class SideDrawer extends StatelessWidget {
 
             // Content
             Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: content,
-                  ),
-                  if (isLoading)
-                    Positioned.fill(
-                      child: Container(
-                        color: theme.colorScheme.surface.withValues(alpha: 0.8),
-                        child: AppLoadingWidget(
-                          message: loadingMessage,
-                          size: 32,
-                        ),
-                      ),
-                    ),
-                  if (!isLoading && errorMessage != null)
-                    Positioned.fill(
-                      child: Container(
-                        color: theme.colorScheme.surface,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 36,
-                                color: theme.colorScheme.error,
+              child: Container(
+                color: theme.colorScheme.surface,
+                child: Builder(
+                  builder: (context) {
+                    if (!isLoading && errorMessage != null) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 36,
+                              color: theme.colorScheme.error,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.err_error,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                l10n.err_error,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
+                            ),
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Text(
                                 errorMessage!,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 16),
-                              if (onRetry != null)
-                                FilledButton.icon(
-                                  onPressed: onRetry,
-                                  icon: const Icon(Icons.refresh),
-                                  label: Text(l10n.btn_retry),
-                                ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 16),
+                            if (onRetry != null)
+                              FilledButton.icon(
+                                onPressed: onRetry,
+                                icon: const Icon(Icons.refresh),
+                                label: Text(l10n.btn_retry),
+                              ),
+                          ],
                         ),
-                      ),
-                    ),
-                ],
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: isLoading
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                LoadingShimmer(
+                                  isLoading: true,
+                                  child: ShimmerPlaceholders.drawerLayout(),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  loadingMessage,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            )
+                          : content,
+                    );
+                  },
+                ),
               ),
             ),
 

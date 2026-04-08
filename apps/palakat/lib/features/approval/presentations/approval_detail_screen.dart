@@ -118,7 +118,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
             errorMessage: detailState.errorMessage,
             onRetry: () => controller.fetch(activityId),
             shimmerPlaceholder:
-                PalakatShimmerPlaceholders.approvalDetailLayout(),
+                ShimmerPlaceholders.approvalDetailLayout(),
             child: activity == null
                 ? ApprovalAnimatedPresence(
                     visible: true,
@@ -437,28 +437,28 @@ class ApprovalDetailScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
-          child: isLoading
-              ? Center(
-                  child: CompactLoadingWidget(
-                    size: 18.0,
-                    baseColor: color.withValues(alpha: 0.24),
-                    highlightColor: AppColors.surface,
+          child: LoadingActionContent(
+            isLoading: isLoading,
+            loaderSize: 18.0,
+            loaderBaseColor: color.withValues(alpha: 0.24),
+            loaderHighlightColor: color,
+            loaderBackgroundColor: AppColors.surface,
+            loaderBorderColor: color.withValues(alpha: 0.16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(icon, size: 18.0, color: color),
+                Gap.w8,
+                Text(
+                  text,
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: color,
                   ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(icon, size: 18.0, color: color),
-                    Gap.w8,
-                    Text(
-                      text,
-                      style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: color,
-                      ),
-                    ),
-                  ],
                 ),
+              ],
+            ),
+          ),
         ),
       ),
     );

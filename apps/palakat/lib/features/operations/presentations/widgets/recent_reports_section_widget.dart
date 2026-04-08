@@ -99,7 +99,7 @@ class RecentReportsSection extends StatelessWidget {
   }
 
   Widget _buildShimmerPlaceholder() {
-    return PalakatShimmerPlaceholders.listSection();
+    return ShimmerPlaceholders.listSection();
   }
 }
 
@@ -233,15 +233,17 @@ class RecentReportItem extends StatelessWidget {
               //   ),
               IconButton(
                 onPressed: isDownloading ? null : onDownloadTap,
-                icon: isDownloading
-                    ? CompactLoadingWidget(
-                        size: 14.0,
-                        baseColor: AppColors.primary.withValues(alpha: 0.24),
-                        highlightColor: AppColors.surface,
-                      )
-                    : Icon(
-                        isDownloaded ? AppIcons.checkCircle : AppIcons.download,
-                      ),
+                icon: LoadingActionContent(
+                  isLoading: isDownloading,
+                  loaderSize: 14.0,
+                  loaderBaseColor: AppColors.primary.withValues(alpha: 0.24),
+                  loaderHighlightColor: AppColors.primary,
+                  loaderBackgroundColor: AppColors.surface,
+                  loaderBorderColor: AppColors.primary.withValues(alpha: 0.12),
+                  child: Icon(
+                    isDownloaded ? AppIcons.checkCircle : AppIcons.download,
+                  ),
+                ),
                 iconSize: 14.0,
                 color: AppColors.primary,
                 tooltip: isDownloading
@@ -431,19 +433,23 @@ class _PendingJobItem extends StatelessWidget {
                     border: Border.all(color: statusInfo.borderColor),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: statusInfo.isAnimated
-                      ? CompactLoadingWidget(
-                          size: 16.0,
-                          baseColor: statusInfo.iconColor.withValues(
-                            alpha: 0.24,
-                          ),
-                          highlightColor: AppColors.surface,
-                        )
-                      : Icon(
-                          statusInfo.icon,
-                          color: statusInfo.iconColor,
-                          size: 16.0,
-                        ),
+                  child: LoadingActionContent(
+                    isLoading: statusInfo.isAnimated,
+                    loaderSize: 16.0,
+                    loaderBaseColor: statusInfo.iconColor.withValues(
+                      alpha: 0.24,
+                    ),
+                    loaderHighlightColor: statusInfo.iconColor,
+                    loaderBackgroundColor: AppColors.surface,
+                    loaderBorderColor: statusInfo.borderColor.withValues(
+                      alpha: 0.18,
+                    ),
+                    child: Icon(
+                      statusInfo.icon,
+                      color: statusInfo.iconColor,
+                      size: 16.0,
+                    ),
+                  ),
                 ),
                 Gap.w12,
                 // Job details

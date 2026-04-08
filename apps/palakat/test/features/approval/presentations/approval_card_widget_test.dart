@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
-import 'package:palakat/features/approval/presentations/widgets/approver_chip.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/widgets/loading_widget.dart';
+import 'package:palakat_shared/l10n/generated/app_localizations.dart';
 import 'package:palakat_shared/models.dart' hide Column;
 
 /// Unit tests for ApprovalCardWidget
@@ -13,9 +14,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('ApprovalCardWidget Tests', () {
-    /// Test that card renders with correct elevation (2) for visual separation
+    /// Test that card renders with correct elevation (1) for visual separation
     /// **Validates: Requirements 1.2**
-    testWidgets('Card renders with elevation 2 for visual separation', (
+    testWidgets('Card renders with elevation 1 for visual separation', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -41,14 +42,14 @@ void main() {
       final materialWidget = tester.widget<Material>(materialFinder);
       expect(
         materialWidget.elevation,
-        equals(2.0),
-        reason: 'Card should have elevation 2 for subtle shadow',
+        equals(1.0),
+        reason: 'Card should have elevation 1 for subtle shadow',
       );
     });
 
-    /// Test that card has rounded corners (16dp radius)
+    /// Test that card has rounded corners (12dp radius)
     /// **Validates: Requirements 1.3**
-    testWidgets('Card has rounded corners with 16dp radius', (tester) async {
+    testWidgets('Card has rounded corners with 12dp radius', (tester) async {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
@@ -73,16 +74,13 @@ void main() {
       final shape = materialWidget.shape as RoundedRectangleBorder;
       expect(
         shape.borderRadius,
-        equals(BorderRadius.circular(16)),
-        reason: 'Card should have 16dp border radius',
+        equals(BorderRadius.circular(12)),
+        reason: 'Card should have 12dp border radius',
       );
     });
 
-    /// Test that approver list uses ApproverChip (redesigned without backgrounds)
-    /// **Validates: Requirements 2.1**
-    testWidgets('Approver list displays using ApproverChip widgets', (
-      tester,
-    ) async {
+    /// Test that approver summary displays progress text
+    testWidgets('Approver summary displays progress text', (tester) async {
       final activity = _createTestActivity(
         approvers: [
           _createTestApprover(
@@ -110,69 +108,31 @@ void main() {
         ),
       );
 
-      // Verify ApproverChip widgets are used for displaying approvers
-      final approverChipFinder = find.byType(ApproverChip);
       expect(
-        approverChipFinder,
-        findsNWidgets(2),
-        reason: 'Should display 2 ApproverChip widgets for 2 approvers',
+        find.text('1/2 Approved'),
+        findsOneWidget,
+        reason: 'Should display approved progress summary for approvers',
       );
     });
 
-    /// Test that approver names are displayed without colored backgrounds
-    /// **Validates: Requirements 2.1**
-    testWidgets(
-      'Approver names display without colored background containers',
-      (tester) async {
-        final activity = _createTestActivity(
-          approvers: [
-            _createTestApprover(
-              id: 1,
-              name: 'Test Approver',
-              status: ApprovalStatus.approved,
-            ),
-          ],
-        );
-
-        await tester.pumpWidget(
-          _wrapWithMaterialApp(
-            ApprovalCardWidget(
-              approval: activity,
-              currentMembershipId: 2,
-              onTap: () {},
-              onApprove: () {},
-              onReject: () {},
-            ),
+    /// Test that pending current approver shows both action buttons
+    testWidgets('Pending current approver shows both action buttons', (
+      tester,
+    ) async {
+      final activity = _createTestActivity(
+        approvers: [
+          _createTestApprover(
+            id: 1,
+            name: 'Current Approver',
+            status: ApprovalStatus.unconfirmed,
           ),
-        );
-
-        // Find ApproverChip widget
-        final approverChipFinder = find.byType(ApproverChip);
-        expect(approverChipFinder, findsOneWidget);
-
-        // Verify no Container with colored BoxDecoration inside ApproverChip
-        final containerFinder = find.descendant(
-          of: approverChipFinder,
-          matching: find.byType(Container),
-        );
-
-        for (final element in tester.widgetList<Container>(containerFinder)) {
-          final decoration = element.decoration;
-          if (decoration is BoxDecoration && decoration.color != null) {
-            expect(
-              decoration.color!.a,
-              equals(0.0),
-              reason: 'ApproverChip should not have colored background',
-            );
-          }
-        }
-      },
-    );
-
-    /// Test that card displays activity title
-    testWidgets('Card displays activity title', (tester) async {
-      const testTitle = 'Test Activity Title';
-      final activity = _createTestActivity(title: testTitle);
+          _createTestApprover(
+            id: 2,
+            name: 'Other Approver',
+            status: ApprovalStatus.approved,
+          ),
+        ],
+      );
 
       await tester.pumpWidget(
         _wrapWithMaterialApp(
@@ -186,7 +146,8 @@ void main() {
         ),
       );
 
-      expect(find.text(testTitle), findsOneWidget);
+      expect(find.byIcon(Icons.close), findsNothing);
+      expect(find.byType(InkWell), findsNWidgets(3));
     });
 
     /// Test that card is tappable
@@ -210,6 +171,53 @@ void main() {
 
       expect(tapped, isTrue, reason: 'Card should respond to tap');
     });
+
+    /// Test that approve and reject taps are ignored while loading
+    testWidgets('Approve and reject taps are ignored while loading', (
+      tester,
+    ) async {
+      var approveTapCount = 0;
+      var rejectTapCount = 0;
+
+      final activity = _createTestActivity(
+        approvers: [
+          _createTestApprover(
+            id: 1,
+            name: 'Current Approver',
+            status: ApprovalStatus.unconfirmed,
+          ),
+          _createTestApprover(
+            id: 2,
+            name: 'Other Approver',
+            status: ApprovalStatus.approved,
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        _wrapWithMaterialApp(
+          ApprovalCardWidget(
+            approval: activity,
+            currentMembershipId: 1,
+            onTap: () {},
+            onApprove: () => approveTapCount++,
+            onReject: () => rejectTapCount++,
+            isLoading: true,
+          ),
+        ),
+      );
+
+      expect(find.byType(InkWell), findsNWidgets(3));
+      expect(find.byType(CompactLoadingWidget), findsNWidgets(2));
+
+      await tester.tap(find.byType(InkWell).at(1));
+      await tester.pump();
+      await tester.tap(find.byType(InkWell).at(2));
+      await tester.pump();
+
+      expect(rejectTapCount, 0);
+      expect(approveTapCount, 0);
+    });
   });
 }
 
@@ -223,6 +231,8 @@ Widget _wrapWithMaterialApp(Widget child) {
     designSize: const Size(375, 812),
     minTextAdapt: true,
     builder: (context, _) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: SingleChildScrollView(child: child)),
     ),
   );

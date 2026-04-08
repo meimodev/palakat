@@ -382,7 +382,7 @@ class _SongBookScreenState extends ConsumerState<SongBookScreen> {
       hasError: state.errorMessage != null && state.isLoading == false,
       errorMessage: state.errorMessage,
       onRetry: () => controller.refreshSongs(),
-      shimmerPlaceholder: PalakatShimmerPlaceholders.listSection(),
+      shimmerPlaceholder: ShimmerPlaceholders.listSection(),
       child: state.filteredSongs.isEmpty
           ? SongBookAnimatedPresence(
               visible: state.filteredSongs.isEmpty,

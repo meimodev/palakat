@@ -243,7 +243,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         errorMessage: state.errorMessage,
                         onRetry: () => controller.fetchThisWeekActivities(),
                         shimmerPlaceholder:
-                            PalakatShimmerPlaceholders.activitySection(),
+                            ShimmerPlaceholders.activitySection(),
                         child: ActivityWidget(
                           onPressedViewAll: () async {
                             await context.pushNamed(
@@ -318,7 +318,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   errorMessage: isDisconnectedError ? null : state.errorMessage,
                   onRetry: () => controller.fetchData(),
                   shimmerPlaceholder:
-                      PalakatShimmerPlaceholders.membershipCard(),
+                      ShimmerPlaceholders.membershipCard(),
                   child: MembershipCardWidget(
                     account: state.account,
                     onPressedCard: () async {
@@ -355,7 +355,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       hasError: false,
                       onRetry: () => controller.fetchChurchRequest(),
                       shimmerPlaceholder:
-                          PalakatShimmerPlaceholders.membershipCard(),
+                          ShimmerPlaceholders.membershipCard(),
                       child: ChurchRequestStatusCardWidget(
                         churchRequest: state.churchRequest!,
                       ),

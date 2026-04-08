@@ -32,7 +32,7 @@ class _ActivityPickerDialog extends ConsumerWidget {
         context: context,
         child: LoadingShimmer(
           isLoading: true,
-          child: PalakatShimmerPlaceholders.listSection(),
+          child: ShimmerPlaceholders.listSection(),
         ),
       );
     }

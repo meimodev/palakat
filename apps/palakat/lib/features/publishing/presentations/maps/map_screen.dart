@@ -503,17 +503,19 @@ class _MapScreenState extends State<MapScreen> {
           // My location
           _MapIconButton(
             onTap: _isLoadingLocation ? () {} : _goToMyLocation,
-            child: _isLoadingLocation
-                ? CompactLoadingWidget(
-                    size: 18.0,
-                    baseColor: AppColors.primary.withValues(alpha: 0.24),
-                    highlightColor: AppColors.surface,
-                  )
-                : FaIcon(
-                    AppIcons.gps,
-                    size: 22.0,
-                    color: AppColors.primary,
-                  ),
+            child: LoadingActionContent(
+              isLoading: _isLoadingLocation,
+              loaderSize: 18.0,
+              loaderBaseColor: AppColors.primary.withValues(alpha: 0.24),
+              loaderHighlightColor: AppColors.primary,
+              loaderBackgroundColor: AppColors.surface,
+              loaderBorderColor: AppColors.primary.withValues(alpha: 0.12),
+              child: FaIcon(
+                AppIcons.gps,
+                size: 22.0,
+                color: AppColors.primary,
+              ),
+            ),
           ),
         ],
       ),

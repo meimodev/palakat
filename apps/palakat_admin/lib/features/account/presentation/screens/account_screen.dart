@@ -247,9 +247,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
                       isSaving.value = false;
                     },
-              child: saving
-                  ? const CompactLoadingWidget(size: 18)
-                  : Text(l10n.btn_saveChanges),
+              child: LoadingActionContent(
+                isLoading: saving,
+                loaderSize: 18,
+                child: Text(l10n.btn_saveChanges),
+              ),
             );
 
             if (constraints.maxWidth < 420) {
@@ -398,9 +400,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
                       isSaving.value = false;
                     },
-              child: saving
-                  ? const CompactLoadingWidget(size: 18)
-                  : Text(l10n.btn_updatePassword),
+              child: LoadingActionContent(
+                isLoading: saving,
+                loaderSize: 18,
+                child: Text(l10n.btn_updatePassword),
+              ),
             );
 
             if (constraints.maxWidth < 420) {

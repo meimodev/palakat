@@ -85,7 +85,7 @@ class ApprovalCardWidget extends StatelessWidget {
       ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: onTap,
+        onTap: isLoading ? null : onTap,
         child: Padding(
           padding: EdgeInsets.all(12.0),
           child: Column(
@@ -193,34 +193,27 @@ class ApprovalCardWidget extends StatelessWidget {
                 // Show unconfirmed status pill above actions when the pending approver is not me
                 if (!isMinePending) statusPill(ApprovalStatus.unconfirmed),
                 if (isMinePending) ...[
-                  if (isLoading)
-                    Center(
-                      child: CompactLoadingWidget(
-                        size: 18.0,
-                        baseColor: AppColors.primary.withValues(alpha: 0.24),
-                        highlightColor: AppColors.surface,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionIconButton(
+                          icon: AppIcons.close,
+                          color: AppColors.error.shade500,
+                          onTap: onReject,
+                          isLoading: isLoading,
+                        ),
                       ),
-                    )
-                  else
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ActionIconButton(
-                            icon: AppIcons.close,
-                            color: AppColors.error.shade500,
-                            onTap: onReject,
-                          ),
+                      Gap.w8,
+                      Expanded(
+                        child: _ActionIconButton(
+                          icon: AppIcons.approve,
+                          color: AppColors.success.shade600,
+                          onTap: onApprove,
+                          isLoading: isLoading,
                         ),
-                        Gap.w8,
-                        Expanded(
-                          child: _ActionIconButton(
-                            icon: AppIcons.approve,
-                            color: AppColors.success.shade600,
-                            onTap: onApprove,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ],
               ] else ...[
                 statusPill(overall),
@@ -311,30 +304,52 @@ class _ActionIconButton extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    this.isLoading = false,
   });
 
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBorderColor = isLoading
+        ? color.withValues(alpha: 0.42)
+        : color;
+    final effectiveOverlayColor = isLoading
+        ? Colors.transparent
+        : color.withValues(alpha: 0.12);
+    final effectiveBackgroundColor = isLoading
+        ? AppColors.surfaceContainerLowest.withValues(alpha: 0.72)
+        : AppColors.surfaceContainerLowest;
+
     return Material(
       borderRadius: BorderRadius.circular(8.0),
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(8.0),
-        onTap: onTap,
-        overlayColor: WidgetStateProperty.all(color.withValues(alpha: 0.12)),
+        onTap: isLoading ? null : onTap,
+        overlayColor: WidgetStateProperty.all(effectiveOverlayColor),
         child: Container(
           padding: EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
-            border: Border.all(color: color),
+            color: effectiveBackgroundColor,
+            border: Border.all(color: effectiveBorderColor),
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
           ),
-          child: Center(child: FaIcon(icon, size: 18.0, color: color)),
+          child: Center(
+            child: LoadingActionContent(
+              isLoading: isLoading,
+              loaderSize: 14.0,
+              loaderBaseColor: color.withValues(alpha: 0.28),
+              loaderHighlightColor: color,
+              loaderBackgroundColor: AppColors.surface,
+              loaderBorderColor: color.withValues(alpha: 0.16),
+              child: FaIcon(icon, size: 18.0, color: color),
+            ),
+          ),
         ),
       ),
     );

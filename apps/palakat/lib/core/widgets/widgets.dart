@@ -36,9 +36,8 @@ export 'package:palakat_shared/core/widgets/info_box/info_box.dart';
 // Input widgets
 export 'package:palakat_shared/core/widgets/input/input.dart';
 
-// Loading widgets (hide LoadingWrapper to use local implementation)
-export 'package:palakat_shared/core/widgets/loading/loading.dart'
-    hide LoadingWrapper;
+// Loading widgets
+export 'package:palakat_shared/core/widgets/loading/loading.dart';
 
 // Output widgets
 export 'package:palakat_shared/core/widgets/output/output.dart';
@@ -46,9 +45,9 @@ export 'package:palakat_shared/core/widgets/output/output.dart';
 // Title widgets
 export 'package:palakat_shared/core/widgets/title/title.dart';
 
-// Mobile widgets from shared (hide to use app-specific implementations)
+// Mobile widgets from shared
 export 'package:palakat_shared/core/widgets/mobile/mobile.dart'
-    hide AppBarWidget, BottomNavBar, BottomNavBarItem, ScaffoldWidget;
+    hide AppBarWidget, BottomNavBar, BottomNavBarItem;
 // Export NavDestination for building custom navigation
 export 'package:palakat_shared/core/widgets/mobile/bottom_navbar.dart'
     show NavDestination;
@@ -69,13 +68,6 @@ export 'dialog/dialog_column_picker_widget.dart';
 
 // Input - app-specific input widgets
 export 'input/input_multiple_select_widget.dart';
-
-// Loading - app-specific loading wrapper (uses local shimmer placeholders)
-export 'loading/loading_wrapper.dart';
-export 'loading/shimmer_widgets.dart';
-
-// Scaffold - app-specific implementation using local LoadingWrapper
-export 'scaffold/scaffold_widget.dart';
 
 // Segment Title
 export 'segment_title/form_section_widget.dart';

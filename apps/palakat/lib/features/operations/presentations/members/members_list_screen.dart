@@ -49,7 +49,7 @@ class MembersListScreen extends ConsumerWidget {
               hasError: state.errorMessage != null && !state.isLoading,
               errorMessage: state.errorMessage,
               onRetry: controller.fetchMembers,
-              shimmerPlaceholder: PalakatShimmerPlaceholders.listSection(),
+              shimmerPlaceholder: ShimmerPlaceholders.listSection(),
               child: _MembersContent(
                 memberships: state.filteredMemberships,
                 onMemberTap: (membership) {

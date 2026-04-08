@@ -69,11 +69,11 @@ class ScaffoldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topSpace = SanctuaryLayout.compactGap;
+
     final Widget childWrapper = AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: LoadingWrapper(
-        paddingTop: 48.0,
-        paddingBottom: 48.0,
         loading: loading,
         hasError: hasError,
         errorMessage: errorMessage,
@@ -83,37 +83,68 @@ class ScaffoldWidget extends StatelessWidget {
       ),
     );
 
+    final Widget bodyContent = disableSingleChildScrollView
+        ? Padding(
+            padding: EdgeInsets.only(top: topSpace),
+            child: childWrapper,
+          )
+        : SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(top: topSpace),
+              child: Column(
+                children: [childWrapper, const SizedBox(height: 64)],
+              ),
+            ),
+          );
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
-        body: Padding(
-          padding: EdgeInsets.only(
-            left: disablePadding ? 0 : 12.0,
-            right: disablePadding ? 0 : 12.0,
-          ),
-          child: disableSingleChildScrollView
-              ? Column(
-                  children: [
-                    Expanded(child: childWrapper),
-                    persistBottomWidget ?? const SizedBox(),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [Gap.h48, childWrapper, Gap.h64],
-                        ),
-                      ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final horizontalPadding = disablePadding
+                ? 0.0
+                : SanctuaryLayout.mobileHorizontalPadding(constraints.maxWidth);
+            final contentMaxWidth = disablePadding
+                ? constraints.maxWidth
+                : constraints.maxWidth >= 1024
+                ? SanctuaryLayout.mobileContentMaxWidth
+                : constraints.maxWidth >= 768
+                ? 720.0
+                : constraints.maxWidth;
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                color: backgroundColor ?? AppColors.surface,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: horizontalPadding,
+                      right: horizontalPadding,
+                      bottom: persistBottomWidget == null
+                          ? 0
+                          : SanctuaryLayout.blockGap,
                     ),
-                    persistBottomWidget ?? const SizedBox(),
-                  ],
+                    child: Column(
+                      children: [
+                        Expanded(child: bodyContent),
+                        if (persistBottomWidget != null) ...[
+                          const SizedBox(height: 16),
+                          persistBottomWidget!,
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
+              ),
+            );
+          },
         ),
-        backgroundColor: backgroundColor ?? AppColors.surfaceContainerLowest,
+        backgroundColor: backgroundColor ?? AppColors.surface,
         bottomNavigationBar: bottomNavigationBar,
       ),
     );

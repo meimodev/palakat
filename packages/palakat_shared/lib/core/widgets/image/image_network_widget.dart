@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../loading_widget.dart';
 import '../loading_shimmer.dart';
 
 /// A widget for displaying network images with loading and error states.
@@ -52,19 +51,9 @@ class ImageNetworkWidget extends StatelessWidget {
       imageUrl: imageUrl,
       placeholder: (context, url) => LoadingShimmer(
         isLoading: true,
-        child: Container(
+        child: ShimmerPlaceholders.media(
           width: width,
           height: height,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-          ),
-          child: Center(
-            child: CompactLoadingWidget(
-              size: 18,
-              baseColor: theme.colorScheme.surfaceContainerHighest,
-              highlightColor: theme.colorScheme.surface,
-            ),
-          ),
         ),
       ),
       errorWidget: (context, url, error) => Container(
