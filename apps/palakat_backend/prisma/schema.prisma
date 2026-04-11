@@ -92,6 +92,8 @@ model Membership {
   churchId             Int?
   supervisorActivities Activity[]           @relation("SupervisorActivities")
   approvers            Approver[]
+  revenueApprovers     RevenueApprover[]
+  expenseApprovers     ExpenseApprover[]
   account              Account              @relation(fields: [accountId], references: [id])
   church               Church?              @relation(fields: [churchId], references: [id], onDelete: SetNull)
   column               Column?              @relation(fields: [columnId], references: [id], onDelete: SetNull)
@@ -189,8 +191,8 @@ model Activity {
   location      Location?      @relation(fields: [locationId], references: [id])
   file          FileManager?    @relation(fields: [fileId], references: [id])
   document      Document?
-  revenue       Revenue?
-  expense       Expense?
+  revenues      Revenue[]
+  expenses      Expense[]
   notifications Notification[]
 
   @@index([date])
@@ -207,14 +209,16 @@ model Revenue {
   amount                   Int
   churchId                 Int
   church                   Church                  @relation(fields: [churchId], references: [id])
-  activityId               Int?                    @unique
+  activityId               Int?
   activity                 Activity?               @relation(fields: [activityId], references: [id])
   paymentMethod            PaymentMethod
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  approvers                RevenueApprover[]
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
 
+  @@index([activityId])
   @@index([financialAccountNumberId])
 }
 
@@ -224,14 +228,16 @@ model Expense {
   amount                   Int
   churchId                 Int
   church                   Church                  @relation(fields: [churchId], references: [id])
-  activityId               Int?                    @unique
+  activityId               Int?
   activity                 Activity?               @relation(fields: [activityId], references: [id])
   paymentMethod            PaymentMethod
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  approvers                ExpenseApprover[]
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
 
+  @@index([activityId])
   @@index([financialAccountNumberId])
 }
 
@@ -300,6 +306,38 @@ model Approver {
 
   @@unique([activityId, membershipId])
   @@index([activityId])
+  @@index([membershipId])
+  @@index([status])
+}
+
+model RevenueApprover {
+  id           Int            @id @default(autoincrement())
+  membershipId Int
+  membership   Membership     @relation(fields: [membershipId], references: [id])
+  revenueId    Int
+  revenue      Revenue        @relation(fields: [revenueId], references: [id], onDelete: Cascade)
+  status       ApprovalStatus @default(UNCONFIRMED)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([revenueId, membershipId])
+  @@index([revenueId])
+  @@index([membershipId])
+  @@index([status])
+}
+
+model ExpenseApprover {
+  id           Int            @id @default(autoincrement())
+  membershipId Int
+  membership   Membership     @relation(fields: [membershipId], references: [id])
+  expenseId    Int
+  expense      Expense        @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  status       ApprovalStatus @default(UNCONFIRMED)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([expenseId, membershipId])
+  @@index([expenseId])
   @@index([membershipId])
   @@index([status])
 }

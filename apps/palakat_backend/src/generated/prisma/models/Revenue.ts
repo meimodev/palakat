@@ -267,6 +267,7 @@ export type RevenueWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
+  approvers?: Prisma.RevenueApproverListRelationFilter
 }
 
 export type RevenueOrderByWithRelationInput = {
@@ -282,17 +283,18 @@ export type RevenueOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   activity?: Prisma.ActivityOrderByWithRelationInput
   financialAccountNumber?: Prisma.FinancialAccountNumberOrderByWithRelationInput
+  approvers?: Prisma.RevenueApproverOrderByRelationAggregateInput
 }
 
 export type RevenueWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  activityId?: number
   AND?: Prisma.RevenueWhereInput | Prisma.RevenueWhereInput[]
   OR?: Prisma.RevenueWhereInput[]
   NOT?: Prisma.RevenueWhereInput | Prisma.RevenueWhereInput[]
   accountNumber?: Prisma.StringFilter<"Revenue"> | string
   amount?: Prisma.IntFilter<"Revenue"> | number
   churchId?: Prisma.IntFilter<"Revenue"> | number
+  activityId?: Prisma.IntNullableFilter<"Revenue"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Revenue"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableFilter<"Revenue"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
@@ -300,7 +302,8 @@ export type RevenueWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
-}, "id" | "activityId">
+  approvers?: Prisma.RevenueApproverListRelationFilter
+}, "id">
 
 export type RevenueOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -341,8 +344,9 @@ export type RevenueCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
-  activity?: Prisma.ActivityCreateNestedOneWithoutRevenueInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+  approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueUncheckedCreateInput = {
@@ -355,6 +359,7 @@ export type RevenueUncheckedCreateInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueUpdateInput = {
@@ -364,8 +369,9 @@ export type RevenueUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
-  activity?: Prisma.ActivityUpdateOneWithoutRevenueNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
+  approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueUncheckedUpdateInput = {
@@ -378,6 +384,7 @@ export type RevenueUncheckedUpdateInput = {
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueCreateManyInput = {
@@ -420,11 +427,6 @@ export type RevenueListRelationFilter = {
 
 export type RevenueOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type RevenueNullableScalarRelationFilter = {
-  is?: Prisma.RevenueWhereInput | null
-  isNot?: Prisma.RevenueWhereInput | null
 }
 
 export type RevenueCountOrderByAggregateInput = {
@@ -479,6 +481,11 @@ export type RevenueSumOrderByAggregateInput = {
   financialAccountNumberId?: Prisma.SortOrder
 }
 
+export type RevenueScalarRelationFilter = {
+  is?: Prisma.RevenueWhereInput
+  isNot?: Prisma.RevenueWhereInput
+}
+
 export type RevenueCreateNestedManyWithoutChurchInput = {
   create?: Prisma.XOR<Prisma.RevenueCreateWithoutChurchInput, Prisma.RevenueUncheckedCreateWithoutChurchInput> | Prisma.RevenueCreateWithoutChurchInput[] | Prisma.RevenueUncheckedCreateWithoutChurchInput[]
   connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutChurchInput | Prisma.RevenueCreateOrConnectWithoutChurchInput[]
@@ -521,40 +528,64 @@ export type RevenueUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
 }
 
-export type RevenueCreateNestedOneWithoutActivityInput = {
-  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput
-  connect?: Prisma.RevenueWhereUniqueInput
+export type RevenueCreateNestedManyWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput> | Prisma.RevenueCreateWithoutActivityInput[] | Prisma.RevenueUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput | Prisma.RevenueCreateOrConnectWithoutActivityInput[]
+  createMany?: Prisma.RevenueCreateManyActivityInputEnvelope
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
 }
 
-export type RevenueUncheckedCreateNestedOneWithoutActivityInput = {
-  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput
-  connect?: Prisma.RevenueWhereUniqueInput
+export type RevenueUncheckedCreateNestedManyWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput> | Prisma.RevenueCreateWithoutActivityInput[] | Prisma.RevenueUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput | Prisma.RevenueCreateOrConnectWithoutActivityInput[]
+  createMany?: Prisma.RevenueCreateManyActivityInputEnvelope
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
 }
 
-export type RevenueUpdateOneWithoutActivityNestedInput = {
-  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput
-  upsert?: Prisma.RevenueUpsertWithoutActivityInput
-  disconnect?: Prisma.RevenueWhereInput | boolean
-  delete?: Prisma.RevenueWhereInput | boolean
-  connect?: Prisma.RevenueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.RevenueUpdateToOneWithWhereWithoutActivityInput, Prisma.RevenueUpdateWithoutActivityInput>, Prisma.RevenueUncheckedUpdateWithoutActivityInput>
+export type RevenueUpdateManyWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput> | Prisma.RevenueCreateWithoutActivityInput[] | Prisma.RevenueUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput | Prisma.RevenueCreateOrConnectWithoutActivityInput[]
+  upsert?: Prisma.RevenueUpsertWithWhereUniqueWithoutActivityInput | Prisma.RevenueUpsertWithWhereUniqueWithoutActivityInput[]
+  createMany?: Prisma.RevenueCreateManyActivityInputEnvelope
+  set?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  disconnect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  delete?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  update?: Prisma.RevenueUpdateWithWhereUniqueWithoutActivityInput | Prisma.RevenueUpdateWithWhereUniqueWithoutActivityInput[]
+  updateMany?: Prisma.RevenueUpdateManyWithWhereWithoutActivityInput | Prisma.RevenueUpdateManyWithWhereWithoutActivityInput[]
+  deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
 }
 
-export type RevenueUncheckedUpdateOneWithoutActivityNestedInput = {
-  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput
-  upsert?: Prisma.RevenueUpsertWithoutActivityInput
-  disconnect?: Prisma.RevenueWhereInput | boolean
-  delete?: Prisma.RevenueWhereInput | boolean
-  connect?: Prisma.RevenueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.RevenueUpdateToOneWithWhereWithoutActivityInput, Prisma.RevenueUpdateWithoutActivityInput>, Prisma.RevenueUncheckedUpdateWithoutActivityInput>
+export type RevenueUncheckedUpdateManyWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput> | Prisma.RevenueCreateWithoutActivityInput[] | Prisma.RevenueUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutActivityInput | Prisma.RevenueCreateOrConnectWithoutActivityInput[]
+  upsert?: Prisma.RevenueUpsertWithWhereUniqueWithoutActivityInput | Prisma.RevenueUpsertWithWhereUniqueWithoutActivityInput[]
+  createMany?: Prisma.RevenueCreateManyActivityInputEnvelope
+  set?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  disconnect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  delete?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  update?: Prisma.RevenueUpdateWithWhereUniqueWithoutActivityInput | Prisma.RevenueUpdateWithWhereUniqueWithoutActivityInput[]
+  updateMany?: Prisma.RevenueUpdateManyWithWhereWithoutActivityInput | Prisma.RevenueUpdateManyWithWhereWithoutActivityInput[]
+  deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
 }
 
 export type EnumPaymentMethodFieldUpdateOperationsInput = {
   set?: $Enums.PaymentMethod
+}
+
+export type RevenueCreateNestedOneWithoutApproversInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutApproversInput, Prisma.RevenueUncheckedCreateWithoutApproversInput>
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutApproversInput
+  connect?: Prisma.RevenueWhereUniqueInput
+}
+
+export type RevenueUpdateOneRequiredWithoutApproversNestedInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutApproversInput, Prisma.RevenueUncheckedCreateWithoutApproversInput>
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutApproversInput
+  upsert?: Prisma.RevenueUpsertWithoutApproversInput
+  connect?: Prisma.RevenueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RevenueUpdateToOneWithWhereWithoutApproversInput, Prisma.RevenueUpdateWithoutApproversInput>, Prisma.RevenueUncheckedUpdateWithoutApproversInput>
 }
 
 export type RevenueCreateNestedManyWithoutFinancialAccountNumberInput = {
@@ -605,8 +636,9 @@ export type RevenueCreateWithoutChurchInput = {
   paymentMethod: $Enums.PaymentMethod
   createdAt?: Date | string
   updatedAt?: Date | string
-  activity?: Prisma.ActivityCreateNestedOneWithoutRevenueInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+  approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueUncheckedCreateWithoutChurchInput = {
@@ -618,6 +650,7 @@ export type RevenueUncheckedCreateWithoutChurchInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueCreateOrConnectWithoutChurchInput = {
@@ -669,6 +702,7 @@ export type RevenueCreateWithoutActivityInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+  approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueUncheckedCreateWithoutActivityInput = {
@@ -680,6 +714,7 @@ export type RevenueUncheckedCreateWithoutActivityInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueCreateOrConnectWithoutActivityInput = {
@@ -687,32 +722,83 @@ export type RevenueCreateOrConnectWithoutActivityInput = {
   create: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
 }
 
-export type RevenueUpsertWithoutActivityInput = {
-  update: Prisma.XOR<Prisma.RevenueUpdateWithoutActivityInput, Prisma.RevenueUncheckedUpdateWithoutActivityInput>
-  create: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
-  where?: Prisma.RevenueWhereInput
+export type RevenueCreateManyActivityInputEnvelope = {
+  data: Prisma.RevenueCreateManyActivityInput | Prisma.RevenueCreateManyActivityInput[]
+  skipDuplicates?: boolean
 }
 
-export type RevenueUpdateToOneWithWhereWithoutActivityInput = {
-  where?: Prisma.RevenueWhereInput
+export type RevenueUpsertWithWhereUniqueWithoutActivityInput = {
+  where: Prisma.RevenueWhereUniqueInput
+  update: Prisma.XOR<Prisma.RevenueUpdateWithoutActivityInput, Prisma.RevenueUncheckedUpdateWithoutActivityInput>
+  create: Prisma.XOR<Prisma.RevenueCreateWithoutActivityInput, Prisma.RevenueUncheckedCreateWithoutActivityInput>
+}
+
+export type RevenueUpdateWithWhereUniqueWithoutActivityInput = {
+  where: Prisma.RevenueWhereUniqueInput
   data: Prisma.XOR<Prisma.RevenueUpdateWithoutActivityInput, Prisma.RevenueUncheckedUpdateWithoutActivityInput>
 }
 
-export type RevenueUpdateWithoutActivityInput = {
+export type RevenueUpdateManyWithWhereWithoutActivityInput = {
+  where: Prisma.RevenueScalarWhereInput
+  data: Prisma.XOR<Prisma.RevenueUpdateManyMutationInput, Prisma.RevenueUncheckedUpdateManyWithoutActivityInput>
+}
+
+export type RevenueCreateWithoutApproversInput = {
+  accountNumber: string
+  amount: number
+  paymentMethod: $Enums.PaymentMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+}
+
+export type RevenueUncheckedCreateWithoutApproversInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  activityId?: number | null
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RevenueCreateOrConnectWithoutApproversInput = {
+  where: Prisma.RevenueWhereUniqueInput
+  create: Prisma.XOR<Prisma.RevenueCreateWithoutApproversInput, Prisma.RevenueUncheckedCreateWithoutApproversInput>
+}
+
+export type RevenueUpsertWithoutApproversInput = {
+  update: Prisma.XOR<Prisma.RevenueUpdateWithoutApproversInput, Prisma.RevenueUncheckedUpdateWithoutApproversInput>
+  create: Prisma.XOR<Prisma.RevenueCreateWithoutApproversInput, Prisma.RevenueUncheckedCreateWithoutApproversInput>
+  where?: Prisma.RevenueWhereInput
+}
+
+export type RevenueUpdateToOneWithWhereWithoutApproversInput = {
+  where?: Prisma.RevenueWhereInput
+  data: Prisma.XOR<Prisma.RevenueUpdateWithoutApproversInput, Prisma.RevenueUncheckedUpdateWithoutApproversInput>
+}
+
+export type RevenueUpdateWithoutApproversInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
 }
 
-export type RevenueUncheckedUpdateWithoutActivityInput = {
+export type RevenueUncheckedUpdateWithoutApproversInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -726,7 +812,8 @@ export type RevenueCreateWithoutFinancialAccountNumberInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
-  activity?: Prisma.ActivityCreateNestedOneWithoutRevenueInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
+  approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueUncheckedCreateWithoutFinancialAccountNumberInput = {
@@ -738,6 +825,7 @@ export type RevenueUncheckedCreateWithoutFinancialAccountNumberInput = {
   paymentMethod: $Enums.PaymentMethod
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
 }
 
 export type RevenueCreateOrConnectWithoutFinancialAccountNumberInput = {
@@ -783,8 +871,9 @@ export type RevenueUpdateWithoutChurchInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  activity?: Prisma.ActivityUpdateOneWithoutRevenueNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
+  approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutChurchInput = {
@@ -796,6 +885,7 @@ export type RevenueUncheckedUpdateWithoutChurchInput = {
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueUncheckedUpdateManyWithoutChurchInput = {
@@ -803,6 +893,51 @@ export type RevenueUncheckedUpdateManyWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RevenueCreateManyActivityInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RevenueUpdateWithoutActivityInput = {
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
+  approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+}
+
+export type RevenueUncheckedUpdateWithoutActivityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
+}
+
+export type RevenueUncheckedUpdateManyWithoutActivityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -827,7 +962,8 @@ export type RevenueUpdateWithoutFinancialAccountNumberInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
-  activity?: Prisma.ActivityUpdateOneWithoutRevenueNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
+  approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutFinancialAccountNumberInput = {
@@ -839,6 +975,7 @@ export type RevenueUncheckedUpdateWithoutFinancialAccountNumberInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
 }
 
 export type RevenueUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
@@ -852,6 +989,35 @@ export type RevenueUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type RevenueCountOutputType
+ */
+
+export type RevenueCountOutputType = {
+  approvers: number
+}
+
+export type RevenueCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  approvers?: boolean | RevenueCountOutputTypeCountApproversArgs
+}
+
+/**
+ * RevenueCountOutputType without action
+ */
+export type RevenueCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RevenueCountOutputType
+   */
+  select?: Prisma.RevenueCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * RevenueCountOutputType without action
+ */
+export type RevenueCountOutputTypeCountApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RevenueApproverWhereInput
+}
 
 
 export type RevenueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -867,6 +1033,8 @@ export type RevenueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  approvers?: boolean | Prisma.Revenue$approversArgs<ExtArgs>
+  _count?: boolean | Prisma.RevenueCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["revenue"]>
 
 export type RevenueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -916,6 +1084,8 @@ export type RevenueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  approvers?: boolean | Prisma.Revenue$approversArgs<ExtArgs>
+  _count?: boolean | Prisma.RevenueCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RevenueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
@@ -934,6 +1104,7 @@ export type $RevenuePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     church: Prisma.$ChurchPayload<ExtArgs>
     activity: Prisma.$ActivityPayload<ExtArgs> | null
     financialAccountNumber: Prisma.$FinancialAccountNumberPayload<ExtArgs> | null
+    approvers: Prisma.$RevenueApproverPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1342,6 +1513,7 @@ export interface Prisma__RevenueClient<T, Null = never, ExtArgs extends runtime.
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   activity<T extends Prisma.Revenue$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   financialAccountNumber<T extends Prisma.Revenue$financialAccountNumberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$financialAccountNumberArgs<ExtArgs>>): Prisma.Prisma__FinancialAccountNumberClient<runtime.Types.Result.GetResult<Prisma.$FinancialAccountNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvers<T extends Prisma.Revenue$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenueApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1811,6 +1983,30 @@ export type Revenue$financialAccountNumberArgs<ExtArgs extends runtime.Types.Ext
    */
   include?: Prisma.FinancialAccountNumberInclude<ExtArgs> | null
   where?: Prisma.FinancialAccountNumberWhereInput
+}
+
+/**
+ * Revenue.approvers
+ */
+export type Revenue$approversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RevenueApprover
+   */
+  select?: Prisma.RevenueApproverSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RevenueApprover
+   */
+  omit?: Prisma.RevenueApproverOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RevenueApproverInclude<ExtArgs> | null
+  where?: Prisma.RevenueApproverWhereInput
+  orderBy?: Prisma.RevenueApproverOrderByWithRelationInput | Prisma.RevenueApproverOrderByWithRelationInput[]
+  cursor?: Prisma.RevenueApproverWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RevenueApproverScalarFieldEnum | Prisma.RevenueApproverScalarFieldEnum[]
 }
 
 /**

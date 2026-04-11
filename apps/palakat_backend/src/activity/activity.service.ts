@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
   Logger,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ActivityListQueryDto } from './dto/activity-list.dto';
@@ -13,6 +15,7 @@ import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationService } from '../notification/notification.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { DocumentInput } from '../generated/prisma/enums';
+import { FinancialType } from '../generated/prisma/client';
 
 /**
  * Service for managing church activities.
@@ -66,6 +69,7 @@ export class ActivitiesService {
     private prisma: PrismaService,
     private approverResolver: ApproverResolverService,
     private notificationService: NotificationService,
+    @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
   ) {}
 
@@ -94,6 +98,123 @@ export class ActivitiesService {
         error.stack,
       );
     }
+  }
+
+  private async resolveFinanceApproverMembershipIds(
+    tx: any,
+    params: {
+      churchId: number;
+      financialType: FinancialType;
+      financialAccountNumberId?: number | null;
+    },
+  ): Promise<number[]> {
+    const positionIds = new Set<number>();
+
+    if (typeof params.financialAccountNumberId === 'number') {
+      const accountRules = await tx.approvalRule.findMany({
+        where: {
+          churchId: params.churchId,
+          financialAccountNumberId: params.financialAccountNumberId,
+          active: true,
+        },
+        include: {
+          positions: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      for (const rule of accountRules) {
+        for (const position of rule.positions) {
+          positionIds.add(position.id);
+        }
+      }
+    }
+
+    const financialTypeRules = await tx.approvalRule.findMany({
+      where: {
+        churchId: params.churchId,
+        financialType: params.financialType,
+        financialAccountNumberId: null,
+        active: true,
+      },
+      include: {
+        positions: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    for (const rule of financialTypeRules) {
+      for (const position of rule.positions) {
+        positionIds.add(position.id);
+      }
+    }
+
+    if (positionIds.size === 0) {
+      return [];
+    }
+
+    const memberships = await tx.membership.findMany({
+      where: {
+        churchId: params.churchId,
+        membershipPositions: {
+          some: {
+            id: {
+              in: Array.from(positionIds),
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return memberships.map((membership: { id: number }) => membership.id);
+  }
+
+  private async createFinanceApproverRecords(
+    tx: any,
+    params: {
+      churchId: number;
+      financialType: FinancialType;
+      financeId: number;
+      financialAccountNumberId?: number | null;
+    },
+  ): Promise<number[]> {
+    const membershipIds = await this.resolveFinanceApproverMembershipIds(tx, {
+      churchId: params.churchId,
+      financialType: params.financialType,
+      financialAccountNumberId: params.financialAccountNumberId,
+    });
+
+    if (membershipIds.length === 0) {
+      return [];
+    }
+
+    if (params.financialType === FinancialType.REVENUE) {
+      await tx.revenueApprover.createMany({
+        data: membershipIds.map((membershipId: number) => ({
+          revenueId: params.financeId,
+          membershipId,
+        })),
+      });
+      return membershipIds;
+    }
+
+    await tx.expenseApprover.createMany({
+      data: membershipIds.map((membershipId: number) => ({
+        expenseId: params.financeId,
+        membershipId,
+      })),
+    });
+
+    return membershipIds;
   }
 
   async findAll(query: ActivityListQueryDto, user?: any) {
@@ -249,18 +370,17 @@ export class ActivitiesService {
     }
 
     // hasExpense filter: filter activities by expense record presence
-    // For one-to-one relations, use 'is' and 'isNot' operators
     if (hasExpense === true) {
-      where.expense = { isNot: null };
+      where.expenses = { some: {} };
     } else if (hasExpense === false) {
-      where.expense = { is: null };
+      where.expenses = { none: {} };
     }
 
     // hasRevenue filter: filter activities by revenue record presence
     if (hasRevenue === true) {
-      where.revenue = { isNot: null };
+      where.revenues = { some: {} };
     } else if (hasRevenue === false) {
-      where.revenue = { is: null };
+      where.revenues = { none: {} };
     }
 
     const [total, activities] = await (this.prisma as any).$transaction([
@@ -305,12 +425,12 @@ export class ActivitiesService {
               },
             },
           },
-          revenue: {
+          revenues: {
             select: {
               id: true,
             },
           },
-          expense: {
+          expenses: {
             select: {
               id: true,
             },
@@ -323,11 +443,11 @@ export class ActivitiesService {
 
     // Transform activities to include hasRevenue/hasExpense flags
     const transformedActivities = activities.map((activity: any) => {
-      const { revenue, expense, ...rest } = activity;
+      const { revenues, expenses, ...rest } = activity;
       return {
         ...rest,
-        hasRevenue: revenue !== null,
-        hasExpense: expense !== null,
+        hasRevenue: Array.isArray(revenues) && revenues.length > 0,
+        hasExpense: Array.isArray(expenses) && expenses.length > 0,
       };
     });
 
@@ -392,7 +512,7 @@ export class ActivitiesService {
             },
           },
         },
-        revenue: {
+        revenues: {
           select: {
             id: true,
             amount: true,
@@ -406,7 +526,7 @@ export class ActivitiesService {
             },
           },
         },
-        expense: {
+        expenses: {
           select: {
             id: true,
             amount: true,
@@ -430,13 +550,13 @@ export class ActivitiesService {
     });
 
     // Transform to include hasRevenue/hasExpense flags and financial data
-    const { revenue, expense, ...rest } = activity;
+    const { revenues, expenses, ...rest } = activity;
     const transformedActivity = {
       ...rest,
-      hasRevenue: revenue !== null,
-      hasExpense: expense !== null,
-      revenue: revenue,
-      expense: expense,
+      hasRevenue: Array.isArray(revenues) && revenues.length > 0,
+      hasExpense: Array.isArray(expenses) && expenses.length > 0,
+      revenues,
+      expenses,
     };
 
     return {
@@ -488,7 +608,7 @@ export class ActivitiesService {
       location: locationDto,
       supervisorId: supervisorIdFromDto,
       reminder,
-      finance,
+      finances,
       publishToColumnOnly,
       fileId,
       ...activityData
@@ -514,6 +634,9 @@ export class ActivitiesService {
       id: number;
       churchId: number | null;
       columnId: number | null;
+      church?: {
+        documentAccountNumber: number | null;
+      } | null;
     } | null = null;
 
     if (!isClientToken) {
@@ -648,19 +771,22 @@ export class ActivitiesService {
       };
     }
 
-    // Resolve approvers based on approval rules
-    // Include financial data if provided for rule matching
+    // Resolve approvers based on activity approval rules
     const approverResolution = await this.approverResolver.resolveApprovers({
       churchId: membership.churchId,
       activityType: activityData.activityType,
       supervisorId: effectiveSupervisorId,
-      financialAccountNumberId: finance?.financialAccountNumberId,
-      financialType: finance?.type as 'REVENUE' | 'EXPENSE' | undefined,
     });
 
     // Use a transaction to create activity, link finance records, and create approvers
     const activity = await (this.prisma as any).$transaction(
       async (tx: any) => {
+        const financeRealtimeEvents: Array<{
+          financeId: number;
+          financeType: 'REVENUE' | 'EXPENSE';
+          affectedMembershipIds: number[];
+        }> = [];
+
         // Create the activity
         const newActivity = await tx.activity.create({
           data: createData,
@@ -682,7 +808,7 @@ export class ActivitiesService {
         });
 
         // Create finance record (revenue or expense) alongside activity if provided
-        if (finance) {
+        for (const finance of finances ?? []) {
           const financeData = {
             accountNumber: finance.accountNumber,
             amount: finance.amount,
@@ -693,14 +819,39 @@ export class ActivitiesService {
           };
 
           if (finance.type === 'REVENUE') {
-            await tx.revenue.create({ data: financeData });
+            const revenue = await tx.revenue.create({ data: financeData });
+            const financeApproverMembershipIds =
+              await this.createFinanceApproverRecords(tx, {
+                churchId: membership.churchId,
+                financialType: FinancialType.REVENUE,
+                financeId: revenue.id,
+                financialAccountNumberId:
+                  finance.financialAccountNumberId ?? null,
+              });
+            financeRealtimeEvents.push({
+              financeId: revenue.id,
+              financeType: 'REVENUE',
+              affectedMembershipIds: financeApproverMembershipIds,
+            });
           } else {
-            await tx.expense.create({ data: financeData });
+            const expense = await tx.expense.create({ data: financeData });
+            const financeApproverMembershipIds =
+              await this.createFinanceApproverRecords(tx, {
+                churchId: membership.churchId,
+                financialType: FinancialType.EXPENSE,
+                financeId: expense.id,
+                financialAccountNumberId:
+                  finance.financialAccountNumberId ?? null,
+              });
+            financeRealtimeEvents.push({
+              financeId: expense.id,
+              financeType: 'EXPENSE',
+              affectedMembershipIds: financeApproverMembershipIds,
+            });
           }
         }
 
-        // Auto-create document for all ANNOUNCEMENT activities
-        if (newActivity.activityType === 'ANNOUNCEMENT') {
+        if (membership.church?.documentAccountNumber != null) {
           await tx.document.create({
             data: {
               name: newActivity.title,
@@ -725,95 +876,137 @@ export class ActivitiesService {
         }
 
         // Fetch the activity with approvers and linked finance records included
-        return tx.activity.findUnique({
-          where: { id: newActivity.id },
-          include: {
-            supervisor: {
-              include: {
-                church: true,
-                account: {
-                  select: {
-                    id: true,
-                    name: true,
-                    phone: true,
-                    dob: true,
+        return tx.activity
+          .findUnique({
+            where: { id: newActivity.id },
+            include: {
+              supervisor: {
+                include: {
+                  church: true,
+                  account: {
+                    select: {
+                      id: true,
+                      name: true,
+                      phone: true,
+                      dob: true,
+                    },
                   },
                 },
               },
-            },
-            location: true,
-            approvers: {
-              include: {
-                membership: {
-                  include: {
-                    account: {
-                      select: {
-                        id: true,
-                        name: true,
-                        phone: true,
-                        dob: true,
+              location: true,
+              approvers: {
+                include: {
+                  membership: {
+                    include: {
+                      account: {
+                        select: {
+                          id: true,
+                          name: true,
+                          phone: true,
+                          dob: true,
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-            revenue: {
-              select: {
-                id: true,
-                amount: true,
-                accountNumber: true,
-                paymentMethod: true,
+              revenues: {
+                select: {
+                  id: true,
+                  amount: true,
+                  accountNumber: true,
+                  paymentMethod: true,
+                  financialAccountNumber: {
+                    select: {
+                      accountNumber: true,
+                      description: true,
+                    },
+                  },
+                },
               },
-            },
-            expense: {
-              select: {
-                id: true,
-                amount: true,
-                accountNumber: true,
-                paymentMethod: true,
+              expenses: {
+                select: {
+                  id: true,
+                  amount: true,
+                  accountNumber: true,
+                  paymentMethod: true,
+                  financialAccountNumber: {
+                    select: {
+                      accountNumber: true,
+                      description: true,
+                    },
+                  },
+                },
               },
+              file: true,
+              document: true,
             },
-            file: true,
-            document: true,
-          },
-        });
+          })
+          .then((fullActivity: any) => {
+            const transformedFullActivity = {
+              ...fullActivity,
+              hasRevenue:
+                Array.isArray(fullActivity?.revenues) &&
+                fullActivity.revenues.length > 0,
+              hasExpense:
+                Array.isArray(fullActivity?.expenses) &&
+                fullActivity.expenses.length > 0,
+            };
+
+            return {
+              fullActivity: transformedFullActivity,
+              financeRealtimeEvents,
+            };
+          });
       },
     );
 
     // Send notifications after activity creation (non-blocking)
     // **Validates: Requirements 8.3**
-    if (activity) {
-      this.notifyActivityCreated(activity, membership.churchId).catch(
-        (error) => {
-          this.logger.error(
-            `Failed to send activity creation notifications: ${error.message}`,
-            error.stack,
-          );
-        },
-      );
+    if (activity?.fullActivity) {
+      this.notifyActivityCreated(
+        activity.fullActivity,
+        membership.churchId,
+      ).catch((error) => {
+        this.logger.error(
+          `Failed to send activity creation notifications: ${error.message}`,
+          error.stack,
+        );
+      });
     } else {
       this.logger.warn(
         'Activity was null after creation, skipping notifications',
       );
     }
 
-    if (activity) {
+    if (activity?.fullActivity) {
       this.emitActivityEvent({
         eventName: 'activity.created',
-        activityId: activity.id,
+        activityId: activity.fullActivity.id,
         churchId: membership.churchId,
-        supervisorId: activity.supervisorId,
-        approverMembershipIds: activity.approvers?.map(
+        supervisorId: activity.fullActivity.supervisorId,
+        approverMembershipIds: activity.fullActivity.approvers?.map(
           (approver: any) => approver.membershipId,
         ),
-        updatedAt: activity.updatedAt,
+        updatedAt: activity.fullActivity.updatedAt,
       });
+
+      for (const financeRealtimeEvent of activity.financeRealtimeEvents ?? []) {
+        this.realtime.emitFinanceEvent({
+          eventName: 'finance.created',
+          financeId: financeRealtimeEvent.financeId,
+          financeType: financeRealtimeEvent.financeType,
+          churchId: membership.churchId,
+          activityId: activity.fullActivity.id,
+          affectedMembershipIds: financeRealtimeEvent.affectedMembershipIds,
+          updatedAt: activity.fullActivity.updatedAt,
+        });
+      }
     }
 
     return {
       message: 'Activity created successfully',
-      data: activity,
+      data: activity?.fullActivity,
     };
   }
 
@@ -1040,10 +1233,46 @@ export class ActivitiesService {
         },
         location: true,
         approvers: true,
+        revenues: {
+          select: {
+            id: true,
+            amount: true,
+            accountNumber: true,
+            paymentMethod: true,
+            financialAccountNumber: {
+              select: {
+                accountNumber: true,
+                description: true,
+              },
+            },
+          },
+        },
+        expenses: {
+          select: {
+            id: true,
+            amount: true,
+            accountNumber: true,
+            paymentMethod: true,
+            financialAccountNumber: {
+              select: {
+                accountNumber: true,
+                description: true,
+              },
+            },
+          },
+        },
         file: true,
         document: true,
       },
     });
+
+    const transformedActivity = {
+      ...activity,
+      hasRevenue:
+        Array.isArray(activity?.revenues) && activity.revenues.length > 0,
+      hasExpense:
+        Array.isArray(activity?.expenses) && activity.expenses.length > 0,
+    };
 
     if (typeof activity.supervisor?.churchId === 'number') {
       this.emitActivityEvent({
@@ -1060,7 +1289,7 @@ export class ActivitiesService {
 
     return {
       message: 'Activity updated successfully',
-      data: activity,
+      data: transformedActivity,
     };
   }
 }

@@ -2169,12 +2169,67 @@ export class RpcRouterService {
         return this.normalizePaginatedList(query, res);
       }
 
+      case 'finance.approval.list': {
+        const user = this.requireUserId(client);
+        const membershipId = await this.resolveMembershipIdForUser(user.userId);
+        const query = this.withPagination(payload) as any;
+        query.membershipId = membershipId;
+        const res: any = await this.financeService.findAll(query, user);
+        return this.normalizePaginatedList(query, res);
+      }
+
+      case 'finance.approval.get': {
+        const user = this.requireUserId(client);
+        const membershipId = await this.resolveMembershipIdForUser(user.userId);
+        const id = payload.id as number;
+        const financeType = (payload.financeType ?? payload.type) as
+          | 'REVENUE'
+          | 'EXPENSE';
+        if (typeof id !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+        if (financeType !== 'REVENUE' && financeType !== 'EXPENSE') {
+          throw new BadRequestException('financeType is required');
+        }
+        return this.financeService.findOne(
+          {
+            id,
+            financeType,
+            membershipId,
+          },
+          user,
+        );
+      }
+
       case 'finance.overview': {
         const { user } = await this.requireAnyOperationPermission(client, [
           'ops.finance.revenue.create',
           'ops.finance.expense.create',
         ]);
         return this.financeService.getOverview(user);
+      }
+
+      case 'finance.approver.update': {
+        const user = this.requireUserId(client);
+        const approverId = (payload.approverId ?? payload.id) as number;
+        const financeType = (payload.financeType ?? payload.type) as
+          | 'REVENUE'
+          | 'EXPENSE';
+        const dto = payload.dto ?? payload;
+        if (typeof approverId !== 'number') {
+          throw new BadRequestException('approverId is required');
+        }
+        if (financeType !== 'REVENUE' && financeType !== 'EXPENSE') {
+          throw new BadRequestException('financeType is required');
+        }
+        return this.financeService.updateApprover(
+          {
+            approverId,
+            financeType,
+            status: dto.status,
+          },
+          user,
+        );
       }
 
       case 'revenue.list': {

@@ -6,6 +6,11 @@ type ActivityRealtimeEventName =
   | 'activity.updated'
   | 'activity.deleted';
 
+type FinanceRealtimeEventName =
+  | 'finance.created'
+  | 'finance.updated'
+  | 'finance.deleted';
+
 @Injectable()
 export class RealtimeEmitterService {
   private readonly logger = new Logger(RealtimeEmitterService.name);
@@ -78,6 +83,37 @@ export class RealtimeEmitterService {
         activityId: params.activityId,
         churchId: params.churchId,
         affectedMembershipIds,
+        ...(this.normalizeUpdatedAt(params.updatedAt) != null
+          ? { updatedAt: this.normalizeUpdatedAt(params.updatedAt) }
+          : {}),
+      },
+    };
+
+    this.emitToRoom(`church.${params.churchId}`, params.eventName, payload);
+  }
+
+  emitFinanceEvent(params: {
+    eventName: FinanceRealtimeEventName;
+    financeId: number;
+    financeType: 'REVENUE' | 'EXPENSE';
+    churchId: number;
+    activityId?: number | null;
+    affectedMembershipIds?: Array<number | null | undefined>;
+    updatedAt?: unknown;
+  }) {
+    const affectedMembershipIds = this.normalizeMembershipIds(
+      params.affectedMembershipIds ?? [],
+    );
+
+    const payload = {
+      data: {
+        financeId: params.financeId,
+        financeType: params.financeType,
+        churchId: params.churchId,
+        affectedMembershipIds,
+        ...(typeof params.activityId === 'number'
+          ? { activityId: params.activityId }
+          : {}),
         ...(this.normalizeUpdatedAt(params.updatedAt) != null
           ? { updatedAt: this.normalizeUpdatedAt(params.updatedAt) }
           : {}),

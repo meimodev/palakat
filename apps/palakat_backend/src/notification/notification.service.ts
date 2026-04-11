@@ -3,6 +3,8 @@ import {
   NotFoundException,
   ForbiddenException,
   Logger,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -84,7 +86,7 @@ export class NotificationService {
   constructor(
     private prisma: PrismaService,
     private pusherBeams: PusherBeamsService,
-    private realtime: RealtimeEmitterService,
+    @Inject(forwardRef(() => RealtimeEmitterService)) private realtime: RealtimeEmitterService,
   ) {}
 
   /**

@@ -1,19 +1,210 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
+import { FinancialType } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
+import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { CreateRevenueDto } from './dto/create-revenue.dto';
 import { RevenueListQueryDto } from './dto/revenue-list.dto';
 import { UpdateRevenueDto } from './dto/update-revenue.dto';
 
 @Injectable()
 export class RevenueService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => RealtimeEmitterService))
+    private realtime: RealtimeEmitterService,
+  ) {}
 
-  /**
-   * Resolves the persisted account number and optional linked financial account.
-   * When only accountNumber is provided, this attempts to normalize it against
-   * the church-scoped FinancialAccountNumber table so returned relations stay
-   * populated server-side.
-   */
+  private emitRevenueFinanceEvent(
+    eventName: 'finance.created' | 'finance.updated' | 'finance.deleted',
+    revenue: any,
+    updatedAt?: Date,
+  ) {
+    if (
+      typeof revenue?.id !== 'number' ||
+      typeof revenue?.churchId !== 'number'
+    ) {
+      return;
+    }
+
+    this.realtime.emitFinanceEvent({
+      eventName,
+      financeId: revenue.id,
+      financeType: 'REVENUE',
+      churchId: revenue.churchId,
+      activityId: revenue.activityId ?? revenue.activity?.id ?? null,
+      affectedMembershipIds: (revenue.approvers ?? []).map(
+        (approver: any) => approver.membershipId,
+      ),
+      updatedAt: updatedAt ?? revenue.updatedAt,
+    });
+  }
+
+  private buildRevenueInclude() {
+    return {
+      approvers: {
+        include: {
+          membership: {
+            include: {
+              account: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  dob: true,
+                },
+              },
+              membershipPositions: true,
+            },
+          },
+        },
+      },
+      activity: {
+        include: {
+          approvers: {
+            include: {
+              membership: {
+                include: {
+                  account: {
+                    select: {
+                      id: true,
+                      name: true,
+                      phone: true,
+                      dob: true,
+                    },
+                  },
+                  membershipPositions: true,
+                },
+              },
+            },
+          },
+          supervisor: {
+            include: {
+              account: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  dob: true,
+                },
+              },
+              membershipPositions: true,
+            },
+          },
+          location: true,
+        },
+      },
+      financialAccountNumber: true,
+    };
+  }
+
+  private async resolveFinanceApproverMembershipIds(
+    churchId: number,
+    financialAccountNumberId?: number | null,
+  ): Promise<number[]> {
+    const positionIds = new Set<number>();
+
+    if (typeof financialAccountNumberId === 'number') {
+      const accountRules = await (this.prisma as any).approvalRule.findMany({
+        where: {
+          churchId,
+          financialAccountNumberId,
+          active: true,
+        },
+        include: {
+          positions: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      for (const rule of accountRules) {
+        for (const position of rule.positions) {
+          positionIds.add(position.id);
+        }
+      }
+    }
+
+    const financialTypeRules = await (this.prisma as any).approvalRule.findMany(
+      {
+        where: {
+          churchId,
+          financialType: FinancialType.REVENUE,
+          financialAccountNumberId: null,
+          active: true,
+        },
+        include: {
+          positions: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    );
+
+    for (const rule of financialTypeRules) {
+      for (const position of rule.positions) {
+        positionIds.add(position.id);
+      }
+    }
+
+    if (positionIds.size === 0) {
+      return [];
+    }
+
+    const memberships = await (this.prisma as any).membership.findMany({
+      where: {
+        churchId,
+        membershipPositions: {
+          some: {
+            id: {
+              in: Array.from(positionIds),
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return memberships.map((membership: { id: number }) => membership.id);
+  }
+
+  private async syncApprovers(
+    tx: any,
+    revenueId: number,
+    churchId: number,
+    financialAccountNumberId?: number | null,
+  ): Promise<void> {
+    await tx.revenueApprover.deleteMany({
+      where: { revenueId },
+    });
+
+    const membershipIds = await this.resolveFinanceApproverMembershipIds(
+      churchId,
+      financialAccountNumberId,
+    );
+
+    if (membershipIds.length === 0) {
+      return;
+    }
+
+    await tx.revenueApprover.createMany({
+      data: membershipIds.map((membershipId: number) => ({
+        revenueId,
+        membershipId,
+      })),
+    });
+  }
+
   private async resolveFinancialAccount(
     churchId: number,
     financialAccountNumberId?: number,
@@ -84,7 +275,7 @@ export class RevenueService {
     } = query;
 
     const where: any = {
-      churchId: churchId,
+      churchId,
     };
 
     if (search) {
@@ -108,6 +299,7 @@ export class RevenueService {
       }
     }
 
+    const include = this.buildRevenueInclude();
     const [total, revenues] = await (this.prisma as any).$transaction([
       (this.prisma as any).revenue.count({ where }),
       (this.prisma as any).revenue.findMany({
@@ -115,18 +307,10 @@ export class RevenueService {
         take,
         skip,
         orderBy: { [sortBy]: sortOrder },
-        include: {
-          activity: {
-            include: {
-              approvers: true,
-              supervisor: true,
-            },
-          },
-        },
+        include,
       }),
     ]);
 
-    // Track which fields matched the search
     let searchInfo = '';
     if (search && revenues.length > 0) {
       const matchedFields = new Set<string>();
@@ -157,27 +341,7 @@ export class RevenueService {
   async findOne(id: number) {
     const revenue = await (this.prisma as any).revenue.findUniqueOrThrow({
       where: { id },
-      include: {
-        activity: {
-          include: {
-            approvers: true,
-            supervisor: {
-              include: {
-                account: {
-                  select: {
-                    id: true,
-                    name: true,
-                    phone: true,
-                    dob: true,
-                  },
-                },
-                membershipPositions: true,
-              },
-            },
-            location: true,
-          },
-        },
-      },
+      include: this.buildRevenueInclude(),
     });
     return {
       message: 'Revenue retrieved successfully',
@@ -186,9 +350,24 @@ export class RevenueService {
   }
 
   async remove(id: number) {
-    await (this.prisma as any).revenue.delete({
+    const revenue = await (this.prisma as any).revenue.delete({
       where: { id },
+      include: {
+        approvers: {
+          select: {
+            membershipId: true,
+          },
+        },
+        activity: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
+
+    this.emitRevenueFinanceEvent('finance.deleted', revenue, new Date());
+
     return {
       message: 'Revenue deleted successfully',
     };
@@ -199,18 +378,6 @@ export class RevenueService {
   ): Promise<{ message: string; data: any }> {
     const { financialAccountNumberId, accountNumber, activityId, ...rest } =
       createRevenueDto;
-
-    // Validate: activity can only have revenue OR expense, not both
-    if (activityId) {
-      const existingExpense = await (this.prisma as any).expense.findUnique({
-        where: { activityId },
-      });
-      if (existingExpense) {
-        throw new BadRequestException(
-          'Activity already has an expense. An activity can only have one revenue or one expense, not both.',
-        );
-      }
-    }
 
     const resolvedFinancialAccount = await this.resolveFinancialAccount(
       rest.churchId,
@@ -229,31 +396,22 @@ export class RevenueService {
         resolvedFinancialAccount.financialAccountNumberId;
     }
 
-    const revenue = await (this.prisma as any).revenue.create({
-      data,
-      include: {
-        activity: {
-          include: {
-            approvers: true,
-            supervisor: {
-              include: {
-                account: {
-                  select: {
-                    id: true,
-                    name: true,
-                    phone: true,
-                    dob: true,
-                  },
-                },
-                membershipPositions: true,
-              },
-            },
-            location: true,
-          },
-        },
-        financialAccountNumber: true,
-      },
+    const include = this.buildRevenueInclude();
+    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+      const createdRevenue = await tx.revenue.create({ data });
+      await this.syncApprovers(
+        tx,
+        createdRevenue.id,
+        rest.churchId,
+        resolvedFinancialAccount.financialAccountNumberId,
+      );
+      return tx.revenue.findUniqueOrThrow({
+        where: { id: createdRevenue.id },
+        include,
+      });
     });
+
+    this.emitRevenueFinanceEvent('finance.created', revenue);
 
     return {
       message: 'Revenue created successfully',
@@ -268,29 +426,19 @@ export class RevenueService {
     const { financialAccountNumberId, accountNumber, activityId, ...rest } =
       updateRevenueDto;
 
-    // Validate: activity can only have revenue OR expense, not both
-    if (activityId) {
-      const existingExpense = await (this.prisma as any).expense.findUnique({
-        where: { activityId },
-      });
-      if (existingExpense) {
-        throw new BadRequestException(
-          'Activity already has an expense. An activity can only have one revenue or one expense, not both.',
-        );
-      }
-    }
-
     const currentRevenue = await (this.prisma as any).revenue.findUniqueOrThrow(
       {
         where: { id },
-        select: { churchId: true },
+        select: {
+          churchId: true,
+          financialAccountNumberId: true,
+        },
       },
     );
 
     const effectiveChurchId = rest.churchId ?? currentRevenue.churchId;
     const data: any = { ...rest, activityId };
 
-    // If financialAccountNumberId is provided, resolve and update the account number
     if (financialAccountNumberId !== undefined) {
       if (financialAccountNumberId === null) {
         data.financialAccountNumberId = null;
@@ -324,32 +472,38 @@ export class RevenueService {
         resolvedFinancialAccount.financialAccountNumberId;
     }
 
-    const revenue = await (this.prisma as any).revenue.update({
-      where: { id },
-      data,
-      include: {
-        activity: {
-          include: {
-            approvers: true,
-            supervisor: {
-              include: {
-                account: {
-                  select: {
-                    id: true,
-                    name: true,
-                    phone: true,
-                    dob: true,
-                  },
-                },
-                membershipPositions: true,
-              },
-            },
-            location: true,
-          },
-        },
-        financialAccountNumber: true,
-      },
+    const shouldRefreshApprovers =
+      Object.prototype.hasOwnProperty.call(data, 'financialAccountNumberId') ||
+      Object.prototype.hasOwnProperty.call(data, 'accountNumber') ||
+      rest.churchId !== undefined;
+
+    const include = this.buildRevenueInclude();
+    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+      const updatedRevenue = await tx.revenue.update({
+        where: { id },
+        data,
+      });
+
+      if (shouldRefreshApprovers) {
+        const nextFinancialAccountNumberId =
+          Object.prototype.hasOwnProperty.call(data, 'financialAccountNumberId')
+            ? data.financialAccountNumberId
+            : currentRevenue.financialAccountNumberId;
+        await this.syncApprovers(
+          tx,
+          id,
+          effectiveChurchId,
+          nextFinancialAccountNumberId,
+        );
+      }
+
+      return tx.revenue.findUniqueOrThrow({
+        where: { id: updatedRevenue.id },
+        include,
+      });
     });
+
+    this.emitRevenueFinanceEvent('finance.updated', revenue);
 
     return {
       message: 'Revenue updated successfully',

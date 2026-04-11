@@ -254,6 +254,8 @@ export type MembershipWhereInput = {
   churchId?: Prisma.IntNullableFilter<"Membership"> | number | null
   supervisorActivities?: Prisma.ActivityListRelationFilter
   approvers?: Prisma.ApproverListRelationFilter
+  revenueApprovers?: Prisma.RevenueApproverListRelationFilter
+  expenseApprovers?: Prisma.ExpenseApproverListRelationFilter
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   column?: Prisma.XOR<Prisma.ColumnNullableScalarRelationFilter, Prisma.ColumnWhereInput> | null
@@ -271,6 +273,8 @@ export type MembershipOrderByWithRelationInput = {
   churchId?: Prisma.SortOrderInput | Prisma.SortOrder
   supervisorActivities?: Prisma.ActivityOrderByRelationAggregateInput
   approvers?: Prisma.ApproverOrderByRelationAggregateInput
+  revenueApprovers?: Prisma.RevenueApproverOrderByRelationAggregateInput
+  expenseApprovers?: Prisma.ExpenseApproverOrderByRelationAggregateInput
   account?: Prisma.AccountOrderByWithRelationInput
   church?: Prisma.ChurchOrderByWithRelationInput
   column?: Prisma.ColumnOrderByWithRelationInput
@@ -291,6 +295,8 @@ export type MembershipWhereUniqueInput = Prisma.AtLeast<{
   churchId?: Prisma.IntNullableFilter<"Membership"> | number | null
   supervisorActivities?: Prisma.ActivityListRelationFilter
   approvers?: Prisma.ApproverListRelationFilter
+  revenueApprovers?: Prisma.RevenueApproverListRelationFilter
+  expenseApprovers?: Prisma.ExpenseApproverListRelationFilter
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
   column?: Prisma.XOR<Prisma.ColumnNullableScalarRelationFilter, Prisma.ColumnWhereInput> | null
@@ -334,6 +340,8 @@ export type MembershipCreateInput = {
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
@@ -351,6 +359,8 @@ export type MembershipUncheckedCreateInput = {
   churchId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -361,6 +371,8 @@ export type MembershipUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
@@ -378,6 +390,8 @@ export type MembershipUncheckedUpdateInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -641,6 +655,34 @@ export type MembershipUpdateOneRequiredWithoutApproversNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipUpdateToOneWithWhereWithoutApproversInput, Prisma.MembershipUpdateWithoutApproversInput>, Prisma.MembershipUncheckedUpdateWithoutApproversInput>
 }
 
+export type MembershipCreateNestedOneWithoutRevenueApproversInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutRevenueApproversInput, Prisma.MembershipUncheckedCreateWithoutRevenueApproversInput>
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutRevenueApproversInput
+  connect?: Prisma.MembershipWhereUniqueInput
+}
+
+export type MembershipUpdateOneRequiredWithoutRevenueApproversNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutRevenueApproversInput, Prisma.MembershipUncheckedCreateWithoutRevenueApproversInput>
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutRevenueApproversInput
+  upsert?: Prisma.MembershipUpsertWithoutRevenueApproversInput
+  connect?: Prisma.MembershipWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipUpdateToOneWithWhereWithoutRevenueApproversInput, Prisma.MembershipUpdateWithoutRevenueApproversInput>, Prisma.MembershipUncheckedUpdateWithoutRevenueApproversInput>
+}
+
+export type MembershipCreateNestedOneWithoutExpenseApproversInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutExpenseApproversInput, Prisma.MembershipUncheckedCreateWithoutExpenseApproversInput>
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutExpenseApproversInput
+  connect?: Prisma.MembershipWhereUniqueInput
+}
+
+export type MembershipUpdateOneRequiredWithoutExpenseApproversNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutExpenseApproversInput, Prisma.MembershipUncheckedCreateWithoutExpenseApproversInput>
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutExpenseApproversInput
+  upsert?: Prisma.MembershipUpsertWithoutExpenseApproversInput
+  connect?: Prisma.MembershipWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipUpdateToOneWithWhereWithoutExpenseApproversInput, Prisma.MembershipUpdateWithoutExpenseApproversInput>, Prisma.MembershipUncheckedUpdateWithoutExpenseApproversInput>
+}
+
 export type MembershipCreateWithoutChurchInput = {
   baptize?: boolean
   sidi?: boolean
@@ -648,6 +690,8 @@ export type MembershipCreateWithoutChurchInput = {
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutMembershipInput
@@ -663,6 +707,8 @@ export type MembershipUncheckedCreateWithoutChurchInput = {
   columnId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -713,6 +759,8 @@ export type MembershipCreateWithoutColumnInput = {
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutMembershipInput
@@ -728,6 +776,8 @@ export type MembershipUncheckedCreateWithoutColumnInput = {
   churchId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -764,6 +814,8 @@ export type MembershipCreateWithoutMembershipPositionsInput = {
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
@@ -780,6 +832,8 @@ export type MembershipUncheckedCreateWithoutMembershipPositionsInput = {
   churchId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type MembershipCreateOrConnectWithoutMembershipPositionsInput = {
@@ -805,6 +859,8 @@ export type MembershipUpdateWithoutMembershipPositionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
@@ -821,6 +877,8 @@ export type MembershipUncheckedUpdateWithoutMembershipPositionsInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type MembershipCreateWithoutAccountInput = {
@@ -830,6 +888,8 @@ export type MembershipCreateWithoutAccountInput = {
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
   membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutMembershipInput
@@ -845,6 +905,8 @@ export type MembershipUncheckedCreateWithoutAccountInput = {
   churchId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -871,6 +933,8 @@ export type MembershipUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutMembershipNestedInput
@@ -886,6 +950,8 @@ export type MembershipUncheckedUpdateWithoutAccountInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -895,6 +961,8 @@ export type MembershipCreateWithoutSupervisorActivitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
@@ -911,6 +979,8 @@ export type MembershipUncheckedCreateWithoutSupervisorActivitiesInput = {
   columnId?: number | null
   churchId?: number | null
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -936,6 +1006,8 @@ export type MembershipUpdateWithoutSupervisorActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
@@ -952,6 +1024,8 @@ export type MembershipUncheckedUpdateWithoutSupervisorActivitiesInput = {
   columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -961,6 +1035,8 @@ export type MembershipCreateWithoutApproversInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
   account: Prisma.AccountCreateNestedOneWithoutMembershipInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
   column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
@@ -977,6 +1053,8 @@ export type MembershipUncheckedCreateWithoutApproversInput = {
   columnId?: number | null
   churchId?: number | null
   supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
   membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
 }
 
@@ -1002,6 +1080,8 @@ export type MembershipUpdateWithoutApproversInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
@@ -1018,6 +1098,156 @@ export type MembershipUncheckedUpdateWithoutApproversInput = {
   columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
+}
+
+export type MembershipCreateWithoutRevenueApproversInput = {
+  baptize?: boolean
+  sidi?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
+  approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverCreateNestedManyWithoutMembershipInput
+  account: Prisma.AccountCreateNestedOneWithoutMembershipInput
+  church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
+  column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
+  membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutMembershipInput
+}
+
+export type MembershipUncheckedCreateWithoutRevenueApproversInput = {
+  id?: number
+  baptize?: boolean
+  sidi?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accountId: number
+  columnId?: number | null
+  churchId?: number | null
+  supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
+  approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutMembershipInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
+}
+
+export type MembershipCreateOrConnectWithoutRevenueApproversInput = {
+  where: Prisma.MembershipWhereUniqueInput
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutRevenueApproversInput, Prisma.MembershipUncheckedCreateWithoutRevenueApproversInput>
+}
+
+export type MembershipUpsertWithoutRevenueApproversInput = {
+  update: Prisma.XOR<Prisma.MembershipUpdateWithoutRevenueApproversInput, Prisma.MembershipUncheckedUpdateWithoutRevenueApproversInput>
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutRevenueApproversInput, Prisma.MembershipUncheckedCreateWithoutRevenueApproversInput>
+  where?: Prisma.MembershipWhereInput
+}
+
+export type MembershipUpdateToOneWithWhereWithoutRevenueApproversInput = {
+  where?: Prisma.MembershipWhereInput
+  data: Prisma.XOR<Prisma.MembershipUpdateWithoutRevenueApproversInput, Prisma.MembershipUncheckedUpdateWithoutRevenueApproversInput>
+}
+
+export type MembershipUpdateWithoutRevenueApproversInput = {
+  baptize?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sidi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
+  approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
+  account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
+  church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
+  column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
+  membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutMembershipNestedInput
+}
+
+export type MembershipUncheckedUpdateWithoutRevenueApproversInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  baptize?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sidi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
+  approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
+}
+
+export type MembershipCreateWithoutExpenseApproversInput = {
+  baptize?: boolean
+  sidi?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supervisorActivities?: Prisma.ActivityCreateNestedManyWithoutSupervisorInput
+  approvers?: Prisma.ApproverCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverCreateNestedManyWithoutMembershipInput
+  account: Prisma.AccountCreateNestedOneWithoutMembershipInput
+  church?: Prisma.ChurchCreateNestedOneWithoutMembershipsInput
+  column?: Prisma.ColumnCreateNestedOneWithoutMembershipsInput
+  membershipPositions?: Prisma.MembershipPositionCreateNestedManyWithoutMembershipInput
+}
+
+export type MembershipUncheckedCreateWithoutExpenseApproversInput = {
+  id?: number
+  baptize?: boolean
+  sidi?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accountId: number
+  columnId?: number | null
+  churchId?: number | null
+  supervisorActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutSupervisorInput
+  approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutMembershipInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutMembershipInput
+  membershipPositions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutMembershipInput
+}
+
+export type MembershipCreateOrConnectWithoutExpenseApproversInput = {
+  where: Prisma.MembershipWhereUniqueInput
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutExpenseApproversInput, Prisma.MembershipUncheckedCreateWithoutExpenseApproversInput>
+}
+
+export type MembershipUpsertWithoutExpenseApproversInput = {
+  update: Prisma.XOR<Prisma.MembershipUpdateWithoutExpenseApproversInput, Prisma.MembershipUncheckedUpdateWithoutExpenseApproversInput>
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutExpenseApproversInput, Prisma.MembershipUncheckedCreateWithoutExpenseApproversInput>
+  where?: Prisma.MembershipWhereInput
+}
+
+export type MembershipUpdateToOneWithWhereWithoutExpenseApproversInput = {
+  where?: Prisma.MembershipWhereInput
+  data: Prisma.XOR<Prisma.MembershipUpdateWithoutExpenseApproversInput, Prisma.MembershipUncheckedUpdateWithoutExpenseApproversInput>
+}
+
+export type MembershipUpdateWithoutExpenseApproversInput = {
+  baptize?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sidi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
+  approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
+  church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
+  column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
+  membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutMembershipNestedInput
+}
+
+export type MembershipUncheckedUpdateWithoutExpenseApproversInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  baptize?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sidi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
+  approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -1038,6 +1268,8 @@ export type MembershipUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   column?: Prisma.ColumnUpdateOneWithoutMembershipsNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutMembershipNestedInput
@@ -1053,6 +1285,8 @@ export type MembershipUncheckedUpdateWithoutChurchInput = {
   columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -1083,6 +1317,8 @@ export type MembershipUpdateWithoutColumnInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supervisorActivities?: Prisma.ActivityUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUpdateManyWithoutMembershipNestedInput
   account?: Prisma.AccountUpdateOneRequiredWithoutMembershipNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipsNestedInput
   membershipPositions?: Prisma.MembershipPositionUpdateManyWithoutMembershipNestedInput
@@ -1098,6 +1334,8 @@ export type MembershipUncheckedUpdateWithoutColumnInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supervisorActivities?: Prisma.ActivityUncheckedUpdateManyWithoutSupervisorNestedInput
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  revenueApprovers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutMembershipNestedInput
+  expenseApprovers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutMembershipNestedInput
   membershipPositions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
@@ -1119,12 +1357,16 @@ export type MembershipUncheckedUpdateManyWithoutColumnInput = {
 export type MembershipCountOutputType = {
   supervisorActivities: number
   approvers: number
+  revenueApprovers: number
+  expenseApprovers: number
   membershipPositions: number
 }
 
 export type MembershipCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supervisorActivities?: boolean | MembershipCountOutputTypeCountSupervisorActivitiesArgs
   approvers?: boolean | MembershipCountOutputTypeCountApproversArgs
+  revenueApprovers?: boolean | MembershipCountOutputTypeCountRevenueApproversArgs
+  expenseApprovers?: boolean | MembershipCountOutputTypeCountExpenseApproversArgs
   membershipPositions?: boolean | MembershipCountOutputTypeCountMembershipPositionsArgs
 }
 
@@ -1155,6 +1397,20 @@ export type MembershipCountOutputTypeCountApproversArgs<ExtArgs extends runtime.
 /**
  * MembershipCountOutputType without action
  */
+export type MembershipCountOutputTypeCountRevenueApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RevenueApproverWhereInput
+}
+
+/**
+ * MembershipCountOutputType without action
+ */
+export type MembershipCountOutputTypeCountExpenseApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseApproverWhereInput
+}
+
+/**
+ * MembershipCountOutputType without action
+ */
 export type MembershipCountOutputTypeCountMembershipPositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MembershipPositionWhereInput
 }
@@ -1171,6 +1427,8 @@ export type MembershipSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   churchId?: boolean
   supervisorActivities?: boolean | Prisma.Membership$supervisorActivitiesArgs<ExtArgs>
   approvers?: boolean | Prisma.Membership$approversArgs<ExtArgs>
+  revenueApprovers?: boolean | Prisma.Membership$revenueApproversArgs<ExtArgs>
+  expenseApprovers?: boolean | Prisma.Membership$expenseApproversArgs<ExtArgs>
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   church?: boolean | Prisma.Membership$churchArgs<ExtArgs>
   column?: boolean | Prisma.Membership$columnArgs<ExtArgs>
@@ -1221,6 +1479,8 @@ export type MembershipOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type MembershipInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supervisorActivities?: boolean | Prisma.Membership$supervisorActivitiesArgs<ExtArgs>
   approvers?: boolean | Prisma.Membership$approversArgs<ExtArgs>
+  revenueApprovers?: boolean | Prisma.Membership$revenueApproversArgs<ExtArgs>
+  expenseApprovers?: boolean | Prisma.Membership$expenseApproversArgs<ExtArgs>
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   church?: boolean | Prisma.Membership$churchArgs<ExtArgs>
   column?: boolean | Prisma.Membership$columnArgs<ExtArgs>
@@ -1243,6 +1503,8 @@ export type $MembershipPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     supervisorActivities: Prisma.$ActivityPayload<ExtArgs>[]
     approvers: Prisma.$ApproverPayload<ExtArgs>[]
+    revenueApprovers: Prisma.$RevenueApproverPayload<ExtArgs>[]
+    expenseApprovers: Prisma.$ExpenseApproverPayload<ExtArgs>[]
     account: Prisma.$AccountPayload<ExtArgs>
     church: Prisma.$ChurchPayload<ExtArgs> | null
     column: Prisma.$ColumnPayload<ExtArgs> | null
@@ -1653,6 +1915,8 @@ export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   supervisorActivities<T extends Prisma.Membership$supervisorActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$supervisorActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvers<T extends Prisma.Membership$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  revenueApprovers<T extends Prisma.Membership$revenueApproversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$revenueApproversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenueApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  expenseApprovers<T extends Prisma.Membership$expenseApproversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$expenseApproversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   account<T extends Prisma.AccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AccountDefaultArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   church<T extends Prisma.Membership$churchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$churchArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   column<T extends Prisma.Membership$columnArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$columnArgs<ExtArgs>>): Prisma.Prisma__ColumnClient<runtime.Types.Result.GetResult<Prisma.$ColumnPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2135,6 +2399,54 @@ export type Membership$approversArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ApproverScalarFieldEnum | Prisma.ApproverScalarFieldEnum[]
+}
+
+/**
+ * Membership.revenueApprovers
+ */
+export type Membership$revenueApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RevenueApprover
+   */
+  select?: Prisma.RevenueApproverSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RevenueApprover
+   */
+  omit?: Prisma.RevenueApproverOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RevenueApproverInclude<ExtArgs> | null
+  where?: Prisma.RevenueApproverWhereInput
+  orderBy?: Prisma.RevenueApproverOrderByWithRelationInput | Prisma.RevenueApproverOrderByWithRelationInput[]
+  cursor?: Prisma.RevenueApproverWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RevenueApproverScalarFieldEnum | Prisma.RevenueApproverScalarFieldEnum[]
+}
+
+/**
+ * Membership.expenseApprovers
+ */
+export type Membership$expenseApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExpenseApprover
+   */
+  select?: Prisma.ExpenseApproverSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExpenseApprover
+   */
+  omit?: Prisma.ExpenseApproverOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExpenseApproverInclude<ExtArgs> | null
+  where?: Prisma.ExpenseApproverWhereInput
+  orderBy?: Prisma.ExpenseApproverOrderByWithRelationInput | Prisma.ExpenseApproverOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseApproverWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseApproverScalarFieldEnum | Prisma.ExpenseApproverScalarFieldEnum[]
 }
 
 /**

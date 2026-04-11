@@ -76,7 +76,6 @@ export class ApproverResolverService {
         where: {
           churchId,
           activityType: null,
-          financialType: null, // Generic rules should not have financial type either
           active: true,
         },
         include: {
@@ -94,62 +93,6 @@ export class ApproverResolverService {
       matchedRuleIds.push(rule.id);
       for (const position of rule.positions) {
         positionIds.add(position.id);
-      }
-    }
-
-    // Step 3: If financial data exists, find additional financial rules
-    if (financialType) {
-      // First, try to find rules that match the specific financial account number
-      if (financialAccountNumberId) {
-        const accountSpecificRules = await this.prisma.approvalRule.findMany({
-          where: {
-            churchId,
-            financialAccountNumberId,
-            active: true,
-          },
-          include: {
-            positions: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        });
-
-        for (const rule of accountSpecificRules) {
-          if (!matchedRuleIds.includes(rule.id)) {
-            matchedRuleIds.push(rule.id);
-          }
-          for (const position of rule.positions) {
-            positionIds.add(position.id);
-          }
-        }
-      }
-
-      // Also find rules that match the financial type but don't have a specific account number
-      const financialTypeRules = await this.prisma.approvalRule.findMany({
-        where: {
-          churchId,
-          financialType,
-          financialAccountNumberId: null, // Only rules without specific account
-          active: true,
-        },
-        include: {
-          positions: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      for (const rule of financialTypeRules) {
-        if (!matchedRuleIds.includes(rule.id)) {
-          matchedRuleIds.push(rule.id);
-        }
-        for (const position of rule.positions) {
-          positionIds.add(position.id);
-        }
       }
     }
 

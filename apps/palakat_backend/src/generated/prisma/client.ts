@@ -113,6 +113,16 @@ export type Location = Prisma.LocationModel
  */
 export type Approver = Prisma.ApproverModel
 /**
+ * Model RevenueApprover
+ * 
+ */
+export type RevenueApprover = Prisma.RevenueApproverModel
+/**
+ * Model ExpenseApprover
+ * 
+ */
+export type ExpenseApprover = Prisma.ExpenseApproverModel
+/**
  * Model Song
  * 
  */

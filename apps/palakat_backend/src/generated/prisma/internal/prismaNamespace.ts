@@ -399,6 +399,8 @@ export const ModelName = {
   CashMutation: 'CashMutation',
   Location: 'Location',
   Approver: 'Approver',
+  RevenueApprover: 'RevenueApprover',
+  ExpenseApprover: 'ExpenseApprover',
   Song: 'Song',
   SongPart: 'SongPart',
   FileManager: 'FileManager',
@@ -426,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "region" | "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
+    modelProps: "region" | "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "revenueApprover" | "expenseApprover" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1537,6 +1539,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ApproverCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ApproverCountAggregateOutputType> | number
+        }
+      }
+    }
+    RevenueApprover: {
+      payload: Prisma.$RevenueApproverPayload<ExtArgs>
+      fields: Prisma.RevenueApproverFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RevenueApproverFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RevenueApproverFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        findFirst: {
+          args: Prisma.RevenueApproverFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RevenueApproverFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        findMany: {
+          args: Prisma.RevenueApproverFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>[]
+        }
+        create: {
+          args: Prisma.RevenueApproverCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        createMany: {
+          args: Prisma.RevenueApproverCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RevenueApproverCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>[]
+        }
+        delete: {
+          args: Prisma.RevenueApproverDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        update: {
+          args: Prisma.RevenueApproverUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        deleteMany: {
+          args: Prisma.RevenueApproverDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RevenueApproverUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RevenueApproverUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>[]
+        }
+        upsert: {
+          args: Prisma.RevenueApproverUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueApproverPayload>
+        }
+        aggregate: {
+          args: Prisma.RevenueApproverAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRevenueApprover>
+        }
+        groupBy: {
+          args: Prisma.RevenueApproverGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevenueApproverGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RevenueApproverCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevenueApproverCountAggregateOutputType> | number
+        }
+      }
+    }
+    ExpenseApprover: {
+      payload: Prisma.$ExpenseApproverPayload<ExtArgs>
+      fields: Prisma.ExpenseApproverFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExpenseApproverFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExpenseApproverFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        findFirst: {
+          args: Prisma.ExpenseApproverFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExpenseApproverFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        findMany: {
+          args: Prisma.ExpenseApproverFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>[]
+        }
+        create: {
+          args: Prisma.ExpenseApproverCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        createMany: {
+          args: Prisma.ExpenseApproverCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExpenseApproverCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>[]
+        }
+        delete: {
+          args: Prisma.ExpenseApproverDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        update: {
+          args: Prisma.ExpenseApproverUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExpenseApproverDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExpenseApproverUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExpenseApproverUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>[]
+        }
+        upsert: {
+          args: Prisma.ExpenseApproverUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpenseApproverPayload>
+        }
+        aggregate: {
+          args: Prisma.ExpenseApproverAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExpenseApprover>
+        }
+        groupBy: {
+          args: Prisma.ExpenseApproverGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpenseApproverGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExpenseApproverCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpenseApproverCountAggregateOutputType> | number
         }
       }
     }
@@ -2693,6 +2843,30 @@ export const ApproverScalarFieldEnum = {
 export type ApproverScalarFieldEnum = (typeof ApproverScalarFieldEnum)[keyof typeof ApproverScalarFieldEnum]
 
 
+export const RevenueApproverScalarFieldEnum = {
+  id: 'id',
+  membershipId: 'membershipId',
+  revenueId: 'revenueId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RevenueApproverScalarFieldEnum = (typeof RevenueApproverScalarFieldEnum)[keyof typeof RevenueApproverScalarFieldEnum]
+
+
+export const ExpenseApproverScalarFieldEnum = {
+  id: 'id',
+  membershipId: 'membershipId',
+  expenseId: 'expenseId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExpenseApproverScalarFieldEnum = (typeof ExpenseApproverScalarFieldEnum)[keyof typeof ExpenseApproverScalarFieldEnum]
+
+
 export const SongScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -3454,6 +3628,8 @@ export type GlobalOmitConfig = {
   cashMutation?: Prisma.CashMutationOmit
   location?: Prisma.LocationOmit
   approver?: Prisma.ApproverOmit
+  revenueApprover?: Prisma.RevenueApproverOmit
+  expenseApprover?: Prisma.ExpenseApproverOmit
   song?: Prisma.SongOmit
   songPart?: Prisma.SongPartOmit
   fileManager?: Prisma.FileManagerOmit

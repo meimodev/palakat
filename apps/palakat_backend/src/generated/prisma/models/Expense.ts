@@ -267,6 +267,7 @@ export type ExpenseWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
+  approvers?: Prisma.ExpenseApproverListRelationFilter
 }
 
 export type ExpenseOrderByWithRelationInput = {
@@ -282,17 +283,18 @@ export type ExpenseOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   activity?: Prisma.ActivityOrderByWithRelationInput
   financialAccountNumber?: Prisma.FinancialAccountNumberOrderByWithRelationInput
+  approvers?: Prisma.ExpenseApproverOrderByRelationAggregateInput
 }
 
 export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  activityId?: number
   AND?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[]
   OR?: Prisma.ExpenseWhereInput[]
   NOT?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[]
   accountNumber?: Prisma.StringFilter<"Expense"> | string
   amount?: Prisma.IntFilter<"Expense"> | number
   churchId?: Prisma.IntFilter<"Expense"> | number
+  activityId?: Prisma.IntNullableFilter<"Expense"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Expense"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableFilter<"Expense"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
@@ -300,7 +302,8 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
-}, "id" | "activityId">
+  approvers?: Prisma.ExpenseApproverListRelationFilter
+}, "id">
 
 export type ExpenseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -341,8 +344,9 @@ export type ExpenseCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutExpensesInput
-  activity?: Prisma.ActivityCreateNestedOneWithoutExpenseInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutExpensesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutExpensesInput
+  approvers?: Prisma.ExpenseApproverCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateInput = {
@@ -355,6 +359,7 @@ export type ExpenseUncheckedCreateInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUpdateInput = {
@@ -364,8 +369,9 @@ export type ExpenseUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutExpensesNestedInput
-  activity?: Prisma.ActivityUpdateOneWithoutExpenseNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutExpensesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutExpensesNestedInput
+  approvers?: Prisma.ExpenseApproverUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateInput = {
@@ -378,6 +384,7 @@ export type ExpenseUncheckedUpdateInput = {
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseCreateManyInput = {
@@ -420,11 +427,6 @@ export type ExpenseListRelationFilter = {
 
 export type ExpenseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type ExpenseNullableScalarRelationFilter = {
-  is?: Prisma.ExpenseWhereInput | null
-  isNot?: Prisma.ExpenseWhereInput | null
 }
 
 export type ExpenseCountOrderByAggregateInput = {
@@ -479,6 +481,11 @@ export type ExpenseSumOrderByAggregateInput = {
   financialAccountNumberId?: Prisma.SortOrder
 }
 
+export type ExpenseScalarRelationFilter = {
+  is?: Prisma.ExpenseWhereInput
+  isNot?: Prisma.ExpenseWhereInput
+}
+
 export type ExpenseCreateNestedManyWithoutChurchInput = {
   create?: Prisma.XOR<Prisma.ExpenseCreateWithoutChurchInput, Prisma.ExpenseUncheckedCreateWithoutChurchInput> | Prisma.ExpenseCreateWithoutChurchInput[] | Prisma.ExpenseUncheckedCreateWithoutChurchInput[]
   connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutChurchInput | Prisma.ExpenseCreateOrConnectWithoutChurchInput[]
@@ -521,36 +528,60 @@ export type ExpenseUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
 }
 
-export type ExpenseCreateNestedOneWithoutActivityInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput
+export type ExpenseCreateNestedManyWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput> | Prisma.ExpenseCreateWithoutActivityInput[] | Prisma.ExpenseUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput | Prisma.ExpenseCreateOrConnectWithoutActivityInput[]
+  createMany?: Prisma.ExpenseCreateManyActivityInputEnvelope
+  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+}
+
+export type ExpenseUncheckedCreateNestedManyWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput> | Prisma.ExpenseCreateWithoutActivityInput[] | Prisma.ExpenseUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput | Prisma.ExpenseCreateOrConnectWithoutActivityInput[]
+  createMany?: Prisma.ExpenseCreateManyActivityInputEnvelope
+  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+}
+
+export type ExpenseUpdateManyWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput> | Prisma.ExpenseCreateWithoutActivityInput[] | Prisma.ExpenseUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput | Prisma.ExpenseCreateOrConnectWithoutActivityInput[]
+  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutActivityInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutActivityInput[]
+  createMany?: Prisma.ExpenseCreateManyActivityInputEnvelope
+  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutActivityInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutActivityInput[]
+  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutActivityInput | Prisma.ExpenseUpdateManyWithWhereWithoutActivityInput[]
+  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
+}
+
+export type ExpenseUncheckedUpdateManyWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput> | Prisma.ExpenseCreateWithoutActivityInput[] | Prisma.ExpenseUncheckedCreateWithoutActivityInput[]
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput | Prisma.ExpenseCreateOrConnectWithoutActivityInput[]
+  upsert?: Prisma.ExpenseUpsertWithWhereUniqueWithoutActivityInput | Prisma.ExpenseUpsertWithWhereUniqueWithoutActivityInput[]
+  createMany?: Prisma.ExpenseCreateManyActivityInputEnvelope
+  set?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  delete?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  connect?: Prisma.ExpenseWhereUniqueInput | Prisma.ExpenseWhereUniqueInput[]
+  update?: Prisma.ExpenseUpdateWithWhereUniqueWithoutActivityInput | Prisma.ExpenseUpdateWithWhereUniqueWithoutActivityInput[]
+  updateMany?: Prisma.ExpenseUpdateManyWithWhereWithoutActivityInput | Prisma.ExpenseUpdateManyWithWhereWithoutActivityInput[]
+  deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
+}
+
+export type ExpenseCreateNestedOneWithoutApproversInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutApproversInput, Prisma.ExpenseUncheckedCreateWithoutApproversInput>
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutApproversInput
   connect?: Prisma.ExpenseWhereUniqueInput
 }
 
-export type ExpenseUncheckedCreateNestedOneWithoutActivityInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput
+export type ExpenseUpdateOneRequiredWithoutApproversNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutApproversInput, Prisma.ExpenseUncheckedCreateWithoutApproversInput>
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutApproversInput
+  upsert?: Prisma.ExpenseUpsertWithoutApproversInput
   connect?: Prisma.ExpenseWhereUniqueInput
-}
-
-export type ExpenseUpdateOneWithoutActivityNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput
-  upsert?: Prisma.ExpenseUpsertWithoutActivityInput
-  disconnect?: Prisma.ExpenseWhereInput | boolean
-  delete?: Prisma.ExpenseWhereInput | boolean
-  connect?: Prisma.ExpenseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseUpdateToOneWithWhereWithoutActivityInput, Prisma.ExpenseUpdateWithoutActivityInput>, Prisma.ExpenseUncheckedUpdateWithoutActivityInput>
-}
-
-export type ExpenseUncheckedUpdateOneWithoutActivityNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
-  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutActivityInput
-  upsert?: Prisma.ExpenseUpsertWithoutActivityInput
-  disconnect?: Prisma.ExpenseWhereInput | boolean
-  delete?: Prisma.ExpenseWhereInput | boolean
-  connect?: Prisma.ExpenseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseUpdateToOneWithWhereWithoutActivityInput, Prisma.ExpenseUpdateWithoutActivityInput>, Prisma.ExpenseUncheckedUpdateWithoutActivityInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseUpdateToOneWithWhereWithoutApproversInput, Prisma.ExpenseUpdateWithoutApproversInput>, Prisma.ExpenseUncheckedUpdateWithoutApproversInput>
 }
 
 export type ExpenseCreateNestedManyWithoutFinancialAccountNumberInput = {
@@ -601,8 +632,9 @@ export type ExpenseCreateWithoutChurchInput = {
   paymentMethod: $Enums.PaymentMethod
   createdAt?: Date | string
   updatedAt?: Date | string
-  activity?: Prisma.ActivityCreateNestedOneWithoutExpenseInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutExpensesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutExpensesInput
+  approvers?: Prisma.ExpenseApproverCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutChurchInput = {
@@ -614,6 +646,7 @@ export type ExpenseUncheckedCreateWithoutChurchInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutChurchInput = {
@@ -665,6 +698,7 @@ export type ExpenseCreateWithoutActivityInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutExpensesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutExpensesInput
+  approvers?: Prisma.ExpenseApproverCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutActivityInput = {
@@ -676,6 +710,7 @@ export type ExpenseUncheckedCreateWithoutActivityInput = {
   financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutActivityInput = {
@@ -683,32 +718,83 @@ export type ExpenseCreateOrConnectWithoutActivityInput = {
   create: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
 }
 
-export type ExpenseUpsertWithoutActivityInput = {
-  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutActivityInput, Prisma.ExpenseUncheckedUpdateWithoutActivityInput>
-  create: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
-  where?: Prisma.ExpenseWhereInput
+export type ExpenseCreateManyActivityInputEnvelope = {
+  data: Prisma.ExpenseCreateManyActivityInput | Prisma.ExpenseCreateManyActivityInput[]
+  skipDuplicates?: boolean
 }
 
-export type ExpenseUpdateToOneWithWhereWithoutActivityInput = {
-  where?: Prisma.ExpenseWhereInput
+export type ExpenseUpsertWithWhereUniqueWithoutActivityInput = {
+  where: Prisma.ExpenseWhereUniqueInput
+  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutActivityInput, Prisma.ExpenseUncheckedUpdateWithoutActivityInput>
+  create: Prisma.XOR<Prisma.ExpenseCreateWithoutActivityInput, Prisma.ExpenseUncheckedCreateWithoutActivityInput>
+}
+
+export type ExpenseUpdateWithWhereUniqueWithoutActivityInput = {
+  where: Prisma.ExpenseWhereUniqueInput
   data: Prisma.XOR<Prisma.ExpenseUpdateWithoutActivityInput, Prisma.ExpenseUncheckedUpdateWithoutActivityInput>
 }
 
-export type ExpenseUpdateWithoutActivityInput = {
+export type ExpenseUpdateManyWithWhereWithoutActivityInput = {
+  where: Prisma.ExpenseScalarWhereInput
+  data: Prisma.XOR<Prisma.ExpenseUpdateManyMutationInput, Prisma.ExpenseUncheckedUpdateManyWithoutActivityInput>
+}
+
+export type ExpenseCreateWithoutApproversInput = {
+  accountNumber: string
+  amount: number
+  paymentMethod: $Enums.PaymentMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutExpensesInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutExpensesInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutExpensesInput
+}
+
+export type ExpenseUncheckedCreateWithoutApproversInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  activityId?: number | null
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExpenseCreateOrConnectWithoutApproversInput = {
+  where: Prisma.ExpenseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseCreateWithoutApproversInput, Prisma.ExpenseUncheckedCreateWithoutApproversInput>
+}
+
+export type ExpenseUpsertWithoutApproversInput = {
+  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutApproversInput, Prisma.ExpenseUncheckedUpdateWithoutApproversInput>
+  create: Prisma.XOR<Prisma.ExpenseCreateWithoutApproversInput, Prisma.ExpenseUncheckedCreateWithoutApproversInput>
+  where?: Prisma.ExpenseWhereInput
+}
+
+export type ExpenseUpdateToOneWithWhereWithoutApproversInput = {
+  where?: Prisma.ExpenseWhereInput
+  data: Prisma.XOR<Prisma.ExpenseUpdateWithoutApproversInput, Prisma.ExpenseUncheckedUpdateWithoutApproversInput>
+}
+
+export type ExpenseUpdateWithoutApproversInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutExpensesNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutExpensesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutExpensesNestedInput
 }
 
-export type ExpenseUncheckedUpdateWithoutActivityInput = {
+export type ExpenseUncheckedUpdateWithoutApproversInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -722,7 +808,8 @@ export type ExpenseCreateWithoutFinancialAccountNumberInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutExpensesInput
-  activity?: Prisma.ActivityCreateNestedOneWithoutExpenseInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutExpensesInput
+  approvers?: Prisma.ExpenseApproverCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutFinancialAccountNumberInput = {
@@ -734,6 +821,7 @@ export type ExpenseUncheckedCreateWithoutFinancialAccountNumberInput = {
   paymentMethod: $Enums.PaymentMethod
   createdAt?: Date | string
   updatedAt?: Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutFinancialAccountNumberInput = {
@@ -779,8 +867,9 @@ export type ExpenseUpdateWithoutChurchInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  activity?: Prisma.ActivityUpdateOneWithoutExpenseNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutExpensesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutExpensesNestedInput
+  approvers?: Prisma.ExpenseApproverUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutChurchInput = {
@@ -792,6 +881,7 @@ export type ExpenseUncheckedUpdateWithoutChurchInput = {
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateManyWithoutChurchInput = {
@@ -799,6 +889,51 @@ export type ExpenseUncheckedUpdateManyWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ExpenseCreateManyActivityInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExpenseUpdateWithoutActivityInput = {
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutExpensesNestedInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutExpensesNestedInput
+  approvers?: Prisma.ExpenseApproverUpdateManyWithoutExpenseNestedInput
+}
+
+export type ExpenseUncheckedUpdateWithoutActivityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutExpenseNestedInput
+}
+
+export type ExpenseUncheckedUpdateManyWithoutActivityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -823,7 +958,8 @@ export type ExpenseUpdateWithoutFinancialAccountNumberInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutExpensesNestedInput
-  activity?: Prisma.ActivityUpdateOneWithoutExpenseNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutExpensesNestedInput
+  approvers?: Prisma.ExpenseApproverUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutFinancialAccountNumberInput = {
@@ -835,6 +971,7 @@ export type ExpenseUncheckedUpdateWithoutFinancialAccountNumberInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.ExpenseApproverUncheckedUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
@@ -848,6 +985,35 @@ export type ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type ExpenseCountOutputType
+ */
+
+export type ExpenseCountOutputType = {
+  approvers: number
+}
+
+export type ExpenseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  approvers?: boolean | ExpenseCountOutputTypeCountApproversArgs
+}
+
+/**
+ * ExpenseCountOutputType without action
+ */
+export type ExpenseCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExpenseCountOutputType
+   */
+  select?: Prisma.ExpenseCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ExpenseCountOutputType without action
+ */
+export type ExpenseCountOutputTypeCountApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseApproverWhereInput
+}
 
 
 export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -863,6 +1029,8 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Expense$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Expense$financialAccountNumberArgs<ExtArgs>
+  approvers?: boolean | Prisma.Expense$approversArgs<ExtArgs>
+  _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -912,6 +1080,8 @@ export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Expense$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Expense$financialAccountNumberArgs<ExtArgs>
+  approvers?: boolean | Prisma.Expense$approversArgs<ExtArgs>
+  _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExpenseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
@@ -930,6 +1100,7 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     church: Prisma.$ChurchPayload<ExtArgs>
     activity: Prisma.$ActivityPayload<ExtArgs> | null
     financialAccountNumber: Prisma.$FinancialAccountNumberPayload<ExtArgs> | null
+    approvers: Prisma.$ExpenseApproverPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1338,6 +1509,7 @@ export interface Prisma__ExpenseClient<T, Null = never, ExtArgs extends runtime.
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   activity<T extends Prisma.Expense$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   financialAccountNumber<T extends Prisma.Expense$financialAccountNumberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$financialAccountNumberArgs<ExtArgs>>): Prisma.Prisma__FinancialAccountNumberClient<runtime.Types.Result.GetResult<Prisma.$FinancialAccountNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvers<T extends Prisma.Expense$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1807,6 +1979,30 @@ export type Expense$financialAccountNumberArgs<ExtArgs extends runtime.Types.Ext
    */
   include?: Prisma.FinancialAccountNumberInclude<ExtArgs> | null
   where?: Prisma.FinancialAccountNumberWhereInput
+}
+
+/**
+ * Expense.approvers
+ */
+export type Expense$approversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExpenseApprover
+   */
+  select?: Prisma.ExpenseApproverSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExpenseApprover
+   */
+  omit?: Prisma.ExpenseApproverOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExpenseApproverInclude<ExtArgs> | null
+  where?: Prisma.ExpenseApproverWhereInput
+  orderBy?: Prisma.ExpenseApproverOrderByWithRelationInput | Prisma.ExpenseApproverOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseApproverWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseApproverScalarFieldEnum | Prisma.ExpenseApproverScalarFieldEnum[]
 }
 
 /**

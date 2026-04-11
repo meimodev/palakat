@@ -69,6 +69,177 @@ export class ReportService {
     return `${day} ${monthName} ${year}`.trim();
   }
 
+  private formatIndonesianDateWithWeekday(date?: Date | null): string {
+    if (!date) return '';
+
+    const weekdays = [
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+    ];
+
+    const weekday = weekdays[date.getUTCDay()] ?? '';
+    const formattedDate = this.formatIndonesianDate(date);
+
+    return [weekday, formattedDate]
+      .filter((value) => value.trim().length > 0)
+      .join(', ');
+  }
+
+  private formatIndonesianCurrency(amount?: number | null): string {
+    if (amount == null) return 'Rp 0';
+
+    try {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      return `Rp ${amount}`;
+    }
+  }
+
+  private toLocalDateOnly(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  private safeBirthdayDate(year: number, month: number, day: number): Date {
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    const safeDay = day > lastDayOfMonth ? lastDayOfMonth : day;
+
+    return new Date(year, month - 1, safeDay);
+  }
+
+  private findBirthdayOccurrenceInRange(
+    dob: Date | null | undefined,
+    startDate: Date,
+    endDate: Date,
+  ): Date | null {
+    if (!dob) return null;
+
+    const start = this.toLocalDateOnly(startDate);
+    const end = this.toLocalDateOnly(endDate);
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+
+    for (
+      let year = start.getFullYear() - 1;
+      year <= end.getFullYear() + 1;
+      year++
+    ) {
+      const candidate = this.safeBirthdayDate(
+        year,
+        dob.getMonth() + 1,
+        dob.getDate(),
+      );
+      const day = this.toLocalDateOnly(candidate);
+      const time = day.getTime();
+
+      if (time >= startTime && time <= endTime) {
+        return day;
+      }
+    }
+
+    return null;
+  }
+
+  private buildWartaRevenueActivityWhere(
+    churchId: number,
+    startDate: Date,
+    endDate: Date,
+  ): Prisma.ActivityWhereInput {
+    return {
+      supervisor: {
+        churchId,
+      },
+      date: {
+        not: null,
+        gte: startDate,
+        lte: endDate,
+      },
+      revenues: {
+        some: {
+          approvers: {
+            some: {},
+            every: {
+              status: ApprovalStatus.APPROVED,
+            },
+          },
+        },
+      },
+    };
+  }
+
+  private async listWartaBirthdayEntries(params: {
+    churchId: number;
+    startDate: Date;
+    endDate: Date;
+  }): Promise<
+    Array<{
+      name: string;
+      matchedDate: Date;
+      originalDob: Date;
+      columnName?: string | null;
+    }>
+  > {
+    const memberships = await this.prisma.membership.findMany({
+      where: {
+        OR: [
+          { churchId: params.churchId },
+          { column: { churchId: params.churchId } },
+        ],
+      },
+      select: {
+        account: {
+          select: {
+            name: true,
+            dob: true,
+          },
+        },
+        column: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const items = memberships.flatMap((membership) => {
+      const dob = membership.account?.dob;
+      const matchedDate = this.findBirthdayOccurrenceInRange(
+        dob,
+        params.startDate,
+        params.endDate,
+      );
+
+      if (!matchedDate || !dob) return [];
+
+      return [
+        {
+          name: membership.account?.name?.trim() || '-',
+          matchedDate,
+          originalDob: dob,
+          columnName: membership.column?.name ?? null,
+        },
+      ];
+    });
+
+    items.sort((a, b) => {
+      const dateCompare = a.matchedDate.getTime() - b.matchedDate.getTime();
+      if (dateCompare !== 0) return dateCompare;
+
+      return a.name.localeCompare(b.name, 'id');
+    });
+
+    return items;
+  }
+
   private sha256Hex(input: string | Buffer): string {
     return createHash('sha256').update(input).digest('hex');
   }
@@ -263,6 +434,7 @@ export class ReportService {
       type === ReportGenerateType.DOCUMENT
         ? (dto.input ?? DocumentInput.INCOME)
         : dto.input;
+    const format = dto.format ?? ReportFormat.PDF;
 
     const activityType =
       type === ReportGenerateType.ACTIVITY ? dto.activityType : undefined;
@@ -302,6 +474,30 @@ export class ReportService {
         };
 
         if (congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT) {
+          if (format === ReportFormat.PDF) {
+            if (!startDate || !endDate) {
+              throw new BadRequestException('Invalid report date range');
+            }
+
+            const [incomeCount, birthdayEntries] = await Promise.all([
+              this.prisma.activity.count({
+                where: this.buildWartaRevenueActivityWhere(
+                  churchId,
+                  startDate,
+                  endDate,
+                ),
+              }),
+              this.listWartaBirthdayEntries({
+                churchId,
+                startDate,
+                endDate,
+              }),
+            ]);
+
+            matchingCount = incomeCount + birthdayEntries.length;
+            break;
+          }
+
           matchingCount = await this.prisma.membership.count({
             where: membershipBaseWhere,
           });
@@ -356,6 +552,12 @@ export class ReportService {
           matchingCount = await this.prisma.revenue.count({
             where: {
               churchId,
+              approvers: {
+                some: {},
+                every: {
+                  status: ApprovalStatus.APPROVED,
+                },
+              },
               ...(startDate && endDate
                 ? {
                     createdAt: {
@@ -373,6 +575,12 @@ export class ReportService {
           matchingCount = await this.prisma.expense.count({
             where: {
               churchId,
+              approvers: {
+                some: {},
+                every: {
+                  status: ApprovalStatus.APPROVED,
+                },
+              },
               ...(startDate && endDate
                 ? {
                     createdAt: {
@@ -925,21 +1133,29 @@ export class ReportService {
     const logoBuffer = getGmimLogoBuffer();
 
     const isDocumentReport = type === ReportGenerateType.DOCUMENT;
+    const isWartaPdfReport =
+      type === ReportGenerateType.CONGREGATION &&
+      congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT &&
+      format === ReportFormat.PDF;
 
     const title = isDocumentReport
       ? input === DocumentInput.OUTCOME
         ? 'Laporan Dokumen Keluar'
         : 'Laporan Dokumen Masuk'
-      : [
-          'Report',
-          type,
-          type === ReportGenerateType.CONGREGATION
-            ? congregationSubtype
-            : undefined,
-          type === ReportGenerateType.FINANCIAL ? financialSubtype : undefined,
-        ]
-          .filter((x) => !!x)
-          .join(' ');
+      : isWartaPdfReport
+        ? 'Warta Jemaat'
+        : [
+            'Report',
+            type,
+            type === ReportGenerateType.CONGREGATION
+              ? congregationSubtype
+              : undefined,
+            type === ReportGenerateType.FINANCIAL
+              ? financialSubtype
+              : undefined,
+          ]
+            .filter((x) => !!x)
+            .join(' ');
 
     const generatedAt = new Date();
 
@@ -1043,6 +1259,12 @@ export class ReportService {
         const revenues = await this.prisma.revenue.findMany({
           where: {
             churchId,
+            approvers: {
+              some: {},
+              every: {
+                status: ApprovalStatus.APPROVED,
+              },
+            },
             ...(startDate && endDate
               ? {
                   createdAt: {
@@ -1106,6 +1328,12 @@ export class ReportService {
         const expenses = await this.prisma.expense.findMany({
           where: {
             churchId,
+            approvers: {
+              some: {},
+              every: {
+                status: ApprovalStatus.APPROVED,
+              },
+            },
             ...(startDate && endDate
               ? {
                   createdAt: {
@@ -1371,99 +1599,210 @@ export class ReportService {
       };
 
       if (congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT) {
-        const [totalMembers, baptizeMembers, sidiMembers] =
-          await this.prisma.$transaction([
-            this.prisma.membership.count({
-              where: membershipBaseWhere,
-            }),
-            this.prisma.membership.count({
-              where: {
-                ...membershipBaseWhere,
-                baptize: true,
+        if (format === ReportFormat.PDF) {
+          if (!startDate || !endDate) {
+            throw new BadRequestException('Invalid report date range');
+          }
+
+          const [incomeActivities, birthdayEntries] = await Promise.all([
+            this.prisma.activity.findMany({
+              where: this.buildWartaRevenueActivityWhere(
+                churchId,
+                startDate,
+                endDate,
+              ),
+              select: {
+                title: true,
+                date: true,
+                revenues: {
+                  select: {
+                    amount: true,
+                  },
+                },
+                column: {
+                  select: {
+                    name: true,
+                  },
+                },
               },
+              orderBy: [{ date: 'asc' }, { title: 'asc' }],
             }),
-            this.prisma.membership.count({
-              where: {
-                ...membershipBaseWhere,
-                sidi: true,
-              },
+            this.listWartaBirthdayEntries({
+              churchId,
+              startDate,
+              endDate,
             }),
           ]);
 
-        const summaryLines: string[] = [
-          `Church ID: ${churchId}`,
-          startDate
-            ? `Start: ${new Date(startDate).toISOString()}`
-            : 'Start: -',
-          endDate ? `End: ${new Date(endDate).toISOString()}` : 'End: -',
-          columnId != null ? `Column ID: ${columnId}` : 'Column: All',
-          '',
-          `Total members: ${totalMembers}`,
-          `Baptized: ${baptizeMembers}`,
-          `Sidi: ${sidiMembers}`,
-        ];
+          const subtitleStart = this.formatIndonesianDateWithWeekday(startDate);
+          const subtitleEnd = this.formatIndonesianDateWithWeekday(endDate);
 
-        const sections: BulletinSection[] = [
-          {
-            title: 'Summary',
-            lines: summaryLines,
-          },
-        ];
+          const sections: TableSection[] = [
+            {
+              title: `Penerimaan dari ${subtitleStart} hingga ${subtitleEnd}`,
+              columns: [
+                { header: 'No', key: 'no', weight: 1, align: 'center' },
+                { header: 'Judul', key: 'title', weight: 7 },
+                { header: 'Tanggal', key: 'date', weight: 3 },
+                { header: 'Nominal', key: 'amount', weight: 3, align: 'right' },
+              ],
+              rows: incomeActivities.length
+                ? incomeActivities.map((activity, index) => ({
+                    no: index + 1,
+                    title: activity.column?.name?.trim()
+                      ? `${activity.title} - ${activity.column.name.trim()}`
+                      : activity.title,
+                    date: this.formatIndonesianDate(activity.date),
+                    amount: this.formatIndonesianCurrency(
+                      Array.isArray(activity.revenues)
+                        ? activity.revenues.reduce(
+                            (sum, revenue) => sum + (revenue.amount ?? 0),
+                            0,
+                          )
+                        : 0,
+                    ),
+                  }))
+                : [
+                    {
+                      no: '-',
+                      title:
+                        'Belum ada data penerimaan pada rentang tanggal ini.',
+                      date: '',
+                      amount: '',
+                    },
+                  ],
+            },
+            {
+              title: `Ulang Tahun ${subtitleStart} hingga ${subtitleEnd}`,
+              columns: [
+                { header: 'No', key: 'no', weight: 1, align: 'center' },
+                { header: 'Nama', key: 'name', weight: 7 },
+                { header: 'Tanggal Lahir', key: 'dob', weight: 4 },
+              ],
+              rows: birthdayEntries.length
+                ? birthdayEntries.map((entry, index) => ({
+                    no: index + 1,
+                    name: entry.columnName?.trim()
+                      ? `${entry.name} - ${entry.columnName.trim()}`
+                      : entry.name,
+                    dob: this.formatIndonesianDate(entry.originalDob),
+                  }))
+                : [
+                    {
+                      no: '-',
+                      name: 'Belum ada data ulang tahun pada rentang tanggal ini.',
+                      dob: '',
+                    },
+                  ],
+            },
+          ];
 
-        if (columnId == null) {
-          const grouped = await this.prisma.membership.groupBy({
-            by: ['columnId'],
-            where: membershipBaseWhere,
-            _count: { _all: true },
+          buffer = await renderPdfTableReportBuffer({
+            title,
+            titleAlign: 'center',
+            sections,
+            letterhead: letterheadInfo,
+            logoBuffer,
+            generatedAt,
+            qrPngBuffer,
+            publicId,
+            churchName,
           });
+        } else {
+          const [totalMembers, baptizeMembers, sidiMembers] =
+            await this.prisma.$transaction([
+              this.prisma.membership.count({
+                where: membershipBaseWhere,
+              }),
+              this.prisma.membership.count({
+                where: {
+                  ...membershipBaseWhere,
+                  baptize: true,
+                },
+              }),
+              this.prisma.membership.count({
+                where: {
+                  ...membershipBaseWhere,
+                  sidi: true,
+                },
+              }),
+            ]);
 
-          const columnIds = grouped
-            .map((g) => g.columnId)
-            .filter((id): id is number => typeof id === 'number');
+          const summaryLines: string[] = [
+            `Church ID: ${churchId}`,
+            startDate
+              ? `Start: ${new Date(startDate).toISOString()}`
+              : 'Start: -',
+            endDate ? `End: ${new Date(endDate).toISOString()}` : 'End: -',
+            columnId != null ? `Column ID: ${columnId}` : 'Column: All',
+            '',
+            `Total members: ${totalMembers}`,
+            `Baptized: ${baptizeMembers}`,
+            `Sidi: ${sidiMembers}`,
+          ];
 
-          if (columnIds.length) {
-            const columns = await this.prisma.column.findMany({
-              where: { id: { in: columnIds } },
-              select: { id: true, name: true },
+          const sections: BulletinSection[] = [
+            {
+              title: 'Summary',
+              lines: summaryLines,
+            },
+          ];
+
+          if (columnId == null) {
+            const grouped = await this.prisma.membership.groupBy({
+              by: ['columnId'],
+              where: membershipBaseWhere,
+              _count: { _all: true },
             });
-            const nameById = new Map(columns.map((c) => [c.id, c.name]));
 
-            const breakdownLines = grouped
-              .filter((g) => typeof g.columnId === 'number')
-              .sort((a, b) => (a.columnId ?? 0) - (b.columnId ?? 0))
-              .map((g) => {
-                const id = g.columnId as number;
-                const name = nameById.get(id) ?? `Column ${id}`;
-                return `${name}: ${g._count._all}`;
-              });
+            const columnIds = grouped
+              .map((g) => g.columnId)
+              .filter((id): id is number => typeof id === 'number');
 
-            if (breakdownLines.length) {
-              sections.push({
-                title: 'By Column',
-                lines: breakdownLines,
+            if (columnIds.length) {
+              const columns = await this.prisma.column.findMany({
+                where: { id: { in: columnIds } },
+                select: { id: true, name: true },
               });
+              const nameById = new Map(columns.map((c) => [c.id, c.name]));
+
+              const breakdownLines = grouped
+                .filter((g) => typeof g.columnId === 'number')
+                .sort((a, b) => (a.columnId ?? 0) - (b.columnId ?? 0))
+                .map((g) => {
+                  const id = g.columnId as number;
+                  const name = nameById.get(id) ?? `Column ${id}`;
+                  return `${name}: ${g._count._all}`;
+                });
+
+              if (breakdownLines.length) {
+                sections.push({
+                  title: 'By Column',
+                  lines: breakdownLines,
+                });
+              }
             }
           }
-        }
 
-        buffer =
-          format === ReportFormat.XLSX
-            ? await renderXlsxBulletinReportBuffer({
-                title,
-                sections,
-                letterhead: letterheadInfo,
-                logoBuffer,
-              })
-            : await renderPdfBulletinReportBuffer({
-                title,
-                sections,
-                letterhead: letterheadInfo,
-                logoBuffer,
-                generatedAt,
-                qrPngBuffer,
-                publicId,
-                churchName,
-              });
+          buffer =
+            format === ReportFormat.XLSX
+              ? await renderXlsxBulletinReportBuffer({
+                  title,
+                  sections,
+                  letterhead: letterheadInfo,
+                  logoBuffer,
+                })
+              : await renderPdfBulletinReportBuffer({
+                  title,
+                  sections,
+                  letterhead: letterheadInfo,
+                  logoBuffer,
+                  generatedAt,
+                  qrPngBuffer,
+                  publicId,
+                  churchName,
+                });
+        }
       } else if (congregationSubtype === CongregationReportSubtype.HUT_JEMAAT) {
         const where: Prisma.MembershipWhereInput = {
           ...membershipBaseWhere,

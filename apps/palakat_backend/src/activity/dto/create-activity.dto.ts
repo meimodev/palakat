@@ -1,6 +1,12 @@
-import { ActivityType, Bipra, PaymentMethod, Reminder } from '../../generated/prisma/client';
+import {
+  ActivityType,
+  Bipra,
+  PaymentMethod,
+  Reminder,
+} from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -88,7 +94,8 @@ export class CreateActivityDto {
   reminder?: Reminder;
 
   @IsOptional()
-  @ValidateNested()
+  @IsArray()
+  @ValidateNested({ each: true })
   @Type(() => CreateFinanceDto)
-  finance?: CreateFinanceDto;
+  finances?: CreateFinanceDto[];
 }

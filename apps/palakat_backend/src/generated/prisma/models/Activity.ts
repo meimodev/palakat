@@ -310,8 +310,8 @@ export type ActivityWhereInput = {
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
   document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
-  revenue?: Prisma.XOR<Prisma.RevenueNullableScalarRelationFilter, Prisma.RevenueWhereInput> | null
-  expense?: Prisma.XOR<Prisma.ExpenseNullableScalarRelationFilter, Prisma.ExpenseWhereInput> | null
+  revenues?: Prisma.RevenueListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }
 
@@ -336,8 +336,8 @@ export type ActivityOrderByWithRelationInput = {
   location?: Prisma.LocationOrderByWithRelationInput
   file?: Prisma.FileManagerOrderByWithRelationInput
   document?: Prisma.DocumentOrderByWithRelationInput
-  revenue?: Prisma.RevenueOrderByWithRelationInput
-  expense?: Prisma.ExpenseOrderByWithRelationInput
+  revenues?: Prisma.RevenueOrderByRelationAggregateInput
+  expenses?: Prisma.ExpenseOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
@@ -365,8 +365,8 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
   file?: Prisma.XOR<Prisma.FileManagerNullableScalarRelationFilter, Prisma.FileManagerWhereInput> | null
   document?: Prisma.XOR<Prisma.DocumentNullableScalarRelationFilter, Prisma.DocumentWhereInput> | null
-  revenue?: Prisma.XOR<Prisma.RevenueNullableScalarRelationFilter, Prisma.RevenueWhereInput> | null
-  expense?: Prisma.XOR<Prisma.ExpenseNullableScalarRelationFilter, Prisma.ExpenseWhereInput> | null
+  revenues?: Prisma.RevenueListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "fileId">
 
@@ -428,8 +428,8 @@ export type ActivityCreateInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -450,8 +450,8 @@ export type ActivityUncheckedCreateInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -471,8 +471,8 @@ export type ActivityUpdateInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -493,8 +493,8 @@ export type ActivityUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -727,36 +727,36 @@ export type NullableEnumReminderFieldUpdateOperationsInput = {
   set?: $Enums.Reminder | null
 }
 
-export type ActivityCreateNestedOneWithoutRevenueInput = {
-  create?: Prisma.XOR<Prisma.ActivityCreateWithoutRevenueInput, Prisma.ActivityUncheckedCreateWithoutRevenueInput>
-  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutRevenueInput
+export type ActivityCreateNestedOneWithoutRevenuesInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutRevenuesInput, Prisma.ActivityUncheckedCreateWithoutRevenuesInput>
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutRevenuesInput
   connect?: Prisma.ActivityWhereUniqueInput
 }
 
-export type ActivityUpdateOneWithoutRevenueNestedInput = {
-  create?: Prisma.XOR<Prisma.ActivityCreateWithoutRevenueInput, Prisma.ActivityUncheckedCreateWithoutRevenueInput>
-  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutRevenueInput
-  upsert?: Prisma.ActivityUpsertWithoutRevenueInput
+export type ActivityUpdateOneWithoutRevenuesNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutRevenuesInput, Prisma.ActivityUncheckedCreateWithoutRevenuesInput>
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutRevenuesInput
+  upsert?: Prisma.ActivityUpsertWithoutRevenuesInput
   disconnect?: Prisma.ActivityWhereInput | boolean
   delete?: Prisma.ActivityWhereInput | boolean
   connect?: Prisma.ActivityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityUpdateToOneWithWhereWithoutRevenueInput, Prisma.ActivityUpdateWithoutRevenueInput>, Prisma.ActivityUncheckedUpdateWithoutRevenueInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityUpdateToOneWithWhereWithoutRevenuesInput, Prisma.ActivityUpdateWithoutRevenuesInput>, Prisma.ActivityUncheckedUpdateWithoutRevenuesInput>
 }
 
-export type ActivityCreateNestedOneWithoutExpenseInput = {
-  create?: Prisma.XOR<Prisma.ActivityCreateWithoutExpenseInput, Prisma.ActivityUncheckedCreateWithoutExpenseInput>
-  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutExpenseInput
+export type ActivityCreateNestedOneWithoutExpensesInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutExpensesInput, Prisma.ActivityUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutExpensesInput
   connect?: Prisma.ActivityWhereUniqueInput
 }
 
-export type ActivityUpdateOneWithoutExpenseNestedInput = {
-  create?: Prisma.XOR<Prisma.ActivityCreateWithoutExpenseInput, Prisma.ActivityUncheckedCreateWithoutExpenseInput>
-  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutExpenseInput
-  upsert?: Prisma.ActivityUpsertWithoutExpenseInput
+export type ActivityUpdateOneWithoutExpensesNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutExpensesInput, Prisma.ActivityUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutExpensesInput
+  upsert?: Prisma.ActivityUpsertWithoutExpensesInput
   disconnect?: Prisma.ActivityWhereInput | boolean
   delete?: Prisma.ActivityWhereInput | boolean
   connect?: Prisma.ActivityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityUpdateToOneWithWhereWithoutExpenseInput, Prisma.ActivityUpdateWithoutExpenseInput>, Prisma.ActivityUncheckedUpdateWithoutExpenseInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityUpdateToOneWithWhereWithoutExpensesInput, Prisma.ActivityUpdateWithoutExpensesInput>, Prisma.ActivityUncheckedUpdateWithoutExpensesInput>
 }
 
 export type ActivityCreateNestedManyWithoutLocationInput = {
@@ -894,8 +894,8 @@ export type ActivityCreateWithoutColumnInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -915,8 +915,8 @@ export type ActivityUncheckedCreateWithoutColumnInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -981,8 +981,8 @@ export type ActivityCreateWithoutSupervisorInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -1002,8 +1002,8 @@ export type ActivityUncheckedCreateWithoutSupervisorInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -1033,7 +1033,7 @@ export type ActivityUpdateManyWithWhereWithoutSupervisorInput = {
   data: Prisma.XOR<Prisma.ActivityUpdateManyMutationInput, Prisma.ActivityUncheckedUpdateManyWithoutSupervisorInput>
 }
 
-export type ActivityCreateWithoutRevenueInput = {
+export type ActivityCreateWithoutRevenuesInput = {
   bipra?: $Enums.Bipra | null
   title: string
   description?: string | null
@@ -1049,11 +1049,11 @@ export type ActivityCreateWithoutRevenueInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
-export type ActivityUncheckedCreateWithoutRevenueInput = {
+export type ActivityUncheckedCreateWithoutRevenuesInput = {
   id?: number
   supervisorId: number
   columnId?: number | null
@@ -1070,27 +1070,27 @@ export type ActivityUncheckedCreateWithoutRevenueInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
-export type ActivityCreateOrConnectWithoutRevenueInput = {
+export type ActivityCreateOrConnectWithoutRevenuesInput = {
   where: Prisma.ActivityWhereUniqueInput
-  create: Prisma.XOR<Prisma.ActivityCreateWithoutRevenueInput, Prisma.ActivityUncheckedCreateWithoutRevenueInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutRevenuesInput, Prisma.ActivityUncheckedCreateWithoutRevenuesInput>
 }
 
-export type ActivityUpsertWithoutRevenueInput = {
-  update: Prisma.XOR<Prisma.ActivityUpdateWithoutRevenueInput, Prisma.ActivityUncheckedUpdateWithoutRevenueInput>
-  create: Prisma.XOR<Prisma.ActivityCreateWithoutRevenueInput, Prisma.ActivityUncheckedCreateWithoutRevenueInput>
+export type ActivityUpsertWithoutRevenuesInput = {
+  update: Prisma.XOR<Prisma.ActivityUpdateWithoutRevenuesInput, Prisma.ActivityUncheckedUpdateWithoutRevenuesInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutRevenuesInput, Prisma.ActivityUncheckedCreateWithoutRevenuesInput>
   where?: Prisma.ActivityWhereInput
 }
 
-export type ActivityUpdateToOneWithWhereWithoutRevenueInput = {
+export type ActivityUpdateToOneWithWhereWithoutRevenuesInput = {
   where?: Prisma.ActivityWhereInput
-  data: Prisma.XOR<Prisma.ActivityUpdateWithoutRevenueInput, Prisma.ActivityUncheckedUpdateWithoutRevenueInput>
+  data: Prisma.XOR<Prisma.ActivityUpdateWithoutRevenuesInput, Prisma.ActivityUncheckedUpdateWithoutRevenuesInput>
 }
 
-export type ActivityUpdateWithoutRevenueInput = {
+export type ActivityUpdateWithoutRevenuesInput = {
   bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1106,11 +1106,11 @@ export type ActivityUpdateWithoutRevenueInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
-export type ActivityUncheckedUpdateWithoutRevenueInput = {
+export type ActivityUncheckedUpdateWithoutRevenuesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
   columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1127,11 +1127,11 @@ export type ActivityUncheckedUpdateWithoutRevenueInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
-export type ActivityCreateWithoutExpenseInput = {
+export type ActivityCreateWithoutExpensesInput = {
   bipra?: $Enums.Bipra | null
   title: string
   description?: string | null
@@ -1147,11 +1147,11 @@ export type ActivityCreateWithoutExpenseInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
-export type ActivityUncheckedCreateWithoutExpenseInput = {
+export type ActivityUncheckedCreateWithoutExpensesInput = {
   id?: number
   supervisorId: number
   columnId?: number | null
@@ -1168,27 +1168,27 @@ export type ActivityUncheckedCreateWithoutExpenseInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
-export type ActivityCreateOrConnectWithoutExpenseInput = {
+export type ActivityCreateOrConnectWithoutExpensesInput = {
   where: Prisma.ActivityWhereUniqueInput
-  create: Prisma.XOR<Prisma.ActivityCreateWithoutExpenseInput, Prisma.ActivityUncheckedCreateWithoutExpenseInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutExpensesInput, Prisma.ActivityUncheckedCreateWithoutExpensesInput>
 }
 
-export type ActivityUpsertWithoutExpenseInput = {
-  update: Prisma.XOR<Prisma.ActivityUpdateWithoutExpenseInput, Prisma.ActivityUncheckedUpdateWithoutExpenseInput>
-  create: Prisma.XOR<Prisma.ActivityCreateWithoutExpenseInput, Prisma.ActivityUncheckedCreateWithoutExpenseInput>
+export type ActivityUpsertWithoutExpensesInput = {
+  update: Prisma.XOR<Prisma.ActivityUpdateWithoutExpensesInput, Prisma.ActivityUncheckedUpdateWithoutExpensesInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutExpensesInput, Prisma.ActivityUncheckedCreateWithoutExpensesInput>
   where?: Prisma.ActivityWhereInput
 }
 
-export type ActivityUpdateToOneWithWhereWithoutExpenseInput = {
+export type ActivityUpdateToOneWithWhereWithoutExpensesInput = {
   where?: Prisma.ActivityWhereInput
-  data: Prisma.XOR<Prisma.ActivityUpdateWithoutExpenseInput, Prisma.ActivityUncheckedUpdateWithoutExpenseInput>
+  data: Prisma.XOR<Prisma.ActivityUpdateWithoutExpensesInput, Prisma.ActivityUncheckedUpdateWithoutExpensesInput>
 }
 
-export type ActivityUpdateWithoutExpenseInput = {
+export type ActivityUpdateWithoutExpensesInput = {
   bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1204,11 +1204,11 @@ export type ActivityUpdateWithoutExpenseInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
-export type ActivityUncheckedUpdateWithoutExpenseInput = {
+export type ActivityUncheckedUpdateWithoutExpensesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
   columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1225,7 +1225,7 @@ export type ActivityUncheckedUpdateWithoutExpenseInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1244,8 +1244,8 @@ export type ActivityCreateWithoutLocationInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -1265,8 +1265,8 @@ export type ActivityUncheckedCreateWithoutLocationInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -1311,8 +1311,8 @@ export type ActivityCreateWithoutApproversInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -1332,8 +1332,8 @@ export type ActivityUncheckedCreateWithoutApproversInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -1368,8 +1368,8 @@ export type ActivityUpdateWithoutApproversInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1389,8 +1389,8 @@ export type ActivityUncheckedUpdateWithoutApproversInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1409,8 +1409,8 @@ export type ActivityCreateWithoutFileInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -1430,8 +1430,8 @@ export type ActivityUncheckedCreateWithoutFileInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -1466,8 +1466,8 @@ export type ActivityUpdateWithoutFileInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1487,8 +1487,8 @@ export type ActivityUncheckedUpdateWithoutFileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1507,8 +1507,8 @@ export type ActivityCreateWithoutDocumentInput = {
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
 }
 
@@ -1528,8 +1528,8 @@ export type ActivityUncheckedCreateWithoutDocumentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
 }
 
@@ -1564,8 +1564,8 @@ export type ActivityUpdateWithoutDocumentInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1585,8 +1585,8 @@ export type ActivityUncheckedUpdateWithoutDocumentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1606,8 +1606,8 @@ export type ActivityCreateWithoutNotificationsInput = {
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
   file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
   document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
 }
 
 export type ActivityUncheckedCreateWithoutNotificationsInput = {
@@ -1627,8 +1627,8 @@ export type ActivityUncheckedCreateWithoutNotificationsInput = {
   updatedAt?: Date | string
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
-  revenue?: Prisma.RevenueUncheckedCreateNestedOneWithoutActivityInput
-  expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
 }
 
 export type ActivityCreateOrConnectWithoutNotificationsInput = {
@@ -1663,8 +1663,8 @@ export type ActivityUpdateWithoutNotificationsInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
 }
 
 export type ActivityUncheckedUpdateWithoutNotificationsInput = {
@@ -1684,8 +1684,8 @@ export type ActivityUncheckedUpdateWithoutNotificationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
 }
 
 export type ActivityCreateManyColumnInput = {
@@ -1719,8 +1719,8 @@ export type ActivityUpdateWithoutColumnInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1740,8 +1740,8 @@ export type ActivityUncheckedUpdateWithoutColumnInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1792,8 +1792,8 @@ export type ActivityUpdateWithoutSupervisorInput = {
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1813,8 +1813,8 @@ export type ActivityUncheckedUpdateWithoutSupervisorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1865,8 +1865,8 @@ export type ActivityUpdateWithoutLocationInput = {
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
   document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
 }
 
@@ -1886,8 +1886,8 @@ export type ActivityUncheckedUpdateWithoutLocationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
-  revenue?: Prisma.RevenueUncheckedUpdateOneWithoutActivityNestedInput
-  expense?: Prisma.ExpenseUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
 }
 
@@ -1914,11 +1914,15 @@ export type ActivityUncheckedUpdateManyWithoutLocationInput = {
 
 export type ActivityCountOutputType = {
   approvers: number
+  revenues: number
+  expenses: number
   notifications: number
 }
 
 export type ActivityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   approvers?: boolean | ActivityCountOutputTypeCountApproversArgs
+  revenues?: boolean | ActivityCountOutputTypeCountRevenuesArgs
+  expenses?: boolean | ActivityCountOutputTypeCountExpensesArgs
   notifications?: boolean | ActivityCountOutputTypeCountNotificationsArgs
 }
 
@@ -1937,6 +1941,20 @@ export type ActivityCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type ActivityCountOutputTypeCountApproversArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ApproverWhereInput
+}
+
+/**
+ * ActivityCountOutputType without action
+ */
+export type ActivityCountOutputTypeCountRevenuesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RevenueWhereInput
+}
+
+/**
+ * ActivityCountOutputType without action
+ */
+export type ActivityCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseWhereInput
 }
 
 /**
@@ -1968,8 +1986,8 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
   document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
-  revenue?: boolean | Prisma.Activity$revenueArgs<ExtArgs>
-  expense?: boolean | Prisma.Activity$expenseArgs<ExtArgs>
+  revenues?: boolean | Prisma.Activity$revenuesArgs<ExtArgs>
+  expenses?: boolean | Prisma.Activity$expensesArgs<ExtArgs>
   notifications?: boolean | Prisma.Activity$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.ActivityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["activity"]>
@@ -2041,8 +2059,8 @@ export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
   document?: boolean | Prisma.Activity$documentArgs<ExtArgs>
-  revenue?: boolean | Prisma.Activity$revenueArgs<ExtArgs>
-  expense?: boolean | Prisma.Activity$expenseArgs<ExtArgs>
+  revenues?: boolean | Prisma.Activity$revenuesArgs<ExtArgs>
+  expenses?: boolean | Prisma.Activity$expensesArgs<ExtArgs>
   notifications?: boolean | Prisma.Activity$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.ActivityCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -2068,8 +2086,8 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     location: Prisma.$LocationPayload<ExtArgs> | null
     file: Prisma.$FileManagerPayload<ExtArgs> | null
     document: Prisma.$DocumentPayload<ExtArgs> | null
-    revenue: Prisma.$RevenuePayload<ExtArgs> | null
-    expense: Prisma.$ExpensePayload<ExtArgs> | null
+    revenues: Prisma.$RevenuePayload<ExtArgs>[]
+    expenses: Prisma.$ExpensePayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2487,8 +2505,8 @@ export interface Prisma__ActivityClient<T, Null = never, ExtArgs extends runtime
   location<T extends Prisma.Activity$locationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$locationArgs<ExtArgs>>): Prisma.Prisma__LocationClient<runtime.Types.Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   file<T extends Prisma.Activity$fileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$fileArgs<ExtArgs>>): Prisma.Prisma__FileManagerClient<runtime.Types.Result.GetResult<Prisma.$FileManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   document<T extends Prisma.Activity$documentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$documentArgs<ExtArgs>>): Prisma.Prisma__DocumentClient<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  revenue<T extends Prisma.Activity$revenueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$revenueArgs<ExtArgs>>): Prisma.Prisma__RevenueClient<runtime.Types.Result.GetResult<Prisma.$RevenuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  expense<T extends Prisma.Activity$expenseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$expenseArgs<ExtArgs>>): Prisma.Prisma__ExpenseClient<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  revenues<T extends Prisma.Activity$revenuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$revenuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  expenses<T extends Prisma.Activity$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.Activity$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3029,9 +3047,9 @@ export type Activity$documentArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Activity.revenue
+ * Activity.revenues
  */
-export type Activity$revenueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Activity$revenuesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Revenue
    */
@@ -3045,12 +3063,17 @@ export type Activity$revenueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.RevenueInclude<ExtArgs> | null
   where?: Prisma.RevenueWhereInput
+  orderBy?: Prisma.RevenueOrderByWithRelationInput | Prisma.RevenueOrderByWithRelationInput[]
+  cursor?: Prisma.RevenueWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RevenueScalarFieldEnum | Prisma.RevenueScalarFieldEnum[]
 }
 
 /**
- * Activity.expense
+ * Activity.expenses
  */
-export type Activity$expenseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Activity$expensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Expense
    */
@@ -3064,6 +3087,11 @@ export type Activity$expenseArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.ExpenseInclude<ExtArgs> | null
   where?: Prisma.ExpenseWhereInput
+  orderBy?: Prisma.ExpenseOrderByWithRelationInput | Prisma.ExpenseOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
 }
 
 /**

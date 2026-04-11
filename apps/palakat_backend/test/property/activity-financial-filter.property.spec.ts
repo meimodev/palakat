@@ -53,10 +53,14 @@ describe('Activity Financial Filter Property Tests', () => {
       notifyActivityCreated: async () => {},
       notifyApprovalStatusChanged: async () => {},
     } as unknown as NotificationService;
+    const realtimeEmitter = {
+      emitActivityEvent: () => {},
+    } as any;
     activitiesService = new ActivitiesService(
       prismaService,
       approverResolverService,
       notificationService,
+      realtimeEmitter,
     );
   });
 

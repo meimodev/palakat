@@ -66,6 +66,8 @@ export const ModelName = {
   CashMutation: 'CashMutation',
   Location: 'Location',
   Approver: 'Approver',
+  RevenueApprover: 'RevenueApprover',
+  ExpenseApprover: 'ExpenseApprover',
   Song: 'Song',
   SongPart: 'SongPart',
   FileManager: 'FileManager',
@@ -320,6 +322,30 @@ export const ApproverScalarFieldEnum = {
 } as const
 
 export type ApproverScalarFieldEnum = (typeof ApproverScalarFieldEnum)[keyof typeof ApproverScalarFieldEnum]
+
+
+export const RevenueApproverScalarFieldEnum = {
+  id: 'id',
+  membershipId: 'membershipId',
+  revenueId: 'revenueId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RevenueApproverScalarFieldEnum = (typeof RevenueApproverScalarFieldEnum)[keyof typeof RevenueApproverScalarFieldEnum]
+
+
+export const ExpenseApproverScalarFieldEnum = {
+  id: 'id',
+  membershipId: 'membershipId',
+  expenseId: 'expenseId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExpenseApproverScalarFieldEnum = (typeof ExpenseApproverScalarFieldEnum)[keyof typeof ExpenseApproverScalarFieldEnum]
 
 
 export const SongScalarFieldEnum = {
