@@ -356,7 +356,7 @@ async function seedArticles() {
 }
 
 async function seedCongregationsAndFinances(passwordHash: string) {
-  console.log('🏛️ Seeding congregations and financial accounts from JSON...');
+  console.log('\n🏛️  Seeding congregations and financial accounts from JSON...');
 
   const congJsonPath = path.resolve(
     __dirname,
@@ -375,15 +375,38 @@ async function seedCongregationsAndFinances(passwordHash: string) {
     'financial_accounts_number.json',
   );
 
-  const congregations = JSON.parse(fs.readFileSync(congJsonPath, 'utf-8'));
-  const finAccountsData = JSON.parse(fs.readFileSync(finJsonPath, 'utf-8'));
+  console.log(`   📂 Reading congregation.json...`);
+  console.log(`      Path: ${congJsonPath}`);
+  const congRaw = fs.readFileSync(congJsonPath, 'utf-8');
+  console.log(`      File size: ${(congRaw.length / 1024).toFixed(1)} KB`);
+  const congregations = JSON.parse(congRaw);
+  console.log(`      ✔ Loaded ${congregations.length} congregations`);
+
+  console.log(`   📂 Reading financial_accounts_number.json...`);
+  console.log(`      Path: ${finJsonPath}`);
+  const finRaw = fs.readFileSync(finJsonPath, 'utf-8');
+  console.log(`      File size: ${(finRaw.length / 1024).toFixed(1)} KB`);
+  const finAccountsData = JSON.parse(finRaw);
+  const revenueAccounts = finAccountsData.filter((f: any) => f.type !== 'EXPENSE');
+  const expenseAccounts = finAccountsData.filter((f: any) => f.type === 'EXPENSE');
+  console.log(
+    `      ✔ Loaded ${finAccountsData.length} account templates ` +
+    `(${revenueAccounts.length} revenue, ${expenseAccounts.length} expense)`,
+  );
 
   const createdChurches: ChurchWithColumns[] = [];
   const mainMemberships: MembershipWithChurch[] = [];
   const financialAccounts: FinancialAccountWithType[] = [];
   const mainAccounts: { id: number; phone: string }[] = [];
 
+  console.log(`\n   ⏳ Processing ${congregations.length} congregations...\n`);
+  let churchIndex = 0;
+
   for (const cong of congregations) {
+    churchIndex++;
+    process.stdout.write(
+      `   [${String(churchIndex).padStart(3, ' ')}/${congregations.length}] 🏛️  ${cong.church_name}...`,
+    );
     const region = await prisma.region.upsert({
       where: { sourceRegionId: cong.region_id },
       update: { name: cong.region_name },
@@ -425,6 +448,11 @@ async function seedCongregationsAndFinances(passwordHash: string) {
       columns: [],
     };
 
+    let churchColCount = 0;
+    let churchMemberCount = 0;
+    let churchPositionCount = 0;
+
+    let churchFinCount = 0;
     for (const fin of finAccountsData) {
       const finType =
         fin.type === 'EXPENSE' ? FinancialType.EXPENSE : FinancialType.REVENUE;
@@ -452,9 +480,11 @@ async function seedCongregationsAndFinances(passwordHash: string) {
         type: finType === FinancialType.EXPENSE ? 'expense' : 'income',
         name: fin.description || fin.accountNumber,
       });
+      churchFinCount++;
     }
 
     if (cong.columns && Array.isArray(cong.columns)) {
+      churchColCount = cong.columns.length;
       for (const col of cong.columns) {
         const column = await prisma.column.upsert({
           where: { sourceColumnId: col.id },
@@ -468,6 +498,7 @@ async function seedCongregationsAndFinances(passwordHash: string) {
         churchWithCols.columns.push({ id: column.id, name: column.name });
 
         if (col.memberships && Array.isArray(col.memberships)) {
+          churchMemberCount += col.memberships.length;
           for (const mem of col.memberships) {
             const accData = mem.account;
             let accountId = mem.accountId;
@@ -526,6 +557,7 @@ async function seedCongregationsAndFinances(passwordHash: string) {
                 mem.membershipPositions &&
                 Array.isArray(mem.membershipPositions)
               ) {
+                churchPositionCount += mem.membershipPositions.length;
                 for (const pos of mem.membershipPositions) {
                   await prisma.membershipPosition.create({
                     data: {
@@ -543,7 +575,17 @@ async function seedCongregationsAndFinances(passwordHash: string) {
       }
     }
     createdChurches.push(churchWithCols);
+    console.log(
+      ` done ` +
+      `(${churchColCount} cols, ${churchMemberCount} members, ` +
+      `${churchPositionCount} positions, ${churchFinCount} fin-accounts)`,
+    );
   }
+
+  console.log(`\n   ✅ Congregation seeding complete:`);
+  console.log(`      Churches   : ${createdChurches.length}`);
+  console.log(`      Memberships: ${mainMemberships.length} (with linked accounts)`);
+  console.log(`      Fin accounts: ${financialAccounts.length} total across all churches`);
 
   return { createdChurches, mainMemberships, financialAccounts, mainAccounts };
 }
@@ -675,12 +717,14 @@ const CANONICAL_RULE_SPECS: CanonicalRuleSpec[] = [
 
 
 async function seedApprovalRules(churches: ChurchWithColumns[]) {
-  console.log('📜 Creating canonical approval rules...');
+  console.log(`\n📜 Creating canonical approval rules (${CANONICAL_RULE_SPECS.length} specs × ${churches.length} churches)...`);
 
   const approvalRules = [];
+  let skippedCount = 0;
 
   for (const church of churches) {
-    console.log(`   Creating approval rules for ${church.name}...`);
+    let churchCreated = 0;
+    let churchSkipped = 0;
 
     for (const spec of CANONICAL_RULE_SPECS) {
       // Find the first matching position in this church by name
@@ -692,6 +736,8 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
         console.warn(
           `   ⚠️  Position "${spec.positionName}" not found in ${church.name} — skipping "${spec.name}"`,
         );
+        churchSkipped++;
+        skippedCount++;
         continue;
       }
 
@@ -710,10 +756,18 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
       });
 
       approvalRules.push(rule);
+      churchCreated++;
+    }
+
+    if (churchCreated > 0) {
+      console.log(
+        `   ✔  ${church.name}: ${churchCreated} rules created` +
+        (churchSkipped > 0 ? `, ${churchSkipped} skipped` : ''),
+      );
     }
   }
 
-  console.log(`✅ Created ${approvalRules.length} approval rules`);
+  console.log(`\n   ✅ Approval rules: ${approvalRules.length} created, ${skippedCount} skipped (missing positions)`);
   return approvalRules;
 }
 
@@ -1027,12 +1081,15 @@ async function seedMainAccountActivities(
   financialAccounts: FinancialAccountWithType[],
   documents: { id: number; churchId: number }[],
 ) {
+  const totalActivities = mainMemberships.length * CONFIG.activitiesPerMainAccount;
   console.log(
-    '📅 Creating activities for main accounts (25 each with all variations)...',
+    `\n📅 Seeding activities for ${mainMemberships.length} main account(s) ` +
+    `(${CONFIG.activitiesPerMainAccount} each = ~${totalActivities} total)...`,
   );
 
   const activities = [];
   const variations = getAllActivityVariations(); // 15 variations
+  console.log(`   Activity variations: ${variations.length} (types × bipra groups)`);
   let globalIndex = 0;
 
   // Financial type cycle: revenue, expense, none (an activity can only have one)
@@ -1044,8 +1101,10 @@ async function seedMainAccountActivities(
 
   for (const mainMembership of mainMemberships) {
     console.log(
-      `   Creating 25 activities for main account (phone: ${mainMembership.accountPhone})...`,
+      `\n   👤 Main account [${mainMembership.accountPhone}] ` +
+      `(membership #${mainMembership.id}, church #${mainMembership.churchId})`,
     );
+    console.log(`      Creating ${CONFIG.activitiesPerMainAccount} activities...`);
 
     const weekDates = getCurrentWeekDates();
     const weekDateOverrideMap = getWeekDateOverrideMapForActivityVariations(
@@ -1127,9 +1186,11 @@ async function seedMainAccountActivities(
       });
       globalIndex++;
     }
+
+    console.log(`      ✔ Done — ${CONFIG.activitiesPerMainAccount} activities created for this account`);
   }
 
-  console.log(`✅ Created ${activities.length} activities for main accounts`);
+  console.log(`\n   ✅ Main account activities: ${activities.length} total`);
   return activities;
 }
 
@@ -1256,7 +1317,7 @@ async function seedExtraChurchActivities(
 }
 
 async function seedSongs() {
-  console.log('🎵 Creating songs from songs.json...');
+  console.log('\n🎵 Seeding songs from songs.json...');
 
   const songsJsonPath = path.resolve(
     __dirname,
@@ -1267,19 +1328,30 @@ async function seedSongs() {
     'songs.json',
   );
 
+  console.log(`   📂 Reading songs.json...`);
+  console.log(`      Path: ${songsJsonPath}`);
+
   if (!fs.existsSync(songsJsonPath)) {
-    console.warn(
-      `⚠️ songs.json not found at ${songsJsonPath}. Skipping song seeding.`,
-    );
+    console.warn(`   ⚠️  songs.json not found — skipping song seeding.`);
     return [];
   }
 
   const rawContent = fs.readFileSync(songsJsonPath, 'utf-8');
+  console.log(`      File size: ${(rawContent.length / 1024).toFixed(1)} KB`);
   const songsData = JSON.parse(rawContent);
   const rawSongs = songsData.songs || [];
+  const totalParts = rawSongs.reduce((sum: number, s: any) => sum + (s.definition?.length || 0), 0);
+  console.log(
+    `      ✔ Loaded ${rawSongs.length} songs, ${totalParts} parts total ` +
+    `(avg ${rawSongs.length ? (totalParts / rawSongs.length).toFixed(1) : 0} parts/song)`,
+  );
+
   const songs = [];
 
-  for (const rawSong of rawSongs) {
+  console.log(`\n   ⏳ Inserting songs into database...`);
+
+  for (let i = 0; i < rawSongs.length; i++) {
+    const rawSong = rawSongs[i];
     const book = rawSong.bookId.toUpperCase() as Book;
 
     const indexMatch = String(rawSong.id).match(/\d+/);
@@ -1295,6 +1367,12 @@ async function seedSongs() {
       name: def.type || 'VERSE',
       content: def.content || '',
     }));
+
+    process.stdout.write(
+      `   [${String(i + 1).padStart(4, ' ')}/${rawSongs.length}] ` +
+      `${book} #${index} — "${title.substring(0, 40)}${title.length > 40 ? '…' : ''}" ` +
+      `(${partsToCreate.length} parts)\r`,
+    );
 
     const song = await prisma.song.create({
       data: {
@@ -1315,7 +1393,8 @@ async function seedSongs() {
     songs.push(song);
   }
 
-  console.log(`✅ Created ${songs.length} songs with parts from songs.json`);
+  const totalInsertedParts = songs.reduce((sum, s) => sum + s.parts.length, 0);
+  console.log(`\n   ✅ Songs: ${songs.length} songs, ${totalInsertedParts} parts inserted`);
   return songs;
 }
 
@@ -1520,57 +1599,92 @@ async function main() {
     }
   }
 
-  console.log('🌱 Starting comprehensive seed...\n');
+  const seedStart = Date.now();
+
+  console.log('╔══════════════════════════════════════════════════════╗');
+  console.log('║           🌱 PALAKAT — Comprehensive Seed            ║');
+  console.log('╚══════════════════════════════════════════════════════╝');
+  console.log(`   DB  : ${process.env.DATABASE_URL?.replace(/:\/\/[^@]+@/, '://<credentials>@') ?? '(not set)'}`);
+  console.log(`   Time: ${new Date().toISOString()}`);
+  console.log(`   Env : ${process.env.NODE_ENV ?? 'unset'}`);
+  console.log('');
+
+  const phase = (name: string) => {
+    const t = Date.now();
+    console.log(`\n${'─'.repeat(56)}`);
+    console.log(`  Phase: ${name}`);
+    console.log(`${'─'.repeat(56)}`);
+    return () => {
+      const elapsed = ((Date.now() - t) / 1000).toFixed(1);
+      console.log(`  ✓ ${name} completed in ${elapsed}s`);
+    };
+  };
 
   try {
     seed = 12345;
 
+    const doneClean = phase('Clean database');
     await cleanDatabase();
+    doneClean();
 
     const passwordHash = await bcrypt.hash(CONFIG.defaultPassword, 12);
 
-    // Seed congregations (regions, churches, columns, memberships) and
-    // financial account numbers — all sourced from JSON files.
+    const doneCong = phase('Congregations + financial accounts (JSON)');
     const {
       createdChurches: mainChurches,
       mainMemberships,
       financialAccounts,
       mainAccounts,
     } = await seedCongregationsAndFinances(passwordHash);
+    doneCong();
 
     const extraMemberships: MembershipWithChurch[] = [];
 
-    // Create approval rules with activity type and financial type filters
+    const doneRules = phase('Approval rules');
     await seedApprovalRules(mainChurches);
+    doneRules();
 
-
-    // Create activities for main accounts (25 each) - uses automatic approver linking
+    const doneMainActs = phase('Main account activities');
     await seedMainAccountActivities(mainMemberships, financialAccounts, []);
+    doneMainActs();
 
-    // Create extra activities for each church (25 each, not connected to main accounts)
+    const doneExtraActs = phase('Extra church activities');
     await seedExtraChurchActivities(
       mainChurches,
       extraMemberships,
       financialAccounts,
       [],
     );
+    doneExtraActs();
 
-    // Create songs
+    const doneSongs = phase('Songs (JSON)');
     await seedSongs();
+    doneSongs();
 
+    const doneArticles = phase('Articles');
     await seedArticles();
+    doneArticles();
 
+    const doneSongDb = phase('Song DB file record');
     await seedSongDbFile(mainChurches);
+    doneSongDb();
 
-    // Print summary
+    const doneSummary = phase('Database summary');
     await printSummary(mainAccounts, mainChurches);
+    doneSummary();
 
-    console.log('\n🎉 Seeding completed successfully!');
+    const totalElapsed = ((Date.now() - seedStart) / 1000).toFixed(1);
+    console.log('');
+    console.log('╔══════════════════════════════════════════════════════╗');
+    console.log(`║  🎉 Seed completed successfully in ${totalElapsed.padStart(6, ' ')}s          ║`);
+    console.log('╚══════════════════════════════════════════════════════╝');
   } catch (error) {
-    console.error('❌ Seeding failed:', error);
+    const totalElapsed = ((Date.now() - seedStart) / 1000).toFixed(1);
+    console.error(`\n❌ Seeding failed after ${totalElapsed}s:`, error);
     throw error;
   }
 }
+
 
 main()
   .catch((e) => {
