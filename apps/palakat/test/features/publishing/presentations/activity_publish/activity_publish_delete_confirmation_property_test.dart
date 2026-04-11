@@ -24,27 +24,27 @@ void main() {
         );
 
         // Attach finance data
-        controller.onAttachedFinance(financeData);
+        controller.addAttachedFinance(financeData);
 
         // Verify finance is attached
         expect(
-          controller.state.attachedFinance,
-          isNotNull,
+          controller.state.attachedFinances,
+          hasLength(1),
           reason: 'Finance should be attached before deletion',
         );
         expect(
-          controller.state.attachedFinance,
+          controller.state.attachedFinances.first,
           equals(financeData),
           reason: 'Attached finance should match the input data',
         );
 
         // Simulate confirmed deletion (user clicks "Remove" in dialog)
-        controller.removeAttachedFinance();
+        controller.removeAttachedFinanceAt(0);
 
         // Verify finance is removed
         expect(
-          controller.state.attachedFinance,
-          isNull,
+          controller.state.attachedFinances,
+          isEmpty,
           reason: 'attachedFinance SHALL be null after confirmed deletion',
         );
       });
@@ -64,10 +64,10 @@ void main() {
         );
 
         // Attach finance data
-        controller.onAttachedFinance(financeData);
+        controller.addAttachedFinance(financeData);
 
         // Store original finance for comparison
-        final originalFinance = controller.state.attachedFinance;
+        final originalFinance = controller.state.attachedFinances.first;
 
         // Verify finance is attached
         expect(
@@ -82,23 +82,23 @@ void main() {
 
         // Verify finance is preserved (no change to state)
         expect(
-          controller.state.attachedFinance,
+          controller.state.attachedFinances.first,
           equals(originalFinance),
           reason:
               'attachedFinance SHALL equal the original value after cancelled deletion',
         );
         expect(
-          controller.state.attachedFinance?.amount,
+          controller.state.attachedFinances.first.amount,
           equals(financeData.amount),
           reason: 'Amount should be preserved',
         );
         expect(
-          controller.state.attachedFinance?.accountNumber,
+          controller.state.attachedFinances.first.accountNumber,
           equals(financeData.accountNumber),
           reason: 'Account number should be preserved',
         );
         expect(
-          controller.state.attachedFinance?.paymentMethod,
+          controller.state.attachedFinances.first.paymentMethod,
           equals(financeData.paymentMethod),
           reason: 'Payment method should be preserved',
         );
@@ -119,16 +119,16 @@ void main() {
           );
 
           // First cycle: attach and remove
-          controller.onAttachedFinance(financeData1);
-          expect(controller.state.attachedFinance, isNotNull);
-          controller.removeAttachedFinance();
-          expect(controller.state.attachedFinance, isNull);
+          controller.addAttachedFinance(financeData1);
+          expect(controller.state.attachedFinances, hasLength(1));
+          controller.removeAttachedFinanceAt(0);
+          expect(controller.state.attachedFinances, isEmpty);
 
           // Second cycle: attach different data and remove
-          controller.onAttachedFinance(financeData2);
-          expect(controller.state.attachedFinance, equals(financeData2));
-          controller.removeAttachedFinance();
-          expect(controller.state.attachedFinance, isNull);
+          controller.addAttachedFinance(financeData2);
+          expect(controller.state.attachedFinances.first, equals(financeData2));
+          controller.removeAttachedFinanceAt(0);
+          expect(controller.state.attachedFinances, isEmpty);
         });
       },
     );
@@ -193,13 +193,19 @@ class _TestableActivityPublishController {
 
   /// Sets the attached finance data (revenue or expense).
   /// Requirements: 1.4
-  void onAttachedFinance(FinanceData? data) {
-    state = state.copyWith(attachedFinance: data);
+  void addAttachedFinance(FinanceData data) {
+    state = state.copyWith(attachedFinances: [...state.attachedFinances, data]);
   }
 
   /// Removes the attached financial record.
   /// Requirements: 1.5, 3.3
-  void removeAttachedFinance() {
-    state = state.copyWith(attachedFinance: null);
+  void removeAttachedFinanceAt(int index) {
+    if (index < 0 || index >= state.attachedFinances.length) {
+      return;
+    }
+
+    state = state.copyWith(
+      attachedFinances: [...state.attachedFinances]..removeAt(index),
+    );
   }
 }

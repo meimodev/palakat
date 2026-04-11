@@ -57,6 +57,6 @@ abstract class ActivityPublishState with _$ActivityPublishState {
     Reminder? selectedReminder,
     // Attached finance data (revenue or expense)
     // Requirements: 1.4, 5.1
-    FinanceData? attachedFinance,
+    @Default([]) List<FinanceData> attachedFinances,
   }) = _ActivityPublishState;
 }

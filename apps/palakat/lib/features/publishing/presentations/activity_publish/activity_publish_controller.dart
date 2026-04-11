@@ -322,19 +322,17 @@ class ActivityPublishController extends _$ActivityPublishController {
       final location = state.selectedMapLocation;
 
       // Build finance data if user attached a finance record
-      CreateActivityFinance? finance;
-      if (state.attachedFinance != null) {
-        finance = CreateActivityFinance(
-          type: state.attachedFinance!.type == FinanceType.revenue
-              ? 'REVENUE'
-              : 'EXPENSE',
-          accountNumber: state.attachedFinance!.accountNumber,
-          amount: state.attachedFinance!.amount,
-          paymentMethod: state.attachedFinance!.paymentMethod,
-          financialAccountNumberId:
-              state.attachedFinance!.financialAccountNumberId,
-        );
-      }
+      final finances = state.attachedFinances
+          .map(
+            (finance) => CreateActivityFinance(
+              type: finance.type == FinanceType.revenue ? 'REVENUE' : 'EXPENSE',
+              accountNumber: finance.accountNumber,
+              amount: finance.amount,
+              paymentMethod: finance.paymentMethod,
+              financialAccountNumberId: finance.financialAccountNumberId,
+            ),
+          )
+          .toList();
 
       final request = CreateActivityRequest(
         supervisorId: membership.id!,
@@ -350,7 +348,7 @@ class ActivityPublishController extends _$ActivityPublishController {
         fileId: fileId,
         activityType: state.type,
         reminder: state.selectedReminder,
-        finance: finance,
+        finances: finances,
       );
 
       // Step 5: Call ActivityRepository.createActivity
@@ -670,22 +668,35 @@ class ActivityPublishController extends _$ActivityPublishController {
     _updateFormValidity();
   }
 
-  /// Sets the attached finance data (revenue or expense).
-  /// Requirements: 1.4
-  void onAttachedFinance(FinanceData? data) {
+  void addAttachedFinance(FinanceData data) {
     if (!ref.mounted) {
       return;
     }
-    state = state.copyWith(attachedFinance: data);
+    state = state.copyWith(attachedFinances: [...state.attachedFinances, data]);
   }
 
-  /// Removes the attached financial record and restores the "Add Financial Record" button.
-  /// Requirements: 1.5
-  void removeAttachedFinance() {
+  void updateAttachedFinance(int index, FinanceData data) {
     if (!ref.mounted) {
       return;
     }
-    state = state.copyWith(attachedFinance: null);
+    if (index < 0 || index >= state.attachedFinances.length) {
+      return;
+    }
+
+    final nextAttachedFinances = [...state.attachedFinances];
+    nextAttachedFinances[index] = data;
+    state = state.copyWith(attachedFinances: nextAttachedFinances);
   }
 
+  void removeAttachedFinanceAt(int index) {
+    if (!ref.mounted) {
+      return;
+    }
+    if (index < 0 || index >= state.attachedFinances.length) {
+      return;
+    }
+
+    final nextAttachedFinances = [...state.attachedFinances]..removeAt(index);
+    state = state.copyWith(attachedFinances: nextAttachedFinances);
+  }
 }

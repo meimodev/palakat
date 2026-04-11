@@ -139,10 +139,6 @@ class ActivityPickerController extends _$ActivityPickerController {
       data: GetFetchActivitiesRequest(
         membershipId: state.membershipId,
         search: state.searchQuery.isNotEmpty ? state.searchQuery : null,
-        // Filter to show only activities without financial records
-        // so users can attach new finances to them
-        hasExpense: false,
-        hasRevenue: false,
       ),
     );
   }

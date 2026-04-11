@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
-import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
@@ -124,9 +123,29 @@ class SupervisedActivityItemWidget extends StatelessWidget {
 
                         Gap.w8,
                         _ActivityTypeBadge(activityType: activity.activityType),
-                        Gap.w8,
-                        if (activity.financeType != null)
-                          _FinanceTypeBadge(financeType: activity.financeType!),
+                        if ((activity.revenues.isNotEmpty ||
+                            activity.expenses.isNotEmpty ||
+                            activity.hasRevenue == true ||
+                            activity.hasExpense == true)) ...[
+                          Gap.w8,
+                          if (activity.revenues.isNotEmpty ||
+                              activity.hasRevenue == true)
+                            _FinancePresenceBadge(
+                              icon: AppIcons.revenue,
+                              color: AppColors.success,
+                            ),
+                          if ((activity.revenues.isNotEmpty ||
+                                  activity.hasRevenue == true) &&
+                              (activity.expenses.isNotEmpty ||
+                                  activity.hasExpense == true))
+                            Gap.w8,
+                          if (activity.expenses.isNotEmpty ||
+                              activity.hasExpense == true)
+                            _FinancePresenceBadge(
+                              icon: AppIcons.expense,
+                              color: AppColors.error,
+                            ),
+                        ],
                       ],
                     ),
                   ],
@@ -184,23 +203,24 @@ class _ActivityTypeBadge extends StatelessWidget {
   }
 }
 
-class _FinanceTypeBadge extends StatelessWidget {
-  const _FinanceTypeBadge({required this.financeType});
+class _FinancePresenceBadge extends StatelessWidget {
+  const _FinancePresenceBadge({required this.icon, required this.color});
 
-  final FinanceType financeType;
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
       decoration: BoxDecoration(
-        color: financeType.color.withValues(alpha: 0.1),
-        border: Border.all(color: financeType.color.withValues(alpha: 0.3)),
+        color: color.withValues(alpha: 0.1),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(80),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [Icon(financeType.icon, size: 12, color: financeType.color)],
+        children: [Icon(icon, size: 12, color: color)],
       ),
     );
   }

@@ -117,8 +117,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
                 detailState.loadingScreen == false,
             errorMessage: detailState.errorMessage,
             onRetry: () => controller.fetch(activityId),
-            shimmerPlaceholder:
-                ShimmerPlaceholders.approvalDetailLayout(),
+            shimmerPlaceholder: ShimmerPlaceholders.approvalDetailLayout(),
             child: activity == null
                 ? ApprovalAnimatedPresence(
                     visible: true,
@@ -157,7 +156,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
           delay: const Duration(milliseconds: 80),
           child: _buildApproversCard(context, activity),
         ),
-        if (activity.hasRevenue == true || activity.hasExpense == true) ...[
+        if (_hasActivityFinances(activity)) ...[
           Gap.h8,
           ApprovalReveal(
             delay: const Duration(milliseconds: 120),
@@ -599,12 +598,8 @@ class ApprovalDetailScreen extends ConsumerWidget {
   /// **Feature: approval-card-detail-redesign, Property 3: Financial section visibility matches financial data presence**
   Widget _buildFinancialCard(BuildContext context, Activity activity) {
     final l10n = context.l10n;
-    final isRevenue = activity.hasRevenue == true;
-    final financeData = isRevenue ? activity.revenue : activity.expense;
-    final financeType = isRevenue
-        ? l10n.financeType_revenue
-        : l10n.financeType_expense;
-    final baseColor = isRevenue ? AppColors.success : AppColors.error;
+    final revenues = activity.revenues;
+    final expenses = activity.expenses;
 
     return _buildInfoCard(
       key: const Key('financial_section'),
@@ -613,66 +608,162 @@ class ApprovalDetailScreen extends ConsumerWidget {
         children: [
           _buildSectionHeader(
             context: context,
-            icon: isRevenue ? AppIcons.revenue : AppIcons.expense,
+            icon: AppIcons.accountBalanceWalletOutlined,
             title: l10n.approvalDetail_financialData_title,
-            iconColor: baseColor.shade700,
-            trailing: Text(
-              financeType,
-              style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                color: baseColor.shade700,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            iconColor: AppColors.primary,
           ),
-          Gap.h12,
+          if (revenues.isNotEmpty) ...[
+            Gap.h12,
+            _buildFinancialGroup(
+              context,
+              label: l10n.financeType_revenue,
+              color: AppColors.success,
+              icon: AppIcons.revenue,
+              items: revenues,
+              isExpense: false,
+            ),
+          ],
+          if (expenses.isNotEmpty) ...[
+            Gap.h12,
+            _buildFinancialGroup(
+              context,
+              label: l10n.financeType_expense,
+              color: AppColors.error,
+              icon: AppIcons.expense,
+              items: expenses,
+              isExpense: true,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  bool _hasActivityFinances(Activity activity) {
+    return activity.revenues.isNotEmpty ||
+        activity.expenses.isNotEmpty ||
+        activity.hasRevenue == true ||
+        activity.hasExpense == true;
+  }
+
+  Widget _buildFinancialGroup(
+    BuildContext context, {
+    required String label,
+    required MaterialColor color,
+    required IconData icon,
+    required List<ActivityFinance> items,
+    required bool isExpense,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: color.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              FaIcon(icon, size: 16.0, color: color.shade700),
+              Gap.w8,
+              Text(
+                '$label (${items.length})',
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  color: color.shade700,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          ...List.generate(items.length, (index) {
+            final finance = items[index];
+            return Padding(
+              padding: EdgeInsets.only(top: 12.0),
+              child: _buildFinancialItem(
+                context,
+                finance: finance,
+                color: color,
+                isExpense: isExpense,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinancialItem(
+    BuildContext context, {
+    required ActivityFinance finance,
+    required MaterialColor color,
+    required bool isExpense,
+  }) {
+    final amount = finance.amount ?? 0;
+    final accountNumber =
+        finance.financialAccountNumber?.accountNumber ??
+        finance.accountNumber ??
+        '-';
+    final accountDescription = finance.financialAccountNumber?.description;
+
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: color.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           _buildInfoRow(
             icon: AppIcons.money,
-            iconColor: baseColor.shade600,
-            label: l10n.lbl_amount,
-            value: financeData?.amount != null
-                ? formatRupiah(financeData!.amount!)
-                : '-',
+            iconColor: color.shade600,
+            label: context.l10n.lbl_amount,
+            value: formatRupiah(isExpense ? -amount : amount),
           ),
           Gap.h12,
           _buildInfoRow(
             icon: AppIcons.bankAccount,
             iconColor: AppColors.primary.shade600,
-            label: l10n.lbl_accountNumber,
-            value:
-                financeData?.financialAccountNumber?.accountNumber ??
-                financeData?.accountNumber ??
-                '-',
+            label: context.l10n.lbl_accountNumber,
+            value: accountNumber,
           ),
-          if (financeData?.financialAccountNumber?.description != null) ...[
+          if (accountDescription != null && accountDescription.isNotEmpty) ...[
             Gap.h12,
             _buildInfoRow(
               icon: AppIcons.description,
               iconColor: AppColors.tertiary,
-              label: l10n.approvalDetail_accountDescription_label,
-              value: financeData!.financialAccountNumber!.description!,
+              label: context.l10n.approvalDetail_accountDescription_label,
+              value: accountDescription,
             ),
           ],
           Gap.h12,
           _buildInfoRow(
             icon: AppIcons.payment,
             iconColor: AppColors.primary,
-            label: l10n.tbl_paymentMethod,
-            value: (() {
-              final method = financeData?.paymentMethod;
-              if (method == null || method.isEmpty) return '-';
-              switch (method) {
-                case 'CASH':
-                  return l10n.paymentMethod_cash;
-                case 'CASHLESS':
-                  return l10n.paymentMethod_cashless;
-                default:
-                  return method.toCamelCase;
-              }
-            })(),
+            label: context.l10n.tbl_paymentMethod,
+            value: _resolvePaymentMethodLabel(context, finance.paymentMethod),
           ),
         ],
       ),
     );
+  }
+
+  String _resolvePaymentMethodLabel(BuildContext context, String? method) {
+    if (method == null || method.isEmpty) {
+      return '-';
+    }
+
+    switch (method) {
+      case 'CASH':
+        return context.l10n.paymentMethod_cash;
+      case 'CASHLESS':
+        return context.l10n.paymentMethod_cashless;
+      default:
+        return method.toCamelCase;
+    }
   }
 
   Widget _buildAdditionalInfoCard(BuildContext context, Activity activity) {

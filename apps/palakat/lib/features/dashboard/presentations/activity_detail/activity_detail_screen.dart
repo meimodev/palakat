@@ -822,10 +822,7 @@ class ActivityDetailScreen extends ConsumerWidget {
                               ),
                         ),
                         Gap.h4,
-                        Text(
-                          downloadState.displayLabel,
-                          style: slotTextStyle,
-                        ),
+                        Text(downloadState.displayLabel, style: slotTextStyle),
                       ],
                     ),
                   ),
@@ -1434,8 +1431,15 @@ class ActivityDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildFinanceSection(BuildContext context, Activity activity) {
-    final financeType = activity.financeType;
-    if (financeType == null) {
+    final revenues = activity.revenues;
+    final expenses = activity.expenses;
+    final hasFinances =
+        revenues.isNotEmpty ||
+        expenses.isNotEmpty ||
+        activity.hasRevenue == true ||
+        activity.hasExpense == true;
+
+    if (!hasFinances) {
       return Container(
         padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
@@ -1485,24 +1489,55 @@ class ActivityDetailScreen extends ConsumerWidget {
         ),
       );
     }
-    final financeData = activity.financeData;
-    final isRevenue = financeType == FinanceType.revenue;
-    final color = isRevenue ? AppColors.success : AppColors.error;
-
-    final amount = financeData?.amount ?? 0;
-    final displayAmount = isRevenue ? amount : -amount;
-    final accountNumber =
-        financeData?.financialAccountNumber?.accountNumber ??
-        financeData?.accountNumber ??
-        '-';
-    final accountDesc = financeData?.financialAccountNumber?.description;
 
     return Container(
       padding: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: color[50],
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: color[200]!),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (revenues.isNotEmpty)
+            _buildFinanceGroupSection(
+              context,
+              label: context.l10n.admin_revenue_title,
+              color: AppColors.success,
+              icon: AppIcons.revenue,
+              items: revenues,
+              isExpense: false,
+            ),
+          if (revenues.isNotEmpty && expenses.isNotEmpty) Gap.h12,
+          if (expenses.isNotEmpty)
+            _buildFinanceGroupSection(
+              context,
+              label: context.l10n.operationsItem_add_expense_title,
+              color: AppColors.error,
+              icon: AppIcons.expense,
+              items: expenses,
+              isExpense: true,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinanceGroupSection(
+    BuildContext context, {
+    required String label,
+    required MaterialColor color,
+    required IconData icon,
+    required List<ActivityFinance> items,
+    required bool isExpense,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: color.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1512,79 +1547,120 @@ class ActivityDetailScreen extends ConsumerWidget {
               Container(
                 padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                  color: color[100],
+                  color: color.shade100,
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: Icon(financeType.icon, size: 20.0, color: color[600]),
+                child: Icon(icon, size: 20.0, color: color.shade700),
               ),
               Gap.w12,
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      financeType.displayName,
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        color: color[600],
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Gap.h4,
-                    Text(
-                      _formatCurrency(displayAmount),
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: color[800],
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  '$label (${items.length})',
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: color.shade700,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
           ),
           Gap.h12,
-          Container(
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(4.0),
+          ...List.generate(items.length, (index) {
+            final finance = items[index];
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == items.length - 1 ? 0 : 12.0,
+              ),
+              child: _buildFinanceAttachmentCard(
+                context,
+                finance: finance,
+                color: color,
+                isExpense: isExpense,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinanceAttachmentCard(
+    BuildContext context, {
+    required ActivityFinance finance,
+    required MaterialColor color,
+    required bool isExpense,
+  }) {
+    final amount = finance.amount ?? 0;
+    final displayAmount = isExpense ? -amount : amount;
+    final accountNumber =
+        finance.financialAccountNumber?.accountNumber ??
+        finance.accountNumber ??
+        '-';
+    final accountDesc = finance.financialAccountNumber?.description;
+    final paymentMethod = _formatFinancePaymentMethod(
+      context,
+      finance.paymentMethod,
+    );
+
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: color.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _formatCurrency(displayAmount),
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+              color: color.shade800,
+              fontWeight: FontWeight.w700,
             ),
-            child: Row(
-              children: [
-                FaIcon(AppIcons.bankAccount, size: 16.0, color: color[600]),
-                Gap.w8,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.l10n.lbl_accountNumber,
-                        style: Theme.of(context).textTheme.labelMedium!
-                            .copyWith(color: AppColors.onSurfaceVariant),
-                      ),
-                      Text(
-                        accountNumber,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: color[800],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (accountDesc != null && accountDesc.isNotEmpty) ...[
-                        Text(
-                          accountDesc,
-                          style: Theme.of(context).textTheme.bodyMedium!
-                              .copyWith(color: AppColors.onSurfaceVariant),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
+          ),
+          Gap.h8,
+          Text(
+            accountNumber,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (accountDesc != null && accountDesc.isNotEmpty) ...[
+            Gap.h4,
+            Text(
+              accountDesc,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+          Gap.h8,
+          Text(
+            '${context.l10n.tbl_paymentMethod}: $paymentMethod',
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatFinancePaymentMethod(
+    BuildContext context,
+    String? paymentMethod,
+  ) {
+    switch (paymentMethod) {
+      case 'CASH':
+        return context.l10n.paymentMethod_cash;
+      case 'CASHLESS':
+        return context.l10n.paymentMethod_cashless;
+      default:
+        return paymentMethod?.toCamelCase ?? context.l10n.lbl_na;
+    }
   }
 
   String _formatCurrency(int amount) {

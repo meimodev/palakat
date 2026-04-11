@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/widgets/loading_widget.dart';
@@ -22,7 +23,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: _createTestActivity(),
+            approval: ApprovalItem.activity(_createTestActivity()),
             currentMembershipId: 1,
             onTap: () {},
             onApprove: () {},
@@ -53,7 +54,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: _createTestActivity(),
+            approval: ApprovalItem.activity(_createTestActivity()),
             currentMembershipId: 1,
             onTap: () {},
             onApprove: () {},
@@ -99,7 +100,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: activity,
+            approval: ApprovalItem.activity(activity),
             currentMembershipId: 3,
             onTap: () {},
             onApprove: () {},
@@ -137,7 +138,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: activity,
+            approval: ApprovalItem.activity(activity),
             currentMembershipId: 1,
             onTap: () {},
             onApprove: () {},
@@ -157,7 +158,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: _createTestActivity(),
+            approval: ApprovalItem.activity(_createTestActivity()),
             currentMembershipId: 1,
             onTap: () => tapped = true,
             onApprove: () {},
@@ -197,7 +198,7 @@ void main() {
       await tester.pumpWidget(
         _wrapWithMaterialApp(
           ApprovalCardWidget(
-            approval: activity,
+            approval: ApprovalItem.activity(activity),
             currentMembershipId: 1,
             onTap: () {},
             onApprove: () => approveTapCount++,

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
+import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 import 'package:palakat_shared/extensions.dart';
 import 'package:palakat_shared/models.dart' hide Column;
-import 'package:palakat/features/approval/presentations/widgets/approval_status_pill.dart';
 
 class ApprovalCardWidget extends StatelessWidget {
   const ApprovalCardWidget({
@@ -17,14 +18,13 @@ class ApprovalCardWidget extends StatelessWidget {
     this.isLoading = false,
   });
 
-  final Activity approval;
+  final ApprovalItem approval;
   final int? currentMembershipId;
   final VoidCallback onTap;
   final VoidCallback onApprove;
   final VoidCallback onReject;
   final bool isLoading;
 
-  /// Returns the background color based on overall approval status
   Color _getStatusBackgroundColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
@@ -36,7 +36,6 @@ class ApprovalCardWidget extends StatelessWidget {
     }
   }
 
-  /// Returns the border color based on overall approval status
   Color _getStatusBorderColor(ApprovalStatus status) {
     switch (status) {
       case ApprovalStatus.approved:
@@ -48,32 +47,136 @@ class ApprovalCardWidget extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    ApprovalStatus overallStatus(List<Approver> items) {
-      // Priority: any rejected -> rejected; else any unconfirmed -> unconfirmed; else approved
-      final hasRejected = items.any((e) => e.status == ApprovalStatus.rejected);
-      if (hasRejected) return ApprovalStatus.rejected;
-      final hasUnconfirmed = items.any(
-        (e) => e.status == ApprovalStatus.unconfirmed,
-      );
-      if (hasUnconfirmed) return ApprovalStatus.unconfirmed;
-      return ApprovalStatus.approved;
+  ApprovalStatus _overallStatus(List<Approver> items) {
+    final hasRejected = items.any((e) => e.status == ApprovalStatus.rejected);
+    if (hasRejected) return ApprovalStatus.rejected;
+    final hasUnconfirmed = items.any(
+      (e) => e.status == ApprovalStatus.unconfirmed,
+    );
+    if (hasUnconfirmed) return ApprovalStatus.unconfirmed;
+    return ApprovalStatus.approved;
+  }
+
+  IconData _leadingIcon() {
+    if (approval.isRevenue) {
+      return AppIcons.revenue;
+    }
+    if (approval.isExpense) {
+      return AppIcons.expense;
     }
 
-    final overall = overallStatus(approval.approvers);
+    return switch (approval.activityType ?? ActivityType.service) {
+      ActivityType.service => AppIcons.church,
+      ActivityType.event => AppIcons.event,
+      ActivityType.announcement => AppIcons.announcement,
+    };
+  }
+
+  Color _leadingColor() {
+    if (approval.isRevenue) {
+      return AppColors.success.shade700;
+    }
+    if (approval.isExpense) {
+      return AppColors.error.shade700;
+    }
+
+    return switch (approval.activityType ?? ActivityType.service) {
+      ActivityType.service => AppColors.primary.shade700,
+      ActivityType.event => AppColors.primary.shade700,
+      ActivityType.announcement => AppColors.warning.shade700,
+    };
+  }
+
+  String _primaryLabel(BuildContext context) {
+    if (approval.isRevenue) {
+      return context.l10n.admin_revenue_title;
+    }
+    if (approval.isExpense) {
+      return context.l10n.operationsItem_add_expense_title;
+    }
+    return (approval.activityType ?? ActivityType.service).displayName;
+  }
+
+  String _timestampText(BuildContext context) {
+    final displayDate = approval.displayDate;
+    if (displayDate == null) {
+      return context.l10n.lbl_unknown;
+    }
+    return '${displayDate.slashDate} ${displayDate.HHmm}';
+  }
+
+  Widget _buildFinancePresenceBadge(
+    BuildContext context, {
+    required String label,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FaIcon(icon, size: 10.0, color: color),
+          Gap.w4,
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildActivityFinanceBadges(BuildContext context) {
+    final badges = <Widget>[];
+
+    if (approval.hasRevenueAttachments) {
+      final count = approval.revenueCount;
+      badges.add(
+        _buildFinancePresenceBadge(
+          context,
+          label: count > 0
+              ? '${context.l10n.admin_revenue_title} ($count)'
+              : context.l10n.admin_revenue_title,
+          color: AppColors.success.shade700,
+          icon: AppIcons.revenue,
+        ),
+      );
+    }
+
+    if (approval.hasExpenseAttachments) {
+      final count = approval.expenseCount;
+      badges.add(
+        _buildFinancePresenceBadge(
+          context,
+          label: count > 0
+              ? '${context.l10n.operationsItem_add_expense_title} ($count)'
+              : context.l10n.operationsItem_add_expense_title,
+          color: AppColors.error.shade700,
+          icon: AppIcons.expense,
+        ),
+      );
+    }
+
+    return badges;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final overall = _overallStatus(approval.approvers);
     final bool isMinePending = approval.approvers.any(
       (ap) =>
           ap.status == ApprovalStatus.unconfirmed &&
-          ap.membership!.id == currentMembershipId,
+          ap.membership?.id == currentMembershipId,
     );
-
-    Widget statusPill(ApprovalStatus s) => ApprovalStatusPill(status: s);
-
-    // Check for financial data
-    final hasFinancial =
-        approval.hasRevenue == true || approval.hasExpense == true;
-    final isRevenue = approval.hasRevenue == true;
 
     return Material(
       color: _getStatusBackgroundColor(overall),
@@ -93,42 +196,27 @@ class ApprovalCardWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  FaIcon(
-                    _getActivityTypeIcon(approval.activityType),
-                    size: 14.0,
-                    color: _getActivityTypeColor(approval.activityType),
-                  ),
+                  FaIcon(_leadingIcon(), size: 14.0, color: _leadingColor()),
                   Gap.w6,
                   Text(
-                    approval.activityType.displayName,
+                    _primaryLabel(context),
                     style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: _getActivityTypeColor(approval.activityType),
+                      color: _leadingColor(),
                     ),
                   ),
-                  if (hasFinancial) ...[
-                    Gap.w6,
-                    Container(
-                      width: 4.0,
-                      height: 4.0,
-                      decoration: BoxDecoration(
-                        color: AppColors.onSurfaceVariant,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Gap.w6,
-                    Text(
-                      isRevenue
-                          ? context.l10n.admin_revenue_title
-                          : context.l10n.operationsItem_add_expense_title,
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
                 ],
               ),
+              if (approval.isActivity &&
+                  (approval.hasRevenueAttachments ||
+                      approval.hasExpenseAttachments)) ...[
+                Gap.h8,
+                Wrap(
+                  spacing: 6.0,
+                  runSpacing: 6.0,
+                  children: _buildActivityFinanceBadges(context),
+                ),
+              ],
               Gap.h6,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,8 +245,7 @@ class ApprovalCardWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      approval.supervisor.account?.name ??
-                          context.l10n.lbl_unknown,
+                      approval.subtitle ?? context.l10n.lbl_unknown,
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.onSurfaceVariant,
@@ -176,7 +263,7 @@ class ApprovalCardWidget extends StatelessWidget {
                   ),
                   Gap.w6,
                   Text(
-                    "${approval.date.slashDate} ${approval.date.HHmm}",
+                    _timestampText(context),
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
@@ -186,12 +273,11 @@ class ApprovalCardWidget extends StatelessWidget {
                 ],
               ),
               Gap.h6,
-              _buildApproverSummary(context, approval),
+              _buildApproverSummary(context),
               Gap.h8,
-              // Conditional actions / status
               if (overall == ApprovalStatus.unconfirmed) ...[
-                // Show unconfirmed status pill above actions when the pending approver is not me
-                if (!isMinePending) statusPill(ApprovalStatus.unconfirmed),
+                if (!isMinePending)
+                  ApprovalStatusPill(status: ApprovalStatus.unconfirmed),
                 if (isMinePending) ...[
                   Row(
                     children: [
@@ -216,7 +302,7 @@ class ApprovalCardWidget extends StatelessWidget {
                   ),
                 ],
               ] else ...[
-                statusPill(overall),
+                ApprovalStatusPill(status: overall),
               ],
             ],
           ),
@@ -225,7 +311,7 @@ class ApprovalCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildApproverSummary(BuildContext context, Activity approval) {
+  Widget _buildApproverSummary(BuildContext context) {
     final approvedCount = approval.approvers
         .where((approver) => approver.status == ApprovalStatus.approved)
         .length;
@@ -280,25 +366,8 @@ class ApprovalCardWidget extends StatelessWidget {
       ),
     );
   }
-
-  IconData _getActivityTypeIcon(ActivityType type) {
-    return switch (type) {
-      ActivityType.service => AppIcons.church,
-      ActivityType.event => AppIcons.event,
-      ActivityType.announcement => AppIcons.announcement,
-    };
-  }
-
-  Color _getActivityTypeColor(ActivityType type) {
-    return switch (type) {
-      ActivityType.service => AppColors.primary.shade700,
-      ActivityType.event => AppColors.primary.shade700,
-      ActivityType.announcement => AppColors.warning.shade700,
-    };
-  }
 }
 
-/// Helper widget for action icon buttons with Font Awesome icons
 class _ActionIconButton extends StatelessWidget {
   const _ActionIconButton({
     required this.icon,

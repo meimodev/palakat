@@ -13,6 +13,7 @@ import 'package:palakat/core/widgets/widgets.dart'
 import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
 import 'package:palakat_shared/core/widgets/mobile/scaffold_widget.dart';
 import 'package:palakat/features/approval/presentations/approval_controller.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
 import 'package:palakat/features/approval/presentations/approval_motion_widget.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat/features/approval/presentations/widgets/approval_card_widget.dart';
@@ -20,7 +21,6 @@ import 'package:palakat/features/approval/presentations/widgets/approval_confirm
 import 'package:palakat/features/approval/presentations/widgets/approval_filter_bottom_sheet.dart';
 import 'package:palakat_shared/core/widgets/info_box/info_box_with_action_widget.dart';
 import 'package:palakat_shared/extensions.dart';
-import 'package:palakat_shared/models.dart' hide Column;
 
 class ApprovalScreen extends ConsumerStatefulWidget {
   const ApprovalScreen({super.key});
@@ -30,10 +30,7 @@ class ApprovalScreen extends ConsumerStatefulWidget {
 }
 
 class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
-  // Track which activity is currently being processed
-  int? _processingActivityId;
-
-  // Scroll controller for infinite scrolling
+  String? _processingApprovalKey;
   late ScrollController _scrollController;
 
   @override
@@ -53,7 +50,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      // Load more when user is 200 pixels from the bottom
       ref.read(approvalControllerProvider.notifier).loadMore();
     }
   }
@@ -92,9 +88,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                 ],
               ),
             ),
-            // Approvals list
             _buildApprovalsList(context, state, controller, colors),
-            // Loading more indicator
             if (state.isLoadingMore)
               SliverToBoxAdapter(
                 child: Padding(
@@ -105,8 +99,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   ),
                 ),
               ),
-            // End of list indicator
-            if (!state.hasMoreData && state.allActivities.isNotEmpty)
+            if (!state.hasMoreData && state.allApprovals.isNotEmpty)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -202,12 +195,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       );
     }
 
-    // When showing all, display grouped sections
     if (state.statusFilter == ApprovalFilterStatus.all) {
       return _buildGroupedList(context, state, controller, colors);
     }
 
-    // When filtering by specific status, show flat list
     return _buildFlatList(
       context,
       state.filteredApprovals,
@@ -226,7 +217,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
     final sections = <Widget>[];
     var sectionIndex = 0;
 
-    // Pending My Action section (shown first for prioritization)
     if (state.pendingMyAction.isNotEmpty) {
       sections.add(
         ApprovalReveal(
@@ -246,7 +236,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sectionIndex++;
     }
 
-    // Pending Others section
     if (state.pendingOthers.isNotEmpty) {
       sections.add(
         ApprovalReveal(
@@ -266,7 +255,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sectionIndex++;
     }
 
-    // Approved section
     if (state.approved.isNotEmpty) {
       sections.add(
         ApprovalReveal(
@@ -286,7 +274,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       sectionIndex++;
     }
 
-    // Rejected section
     if (state.rejected.isNotEmpty) {
       sections.add(
         ApprovalReveal(
@@ -321,7 +308,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
   Widget _buildSection(
     BuildContext context,
     String title,
-    List<Activity> activities,
+    List<ApprovalItem> items,
     ApprovalState state,
     ColorScheme colors,
     ApprovalController controller, {
@@ -333,7 +320,6 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header
           Row(
             children: [
               FaIcon(icon, size: 16.0, color: color),
@@ -348,7 +334,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                 ),
               ),
               Text(
-                '(${activities.length})',
+                '(${items.length})',
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: colors.onSurfaceVariant,
@@ -357,11 +343,10 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
             ],
           ),
           Gap.h8,
-          // Activity cards
-          ...activities.map(
-            (activity) => Padding(
+          ...items.map(
+            (item) => Padding(
               padding: EdgeInsets.only(bottom: 20.0),
-              child: _buildActivityCard(context, activity, state, controller),
+              child: _buildApprovalCard(context, item, state, controller),
             ),
           ),
         ],
@@ -371,12 +356,12 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
   Widget _buildFlatList(
     BuildContext context,
-    List<Activity> activities,
+    List<ApprovalItem> items,
     ApprovalState state,
     ApprovalController controller,
     ColorScheme colors,
   ) {
-    if (activities.isEmpty) {
+    if (items.isEmpty) {
       return SliverToBoxAdapter(
         child: ApprovalAnimatedPresence(
           visible: true,
@@ -387,111 +372,109 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
 
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-        final activity = activities[index];
+        final item = items[index];
         return ApprovalReveal(
-          key: ValueKey('approval-flat-${activity.id ?? index}'),
+          key: ValueKey('approval-flat-${item.uniqueKey}'),
           delay: Duration(milliseconds: 40 + (index * 40)),
           child: Padding(
             padding: EdgeInsets.only(bottom: 20.0),
-            child: _buildActivityCard(context, activity, state, controller),
+            child: _buildApprovalCard(context, item, state, controller),
           ),
         );
-      }, childCount: activities.length),
+      }, childCount: items.length),
     );
   }
 
-  Widget _buildActivityCard(
+  Widget _buildApprovalCard(
     BuildContext context,
-    Activity activity,
+    ApprovalItem item,
     ApprovalState state,
     ApprovalController controller,
   ) {
-    // Find the approver ID for the current user
     final currentUserApproverId = _findCurrentUserApproverId(
-      activity,
+      item,
       state.membership?.id,
     );
 
     return ApprovalCardWidget(
-      approval: activity,
+      approval: item,
       currentMembershipId: state.membership?.id,
-      isLoading: _processingActivityId == activity.id,
+      isLoading: _processingApprovalKey == item.uniqueKey,
       onTap: () async {
         final result = await context.pushNamed<bool>(
           AppRoute.approvalDetail,
           extra: RouteParam(
             params: {
-              'activityId': activity.id,
+              'approvalId': item.id,
+              'approvalType': item.subjectType.name,
               'currentMembershipId': state.membership?.id,
+              'activityId': item.isActivity ? item.id : item.linkedActivityId,
             },
           ),
         );
-        // Refresh the list if an action was taken in the detail screen
         if (result == true && mounted) {
           controller.refresh();
         }
       },
       onApprove: () async {
-        if (currentUserApproverId != null && activity.id != null) {
-          // Capture messenger before async gap
-          final l10n = context.l10n;
-          final messenger = ScaffoldMessenger.of(context);
-          // Show confirmation bottom sheet
-          final confirmed = await showApprovalConfirmationBottomSheet(
-            context: context,
-            isApprove: true,
-            activityTitle: activity.title,
-          );
-          if (confirmed != true || !mounted) return;
+        if (currentUserApproverId == null || item.id == null) {
+          return;
+        }
+        final l10n = context.l10n;
+        final messenger = ScaffoldMessenger.of(context);
+        final confirmed = await showApprovalConfirmationBottomSheet(
+          context: context,
+          isApprove: true,
+          activityTitle: item.title,
+        );
+        if (confirmed != true || !mounted) return;
 
-          setState(() => _processingActivityId = activity.id);
-          await controller.approveActivity(activity.id!, currentUserApproverId);
-          if (mounted) {
-            setState(() => _processingActivityId = null);
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(l10n.approval_snackbarApproved(activity.title)),
-                backgroundColor: AppColors.success.shade600,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
+        setState(() => _processingApprovalKey = item.uniqueKey);
+        await controller.approveItem(item, currentUserApproverId);
+        if (mounted) {
+          setState(() => _processingApprovalKey = null);
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.approval_snackbarApproved(item.title)),
+              backgroundColor: AppColors.success.shade600,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       },
       onReject: () async {
-        if (currentUserApproverId != null && activity.id != null) {
-          // Capture messenger before async gap
-          final l10n = context.l10n;
-          final messenger = ScaffoldMessenger.of(context);
-          // Show confirmation bottom sheet
-          final confirmed = await showApprovalConfirmationBottomSheet(
-            context: context,
-            isApprove: false,
-            activityTitle: activity.title,
-          );
-          if (confirmed != true || !mounted) return;
+        if (currentUserApproverId == null || item.id == null) {
+          return;
+        }
+        final l10n = context.l10n;
+        final messenger = ScaffoldMessenger.of(context);
+        final confirmed = await showApprovalConfirmationBottomSheet(
+          context: context,
+          isApprove: false,
+          activityTitle: item.title,
+        );
+        if (confirmed != true || !mounted) return;
 
-          setState(() => _processingActivityId = activity.id);
-          await controller.rejectActivity(activity.id!, currentUserApproverId);
-          if (mounted) {
-            setState(() => _processingActivityId = null);
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(l10n.approval_snackbarRejected(activity.title)),
-                backgroundColor: AppColors.error.shade500,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
+        setState(() => _processingApprovalKey = item.uniqueKey);
+        await controller.rejectItem(item, currentUserApproverId);
+        if (mounted) {
+          setState(() => _processingApprovalKey = null);
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.approval_snackbarRejected(item.title)),
+              backgroundColor: AppColors.error.shade500,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       },
     );
   }
 
-  int? _findCurrentUserApproverId(Activity activity, int? membershipId) {
+  int? _findCurrentUserApproverId(ApprovalItem item, int? membershipId) {
     if (membershipId == null) return null;
 
-    for (final approver in activity.approvers) {
+    for (final approver in item.approvers) {
       if (approver.membership?.id == membershipId &&
           approver.status == ApprovalStatus.unconfirmed) {
         return approver.id;
@@ -627,68 +610,61 @@ class _CombinedFilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Material(
-      color: hasActiveFilters ? colors.primary : AppColors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(16.0),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16.0),
-        onTap: onTap,
-        child: Container(
-          width: 56.0,
-          height: 56.0,
-          decoration: BoxDecoration(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Material(
+          color: hasActiveFilters
+              ? colors.primary.withValues(alpha: 0.12)
+              : AppColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16.0),
+          child: InkWell(
+            onTap: onTap,
             borderRadius: BorderRadius.circular(16.0),
-            border: Border.all(
-              color: hasActiveFilters
-                  ? colors.primary.withValues(alpha: 0.32)
-                  : AppColors.outlineVariant,
+            child: Container(
+              width: 52.0,
+              height: 48.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(
+                  color: hasActiveFilters
+                      ? colors.primary
+                      : AppColors.outlineVariant,
+                ),
+                boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
+              ),
+              alignment: Alignment.center,
+              child: FaIcon(
+                AppIcons.search,
+                size: 18.0,
+                color: hasActiveFilters
+                    ? colors.primary
+                    : colors.onSurfaceVariant,
+              ),
             ),
-            boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 10),
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Center(
-                child: Icon(
-                  AppIcons.filterList,
-                  size: 20.0,
-                  color: hasActiveFilters ? colors.onPrimary : colors.primary,
-                ),
-              ),
-              Positioned(
-                right: -4.0,
-                top: -4.0,
-                child: Container(
-                  constraints: BoxConstraints(minWidth: 22.0, minHeight: 22.0),
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: hasActiveFilters
-                        ? colors.onPrimary
-                        : AppColors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(999.0),
-                    border: Border.all(
-                      color: hasActiveFilters
-                          ? colors.primary.withValues(alpha: 0.18)
-                          : AppColors.outlineVariant,
-                    ),
-                    boxShadow: SanctuaryDepth.ambient(opacity: 0.02, blur: 8),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '$activeFilterCount',
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: hasActiveFilters
-                          ? colors.primary
-                          : colors.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
-      ),
+        if (activeFilterCount > 0)
+          Positioned(
+            top: -6,
+            right: -6,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+              decoration: BoxDecoration(
+                color: colors.primary,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: colors.surface, width: 2),
+              ),
+              child: Text(
+                '$activeFilterCount',
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                  color: colors.onPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

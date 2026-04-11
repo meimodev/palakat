@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat_shared/core/models/activity.dart';
-import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/extensions.dart';
 
@@ -71,14 +70,26 @@ class SupervisedActivityListItemWidget extends StatelessWidget {
                 ],
               ),
               Gap.h12,
-              // Bottom row: Activity type badge, Finance badge, and Approval status
+              // Bottom row: Activity type badge, Finance badges, and Approval status
               Wrap(
                 spacing: 8.0,
                 runSpacing: 8.0,
                 children: [
                   _ActivityTypeBadge(activityType: activity.activityType),
-                  if (activity.financeType != null)
-                    _FinanceBadge(financeType: activity.financeType!),
+                  if (activity.revenues.isNotEmpty ||
+                      activity.hasRevenue == true)
+                    _FinanceBadge(
+                      color: AppColors.success,
+                      icon: AppIcons.revenue,
+                      label: context.l10n.admin_revenue_title,
+                    ),
+                  if (activity.expenses.isNotEmpty ||
+                      activity.hasExpense == true)
+                    _FinanceBadge(
+                      color: AppColors.error,
+                      icon: AppIcons.expense,
+                      label: context.l10n.operationsItem_add_expense_title,
+                    ),
                   _ApprovalStatusBadge(activity: activity),
                 ],
               ),
@@ -178,15 +189,18 @@ class _ActivityTypeBadge extends StatelessWidget {
 
 /// Finance type badge (revenue/expense)
 class _FinanceBadge extends StatelessWidget {
-  const _FinanceBadge({required this.financeType});
+  const _FinanceBadge({
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
 
-  final FinanceType financeType;
+  final Color color;
+  final IconData icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    final isRevenue = financeType == FinanceType.revenue;
-    final color = isRevenue ? AppColors.success : AppColors.error;
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
       decoration: BoxDecoration(
@@ -198,10 +212,10 @@ class _FinanceBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(financeType.icon, size: 14.0, color: color),
+          Icon(icon, size: 14.0, color: color),
           Gap.w6,
           Text(
-            financeType.displayName,
+            label,
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
               color: color,
               fontWeight: FontWeight.w600,

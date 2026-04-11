@@ -1,5 +1,6 @@
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/models/models.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
 
 /// Filter status for approval screen grouping
 enum ApprovalFilterStatus {
@@ -15,12 +16,12 @@ class ApprovalState {
     this.membership,
     this.loadingScreen = true,
     this.isRefreshing = false,
-    this.allActivities = const <Activity>[],
+    this.allApprovals = const <ApprovalItem>[],
     // Status-based grouping
-    this.pendingMyAction = const <Activity>[],
-    this.pendingOthers = const <Activity>[],
-    this.approved = const <Activity>[],
-    this.rejected = const <Activity>[],
+    this.pendingMyAction = const <ApprovalItem>[],
+    this.pendingOthers = const <ApprovalItem>[],
+    this.approved = const <ApprovalItem>[],
+    this.rejected = const <ApprovalItem>[],
     // Date filter fields
     this.filterStartDate,
     this.filterEndDate,
@@ -28,7 +29,7 @@ class ApprovalState {
     // Status filter
     this.statusFilter = ApprovalFilterStatus.pendingMyAction,
     // Computed/derived list based on filters
-    this.filteredApprovals = const <Activity>[],
+    this.filteredApprovals = const <ApprovalItem>[],
     this.errorMessage,
     // Pagination fields
     this.currentPage = 1,
@@ -43,16 +44,16 @@ class ApprovalState {
   final Membership? membership;
   final bool loadingScreen;
   final bool isRefreshing;
-  final List<Activity> allActivities;
-  final List<Activity> pendingMyAction;
-  final List<Activity> pendingOthers;
-  final List<Activity> approved;
-  final List<Activity> rejected;
+  final List<ApprovalItem> allApprovals;
+  final List<ApprovalItem> pendingMyAction;
+  final List<ApprovalItem> pendingOthers;
+  final List<ApprovalItem> approved;
+  final List<ApprovalItem> rejected;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
   final DateRangePreset datePreset;
   final ApprovalFilterStatus statusFilter;
-  final List<Activity> filteredApprovals;
+  final List<ApprovalItem> filteredApprovals;
   final String? errorMessage;
   final int currentPage;
   final int pageSize;
@@ -77,16 +78,16 @@ class ApprovalState {
     Object? membership = _unset,
     bool? loadingScreen,
     bool? isRefreshing,
-    List<Activity>? allActivities,
-    List<Activity>? pendingMyAction,
-    List<Activity>? pendingOthers,
-    List<Activity>? approved,
-    List<Activity>? rejected,
+    List<ApprovalItem>? allApprovals,
+    List<ApprovalItem>? pendingMyAction,
+    List<ApprovalItem>? pendingOthers,
+    List<ApprovalItem>? approved,
+    List<ApprovalItem>? rejected,
     Object? filterStartDate = _unset,
     Object? filterEndDate = _unset,
     DateRangePreset? datePreset,
     ApprovalFilterStatus? statusFilter,
-    List<Activity>? filteredApprovals,
+    List<ApprovalItem>? filteredApprovals,
     Object? errorMessage = _unset,
     int? currentPage,
     int? pageSize,
@@ -100,7 +101,7 @@ class ApprovalState {
           : membership as Membership?,
       loadingScreen: loadingScreen ?? this.loadingScreen,
       isRefreshing: isRefreshing ?? this.isRefreshing,
-      allActivities: allActivities ?? this.allActivities,
+      allApprovals: allApprovals ?? this.allApprovals,
       pendingMyAction: pendingMyAction ?? this.pendingMyAction,
       pendingOthers: pendingOthers ?? this.pendingOthers,
       approved: approved ?? this.approved,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/core/widgets/widgets.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
-import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/extensions.dart';
 
 class ApprovalFilterSheetResult {
@@ -77,7 +76,8 @@ class _ApprovalFilterBottomSheetContentState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final shouldStackActions = MediaQuery.sizeOf(context).width < 420 ||
+    final shouldStackActions =
+        MediaQuery.sizeOf(context).width < 420 ||
         MediaQuery.textScalerOf(context).scale(1) > 1.1;
 
     return Align(
@@ -228,10 +228,7 @@ class _ApprovalFilterBottomSheetContentState
         lastDate: DateTime(2100),
         locale: Localizations.localeOf(context),
         initialDateRange: _selectedStartDate != null && _selectedEndDate != null
-            ? DateTimeRange(
-                start: _selectedStartDate!,
-                end: _selectedEndDate!,
-              )
+            ? DateTimeRange(start: _selectedStartDate!, end: _selectedEndDate!)
             : null,
       );
       if (picked == null) return;
@@ -284,7 +281,8 @@ class _ApprovalFilterBottomSheetContentState
     }
 
     final range = switch (preset) {
-      DateRangePreset.custom when _selectedStartDate != null && _selectedEndDate != null =>
+      DateRangePreset.custom
+          when _selectedStartDate != null && _selectedEndDate != null =>
         DateTimeRange(start: _selectedStartDate!, end: _selectedEndDate!),
       _ => preset.getDateRange(),
     };

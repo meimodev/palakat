@@ -50,12 +50,12 @@ void main() {
       const state = ApprovalState();
       expect(state.loadingScreen, isTrue);
       expect(state.isRefreshing, isFalse);
-      expect(state.allActivities, isEmpty);
+      expect(state.allApprovals, isEmpty);
       expect(state.pendingMyAction, isEmpty);
       expect(state.pendingOthers, isEmpty);
       expect(state.approved, isEmpty);
       expect(state.rejected, isEmpty);
-      expect(state.statusFilter, equals(ApprovalFilterStatus.all));
+      expect(state.statusFilter, equals(ApprovalFilterStatus.pendingMyAction));
       expect(state.filteredApprovals, isEmpty);
       expect(state.errorMessage, isNull);
       expect(state.membership, isNull);
@@ -326,10 +326,7 @@ Widget _buildSectionHeader(
           ),
           child: Text(
             count.toString(),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: color),
           ),
         ),
       ],

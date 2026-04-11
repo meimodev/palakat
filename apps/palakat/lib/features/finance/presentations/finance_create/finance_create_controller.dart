@@ -127,9 +127,6 @@ class FinanceCreateController extends _$FinanceCreateController {
   /// Validates that an activity is selected (only for standalone mode).
   /// Requirements: 4.1
   String? validateActivity(Activity? value) {
-    if (state.isStandalone && value == null) {
-      return 'Activity is required';
-    }
     return null;
   }
 

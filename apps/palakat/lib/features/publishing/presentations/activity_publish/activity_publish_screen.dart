@@ -1251,14 +1251,24 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
       icon: AppIcons.accountBalanceWalletOutlined,
       subtitle: context.l10n.publish_financialRecordSubtitle,
       children: [
-        if (state.attachedFinance == null)
-          _buildAddFinanceButton(controller, context)
-        else
-          FinanceSummaryCard(
-            financeData: state.attachedFinance!,
-            onRemove: () => _handleRemoveFinance(controller, context),
-            onEdit: () => _handleEditFinance(state, controller, context),
-          ),
+        if (state.attachedFinances.isNotEmpty)
+          ...List.generate(state.attachedFinances.length, (index) {
+            final finance = state.attachedFinances[index];
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == state.attachedFinances.length - 1 ? 0 : 12.0,
+              ),
+              child: FinanceSummaryCard(
+                financeData: finance,
+                onRemove: () =>
+                    _handleRemoveFinance(controller, context, index),
+                onEdit: () =>
+                    _handleEditFinance(state, controller, context, index),
+              ),
+            );
+          }),
+        if (state.attachedFinances.isNotEmpty) Gap.h12,
+        _buildAddFinanceButton(controller, context),
       ],
     );
   }
@@ -1334,7 +1344,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     if (financeData != null && mounted) {
       ref
           .read(activityPublishControllerProvider(widget.type).notifier)
-          .onAttachedFinance(financeData);
+          .addAttachedFinance(financeData);
     }
   }
 
@@ -1344,9 +1354,10 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     ActivityPublishState state,
     ActivityPublishController controller,
     BuildContext context,
+    int index,
   ) async {
-    final currentFinance = state.attachedFinance;
-    if (currentFinance == null) return;
+    if (index < 0 || index >= state.attachedFinances.length) return;
+    final currentFinance = state.attachedFinances[index];
 
     // Navigate to Finance Create Screen with current finance data for pre-population
     // Requirements: 1.1, 1.2, 1.3 - Pass existing finance data as initialData
@@ -1364,7 +1375,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     if (financeData != null && mounted) {
       ref
           .read(activityPublishControllerProvider(widget.type).notifier)
-          .onAttachedFinance(financeData);
+          .updateAttachedFinance(index, financeData);
     }
   }
 
@@ -1373,6 +1384,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
   Future<void> _handleRemoveFinance(
     ActivityPublishController controller,
     BuildContext context,
+    int index,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -1396,7 +1408,7 @@ class _ActivityPublishScreenState extends ConsumerState<ActivityPublishScreen> {
     if (confirmed == true && mounted) {
       ref
           .read(activityPublishControllerProvider(widget.type).notifier)
-          .removeAttachedFinance();
+          .removeAttachedFinanceAt(index);
     }
   }
 }

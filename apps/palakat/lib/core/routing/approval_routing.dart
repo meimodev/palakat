@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:palakat/core/routing/app_routing.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
+import 'package:palakat/features/approval/presentations/finance_approval_detail_screen.dart';
 import 'package:palakat/features/presentation.dart';
+import 'package:palakat_shared/models.dart';
 import 'package:palakat/features/approval/presentations/approval_detail_screen.dart';
 
 final approvalRouting = GoRoute(
@@ -53,19 +56,42 @@ final approvalRouting = GoRoute(
       pageBuilder: (context, state) {
         final extra = state.extra as RouteParam?;
         final params = extra?.params ?? const <String, dynamic>{};
+        final approvalId = params['approvalId'] as int?;
+        final approvalTypeName = params['approvalType'] as String?;
         final activityId = params['activityId'] as int?;
         final currentMembershipId = params['currentMembershipId'] as int?;
+        ApprovalSubjectType? approvalType;
+        if (approvalTypeName != null) {
+          for (final value in ApprovalSubjectType.values) {
+            if (value.name == approvalTypeName) {
+              approvalType = value;
+              break;
+            }
+          }
+        }
         final mediaQuery = MediaQuery.maybeOf(context);
         final reduceMotion =
             (mediaQuery?.disableAnimations ?? false) ||
             (mediaQuery?.accessibleNavigation ?? false);
 
-        final child = activityId == null
-            ? const ApprovalScreen()
-            : ApprovalDetailScreen(
-                activityId: activityId,
-                currentMembershipId: currentMembershipId,
-              );
+        final child =
+            approvalType == ApprovalSubjectType.revenue ||
+                approvalType == ApprovalSubjectType.expense
+            ? (approvalId == null
+                  ? const ApprovalScreen()
+                  : FinanceApprovalDetailScreen(
+                      financeId: approvalId,
+                      financeType: approvalType == ApprovalSubjectType.revenue
+                          ? FinanceEntryType.revenue
+                          : FinanceEntryType.expense,
+                      currentMembershipId: currentMembershipId,
+                    ))
+            : (activityId == null && approvalId == null
+                  ? const ApprovalScreen()
+                  : ApprovalDetailScreen(
+                      activityId: activityId ?? approvalId!,
+                      currentMembershipId: currentMembershipId,
+                    ));
 
         return CustomTransitionPage<void>(
           key: state.pageKey,

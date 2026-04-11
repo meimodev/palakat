@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
 import 'package:palakat/features/approval/presentations/approval_state.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/models/models.dart';
@@ -15,6 +16,8 @@ class ApprovalController extends _$ApprovalController {
       ref.read(activityRepositoryProvider);
   ApproverRepository get _approverRepository =>
       ref.read(approverRepositoryProvider);
+  FinanceRepository get _financeRepository =>
+      ref.read(financeRepositoryProvider);
 
   @override
   ApprovalState build() {
@@ -68,6 +71,12 @@ class ApprovalController extends _$ApprovalController {
         eventName == 'activity.deleted';
   }
 
+  bool _isFinanceEventName(String eventName) {
+    return eventName == 'finance.created' ||
+        eventName == 'finance.updated' ||
+        eventName == 'finance.deleted';
+  }
+
   Map<String, dynamic>? _extractEventData(RealtimeEvent event) {
     final data = event.payload['data'];
     if (data is Map<String, dynamic>) {
@@ -93,7 +102,7 @@ class ApprovalController extends _$ApprovalController {
   }
 
   bool _shouldRefreshForRealtimeEvent(RealtimeEvent event) {
-    if (!_isActivityEventName(event.name)) {
+    if (!_isActivityEventName(event.name) && !_isFinanceEventName(event.name)) {
       return false;
     }
 
@@ -117,7 +126,7 @@ class ApprovalController extends _$ApprovalController {
       isLoadingMore: false,
     );
 
-    await fetchActivities(isLoadMore: false);
+    await fetchApprovals(isLoadMore: false);
   }
 
   ApprovalState _createInitialState() {
@@ -132,7 +141,7 @@ class ApprovalController extends _$ApprovalController {
 
   void fetchData() async {
     await fetchMembership();
-    await fetchActivities();
+    await fetchApprovals();
   }
 
   Future<void> fetchMembership() async {
@@ -150,25 +159,23 @@ class ApprovalController extends _$ApprovalController {
     );
   }
 
-  /// Fetch activities from the API and group them by status
-  /// [isLoadMore] - if true, appends to existing list; if false, replaces list
-  Future<void> fetchActivities({bool isLoadMore = false}) async {
+  Future<void> fetchApprovals({bool isLoadMore = false}) async {
     final membership = state.membership;
     if (membership == null) {
       state = state.copyWith(loadingScreen: false);
       return;
     }
 
-    // Don't fetch if already loading more or no more data
-    if (isLoadMore && (state.isLoadingMore || !state.hasMoreData)) return;
+    if (isLoadMore && (state.isLoadingMore || !state.hasMoreData)) {
+      return;
+    }
 
     if (isLoadMore) {
       state = state.copyWith(isLoadingMore: true);
     }
 
     final page = isLoadMore ? state.currentPage + 1 : 1;
-
-    final request = PaginationRequestWrapper<GetFetchActivitiesRequest>(
+    final activityRequest = PaginationRequestWrapper<GetFetchActivitiesRequest>(
       page: page,
       pageSize: state.pageSize,
       data: GetFetchActivitiesRequest(
@@ -177,79 +184,130 @@ class ApprovalController extends _$ApprovalController {
         endDate: state.filterEndDate,
       ),
     );
+    final financeRequest =
+        PaginationRequestWrapper<GetFetchFinanceEntriesRequest>(
+          page: page,
+          pageSize: state.pageSize,
+          data: GetFetchFinanceEntriesRequest(
+            startDate: state.filterStartDate,
+            endDate: state.filterEndDate,
+          ),
+        );
 
-    final result = await _activityRepository.fetchActivities(
-      paginationRequest: request,
+    final activityResult = await _activityRepository.fetchActivities(
+      paginationRequest: activityRequest,
+    );
+    final financeResult = await _financeRepository.fetchApprovalFinanceEntries(
+      paginationRequest: financeRequest,
     );
 
-    result.when(
+    PaginationResponseWrapper<Activity>? activityResponse;
+    PaginationResponseWrapper<FinanceEntry>? financeResponse;
+    Failure? failure;
+
+    activityResult.when(
       onSuccess: (response) {
-        final newActivities = response.data;
-        final total = response.pagination.total;
-
-        // Determine if there's more data to load
-        final hasMore = response.pagination.hasNext;
-
-        List<Activity> updatedActivities;
-        if (isLoadMore) {
-          // Append new activities to existing list
-          updatedActivities = [...state.allActivities, ...newActivities];
-        } else {
-          // Replace with new activities
-          updatedActivities = newActivities;
-        }
-
-        state = state.copyWith(
-          allActivities: updatedActivities,
-          loadingScreen: false,
-          isLoadingMore: false,
-          currentPage: page,
-          totalItems: total,
-          hasMoreData: hasMore,
-          errorMessage: null,
-        );
-        _groupActivitiesByStatus();
-        _applyFilters();
+        activityResponse = response;
       },
-      onFailure: (failure) {
-        state = state.copyWith(
-          loadingScreen: false,
-          isLoadingMore: false,
-          errorMessage: failure.message,
-        );
+      onFailure: (err) {
+        failure = err;
       },
     );
+    financeResult.when(
+      onSuccess: (response) {
+        financeResponse = response;
+      },
+      onFailure: (err) {
+        failure ??= err;
+      },
+    );
+
+    if (failure != null ||
+        activityResponse == null ||
+        financeResponse == null) {
+      state = state.copyWith(
+        loadingScreen: false,
+        isLoadingMore: false,
+        errorMessage: failure?.message ?? 'Failed to load approvals',
+      );
+      return;
+    }
+
+    final newItems = <ApprovalItem>[
+      ...activityResponse!.data.map(ApprovalItem.activity),
+      ...financeResponse!.data.map(ApprovalItem.finance),
+    ];
+
+    List<ApprovalItem> updatedItems;
+    if (isLoadMore) {
+      updatedItems = _dedupeApprovalItems([...state.allApprovals, ...newItems]);
+    } else {
+      updatedItems = _dedupeApprovalItems(newItems);
+    }
+    updatedItems.sort(_compareApprovalItems);
+
+    state = state.copyWith(
+      allApprovals: updatedItems,
+      loadingScreen: false,
+      isLoadingMore: false,
+      currentPage: page,
+      totalItems:
+          activityResponse!.pagination.total +
+          financeResponse!.pagination.total,
+      hasMoreData:
+          activityResponse!.pagination.hasNext ||
+          financeResponse!.pagination.hasNext,
+      errorMessage: null,
+    );
+    _groupApprovalsByStatus();
+    _applyFilters();
   }
 
-  /// Load more activities for infinite scrolling
+  List<ApprovalItem> _dedupeApprovalItems(List<ApprovalItem> items) {
+    final map = <String, ApprovalItem>{};
+    for (final item in items) {
+      map[item.uniqueKey] = item;
+    }
+    return map.values.toList(growable: false);
+  }
+
+  int _compareApprovalItems(ApprovalItem a, ApprovalItem b) {
+    final aDate = a.updatedAtValue ?? a.createdAtValue ?? a.displayDate;
+    final bDate = b.updatedAtValue ?? b.createdAtValue ?? b.displayDate;
+
+    if (aDate == null && bDate == null) return 0;
+    if (aDate == null) return 1;
+    if (bDate == null) return -1;
+    return bDate.compareTo(aDate);
+  }
+
   Future<void> loadMore() async {
-    await fetchActivities(isLoadMore: true);
+    await fetchApprovals(isLoadMore: true);
   }
 
-  /// Group activities by their approval status relative to the current user
-  void _groupActivitiesByStatus() {
+  void _groupApprovalsByStatus() {
     final membership = state.membership;
     if (membership == null) return;
 
-    final pendingMyAction = <Activity>[];
-    final pendingOthers = <Activity>[];
-    final approved = <Activity>[];
-    final rejected = <Activity>[];
+    final pendingMyAction = <ApprovalItem>[];
+    final pendingOthers = <ApprovalItem>[];
+    final approved = <ApprovalItem>[];
+    final rejected = <ApprovalItem>[];
 
-    for (final activity in state.allActivities) {
-      final status = _getActivityStatusForUser(activity, membership.id);
+    for (final item in state.allApprovals) {
+      final status = _getApprovalStatusForUser(item, membership.id);
       switch (status) {
-        case _ActivityUserStatus.pendingMyAction:
-          pendingMyAction.add(activity);
+        case _ApprovalUserStatus.pendingMyAction:
+          pendingMyAction.add(item);
           break;
-        case _ActivityUserStatus.pendingOthers:
-          pendingOthers.add(activity);
+        case _ApprovalUserStatus.pendingOthers:
+          pendingOthers.add(item);
           break;
-        case _ActivityUserStatus.approved:
-          approved.add(activity);
+        case _ApprovalUserStatus.approved:
+          approved.add(item);
           break;
-        case _ActivityUserStatus.rejected:
-          rejected.add(activity);
+        case _ApprovalUserStatus.rejected:
+          rejected.add(item);
           break;
       }
     }
@@ -262,33 +320,29 @@ class ApprovalController extends _$ApprovalController {
     );
   }
 
-  /// Determine the status of an activity for the current user
-  _ActivityUserStatus _getActivityStatusForUser(
-    Activity activity,
+  _ApprovalUserStatus _getApprovalStatusForUser(
+    ApprovalItem item,
     int? membershipId,
   ) {
-    final approvers = activity.approvers;
+    final approvers = item.approvers;
     if (approvers.isEmpty) {
-      return _ActivityUserStatus.pendingOthers;
+      return _ApprovalUserStatus.pendingOthers;
     }
 
-    // Check if any approver has rejected
     final hasRejection = approvers.any(
       (a) => a.status == ApprovalStatus.rejected,
     );
     if (hasRejection) {
-      return _ActivityUserStatus.rejected;
+      return _ApprovalUserStatus.rejected;
     }
 
-    // Check if all approvers have approved
     final allApproved = approvers.every(
       (a) => a.status == ApprovalStatus.approved,
     );
     if (allApproved) {
-      return _ActivityUserStatus.approved;
+      return _ApprovalUserStatus.approved;
     }
 
-    // Check if current user has pending action
     final userApprover = approvers.firstWhere(
       (a) => a.membership?.id == membershipId,
       orElse: () => const Approver(
@@ -301,10 +355,10 @@ class ApprovalController extends _$ApprovalController {
 
     if (userApprover.id != -1 &&
         userApprover.status == ApprovalStatus.unconfirmed) {
-      return _ActivityUserStatus.pendingMyAction;
+      return _ApprovalUserStatus.pendingMyAction;
     }
 
-    return _ActivityUserStatus.pendingOthers;
+    return _ApprovalUserStatus.pendingOthers;
   }
 
   Future<void> applyFilters({
@@ -336,34 +390,30 @@ class ApprovalController extends _$ApprovalController {
     }
 
     state = state.copyWith(loadingScreen: true);
-    await fetchActivities(isLoadMore: false);
+    await fetchApprovals(isLoadMore: false);
   }
 
-  /// Set the status filter and update the filtered list
   void setStatusFilter(ApprovalFilterStatus status) {
     state = state.copyWith(statusFilter: status);
     _applyFilters();
   }
 
-  /// Refresh the activity list (for pull-to-refresh)
   Future<void> refresh() async {
     state = state.copyWith(
       isRefreshing: true,
       currentPage: 1,
       hasMoreData: true,
     );
-    await fetchActivities(isLoadMore: false);
+    await fetchApprovals(isLoadMore: false);
     state = state.copyWith(isRefreshing: false);
   }
 
   void _applyFilters() {
     final statusFilter = state.statusFilter;
 
-    // Get the base list based on status filter
-    List<Activity> baseList;
+    List<ApprovalItem> baseList;
     switch (statusFilter) {
       case ApprovalFilterStatus.all:
-        // Combine all lists with pending my action first
         baseList = [
           ...state.pendingMyAction,
           ...state.pendingOthers,
@@ -402,17 +452,21 @@ class ApprovalController extends _$ApprovalController {
   DateTime _atEndOfDay(DateTime d) =>
       DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
 
-  /// Approve an activity by updating the approver status
-  Future<void> approveActivity(int activityId, int approverId) async {
-    final result = await _approverRepository.updateApprover(
-      approverId: approverId,
-      update: {'status': 'APPROVED'},
-    );
+  Future<void> approveItem(ApprovalItem item, int approverId) async {
+    final result = item.isActivity
+        ? await _approverRepository.updateApprover(
+            approverId: approverId,
+            update: {'status': 'APPROVED'},
+          )
+        : await _financeRepository.updateFinanceApprover(
+            approverId: approverId,
+            type: item.financeEntry!.type,
+            status: ApprovalStatus.approved,
+          );
 
     result.when(
       onSuccess: (_) {
-        // Refresh the activity list after approval
-        fetchActivities();
+        fetchApprovals();
       },
       onFailure: (failure) {
         state = state.copyWith(errorMessage: failure.message);
@@ -420,17 +474,21 @@ class ApprovalController extends _$ApprovalController {
     );
   }
 
-  /// Reject an activity by updating the approver status
-  Future<void> rejectActivity(int activityId, int approverId) async {
-    final result = await _approverRepository.updateApprover(
-      approverId: approverId,
-      update: {'status': 'REJECTED'},
-    );
+  Future<void> rejectItem(ApprovalItem item, int approverId) async {
+    final result = item.isActivity
+        ? await _approverRepository.updateApprover(
+            approverId: approverId,
+            update: {'status': 'REJECTED'},
+          )
+        : await _financeRepository.updateFinanceApprover(
+            approverId: approverId,
+            type: item.financeEntry!.type,
+            status: ApprovalStatus.rejected,
+          );
 
     result.when(
       onSuccess: (_) {
-        // Refresh the activity list after rejection
-        fetchActivities();
+        fetchApprovals();
       },
       onFailure: (failure) {
         state = state.copyWith(errorMessage: failure.message);
@@ -443,5 +501,4 @@ class ApprovalController extends _$ApprovalController {
   }
 }
 
-/// Internal enum for activity status relative to current user
-enum _ActivityUserStatus { pendingMyAction, pendingOthers, approved, rejected }
+enum _ApprovalUserStatus { pendingMyAction, pendingOthers, approved, rejected }

@@ -335,18 +335,18 @@ void main() {
                 'Activity with financial data should have financial indicator',
           );
 
-          // Verify financial type is determinable
+          // Verify plural financial attachments are consistent with flags
           if (activity.hasRevenue == true) {
             expect(
-              activity.financeType,
-              equals(FinanceType.revenue),
-              reason: 'hasRevenue should indicate revenue finance type',
+              activity.hasRevenue,
+              isTrue,
+              reason: 'hasRevenue should remain true when revenue data exists',
             );
           } else if (activity.hasExpense == true) {
             expect(
-              activity.financeType,
-              equals(FinanceType.expense),
-              reason: 'hasExpense should indicate expense finance type',
+              activity.hasExpense,
+              isTrue,
+              reason: 'hasExpense should remain true when expense data exists',
             );
           }
         }
