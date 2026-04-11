@@ -262,34 +262,45 @@ async function cleanDatabase() {
   console.log('🧹 Cleaning existing data...');
   // Use type assertion to handle Prisma client types that may not be regenerated yet
   const p = prisma as any;
-  await prisma.$transaction([
-    p.articleLike.deleteMany(),
-    p.article.deleteMany(),
-    prisma.approver.deleteMany(),
-    (prisma as any).revenueApprover.deleteMany(),
-    (prisma as any).expenseApprover.deleteMany(),
-    prisma.revenue.deleteMany(),
-    prisma.expense.deleteMany(),
-    p.financialAccountNumber.deleteMany(),
-    prisma.activity.deleteMany(),
-    p.reportJob.deleteMany(),
-    prisma.report.deleteMany(),
-    prisma.document.deleteMany(),
-    prisma.fileManager.deleteMany(),
-    prisma.songPart.deleteMany(),
-    prisma.song.deleteMany(),
-    prisma.approvalRule.deleteMany(),
-    prisma.membershipPosition.deleteMany(),
-    p.membershipInvitation.deleteMany(),
-    prisma.membership.deleteMany(),
-    prisma.churchRequest.deleteMany(),
-    prisma.column.deleteMany(),
-    prisma.church.deleteMany(),
-    prisma.account.deleteMany(),
-    prisma.location.deleteMany(),
-  ]);
+
+  // Delete in strict FK dependency order (leaf → root).
+  // A batch $transaction([...]) does NOT guarantee execution order, which can
+  // cause FK violations when a parent is deleted before its children.
+  await p.articleLike.deleteMany();
+  await p.article.deleteMany();
+
+  await prisma.approver.deleteMany();
+  await p.revenueApprover.deleteMany();
+  await p.expenseApprover.deleteMany();
+  await prisma.revenue.deleteMany();
+  await prisma.expense.deleteMany();
+  await p.financialAccountNumber.deleteMany();
+
+  await prisma.activity.deleteMany();
+
+  await p.reportJob.deleteMany();
+  await prisma.report.deleteMany();
+  await prisma.document.deleteMany();
+  await prisma.fileManager.deleteMany();
+
+  await prisma.songPart.deleteMany();
+  await prisma.song.deleteMany();
+
+  await prisma.approvalRule.deleteMany();
+  await prisma.membershipPosition.deleteMany();
+  await p.membershipInvitation.deleteMany();
+  await prisma.membership.deleteMany();
+
+  await prisma.churchRequest.deleteMany();
+  await prisma.column.deleteMany();
+  await prisma.church.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.location.deleteMany();
+  await prisma.region.deleteMany();
+
   console.log('✅ Database cleaned');
 }
+
 
 async function seedArticles() {
   const p = prisma as any;
