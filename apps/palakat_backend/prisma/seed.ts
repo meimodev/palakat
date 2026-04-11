@@ -428,8 +428,18 @@ async function seedCongregationsAndFinances(passwordHash: string) {
     for (const fin of finAccountsData) {
       const finType =
         fin.type === 'EXPENSE' ? FinancialType.EXPENSE : FinancialType.REVENUE;
-      const finAcc = await (prisma as any).financialAccountNumber.create({
-        data: {
+      const finAcc = await (prisma as any).financialAccountNumber.upsert({
+        where: {
+          churchId_accountNumber: {
+            churchId: church.id,
+            accountNumber: fin.accountNumber,
+          },
+        },
+        update: {
+          description: fin.description,
+          type: finType,
+        },
+        create: {
           accountNumber: fin.accountNumber,
           description: fin.description,
           type: finType,
@@ -539,476 +549,275 @@ async function seedCongregationsAndFinances(passwordHash: string) {
 }
 
 /**
- * Defines all approval rule variations to be seeded.
- * Each variation represents a different combination of activityType, financialType,
- * and whether a specific financial account should be linked.
+ * Canonical approval rule set — completely deterministic.
  *
- * Rule Types:
- * 1. Generic (fallback) - no filters, catches all unmatched activities
- * 2. Activity Type Only - SERVICE, EVENT, ANNOUNCEMENT
- * 3. Financial Type Only - REVENUE, EXPENSE (without specific account)
- * 4. Financial Type + Account - REVENUE/EXPENSE with specific account
- * 5. Activity Type + Financial Type - combinations for specific scenarios
+ * Rule categories:
+ * 1. SERVICE + bipra  – for each bipra group (PKB, WKI, PMD, RMJ, ASM)
+ * 2. SERVICE generic  – fallback for SERVICE activities with no bipra
+ * 3. EVENT            – all event activities
+ * 4. ANNOUNCEMENT     – all announcements
+ * 5. REVENUE          – all revenue records
+ * 6. EXPENSE          – all expense records
+ * 7. Generic fallback – catches everything else (no activityType, no financialType)
  */
-interface ApprovalRuleVariation {
+interface CanonicalRuleSpec {
   name: string;
   description: string;
   activityType: ActivityType | null;
   financialType: FinancialType | null;
-  needsFinancialAccount: boolean;
-  financialAccountType?: 'income' | 'expense';
-  active: boolean;
+  bipra: Bipra | null;
+  positionName: string; // exact position name to link
 }
 
-const APPROVAL_RULE_VARIATIONS: ApprovalRuleVariation[] = [
-  // 1. Generic fallback rule (catches all unmatched activities)
+const CANONICAL_RULE_SPECS: CanonicalRuleSpec[] = [
+  // 1. SERVICE + bipra rules
   {
-    name: 'Persetujuan Umum',
-    description:
-      'Aturan persetujuan umum untuk semua kegiatan tanpa aturan khusus',
-    activityType: null,
-    financialType: null,
-    needsFinancialAccount: false,
-    active: true,
-  },
-
-  // 2. Activity Type Only rules
-  {
-    name: 'Persetujuan Ibadah',
-    description: 'Aturan persetujuan untuk kegiatan ibadah/pelayanan',
+    name: 'Persetujuan Ibadah PKB',
+    description: 'Aturan persetujuan untuk ibadah Persekutuan Kaum Bapak',
     activityType: ActivityType.SERVICE,
     financialType: null,
-    needsFinancialAccount: false,
-    active: true,
+    bipra: Bipra.PKB,
+    positionName: 'Ketua Jemaat',
   },
+  {
+    name: 'Persetujuan Ibadah WKI',
+    description: 'Aturan persetujuan untuk ibadah Wanita Kaum Ibu',
+    activityType: ActivityType.SERVICE,
+    financialType: null,
+    bipra: Bipra.WKI,
+    positionName: 'Ketua Jemaat',
+  },
+  {
+    name: 'Persetujuan Ibadah PMD',
+    description: 'Aturan persetujuan untuk ibadah Pemuda',
+    activityType: ActivityType.SERVICE,
+    financialType: null,
+    bipra: Bipra.PMD,
+    positionName: 'Ketua Jemaat',
+  },
+  {
+    name: 'Persetujuan Ibadah RMJ',
+    description: 'Aturan persetujuan untuk ibadah Remaja',
+    activityType: ActivityType.SERVICE,
+    financialType: null,
+    bipra: Bipra.RMJ,
+    positionName: 'Ketua Jemaat',
+  },
+  {
+    name: 'Persetujuan Ibadah ASM',
+    description: 'Aturan persetujuan untuk ibadah Anak Sekolah Minggu',
+    activityType: ActivityType.SERVICE,
+    financialType: null,
+    bipra: Bipra.ASM,
+    positionName: 'Ketua Jemaat',
+  },
+
+  // 2. SERVICE generic (no bipra)
+  {
+    name: 'Persetujuan Ibadah Umum',
+    description: 'Aturan persetujuan umum untuk kegiatan ibadah',
+    activityType: ActivityType.SERVICE,
+    financialType: null,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
+  },
+
+  // 3. EVENT
   {
     name: 'Persetujuan Acara',
     description: 'Aturan persetujuan untuk acara dan kegiatan khusus',
     activityType: ActivityType.EVENT,
     financialType: null,
-    needsFinancialAccount: false,
-    active: true,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
   },
+
+  // 4. ANNOUNCEMENT
   {
     name: 'Persetujuan Pengumuman',
     description: 'Aturan persetujuan untuk pengumuman gereja',
     activityType: ActivityType.ANNOUNCEMENT,
     financialType: null,
-    needsFinancialAccount: false,
-    active: true,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
   },
 
-  // 3. Financial Type Only rules (without specific account)
+  // 5. REVENUE
   {
-    name: 'Persetujuan Pendapatan Umum',
-    description: 'Aturan persetujuan untuk semua pendapatan tanpa akun khusus',
+    name: 'Persetujuan Pendapatan',
+    description: 'Aturan persetujuan untuk semua penerimaan keuangan',
     activityType: null,
     financialType: FinancialType.REVENUE,
-    needsFinancialAccount: false,
-    active: true,
-  },
-  {
-    name: 'Persetujuan Pengeluaran Umum',
-    description: 'Aturan persetujuan untuk semua pengeluaran tanpa akun khusus',
-    activityType: null,
-    financialType: FinancialType.EXPENSE,
-    needsFinancialAccount: false,
-    active: true,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
   },
 
-  // 4. Financial Type + Specific Account rules
+  // 6. EXPENSE
   {
-    name: 'Persetujuan Persembahan',
-    description:
-      'Aturan persetujuan untuk pendapatan persembahan dengan akun khusus',
-    activityType: null,
-    financialType: FinancialType.REVENUE,
-    needsFinancialAccount: true,
-    financialAccountType: 'income',
-    active: true,
-  },
-  {
-    name: 'Persetujuan Sumbangan',
-    description:
-      'Aturan persetujuan untuk pendapatan sumbangan dengan akun khusus',
-    activityType: null,
-    financialType: FinancialType.REVENUE,
-    needsFinancialAccount: true,
-    financialAccountType: 'income',
-    active: true,
-  },
-  {
-    name: 'Persetujuan Biaya Operasional',
-    description:
-      'Aturan persetujuan untuk pengeluaran operasional dengan akun khusus',
+    name: 'Persetujuan Pengeluaran',
+    description: 'Aturan persetujuan untuk semua pengeluaran keuangan',
     activityType: null,
     financialType: FinancialType.EXPENSE,
-    needsFinancialAccount: true,
-    financialAccountType: 'expense',
-    active: true,
-  },
-  {
-    name: 'Persetujuan Biaya Pelayanan',
-    description:
-      'Aturan persetujuan untuk pengeluaran pelayanan dengan akun khusus',
-    activityType: null,
-    financialType: FinancialType.EXPENSE,
-    needsFinancialAccount: true,
-    financialAccountType: 'expense',
-    active: true,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
   },
 
-  // 5. Activity Type + Financial Type combinations
+  // 7. Generic fallback
   {
-    name: 'Persetujuan Pendapatan Ibadah',
-    description: 'Aturan persetujuan untuk pendapatan dari kegiatan ibadah',
-    activityType: ActivityType.SERVICE,
-    financialType: FinancialType.REVENUE,
-    needsFinancialAccount: false,
-    active: true,
-  },
-  {
-    name: 'Persetujuan Pengeluaran Acara',
-    description: 'Aturan persetujuan untuk pengeluaran acara khusus',
-    activityType: ActivityType.EVENT,
-    financialType: FinancialType.EXPENSE,
-    needsFinancialAccount: false,
-    active: true,
-  },
-
-  // 6. Inactive rules (for testing inactive rule filtering)
-  {
-    name: 'Persetujuan Lama (Tidak Aktif)',
-    description: 'Aturan persetujuan lama yang sudah tidak aktif',
-    activityType: ActivityType.SERVICE,
+    name: 'Persetujuan Umum',
+    description: 'Aturan persetujuan umum untuk semua kegiatan tanpa aturan khusus',
+    activityType: null,
     financialType: null,
-    needsFinancialAccount: false,
-    active: false,
-  },
-  {
-    name: 'Persetujuan Keuangan Lama (Tidak Aktif)',
-    description: 'Aturan persetujuan keuangan lama yang sudah tidak aktif',
-    activityType: null,
-    financialType: FinancialType.REVENUE,
-    needsFinancialAccount: true,
-    financialAccountType: 'income',
-    active: false,
+    bipra: null,
+    positionName: 'Ketua Jemaat',
   },
 ];
 
-async function seedApprovalRules(
-  churches: ChurchWithColumns[],
-  financialAccounts: FinancialAccountWithType[],
-) {
-  console.log('📜 Creating approval rules (all variations)...');
+
+async function seedApprovalRules(churches: ChurchWithColumns[]) {
+  console.log('📜 Creating canonical approval rules...');
 
   const approvalRules = [];
-
-  // Track which financial accounts have been assigned to ensure uniqueness
-  // This is required because financialAccountNumberId has a unique constraint
-  const assignedFinancialAccountIds = new Set<number>();
 
   for (const church of churches) {
     console.log(`   Creating approval rules for ${church.name}...`);
 
-    // Get all positions for this church that don't have an approval rule yet
-    const churchPositions = await prisma.membershipPosition.findMany({
-      where: { churchId: church.id, approvalRuleId: null },
-    });
-
-    if (churchPositions.length === 0) {
-      console.log(`   Skipping ${church.name} - no positions available`);
-      continue;
-    }
-
-    let incomeAccountIndex = 0;
-    let expenseAccountIndex = 0;
-
-    for (const variation of APPROVAL_RULE_VARIATIONS) {
-      // Determine financial account if needed
-      let financialAccountNumberId: number | null = null;
-      let financialAccountName: string | null = null;
-
-      if (variation.needsFinancialAccount) {
-        if (variation.financialAccountType === 'income') {
-          // Re-filter to get currently available accounts
-          const availableAccounts = financialAccounts.filter(
-            (fa) =>
-              fa.churchId === church.id &&
-              fa.type === 'income' &&
-              !assignedFinancialAccountIds.has(fa.id),
-          );
-          if (availableAccounts.length > 0) {
-            const account =
-              availableAccounts[incomeAccountIndex % availableAccounts.length];
-            financialAccountNumberId = account.id;
-            financialAccountName = account.name;
-            assignedFinancialAccountIds.add(financialAccountNumberId);
-            incomeAccountIndex++;
-          } else {
-            // Skip this variation if no accounts available
-            console.log(
-              `   Skipping ${variation.name} - no income accounts available`,
-            );
-            continue;
-          }
-        } else if (variation.financialAccountType === 'expense') {
-          // Re-filter to get currently available accounts
-          const availableAccounts = financialAccounts.filter(
-            (fa) =>
-              fa.churchId === church.id &&
-              fa.type === 'expense' &&
-              !assignedFinancialAccountIds.has(fa.id),
-          );
-          if (availableAccounts.length > 0) {
-            const account =
-              availableAccounts[expenseAccountIndex % availableAccounts.length];
-            financialAccountNumberId = account.id;
-            financialAccountName = account.name;
-            assignedFinancialAccountIds.add(financialAccountNumberId);
-            expenseAccountIndex++;
-          } else {
-            // Skip this variation if no accounts available
-            console.log(
-              `   Skipping ${variation.name} - no expense accounts available`,
-            );
-            continue;
-          }
-        }
-      }
-
-      // Get available positions (not yet assigned to any rule)
-      const availablePositions = await prisma.membershipPosition.findMany({
-        where: { churchId: church.id, approvalRuleId: null },
+    for (const spec of CANONICAL_RULE_SPECS) {
+      // Find the first matching position in this church by name
+      const position = await prisma.membershipPosition.findFirst({
+        where: { churchId: church.id, name: spec.positionName },
       });
 
-      if (availablePositions.length === 0) {
-        console.log(`   Skipping ${variation.name} - no positions available`);
+      if (!position) {
+        console.warn(
+          `   ⚠️  Position "${spec.positionName}" not found in ${church.name} — skipping "${spec.name}"`,
+        );
         continue;
       }
 
-      // Select 1-2 positions for this rule
-      const numPositions = Math.min(
-        Math.floor(seededRandom() * 2) + 1,
-        availablePositions.length,
-      );
-      const selectedPositions = availablePositions.slice(0, numPositions);
-
-      // Use financial account name as rule name if available, otherwise use variation name
-      const ruleName = financialAccountName || variation.name;
-
-      // Create the approval rule
-      const approvalRule = await prisma.approvalRule.create({
+      const rule = await prisma.approvalRule.create({
         data: {
-          name: ruleName,
-          description: `${variation.description} di ${church.name}`,
-          active: variation.active,
+          name: spec.name,
+          description: `${spec.description} di ${church.name}`,
+          active: true,
           churchId: church.id,
-          activityType: variation.activityType,
-          financialType: variation.financialType,
-          financialAccountNumberId,
+          activityType: spec.activityType,
+          financialType: spec.financialType,
+          bipra: spec.bipra,
+          positions: { connect: [{ id: position.id }] },
         } as any,
         include: { positions: true },
       });
 
-      // Link positions to this rule
-      await prisma.membershipPosition.updateMany({
-        where: { id: { in: selectedPositions.map((p) => p.id) } },
-        data: { approvalRuleId: approvalRule.id },
-      });
-
-      // Fetch the updated rule with positions
-      const updatedRule = await prisma.approvalRule.findUnique({
-        where: { id: approvalRule.id },
-        include: { positions: true, financialAccountNumber: true } as any,
-      });
-
-      approvalRules.push(updatedRule);
+      approvalRules.push(rule);
     }
   }
 
   console.log(`✅ Created ${approvalRules.length} approval rules`);
-  console.log(
-    `   (${assignedFinancialAccountIds.size} unique financial accounts assigned)`,
-  );
-
-  // Print summary of rule types
-  const activeRules = approvalRules.filter((r: any) => r?.active);
-  const inactiveRules = approvalRules.filter((r: any) => !r?.active);
-  const rulesWithAccount = approvalRules.filter(
-    (r: any) => r?.financialAccountNumberId,
-  );
-  const rulesWithActivityType = approvalRules.filter(
-    (r: any) => r?.activityType,
-  );
-  const rulesWithFinancialType = approvalRules.filter(
-    (r: any) => r?.financialType,
-  );
-  const genericRules = approvalRules.filter(
-    (r: any) => !r?.activityType && !r?.financialType,
-  );
-
-  console.log(`   Active rules: ${activeRules.length}`);
-  console.log(`   Inactive rules: ${inactiveRules.length}`);
-  console.log(`   Rules with specific account: ${rulesWithAccount.length}`);
-  console.log(`   Rules with activity type: ${rulesWithActivityType.length}`);
-  console.log(`   Rules with financial type: ${rulesWithFinancialType.length}`);
-  console.log(`   Generic rules (fallback): ${genericRules.length}`);
-
   return approvalRules;
 }
 
 /**
- * Resolves approvers for an activity based on approval rules.
- * This is a seeder-specific implementation of the approver resolution algorithm.
+ * Resolves approvers for an activity based on the canonical rule model.
  *
- * Algorithm:
- * 1. Query approval rules matching activityType and churchId where active = true
- * 2. If no type-specific rules found, query rules where activityType IS NULL
- * 3. If financial data exists, additionally query rules matching financialAccountNumberId or financialType
- * 4. Collect all MembershipPosition IDs from matched rules
- * 5. Deduplicate position IDs
- * 6. Find all Membership records that have these positions in the same church
- * 7. Include all memberships (including supervisor if they hold a matching position - self-approval scenario)
- * 8. Return unique membership IDs for approver creation
+ * Priority (first match wins):
+ * 1. activityType + bipra  (SERVICE rules scoped to a bipra group)
+ * 2. activityType only     (bipra IS NULL)
+ * 3. Generic fallback      (no activityType AND no financialType)
  */
 async function resolveApproversForSeeder(
   churchId: number,
   activityType: ActivityType,
+  bipra?: Bipra | null,
 ): Promise<number[]> {
   const positionIds = new Set<number>();
 
-  // Step 1: Find approval rules matching the activity type
-  // Use type assertion to handle Prisma client types that may not be regenerated yet
-  let activityTypeRules = await prisma.approvalRule.findMany({
-    where: {
-      churchId,
-      activityType,
-      active: true,
-    } as any,
-    include: {
-      positions: {
-        select: { id: true },
-      },
-    },
-  });
+  const addPositions = (rules: any[]) => {
+    for (const rule of rules) {
+      for (const pos of rule.positions) positionIds.add(pos.id);
+    }
+  };
 
-  // Step 2: If no type-specific rules found, fall back to generic rules (activityType IS NULL)
-  if (activityTypeRules.length === 0) {
-    activityTypeRules = await prisma.approvalRule.findMany({
-      where: {
-        churchId,
-        activityType: null,
-        active: true,
-      } as any,
-      include: {
-        positions: {
-          select: { id: true },
-        },
-      },
+  // 1. bipra-specific rules
+  if (bipra) {
+    const bipraRules = await prisma.approvalRule.findMany({
+      where: { churchId, activityType, bipra, active: true } as any,
+      include: { positions: { select: { id: true } } },
     });
-  }
-
-  // Collect positions from activity type rules
-  for (const rule of activityTypeRules) {
-    for (const position of (rule as any).positions) {
-      positionIds.add(position.id);
+    if (bipraRules.length > 0) {
+      addPositions(bipraRules);
     }
   }
 
-  // If no positions found, return empty result
+  // 2. activityType-only rules (bipra IS NULL)
   if (positionIds.size === 0) {
-    return [];
+    const typeRules = await prisma.approvalRule.findMany({
+      where: { churchId, activityType, bipra: null, active: true } as any,
+      include: { positions: { select: { id: true } } },
+    });
+    addPositions(typeRules);
   }
 
-  // Step 6: Find all memberships that hold these positions in the same church
-  const positionIdArray = Array.from(positionIds);
+  // 3. Generic fallback
+  if (positionIds.size === 0) {
+    const genericRules = await prisma.approvalRule.findMany({
+      where: {
+        churchId,
+        activityType: null,
+        financialType: null,
+        active: true,
+      } as any,
+      include: { positions: { select: { id: true } } },
+    });
+    addPositions(genericRules);
+  }
 
-  const membershipsWithPositions = await prisma.membership.findMany({
+  if (positionIds.size === 0) return [];
+
+  const memberships = await prisma.membership.findMany({
     where: {
       churchId,
-      membershipPositions: {
-        some: {
-          id: {
-            in: positionIdArray,
-          },
-        },
-      },
+      membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
     },
     select: { id: true },
   });
 
-  // Return unique membership IDs (including supervisor if they match - self-approval)
-  return membershipsWithPositions.map((m) => m.id);
+  return memberships.map((m) => m.id);
 }
 
 async function resolveFinanceApproversForSeeder(
   churchId: number,
   financialType: FinancialType,
-  financialAccountNumberId?: number,
 ): Promise<number[]> {
-  const positionIds = new Set<number>();
-
-  if (financialAccountNumberId) {
-    const accountSpecificRules = await prisma.approvalRule.findMany({
-      where: {
-        churchId,
-        financialAccountNumberId,
-        active: true,
-      } as any,
-      include: {
-        positions: {
-          select: { id: true },
-        },
-      },
-    });
-
-    for (const rule of accountSpecificRules) {
-      for (const position of (rule as any).positions) {
-        positionIds.add(position.id);
-      }
-    }
-  }
-
-  const financialTypeRules = await prisma.approvalRule.findMany({
+  const rules = await prisma.approvalRule.findMany({
     where: {
       churchId,
       financialType,
-      financialAccountNumberId: null,
       active: true,
     } as any,
     include: {
-      positions: {
-        select: { id: true },
-      },
+      positions: { select: { id: true } },
     },
   });
 
-  for (const rule of financialTypeRules) {
-    for (const position of (rule as any).positions) {
-      positionIds.add(position.id);
+  const positionIds = new Set<number>();
+  for (const rule of rules) {
+    for (const pos of (rule as any).positions) {
+      positionIds.add(pos.id);
     }
   }
 
-  if (positionIds.size === 0) {
-    return [];
-  }
+  if (positionIds.size === 0) return [];
 
-  const membershipsWithPositions = await prisma.membership.findMany({
+  const memberships = await prisma.membership.findMany({
     where: {
       churchId,
-      membershipPositions: {
-        some: {
-          id: {
-            in: Array.from(positionIds),
-          },
-        },
-      },
+      membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
     },
     select: { id: true },
   });
 
-  return membershipsWithPositions.map((m) => m.id);
+  return memberships.map((m) => m.id);
 }
 
 /**
@@ -1135,6 +944,7 @@ async function createActivityWithConnectedModels(
   let approverMembershipIds = await resolveApproversForSeeder(
     churchId,
     activityType,
+    bipra,
   );
 
   if (forceAllApproversApproved && approverMembershipIds.length === 0) {
@@ -1159,7 +969,6 @@ async function createActivityWithConnectedModels(
     let revenueApproverMembershipIds = await resolveFinanceApproversForSeeder(
       churchId,
       FinancialType.REVENUE,
-      revenueFinancialAccountId,
     );
 
     if (
@@ -1187,7 +996,6 @@ async function createActivityWithConnectedModels(
     let expenseApproverMembershipIds = await resolveFinanceApproversForSeeder(
       churchId,
       FinancialType.EXPENSE,
-      expenseFinancialAccountId,
     );
 
     if (
@@ -1733,7 +1541,8 @@ async function main() {
     const extraMemberships: MembershipWithChurch[] = [];
 
     // Create approval rules with activity type and financial type filters
-    await seedApprovalRules(mainChurches, financialAccounts);
+    await seedApprovalRules(mainChurches);
+
 
     // Create activities for main accounts (25 each) - uses automatic approver linking
     await seedMainAccountActivities(mainMemberships, financialAccounts, []);

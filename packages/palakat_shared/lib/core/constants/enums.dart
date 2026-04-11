@@ -345,6 +345,11 @@ enum FormFieldType {
   file,
 }
 
+extension BipraExtension on Bipra {
+  /// Human-readable display name for this bipra group.
+  String get displayName => name; // uses the Indonesian name stored in the enum
+}
+
 extension ActivityTypeExtension on ActivityType {
   String get displayName {
     final l10n = _l10n();

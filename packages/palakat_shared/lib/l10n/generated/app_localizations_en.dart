@@ -3683,4 +3683,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String segmentTitle_emptyState(String title) {
     return 'No $title available';
   }
+
+  @override
+  String get lbl_bipra => 'Bipra Group (Optional)';
+
+  @override
+  String get hint_allBipra => 'All groups';
+
+  @override
+  String get desc_bipraFilter =>
+      'When set, this SERVICE rule only applies to activities for the selected congregation group (bipra).';
 }

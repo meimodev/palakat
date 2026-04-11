@@ -208,8 +208,8 @@ export const ApprovalRuleScalarFieldEnum = {
   description: 'description',
   active: 'active',
   activityType: 'activityType',
+  bipra: 'bipra',
   financialType: 'financialType',
-  financialAccountNumberId: 'financialAccountNumberId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId'

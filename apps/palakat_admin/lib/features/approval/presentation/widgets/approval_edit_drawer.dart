@@ -29,14 +29,12 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
   bool _active = true;
   final List<MemberPosition> _selectedPositions = [];
   List<MemberPosition> _allPositions = [];
-  ApprovalRule? _fetchedRule; // Latest rule copy (fetched)
+  ApprovalRule? _fetchedRule;
 
-  // New fields for activity type and financial filtering
+  // Activity + financial type fields
   ActivityType? _selectedActivityType;
+  Bipra? _selectedBipra;
   FinanceType? _selectedFinancialType;
-  FinancialAccountNumber? _selectedFinancialAccount;
-  List<FinancialAccountNumber> _financialAccounts = [];
-  bool _loadingFinancialAccounts = false;
 
   bool _loading = false;
   bool _deleting = false;
@@ -46,14 +44,15 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
   // Inline validation errors
   String? _nameError;
   String? _positionsError;
-  String? _financialAccountError;
 
   bool get _isNew => widget.ruleId == null;
+
+  // Bipra selector only relevant for SERVICE activities
+  bool get _showBipra => _selectedActivityType == ActivityType.service;
 
   @override
   void initState() {
     super.initState();
-    // Fetch data when drawer opens
     _fetchData();
   }
 
@@ -64,12 +63,10 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     });
 
     try {
-      // Fetch positions for the church
       final positions = await ref
           .read(approvalControllerProvider.notifier)
           .fetchPositionsByChurch(widget.churchId);
 
-      // If editing, fetch rule details
       ApprovalRule? rule;
       if (widget.ruleId != null) {
         rule = await ref
@@ -90,23 +87,10 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
           _selectedPositions.clear();
           _selectedPositions.addAll(rule.positions);
           _selectedActivityType = rule.activityType;
+          _selectedBipra = rule.bipra;
           _selectedFinancialType = rule.financialType;
         }
       });
-
-      // Fetch financial accounts if financial type is set (outside setState)
-      if (rule?.financialType != null) {
-        await _fetchFinancialAccounts(rule!.financialType!);
-        // Resolve the account ID to the full object
-        final accountId = rule.financialAccountNumberId;
-        if (accountId != null && _financialAccounts.isNotEmpty) {
-          setState(() {
-            _selectedFinancialAccount = _financialAccounts
-                .where((a) => a.id == accountId)
-                .firstOrNull;
-          });
-        }
-      }
     } catch (e) {
       setState(() {
         _errorMessage = context.l10n.error_loadingData;
@@ -124,14 +108,11 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
   }
 
   Future<void> _saveChanges() async {
-    // Clear previous errors
     setState(() {
       _nameError = null;
       _positionsError = null;
-      _financialAccountError = null;
     });
 
-    // Validate fields
     bool hasError = false;
 
     if (_nameController.text.trim().isEmpty) {
@@ -144,15 +125,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     if (_selectedPositions.isEmpty) {
       setState(() {
         _positionsError = context.l10n.validation_positionsRequired;
-      });
-      hasError = true;
-    }
-
-    // Validate financial account is required when financial type is selected
-    if (_selectedFinancialType != null && _selectedFinancialAccount == null) {
-      setState(() {
-        _financialAccountError =
-            context.l10n.validation_financialAccountRequired;
       });
       hasError = true;
     }
@@ -173,6 +145,9 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
           ? null
           : '${descTrimmed.substring(0, 1).toUpperCase()}${descTrimmed.substring(1)}';
 
+      // Clear bipra if activityType is no longer SERVICE
+      final effectiveBipra = _showBipra ? _selectedBipra : null;
+
       final updated =
           _fetchedRule?.copyWith(
             name: formattedName,
@@ -180,8 +155,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
             active: _active,
             positions: _selectedPositions,
             activityType: _selectedActivityType,
+            bipra: effectiveBipra,
             financialType: _selectedFinancialType,
-            financialAccountNumberId: _selectedFinancialAccount?.id,
           ) ??
           ApprovalRule(
             name: formattedName,
@@ -190,8 +165,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
             positions: _selectedPositions,
             active: _active,
             activityType: _selectedActivityType,
+            bipra: effectiveBipra,
             financialType: _selectedFinancialType,
-            financialAccountNumberId: _selectedFinancialAccount?.id,
           );
 
       await widget.onSave(updated);
@@ -253,62 +228,24 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
     }
   }
 
-  void _onRetry() {
-    _fetchData();
-  }
-
-  Future<void> _fetchFinancialAccounts(FinanceType type) async {
-    setState(() {
-      _loadingFinancialAccounts = true;
-    });
-
-    try {
-      final accounts = await ref
-          .read(approvalControllerProvider.notifier)
-          .fetchFinancialAccountNumbers(
-            churchId: widget.churchId,
-            type: type.value,
-            currentRuleId: widget.ruleId,
-          );
-
-      if (mounted) {
-        setState(() {
-          _financialAccounts = accounts;
-          _loadingFinancialAccounts = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _financialAccounts = [];
-          _loadingFinancialAccounts = false;
-        });
-      }
-    }
-  }
+  void _onRetry() => _fetchData();
 
   void _onActivityTypeChanged(ActivityType? value) {
     setState(() {
       _selectedActivityType = value;
+      // Reset bipra when activity type changes away from SERVICE
+      if (value != ActivityType.service) {
+        _selectedBipra = null;
+      }
     });
+  }
+
+  void _onBipraChanged(Bipra? value) {
+    setState(() => _selectedBipra = value);
   }
 
   void _onFinancialTypeChanged(FinanceType? value) {
-    setState(() {
-      _selectedFinancialType = value;
-      _selectedFinancialAccount = null;
-      _financialAccounts = [];
-    });
-
-    if (value != null) {
-      _fetchFinancialAccounts(value);
-    }
-  }
-
-  void _onFinancialAccountSelected(FinancialAccountNumber account) {
-    setState(() {
-      _selectedFinancialAccount = account;
-    });
+    setState(() => _selectedFinancialType = value);
   }
 
   @override
@@ -362,11 +299,8 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                         hintText: context.l10n.hint_approvalRuleExample,
                       ),
                       onChanged: (_) {
-                        // Clear error when user types
                         if (_nameError != null) {
-                          setState(() {
-                            _nameError = null;
-                          });
+                          setState(() => _nameError = null);
                         }
                       },
                     ),
@@ -405,11 +339,7 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
             children: [
               SwitchListTile(
                 value: _active,
-                onChanged: (value) {
-                  setState(() {
-                    _active = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _active = value),
                 title: Text(context.l10n.lbl_active),
                 subtitle: Text(
                   _active
@@ -453,6 +383,38 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   onChanged: _onActivityTypeChanged,
                 ),
               ),
+              if (_showBipra) ...[
+                const SizedBox(height: 16),
+                LabeledField(
+                  label: context.l10n.lbl_bipra,
+                  child: DropdownButtonFormField<Bipra?>(
+                    initialValue: _selectedBipra,
+                    decoration: InputDecoration(
+                      hintText: context.l10n.hint_allBipra,
+                    ),
+                    items: [
+                      DropdownMenuItem<Bipra?>(
+                        value: null,
+                        child: Text(context.l10n.hint_allBipra),
+                      ),
+                      ...Bipra.values.map((bipra) {
+                        return DropdownMenuItem<Bipra?>(
+                          value: bipra,
+                          child: Text(bipra.displayName),
+                        );
+                      }),
+                    ],
+                    onChanged: _onBipraChanged,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.l10n.desc_bipraFilter,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
               Text(
                 context.l10n.desc_activityTypeFilter,
@@ -492,34 +454,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                   onChanged: _onFinancialTypeChanged,
                 ),
               ),
-              if (_selectedFinancialType != null) ...[
-                const SizedBox(height: 16),
-                FinancialAccountPicker(
-                  financeType: _selectedFinancialType!,
-                  selectedAccount: _selectedFinancialAccount,
-                  accounts: _financialAccounts,
-                  isLoading: _loadingFinancialAccounts,
-                  label: context.l10n.lbl_financialAccountNumber,
-                  onSelected: (account) {
-                    _onFinancialAccountSelected(account);
-                    // Clear error when user selects an account
-                    if (_financialAccountError != null) {
-                      setState(() {
-                        _financialAccountError = null;
-                      });
-                    }
-                  },
-                ),
-                if (_financialAccountError != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    _financialAccountError!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.error,
-                    ),
-                  ),
-                ],
-              ],
               const SizedBox(height: 8),
               Text(
                 context.l10n.desc_financialFilter,
@@ -562,7 +496,6 @@ class _ApprovalEditDrawerState extends ConsumerState<ApprovalEditDrawer> {
                               setState(() {
                                 _selectedPositions.clear();
                                 _selectedPositions.addAll(positions);
-                                // Clear error when user selects positions
                                 if (_positionsError != null) {
                                   _positionsError = null;
                                 }

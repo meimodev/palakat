@@ -1,4 +1,4 @@
-import { ActivityType, FinancialType } from '../../generated/prisma/client';
+import { ActivityType, Bipra, FinancialType } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -40,14 +40,12 @@ export class CreateApprovalRuleDto {
   activityType?: ActivityType;
 
   @IsOptional()
-  @IsEnum(FinancialType)
-  financialType?: FinancialType;
+  @IsEnum(Bipra)
+  bipra?: Bipra;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  financialAccountNumberId?: number;
+  @IsEnum(FinancialType)
+  financialType?: FinancialType;
 
   @IsOptional()
   @IsArray()

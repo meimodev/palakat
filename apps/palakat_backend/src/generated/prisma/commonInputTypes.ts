@@ -311,6 +311,13 @@ export type EnumActivityTypeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumActivityTypeNullableFilter<$PrismaModel> | $Enums.ActivityType | null
 }
 
+export type EnumBipraNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel> | $Enums.Bipra | null
+}
+
 export type EnumFinancialTypeNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.FinancialType | Prisma.EnumFinancialTypeFieldRefInput<$PrismaModel> | null
   in?: $Enums.FinancialType[] | Prisma.ListEnumFinancialTypeFieldRefInput<$PrismaModel> | null
@@ -328,6 +335,16 @@ export type EnumActivityTypeNullableWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumActivityTypeNullableFilter<$PrismaModel>
 }
 
+export type EnumBipraNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel> | $Enums.Bipra | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
+}
+
 export type EnumFinancialTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.FinancialType | Prisma.EnumFinancialTypeFieldRefInput<$PrismaModel> | null
   in?: $Enums.FinancialType[] | Prisma.ListEnumFinancialTypeFieldRefInput<$PrismaModel> | null
@@ -336,13 +353,6 @@ export type EnumFinancialTypeNullableWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFinancialTypeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFinancialTypeNullableFilter<$PrismaModel>
-}
-
-export type EnumBipraNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
-  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel> | $Enums.Bipra | null
 }
 
 export type EnumActivityTypeFilter<$PrismaModel = never> = {
@@ -357,16 +367,6 @@ export type EnumReminderNullableFilter<$PrismaModel = never> = {
   in?: $Enums.Reminder[] | Prisma.ListEnumReminderFieldRefInput<$PrismaModel> | null
   notIn?: $Enums.Reminder[] | Prisma.ListEnumReminderFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel> | $Enums.Reminder | null
-}
-
-export type EnumBipraNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
-  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel> | $Enums.Bipra | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
 }
 
 export type EnumActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -1066,6 +1066,13 @@ export type NestedEnumActivityTypeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumActivityTypeNullableFilter<$PrismaModel> | $Enums.ActivityType | null
 }
 
+export type NestedEnumBipraNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel> | $Enums.Bipra | null
+}
+
 export type NestedEnumFinancialTypeNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.FinancialType | Prisma.EnumFinancialTypeFieldRefInput<$PrismaModel> | null
   in?: $Enums.FinancialType[] | Prisma.ListEnumFinancialTypeFieldRefInput<$PrismaModel> | null
@@ -1083,6 +1090,16 @@ export type NestedEnumActivityTypeNullableWithAggregatesFilter<$PrismaModel = ne
   _max?: Prisma.NestedEnumActivityTypeNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel> | $Enums.Bipra | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
+}
+
 export type NestedEnumFinancialTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.FinancialType | Prisma.EnumFinancialTypeFieldRefInput<$PrismaModel> | null
   in?: $Enums.FinancialType[] | Prisma.ListEnumFinancialTypeFieldRefInput<$PrismaModel> | null
@@ -1091,13 +1108,6 @@ export type NestedEnumFinancialTypeNullableWithAggregatesFilter<$PrismaModel = n
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFinancialTypeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFinancialTypeNullableFilter<$PrismaModel>
-}
-
-export type NestedEnumBipraNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
-  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel> | $Enums.Bipra | null
 }
 
 export type NestedEnumActivityTypeFilter<$PrismaModel = never> = {
@@ -1112,16 +1122,6 @@ export type NestedEnumReminderNullableFilter<$PrismaModel = never> = {
   in?: $Enums.Reminder[] | Prisma.ListEnumReminderFieldRefInput<$PrismaModel> | null
   notIn?: $Enums.Reminder[] | Prisma.ListEnumReminderFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel> | $Enums.Reminder | null
-}
-
-export type NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Bipra | Prisma.EnumBipraFieldRefInput<$PrismaModel> | null
-  in?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.Bipra[] | Prisma.ListEnumBipraFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumBipraNullableWithAggregatesFilter<$PrismaModel> | $Enums.Bipra | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumBipraNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumActivityTypeWithAggregatesFilter<$PrismaModel = never> = {

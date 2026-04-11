@@ -38,8 +38,8 @@ class ApprovalController extends _$ApprovalController {
           .whereType<int>()
           .toList(),
       'activityType': rule.activityType?.name.toUpperCase(),
+      'bipra': rule.bipra?.name.toUpperCase(),
       'financialType': rule.financialType?.name.toUpperCase(),
-      'financialAccountNumberId': rule.financialAccountNumberId,
     };
   }
 
@@ -217,54 +217,6 @@ class ApprovalController extends _$ApprovalController {
     } catch (e) {
       rethrow;
     }
-  }
-
-  /// Fetch available financial account numbers for a specific church and optional type
-  ///
-  /// Used for populating the financial account dropdown in approval rule forms.
-  /// [type] should be 'REVENUE' or 'EXPENSE' to filter by financial type.
-  /// [currentRuleId] should be provided when editing an existing rule to include
-  /// the currently assigned account in the available options.
-  Future<List<FinancialAccountNumber>> fetchFinancialAccountNumbers({
-    required int churchId,
-    String? type,
-    int? currentRuleId,
-  }) async {
-    state = state.copyWith(financialAccounts: const AsyncValue.loading());
-    try {
-      final repository = ref.read(approvalRepositoryProvider);
-
-      final result = await repository.getAvailableAccounts(
-        churchId: churchId,
-        type: type,
-        currentRuleId: currentRuleId,
-      );
-
-      final value = result.when<List<FinancialAccountNumber>>(
-        onSuccess: (accounts) {
-          state = state.copyWith(financialAccounts: AsyncValue.data(accounts));
-          return accounts;
-        },
-        onFailure: (failure) {
-          state = state.copyWith(
-            financialAccounts: AsyncValue.error(
-              failure.message,
-              StackTrace.current,
-            ),
-          );
-          throw Exception(failure.message);
-        },
-      );
-      return value!;
-    } catch (e, st) {
-      state = state.copyWith(financialAccounts: AsyncValue.error(e, st));
-      rethrow;
-    }
-  }
-
-  /// Clear financial accounts state (e.g., when financial type is deselected)
-  void clearFinancialAccounts() {
-    state = state.copyWith(financialAccounts: const AsyncValue.data([]));
   }
 
   void refresh() {

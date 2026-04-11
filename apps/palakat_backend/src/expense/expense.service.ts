@@ -104,98 +104,48 @@ export class ExpenseService {
 
   private async resolveFinanceApproverMembershipIds(
     churchId: number,
-    financialAccountNumberId?: number | null,
   ): Promise<number[]> {
-    const positionIds = new Set<number>();
-
-    if (typeof financialAccountNumberId === 'number') {
-      const accountRules = await (this.prisma as any).approvalRule.findMany({
-        where: {
-          churchId,
-          financialAccountNumberId,
-          active: true,
-        },
-        include: {
-          positions: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      for (const rule of accountRules) {
-        for (const position of rule.positions) {
-          positionIds.add(position.id);
-        }
-      }
-    }
-
-    const financialTypeRules = await (this.prisma as any).approvalRule.findMany(
-      {
-        where: {
-          churchId,
-          financialType: FinancialType.EXPENSE,
-          financialAccountNumberId: null,
-          active: true,
-        },
-        include: {
-          positions: {
-            select: {
-              id: true,
-            },
-          },
-        },
+    const rules = await (this.prisma as any).approvalRule.findMany({
+      where: {
+        churchId,
+        financialType: FinancialType.EXPENSE,
+        active: true,
       },
-    );
+      include: {
+        positions: { select: { id: true } },
+      },
+    });
 
-    for (const rule of financialTypeRules) {
+    const positionIds = new Set<number>();
+    for (const rule of rules) {
       for (const position of rule.positions) {
         positionIds.add(position.id);
       }
     }
 
-    if (positionIds.size === 0) {
-      return [];
-    }
+    if (positionIds.size === 0) return [];
 
     const memberships = await (this.prisma as any).membership.findMany({
       where: {
         churchId,
-        membershipPositions: {
-          some: {
-            id: {
-              in: Array.from(positionIds),
-            },
-          },
-        },
+        membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    return memberships.map((membership: { id: number }) => membership.id);
+    return memberships.map((m: { id: number }) => m.id);
   }
 
   private async syncApprovers(
     tx: any,
     expenseId: number,
     churchId: number,
-    financialAccountNumberId?: number | null,
   ): Promise<void> {
-    await tx.expenseApprover.deleteMany({
-      where: { expenseId },
-    });
+    await tx.expenseApprover.deleteMany({ where: { expenseId } });
 
-    const membershipIds = await this.resolveFinanceApproverMembershipIds(
-      churchId,
-      financialAccountNumberId,
-    );
+    const membershipIds = await this.resolveFinanceApproverMembershipIds(churchId);
 
-    if (membershipIds.length === 0) {
-      return;
-    }
+    if (membershipIds.length === 0) return;
 
     await tx.expenseApprover.createMany({
       data: membershipIds.map((membershipId: number) => ({
@@ -399,12 +349,7 @@ export class ExpenseService {
     const include = this.buildExpenseInclude();
     const expense = await (this.prisma as any).$transaction(async (tx: any) => {
       const createdExpense = await tx.expense.create({ data });
-      await this.syncApprovers(
-        tx,
-        createdExpense.id,
-        rest.churchId,
-        resolvedFinancialAccount.financialAccountNumberId,
-      );
+      await this.syncApprovers(tx, createdExpense.id, rest.churchId);
       return tx.expense.findUniqueOrThrow({
         where: { id: createdExpense.id },
         include,
@@ -485,16 +430,7 @@ export class ExpenseService {
       });
 
       if (shouldRefreshApprovers) {
-        const nextFinancialAccountNumberId =
-          Object.prototype.hasOwnProperty.call(data, 'financialAccountNumberId')
-            ? data.financialAccountNumberId
-            : currentExpense.financialAccountNumberId;
-        await this.syncApprovers(
-          tx,
-          id,
-          effectiveChurchId,
-          nextFinancialAccountNumberId,
-        );
+        await this.syncApprovers(tx, id, effectiveChurchId);
       }
 
       return tx.expense.findUniqueOrThrow({

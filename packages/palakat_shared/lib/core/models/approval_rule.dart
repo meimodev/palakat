@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'church.dart';
-import 'financial_account_number.dart';
 import 'member_position.dart';
 
 part 'approval_rule.freezed.dart';
@@ -21,9 +20,8 @@ abstract class ApprovalRule with _$ApprovalRule {
     Church? church,
     @Default([]) List<MemberPosition> positions,
     ActivityType? activityType,
+    Bipra? bipra,
     FinanceType? financialType,
-    int? financialAccountNumberId,
-    FinancialAccountNumber? financialAccountNumber,
   }) = _ApprovalRule;
 
   factory ApprovalRule.fromJson(Map<String, dynamic> json) =>

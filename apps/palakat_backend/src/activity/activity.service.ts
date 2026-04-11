@@ -105,77 +105,37 @@ export class ActivitiesService {
     params: {
       churchId: number;
       financialType: FinancialType;
-      financialAccountNumberId?: number | null;
     },
   ): Promise<number[]> {
-    const positionIds = new Set<number>();
-
-    if (typeof params.financialAccountNumberId === 'number') {
-      const accountRules = await tx.approvalRule.findMany({
-        where: {
-          churchId: params.churchId,
-          financialAccountNumberId: params.financialAccountNumberId,
-          active: true,
-        },
-        include: {
-          positions: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      for (const rule of accountRules) {
-        for (const position of rule.positions) {
-          positionIds.add(position.id);
-        }
-      }
-    }
-
-    const financialTypeRules = await tx.approvalRule.findMany({
+    const rules = await tx.approvalRule.findMany({
       where: {
         churchId: params.churchId,
         financialType: params.financialType,
-        financialAccountNumberId: null,
         active: true,
       },
       include: {
-        positions: {
-          select: {
-            id: true,
-          },
-        },
+        positions: { select: { id: true } },
       },
     });
 
-    for (const rule of financialTypeRules) {
+    const positionIds = new Set<number>();
+    for (const rule of rules) {
       for (const position of rule.positions) {
         positionIds.add(position.id);
       }
     }
 
-    if (positionIds.size === 0) {
-      return [];
-    }
+    if (positionIds.size === 0) return [];
 
     const memberships = await tx.membership.findMany({
       where: {
         churchId: params.churchId,
-        membershipPositions: {
-          some: {
-            id: {
-              in: Array.from(positionIds),
-            },
-          },
-        },
+        membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    return memberships.map((membership: { id: number }) => membership.id);
+    return memberships.map((m: { id: number }) => m.id);
   }
 
   private async createFinanceApproverRecords(
@@ -184,18 +144,14 @@ export class ActivitiesService {
       churchId: number;
       financialType: FinancialType;
       financeId: number;
-      financialAccountNumberId?: number | null;
     },
   ): Promise<number[]> {
     const membershipIds = await this.resolveFinanceApproverMembershipIds(tx, {
       churchId: params.churchId,
       financialType: params.financialType,
-      financialAccountNumberId: params.financialAccountNumberId,
     });
 
-    if (membershipIds.length === 0) {
-      return [];
-    }
+    if (membershipIds.length === 0) return [];
 
     if (params.financialType === FinancialType.REVENUE) {
       await tx.revenueApprover.createMany({
@@ -776,6 +732,7 @@ export class ActivitiesService {
       churchId: membership.churchId,
       activityType: activityData.activityType,
       supervisorId: effectiveSupervisorId,
+      bipra: (activityData as any).bipra ?? undefined,
     });
 
     // Use a transaction to create activity, link finance records, and create approvers
@@ -825,8 +782,6 @@ export class ActivitiesService {
                 churchId: membership.churchId,
                 financialType: FinancialType.REVENUE,
                 financeId: revenue.id,
-                financialAccountNumberId:
-                  finance.financialAccountNumberId ?? null,
               });
             financeRealtimeEvents.push({
               financeId: revenue.id,
@@ -840,8 +795,6 @@ export class ActivitiesService {
                 churchId: membership.churchId,
                 financialType: FinancialType.EXPENSE,
                 financeId: expense.id,
-                financialAccountNumberId:
-                  finance.financialAccountNumberId ?? null,
               });
             financeRealtimeEvents.push({
               financeId: expense.id,

@@ -239,7 +239,6 @@ export type FinancialAccountNumberWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   revenues?: Prisma.RevenueListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
-  approvalRules?: Prisma.ApprovalRuleListRelationFilter
 }
 
 export type FinancialAccountNumberOrderByWithRelationInput = {
@@ -253,7 +252,6 @@ export type FinancialAccountNumberOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   revenues?: Prisma.RevenueOrderByRelationAggregateInput
   expenses?: Prisma.ExpenseOrderByRelationAggregateInput
-  approvalRules?: Prisma.ApprovalRuleOrderByRelationAggregateInput
 }
 
 export type FinancialAccountNumberWhereUniqueInput = Prisma.AtLeast<{
@@ -271,7 +269,6 @@ export type FinancialAccountNumberWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   revenues?: Prisma.RevenueListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
-  approvalRules?: Prisma.ApprovalRuleListRelationFilter
 }, "id" | "churchId_accountNumber">
 
 export type FinancialAccountNumberOrderByWithAggregationInput = {
@@ -311,7 +308,6 @@ export type FinancialAccountNumberCreateInput = {
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
   revenues?: Prisma.RevenueCreateNestedManyWithoutFinancialAccountNumberInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberUncheckedCreateInput = {
@@ -324,7 +320,6 @@ export type FinancialAccountNumberUncheckedCreateInput = {
   updatedAt?: Date | string
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberUpdateInput = {
@@ -336,7 +331,6 @@ export type FinancialAccountNumberUpdateInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
   revenues?: Prisma.RevenueUpdateManyWithoutFinancialAccountNumberNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberUncheckedUpdateInput = {
@@ -349,7 +343,6 @@ export type FinancialAccountNumberUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberCreateManyInput = {
@@ -482,22 +475,6 @@ export type FinancialAccountNumberUncheckedUpdateManyWithoutChurchNestedInput = 
   deleteMany?: Prisma.FinancialAccountNumberScalarWhereInput | Prisma.FinancialAccountNumberScalarWhereInput[]
 }
 
-export type FinancialAccountNumberCreateNestedOneWithoutApprovalRulesInput = {
-  create?: Prisma.XOR<Prisma.FinancialAccountNumberCreateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedCreateWithoutApprovalRulesInput>
-  connectOrCreate?: Prisma.FinancialAccountNumberCreateOrConnectWithoutApprovalRulesInput
-  connect?: Prisma.FinancialAccountNumberWhereUniqueInput
-}
-
-export type FinancialAccountNumberUpdateOneWithoutApprovalRulesNestedInput = {
-  create?: Prisma.XOR<Prisma.FinancialAccountNumberCreateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedCreateWithoutApprovalRulesInput>
-  connectOrCreate?: Prisma.FinancialAccountNumberCreateOrConnectWithoutApprovalRulesInput
-  upsert?: Prisma.FinancialAccountNumberUpsertWithoutApprovalRulesInput
-  disconnect?: Prisma.FinancialAccountNumberWhereInput | boolean
-  delete?: Prisma.FinancialAccountNumberWhereInput | boolean
-  connect?: Prisma.FinancialAccountNumberWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancialAccountNumberUpdateToOneWithWhereWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUpdateWithoutApprovalRulesInput>, Prisma.FinancialAccountNumberUncheckedUpdateWithoutApprovalRulesInput>
-}
-
 export type FinancialAccountNumberCreateNestedOneWithoutRevenuesInput = {
   create?: Prisma.XOR<Prisma.FinancialAccountNumberCreateWithoutRevenuesInput, Prisma.FinancialAccountNumberUncheckedCreateWithoutRevenuesInput>
   connectOrCreate?: Prisma.FinancialAccountNumberCreateOrConnectWithoutRevenuesInput
@@ -542,7 +519,6 @@ export type FinancialAccountNumberCreateWithoutChurchInput = {
   updatedAt?: Date | string
   revenues?: Prisma.RevenueCreateNestedManyWithoutFinancialAccountNumberInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberUncheckedCreateWithoutChurchInput = {
@@ -554,7 +530,6 @@ export type FinancialAccountNumberUncheckedCreateWithoutChurchInput = {
   updatedAt?: Date | string
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberCreateOrConnectWithoutChurchInput = {
@@ -596,68 +571,6 @@ export type FinancialAccountNumberScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
 }
 
-export type FinancialAccountNumberCreateWithoutApprovalRulesInput = {
-  accountNumber: string
-  description?: string | null
-  type: $Enums.FinancialType
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
-  revenues?: Prisma.RevenueCreateNestedManyWithoutFinancialAccountNumberInput
-  expenses?: Prisma.ExpenseCreateNestedManyWithoutFinancialAccountNumberInput
-}
-
-export type FinancialAccountNumberUncheckedCreateWithoutApprovalRulesInput = {
-  id?: number
-  accountNumber: string
-  description?: string | null
-  type: $Enums.FinancialType
-  churchId: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-}
-
-export type FinancialAccountNumberCreateOrConnectWithoutApprovalRulesInput = {
-  where: Prisma.FinancialAccountNumberWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinancialAccountNumberCreateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedCreateWithoutApprovalRulesInput>
-}
-
-export type FinancialAccountNumberUpsertWithoutApprovalRulesInput = {
-  update: Prisma.XOR<Prisma.FinancialAccountNumberUpdateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedUpdateWithoutApprovalRulesInput>
-  create: Prisma.XOR<Prisma.FinancialAccountNumberCreateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedCreateWithoutApprovalRulesInput>
-  where?: Prisma.FinancialAccountNumberWhereInput
-}
-
-export type FinancialAccountNumberUpdateToOneWithWhereWithoutApprovalRulesInput = {
-  where?: Prisma.FinancialAccountNumberWhereInput
-  data: Prisma.XOR<Prisma.FinancialAccountNumberUpdateWithoutApprovalRulesInput, Prisma.FinancialAccountNumberUncheckedUpdateWithoutApprovalRulesInput>
-}
-
-export type FinancialAccountNumberUpdateWithoutApprovalRulesInput = {
-  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
-  revenues?: Prisma.RevenueUpdateManyWithoutFinancialAccountNumberNestedInput
-  expenses?: Prisma.ExpenseUpdateManyWithoutFinancialAccountNumberNestedInput
-}
-
-export type FinancialAccountNumberUncheckedUpdateWithoutApprovalRulesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
-  churchId?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-}
-
 export type FinancialAccountNumberCreateWithoutRevenuesInput = {
   accountNumber: string
   description?: string | null
@@ -666,7 +579,6 @@ export type FinancialAccountNumberCreateWithoutRevenuesInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberUncheckedCreateWithoutRevenuesInput = {
@@ -678,7 +590,6 @@ export type FinancialAccountNumberUncheckedCreateWithoutRevenuesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberCreateOrConnectWithoutRevenuesInput = {
@@ -705,7 +616,6 @@ export type FinancialAccountNumberUpdateWithoutRevenuesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberUncheckedUpdateWithoutRevenuesInput = {
@@ -717,7 +627,6 @@ export type FinancialAccountNumberUncheckedUpdateWithoutRevenuesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberCreateWithoutExpensesInput = {
@@ -728,7 +637,6 @@ export type FinancialAccountNumberCreateWithoutExpensesInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
   revenues?: Prisma.RevenueCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberUncheckedCreateWithoutExpensesInput = {
@@ -740,7 +648,6 @@ export type FinancialAccountNumberUncheckedCreateWithoutExpensesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
 }
 
 export type FinancialAccountNumberCreateOrConnectWithoutExpensesInput = {
@@ -767,7 +674,6 @@ export type FinancialAccountNumberUpdateWithoutExpensesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
   revenues?: Prisma.RevenueUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberUncheckedUpdateWithoutExpensesInput = {
@@ -779,7 +685,6 @@ export type FinancialAccountNumberUncheckedUpdateWithoutExpensesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberCreateManyChurchInput = {
@@ -799,7 +704,6 @@ export type FinancialAccountNumberUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUpdateManyWithoutFinancialAccountNumberNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberUncheckedUpdateWithoutChurchInput = {
@@ -811,7 +715,6 @@ export type FinancialAccountNumberUncheckedUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
-  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
 }
 
 export type FinancialAccountNumberUncheckedUpdateManyWithoutChurchInput = {
@@ -831,13 +734,11 @@ export type FinancialAccountNumberUncheckedUpdateManyWithoutChurchInput = {
 export type FinancialAccountNumberCountOutputType = {
   revenues: number
   expenses: number
-  approvalRules: number
 }
 
 export type FinancialAccountNumberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   revenues?: boolean | FinancialAccountNumberCountOutputTypeCountRevenuesArgs
   expenses?: boolean | FinancialAccountNumberCountOutputTypeCountExpensesArgs
-  approvalRules?: boolean | FinancialAccountNumberCountOutputTypeCountApprovalRulesArgs
 }
 
 /**
@@ -864,13 +765,6 @@ export type FinancialAccountNumberCountOutputTypeCountExpensesArgs<ExtArgs exten
   where?: Prisma.ExpenseWhereInput
 }
 
-/**
- * FinancialAccountNumberCountOutputType without action
- */
-export type FinancialAccountNumberCountOutputTypeCountApprovalRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ApprovalRuleWhereInput
-}
-
 
 export type FinancialAccountNumberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -883,7 +777,6 @@ export type FinancialAccountNumberSelect<ExtArgs extends runtime.Types.Extension
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   revenues?: boolean | Prisma.FinancialAccountNumber$revenuesArgs<ExtArgs>
   expenses?: boolean | Prisma.FinancialAccountNumber$expensesArgs<ExtArgs>
-  approvalRules?: boolean | Prisma.FinancialAccountNumber$approvalRulesArgs<ExtArgs>
   _count?: boolean | Prisma.FinancialAccountNumberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financialAccountNumber"]>
 
@@ -924,7 +817,6 @@ export type FinancialAccountNumberInclude<ExtArgs extends runtime.Types.Extensio
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   revenues?: boolean | Prisma.FinancialAccountNumber$revenuesArgs<ExtArgs>
   expenses?: boolean | Prisma.FinancialAccountNumber$expensesArgs<ExtArgs>
-  approvalRules?: boolean | Prisma.FinancialAccountNumber$approvalRulesArgs<ExtArgs>
   _count?: boolean | Prisma.FinancialAccountNumberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinancialAccountNumberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -940,7 +832,6 @@ export type $FinancialAccountNumberPayload<ExtArgs extends runtime.Types.Extensi
     church: Prisma.$ChurchPayload<ExtArgs>
     revenues: Prisma.$RevenuePayload<ExtArgs>[]
     expenses: Prisma.$ExpensePayload<ExtArgs>[]
-    approvalRules: Prisma.$ApprovalRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1347,7 +1238,6 @@ export interface Prisma__FinancialAccountNumberClient<T, Null = never, ExtArgs e
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   revenues<T extends Prisma.FinancialAccountNumber$revenuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialAccountNumber$revenuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   expenses<T extends Prisma.FinancialAccountNumber$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialAccountNumber$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  approvalRules<T extends Prisma.FinancialAccountNumber$approvalRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialAccountNumber$approvalRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1825,30 +1715,6 @@ export type FinancialAccountNumber$expensesArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
-}
-
-/**
- * FinancialAccountNumber.approvalRules
- */
-export type FinancialAccountNumber$approvalRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ApprovalRule
-   */
-  select?: Prisma.ApprovalRuleSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ApprovalRule
-   */
-  omit?: Prisma.ApprovalRuleOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ApprovalRuleInclude<ExtArgs> | null
-  where?: Prisma.ApprovalRuleWhereInput
-  orderBy?: Prisma.ApprovalRuleOrderByWithRelationInput | Prisma.ApprovalRuleOrderByWithRelationInput[]
-  cursor?: Prisma.ApprovalRuleWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ApprovalRuleScalarFieldEnum | Prisma.ApprovalRuleScalarFieldEnum[]
 }
 
 /**

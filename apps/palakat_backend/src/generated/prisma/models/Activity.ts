@@ -715,10 +715,6 @@ export type ActivityUncheckedUpdateManyWithoutSupervisorNestedInput = {
   deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
 }
 
-export type NullableEnumBipraFieldUpdateOperationsInput = {
-  set?: $Enums.Bipra | null
-}
-
 export type EnumActivityTypeFieldUpdateOperationsInput = {
   set?: $Enums.ActivityType
 }

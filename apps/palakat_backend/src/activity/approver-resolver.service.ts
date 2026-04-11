@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ActivityType, FinancialType } from '../generated/prisma/client';
+import { ActivityType, Bipra } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 
 /**
@@ -12,10 +12,13 @@ export interface ApproverResolutionInput {
   activityType: ActivityType;
   /** The supervisor's membership ID */
   supervisorId: number;
-  /** Optional financial account number ID if activity has financial data */
-  financialAccountNumberId?: number;
-  /** Optional financial type (REVENUE or EXPENSE) */
-  financialType?: FinancialType;
+  /**
+   * Optional bipra category (PKB, WKI, PMD, RMJ, ASM).
+   * When provided for SERVICE activities, the resolver first tries to match
+   * rules with the same activityType + bipra combination before falling back
+   * to activityType-only or generic rules.
+   */
+  bipra?: Bipra;
 }
 
 /**
@@ -35,105 +38,88 @@ export class ApproverResolverService {
   /**
    * Resolves approvers for an activity based on approval rules.
    *
-   * Algorithm:
-   * 1. Query approval rules matching activityType and churchId where active = true
-   * 2. If no type-specific rules found, query rules where activityType IS NULL
-   * 3. If financial data exists, additionally query rules matching financialAccountNumberId or financialType
-   * 4. Collect all MembershipPosition IDs from matched rules
-   * 5. Deduplicate position IDs
-   * 6. Find all Membership records that have these positions in the same church
-   * 7. Include all memberships (including supervisor if they hold a matching position - self-approval scenario)
-   * 8. Return unique membership IDs for approver creation
+   * Algorithm (priority order — first match wins):
+   * 1. If bipra is provided: rules with (activityType + bipra)
+   * 2. Rules with activityType only (bipra IS NULL)
+   * 3. Generic rules (activityType IS NULL AND financialType IS NULL)
    */
   async resolveApprovers(
     input: ApproverResolutionInput,
   ): Promise<ApproverResolutionResult> {
-    const { churchId, activityType, financialAccountNumberId, financialType } =
-      input;
+    const { churchId, activityType, bipra } = input;
 
+    const positionInclude = {
+      positions: {
+        select: { id: true },
+      },
+    };
+
+    // Step 1 – bipra-specific service rules (only when bipra is provided)
+    if (bipra) {
+      const bipraRules = await this.prisma.approvalRule.findMany({
+        where: { churchId, activityType, bipra, active: true },
+        include: positionInclude,
+      });
+
+      if (bipraRules.length > 0) {
+        return this._buildResult(bipraRules, churchId);
+      }
+    }
+
+    // Step 2 – activityType-only rules (bipra IS NULL)
+    const typeRules = await this.prisma.approvalRule.findMany({
+      where: { churchId, activityType, bipra: null, active: true },
+      include: positionInclude,
+    });
+
+    if (typeRules.length > 0) {
+      return this._buildResult(typeRules, churchId);
+    }
+
+    // Step 3 – generic rules (no activityType, no financialType)
+    const genericRules = await this.prisma.approvalRule.findMany({
+      where: {
+        churchId,
+        activityType: null,
+        financialType: null,
+        active: true,
+      },
+      include: positionInclude,
+    });
+
+    return this._buildResult(genericRules, churchId);
+  }
+
+  private async _buildResult(
+    rules: Array<{ id: number; positions: { id: number }[] }>,
+    churchId: number,
+  ): Promise<ApproverResolutionResult> {
     const matchedRuleIds: number[] = [];
     const positionIds = new Set<number>();
 
-    // Step 1: Find approval rules matching the activity type
-    let activityTypeRules = await this.prisma.approvalRule.findMany({
-      where: {
-        churchId,
-        activityType,
-        active: true,
-      },
-      include: {
-        positions: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-
-    // Step 2: If no type-specific rules found, fall back to generic rules (activityType IS NULL)
-    if (activityTypeRules.length === 0) {
-      activityTypeRules = await this.prisma.approvalRule.findMany({
-        where: {
-          churchId,
-          activityType: null,
-          active: true,
-        },
-        include: {
-          positions: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-    }
-
-    // Collect positions from activity type rules
-    for (const rule of activityTypeRules) {
+    for (const rule of rules) {
       matchedRuleIds.push(rule.id);
       for (const position of rule.positions) {
         positionIds.add(position.id);
       }
     }
 
-    // Step 4 & 5: Position IDs are already deduplicated via Set
-
-    // If no positions found, return empty result
     if (positionIds.size === 0) {
-      return {
-        membershipIds: [],
-        matchedRuleIds,
-      };
+      return { membershipIds: [], matchedRuleIds };
     }
 
-    // Step 6: Find all memberships that hold these positions in the same church
-    const positionIdArray = Array.from(positionIds);
-
-    const membershipsWithPositions = await this.prisma.membership.findMany({
+    const memberships = await this.prisma.membership.findMany({
       where: {
         churchId,
         membershipPositions: {
-          some: {
-            id: {
-              in: positionIdArray,
-            },
-          },
+          some: { id: { in: Array.from(positionIds) } },
         },
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    // Step 7: Collect unique membership IDs (including supervisor if they match - self-approval)
-    const membershipIds = new Set<number>();
-    for (const membership of membershipsWithPositions) {
-      membershipIds.add(membership.id);
-    }
-
-    // Step 8: Return unique membership IDs
     return {
-      membershipIds: Array.from(membershipIds),
+      membershipIds: memberships.map((m) => m.id),
       matchedRuleIds,
     };
   }

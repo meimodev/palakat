@@ -6703,6 +6703,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No {title} available'**
   String segmentTitle_emptyState(String title);
+
+  /// No description provided for @lbl_bipra.
+  ///
+  /// In en, this message translates to:
+  /// **'Bipra Group (Optional)'**
+  String get lbl_bipra;
+
+  /// No description provided for @hint_allBipra.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get hint_allBipra;
+
+  /// No description provided for @desc_bipraFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'When set, this SERVICE rule only applies to activities for the selected congregation group (bipra).'**
+  String get desc_bipraFilter;
 }
 
 class _AppLocalizationsDelegate

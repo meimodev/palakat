@@ -4009,5 +4009,9 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "lbl_bipra": "Kelompok Bipra (Opsional)",
+  "hint_allBipra": "Semua kelompok",
+  "desc_bipraFilter": "Jika diisi, aturan IBADAH ini hanya berlaku untuk kegiatan kelompok bipra yang dipilih."
 }

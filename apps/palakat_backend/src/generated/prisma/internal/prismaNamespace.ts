@@ -2727,8 +2727,8 @@ export const ApprovalRuleScalarFieldEnum = {
   description: 'description',
   active: 'active',
   activityType: 'activityType',
+  bipra: 'bipra',
   financialType: 'financialType',
-  financialAccountNumberId: 'financialAccountNumberId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   churchId: 'churchId'
@@ -3240,20 +3240,6 @@ export type ListEnumActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'FinancialType'
- */
-export type EnumFinancialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialType'>
-    
-
-
-/**
- * Reference to a field of type 'FinancialType[]'
- */
-export type ListEnumFinancialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialType[]'>
-    
-
-
-/**
  * Reference to a field of type 'Bipra'
  */
 export type EnumBipraFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bipra'>
@@ -3264,6 +3250,20 @@ export type EnumBipraFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
  * Reference to a field of type 'Bipra[]'
  */
 export type ListEnumBipraFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bipra[]'>
+    
+
+
+/**
+ * Reference to a field of type 'FinancialType'
+ */
+export type EnumFinancialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialType'>
+    
+
+
+/**
+ * Reference to a field of type 'FinancialType[]'
+ */
+export type ListEnumFinancialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialType[]'>
     
 
 

@@ -1662,5 +1662,9 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "lbl_bipra": "Bipra Group (Optional)",
+  "hint_allBipra": "All groups",
+  "desc_bipraFilter": "When set, this SERVICE rule only applies to activities for the selected congregation group (bipra)."
 }

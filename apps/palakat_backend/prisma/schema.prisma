@@ -150,23 +150,23 @@ model Account {
 }
 
 model ApprovalRule {
-  id                       Int                     @id @default(autoincrement())
-  name                     String
-  description              String?
-  active                   Boolean                 @default(true)
-  activityType             ActivityType?           // Optional activity type filter
-  financialType            FinancialType?          // Optional financial type filter
-  financialAccountNumberId Int?                    @unique // Unique constraint: each financial account can only be linked to one approval rule
-  createdAt                DateTime                @default(now())
-  updatedAt                DateTime                @updatedAt
-  churchId                 Int
-  church                   Church                  @relation(fields: [churchId], references: [id], onDelete: Cascade)
-  financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id], onDelete: SetNull)
-  positions                MembershipPosition[]
+  id            Int                @id @default(autoincrement())
+  name          String
+  description   String?
+  active        Boolean            @default(true)
+  activityType  ActivityType?      // Optional activity type filter
+  bipra         Bipra?             // Optional: for SERVICE rules scoped to a specific bipra group
+  financialType FinancialType?     // Optional financial type filter (REVENUE or EXPENSE)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  churchId      Int
+  church        Church             @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  positions     MembershipPosition[]
 
   @@index([churchId])
   @@index([active])
   @@index([activityType])
+  @@index([bipra])
   @@index([financialType])
 }
 
@@ -650,7 +650,6 @@ model FinancialAccountNumber {
   updatedAt     DateTime       @updatedAt
   revenues      Revenue[]
   expenses      Expense[]
-  approvalRules ApprovalRule[]
 
   @@unique([churchId, accountNumber])
   @@index([churchId])

@@ -3693,4 +3693,14 @@ class AppLocalizationsId extends AppLocalizations {
   String segmentTitle_emptyState(String title) {
     return 'Tidak ada $title tersedia';
   }
+
+  @override
+  String get lbl_bipra => 'Kelompok Bipra (Opsional)';
+
+  @override
+  String get hint_allBipra => 'Semua kelompok';
+
+  @override
+  String get desc_bipraFilter =>
+      'Jika diisi, aturan IBADAH ini hanya berlaku untuk kegiatan kelompok bipra yang dipilih.';
 }

@@ -28,13 +28,11 @@ export type AggregateApprovalRule = {
 
 export type ApprovalRuleAvgAggregateOutputType = {
   id: number | null
-  financialAccountNumberId: number | null
   churchId: number | null
 }
 
 export type ApprovalRuleSumAggregateOutputType = {
   id: number | null
-  financialAccountNumberId: number | null
   churchId: number | null
 }
 
@@ -44,8 +42,8 @@ export type ApprovalRuleMinAggregateOutputType = {
   description: string | null
   active: boolean | null
   activityType: $Enums.ActivityType | null
+  bipra: $Enums.Bipra | null
   financialType: $Enums.FinancialType | null
-  financialAccountNumberId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -57,8 +55,8 @@ export type ApprovalRuleMaxAggregateOutputType = {
   description: string | null
   active: boolean | null
   activityType: $Enums.ActivityType | null
+  bipra: $Enums.Bipra | null
   financialType: $Enums.FinancialType | null
-  financialAccountNumberId: number | null
   createdAt: Date | null
   updatedAt: Date | null
   churchId: number | null
@@ -70,8 +68,8 @@ export type ApprovalRuleCountAggregateOutputType = {
   description: number
   active: number
   activityType: number
+  bipra: number
   financialType: number
-  financialAccountNumberId: number
   createdAt: number
   updatedAt: number
   churchId: number
@@ -81,13 +79,11 @@ export type ApprovalRuleCountAggregateOutputType = {
 
 export type ApprovalRuleAvgAggregateInputType = {
   id?: true
-  financialAccountNumberId?: true
   churchId?: true
 }
 
 export type ApprovalRuleSumAggregateInputType = {
   id?: true
-  financialAccountNumberId?: true
   churchId?: true
 }
 
@@ -97,8 +93,8 @@ export type ApprovalRuleMinAggregateInputType = {
   description?: true
   active?: true
   activityType?: true
+  bipra?: true
   financialType?: true
-  financialAccountNumberId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -110,8 +106,8 @@ export type ApprovalRuleMaxAggregateInputType = {
   description?: true
   active?: true
   activityType?: true
+  bipra?: true
   financialType?: true
-  financialAccountNumberId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -123,8 +119,8 @@ export type ApprovalRuleCountAggregateInputType = {
   description?: true
   active?: true
   activityType?: true
+  bipra?: true
   financialType?: true
-  financialAccountNumberId?: true
   createdAt?: true
   updatedAt?: true
   churchId?: true
@@ -223,8 +219,8 @@ export type ApprovalRuleGroupByOutputType = {
   description: string | null
   active: boolean
   activityType: $Enums.ActivityType | null
+  bipra: $Enums.Bipra | null
   financialType: $Enums.FinancialType | null
-  financialAccountNumberId: number | null
   createdAt: Date
   updatedAt: Date
   churchId: number
@@ -259,13 +255,12 @@ export type ApprovalRuleWhereInput = {
   description?: Prisma.StringNullableFilter<"ApprovalRule"> | string | null
   active?: Prisma.BoolFilter<"ApprovalRule"> | boolean
   activityType?: Prisma.EnumActivityTypeNullableFilter<"ApprovalRule"> | $Enums.ActivityType | null
+  bipra?: Prisma.EnumBipraNullableFilter<"ApprovalRule"> | $Enums.Bipra | null
   financialType?: Prisma.EnumFinancialTypeNullableFilter<"ApprovalRule"> | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.IntNullableFilter<"ApprovalRule"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   churchId?: Prisma.IntFilter<"ApprovalRule"> | number
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
-  financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
   positions?: Prisma.MembershipPositionListRelationFilter
 }
 
@@ -275,19 +270,17 @@ export type ApprovalRuleOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   activityType?: Prisma.SortOrderInput | Prisma.SortOrder
+  bipra?: Prisma.SortOrderInput | Prisma.SortOrder
   financialType?: Prisma.SortOrderInput | Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   church?: Prisma.ChurchOrderByWithRelationInput
-  financialAccountNumber?: Prisma.FinancialAccountNumberOrderByWithRelationInput
   positions?: Prisma.MembershipPositionOrderByRelationAggregateInput
 }
 
 export type ApprovalRuleWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  financialAccountNumberId?: number
   AND?: Prisma.ApprovalRuleWhereInput | Prisma.ApprovalRuleWhereInput[]
   OR?: Prisma.ApprovalRuleWhereInput[]
   NOT?: Prisma.ApprovalRuleWhereInput | Prisma.ApprovalRuleWhereInput[]
@@ -295,14 +288,14 @@ export type ApprovalRuleWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"ApprovalRule"> | string | null
   active?: Prisma.BoolFilter<"ApprovalRule"> | boolean
   activityType?: Prisma.EnumActivityTypeNullableFilter<"ApprovalRule"> | $Enums.ActivityType | null
+  bipra?: Prisma.EnumBipraNullableFilter<"ApprovalRule"> | $Enums.Bipra | null
   financialType?: Prisma.EnumFinancialTypeNullableFilter<"ApprovalRule"> | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   churchId?: Prisma.IntFilter<"ApprovalRule"> | number
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
-  financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
   positions?: Prisma.MembershipPositionListRelationFilter
-}, "id" | "financialAccountNumberId">
+}, "id">
 
 export type ApprovalRuleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -310,8 +303,8 @@ export type ApprovalRuleOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   activityType?: Prisma.SortOrderInput | Prisma.SortOrder
+  bipra?: Prisma.SortOrderInput | Prisma.SortOrder
   financialType?: Prisma.SortOrderInput | Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -331,8 +324,8 @@ export type ApprovalRuleScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"ApprovalRule"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"ApprovalRule"> | boolean
   activityType?: Prisma.EnumActivityTypeNullableWithAggregatesFilter<"ApprovalRule"> | $Enums.ActivityType | null
+  bipra?: Prisma.EnumBipraNullableWithAggregatesFilter<"ApprovalRule"> | $Enums.Bipra | null
   financialType?: Prisma.EnumFinancialTypeNullableWithAggregatesFilter<"ApprovalRule"> | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalRule"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApprovalRule"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ApprovalRule"> | Date | string
   churchId?: Prisma.IntWithAggregatesFilter<"ApprovalRule"> | number
@@ -343,11 +336,11 @@ export type ApprovalRuleCreateInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutApprovalRulesInput
-  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutApprovalRulesInput
   positions?: Prisma.MembershipPositionCreateNestedManyWithoutApprovalRuleInput
 }
 
@@ -357,8 +350,8 @@ export type ApprovalRuleUncheckedCreateInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
-  financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -370,11 +363,11 @@ export type ApprovalRuleUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutApprovalRulesNestedInput
-  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutApprovalRulesNestedInput
   positions?: Prisma.MembershipPositionUpdateManyWithoutApprovalRuleNestedInput
 }
 
@@ -384,8 +377,8 @@ export type ApprovalRuleUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -398,8 +391,8 @@ export type ApprovalRuleCreateManyInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
-  financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -410,6 +403,7 @@ export type ApprovalRuleUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -421,8 +415,8 @@ export type ApprovalRuleUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -449,8 +443,8 @@ export type ApprovalRuleCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   active?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
+  bipra?: Prisma.SortOrder
   financialType?: Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -458,7 +452,6 @@ export type ApprovalRuleCountOrderByAggregateInput = {
 
 export type ApprovalRuleAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
 }
 
@@ -468,8 +461,8 @@ export type ApprovalRuleMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   active?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
+  bipra?: Prisma.SortOrder
   financialType?: Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -481,8 +474,8 @@ export type ApprovalRuleMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   active?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
+  bipra?: Prisma.SortOrder
   financialType?: Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
@@ -490,7 +483,6 @@ export type ApprovalRuleMinOrderByAggregateInput = {
 
 export type ApprovalRuleSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  financialAccountNumberId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
 }
 
@@ -556,50 +548,12 @@ export type NullableEnumActivityTypeFieldUpdateOperationsInput = {
   set?: $Enums.ActivityType | null
 }
 
+export type NullableEnumBipraFieldUpdateOperationsInput = {
+  set?: $Enums.Bipra | null
+}
+
 export type NullableEnumFinancialTypeFieldUpdateOperationsInput = {
   set?: $Enums.FinancialType | null
-}
-
-export type ApprovalRuleCreateNestedManyWithoutFinancialAccountNumberInput = {
-  create?: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput> | Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput[] | Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput[]
-  connectOrCreate?: Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput[]
-  createMany?: Prisma.ApprovalRuleCreateManyFinancialAccountNumberInputEnvelope
-  connect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-}
-
-export type ApprovalRuleUncheckedCreateNestedManyWithoutFinancialAccountNumberInput = {
-  create?: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput> | Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput[] | Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput[]
-  connectOrCreate?: Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput[]
-  createMany?: Prisma.ApprovalRuleCreateManyFinancialAccountNumberInputEnvelope
-  connect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-}
-
-export type ApprovalRuleUpdateManyWithoutFinancialAccountNumberNestedInput = {
-  create?: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput> | Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput[] | Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput[]
-  connectOrCreate?: Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput[]
-  upsert?: Prisma.ApprovalRuleUpsertWithWhereUniqueWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpsertWithWhereUniqueWithoutFinancialAccountNumberInput[]
-  createMany?: Prisma.ApprovalRuleCreateManyFinancialAccountNumberInputEnvelope
-  set?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  disconnect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  delete?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  connect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  update?: Prisma.ApprovalRuleUpdateWithWhereUniqueWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpdateWithWhereUniqueWithoutFinancialAccountNumberInput[]
-  updateMany?: Prisma.ApprovalRuleUpdateManyWithWhereWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpdateManyWithWhereWithoutFinancialAccountNumberInput[]
-  deleteMany?: Prisma.ApprovalRuleScalarWhereInput | Prisma.ApprovalRuleScalarWhereInput[]
-}
-
-export type ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput = {
-  create?: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput> | Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput[] | Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput[]
-  connectOrCreate?: Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput[]
-  upsert?: Prisma.ApprovalRuleUpsertWithWhereUniqueWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpsertWithWhereUniqueWithoutFinancialAccountNumberInput[]
-  createMany?: Prisma.ApprovalRuleCreateManyFinancialAccountNumberInputEnvelope
-  set?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  disconnect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  delete?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  connect?: Prisma.ApprovalRuleWhereUniqueInput | Prisma.ApprovalRuleWhereUniqueInput[]
-  update?: Prisma.ApprovalRuleUpdateWithWhereUniqueWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpdateWithWhereUniqueWithoutFinancialAccountNumberInput[]
-  updateMany?: Prisma.ApprovalRuleUpdateManyWithWhereWithoutFinancialAccountNumberInput | Prisma.ApprovalRuleUpdateManyWithWhereWithoutFinancialAccountNumberInput[]
-  deleteMany?: Prisma.ApprovalRuleScalarWhereInput | Prisma.ApprovalRuleScalarWhereInput[]
 }
 
 export type ApprovalRuleCreateWithoutChurchInput = {
@@ -607,10 +561,10 @@ export type ApprovalRuleCreateWithoutChurchInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutApprovalRulesInput
   positions?: Prisma.MembershipPositionCreateNestedManyWithoutApprovalRuleInput
 }
 
@@ -620,8 +574,8 @@ export type ApprovalRuleUncheckedCreateWithoutChurchInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
-  financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutApprovalRuleInput
@@ -662,8 +616,8 @@ export type ApprovalRuleScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"ApprovalRule"> | string | null
   active?: Prisma.BoolFilter<"ApprovalRule"> | boolean
   activityType?: Prisma.EnumActivityTypeNullableFilter<"ApprovalRule"> | $Enums.ActivityType | null
+  bipra?: Prisma.EnumBipraNullableFilter<"ApprovalRule"> | $Enums.Bipra | null
   financialType?: Prisma.EnumFinancialTypeNullableFilter<"ApprovalRule"> | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.IntNullableFilter<"ApprovalRule"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApprovalRule"> | Date | string
   churchId?: Prisma.IntFilter<"ApprovalRule"> | number
@@ -674,11 +628,11 @@ export type ApprovalRuleCreateWithoutPositionsInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutApprovalRulesInput
-  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutApprovalRulesInput
 }
 
 export type ApprovalRuleUncheckedCreateWithoutPositionsInput = {
@@ -687,8 +641,8 @@ export type ApprovalRuleUncheckedCreateWithoutPositionsInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
-  financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId: number
@@ -715,11 +669,11 @@ export type ApprovalRuleUpdateWithoutPositionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutApprovalRulesNestedInput
-  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutApprovalRulesNestedInput
 }
 
 export type ApprovalRuleUncheckedUpdateWithoutPositionsInput = {
@@ -728,62 +682,11 @@ export type ApprovalRuleUncheckedUpdateWithoutPositionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
-}
-
-export type ApprovalRuleCreateWithoutFinancialAccountNumberInput = {
-  name: string
-  description?: string | null
-  active?: boolean
-  activityType?: $Enums.ActivityType | null
-  financialType?: $Enums.FinancialType | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  church: Prisma.ChurchCreateNestedOneWithoutApprovalRulesInput
-  positions?: Prisma.MembershipPositionCreateNestedManyWithoutApprovalRuleInput
-}
-
-export type ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput = {
-  id?: number
-  name: string
-  description?: string | null
-  active?: boolean
-  activityType?: $Enums.ActivityType | null
-  financialType?: $Enums.FinancialType | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  churchId: number
-  positions?: Prisma.MembershipPositionUncheckedCreateNestedManyWithoutApprovalRuleInput
-}
-
-export type ApprovalRuleCreateOrConnectWithoutFinancialAccountNumberInput = {
-  where: Prisma.ApprovalRuleWhereUniqueInput
-  create: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput>
-}
-
-export type ApprovalRuleCreateManyFinancialAccountNumberInputEnvelope = {
-  data: Prisma.ApprovalRuleCreateManyFinancialAccountNumberInput | Prisma.ApprovalRuleCreateManyFinancialAccountNumberInput[]
-  skipDuplicates?: boolean
-}
-
-export type ApprovalRuleUpsertWithWhereUniqueWithoutFinancialAccountNumberInput = {
-  where: Prisma.ApprovalRuleWhereUniqueInput
-  update: Prisma.XOR<Prisma.ApprovalRuleUpdateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedUpdateWithoutFinancialAccountNumberInput>
-  create: Prisma.XOR<Prisma.ApprovalRuleCreateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedCreateWithoutFinancialAccountNumberInput>
-}
-
-export type ApprovalRuleUpdateWithWhereUniqueWithoutFinancialAccountNumberInput = {
-  where: Prisma.ApprovalRuleWhereUniqueInput
-  data: Prisma.XOR<Prisma.ApprovalRuleUpdateWithoutFinancialAccountNumberInput, Prisma.ApprovalRuleUncheckedUpdateWithoutFinancialAccountNumberInput>
-}
-
-export type ApprovalRuleUpdateManyWithWhereWithoutFinancialAccountNumberInput = {
-  where: Prisma.ApprovalRuleScalarWhereInput
-  data: Prisma.XOR<Prisma.ApprovalRuleUpdateManyMutationInput, Prisma.ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberInput>
 }
 
 export type ApprovalRuleCreateManyChurchInput = {
@@ -792,8 +695,8 @@ export type ApprovalRuleCreateManyChurchInput = {
   description?: string | null
   active?: boolean
   activityType?: $Enums.ActivityType | null
+  bipra?: $Enums.Bipra | null
   financialType?: $Enums.FinancialType | null
-  financialAccountNumberId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -803,10 +706,10 @@ export type ApprovalRuleUpdateWithoutChurchInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutApprovalRulesNestedInput
   positions?: Prisma.MembershipPositionUpdateManyWithoutApprovalRuleNestedInput
 }
 
@@ -816,8 +719,8 @@ export type ApprovalRuleUncheckedUpdateWithoutChurchInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutApprovalRuleNestedInput
@@ -829,59 +732,10 @@ export type ApprovalRuleUncheckedUpdateManyWithoutChurchInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
-  financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ApprovalRuleCreateManyFinancialAccountNumberInput = {
-  id?: number
-  name: string
-  description?: string | null
-  active?: boolean
-  activityType?: $Enums.ActivityType | null
-  financialType?: $Enums.FinancialType | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  churchId: number
-}
-
-export type ApprovalRuleUpdateWithoutFinancialAccountNumberInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
   financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  church?: Prisma.ChurchUpdateOneRequiredWithoutApprovalRulesNestedInput
-  positions?: Prisma.MembershipPositionUpdateManyWithoutApprovalRuleNestedInput
-}
-
-export type ApprovalRuleUncheckedUpdateWithoutFinancialAccountNumberInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
-  financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  churchId?: Prisma.IntFieldUpdateOperationsInput | number
-  positions?: Prisma.MembershipPositionUncheckedUpdateManyWithoutApprovalRuleNestedInput
-}
-
-export type ApprovalRuleUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  activityType?: Prisma.NullableEnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType | null
-  financialType?: Prisma.NullableEnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  churchId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -921,13 +775,12 @@ export type ApprovalRuleSelect<ExtArgs extends runtime.Types.Extensions.Internal
   description?: boolean
   active?: boolean
   activityType?: boolean
+  bipra?: boolean
   financialType?: boolean
-  financialAccountNumberId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
   positions?: boolean | Prisma.ApprovalRule$positionsArgs<ExtArgs>
   _count?: boolean | Prisma.ApprovalRuleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["approvalRule"]>
@@ -938,13 +791,12 @@ export type ApprovalRuleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   description?: boolean
   active?: boolean
   activityType?: boolean
+  bipra?: boolean
   financialType?: boolean
-  financialAccountNumberId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
 }, ExtArgs["result"]["approvalRule"]>
 
 export type ApprovalRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -953,13 +805,12 @@ export type ApprovalRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   description?: boolean
   active?: boolean
   activityType?: boolean
+  bipra?: boolean
   financialType?: boolean
-  financialAccountNumberId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
 }, ExtArgs["result"]["approvalRule"]>
 
 export type ApprovalRuleSelectScalar = {
@@ -968,34 +819,30 @@ export type ApprovalRuleSelectScalar = {
   description?: boolean
   active?: boolean
   activityType?: boolean
+  bipra?: boolean
   financialType?: boolean
-  financialAccountNumberId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   churchId?: boolean
 }
 
-export type ApprovalRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "active" | "activityType" | "financialType" | "financialAccountNumberId" | "createdAt" | "updatedAt" | "churchId", ExtArgs["result"]["approvalRule"]>
+export type ApprovalRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "active" | "activityType" | "bipra" | "financialType" | "createdAt" | "updatedAt" | "churchId", ExtArgs["result"]["approvalRule"]>
 export type ApprovalRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
   positions?: boolean | Prisma.ApprovalRule$positionsArgs<ExtArgs>
   _count?: boolean | Prisma.ApprovalRuleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApprovalRuleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
 }
 export type ApprovalRuleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
-  financialAccountNumber?: boolean | Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>
 }
 
 export type $ApprovalRulePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ApprovalRule"
   objects: {
     church: Prisma.$ChurchPayload<ExtArgs>
-    financialAccountNumber: Prisma.$FinancialAccountNumberPayload<ExtArgs> | null
     positions: Prisma.$MembershipPositionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1004,8 +851,8 @@ export type $ApprovalRulePayload<ExtArgs extends runtime.Types.Extensions.Intern
     description: string | null
     active: boolean
     activityType: $Enums.ActivityType | null
+    bipra: $Enums.Bipra | null
     financialType: $Enums.FinancialType | null
-    financialAccountNumberId: number | null
     createdAt: Date
     updatedAt: Date
     churchId: number
@@ -1404,7 +1251,6 @@ readonly fields: ApprovalRuleFieldRefs;
 export interface Prisma__ApprovalRuleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  financialAccountNumber<T extends Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApprovalRule$financialAccountNumberArgs<ExtArgs>>): Prisma.Prisma__FinancialAccountNumberClient<runtime.Types.Result.GetResult<Prisma.$FinancialAccountNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   positions<T extends Prisma.ApprovalRule$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApprovalRule$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1440,8 +1286,8 @@ export interface ApprovalRuleFieldRefs {
   readonly description: Prisma.FieldRef<"ApprovalRule", 'String'>
   readonly active: Prisma.FieldRef<"ApprovalRule", 'Boolean'>
   readonly activityType: Prisma.FieldRef<"ApprovalRule", 'ActivityType'>
+  readonly bipra: Prisma.FieldRef<"ApprovalRule", 'Bipra'>
   readonly financialType: Prisma.FieldRef<"ApprovalRule", 'FinancialType'>
-  readonly financialAccountNumberId: Prisma.FieldRef<"ApprovalRule", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ApprovalRule", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ApprovalRule", 'DateTime'>
   readonly churchId: Prisma.FieldRef<"ApprovalRule", 'Int'>
@@ -1838,25 +1684,6 @@ export type ApprovalRuleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many ApprovalRules to delete.
    */
   limit?: number
-}
-
-/**
- * ApprovalRule.financialAccountNumber
- */
-export type ApprovalRule$financialAccountNumberArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinancialAccountNumber
-   */
-  select?: Prisma.FinancialAccountNumberSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinancialAccountNumber
-   */
-  omit?: Prisma.FinancialAccountNumberOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinancialAccountNumberInclude<ExtArgs> | null
-  where?: Prisma.FinancialAccountNumberWhereInput
 }
 
 /**
