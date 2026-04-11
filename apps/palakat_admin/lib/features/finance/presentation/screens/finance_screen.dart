@@ -249,6 +249,29 @@ class FinanceScreen extends ConsumerWidget {
         },
       ),
       AppTableColumn<FinanceEntry>(
+        title: l10n.tbl_approval,
+        flex: 2,
+        cellBuilder: (ctx, entry) {
+          return CompactStatusChip.forApproval(
+            ctx,
+            entry.approvers.approvalStatus,
+          );
+        },
+      ),
+      AppTableColumn<FinanceEntry>(
+        title: l10n.tbl_approvalDate,
+        flex: 2,
+        cellBuilder: (ctx, entry) {
+          final theme = Theme.of(ctx);
+          if (entry.approvers.isEmpty) {
+            return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
+          }
+          final approvalDate = entry.approvers.approvalDate;
+          final date = approvalDate.toCustomFormat("EEEE, dd MMMM yyyy");
+          return Text(date, style: theme.textTheme.bodyMedium);
+        },
+      ),
+      AppTableColumn<FinanceEntry>(
         title: l10n.tbl_amount,
         flex: 2,
         cellBuilder: (ctx, entry) {

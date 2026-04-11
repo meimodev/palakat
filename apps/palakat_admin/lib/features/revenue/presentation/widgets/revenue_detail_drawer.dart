@@ -248,14 +248,14 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                   const SizedBox(height: 24),
                 ],
 
-                // Approval (only show if activity exists)
-                if (_revenue!.activity != null)
+                // Approval
+                if (_revenue!.approvers.isNotEmpty)
                   InfoSection(
                     title: l10n.section_approval,
                     trailing: Builder(
                       builder: (context) {
                         final status =
-                            _revenue!.activity!.approvers.approvalStatus;
+                            _revenue!.approvers.approvalStatus;
                         final (bg, fg, label, icon) = status.displayProperties;
                         return StatusChip(
                           label: label,
@@ -275,9 +275,9 @@ class _RevenueDetailDrawerState extends ConsumerState<RevenueDetailDrawer> {
                         InfoRow(
                           label: l10n.lbl_approveOn,
                           value:
-                              "${_revenue!.activity!.approvers.approvalDate.toDateTimeString()}"
+                              "${_revenue!.approvers.approvalDate.toDateTimeString()}"
                               "\n"
-                              "${_revenue!.activity!.approvers.approvalDate.toRelativeTime()}",
+                              "${_revenue!.approvers.approvalDate.toRelativeTime()}",
                         ),
                       if (_revenue!.updatedAt != null)
                         InfoRow(

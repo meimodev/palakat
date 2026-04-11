@@ -247,7 +247,19 @@ class ActivityController extends _$ActivityController {
 
     if (activity.id != null) {
       // Update existing activity
-      final payload = activity.toJson();
+      final payload = Map<String, dynamic>.from(activity.toJson())
+        ..remove('id')
+        ..remove('createdAt')
+        ..remove('updatedAt')
+        ..remove('supervisor')
+        ..remove('approvers')
+        ..remove('location')
+        ..remove('file')
+        ..remove('document')
+        ..remove('hasRevenue')
+        ..remove('hasExpense')
+        ..remove('revenues')
+        ..remove('expenses');
       final result = await repository.updateActivity(
         activityId: activity.id!,
         update: payload,

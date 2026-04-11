@@ -249,14 +249,14 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                   const SizedBox(height: 24),
                 ],
 
-                // Approval (only show if activity exists)
-                if (_expense!.activity != null)
+                // Approval
+                if (_expense!.approvers.isNotEmpty)
                   InfoSection(
                     title: l10n.section_approval,
                     trailing: Builder(
                       builder: (context) {
                         final status =
-                            _expense!.activity!.approvers.approvalStatus;
+                            _expense!.approvers.approvalStatus;
                         final (bg, fg, label, icon) = status.displayProperties;
                         return StatusChip(
                           label: label,
@@ -276,9 +276,9 @@ class _ExpenseDetailDrawerState extends ConsumerState<ExpenseDetailDrawer> {
                         InfoRow(
                           label: l10n.lbl_approveOn,
                           value:
-                              "${_expense!.activity!.approvers.approvalDate.toDateTimeString()}"
+                              "${_expense!.approvers.approvalDate.toDateTimeString()}"
                               "\n"
-                              "${_expense!.activity!.approvers.approvalDate.toRelativeTime()}",
+                              "${_expense!.approvers.approvalDate.toRelativeTime()}",
                         ),
                       if (_expense!.updatedAt != null)
                         InfoRow(

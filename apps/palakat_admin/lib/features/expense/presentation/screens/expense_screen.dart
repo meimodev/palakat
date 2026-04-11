@@ -193,10 +193,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         flex: 2,
         cellBuilder: (ctx, expense) {
           final theme = Theme.of(ctx);
-          if (expense.activity?.date == null) {
+          if (expense.approvers.isEmpty) {
             return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
-          final approvalDate = expense.activity!.approvers.approvalDate;
+          final approvalDate = expense.approvers.approvalDate;
           final date = approvalDate.toCustomFormat("EEEE, dd MMMM yyyy");
           return Text(date, style: theme.textTheme.bodyMedium);
         },

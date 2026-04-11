@@ -191,10 +191,10 @@ class _RevenueScreenState extends ConsumerState<RevenueScreen> {
         flex: 2,
         cellBuilder: (ctx, revenue) {
           final theme = Theme.of(ctx);
-          if (revenue.activity?.date == null) {
+          if (revenue.approvers.isEmpty) {
             return Text(ctx.l10n.lbl_na, style: theme.textTheme.bodyMedium);
           }
-          final approvalDate = revenue.activity!.approvers.approvalDate;
+          final approvalDate = revenue.approvers.approvalDate;
           final date = approvalDate.toCustomFormat("EEEE, dd MMMM yyyy");
           return Text(date, style: theme.textTheme.bodyMedium);
         },
