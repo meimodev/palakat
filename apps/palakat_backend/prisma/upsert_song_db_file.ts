@@ -43,8 +43,10 @@ async function main() {
 
     const localTemplatePath = path.resolve(
       __dirname,
-      'seed_assets',
-      'song_db',
+      '..',
+      '..',
+      '..',
+      'docs',
       originalName,
     );
 

@@ -202,6 +202,8 @@ async function cleanDatabase() {
     p.article.deleteMany(),
     p.notification.deleteMany(),
     p.approver.deleteMany(),
+    p.revenueApprover.deleteMany(),
+    p.expenseApprover.deleteMany(),
     p.revenue.deleteMany(),
     p.expense.deleteMany(),
     p.cashMutation.deleteMany(),
