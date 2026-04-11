@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "books_count": 4,
+  "songs_count": 4,
+  "books": [
+    {
+      "id": "nnbt",
+      "name": "Nanyikanlah Nyanyian Baru Bagi Tuhan"
+    },
+    {
+      "id": "kj",
+      "name": "Kidung Jemaat"
+    },
+    {
+      "id": "nkb",
+      "name": "Nanyikanlah Kidung Baru"
+    },
+    {
+      "id": "dsl",
+      "name": "Dua Sahabat Lama"
+    }
+  ],
+  "songs": [
+    {
+      "id": "NNBT-1",
+      "bookId": "nnbt",
+      "bookName": "Nanyikanlah Nyanyian Baru Bagi Tuhan",
+      "title": "NNBT NO.1",
+      "subTitle": "Amazing Grace",
+      "author": "",
+      "baseNote": "",
+      "lastUpdate": "2026-01-01T00:00:00.000Z",
+      "publisher": "",
+      "composition": ["VERSE", "CHORUS"],
+      "definition": [
+        { "type": "VERSE", "content": "Amazing grace! how sweet the sound" },
+        { "type": "CHORUS", "content": "That saved a wretch like me" }
+      ],
+      "urlImage": "",
+      "urlVideo": ""
+    },
+    {
+      "id": "KJ-1",
+      "bookId": "kj",
+      "bookName": "Kidung Jemaat",
+      "title": "KJ NO.1",
+      "subTitle": "Tuhan Allah Hadir",
+      "author": "",
+      "baseNote": "",
+      "lastUpdate": "2026-01-01T00:00:00.000Z",
+      "publisher": "",
+      "composition": ["VERSE", "CHORUS"],
+      "definition": [
+        { "type": "VERSE", "content": "Tuhan Allah hadir pada saat ini" },
+        { "type": "CHORUS", "content": "Mari kita menyembah Dia" }
+      ],
+      "urlImage": "",
+      "urlVideo": ""
+    },
+    {
+      "id": "NKB-1",
+      "bookId": "nkb",
+      "bookName": "Nanyikanlah Kidung Baru",
+      "title": "NKB NO.1",
+      "subTitle": "Nanyikanlah Kidung Baru",
+      "author": "",
+      "baseNote": "",
+      "lastUpdate": "2026-01-01T00:00:00.000Z",
+      "publisher": "",
+      "composition": ["VERSE"],
+      "definition": [
+        { "type": "VERSE", "content": "Nanyikanlah kidung baru bagi Tuhan" }
+      ],
+      "urlImage": "",
+      "urlVideo": ""
+    },
+    {
+      "id": "DSL-1",
+      "bookId": "dsl",
+      "bookName": "Dua Sahabat Lama",
+      "title": "DSL NO.1",
+      "subTitle": "Dia Sanggup",
+      "author": "",
+      "baseNote": "",
+      "lastUpdate": "2026-01-01T00:00:00.000Z",
+      "publisher": "",
+      "composition": ["VERSE", "CHORUS"],
+      "definition": [
+        { "type": "VERSE", "content": "Dia sanggup melakukan perkara besar" },
+        { "type": "CHORUS", "content": "Bagi Dia tidak ada yang mustahil" }
+      ],
+      "urlImage": "",
+      "urlVideo": ""
+    }
+  ]
+}

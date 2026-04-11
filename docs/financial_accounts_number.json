@@ -1,0 +1,1736 @@
+[
+  {
+    "accountNumber": "1.0.00.00",
+    "description": "KEESAAN / PERSEKUTUAN (KOINONIA)",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "1.1.00.00",
+    "description": "SENTRALISASI KE SINODE",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.2.00.00",
+    "description": "SENTRALISASI KE WILAYAH",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.00.00",
+    "description": "REALISASI DALAM JEMAAT",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.00",
+    "description": "Komisi Pelayanan KATEGORIAL",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.01",
+    "description": "Pria/Kaum Bapa",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.02",
+    "description": "Wanita/Kaum Ibu",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.03",
+    "description": "Pemuda",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.04",
+    "description": "Remaja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.05",
+    "description": "Anak",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.00",
+    "description": "Gaji / Tunjuangan Pekerja Gereja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.01",
+    "description": "Tunjangan Fungsional Ketua Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.02",
+    "description": "Tunjangan Fungsional Pendeta Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.03",
+    "description": "Tunjangan Fungsional Guru Agama",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.04",
+    "description": "Gaji Pegawai Tata Usaha",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.05",
+    "description": "Honor Kostor",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.06",
+    "description": "Honor Pendeta Jemaat Non Pekerja GMIM",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.02.07",
+    "description": "Honor Vicaris Pendeta",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.00",
+    "description": "Tunjangan Struktural BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.01",
+    "description": "Ketua BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.02",
+    "description": "Wakil Ketua BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.03",
+    "description": "Sekretaris BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.04",
+    "description": "Bendahara BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.03.05",
+    "description": "Anggota BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.00",
+    "description": "Tunjangan Hari Raya Pekerja GMIM",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.01",
+    "description": "Ketua BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.02",
+    "description": "Wakil Ketua BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.03",
+    "description": "Sekretaris BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.04",
+    "description": "Bendahara BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.05",
+    "description": "Anggota BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.06",
+    "description": "Majelelis Non BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.07",
+    "description": "Pendeta Jemaat/ Vicaris Pendeta",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.08",
+    "description": "Guru Agama",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.09",
+    "description": "Pegawai Tata Usaha",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.04.10",
+    "description": "Kostor",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.00",
+    "description": "Biaya Khadim",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.01",
+    "description": "Khadim Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.02",
+    "description": "Khadim Wilayah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.03",
+    "description": "Khadim Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.04",
+    "description": "Khadim Ibadah Hari Raya",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.05",
+    "description": "Khadim Baptisan, Sidi, Perjamuan, Pernikahan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.06",
+    "description": "Khadim Khusus",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.05.07",
+    "description": "Khadim Natura",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.06.00",
+    "description": "Pemain Musik",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.06.01",
+    "description": "Pemain Keyboard Ibadah Hari Minggu",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.06.02",
+    "description": "Tim Musik / Kelompok Nyanyi Ibadah Hari Raya",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.06.03",
+    "description": "Pemain Keyboard Ibadah Hari Khusus",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.06.04",
+    "description": "Tim Pelayanan Ibadah Natura",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.00",
+    "description": "Biaya Kelengkapan Kantor / Ibadah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.01",
+    "description": "Liturgi / Pengadaan Materi / Surat / Foto Copy",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.02",
+    "description": "Pundi, Stola, Kain Mimbar, Lilin, dll",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.03",
+    "description": "Sampul-Sampul (Syukur / HUT / Persepuluhan, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.04",
+    "description": "Biaya Roti dan Anggur Perjamuan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.05",
+    "description": "Alat/ Perlengkapan Kantor (Kertas, Tinta, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.07.06",
+    "description": "Konsumsi Ringan di Kantor Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.00",
+    "description": "Pengadaan Bacaan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.01",
+    "description": "Bina Ibu (Upus Ni Mama)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.02",
+    "description": "Bina Bapak (Pelita)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.03",
+    "description": "Bina Pemuda (Obor)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.04",
+    "description": "Bina Remaja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.05",
+    "description": "Bina Anak",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.06",
+    "description": "MTPJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.07",
+    "description": "RHK",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.08.08",
+    "description": "Koran, Majalah / Dodoku",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.00",
+    "description": "Biaya Rapat / Konsultasi / Konven",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.01",
+    "description": "Konsumsi Rapat Kerja BPMJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.02",
+    "description": "Konsumsi Sidang Majelis Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.03",
+    "description": "Konsumsi Sidang Tahunan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.04",
+    "description": "Rapat Sidi Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.05",
+    "description": "Konsultasi dengan BPW/ Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.06",
+    "description": "Sidang Majelis Sinode Tahunan (SMST)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.07",
+    "description": "Sidang Majelis Sinode (SMS / SMSI)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.08",
+    "description": "Sidang Tahunan Wilayah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.09",
+    "description": "Rapat Kerja Wilayah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.10",
+    "description": "Rapat Kerja Ketua-Ketua Jemaat Se Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.11",
+    "description": "Rapat Kerja KSB Se Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.12",
+    "description": "Konve Komisi Kerja Wilayah / Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.13",
+    "description": "Konven Pendeta dan Guru Agama",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.14",
+    "description": "Konven Penatua dan Syamas Wilayah / Sinode",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.09.15",
+    "description": "Konven Kostor",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.00",
+    "description": "Biaya Pembekalan / Pelatihan:",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.01",
+    "description": "Pembekalan Pelayan Khusus",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.02",
+    "description": "Pembekalan Komisi Kerja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.03",
+    "description": "Pembekalan Perbendaharaan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.04",
+    "description": "Pembekalan Anggota Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.10.05",
+    "description": "Katekisasi Calon Sidi Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.11.00",
+    "description": "Rekening - Rekening",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.11.01",
+    "description": "Listrik",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.11.02",
+    "description": "Air Minum (PAM)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.11.03",
+    "description": "Telepon",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.12.00",
+    "description": "Transportasi",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.12.01",
+    "description": "BBM",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.12.02",
+    "description": "Sewa Kendaraan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.12.03",
+    "description": "Perjalanan Dinas (Tiket, Airport, Tax Akomodasi, Uang Makan)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.00",
+    "description": "Perawatan / Pemeliharaan Inventaris",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.01",
+    "description": "Onderdil / service / Oli Kendaraan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.02",
+    "description": "Surat Kendaraan (STNK / Pajak)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.03",
+    "description": "Surat Tanah / Bangunan (Sertifikat, Akta, IMB, PBB)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.04",
+    "description": "Perbaikan Peralatan / Perlengkapan Inventaris",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.13.05",
+    "description": "Perbaikan / Pemeliharaan Bangunan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.14.00",
+    "description": "Pengawasan / Pemeriksaan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.14.01",
+    "description": "Biaya Pelayanan BPPJ",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.14.02",
+    "description": "Biaya Pelayanan BPPW / BPPS",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.15.00",
+    "description": "Biaya Pelaksanaan Pemilihan Pelsus",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.0.00.00",
+    "description": "KESAKSIAN DAN KERJASAMA (MARTURIA)",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "2.3.01.00",
+    "description": "Kegiatan KPDP",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.01.01",
+    "description": "Kebaktian Penyegaran Iman (KPI)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.01.02",
+    "description": "Pekabaran Injil Keluar",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.01.03",
+    "description": "Biaya Perkunjungan Pelayanan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.02.00",
+    "description": "Hubungan Kerjasama",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.02.01",
+    "description": "Tenaga Utusan Gerejawi",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.02.03",
+    "description": "Kerjasama dengan Jemaat / Lembaga / Gereja Lain",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.08.02",
+    "description": "Kemitraan / Jemaat Mitra",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.0.00.00",
+    "description": "DIAKONIA",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "3.3.01.00",
+    "description": "Kesehatan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.01",
+    "description": "Dana Sehat Keluarga Pekerja GMIM di Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.02",
+    "description": "Dana Sehat Keluarga Pendeta / Guru Agama Non Pekerja GMIM",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.03",
+    "description": "Dana Sehat Pelayan Khusus Non Pendeta / Guru Agama",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.04",
+    "description": "Dana Sehat Anggota Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.00",
+    "description": "Pendidikan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.01",
+    "description": "Tunjangan / Honor Guru",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.02",
+    "description": "Honor Penjaga Sekolah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.03",
+    "description": "Biaya Operasional Sekolah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.04",
+    "description": "Beasiswa Pendidikan Anggota Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.05",
+    "description": "Beasiswa Pendidikan Non Anggota Jemaat",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.03.00",
+    "description": "Diakonia Duka",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.03.01",
+    "description": "Dana Duka",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.03.02",
+    "description": "Karangan Bunga Kedukaan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.04.00",
+    "description": "Bantuan Bencana Alam",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.05.00",
+    "description": "Diakonia Hasil Ibadah Natura",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.06.00",
+    "description": "Puasa Diakonal",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.40.00",
+    "description": "Pemupukan Dana Abadi",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.0.00.00",
+    "description": "PEMBANGUNAN / INVENTARIS GEREJA",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "4.3.03.00",
+    "description": "Pembangunan Gedung, Kantor / Konsistori, Pastori Gereja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.01.00",
+    "description": "Pembelian / Pengadaan Perlengkapan Dan Peralatan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.01.01",
+    "description": "Gedung Gereja (Kursi/Bangku, Mimbar, Meja, Lemari, Saund System, LCD Projector, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.01.02",
+    "description": "Aula ( Kursi, Meja, Sound System, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.01.03",
+    "description": "Kantor / Konsistori (Kursi, Meja, Lemari, Tempat Tidur, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.01.04",
+    "description": "Pastori (Kursi, Meja, Lemari, Tempat Tidur, dll)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.02.00",
+    "description": "Pengadaan Kendaraan (Sepeda, Sepeda Motor, Mobil, Perahu, Perahu Motor)",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.04.00",
+    "description": "Pembangunan Gedung / Perlengkapan Sekolah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.05.00",
+    "description": "Pengadaan Kintal",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.06.00",
+    "description": "Sewa Kontrak Bangunan",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.07.00",
+    "description": "Pengadaan Tenda",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.0.00.00",
+    "description": "PENGELUARAN LAINNYA",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "5.3.02.00",
+    "description": "Biaya Lembur",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.03.00",
+    "description": "Biaya Administrasi Bank",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.01.00",
+    "description": "Biaya Tamu Gereja",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.90.00",
+    "description": "Biaya Lain-lain",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.0.00.00",
+    "description": "DANA TRANSIT",
+    "type": "EXPENSE",
+    "category": true
+  },
+  {
+    "accountNumber": "6.3.50.00",
+    "description": "Penyaluran Pundi Extra",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.01",
+    "description": "Pundi Extra untuk SMS / SMST",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.02",
+    "description": "Pundi Extra untuk Kegiatan Wilayah",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.03",
+    "description": "Pundi Extra untuk Kegiatan Lainnya",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.00",
+    "description": "Penyaluran Kartu Partisipasi / Mapalus",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.01",
+    "description": "Kartu Kawan Panitia SMS / SMST",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.02",
+    "description": "Kartu Kawan untuk Kegiatan Khusus Lainnya",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.52.00",
+    "description": "Penyaluran Dana-Dana Kegiatan Sinodal lainnya",
+    "type": "EXPENSE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.0.00.00",
+    "description": "KEESAAN / PERSEKUTUAN (KOINONIA)",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "1.3.01.00",
+    "description": "PERSEMBAHAN IBADAH KOMPELKA BIPRA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.01",
+    "description": "Pria/ Kaum Bapa Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.02",
+    "description": "Wanita/ Kaum Ibu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.03",
+    "description": "Pemuda Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.04",
+    "description": "Remaja Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.05",
+    "description": "Anak Sekolah Minggu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.06",
+    "description": "Rabu Gembira Anak Sekolah Minggu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.01.07",
+    "description": "Guru-guru Sekolah Minggu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.50.00",
+    "description": "PERSEMBAHAN IBADAH MINGGU",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.50.01",
+    "description": "Subuh",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.50.02",
+    "description": "Pagi",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.50.03",
+    "description": "Malam",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.51.00",
+    "description": "PERSEMBAHAN PERSEPULUHAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.00",
+    "description": "PERSEMBAHAN IBADAH KOLOM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.01",
+    "description": "Persembahan Ibadah Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.02",
+    "description": "Persembahan Ibadah Pria/Kaum Bapa",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.03",
+    "description": "Ibadah Ibadah Wanita/ Kaum Ibu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.04",
+    "description": "Persembahan Ibadah Pemuda",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.05",
+    "description": "Persembahan Ibadah Remaja",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.06",
+    "description": "Persembahan Ibadah Anak/ Sekolah Minggu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.07.00",
+    "description": "Persembahan Ibadah Keluarga",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.07.01",
+    "description": "Ibadah Syukur HUT Kelahiran",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.07.02",
+    "description": "Ibadah Syukur HUT Pernikahan",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.07.03",
+    "description": "Ibadah Syukur Keluarga Lainnya",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.53.08",
+    "description": "Ibadah Pengucapan Syukur Kolom",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.00",
+    "description": "PERSEMBAHAN IBADAH HARI RAYA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.01",
+    "description": "Persembahan Ibadah Tahun Baru I",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.02",
+    "description": "Persembahan Ibadah Tahun Baru II",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.03",
+    "description": "Persembahan Ibadah Jumat Agung",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.04",
+    "description": "Persembahan Ibadah Paskah I",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.05",
+    "description": "Persembahan Ibadah Paskah II",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.06",
+    "description": "Persembahan Ibadah Hari Kenaikan",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.07",
+    "description": "Persembahan Hari Pentakosta",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.08",
+    "description": "Persembahan Ibadah Hari Natal I",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.09",
+    "description": "Persembahan Ibadah Hari Natal II",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.54.10",
+    "description": "Persembahan Ibadah Akhir Tahun",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.55.00",
+    "description": "PERSEMBAHAN IBADAH PERJAMUAN KUDUS",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.55.01",
+    "description": "Perjamuan Kudus Jumat Agung",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.55.02",
+    "description": "Perjamuan Kudus Tengah Tahun",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.55.03",
+    "description": "Perjamuan Kudus Sedunia",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.55.04",
+    "description": "Perjamuan Kudus Akhir Tahun",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.56.00",
+    "description": "PERSEMBAHAN MINGGU PERTAMA JANUARI",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.57.00",
+    "description": "PERSEMBAHAN IBADAH PENGUCAPAN SYUKUR JEMAAT",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.58.00",
+    "description": "PERSEMBAHAN IBADAH PENEGUHAN DAN PEMBERKATAN NIKAH",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.59.00",
+    "description": "PERSEMBAHAN IBADAH KATEKISASI",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.60.00",
+    "description": "PERSEMBAHAN IBADAH PA/KONVEN PELAYAN KHUSUS",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.61.00",
+    "description": "PERSEMBAHAN IBADAH SIDANG MAJELIS JEMAAT",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.62.00",
+    "description": "PERSEMBAHAN IBADAH ORGANISASI / RUKUN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.63.00",
+    "description": "PERSEMBAHAN IBADAH KOMISI GEREJA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.00",
+    "description": "PERSEMBAHAN IBADAH HUT",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.01",
+    "description": "Persembahan HUT PI dan Pendidikan Kristen GMIM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.02",
+    "description": "Persembahan HUT GMIM Bersinode",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.03",
+    "description": "Persembahan HUT Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.04",
+    "description": "Persembahan HUT Pria/ Kaum Bapa",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.05",
+    "description": "Persembahan HUT Wanita/ Kaum Ibu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.06",
+    "description": "Persembahan HUT Pemuda/ Remaja",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.64.07",
+    "description": "Persembahan HUT ASM/GSM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.00",
+    "description": "PERSEMBAHAN IBADAH MENYAMBUT NATAL",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.01",
+    "description": "Persembahan Ibadah Menyambut Natal Kolom",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.02",
+    "description": "Persembahan Ibadah Menyambut Natal Keluarga",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.03",
+    "description": "Persembahan Ibadah Menyambut Natal Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.04",
+    "description": "Persembahan Ibadah Menyambut Natal Pria/ Kaum Bapa",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.05",
+    "description": "Persembahan Ibadah Menyambut Natal Wanita/ Kaum Ibu",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.06",
+    "description": "Persembahan Ibadah Menyambut Natal Pemuda",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.07",
+    "description": "Persembahan Ibadah Menyambut Natal Remaja",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.08",
+    "description": "Persembahan Ibadah Menyambut Natal ASM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.09",
+    "description": "Persembahan Ibadah Menyambut Natal GSM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.10",
+    "description": "Persembahan Ibadah Menyambut Natal Pelayan Khusus",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.65.11",
+    "description": "Persembahan Ibadah Menyambut Natal Organisasi/ Rukun",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.00",
+    "description": "SAMPUL-SAMPUL",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.01",
+    "description": "Sampul Syukur HUT Kelahiran",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.02",
+    "description": "Sampul Syukur HUT Pernikahan",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.03",
+    "description": "Sampul Syukur Pemberkatan/ Peneguhan Nikah",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.04",
+    "description": "Sampul Syukur Baptisan Kudus",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.05",
+    "description": "Sampul Syukur Perjamuan Kudus",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.06",
+    "description": "Sampul Syukur Peneguhan Sidi",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.07",
+    "description": "Sampul Syukur Tahun Baru",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.08",
+    "description": "Sampul Syukur Paskah",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.09",
+    "description": "Sampul Syukur HUT PI dan Pendidikan Kristen GMIM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.10",
+    "description": "Sampul Syukur HUT GMIM Bersinode",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.11",
+    "description": "Sampul Syukur Natal",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.12",
+    "description": "Sampul Syukur Pengucapan Syukur",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.66.13",
+    "description": "Sampul Syukur Lainnya",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.80.00",
+    "description": "USAHA-USAHA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.80.01",
+    "description": "Usaha Komisi Pengembagan Sumber Daya (PSD)",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.80.02",
+    "description": "Usaha Komisi Kerja Lainnya",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "1.3.80.03",
+    "description": "Hasil Penyewaan Aula, Kursi, dll",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.0.00.00",
+    "description": "KESAKSIAN DAN KERJASAMA (MARTURIA)",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "2.3.01.00",
+    "description": "USAHA KOMISI KPDP",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.01.01",
+    "description": "Persembahan Ibadah KPI",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.00",
+    "description": "PERSEMBAHAN IBADAH KHUSUS",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.01",
+    "description": "Persembahan Ibadah HUT Kemerdekaan RI",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.02",
+    "description": "Persembahan Ibadh HUT GPI",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.03",
+    "description": "Persembahan HUT Sinode Am Suluteng",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.04",
+    "description": "Persembahan Ibadah HUT PGI / Hari Oikumene",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.05",
+    "description": "Persembahan Ibadah Hari Alkitab",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "2.3.50.06",
+    "description": "Persembahan Ibadah Hari Doa Sedunia",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.0.00.00",
+    "description": "DIAKONIA",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "3.3.01.00",
+    "description": "KESEHATAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.50",
+    "description": "Usaha Komisi Kesehatan Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.01.60",
+    "description": "Iuran Dana Sehat Anggota Jemaat",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.00",
+    "description": "PENDIDIKAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.02.50",
+    "description": "Usaha Komisi Pendidikan",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.03.01",
+    "description": "DANA DUKA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.04.00",
+    "description": "DANA BENCANA ALAM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.05.00",
+    "description": "PERSEMBAHAN IBADAH NATURA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "3.3.06.00",
+    "description": "PERSEMBAHAN PUASA DIAKONAL",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.0.00.00",
+    "description": "DANA PEMBANGUNAN",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "4.3.60.00",
+    "description": "USAHA KOMISI / PANITIA PEMBANGUNAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.61.00",
+    "description": "HASIL PENGGALANGAN DANA PEMBANGUNAN DARI KOLOM-KOLOM",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.62.00",
+    "description": "HASIL PENGGALANGAN DANA PEMBANGUNAN OLEH BPMJ",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.63.00",
+    "description": "SUMBANGAN BANTUAN KHUSUS UNTUK PEMBANGUNAN DARI PEMERINTAH ATAU SWASTA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "4.3.64.00",
+    "description": "SAMPUL PEMBANGUNAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.0.00.00",
+    "description": "PENDAPATAN LAINNYA",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "5.3.60.00",
+    "description": "PARTISIPASI / SUMBANGAN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.60.01",
+    "description": "Gereja dan Lembaga Kristen (Dalam dan Luar Negeri)",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.60.02",
+    "description": "Pemerintah",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.60.03",
+    "description": "Swasta",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.70.00",
+    "description": "USAHA BPMJ",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.80.00",
+    "description": "JASA BANK",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "5.3.90.00",
+    "description": "PENDAPATAN LAIN-LAIN",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.0.00.00",
+    "description": "DANA TRANSIT",
+    "type": "REVENUE",
+    "category": true
+  },
+  {
+    "accountNumber": "6.3.50.00",
+    "description": "PUNDI EXTRA",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.01",
+    "description": "Pundi Extra untuk SMS / SMST",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.02",
+    "description": "Pundi Extra untuk Kegiatan Wilayah",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.50.03",
+    "description": "Pundi Extra untuk Kegiatan Lainnya",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.00",
+    "description": "KARTU PARTISIPASI / MAPALUS",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.01",
+    "description": "Kartu Kawan Panitia SMS / SMST",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.51.02",
+    "description": "Kartu Kawan untuk Kegiatan Khusus Lainnya",
+    "type": "REVENUE",
+    "category": false
+  },
+  {
+    "accountNumber": "6.3.52.00",
+    "description": "DANA-DANA KEGIATAN SINODAL LAINNYA",
+    "type": "REVENUE",
+    "category": false
+  }
+]
