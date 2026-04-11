@@ -144,5 +144,5 @@ create_temp_env_file() {
         temp_dir="/tmp"
     fi
 
-    mktemp "${temp_dir%/}/${prefix}.XXXXXX.env"
+    mktemp "${temp_dir%/}/${prefix}.XXXXXX"
 }
