@@ -275,6 +275,9 @@
 
   "admin_billing_title": "Billing Management",
   "admin_billing_subtitle": "Manage church billing, payments, and view payment history.",
+  "admin_billing_underConstruction_title": "Page Under Construction",
+  "admin_billing_underConstruction_subtitle": "Billing management features are temporarily unavailable.",
+  "admin_billing_underConstruction_message": "This billing feature is currently under development. All congregation-related billing information will be communicated via direct message.",
   "admin_approval_title": "Approvals",
   "admin_account_title": "Account",
   "admin_account_subtitle": "Manage your account information and settings",

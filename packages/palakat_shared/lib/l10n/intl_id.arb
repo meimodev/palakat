@@ -452,6 +452,9 @@
   "@admin_billing_subtitle": {
     "description": "Admin screen subtitle for billing management"
   },
+  "admin_billing_underConstruction_title": "Halaman Dalam Pengembangan",
+  "admin_billing_underConstruction_subtitle": "Fitur manajemen tagihan sementara tidak tersedia.",
+  "admin_billing_underConstruction_message": "Fitur tagihan ini sedang dalam tahap pengembangan. Seluruh informasi tagihan yang berhubungan dengan jemaat akan diberitahukan melalui pesan langsung (Direct Message).",
   "admin_approval_title": "Persetujuan",
   "@admin_approval_title": {
     "description": "Admin screen title for approvals"

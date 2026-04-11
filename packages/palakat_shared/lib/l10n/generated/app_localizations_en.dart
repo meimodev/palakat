@@ -673,6 +673,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage church billing, payments, and view payment history.';
 
   @override
+  String get admin_billing_underConstruction_title => 'Page Under Construction';
+
+  @override
+  String get admin_billing_underConstruction_subtitle =>
+      'Billing management features are temporarily unavailable.';
+
+  @override
+  String get admin_billing_underConstruction_message =>
+      'This billing feature is currently under development. All congregation-related billing information will be communicated via direct message.';
+
+  @override
   String get admin_approval_title => 'Approvals';
 
   @override

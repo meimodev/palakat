@@ -676,6 +676,18 @@ class AppLocalizationsId extends AppLocalizations {
       'Kelola tagihan gereja, pembayaran, dan lihat riwayat pembayaran.';
 
   @override
+  String get admin_billing_underConstruction_title =>
+      'Halaman Dalam Pengembangan';
+
+  @override
+  String get admin_billing_underConstruction_subtitle =>
+      'Fitur manajemen tagihan sementara tidak tersedia.';
+
+  @override
+  String get admin_billing_underConstruction_message =>
+      'Fitur tagihan ini sedang dalam tahap pengembangan. Seluruh informasi tagihan yang berhubungan dengan jemaat akan diberitahukan melalui pesan langsung (Direct Message).';
+
+  @override
   String get admin_approval_title => 'Persetujuan';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/approver.dart';
 
 enum FinanceEntryType {
   revenue,
@@ -27,6 +28,7 @@ class FinanceEntry {
   final int churchId;
   final int? activityId;
   final Activity? activity;
+  final List<Approver> approvers;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -39,6 +41,7 @@ class FinanceEntry {
     required this.churchId,
     this.activityId,
     this.activity,
+    this.approvers = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -60,6 +63,11 @@ class FinanceEntry {
       activity: json['activity'] != null
           ? Activity.fromJson(json['activity'] as Map<String, dynamic>)
           : null,
+      approvers:
+          (json['approvers'] as List<dynamic>?)
+              ?.map((e) => Approver.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
@@ -81,6 +89,7 @@ class FinanceEntry {
       'churchId': churchId,
       'activityId': activityId,
       'activity': activity?.toJson(),
+      'approvers': approvers.map((e) => e.toJson()).toList(),
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -95,6 +104,7 @@ class FinanceEntry {
     int? churchId,
     int? activityId,
     Activity? activity,
+    List<Approver>? approvers,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -107,6 +117,7 @@ class FinanceEntry {
       churchId: churchId ?? this.churchId,
       activityId: activityId ?? this.activityId,
       activity: activity ?? this.activity,
+      approvers: approvers ?? this.approvers,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/approver.dart';
-import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/document.dart';
 import 'package:palakat_shared/core/models/file_manager.dart';
 import 'package:palakat_shared/core/models/location.dart';
@@ -36,26 +35,12 @@ abstract class Activity with _$Activity {
     Location? location,
     bool? hasRevenue,
     bool? hasExpense,
-    ActivityFinance? revenue,
-    ActivityFinance? expense,
+    @Default([]) List<ActivityFinance> revenues,
+    @Default([]) List<ActivityFinance> expenses,
   }) = _Activity;
 
   factory Activity.fromJson(Map<String, dynamic> json) =>
       _$ActivityFromJson(json);
-
-  /// Returns the financial type of the activity based on revenue/expense
-  FinanceType? get financeType {
-    if (hasRevenue == true) return FinanceType.revenue;
-    if (hasExpense == true) return FinanceType.expense;
-    return null;
-  }
-
-  /// Returns the finance data (revenue or expense)
-  ActivityFinance? get financeData {
-    if (hasRevenue == true) return revenue;
-    if (hasExpense == true) return expense;
-    return null;
-  }
 }
 
 @freezed

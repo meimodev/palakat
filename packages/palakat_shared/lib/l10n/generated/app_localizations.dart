@@ -1256,6 +1256,24 @@ abstract class AppLocalizations {
   /// **'Manage church billing, payments, and view payment history.'**
   String get admin_billing_subtitle;
 
+  /// No description provided for @admin_billing_underConstruction_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Page Under Construction'**
+  String get admin_billing_underConstruction_title;
+
+  /// No description provided for @admin_billing_underConstruction_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing management features are temporarily unavailable.'**
+  String get admin_billing_underConstruction_subtitle;
+
+  /// No description provided for @admin_billing_underConstruction_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This billing feature is currently under development. All congregation-related billing information will be communicated via direct message.'**
+  String get admin_billing_underConstruction_message;
+
   /// No description provided for @admin_approval_title.
   ///
   /// In en, this message translates to:

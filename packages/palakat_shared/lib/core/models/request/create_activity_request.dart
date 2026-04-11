@@ -84,8 +84,8 @@ abstract class CreateActivityRequest with _$CreateActivityRequest {
     /// Optional reminder preference for SERVICE/EVENT activities
     Reminder? reminder,
 
-    /// Optional finance record to create alongside the activity
-    CreateActivityFinance? finance,
+    /// Optional finance records to create alongside the activity
+    @Default([]) List<CreateActivityFinance> finances,
   }) = _CreateActivityRequest;
 
   factory CreateActivityRequest.fromJson(Map<String, dynamic> json) =>

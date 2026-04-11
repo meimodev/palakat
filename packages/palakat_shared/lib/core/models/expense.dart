@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/approver.dart';
 
 part 'expense.freezed.dart';
 part 'expense.g.dart';
@@ -18,6 +19,7 @@ abstract class Expense with _$Expense {
     DateTime? createdAt,
     DateTime? updatedAt,
     Activity? activity,
+    @Default(<Approver>[]) List<Approver> approvers,
   }) = _Expense;
 
   factory Expense.fromJson(Map<String, dynamic> json) =>

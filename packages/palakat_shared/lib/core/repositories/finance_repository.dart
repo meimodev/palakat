@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/models/approver.dart';
 import 'package:palakat_shared/core/models/finance_entry.dart';
 import 'package:palakat_shared/core/models/finance_overview.dart';
 import 'package:palakat_shared/core/models/request/request.dart';
@@ -44,6 +45,19 @@ abstract class FinanceRepositoryBase {
   Future<Result<FinanceOverview, Failure>> fetchOverview();
   Future<Result<PaginationResponseWrapper<FinanceEntry>, Failure>>
   fetchFinanceEntries({required PaginationRequestWrapper paginationRequest});
+  Future<Result<PaginationResponseWrapper<FinanceEntry>, Failure>>
+  fetchApprovalFinanceEntries({
+    required PaginationRequestWrapper paginationRequest,
+  });
+  Future<Result<FinanceEntry, Failure>> fetchApprovalFinanceEntry({
+    required int financeId,
+    required FinanceEntryType type,
+  });
+  Future<Result<Approver, Failure>> updateFinanceApprover({
+    required int approverId,
+    required FinanceEntryType type,
+    required ApprovalStatus status,
+  });
 }
 
 class FinanceRepository implements FinanceRepositoryBase {
@@ -86,6 +100,80 @@ class FinanceRepository implements FinanceRepositoryBase {
         (e) => FinanceEntry.fromJson(e as Map<String, dynamic>),
       );
       return Result.success(result);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Result<PaginationResponseWrapper<FinanceEntry>, Failure>>
+  fetchApprovalFinanceEntries({
+    required PaginationRequestWrapper paginationRequest,
+  }) async {
+    try {
+      final query = paginationRequest.toJsonFlat((p) => p.toJson());
+
+      final socket = _ref.read(socketServiceProvider);
+      final data = await socket.rpc('finance.approval.list', query);
+      final result = PaginationResponseWrapper.fromJson(
+        data,
+        (e) => FinanceEntry.fromJson(e as Map<String, dynamic>),
+      );
+      return Result.success(result);
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Result<FinanceEntry, Failure>> fetchApprovalFinanceEntry({
+    required int financeId,
+    required FinanceEntryType type,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('finance.approval.get', {
+        'id': financeId,
+        'financeType': type.name.toUpperCase(),
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid finance approval response payload'),
+        );
+      }
+
+      return Result.success(FinanceEntry.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Result<Approver, Failure>> updateFinanceApprover({
+    required int approverId,
+    required FinanceEntryType type,
+    required ApprovalStatus status,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('finance.approver.update', {
+        'approverId': approverId,
+        'financeType': type.name.toUpperCase(),
+        'dto': {'status': status.name.toUpperCase()},
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid finance approver response payload'),
+        );
+      }
+
+      return Result.success(Approver.fromJson(json));
     } catch (e) {
       return Result.failure(Failure.fromException(e));
     }

@@ -1,22 +1,22 @@
 import 'package:dio/dio.dart';
 
-class Result<T, Failure> {
+class Result<T, F> {
   final T? _success;
-  final Failure? _failure;
+  final F? _failure;
 
   Result.success(T value) : _success = value, _failure = null;
 
-  Result.failure(Failure failure) : _success = null, _failure = failure;
+  Result.failure(F failure) : _success = null, _failure = failure;
 
   V? when<V>({
     required V? Function(T data) onSuccess,
-    void Function(Failure failure)? onFailure,
+    void Function(F failure)? onFailure,
   }) {
     if (_success != null) {
       return onSuccess(_success as T);
     }
     if (_failure != null) {
-      onFailure!(_failure as Failure);
+      onFailure!(_failure as F);
     }
     if (_success == null && _failure == null) {
       return onSuccess(_success as T);
@@ -26,14 +26,14 @@ class Result<T, Failure> {
 
   Result<R, F2> mapTo<R, F2>({
     required R Function(T) onSuccess,
-    F2 Function(Failure)? onFailure,
+    F2 Function(F)? onFailure,
   }) {
     if (_success != null) {
       return Result.success(onSuccess(_success as T));
     }
 
     if (onFailure != null) {
-      return Result.failure(onFailure(_failure as Failure));
+      return Result.failure(onFailure(_failure as F));
     } else {
       return Result.failure(_failure as dynamic);
     }
