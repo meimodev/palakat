@@ -390,8 +390,13 @@ async function seedCongregationsAndFinances(passwordHash: string) {
   console.log(`      Path: ${congJsonPath}`);
   const congRaw = fs.readFileSync(congJsonPath, 'utf-8');
   console.log(`      File size: ${(congRaw.length / 1024).toFixed(1)} KB`);
-  const congregations = JSON.parse(congRaw);
-  console.log(`      ✔ Loaded ${congregations.length} congregations`);
+  let congregations = JSON.parse(congRaw);
+  console.log(`      ✔ Loaded ${congregations.length} congregations from file`);
+  const LIMIT = 50;
+  if (congregations.length > LIMIT) {
+    congregations = congregations.slice(0, LIMIT);
+    console.log(`      ⚠️ Limiting to ${LIMIT} congregations for faster development seeding`);
+  }
 
   console.log(`   📂 Reading financial_accounts_number.json...`);
   console.log(`      Path: ${finJsonPath}`);
