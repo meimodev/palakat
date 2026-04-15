@@ -65,6 +65,14 @@ export const ApprovalStatus = {
 export type ApprovalStatus = (typeof ApprovalStatus)[keyof typeof ApprovalStatus]
 
 
+export const ApprovalOverrideStatus = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ApprovalOverrideStatus = (typeof ApprovalOverrideStatus)[keyof typeof ApprovalOverrideStatus]
+
+
 export const MembershipInvitationStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',

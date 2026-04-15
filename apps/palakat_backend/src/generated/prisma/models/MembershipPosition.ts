@@ -30,14 +30,12 @@ export type MembershipPositionAvgAggregateOutputType = {
   id: number | null
   membershipId: number | null
   churchId: number | null
-  approvalRuleId: number | null
 }
 
 export type MembershipPositionSumAggregateOutputType = {
   id: number | null
   membershipId: number | null
   churchId: number | null
-  approvalRuleId: number | null
 }
 
 export type MembershipPositionMinAggregateOutputType = {
@@ -47,7 +45,6 @@ export type MembershipPositionMinAggregateOutputType = {
   updatedAt: Date | null
   membershipId: number | null
   churchId: number | null
-  approvalRuleId: number | null
 }
 
 export type MembershipPositionMaxAggregateOutputType = {
@@ -57,7 +54,6 @@ export type MembershipPositionMaxAggregateOutputType = {
   updatedAt: Date | null
   membershipId: number | null
   churchId: number | null
-  approvalRuleId: number | null
 }
 
 export type MembershipPositionCountAggregateOutputType = {
@@ -67,7 +63,6 @@ export type MembershipPositionCountAggregateOutputType = {
   updatedAt: number
   membershipId: number
   churchId: number
-  approvalRuleId: number
   _all: number
 }
 
@@ -76,14 +71,12 @@ export type MembershipPositionAvgAggregateInputType = {
   id?: true
   membershipId?: true
   churchId?: true
-  approvalRuleId?: true
 }
 
 export type MembershipPositionSumAggregateInputType = {
   id?: true
   membershipId?: true
   churchId?: true
-  approvalRuleId?: true
 }
 
 export type MembershipPositionMinAggregateInputType = {
@@ -93,7 +86,6 @@ export type MembershipPositionMinAggregateInputType = {
   updatedAt?: true
   membershipId?: true
   churchId?: true
-  approvalRuleId?: true
 }
 
 export type MembershipPositionMaxAggregateInputType = {
@@ -103,7 +95,6 @@ export type MembershipPositionMaxAggregateInputType = {
   updatedAt?: true
   membershipId?: true
   churchId?: true
-  approvalRuleId?: true
 }
 
 export type MembershipPositionCountAggregateInputType = {
@@ -113,7 +104,6 @@ export type MembershipPositionCountAggregateInputType = {
   updatedAt?: true
   membershipId?: true
   churchId?: true
-  approvalRuleId?: true
   _all?: true
 }
 
@@ -210,7 +200,6 @@ export type MembershipPositionGroupByOutputType = {
   updatedAt: Date
   membershipId: number | null
   churchId: number | null
-  approvalRuleId: number | null
   _count: MembershipPositionCountAggregateOutputType | null
   _avg: MembershipPositionAvgAggregateOutputType | null
   _sum: MembershipPositionSumAggregateOutputType | null
@@ -243,10 +232,9 @@ export type MembershipPositionWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"MembershipPosition"> | Date | string
   membershipId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
   churchId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
-  approvalRuleId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
-  approvalRule?: Prisma.XOR<Prisma.ApprovalRuleNullableScalarRelationFilter, Prisma.ApprovalRuleWhereInput> | null
+  approvalRules?: Prisma.ApprovalRuleListRelationFilter
 }
 
 export type MembershipPositionOrderByWithRelationInput = {
@@ -256,10 +244,9 @@ export type MembershipPositionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   membershipId?: Prisma.SortOrderInput | Prisma.SortOrder
   churchId?: Prisma.SortOrderInput | Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrderInput | Prisma.SortOrder
   membership?: Prisma.MembershipOrderByWithRelationInput
   church?: Prisma.ChurchOrderByWithRelationInput
-  approvalRule?: Prisma.ApprovalRuleOrderByWithRelationInput
+  approvalRules?: Prisma.ApprovalRuleOrderByRelationAggregateInput
 }
 
 export type MembershipPositionWhereUniqueInput = Prisma.AtLeast<{
@@ -273,10 +260,9 @@ export type MembershipPositionWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"MembershipPosition"> | Date | string
   membershipId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
   churchId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
-  approvalRuleId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
   membership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   church?: Prisma.XOR<Prisma.ChurchNullableScalarRelationFilter, Prisma.ChurchWhereInput> | null
-  approvalRule?: Prisma.XOR<Prisma.ApprovalRuleNullableScalarRelationFilter, Prisma.ApprovalRuleWhereInput> | null
+  approvalRules?: Prisma.ApprovalRuleListRelationFilter
 }, "id" | "churchId_name">
 
 export type MembershipPositionOrderByWithAggregationInput = {
@@ -286,7 +272,6 @@ export type MembershipPositionOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   membershipId?: Prisma.SortOrderInput | Prisma.SortOrder
   churchId?: Prisma.SortOrderInput | Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.MembershipPositionCountOrderByAggregateInput
   _avg?: Prisma.MembershipPositionAvgOrderByAggregateInput
   _max?: Prisma.MembershipPositionMaxOrderByAggregateInput
@@ -304,7 +289,6 @@ export type MembershipPositionScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MembershipPosition"> | Date | string
   membershipId?: Prisma.IntNullableWithAggregatesFilter<"MembershipPosition"> | number | null
   churchId?: Prisma.IntNullableWithAggregatesFilter<"MembershipPosition"> | number | null
-  approvalRuleId?: Prisma.IntNullableWithAggregatesFilter<"MembershipPosition"> | number | null
 }
 
 export type MembershipPositionCreateInput = {
@@ -313,7 +297,7 @@ export type MembershipPositionCreateInput = {
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutMembershipPositionsInput
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipPositionsInput
-  approvalRule?: Prisma.ApprovalRuleCreateNestedOneWithoutPositionsInput
+  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionUncheckedCreateInput = {
@@ -323,7 +307,7 @@ export type MembershipPositionUncheckedCreateInput = {
   updatedAt?: Date | string
   membershipId?: number | null
   churchId?: number | null
-  approvalRuleId?: number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionUpdateInput = {
@@ -332,7 +316,7 @@ export type MembershipPositionUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutMembershipPositionsNestedInput
   church?: Prisma.ChurchUpdateOneWithoutMembershipPositionsNestedInput
-  approvalRule?: Prisma.ApprovalRuleUpdateOneWithoutPositionsNestedInput
+  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionUncheckedUpdateInput = {
@@ -342,7 +326,7 @@ export type MembershipPositionUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionCreateManyInput = {
@@ -352,7 +336,6 @@ export type MembershipPositionCreateManyInput = {
   updatedAt?: Date | string
   membershipId?: number | null
   churchId?: number | null
-  approvalRuleId?: number | null
 }
 
 export type MembershipPositionUpdateManyMutationInput = {
@@ -368,7 +351,6 @@ export type MembershipPositionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type MembershipPositionListRelationFilter = {
@@ -393,14 +375,12 @@ export type MembershipPositionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   membershipId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrder
 }
 
 export type MembershipPositionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   membershipId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrder
 }
 
 export type MembershipPositionMaxOrderByAggregateInput = {
@@ -410,7 +390,6 @@ export type MembershipPositionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   membershipId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrder
 }
 
 export type MembershipPositionMinOrderByAggregateInput = {
@@ -420,14 +399,12 @@ export type MembershipPositionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   membershipId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrder
 }
 
 export type MembershipPositionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   membershipId?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
-  approvalRuleId?: Prisma.SortOrder
 }
 
 export type MembershipPositionCreateNestedManyWithoutChurchInput = {
@@ -514,45 +491,41 @@ export type MembershipPositionUncheckedUpdateManyWithoutMembershipNestedInput = 
   deleteMany?: Prisma.MembershipPositionScalarWhereInput | Prisma.MembershipPositionScalarWhereInput[]
 }
 
-export type MembershipPositionCreateNestedManyWithoutApprovalRuleInput = {
-  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput> | Prisma.MembershipPositionCreateWithoutApprovalRuleInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput[]
-  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput[]
-  createMany?: Prisma.MembershipPositionCreateManyApprovalRuleInputEnvelope
+export type MembershipPositionCreateNestedManyWithoutApprovalRulesInput = {
+  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput> | Prisma.MembershipPositionCreateWithoutApprovalRulesInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput[]
+  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput[]
   connect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
 }
 
-export type MembershipPositionUncheckedCreateNestedManyWithoutApprovalRuleInput = {
-  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput> | Prisma.MembershipPositionCreateWithoutApprovalRuleInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput[]
-  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput[]
-  createMany?: Prisma.MembershipPositionCreateManyApprovalRuleInputEnvelope
+export type MembershipPositionUncheckedCreateNestedManyWithoutApprovalRulesInput = {
+  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput> | Prisma.MembershipPositionCreateWithoutApprovalRulesInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput[]
+  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput[]
   connect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
 }
 
-export type MembershipPositionUpdateManyWithoutApprovalRuleNestedInput = {
-  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput> | Prisma.MembershipPositionCreateWithoutApprovalRuleInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput[]
-  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput[]
-  upsert?: Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRuleInput | Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRuleInput[]
-  createMany?: Prisma.MembershipPositionCreateManyApprovalRuleInputEnvelope
+export type MembershipPositionUpdateManyWithoutApprovalRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput> | Prisma.MembershipPositionCreateWithoutApprovalRulesInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput[]
+  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput[]
+  upsert?: Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRulesInput | Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRulesInput[]
   set?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   disconnect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   delete?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   connect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
-  update?: Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRuleInput | Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRuleInput[]
-  updateMany?: Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRuleInput | Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRuleInput[]
+  update?: Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRulesInput | Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRulesInput[]
+  updateMany?: Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRulesInput | Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRulesInput[]
   deleteMany?: Prisma.MembershipPositionScalarWhereInput | Prisma.MembershipPositionScalarWhereInput[]
 }
 
-export type MembershipPositionUncheckedUpdateManyWithoutApprovalRuleNestedInput = {
-  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput> | Prisma.MembershipPositionCreateWithoutApprovalRuleInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput[]
-  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRuleInput[]
-  upsert?: Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRuleInput | Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRuleInput[]
-  createMany?: Prisma.MembershipPositionCreateManyApprovalRuleInputEnvelope
+export type MembershipPositionUncheckedUpdateManyWithoutApprovalRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput> | Prisma.MembershipPositionCreateWithoutApprovalRulesInput[] | Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput[]
+  connectOrCreate?: Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput | Prisma.MembershipPositionCreateOrConnectWithoutApprovalRulesInput[]
+  upsert?: Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRulesInput | Prisma.MembershipPositionUpsertWithWhereUniqueWithoutApprovalRulesInput[]
   set?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   disconnect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   delete?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
   connect?: Prisma.MembershipPositionWhereUniqueInput | Prisma.MembershipPositionWhereUniqueInput[]
-  update?: Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRuleInput | Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRuleInput[]
-  updateMany?: Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRuleInput | Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRuleInput[]
+  update?: Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRulesInput | Prisma.MembershipPositionUpdateWithWhereUniqueWithoutApprovalRulesInput[]
+  updateMany?: Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRulesInput | Prisma.MembershipPositionUpdateManyWithWhereWithoutApprovalRulesInput[]
   deleteMany?: Prisma.MembershipPositionScalarWhereInput | Prisma.MembershipPositionScalarWhereInput[]
 }
 
@@ -561,7 +534,7 @@ export type MembershipPositionCreateWithoutChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   membership?: Prisma.MembershipCreateNestedOneWithoutMembershipPositionsInput
-  approvalRule?: Prisma.ApprovalRuleCreateNestedOneWithoutPositionsInput
+  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionUncheckedCreateWithoutChurchInput = {
@@ -570,7 +543,7 @@ export type MembershipPositionUncheckedCreateWithoutChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   membershipId?: number | null
-  approvalRuleId?: number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionCreateOrConnectWithoutChurchInput = {
@@ -609,7 +582,6 @@ export type MembershipPositionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"MembershipPosition"> | Date | string
   membershipId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
   churchId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
-  approvalRuleId?: Prisma.IntNullableFilter<"MembershipPosition"> | number | null
 }
 
 export type MembershipPositionCreateWithoutMembershipInput = {
@@ -617,7 +589,7 @@ export type MembershipPositionCreateWithoutMembershipInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipPositionsInput
-  approvalRule?: Prisma.ApprovalRuleCreateNestedOneWithoutPositionsInput
+  approvalRules?: Prisma.ApprovalRuleCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionUncheckedCreateWithoutMembershipInput = {
@@ -626,7 +598,7 @@ export type MembershipPositionUncheckedCreateWithoutMembershipInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
-  approvalRuleId?: number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedCreateNestedManyWithoutPositionsInput
 }
 
 export type MembershipPositionCreateOrConnectWithoutMembershipInput = {
@@ -655,7 +627,7 @@ export type MembershipPositionUpdateManyWithWhereWithoutMembershipInput = {
   data: Prisma.XOR<Prisma.MembershipPositionUpdateManyMutationInput, Prisma.MembershipPositionUncheckedUpdateManyWithoutMembershipInput>
 }
 
-export type MembershipPositionCreateWithoutApprovalRuleInput = {
+export type MembershipPositionCreateWithoutApprovalRulesInput = {
   name: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -663,7 +635,7 @@ export type MembershipPositionCreateWithoutApprovalRuleInput = {
   church?: Prisma.ChurchCreateNestedOneWithoutMembershipPositionsInput
 }
 
-export type MembershipPositionUncheckedCreateWithoutApprovalRuleInput = {
+export type MembershipPositionUncheckedCreateWithoutApprovalRulesInput = {
   id?: number
   name: string
   createdAt?: Date | string
@@ -672,30 +644,25 @@ export type MembershipPositionUncheckedCreateWithoutApprovalRuleInput = {
   churchId?: number | null
 }
 
-export type MembershipPositionCreateOrConnectWithoutApprovalRuleInput = {
+export type MembershipPositionCreateOrConnectWithoutApprovalRulesInput = {
   where: Prisma.MembershipPositionWhereUniqueInput
-  create: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput>
+  create: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput>
 }
 
-export type MembershipPositionCreateManyApprovalRuleInputEnvelope = {
-  data: Prisma.MembershipPositionCreateManyApprovalRuleInput | Prisma.MembershipPositionCreateManyApprovalRuleInput[]
-  skipDuplicates?: boolean
-}
-
-export type MembershipPositionUpsertWithWhereUniqueWithoutApprovalRuleInput = {
+export type MembershipPositionUpsertWithWhereUniqueWithoutApprovalRulesInput = {
   where: Prisma.MembershipPositionWhereUniqueInput
-  update: Prisma.XOR<Prisma.MembershipPositionUpdateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedUpdateWithoutApprovalRuleInput>
-  create: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRuleInput>
+  update: Prisma.XOR<Prisma.MembershipPositionUpdateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedUpdateWithoutApprovalRulesInput>
+  create: Prisma.XOR<Prisma.MembershipPositionCreateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedCreateWithoutApprovalRulesInput>
 }
 
-export type MembershipPositionUpdateWithWhereUniqueWithoutApprovalRuleInput = {
+export type MembershipPositionUpdateWithWhereUniqueWithoutApprovalRulesInput = {
   where: Prisma.MembershipPositionWhereUniqueInput
-  data: Prisma.XOR<Prisma.MembershipPositionUpdateWithoutApprovalRuleInput, Prisma.MembershipPositionUncheckedUpdateWithoutApprovalRuleInput>
+  data: Prisma.XOR<Prisma.MembershipPositionUpdateWithoutApprovalRulesInput, Prisma.MembershipPositionUncheckedUpdateWithoutApprovalRulesInput>
 }
 
-export type MembershipPositionUpdateManyWithWhereWithoutApprovalRuleInput = {
+export type MembershipPositionUpdateManyWithWhereWithoutApprovalRulesInput = {
   where: Prisma.MembershipPositionScalarWhereInput
-  data: Prisma.XOR<Prisma.MembershipPositionUpdateManyMutationInput, Prisma.MembershipPositionUncheckedUpdateManyWithoutApprovalRuleInput>
+  data: Prisma.XOR<Prisma.MembershipPositionUpdateManyMutationInput, Prisma.MembershipPositionUncheckedUpdateManyWithoutApprovalRulesInput>
 }
 
 export type MembershipPositionCreateManyChurchInput = {
@@ -704,7 +671,6 @@ export type MembershipPositionCreateManyChurchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   membershipId?: number | null
-  approvalRuleId?: number | null
 }
 
 export type MembershipPositionUpdateWithoutChurchInput = {
@@ -712,7 +678,7 @@ export type MembershipPositionUpdateWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membership?: Prisma.MembershipUpdateOneWithoutMembershipPositionsNestedInput
-  approvalRule?: Prisma.ApprovalRuleUpdateOneWithoutPositionsNestedInput
+  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionUncheckedUpdateWithoutChurchInput = {
@@ -721,7 +687,7 @@ export type MembershipPositionUncheckedUpdateWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionUncheckedUpdateManyWithoutChurchInput = {
@@ -730,7 +696,6 @@ export type MembershipPositionUncheckedUpdateManyWithoutChurchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   membershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type MembershipPositionCreateManyMembershipInput = {
@@ -739,7 +704,6 @@ export type MembershipPositionCreateManyMembershipInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   churchId?: number | null
-  approvalRuleId?: number | null
 }
 
 export type MembershipPositionUpdateWithoutMembershipInput = {
@@ -747,7 +711,7 @@ export type MembershipPositionUpdateWithoutMembershipInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneWithoutMembershipPositionsNestedInput
-  approvalRule?: Prisma.ApprovalRuleUpdateOneWithoutPositionsNestedInput
+  approvalRules?: Prisma.ApprovalRuleUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionUncheckedUpdateWithoutMembershipInput = {
@@ -756,7 +720,7 @@ export type MembershipPositionUncheckedUpdateWithoutMembershipInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvalRules?: Prisma.ApprovalRuleUncheckedUpdateManyWithoutPositionsNestedInput
 }
 
 export type MembershipPositionUncheckedUpdateManyWithoutMembershipInput = {
@@ -765,19 +729,9 @@ export type MembershipPositionUncheckedUpdateManyWithoutMembershipInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvalRuleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type MembershipPositionCreateManyApprovalRuleInput = {
-  id?: number
-  name: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  membershipId?: number | null
-  churchId?: number | null
-}
-
-export type MembershipPositionUpdateWithoutApprovalRuleInput = {
+export type MembershipPositionUpdateWithoutApprovalRulesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -785,7 +739,7 @@ export type MembershipPositionUpdateWithoutApprovalRuleInput = {
   church?: Prisma.ChurchUpdateOneWithoutMembershipPositionsNestedInput
 }
 
-export type MembershipPositionUncheckedUpdateWithoutApprovalRuleInput = {
+export type MembershipPositionUncheckedUpdateWithoutApprovalRulesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -794,7 +748,7 @@ export type MembershipPositionUncheckedUpdateWithoutApprovalRuleInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type MembershipPositionUncheckedUpdateManyWithoutApprovalRuleInput = {
+export type MembershipPositionUncheckedUpdateManyWithoutApprovalRulesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -803,6 +757,35 @@ export type MembershipPositionUncheckedUpdateManyWithoutApprovalRuleInput = {
   churchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
+
+/**
+ * Count Type MembershipPositionCountOutputType
+ */
+
+export type MembershipPositionCountOutputType = {
+  approvalRules: number
+}
+
+export type MembershipPositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  approvalRules?: boolean | MembershipPositionCountOutputTypeCountApprovalRulesArgs
+}
+
+/**
+ * MembershipPositionCountOutputType without action
+ */
+export type MembershipPositionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipPositionCountOutputType
+   */
+  select?: Prisma.MembershipPositionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MembershipPositionCountOutputType without action
+ */
+export type MembershipPositionCountOutputTypeCountApprovalRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApprovalRuleWhereInput
+}
 
 
 export type MembershipPositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -812,10 +795,10 @@ export type MembershipPositionSelect<ExtArgs extends runtime.Types.Extensions.In
   updatedAt?: boolean
   membershipId?: boolean
   churchId?: boolean
-  approvalRuleId?: boolean
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
+  approvalRules?: boolean | Prisma.MembershipPosition$approvalRulesArgs<ExtArgs>
+  _count?: boolean | Prisma.MembershipPositionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["membershipPosition"]>
 
 export type MembershipPositionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -825,10 +808,8 @@ export type MembershipPositionSelectCreateManyAndReturn<ExtArgs extends runtime.
   updatedAt?: boolean
   membershipId?: boolean
   churchId?: boolean
-  approvalRuleId?: boolean
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
 }, ExtArgs["result"]["membershipPosition"]>
 
 export type MembershipPositionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -838,10 +819,8 @@ export type MembershipPositionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   updatedAt?: boolean
   membershipId?: boolean
   churchId?: boolean
-  approvalRuleId?: boolean
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
 }, ExtArgs["result"]["membershipPosition"]>
 
 export type MembershipPositionSelectScalar = {
@@ -851,24 +830,22 @@ export type MembershipPositionSelectScalar = {
   updatedAt?: boolean
   membershipId?: boolean
   churchId?: boolean
-  approvalRuleId?: boolean
 }
 
-export type MembershipPositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt" | "membershipId" | "churchId" | "approvalRuleId", ExtArgs["result"]["membershipPosition"]>
+export type MembershipPositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt" | "membershipId" | "churchId", ExtArgs["result"]["membershipPosition"]>
 export type MembershipPositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
+  approvalRules?: boolean | Prisma.MembershipPosition$approvalRulesArgs<ExtArgs>
+  _count?: boolean | Prisma.MembershipPositionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MembershipPositionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
 }
 export type MembershipPositionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   membership?: boolean | Prisma.MembershipPosition$membershipArgs<ExtArgs>
   church?: boolean | Prisma.MembershipPosition$churchArgs<ExtArgs>
-  approvalRule?: boolean | Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>
 }
 
 export type $MembershipPositionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -876,7 +853,7 @@ export type $MembershipPositionPayload<ExtArgs extends runtime.Types.Extensions.
   objects: {
     membership: Prisma.$MembershipPayload<ExtArgs> | null
     church: Prisma.$ChurchPayload<ExtArgs> | null
-    approvalRule: Prisma.$ApprovalRulePayload<ExtArgs> | null
+    approvalRules: Prisma.$ApprovalRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -885,7 +862,6 @@ export type $MembershipPositionPayload<ExtArgs extends runtime.Types.Extensions.
     updatedAt: Date
     membershipId: number | null
     churchId: number | null
-    approvalRuleId: number | null
   }, ExtArgs["result"]["membershipPosition"]>
   composites: {}
 }
@@ -1282,7 +1258,7 @@ export interface Prisma__MembershipPositionClient<T, Null = never, ExtArgs exten
   readonly [Symbol.toStringTag]: "PrismaPromise"
   membership<T extends Prisma.MembershipPosition$membershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPosition$membershipArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   church<T extends Prisma.MembershipPosition$churchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPosition$churchArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  approvalRule<T extends Prisma.MembershipPosition$approvalRuleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPosition$approvalRuleArgs<ExtArgs>>): Prisma.Prisma__ApprovalRuleClient<runtime.Types.Result.GetResult<Prisma.$ApprovalRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvalRules<T extends Prisma.MembershipPosition$approvalRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPosition$approvalRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1318,7 +1294,6 @@ export interface MembershipPositionFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"MembershipPosition", 'DateTime'>
   readonly membershipId: Prisma.FieldRef<"MembershipPosition", 'Int'>
   readonly churchId: Prisma.FieldRef<"MembershipPosition", 'Int'>
-  readonly approvalRuleId: Prisma.FieldRef<"MembershipPosition", 'Int'>
 }
     
 
@@ -1753,9 +1728,9 @@ export type MembershipPosition$churchArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * MembershipPosition.approvalRule
+ * MembershipPosition.approvalRules
  */
-export type MembershipPosition$approvalRuleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MembershipPosition$approvalRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ApprovalRule
    */
@@ -1769,6 +1744,11 @@ export type MembershipPosition$approvalRuleArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.ApprovalRuleInclude<ExtArgs> | null
   where?: Prisma.ApprovalRuleWhereInput
+  orderBy?: Prisma.ApprovalRuleOrderByWithRelationInput | Prisma.ApprovalRuleOrderByWithRelationInput[]
+  cursor?: Prisma.ApprovalRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApprovalRuleScalarFieldEnum | Prisma.ApprovalRuleScalarFieldEnum[]
 }
 
 /**

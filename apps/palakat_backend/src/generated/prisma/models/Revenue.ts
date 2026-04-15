@@ -32,6 +32,7 @@ export type RevenueAvgAggregateOutputType = {
   churchId: number | null
   activityId: number | null
   financialAccountNumberId: number | null
+  overrideMembershipId: number | null
 }
 
 export type RevenueSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type RevenueSumAggregateOutputType = {
   churchId: number | null
   activityId: number | null
   financialAccountNumberId: number | null
+  overrideMembershipId: number | null
 }
 
 export type RevenueMinAggregateOutputType = {
@@ -50,6 +52,11 @@ export type RevenueMinAggregateOutputType = {
   activityId: number | null
   paymentMethod: $Enums.PaymentMethod | null
   financialAccountNumberId: number | null
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +69,11 @@ export type RevenueMaxAggregateOutputType = {
   activityId: number | null
   paymentMethod: $Enums.PaymentMethod | null
   financialAccountNumberId: number | null
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +86,11 @@ export type RevenueCountAggregateOutputType = {
   activityId: number
   paymentMethod: number
   financialAccountNumberId: number
+  overrideStatus: number
+  overrideMembershipId: number
+  overrideNote: number
+  overriddenAt: number
+  isOverridden: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,6 +103,7 @@ export type RevenueAvgAggregateInputType = {
   churchId?: true
   activityId?: true
   financialAccountNumberId?: true
+  overrideMembershipId?: true
 }
 
 export type RevenueSumAggregateInputType = {
@@ -94,6 +112,7 @@ export type RevenueSumAggregateInputType = {
   churchId?: true
   activityId?: true
   financialAccountNumberId?: true
+  overrideMembershipId?: true
 }
 
 export type RevenueMinAggregateInputType = {
@@ -104,6 +123,11 @@ export type RevenueMinAggregateInputType = {
   activityId?: true
   paymentMethod?: true
   financialAccountNumberId?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,6 +140,11 @@ export type RevenueMaxAggregateInputType = {
   activityId?: true
   paymentMethod?: true
   financialAccountNumberId?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,6 +157,11 @@ export type RevenueCountAggregateInputType = {
   activityId?: true
   paymentMethod?: true
   financialAccountNumberId?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -227,6 +261,11 @@ export type RevenueGroupByOutputType = {
   activityId: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId: number | null
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean
   createdAt: Date
   updatedAt: Date
   _count: RevenueCountAggregateOutputType | null
@@ -262,12 +301,18 @@ export type RevenueWhereInput = {
   activityId?: Prisma.IntNullableFilter<"Revenue"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Revenue"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Revenue"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Revenue"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Revenue"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Revenue"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
   approvers?: Prisma.RevenueApproverListRelationFilter
+  overrideMembership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
 }
 
 export type RevenueOrderByWithRelationInput = {
@@ -278,12 +323,18 @@ export type RevenueOrderByWithRelationInput = {
   activityId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   church?: Prisma.ChurchOrderByWithRelationInput
   activity?: Prisma.ActivityOrderByWithRelationInput
   financialAccountNumber?: Prisma.FinancialAccountNumberOrderByWithRelationInput
   approvers?: Prisma.RevenueApproverOrderByRelationAggregateInput
+  overrideMembership?: Prisma.MembershipOrderByWithRelationInput
 }
 
 export type RevenueWhereUniqueInput = Prisma.AtLeast<{
@@ -297,12 +348,18 @@ export type RevenueWhereUniqueInput = Prisma.AtLeast<{
   activityId?: Prisma.IntNullableFilter<"Revenue"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Revenue"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Revenue"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Revenue"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Revenue"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Revenue"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   activity?: Prisma.XOR<Prisma.ActivityNullableScalarRelationFilter, Prisma.ActivityWhereInput> | null
   financialAccountNumber?: Prisma.XOR<Prisma.FinancialAccountNumberNullableScalarRelationFilter, Prisma.FinancialAccountNumberWhereInput> | null
   approvers?: Prisma.RevenueApproverListRelationFilter
+  overrideMembership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
 }, "id">
 
 export type RevenueOrderByWithAggregationInput = {
@@ -313,6 +370,11 @@ export type RevenueOrderByWithAggregationInput = {
   activityId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RevenueCountOrderByAggregateInput
@@ -333,6 +395,11 @@ export type RevenueScalarWhereWithAggregatesInput = {
   activityId?: Prisma.IntNullableWithAggregatesFilter<"Revenue"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodWithAggregatesFilter<"Revenue"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableWithAggregatesFilter<"Revenue"> | number | null
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableWithAggregatesFilter<"Revenue"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableWithAggregatesFilter<"Revenue"> | number | null
+  overrideNote?: Prisma.StringNullableWithAggregatesFilter<"Revenue"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Revenue"> | Date | string | null
+  isOverridden?: Prisma.BoolWithAggregatesFilter<"Revenue"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Revenue"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Revenue"> | Date | string
 }
@@ -341,12 +408,17 @@ export type RevenueCreateInput = {
   accountNumber: string
   amount: number
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
   activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
   approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutRevenueOverridesInput
 }
 
 export type RevenueUncheckedCreateInput = {
@@ -357,6 +429,11 @@ export type RevenueUncheckedCreateInput = {
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
@@ -366,12 +443,17 @@ export type RevenueUpdateInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
   approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutRevenueOverridesNestedInput
 }
 
 export type RevenueUncheckedUpdateInput = {
@@ -382,6 +464,11 @@ export type RevenueUncheckedUpdateInput = {
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
@@ -395,6 +482,11 @@ export type RevenueCreateManyInput = {
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -403,6 +495,10 @@ export type RevenueUpdateManyMutationInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -415,6 +511,11 @@ export type RevenueUncheckedUpdateManyInput = {
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -437,6 +538,11 @@ export type RevenueCountOrderByAggregateInput = {
   activityId?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -447,6 +553,7 @@ export type RevenueAvgOrderByAggregateInput = {
   churchId?: Prisma.SortOrder
   activityId?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
 }
 
 export type RevenueMaxOrderByAggregateInput = {
@@ -457,6 +564,11 @@ export type RevenueMaxOrderByAggregateInput = {
   activityId?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -469,6 +581,11 @@ export type RevenueMinOrderByAggregateInput = {
   activityId?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -479,6 +596,7 @@ export type RevenueSumOrderByAggregateInput = {
   churchId?: Prisma.SortOrder
   activityId?: Prisma.SortOrder
   financialAccountNumberId?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
 }
 
 export type RevenueScalarRelationFilter = {
@@ -525,6 +643,48 @@ export type RevenueUncheckedUpdateManyWithoutChurchNestedInput = {
   connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
   update?: Prisma.RevenueUpdateWithWhereUniqueWithoutChurchInput | Prisma.RevenueUpdateWithWhereUniqueWithoutChurchInput[]
   updateMany?: Prisma.RevenueUpdateManyWithWhereWithoutChurchInput | Prisma.RevenueUpdateManyWithWhereWithoutChurchInput[]
+  deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
+}
+
+export type RevenueCreateNestedManyWithoutOverrideMembershipInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput> | Prisma.RevenueCreateWithoutOverrideMembershipInput[] | Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput | Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput[]
+  createMany?: Prisma.RevenueCreateManyOverrideMembershipInputEnvelope
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+}
+
+export type RevenueUncheckedCreateNestedManyWithoutOverrideMembershipInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput> | Prisma.RevenueCreateWithoutOverrideMembershipInput[] | Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput | Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput[]
+  createMany?: Prisma.RevenueCreateManyOverrideMembershipInputEnvelope
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+}
+
+export type RevenueUpdateManyWithoutOverrideMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput> | Prisma.RevenueCreateWithoutOverrideMembershipInput[] | Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput | Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput[]
+  upsert?: Prisma.RevenueUpsertWithWhereUniqueWithoutOverrideMembershipInput | Prisma.RevenueUpsertWithWhereUniqueWithoutOverrideMembershipInput[]
+  createMany?: Prisma.RevenueCreateManyOverrideMembershipInputEnvelope
+  set?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  disconnect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  delete?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  update?: Prisma.RevenueUpdateWithWhereUniqueWithoutOverrideMembershipInput | Prisma.RevenueUpdateWithWhereUniqueWithoutOverrideMembershipInput[]
+  updateMany?: Prisma.RevenueUpdateManyWithWhereWithoutOverrideMembershipInput | Prisma.RevenueUpdateManyWithWhereWithoutOverrideMembershipInput[]
+  deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
+}
+
+export type RevenueUncheckedUpdateManyWithoutOverrideMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput> | Prisma.RevenueCreateWithoutOverrideMembershipInput[] | Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput | Prisma.RevenueCreateOrConnectWithoutOverrideMembershipInput[]
+  upsert?: Prisma.RevenueUpsertWithWhereUniqueWithoutOverrideMembershipInput | Prisma.RevenueUpsertWithWhereUniqueWithoutOverrideMembershipInput[]
+  createMany?: Prisma.RevenueCreateManyOverrideMembershipInputEnvelope
+  set?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  disconnect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  delete?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  connect?: Prisma.RevenueWhereUniqueInput | Prisma.RevenueWhereUniqueInput[]
+  update?: Prisma.RevenueUpdateWithWhereUniqueWithoutOverrideMembershipInput | Prisma.RevenueUpdateWithWhereUniqueWithoutOverrideMembershipInput[]
+  updateMany?: Prisma.RevenueUpdateManyWithWhereWithoutOverrideMembershipInput | Prisma.RevenueUpdateManyWithWhereWithoutOverrideMembershipInput[]
   deleteMany?: Prisma.RevenueScalarWhereInput | Prisma.RevenueScalarWhereInput[]
 }
 
@@ -634,11 +794,16 @@ export type RevenueCreateWithoutChurchInput = {
   accountNumber: string
   amount: number
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
   approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutRevenueOverridesInput
 }
 
 export type RevenueUncheckedCreateWithoutChurchInput = {
@@ -648,6 +813,11 @@ export type RevenueUncheckedCreateWithoutChurchInput = {
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
@@ -690,19 +860,88 @@ export type RevenueScalarWhereInput = {
   activityId?: Prisma.IntNullableFilter<"Revenue"> | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Revenue"> | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Revenue"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Revenue"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Revenue"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Revenue"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Revenue"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Revenue"> | Date | string
+}
+
+export type RevenueCreateWithoutOverrideMembershipInput = {
+  accountNumber: string
+  amount: number
+  paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
+  activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+  approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
+}
+
+export type RevenueUncheckedCreateWithoutOverrideMembershipInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  activityId?: number | null
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
+}
+
+export type RevenueCreateOrConnectWithoutOverrideMembershipInput = {
+  where: Prisma.RevenueWhereUniqueInput
+  create: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput>
+}
+
+export type RevenueCreateManyOverrideMembershipInputEnvelope = {
+  data: Prisma.RevenueCreateManyOverrideMembershipInput | Prisma.RevenueCreateManyOverrideMembershipInput[]
+  skipDuplicates?: boolean
+}
+
+export type RevenueUpsertWithWhereUniqueWithoutOverrideMembershipInput = {
+  where: Prisma.RevenueWhereUniqueInput
+  update: Prisma.XOR<Prisma.RevenueUpdateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedUpdateWithoutOverrideMembershipInput>
+  create: Prisma.XOR<Prisma.RevenueCreateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedCreateWithoutOverrideMembershipInput>
+}
+
+export type RevenueUpdateWithWhereUniqueWithoutOverrideMembershipInput = {
+  where: Prisma.RevenueWhereUniqueInput
+  data: Prisma.XOR<Prisma.RevenueUpdateWithoutOverrideMembershipInput, Prisma.RevenueUncheckedUpdateWithoutOverrideMembershipInput>
+}
+
+export type RevenueUpdateManyWithWhereWithoutOverrideMembershipInput = {
+  where: Prisma.RevenueScalarWhereInput
+  data: Prisma.XOR<Prisma.RevenueUpdateManyMutationInput, Prisma.RevenueUncheckedUpdateManyWithoutOverrideMembershipInput>
 }
 
 export type RevenueCreateWithoutActivityInput = {
   accountNumber: string
   amount: number
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
   approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutRevenueOverridesInput
 }
 
 export type RevenueUncheckedCreateWithoutActivityInput = {
@@ -712,6 +951,11 @@ export type RevenueUncheckedCreateWithoutActivityInput = {
   churchId: number
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
@@ -747,11 +991,16 @@ export type RevenueCreateWithoutApproversInput = {
   accountNumber: string
   amount: number
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
   activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   financialAccountNumber?: Prisma.FinancialAccountNumberCreateNestedOneWithoutRevenuesInput
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutRevenueOverridesInput
 }
 
 export type RevenueUncheckedCreateWithoutApproversInput = {
@@ -762,6 +1011,11 @@ export type RevenueUncheckedCreateWithoutApproversInput = {
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -786,11 +1040,16 @@ export type RevenueUpdateWithoutApproversInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutRevenueOverridesNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutApproversInput = {
@@ -801,6 +1060,11 @@ export type RevenueUncheckedUpdateWithoutApproversInput = {
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -809,11 +1073,16 @@ export type RevenueCreateWithoutFinancialAccountNumberInput = {
   accountNumber: string
   amount: number
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutRevenuesInput
   activity?: Prisma.ActivityCreateNestedOneWithoutRevenuesInput
   approvers?: Prisma.RevenueApproverCreateNestedManyWithoutRevenueInput
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutRevenueOverridesInput
 }
 
 export type RevenueUncheckedCreateWithoutFinancialAccountNumberInput = {
@@ -823,6 +1092,11 @@ export type RevenueUncheckedCreateWithoutFinancialAccountNumberInput = {
   churchId: number
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   approvers?: Prisma.RevenueApproverUncheckedCreateNestedManyWithoutRevenueInput
@@ -861,6 +1135,11 @@ export type RevenueCreateManyChurchInput = {
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -869,11 +1148,16 @@ export type RevenueUpdateWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
   approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutRevenueOverridesNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutChurchInput = {
@@ -883,6 +1167,11 @@ export type RevenueUncheckedUpdateWithoutChurchInput = {
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
@@ -895,6 +1184,76 @@ export type RevenueUncheckedUpdateManyWithoutChurchInput = {
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RevenueCreateManyOverrideMembershipInput = {
+  id?: number
+  accountNumber: string
+  amount: number
+  churchId: number
+  activityId?: number | null
+  paymentMethod: $Enums.PaymentMethod
+  financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RevenueUpdateWithoutOverrideMembershipInput = {
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
+  activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
+  financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
+  approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+}
+
+export type RevenueUncheckedUpdateWithoutOverrideMembershipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
+}
+
+export type RevenueUncheckedUpdateManyWithoutOverrideMembershipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -906,6 +1265,11 @@ export type RevenueCreateManyActivityInput = {
   churchId: number
   paymentMethod: $Enums.PaymentMethod
   financialAccountNumberId?: number | null
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -914,11 +1278,16 @@ export type RevenueUpdateWithoutActivityInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
   financialAccountNumber?: Prisma.FinancialAccountNumberUpdateOneWithoutRevenuesNestedInput
   approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutRevenueOverridesNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutActivityInput = {
@@ -928,6 +1297,11 @@ export type RevenueUncheckedUpdateWithoutActivityInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
@@ -940,6 +1314,11 @@ export type RevenueUncheckedUpdateManyWithoutActivityInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   financialAccountNumberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -951,6 +1330,11 @@ export type RevenueCreateManyFinancialAccountNumberInput = {
   churchId: number
   activityId?: number | null
   paymentMethod: $Enums.PaymentMethod
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -959,11 +1343,16 @@ export type RevenueUpdateWithoutFinancialAccountNumberInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutRevenuesNestedInput
   activity?: Prisma.ActivityUpdateOneWithoutRevenuesNestedInput
   approvers?: Prisma.RevenueApproverUpdateManyWithoutRevenueNestedInput
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutRevenueOverridesNestedInput
 }
 
 export type RevenueUncheckedUpdateWithoutFinancialAccountNumberInput = {
@@ -973,6 +1362,11 @@ export type RevenueUncheckedUpdateWithoutFinancialAccountNumberInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvers?: Prisma.RevenueApproverUncheckedUpdateManyWithoutRevenueNestedInput
@@ -985,6 +1379,11 @@ export type RevenueUncheckedUpdateManyWithoutFinancialAccountNumberInput = {
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   activityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1028,12 +1427,18 @@ export type RevenueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   activityId?: boolean
   paymentMethod?: boolean
   financialAccountNumberId?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
   approvers?: boolean | Prisma.Revenue$approversArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.RevenueCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["revenue"]>
 
@@ -1045,11 +1450,17 @@ export type RevenueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityId?: boolean
   paymentMethod?: boolean
   financialAccountNumberId?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
 }, ExtArgs["result"]["revenue"]>
 
 export type RevenueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1060,11 +1471,17 @@ export type RevenueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityId?: boolean
   paymentMethod?: boolean
   financialAccountNumberId?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
 }, ExtArgs["result"]["revenue"]>
 
 export type RevenueSelectScalar = {
@@ -1075,27 +1492,35 @@ export type RevenueSelectScalar = {
   activityId?: boolean
   paymentMethod?: boolean
   financialAccountNumberId?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RevenueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountNumber" | "amount" | "churchId" | "activityId" | "paymentMethod" | "financialAccountNumberId" | "createdAt" | "updatedAt", ExtArgs["result"]["revenue"]>
+export type RevenueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountNumber" | "amount" | "churchId" | "activityId" | "paymentMethod" | "financialAccountNumberId" | "overrideStatus" | "overrideMembershipId" | "overrideNote" | "overriddenAt" | "isOverridden" | "createdAt" | "updatedAt", ExtArgs["result"]["revenue"]>
 export type RevenueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
   approvers?: boolean | Prisma.Revenue$approversArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.RevenueCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RevenueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
 }
 export type RevenueIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   activity?: boolean | Prisma.Revenue$activityArgs<ExtArgs>
   financialAccountNumber?: boolean | Prisma.Revenue$financialAccountNumberArgs<ExtArgs>
+  overrideMembership?: boolean | Prisma.Revenue$overrideMembershipArgs<ExtArgs>
 }
 
 export type $RevenuePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1105,6 +1530,7 @@ export type $RevenuePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     activity: Prisma.$ActivityPayload<ExtArgs> | null
     financialAccountNumber: Prisma.$FinancialAccountNumberPayload<ExtArgs> | null
     approvers: Prisma.$RevenueApproverPayload<ExtArgs>[]
+    overrideMembership: Prisma.$MembershipPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1114,6 +1540,11 @@ export type $RevenuePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     activityId: number | null
     paymentMethod: $Enums.PaymentMethod
     financialAccountNumberId: number | null
+    overrideStatus: $Enums.ApprovalOverrideStatus | null
+    overrideMembershipId: number | null
+    overrideNote: string | null
+    overriddenAt: Date | null
+    isOverridden: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["revenue"]>
@@ -1514,6 +1945,7 @@ export interface Prisma__RevenueClient<T, Null = never, ExtArgs extends runtime.
   activity<T extends Prisma.Revenue$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$activityArgs<ExtArgs>>): Prisma.Prisma__ActivityClient<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   financialAccountNumber<T extends Prisma.Revenue$financialAccountNumberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$financialAccountNumberArgs<ExtArgs>>): Prisma.Prisma__FinancialAccountNumberClient<runtime.Types.Result.GetResult<Prisma.$FinancialAccountNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   approvers<T extends Prisma.Revenue$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenueApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  overrideMembership<T extends Prisma.Revenue$overrideMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Revenue$overrideMembershipArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1550,6 +1982,11 @@ export interface RevenueFieldRefs {
   readonly activityId: Prisma.FieldRef<"Revenue", 'Int'>
   readonly paymentMethod: Prisma.FieldRef<"Revenue", 'PaymentMethod'>
   readonly financialAccountNumberId: Prisma.FieldRef<"Revenue", 'Int'>
+  readonly overrideStatus: Prisma.FieldRef<"Revenue", 'ApprovalOverrideStatus'>
+  readonly overrideMembershipId: Prisma.FieldRef<"Revenue", 'Int'>
+  readonly overrideNote: Prisma.FieldRef<"Revenue", 'String'>
+  readonly overriddenAt: Prisma.FieldRef<"Revenue", 'DateTime'>
+  readonly isOverridden: Prisma.FieldRef<"Revenue", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Revenue", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Revenue", 'DateTime'>
 }
@@ -2007,6 +2444,25 @@ export type Revenue$approversArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.RevenueApproverScalarFieldEnum | Prisma.RevenueApproverScalarFieldEnum[]
+}
+
+/**
+ * Revenue.overrideMembership
+ */
+export type Revenue$overrideMembershipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Membership
+   */
+  select?: Prisma.MembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Membership
+   */
+  omit?: Prisma.MembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInclude<ExtArgs> | null
+  where?: Prisma.MembershipWhereInput
 }
 
 /**

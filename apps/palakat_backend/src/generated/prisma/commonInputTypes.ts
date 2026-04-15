@@ -369,6 +369,13 @@ export type EnumReminderNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel> | $Enums.Reminder | null
 }
 
+export type EnumApprovalOverrideStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalOverrideStatus | Prisma.EnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel> | $Enums.ApprovalOverrideStatus | null
+}
+
 export type EnumActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ActivityType | Prisma.EnumActivityTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ActivityType[] | Prisma.ListEnumActivityTypeFieldRefInput<$PrismaModel>
@@ -387,6 +394,16 @@ export type EnumReminderNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel>
+}
+
+export type EnumApprovalOverrideStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalOverrideStatus | Prisma.EnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumApprovalOverrideStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ApprovalOverrideStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel>
 }
 
 export type EnumPaymentMethodFilter<$PrismaModel = never> = {
@@ -1124,6 +1141,13 @@ export type NestedEnumReminderNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel> | $Enums.Reminder | null
 }
 
+export type NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalOverrideStatus | Prisma.EnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel> | $Enums.ApprovalOverrideStatus | null
+}
+
 export type NestedEnumActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ActivityType | Prisma.EnumActivityTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ActivityType[] | Prisma.ListEnumActivityTypeFieldRefInput<$PrismaModel>
@@ -1142,6 +1166,16 @@ export type NestedEnumReminderNullableWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumReminderNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumApprovalOverrideStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalOverrideStatus | Prisma.EnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ApprovalOverrideStatus[] | Prisma.ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumApprovalOverrideStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ApprovalOverrideStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumApprovalOverrideStatusNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumPaymentMethodFilter<$PrismaModel = never> = {

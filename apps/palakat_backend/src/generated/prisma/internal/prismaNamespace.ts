@@ -2689,8 +2689,7 @@ export const MembershipPositionScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   membershipId: 'membershipId',
-  churchId: 'churchId',
-  approvalRuleId: 'approvalRuleId'
+  churchId: 'churchId'
 } as const
 
 export type MembershipPositionScalarFieldEnum = (typeof MembershipPositionScalarFieldEnum)[keyof typeof MembershipPositionScalarFieldEnum]
@@ -2751,7 +2750,12 @@ export const ActivityScalarFieldEnum = {
   activityType: 'activityType',
   reminder: 'reminder',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  overrideStatus: 'overrideStatus',
+  overrideMembershipId: 'overrideMembershipId',
+  overrideNote: 'overrideNote',
+  overriddenAt: 'overriddenAt',
+  isOverridden: 'isOverridden'
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
@@ -2765,6 +2769,11 @@ export const RevenueScalarFieldEnum = {
   activityId: 'activityId',
   paymentMethod: 'paymentMethod',
   financialAccountNumberId: 'financialAccountNumberId',
+  overrideStatus: 'overrideStatus',
+  overrideMembershipId: 'overrideMembershipId',
+  overrideNote: 'overrideNote',
+  overriddenAt: 'overriddenAt',
+  isOverridden: 'isOverridden',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2780,6 +2789,11 @@ export const ExpenseScalarFieldEnum = {
   activityId: 'activityId',
   paymentMethod: 'paymentMethod',
   financialAccountNumberId: 'financialAccountNumberId',
+  overrideStatus: 'overrideStatus',
+  overrideMembershipId: 'overrideMembershipId',
+  overrideNote: 'overrideNote',
+  overriddenAt: 'overriddenAt',
+  isOverridden: 'isOverridden',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3278,6 +3292,20 @@ export type EnumReminderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Reminder[]'
  */
 export type ListEnumReminderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Reminder[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ApprovalOverrideStatus'
+ */
+export type EnumApprovalOverrideStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalOverrideStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ApprovalOverrideStatus[]'
+ */
+export type ListEnumApprovalOverrideStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalOverrideStatus[]'>
     
 
 

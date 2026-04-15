@@ -32,6 +32,7 @@ export type ActivityAvgAggregateOutputType = {
   columnId: number | null
   locationId: number | null
   fileId: number | null
+  overrideMembershipId: number | null
 }
 
 export type ActivitySumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type ActivitySumAggregateOutputType = {
   columnId: number | null
   locationId: number | null
   fileId: number | null
+  overrideMembershipId: number | null
 }
 
 export type ActivityMinAggregateOutputType = {
@@ -57,6 +59,11 @@ export type ActivityMinAggregateOutputType = {
   reminder: $Enums.Reminder | null
   createdAt: Date | null
   updatedAt: Date | null
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean | null
 }
 
 export type ActivityMaxAggregateOutputType = {
@@ -74,6 +81,11 @@ export type ActivityMaxAggregateOutputType = {
   reminder: $Enums.Reminder | null
   createdAt: Date | null
   updatedAt: Date | null
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean | null
 }
 
 export type ActivityCountAggregateOutputType = {
@@ -91,6 +103,11 @@ export type ActivityCountAggregateOutputType = {
   reminder: number
   createdAt: number
   updatedAt: number
+  overrideStatus: number
+  overrideMembershipId: number
+  overrideNote: number
+  overriddenAt: number
+  isOverridden: number
   _all: number
 }
 
@@ -101,6 +118,7 @@ export type ActivityAvgAggregateInputType = {
   columnId?: true
   locationId?: true
   fileId?: true
+  overrideMembershipId?: true
 }
 
 export type ActivitySumAggregateInputType = {
@@ -109,6 +127,7 @@ export type ActivitySumAggregateInputType = {
   columnId?: true
   locationId?: true
   fileId?: true
+  overrideMembershipId?: true
 }
 
 export type ActivityMinAggregateInputType = {
@@ -126,6 +145,11 @@ export type ActivityMinAggregateInputType = {
   reminder?: true
   createdAt?: true
   updatedAt?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
 }
 
 export type ActivityMaxAggregateInputType = {
@@ -143,6 +167,11 @@ export type ActivityMaxAggregateInputType = {
   reminder?: true
   createdAt?: true
   updatedAt?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
 }
 
 export type ActivityCountAggregateInputType = {
@@ -160,6 +189,11 @@ export type ActivityCountAggregateInputType = {
   reminder?: true
   createdAt?: true
   updatedAt?: true
+  overrideStatus?: true
+  overrideMembershipId?: true
+  overrideNote?: true
+  overriddenAt?: true
+  isOverridden?: true
   _all?: true
 }
 
@@ -264,6 +298,11 @@ export type ActivityGroupByOutputType = {
   reminder: $Enums.Reminder | null
   createdAt: Date
   updatedAt: Date
+  overrideStatus: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId: number | null
+  overrideNote: string | null
+  overriddenAt: Date | null
+  isOverridden: boolean
   _count: ActivityCountAggregateOutputType | null
   _avg: ActivityAvgAggregateOutputType | null
   _sum: ActivitySumAggregateOutputType | null
@@ -304,6 +343,12 @@ export type ActivityWhereInput = {
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Activity"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Activity"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Activity"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Activity"> | boolean
+  overrideMembership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   supervisor?: Prisma.XOR<Prisma.MembershipScalarRelationFilter, Prisma.MembershipWhereInput>
   column?: Prisma.XOR<Prisma.ColumnNullableScalarRelationFilter, Prisma.ColumnWhereInput> | null
   approvers?: Prisma.ApproverListRelationFilter
@@ -330,6 +375,12 @@ export type ActivityOrderByWithRelationInput = {
   reminder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
+  overrideMembership?: Prisma.MembershipOrderByWithRelationInput
   supervisor?: Prisma.MembershipOrderByWithRelationInput
   column?: Prisma.ColumnOrderByWithRelationInput
   approvers?: Prisma.ApproverOrderByRelationAggregateInput
@@ -359,6 +410,12 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Activity"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Activity"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Activity"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Activity"> | boolean
+  overrideMembership?: Prisma.XOR<Prisma.MembershipNullableScalarRelationFilter, Prisma.MembershipWhereInput> | null
   supervisor?: Prisma.XOR<Prisma.MembershipScalarRelationFilter, Prisma.MembershipWhereInput>
   column?: Prisma.XOR<Prisma.ColumnNullableScalarRelationFilter, Prisma.ColumnWhereInput> | null
   approvers?: Prisma.ApproverListRelationFilter
@@ -385,6 +442,11 @@ export type ActivityOrderByWithAggregationInput = {
   reminder?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrderInput | Prisma.SortOrder
+  overrideNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
   _count?: Prisma.ActivityCountOrderByAggregateInput
   _avg?: Prisma.ActivityAvgOrderByAggregateInput
   _max?: Prisma.ActivityMaxOrderByAggregateInput
@@ -410,6 +472,11 @@ export type ActivityScalarWhereWithAggregatesInput = {
   reminder?: Prisma.EnumReminderNullableWithAggregatesFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Activity"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Activity"> | Date | string
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableWithAggregatesFilter<"Activity"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableWithAggregatesFilter<"Activity"> | number | null
+  overrideNote?: Prisma.StringNullableWithAggregatesFilter<"Activity"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Activity"> | Date | string | null
+  isOverridden?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
 }
 
 export type ActivityCreateInput = {
@@ -422,6 +489,11 @@ export type ActivityCreateInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -448,6 +520,11 @@ export type ActivityUncheckedCreateInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -465,6 +542,11 @@ export type ActivityUpdateInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -491,6 +573,11 @@ export type ActivityUncheckedUpdateInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -513,6 +600,11 @@ export type ActivityCreateManyInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
 }
 
 export type ActivityUpdateManyMutationInput = {
@@ -525,6 +617,10 @@ export type ActivityUpdateManyMutationInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ActivityUncheckedUpdateManyInput = {
@@ -542,6 +638,11 @@ export type ActivityUncheckedUpdateManyInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ActivityListRelationFilter = {
@@ -569,6 +670,11 @@ export type ActivityCountOrderByAggregateInput = {
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
 }
 
 export type ActivityAvgOrderByAggregateInput = {
@@ -577,6 +683,7 @@ export type ActivityAvgOrderByAggregateInput = {
   columnId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
 }
 
 export type ActivityMaxOrderByAggregateInput = {
@@ -594,6 +701,11 @@ export type ActivityMaxOrderByAggregateInput = {
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
 }
 
 export type ActivityMinOrderByAggregateInput = {
@@ -611,6 +723,11 @@ export type ActivityMinOrderByAggregateInput = {
   reminder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  overrideStatus?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
+  overrideNote?: Prisma.SortOrder
+  overriddenAt?: Prisma.SortOrder
+  isOverridden?: Prisma.SortOrder
 }
 
 export type ActivitySumOrderByAggregateInput = {
@@ -619,6 +736,7 @@ export type ActivitySumOrderByAggregateInput = {
   columnId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   fileId?: Prisma.SortOrder
+  overrideMembershipId?: Prisma.SortOrder
 }
 
 export type ActivityNullableScalarRelationFilter = {
@@ -680,10 +798,24 @@ export type ActivityCreateNestedManyWithoutSupervisorInput = {
   connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
 }
 
+export type ActivityCreateNestedManyWithoutOverrideMembershipInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput> | Prisma.ActivityCreateWithoutOverrideMembershipInput[] | Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput | Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput[]
+  createMany?: Prisma.ActivityCreateManyOverrideMembershipInputEnvelope
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+}
+
 export type ActivityUncheckedCreateNestedManyWithoutSupervisorInput = {
   create?: Prisma.XOR<Prisma.ActivityCreateWithoutSupervisorInput, Prisma.ActivityUncheckedCreateWithoutSupervisorInput> | Prisma.ActivityCreateWithoutSupervisorInput[] | Prisma.ActivityUncheckedCreateWithoutSupervisorInput[]
   connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutSupervisorInput | Prisma.ActivityCreateOrConnectWithoutSupervisorInput[]
   createMany?: Prisma.ActivityCreateManySupervisorInputEnvelope
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+}
+
+export type ActivityUncheckedCreateNestedManyWithoutOverrideMembershipInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput> | Prisma.ActivityCreateWithoutOverrideMembershipInput[] | Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput | Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput[]
+  createMany?: Prisma.ActivityCreateManyOverrideMembershipInputEnvelope
   connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
 }
 
@@ -701,6 +833,20 @@ export type ActivityUpdateManyWithoutSupervisorNestedInput = {
   deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
 }
 
+export type ActivityUpdateManyWithoutOverrideMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput> | Prisma.ActivityCreateWithoutOverrideMembershipInput[] | Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput | Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput[]
+  upsert?: Prisma.ActivityUpsertWithWhereUniqueWithoutOverrideMembershipInput | Prisma.ActivityUpsertWithWhereUniqueWithoutOverrideMembershipInput[]
+  createMany?: Prisma.ActivityCreateManyOverrideMembershipInputEnvelope
+  set?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  disconnect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  delete?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  update?: Prisma.ActivityUpdateWithWhereUniqueWithoutOverrideMembershipInput | Prisma.ActivityUpdateWithWhereUniqueWithoutOverrideMembershipInput[]
+  updateMany?: Prisma.ActivityUpdateManyWithWhereWithoutOverrideMembershipInput | Prisma.ActivityUpdateManyWithWhereWithoutOverrideMembershipInput[]
+  deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
+}
+
 export type ActivityUncheckedUpdateManyWithoutSupervisorNestedInput = {
   create?: Prisma.XOR<Prisma.ActivityCreateWithoutSupervisorInput, Prisma.ActivityUncheckedCreateWithoutSupervisorInput> | Prisma.ActivityCreateWithoutSupervisorInput[] | Prisma.ActivityUncheckedCreateWithoutSupervisorInput[]
   connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutSupervisorInput | Prisma.ActivityCreateOrConnectWithoutSupervisorInput[]
@@ -715,12 +861,30 @@ export type ActivityUncheckedUpdateManyWithoutSupervisorNestedInput = {
   deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
 }
 
+export type ActivityUncheckedUpdateManyWithoutOverrideMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput> | Prisma.ActivityCreateWithoutOverrideMembershipInput[] | Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput[]
+  connectOrCreate?: Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput | Prisma.ActivityCreateOrConnectWithoutOverrideMembershipInput[]
+  upsert?: Prisma.ActivityUpsertWithWhereUniqueWithoutOverrideMembershipInput | Prisma.ActivityUpsertWithWhereUniqueWithoutOverrideMembershipInput[]
+  createMany?: Prisma.ActivityCreateManyOverrideMembershipInputEnvelope
+  set?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  disconnect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  delete?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  connect?: Prisma.ActivityWhereUniqueInput | Prisma.ActivityWhereUniqueInput[]
+  update?: Prisma.ActivityUpdateWithWhereUniqueWithoutOverrideMembershipInput | Prisma.ActivityUpdateWithWhereUniqueWithoutOverrideMembershipInput[]
+  updateMany?: Prisma.ActivityUpdateManyWithWhereWithoutOverrideMembershipInput | Prisma.ActivityUpdateManyWithWhereWithoutOverrideMembershipInput[]
+  deleteMany?: Prisma.ActivityScalarWhereInput | Prisma.ActivityScalarWhereInput[]
+}
+
 export type EnumActivityTypeFieldUpdateOperationsInput = {
   set?: $Enums.ActivityType
 }
 
 export type NullableEnumReminderFieldUpdateOperationsInput = {
   set?: $Enums.Reminder | null
+}
+
+export type NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ApprovalOverrideStatus | null
 }
 
 export type ActivityCreateNestedOneWithoutRevenuesInput = {
@@ -885,6 +1049,11 @@ export type ActivityCreateWithoutColumnInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
@@ -909,6 +1078,11 @@ export type ActivityUncheckedCreateWithoutColumnInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -960,6 +1134,11 @@ export type ActivityScalarWhereInput = {
   reminder?: Prisma.EnumReminderNullableFilter<"Activity"> | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Activity"> | Date | string
+  overrideStatus?: Prisma.EnumApprovalOverrideStatusNullableFilter<"Activity"> | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.IntNullableFilter<"Activity"> | number | null
+  overrideNote?: Prisma.StringNullableFilter<"Activity"> | string | null
+  overriddenAt?: Prisma.DateTimeNullableFilter<"Activity"> | Date | string | null
+  isOverridden?: Prisma.BoolFilter<"Activity"> | boolean
 }
 
 export type ActivityCreateWithoutSupervisorInput = {
@@ -972,6 +1151,11 @@ export type ActivityCreateWithoutSupervisorInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
@@ -996,6 +1180,11 @@ export type ActivityUncheckedCreateWithoutSupervisorInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -1010,6 +1199,67 @@ export type ActivityCreateOrConnectWithoutSupervisorInput = {
 
 export type ActivityCreateManySupervisorInputEnvelope = {
   data: Prisma.ActivityCreateManySupervisorInput | Prisma.ActivityCreateManySupervisorInput[]
+  skipDuplicates?: boolean
+}
+
+export type ActivityCreateWithoutOverrideMembershipInput = {
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  date?: Date | string | null
+  note?: string | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
+  column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
+  approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
+  location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
+  file?: Prisma.FileManagerCreateNestedOneWithoutActivityInput
+  document?: Prisma.DocumentCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutActivityInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutActivityInput
+}
+
+export type ActivityUncheckedCreateWithoutOverrideMembershipInput = {
+  id?: number
+  supervisorId: number
+  columnId?: number | null
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  locationId?: number | null
+  date?: Date | string | null
+  note?: string | null
+  fileId?: number | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
+  document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActivityInput
+}
+
+export type ActivityCreateOrConnectWithoutOverrideMembershipInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput>
+}
+
+export type ActivityCreateManyOverrideMembershipInputEnvelope = {
+  data: Prisma.ActivityCreateManyOverrideMembershipInput | Prisma.ActivityCreateManyOverrideMembershipInput[]
   skipDuplicates?: boolean
 }
 
@@ -1029,6 +1279,22 @@ export type ActivityUpdateManyWithWhereWithoutSupervisorInput = {
   data: Prisma.XOR<Prisma.ActivityUpdateManyMutationInput, Prisma.ActivityUncheckedUpdateManyWithoutSupervisorInput>
 }
 
+export type ActivityUpsertWithWhereUniqueWithoutOverrideMembershipInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  update: Prisma.XOR<Prisma.ActivityUpdateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedUpdateWithoutOverrideMembershipInput>
+  create: Prisma.XOR<Prisma.ActivityCreateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedCreateWithoutOverrideMembershipInput>
+}
+
+export type ActivityUpdateWithWhereUniqueWithoutOverrideMembershipInput = {
+  where: Prisma.ActivityWhereUniqueInput
+  data: Prisma.XOR<Prisma.ActivityUpdateWithoutOverrideMembershipInput, Prisma.ActivityUncheckedUpdateWithoutOverrideMembershipInput>
+}
+
+export type ActivityUpdateManyWithWhereWithoutOverrideMembershipInput = {
+  where: Prisma.ActivityScalarWhereInput
+  data: Prisma.XOR<Prisma.ActivityUpdateManyMutationInput, Prisma.ActivityUncheckedUpdateManyWithoutOverrideMembershipInput>
+}
+
 export type ActivityCreateWithoutRevenuesInput = {
   bipra?: $Enums.Bipra | null
   title: string
@@ -1039,6 +1305,11 @@ export type ActivityCreateWithoutRevenuesInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1064,6 +1335,11 @@ export type ActivityUncheckedCreateWithoutRevenuesInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
@@ -1096,6 +1372,11 @@ export type ActivityUpdateWithoutRevenuesInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1121,6 +1402,11 @@ export type ActivityUncheckedUpdateWithoutRevenuesInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
@@ -1137,6 +1423,11 @@ export type ActivityCreateWithoutExpensesInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1162,6 +1453,11 @@ export type ActivityUncheckedCreateWithoutExpensesInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -1194,6 +1490,11 @@ export type ActivityUpdateWithoutExpensesInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1219,6 +1520,11 @@ export type ActivityUncheckedUpdateWithoutExpensesInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1235,6 +1541,11 @@ export type ActivityCreateWithoutLocationInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1259,6 +1570,11 @@ export type ActivityUncheckedCreateWithoutLocationInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -1302,6 +1618,11 @@ export type ActivityCreateWithoutApproversInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   location?: Prisma.LocationCreateNestedOneWithoutActivitiesInput
@@ -1327,6 +1648,11 @@ export type ActivityUncheckedCreateWithoutApproversInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
@@ -1359,6 +1685,11 @@ export type ActivityUpdateWithoutApproversInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
@@ -1384,6 +1715,11 @@ export type ActivityUncheckedUpdateWithoutApproversInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
@@ -1400,6 +1736,11 @@ export type ActivityCreateWithoutFileInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1424,6 +1765,11 @@ export type ActivityUncheckedCreateWithoutFileInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -1457,6 +1803,11 @@ export type ActivityUpdateWithoutFileInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1481,6 +1832,11 @@ export type ActivityUncheckedUpdateWithoutFileInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1498,6 +1854,11 @@ export type ActivityCreateWithoutDocumentInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1523,6 +1884,11 @@ export type ActivityUncheckedCreateWithoutDocumentInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutActivityInput
@@ -1555,6 +1921,11 @@ export type ActivityUpdateWithoutDocumentInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1580,6 +1951,11 @@ export type ActivityUncheckedUpdateWithoutDocumentInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
@@ -1596,6 +1972,11 @@ export type ActivityCreateWithoutNotificationsInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+  overrideMembership?: Prisma.MembershipCreateNestedOneWithoutActivityOverridesInput
   supervisor: Prisma.MembershipCreateNestedOneWithoutSupervisorActivitiesInput
   column?: Prisma.ColumnCreateNestedOneWithoutActivitiesInput
   approvers?: Prisma.ApproverCreateNestedManyWithoutActivityInput
@@ -1621,6 +2002,11 @@ export type ActivityUncheckedCreateWithoutNotificationsInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
   approvers?: Prisma.ApproverUncheckedCreateNestedManyWithoutActivityInput
   document?: Prisma.DocumentUncheckedCreateNestedOneWithoutActivityInput
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutActivityInput
@@ -1653,6 +2039,11 @@ export type ActivityUpdateWithoutNotificationsInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1678,6 +2069,11 @@ export type ActivityUncheckedUpdateWithoutNotificationsInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1698,6 +2094,11 @@ export type ActivityCreateManyColumnInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
 }
 
 export type ActivityUpdateWithoutColumnInput = {
@@ -1710,6 +2111,11 @@ export type ActivityUpdateWithoutColumnInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
@@ -1734,6 +2140,11 @@ export type ActivityUncheckedUpdateWithoutColumnInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1755,6 +2166,11 @@ export type ActivityUncheckedUpdateManyWithoutColumnInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ActivityCreateManySupervisorInput = {
@@ -1771,6 +2187,32 @@ export type ActivityCreateManySupervisorInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
+}
+
+export type ActivityCreateManyOverrideMembershipInput = {
+  id?: number
+  supervisorId: number
+  columnId?: number | null
+  bipra?: $Enums.Bipra | null
+  title: string
+  description?: string | null
+  locationId?: number | null
+  date?: Date | string | null
+  note?: string | null
+  fileId?: number | null
+  activityType: $Enums.ActivityType
+  reminder?: $Enums.Reminder | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
 }
 
 export type ActivityUpdateWithoutSupervisorInput = {
@@ -1783,6 +2225,11 @@ export type ActivityUpdateWithoutSupervisorInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
   location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
@@ -1807,6 +2254,11 @@ export type ActivityUncheckedUpdateWithoutSupervisorInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1828,6 +2280,83 @@ export type ActivityUncheckedUpdateManyWithoutSupervisorInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type ActivityUpdateWithoutOverrideMembershipInput = {
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
+  column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
+  approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
+  location?: Prisma.LocationUpdateOneWithoutActivitiesNestedInput
+  file?: Prisma.FileManagerUpdateOneWithoutActivityNestedInput
+  document?: Prisma.DocumentUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutActivityNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutActivityNestedInput
+}
+
+export type ActivityUncheckedUpdateWithoutOverrideMembershipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
+  document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutActivityNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutActivityNestedInput
+}
+
+export type ActivityUncheckedUpdateManyWithoutOverrideMembershipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supervisorId?: Prisma.IntFieldUpdateOperationsInput | number
+  columnId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bipra?: Prisma.NullableEnumBipraFieldUpdateOperationsInput | $Enums.Bipra | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  activityType?: Prisma.EnumActivityTypeFieldUpdateOperationsInput | $Enums.ActivityType
+  reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ActivityCreateManyLocationInput = {
@@ -1844,6 +2373,11 @@ export type ActivityCreateManyLocationInput = {
   reminder?: $Enums.Reminder | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrideStatus?: $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: number | null
+  overrideNote?: string | null
+  overriddenAt?: Date | string | null
+  isOverridden?: boolean
 }
 
 export type ActivityUpdateWithoutLocationInput = {
@@ -1856,6 +2390,11 @@ export type ActivityUpdateWithoutLocationInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrideMembership?: Prisma.MembershipUpdateOneWithoutActivityOverridesNestedInput
   supervisor?: Prisma.MembershipUpdateOneRequiredWithoutSupervisorActivitiesNestedInput
   column?: Prisma.ColumnUpdateOneWithoutActivitiesNestedInput
   approvers?: Prisma.ApproverUpdateManyWithoutActivityNestedInput
@@ -1880,6 +2419,11 @@ export type ActivityUncheckedUpdateWithoutLocationInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvers?: Prisma.ApproverUncheckedUpdateManyWithoutActivityNestedInput
   document?: Prisma.DocumentUncheckedUpdateOneWithoutActivityNestedInput
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutActivityNestedInput
@@ -1901,6 +2445,11 @@ export type ActivityUncheckedUpdateManyWithoutLocationInput = {
   reminder?: Prisma.NullableEnumReminderFieldUpdateOperationsInput | $Enums.Reminder | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrideStatus?: Prisma.NullableEnumApprovalOverrideStatusFieldUpdateOperationsInput | $Enums.ApprovalOverrideStatus | null
+  overrideMembershipId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overriddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isOverridden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -1976,6 +2525,12 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   reminder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   approvers?: boolean | Prisma.Activity$approversArgs<ExtArgs>
@@ -2003,6 +2558,12 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   reminder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
@@ -2024,6 +2585,12 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   reminder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
@@ -2045,10 +2612,16 @@ export type ActivitySelectScalar = {
   reminder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  overrideStatus?: boolean
+  overrideMembershipId?: boolean
+  overrideNote?: boolean
+  overriddenAt?: boolean
+  isOverridden?: boolean
 }
 
-export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supervisorId" | "columnId" | "bipra" | "title" | "description" | "locationId" | "date" | "note" | "fileId" | "activityType" | "reminder" | "createdAt" | "updatedAt", ExtArgs["result"]["activity"]>
+export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supervisorId" | "columnId" | "bipra" | "title" | "description" | "locationId" | "date" | "note" | "fileId" | "activityType" | "reminder" | "createdAt" | "updatedAt" | "overrideStatus" | "overrideMembershipId" | "overrideNote" | "overriddenAt" | "isOverridden", ExtArgs["result"]["activity"]>
 export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   approvers?: boolean | Prisma.Activity$approversArgs<ExtArgs>
@@ -2061,12 +2634,14 @@ export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   _count?: boolean | Prisma.ActivityCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ActivityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
   file?: boolean | Prisma.Activity$fileArgs<ExtArgs>
 }
 export type ActivityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  overrideMembership?: boolean | Prisma.Activity$overrideMembershipArgs<ExtArgs>
   supervisor?: boolean | Prisma.MembershipDefaultArgs<ExtArgs>
   column?: boolean | Prisma.Activity$columnArgs<ExtArgs>
   location?: boolean | Prisma.Activity$locationArgs<ExtArgs>
@@ -2076,6 +2651,7 @@ export type ActivityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Activity"
   objects: {
+    overrideMembership: Prisma.$MembershipPayload<ExtArgs> | null
     supervisor: Prisma.$MembershipPayload<ExtArgs>
     column: Prisma.$ColumnPayload<ExtArgs> | null
     approvers: Prisma.$ApproverPayload<ExtArgs>[]
@@ -2101,6 +2677,11 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     reminder: $Enums.Reminder | null
     createdAt: Date
     updatedAt: Date
+    overrideStatus: $Enums.ApprovalOverrideStatus | null
+    overrideMembershipId: number | null
+    overrideNote: string | null
+    overriddenAt: Date | null
+    isOverridden: boolean
   }, ExtArgs["result"]["activity"]>
   composites: {}
 }
@@ -2495,6 +3076,7 @@ readonly fields: ActivityFieldRefs;
  */
 export interface Prisma__ActivityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  overrideMembership<T extends Prisma.Activity$overrideMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$overrideMembershipArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supervisor<T extends Prisma.MembershipDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipDefaultArgs<ExtArgs>>): Prisma.Prisma__MembershipClient<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   column<T extends Prisma.Activity$columnArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$columnArgs<ExtArgs>>): Prisma.Prisma__ColumnClient<runtime.Types.Result.GetResult<Prisma.$ColumnPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   approvers<T extends Prisma.Activity$approversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Activity$approversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApproverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2547,6 +3129,11 @@ export interface ActivityFieldRefs {
   readonly reminder: Prisma.FieldRef<"Activity", 'Reminder'>
   readonly createdAt: Prisma.FieldRef<"Activity", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Activity", 'DateTime'>
+  readonly overrideStatus: Prisma.FieldRef<"Activity", 'ApprovalOverrideStatus'>
+  readonly overrideMembershipId: Prisma.FieldRef<"Activity", 'Int'>
+  readonly overrideNote: Prisma.FieldRef<"Activity", 'String'>
+  readonly overriddenAt: Prisma.FieldRef<"Activity", 'DateTime'>
+  readonly isOverridden: Prisma.FieldRef<"Activity", 'Boolean'>
 }
     
 
@@ -2940,6 +3527,25 @@ export type ActivityDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Activities to delete.
    */
   limit?: number
+}
+
+/**
+ * Activity.overrideMembership
+ */
+export type Activity$overrideMembershipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Membership
+   */
+  select?: Prisma.MembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Membership
+   */
+  omit?: Prisma.MembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipInclude<ExtArgs> | null
+  where?: Prisma.MembershipWhereInput
 }
 
 /**
