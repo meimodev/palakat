@@ -78,25 +78,22 @@ class CompactLoadingWidget extends StatelessWidget {
         theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.78);
     final effectiveBorderColor =
         borderColor ?? theme.colorScheme.outlineVariant.withValues(alpha: 0.42);
+    final indicatorStrokeWidth = (size * 0.14).clamp(1.6, 2.6).toDouble();
 
-    final indicator = LoadingShimmer(
-      isLoading: true,
-      baseColor: effectiveBaseColor,
-      highlightColor: effectiveHighlightColor,
-      child: _LoadingGlyph(size: size, color: effectiveBaseColor),
+    final indicator = SizedBox.square(
+      dimension: size,
+      child: CircularProgressIndicator(
+        strokeWidth: indicatorStrokeWidth,
+        valueColor: AlwaysStoppedAnimation<Color>(effectiveHighlightColor),
+        backgroundColor: effectiveBaseColor,
+      ),
     );
 
     final shell = Container(
-      constraints: BoxConstraints(
-        minWidth: size * 2.5,
-        minHeight: size * 2.25,
-      ),
+      constraints: BoxConstraints(minWidth: size * 2.5, minHeight: size * 2.25),
       padding:
           padding ??
-          EdgeInsets.symmetric(
-            horizontal: size * 0.42,
-            vertical: size * 0.34,
-          ),
+          EdgeInsets.symmetric(horizontal: size * 0.42, vertical: size * 0.34),
       decoration: BoxDecoration(
         color: effectiveBackgroundColor,
         borderRadius: BorderRadius.circular(size * 0.95),
@@ -111,7 +108,7 @@ class CompactLoadingWidget extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [shell, Gap.w8, Text(message!)],
+      children: [shell, Gap.w6, Text(message!)],
     );
   }
 }
@@ -178,55 +175,5 @@ class ShimmerLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoadingShimmer(isLoading: isLoading, child: child);
-  }
-}
-
-class _LoadingGlyph extends StatelessWidget {
-  const _LoadingGlyph({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final width = size * 1.8;
-
-    return SizedBox(
-      width: width,
-      height: size,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _LoadingBar(width: size * 0.28, height: size * 0.58, color: color),
-          _LoadingBar(width: size * 0.28, height: size, color: color),
-          _LoadingBar(width: size * 0.28, height: size * 0.74, color: color),
-        ],
-      ),
-    );
-  }
-}
-
-class _LoadingBar extends StatelessWidget {
-  const _LoadingBar({
-    required this.width,
-    required this.height,
-    required this.color,
-  });
-
-  final double width;
-  final double height;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(999),
-      ),
-    );
   }
 }

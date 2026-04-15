@@ -181,6 +181,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
         highlightColor: theme.colorScheme.primary.withValues(alpha: 0.92),
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         borderColor: theme.colorScheme.outlineVariant,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       );
     }
 
@@ -222,6 +223,7 @@ class _FinancialAccountPickerState extends State<FinancialAccountPicker> {
         highlightColor: theme.colorScheme.primary.withValues(alpha: 0.92),
         backgroundColor: theme.colorScheme.surfaceContainerLow,
         borderColor: theme.colorScheme.outlineVariant,
+        padding: const EdgeInsets.all(4),
       );
     }
 

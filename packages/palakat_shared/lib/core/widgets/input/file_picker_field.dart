@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../loading_shimmer.dart';
 import '../loading_widget.dart';
 
 class FilePickerValue {
@@ -196,9 +195,13 @@ class FilePickerField extends StatelessWidget {
                             child: Center(
                               child: CompactLoadingWidget(
                                 size: 18,
-                                baseColor:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                highlightColor: theme.colorScheme.surface,
+                                baseColor: theme.colorScheme.outlineVariant
+                                    .withValues(alpha: 0.24),
+                                highlightColor: theme.colorScheme.primary,
+                                backgroundColor: theme.colorScheme.surface
+                                    .withValues(alpha: 0.9),
+                                borderColor: theme.colorScheme.outlineVariant
+                                    .withValues(alpha: 0.28),
                               ),
                             ),
                           )
@@ -244,15 +247,17 @@ class FilePickerField extends StatelessWidget {
                               return SizedBox(
                                 height: previewHeight,
                                 child: Center(
-                                  child: LoadingShimmer(
-                                    isLoading: true,
-                                    child: CompactLoadingWidget(
-                                      size: 18,
-                                      baseColor: theme
-                                          .colorScheme
-                                          .surfaceContainerHighest,
-                                      highlightColor: theme.colorScheme.surface,
-                                    ),
+                                  child: CompactLoadingWidget(
+                                    size: 18,
+                                    baseColor: theme.colorScheme.outlineVariant
+                                        .withValues(alpha: 0.24),
+                                    highlightColor: theme.colorScheme.primary,
+                                    backgroundColor: theme.colorScheme.surface
+                                        .withValues(alpha: 0.9),
+                                    borderColor: theme
+                                        .colorScheme
+                                        .outlineVariant
+                                        .withValues(alpha: 0.28),
                                   ),
                                 ),
                               );

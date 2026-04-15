@@ -97,15 +97,20 @@ class _CachedFileImageState extends ConsumerState<CachedFileImage> {
           SizedBox(
             width: widget.width,
             height: widget.height,
-            child: LoadingShimmer(
-              isLoading: true,
-              child: Container(
-                color: theme.colorScheme.surfaceContainerHighest,
-                alignment: Alignment.center,
-                child: CompactLoadingWidget(
-                  size: 18,
-                  baseColor: theme.colorScheme.surfaceContainerHighest,
-                  highlightColor: theme.colorScheme.surface,
+            child: Container(
+              color: theme.colorScheme.surfaceContainerHighest,
+              alignment: Alignment.center,
+              child: CompactLoadingWidget(
+                size: 18,
+                baseColor: theme.colorScheme.outlineVariant.withValues(
+                  alpha: 0.24,
+                ),
+                highlightColor: theme.colorScheme.primary,
+                backgroundColor: theme.colorScheme.surface.withValues(
+                  alpha: 0.9,
+                ),
+                borderColor: theme.colorScheme.outlineVariant.withValues(
+                  alpha: 0.28,
                 ),
               ),
             ),

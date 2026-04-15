@@ -181,11 +181,12 @@ class _SearchFieldState extends State<SearchField> {
       onChanged: null,
       suffixIcon: widget.isLoading
           ? Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               child: CompactLoadingWidget(
                 size: 18,
                 baseColor: theme.colorScheme.primary.withValues(alpha: 0.24),
                 highlightColor: theme.colorScheme.surface,
+                padding: const EdgeInsets.all(5),
               ),
             )
           : null,
