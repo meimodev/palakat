@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:palakat_admin/features/approval/presentation/state/approval_controller.dart';
 import 'package:palakat_admin/features/church/church.dart';
 import 'package:palakat_shared/palakat_shared.dart' hide Column;
 
@@ -30,6 +31,8 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
   String? _errorMessage;
   MemberPositionDetail? _positionDetail;
   bool _deleting = false;
+  List<ApprovalRule> _allApprovalRules = [];
+  final List<ApprovalRule> _selectedApprovalRules = [];
 
   bool get adding => widget.positionId == null;
 
@@ -37,8 +40,31 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
   void initState() {
     super.initState();
 
-    if (!adding) {
+    if (adding) {
+      _fetchApprovalRules();
+    } else {
       _fetchPositionAndMembers();
+    }
+  }
+
+  Future<void> _fetchApprovalRules() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+    try {
+      final allRules = await ref
+          .read(approvalControllerProvider.notifier)
+          .fetchRulesForChurch(widget.churchId);
+      setState(() {
+        _allApprovalRules = allRules;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = context.l10n.err_loadFailed;
+      });
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -54,16 +80,30 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
       _errorMessage = null;
     });
     try {
-      // Fetch latest position by ID
-      final latest = await ref
-          .read(churchControllerProvider.notifier)
-          .fetchPosition(widget.positionId!);
+      final results = await Future.wait([
+        ref
+            .read(churchControllerProvider.notifier)
+            .fetchPosition(widget.positionId!),
+        ref
+            .read(approvalControllerProvider.notifier)
+            .fetchRulesForChurch(widget.churchId),
+      ]);
+
+      final latest = results[0] as MemberPositionDetail;
+      final allRules = results[1] as List<ApprovalRule>;
 
       setState(() {
         _loading = false;
         _errorMessage = null;
         _positionDetail = latest;
         _nameController.text = latest.name.toCamelCase;
+        _allApprovalRules = allRules;
+        _selectedApprovalRules.clear();
+        _selectedApprovalRules.addAll(
+          allRules.where(
+            (r) => latest.approvalRules.any((linked) => linked.id == r.id),
+          ),
+        );
       });
     } catch (e) {
       setState(() {
@@ -83,6 +123,9 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
         name: _nameController.text.trim().toCamelCase,
         createdAt: _positionDetail?.createdAt ?? DateTime.now(),
         updatedAt: _positionDetail?.updatedAt,
+        approvalRules: _selectedApprovalRules
+            .map((r) => LinkedApprovalRule(id: r.id!, name: r.name))
+            .toList(),
       );
 
       widget.onSave(position);
@@ -150,10 +193,12 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
           ? l10n.drawer_addPosition_subtitle
           : l10n.drawer_editPosition_subtitle,
       onClose: widget.onClose,
-      isLoading: (!adding && _loading) || _deleting,
+      isLoading: _loading || _deleting,
       loadingMessage: _deleting ? l10n.loading_deleting : l10n.loading_data,
-      errorMessage: !adding ? _errorMessage : null,
-      onRetry: !adding && !_deleting ? _fetchPositionAndMembers : null,
+      errorMessage: _errorMessage,
+      onRetry: !_deleting
+          ? (adding ? _fetchApprovalRules : _fetchPositionAndMembers)
+          : null,
       content: Form(
         key: _formKey,
         child: Column(
@@ -192,7 +237,44 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
 
             const SizedBox(height: 24),
 
+            // linked approval rules
+            InfoSection(
+              title: context.l10n.section_requiredApprovers,
+              titleSpacing: 16,
+              children: [
+                _allApprovalRules.isEmpty
+                    ? Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          context.l10n.noData_positions,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      )
+                    : _ApprovalRuleSelector(
+                        selectedRules: _selectedApprovalRules,
+                        availableRules: _allApprovalRules,
+                        onChanged: (rules) => setState(() {
+                          _selectedApprovalRules.clear();
+                          _selectedApprovalRules.addAll(rules);
+                        }),
+                      ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
             if (!adding) ...[
+              // members in position
               InfoSection(
                 title: l10n.section_memberInThisPosition,
                 titleSpacing: 16,
@@ -346,6 +428,103 @@ class _PositionEditDrawerState extends ConsumerState<PositionEditDrawer> {
           );
         },
       ),
+    );
+  }
+}
+
+class _ApprovalRuleSelector extends StatelessWidget {
+  final List<ApprovalRule> selectedRules;
+  final List<ApprovalRule> availableRules;
+  final ValueChanged<List<ApprovalRule>> onChanged;
+
+  const _ApprovalRuleSelector({
+    required this.selectedRules,
+    required this.availableRules,
+    required this.onChanged,
+  });
+
+  List<ApprovalRule> get _unselected {
+    final selectedIds = selectedRules.map((r) => r.id).toSet();
+    return availableRules.where((r) => !selectedIds.contains(r.id)).toList();
+  }
+
+  void _add(ApprovalRule rule) {
+    if (!selectedRules.any((r) => r.id == rule.id)) {
+      onChanged([...selectedRules, rule]);
+    }
+  }
+
+  void _remove(ApprovalRule rule) {
+    onChanged(selectedRules.where((r) => r.id != rule.id).toList());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: _unselected.isEmpty
+              ? null
+              : () =>
+                    showDialog<ApprovalRule>(
+                      context: context,
+                      builder: (_) => SimpleDialog(
+                        title: Text(context.l10n.lbl_positions),
+                        children: _unselected
+                            .map(
+                              (r) => SimpleDialogOption(
+                                onPressed: () => Navigator.of(context).pop(r),
+                                child: Text(r.name),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ).then((r) {
+                      if (r != null) _add(r);
+                    }),
+          borderRadius: BorderRadius.circular(4),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              hintText: context.l10n.hint_selectPositionsToApprove,
+              border: const OutlineInputBorder(),
+              suffixIcon: Icon(
+                Icons.keyboard_arrow_down,
+                color: _unselected.isEmpty
+                    ? theme.disabledColor
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            child: Text(
+              _unselected.isEmpty
+                  ? context.l10n.noData_positions
+                  : context.l10n.hint_selectPositionsToApprove,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: _unselected.isEmpty
+                    ? theme.disabledColor
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+        if (selectedRules.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: selectedRules
+                .map(
+                  (r) => Chip(
+                    label: Text(r.name),
+                    onDeleted: () => _remove(r),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ],
     );
   }
 }

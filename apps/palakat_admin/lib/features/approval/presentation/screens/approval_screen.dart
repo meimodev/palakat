@@ -156,8 +156,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
           final theme = Theme.of(ctx);
           final hasFilters =
               rule.activityType != null ||
-              rule.financialType != null ||
-              rule.financialAccountNumberId != null;
+              rule.financialType != null;
 
           if (!hasFilters) {
             return Text(
@@ -209,23 +208,7 @@ class _ApprovalScreenState extends ConsumerState<ApprovalScreen> {
                   ),
                   side: BorderSide.none,
                 ),
-              if (rule.financialAccountNumber != null)
-                Chip(
-                  avatar: Icon(
-                    Icons.account_balance,
-                    size: 14,
-                    color: theme.colorScheme.secondary,
-                  ),
-                  label: Text(
-                    rule.financialAccountNumber!.accountNumber,
-                    style: theme.textTheme.labelSmall,
-                  ),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor: theme.colorScheme.secondaryContainer
-                      .withValues(alpha: 0.5),
-                  side: BorderSide.none,
-                ),
+
             ],
           );
         },

@@ -219,6 +219,29 @@ class ApprovalController extends _$ApprovalController {
     }
   }
 
+  /// Fetch all approval rules for a specific church (for position drawer selector)
+  Future<List<ApprovalRule>> fetchRulesForChurch(int churchId) async {
+    try {
+      final repository = ref.read(approvalRepositoryProvider);
+
+      final result = await repository.fetchApprovalRules(
+        paginationRequest: PaginationRequestWrapper(
+          data: GetFetchApprovalRulesRequest(churchId: churchId),
+          page: 1,
+          pageSize: 200,
+        ),
+      );
+
+      final value = result.when<PaginationResponseWrapper<ApprovalRule>>(
+        onSuccess: (rules) => rules,
+        onFailure: (failure) => throw Exception(failure.message),
+      );
+      return value!.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void refresh() {
     _fetchRules();
     _fetchPositions();

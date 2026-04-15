@@ -65,16 +65,30 @@ class ChurchController extends _$ChurchController {
     try {
       state = state.copyWith(positions: const AsyncLoading());
 
-      // Find existing column to compute delta
       final currentList = prev.value ?? const <MemberPosition>[];
       final existing = currentList.firstWhere(
         (c) => c.id == updated.id,
         orElse: () => updated,
       );
 
-      final original = existing.toJson();
-      final altered = updated.toJson();
-      final payload = altered.stripUnchangedFields(original);
+      final payload = <String, dynamic>{};
+      if (updated.name != existing.name) payload['name'] = updated.name;
+      if (updated.churchId != existing.churchId) {
+        payload['churchId'] = updated.churchId;
+      }
+      final updatedRuleIds = updated.approvalRules.map((r) => r.id).toList();
+      final existingRuleIds = existing.approvalRules.map((r) => r.id).toList();
+      final ruleIdsChanged =
+          updatedRuleIds.length != existingRuleIds.length ||
+          !updatedRuleIds.toSet().containsAll(existingRuleIds.toSet());
+      if (ruleIdsChanged) {
+        payload['approvalRuleIds'] = updatedRuleIds;
+      }
+
+      if (payload.isEmpty) {
+        state = state.copyWith(positions: AsyncData(currentList));
+        return;
+      }
 
       final result = await churchRepo.updateMemberPosition(
         positionId: updated.id ?? 0,
@@ -320,7 +334,12 @@ class ChurchController extends _$ChurchController {
     try {
       state = state.copyWith(positions: const AsyncLoading());
 
-      final payload = {'name': toCreate.name, 'churchId': toCreate.churchId};
+      final payload = <String, dynamic>{
+        'name': toCreate.name,
+        'churchId': toCreate.churchId,
+        if (toCreate.approvalRules.isNotEmpty)
+          'approvalRuleIds': toCreate.approvalRules.map((r) => r.id).toList(),
+      };
       final result = await churchRepo.createMemberPosition(data: payload);
 
       result.when(
