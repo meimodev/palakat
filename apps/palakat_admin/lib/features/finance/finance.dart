@@ -5,6 +5,7 @@ library;
 export 'presentation/screens/finance_screen.dart';
 export 'presentation/state/finance_data_controller.dart';
 export 'presentation/state/finance_data_state.dart';
+export 'presentation/widgets/finance_detail_drawer.dart';
 
 // State management
 export 'presentation/state/finance_overview_controller.dart';

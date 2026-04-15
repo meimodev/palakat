@@ -123,6 +123,20 @@ class FinanceScreen extends ConsumerWidget {
                         ? dataState.entries.error.toString()
                         : null,
                     onRetry: () => dataController.refresh(),
+                    onRowTap: (entry) {
+                      if (entry.id == null) {
+                        return;
+                      }
+
+                      DrawerUtils.showDrawer(
+                        context: context,
+                        drawer: FinanceDetailDrawer(
+                          financeId: entry.id!,
+                          type: entry.type,
+                          onClose: () => DrawerUtils.closeDrawer(context),
+                        ),
+                      );
+                    },
                     pagination: () {
                       final pageSize =
                           dataState.entries.value?.pagination.pageSize ?? 10;
