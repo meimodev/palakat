@@ -585,6 +585,31 @@ class SocketService {
     return AuthResponse.fromJson(data);
   }
 
+  /// Signs in using the admin-app RPC action, which issues tokens with aud:'admin'.
+  Future<AuthResponse> adminSignIn({
+    required String identifier,
+    required String password,
+  }) async {
+    if (!_ensureSocket().connected) {
+      await connect();
+    }
+
+    if (!_ensureSocket().connected) {
+      throw Failure('Unable to connect to server');
+    }
+
+    final res = await _rpc('auth.adminSignIn', {
+      'identifier': identifier,
+      'password': password,
+    }, allowAutoRefresh: false);
+
+    final data = res['data'];
+    if (data is! Map<String, dynamic>) {
+      throw Failure('Invalid auth response');
+    }
+    return AuthResponse.fromJson(data);
+  }
+
   Future<AuthTokens> refresh({required String refreshToken}) async {
     final res = await _rpc('auth.refresh', {
       'refreshToken': refreshToken,

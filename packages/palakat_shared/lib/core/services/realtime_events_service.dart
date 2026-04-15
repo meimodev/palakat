@@ -36,6 +36,16 @@ class RealtimeEventsService {
     _listen('activity.updated');
     _listen('activity.deleted');
 
+    _listen('finance.created');
+    _listen('finance.updated');
+    _listen('finance.deleted');
+
+    _listen('approval.required');
+    _listen('approval.approved');
+    _listen('approval.rejected');
+    _listen('approval.override.approved');
+    _listen('approval.override.rejected');
+
     _listen('reportJob.created');
     _listen('reportJob.updated');
     _listen('report.ready');

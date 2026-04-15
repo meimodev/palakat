@@ -17,16 +17,22 @@ class AuthRepository {
 
   const AuthRepository(this._socket, this._localStorageService);
 
+  Future<void> _saveAuthAndAttachSocket(AuthResponse auth) async {
+    await _localStorageService.saveAuth(auth);
+    await _socket.rpc('auth.attach', {'accessToken': auth.tokens.accessToken});
+  }
+
   Future<Result<AuthResponse, Failure>> signIn(
     AuthCredentials credentials,
   ) async {
     try {
-      final auth = await _socket.signIn(
+      // Admin app always uses adminSignIn to obtain aud:'admin' tokens
+      final auth = await _socket.adminSignIn(
         identifier: credentials.identifier,
         password: credentials.password,
       );
       // Persist full auth payload (tokens + account) using Hive
-      await _localStorageService.saveAuth(auth);
+      await _saveAuthAndAttachSocket(auth);
       return Result.success(auth);
     } catch (e) {
       return Result.failure(Failure.fromException(e));
@@ -50,10 +56,7 @@ class AuthRepository {
       }
 
       final auth = AuthResponse.fromJson(json);
-      await _localStorageService.saveAuth(auth);
-      await _socket.rpc('auth.attach', {
-        'accessToken': auth.tokens.accessToken,
-      });
+      await _saveAuthAndAttachSocket(auth);
 
       return Result.success(auth);
     } catch (e) {
