@@ -11,6 +11,13 @@ type FinanceRealtimeEventName =
   | 'finance.updated'
   | 'finance.deleted';
 
+export type ApprovalLifecycleEventName =
+  | 'approval.required'
+  | 'approval.approved'
+  | 'approval.rejected'
+  | 'approval.override.approved'
+  | 'approval.override.rejected';
+
 @Injectable()
 export class RealtimeEmitterService {
   private readonly logger = new Logger(RealtimeEmitterService.name);
@@ -71,6 +78,8 @@ export class RealtimeEmitterService {
     eventName: ActivityRealtimeEventName;
     activityId: number;
     churchId: number;
+    activityTitle?: string | null;
+    changeSource?: 'activity' | 'approval';
     affectedMembershipIds?: Array<number | null | undefined>;
     updatedAt?: unknown;
   }) {
@@ -83,6 +92,12 @@ export class RealtimeEmitterService {
         activityId: params.activityId,
         churchId: params.churchId,
         affectedMembershipIds,
+        ...(params.activityTitle != null
+          ? { activityTitle: params.activityTitle }
+          : {}),
+        ...(params.changeSource != null
+          ? { changeSource: params.changeSource }
+          : {}),
         ...(this.normalizeUpdatedAt(params.updatedAt) != null
           ? { updatedAt: this.normalizeUpdatedAt(params.updatedAt) }
           : {}),
@@ -114,6 +129,47 @@ export class RealtimeEmitterService {
         ...(typeof params.activityId === 'number'
           ? { activityId: params.activityId }
           : {}),
+        ...(this.normalizeUpdatedAt(params.updatedAt) != null
+          ? { updatedAt: this.normalizeUpdatedAt(params.updatedAt) }
+          : {}),
+      },
+    };
+
+    this.emitToRoom(`church.${params.churchId}`, params.eventName, payload);
+  }
+
+  /**
+   * Emit a dedicated approval lifecycle event with full notification context.
+   * Used by admin notifications listener to show in-app banners.
+   */
+  emitApprovalLifecycleEvent(params: {
+    eventName: ApprovalLifecycleEventName;
+    entityType: 'ACTIVITY' | 'REVENUE' | 'EXPENSE';
+    entityId: number;
+    entityTitle?: string | null;
+    churchId: number;
+    actorName?: string | null;
+    resultingStatus: string;
+    isOverride: boolean;
+    affectedMembershipIds?: Array<number | null | undefined>;
+    updatedAt?: unknown;
+  }) {
+    const affectedMembershipIds = this.normalizeMembershipIds(
+      params.affectedMembershipIds ?? [],
+    );
+
+    const payload = {
+      data: {
+        entityType: params.entityType,
+        entityId: params.entityId,
+        churchId: params.churchId,
+        affectedMembershipIds,
+        resultingStatus: params.resultingStatus,
+        isOverride: params.isOverride,
+        ...(params.entityTitle != null
+          ? { entityTitle: params.entityTitle }
+          : {}),
+        ...(params.actorName != null ? { actorName: params.actorName } : {}),
         ...(this.normalizeUpdatedAt(params.updatedAt) != null
           ? { updatedAt: this.normalizeUpdatedAt(params.updatedAt) }
           : {}),
