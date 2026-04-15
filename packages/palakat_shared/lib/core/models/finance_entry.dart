@@ -1,4 +1,5 @@
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/extension/approver_extension.dart';
 import 'package:palakat_shared/core/models/activity.dart';
 import 'package:palakat_shared/core/models/approver.dart';
 
@@ -31,6 +32,11 @@ class FinanceEntry {
   final List<Approver> approvers;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  // Override metadata — set by a church admin
+  final bool isOverridden;
+  final ApprovalOverrideStatus? overrideStatus;
+  final String? overrideNote;
+  final DateTime? overriddenAt;
 
   const FinanceEntry({
     this.id,
@@ -44,6 +50,10 @@ class FinanceEntry {
     this.approvers = const [],
     this.createdAt,
     this.updatedAt,
+    this.isOverridden = false,
+    this.overrideStatus,
+    this.overrideNote,
+    this.overriddenAt,
   });
 
   factory FinanceEntry.fromJson(Map<String, dynamic> json) {
@@ -74,8 +84,23 @@ class FinanceEntry {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String)
           : null,
+      isOverridden: json['isOverridden'] as bool? ?? false,
+      overrideStatus: ApprovalOverrideStatus.fromString(
+        json['overrideStatus'] as String?,
+      ),
+      overrideNote: json['overrideNote'] as String?,
+      overriddenAt: json['overriddenAt'] != null
+          ? DateTime.tryParse(json['overriddenAt'] as String)
+          : null,
     );
   }
+
+  /// Effective approval status: respects admin override when present.
+  ApprovalStatus get effectiveStatus => effectiveApprovalStatus(
+    approvers: approvers,
+    isOverridden: isOverridden,
+    overrideStatus: overrideStatus,
+  );
 
   Map<String, dynamic> toJson() {
     return {
@@ -107,6 +132,10 @@ class FinanceEntry {
     List<Approver>? approvers,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isOverridden,
+    ApprovalOverrideStatus? overrideStatus,
+    String? overrideNote,
+    DateTime? overriddenAt,
   }) {
     return FinanceEntry(
       id: id ?? this.id,
@@ -120,6 +149,10 @@ class FinanceEntry {
       approvers: approvers ?? this.approvers,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isOverridden: isOverridden ?? this.isOverridden,
+      overrideStatus: overrideStatus ?? this.overrideStatus,
+      overrideNote: overrideNote ?? this.overrideNote,
+      overriddenAt: overriddenAt ?? this.overriddenAt,
     );
   }
 }

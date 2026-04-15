@@ -1,9 +1,28 @@
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/approver.dart';
 
+enum ApprovalOverrideStatus {
+  approved,
+  rejected;
+
+  static ApprovalOverrideStatus? fromString(String? value) {
+    if (value == null) return null;
+    return ApprovalOverrideStatus.values.firstWhere(
+      (e) => e.name.toUpperCase() == value.toUpperCase(),
+      orElse: () => ApprovalOverrideStatus.approved,
+    );
+  }
+
+  String get serverValue => name.toUpperCase();
+}
+
 /// Extension methods for List of approver
 extension ApproverListExtension on List<Approver> {
-  /// Calculate overall approval status from individual approver decisions
+  /// Calculate overall approval status from individual approver decisions.
+  ///
+  /// When the parent entity has [isOverridden] == true the override status
+  /// already supersedes this computation, but we retain the normal logic here
+  /// so it is still useful for UI display of individual approver chips.
   ///
   /// Returns:
   /// - [ApprovalStatus.approved] if all approvers have approved status
@@ -40,4 +59,22 @@ extension ApproverListExtension on List<Approver> {
     dates.sort((a, b) => b.compareTo(a));
     return dates.first;
   }
+}
+
+/// Resolves the "effective" approval status for an entity that may have been
+/// overridden by a church admin.
+///
+/// Call this instead of [ApproverListExtension.approvalStatus] whenever you
+/// need the canonical approval outcome displayed prominently in the UI.
+ApprovalStatus effectiveApprovalStatus({
+  required List<Approver> approvers,
+  required bool isOverridden,
+  required ApprovalOverrideStatus? overrideStatus,
+}) {
+  if (isOverridden && overrideStatus != null) {
+    return overrideStatus == ApprovalOverrideStatus.approved
+        ? ApprovalStatus.approved
+        : ApprovalStatus.rejected;
+  }
+  return approvers.approvalStatus;
 }

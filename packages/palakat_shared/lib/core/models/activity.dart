@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
+import 'package:palakat_shared/core/extension/approver_extension.dart';
 import 'package:palakat_shared/core/models/approver.dart';
 import 'package:palakat_shared/core/models/document.dart';
 import 'package:palakat_shared/core/models/file_manager.dart';
@@ -37,11 +38,27 @@ abstract class Activity with _$Activity {
     bool? hasExpense,
     @Default([]) List<ActivityFinance> revenues,
     @Default([]) List<ActivityFinance> expenses,
+    // Override metadata — set by a church admin
+    @Default(false) bool isOverridden,
+    @JsonKey(fromJson: _overrideStatusFromJson) ApprovalOverrideStatus? overrideStatus,
+    String? overrideNote,
+    DateTime? overriddenAt,
   }) = _Activity;
 
   factory Activity.fromJson(Map<String, dynamic> json) =>
       _$ActivityFromJson(json);
+
+  /// Effective approval status: respects admin override when present.
+  ApprovalStatus get effectiveStatus => effectiveApprovalStatus(
+    approvers: approvers,
+    isOverridden: isOverridden,
+    overrideStatus: overrideStatus,
+  );
 }
+
+ApprovalOverrideStatus? _overrideStatusFromJson(dynamic value) =>
+    ApprovalOverrideStatus.fromString(value as String?);
+
 
 @freezed
 abstract class ActivityFinance with _$ActivityFinance {

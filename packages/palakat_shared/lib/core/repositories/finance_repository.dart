@@ -18,6 +18,7 @@ class GetFetchFinanceEntriesRequest {
   final FinanceEntryType? type;
   final DateTime? startDate;
   final DateTime? endDate;
+  final bool? standalone;
 
   const GetFetchFinanceEntriesRequest({
     this.search,
@@ -25,6 +26,7 @@ class GetFetchFinanceEntriesRequest {
     this.type,
     this.startDate,
     this.endDate,
+    this.standalone,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,6 +39,7 @@ class GetFetchFinanceEntriesRequest {
       if (type != null) 'type': type!.name,
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
+      if (standalone == true) 'standalone': true,
     };
   }
 }
@@ -48,6 +51,10 @@ abstract class FinanceRepositoryBase {
   Future<Result<PaginationResponseWrapper<FinanceEntry>, Failure>>
   fetchApprovalFinanceEntries({
     required PaginationRequestWrapper paginationRequest,
+  });
+  Future<Result<FinanceEntry, Failure>> fetchFinanceEntry({
+    required int financeId,
+    required FinanceEntryType type,
   });
   Future<Result<FinanceEntry, Failure>> fetchApprovalFinanceEntry({
     required int financeId,
@@ -126,6 +133,30 @@ class FinanceRepository implements FinanceRepositoryBase {
   }
 
   @override
+  Future<Result<FinanceEntry, Failure>> fetchFinanceEntry({
+    required int financeId,
+    required FinanceEntryType type,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('finance.get', {
+        'id': financeId,
+        'financeType': type.name.toUpperCase(),
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(Failure('Invalid finance response payload'));
+      }
+
+      return Result.success(FinanceEntry.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  @override
   Future<Result<FinanceEntry, Failure>> fetchApprovalFinanceEntry({
     required int financeId,
     required FinanceEntryType type,
@@ -170,6 +201,37 @@ class FinanceRepository implements FinanceRepositoryBase {
       if (json.isEmpty) {
         return Result.failure(
           Failure('Invalid finance approver response payload'),
+        );
+      }
+
+      return Result.success(Approver.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
+  /// Admin override: force a specific status on any finance approver.
+  /// Requires an admin-app session (aud:'admin') and override permission.
+  Future<Result<Approver, Failure>> overrideFinanceApprover({
+    required int approverId,
+    required FinanceEntryType type,
+    required ApprovalStatus status,
+    String? note,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('finance.approver.override', {
+        'approverId': approverId,
+        'financeType': type.name.toUpperCase(),
+        'status': status == ApprovalStatus.approved ? 'APPROVED' : 'REJECTED',
+        if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+      });
+
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid finance approver override response payload'),
         );
       }
 

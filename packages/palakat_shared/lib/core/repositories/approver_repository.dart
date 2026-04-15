@@ -131,6 +131,33 @@ class ApproverRepository {
     }
   }
 
+  /// Admin override: force a specific status on any activity approver.
+  /// Requires an admin-app session (aud:'admin') and override permission.
+  Future<Result<Approver, Failure>> overrideApprover({
+    required int approverId,
+    required ApprovalStatus status,
+    String? note,
+  }) async {
+    try {
+      final socket = _ref.read(socketServiceProvider);
+      final body = await socket.rpc('approver.override', {
+        'id': approverId,
+        'status': status == ApprovalStatus.approved ? 'APPROVED' : 'REJECTED',
+        if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+      });
+      final Map<String, dynamic> json =
+          (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      if (json.isEmpty) {
+        return Result.failure(
+          Failure('Invalid override approver response payload'),
+        );
+      }
+      return Result.success(Approver.fromJson(json));
+    } catch (e) {
+      return Result.failure(Failure.fromException(e));
+    }
+  }
+
   /// Get status display information for approval status
   StatusDisplay getStatusDisplay(ApprovalStatus status) {
     switch (status) {
