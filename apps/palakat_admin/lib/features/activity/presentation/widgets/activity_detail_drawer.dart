@@ -320,6 +320,82 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
     );
   }
 
+  Future<void> _overrideActivityApproval(ApprovalStatus status) async {
+    final activity = _activity;
+    if (activity == null) return;
+
+    final approvers = activity.approvers;
+    if (approvers.isEmpty) {
+      if (mounted) {
+        AppSnackbars.showError(
+          context,
+          title: 'No approvers',
+          message: 'This activity has no approvers to override.',
+        );
+      }
+      return;
+    }
+
+    final l10n = context.l10n;
+    final label = status == ApprovalStatus.approved ? 'approve' : 'reject';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Admin Override'),
+        content: Text(
+          'Are you sure you want to override and $label all approvals for "${activity.title}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.btn_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(label[0].toUpperCase() + label.substring(1)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final repo = ref.read(approverRepositoryProvider);
+      for (final approver in approvers) {
+        if (approver.id == null) continue;
+        final result = await repo.overrideApprover(
+          approverId: approver.id!,
+          status: status,
+        );
+        result.when(
+          onSuccess: (_) {},
+          onFailure: (failure) => throw Exception(failure.message),
+        );
+      }
+      if (mounted) {
+        AppSnackbars.showSuccess(
+          context,
+          title: 'Override applied',
+          message:
+              'All approvals have been ${status == ApprovalStatus.approved ? 'approved' : 'rejected'} by admin.',
+        );
+        await _fetchActivity();
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackbars.showError(
+          context,
+          title: 'Override failed',
+          message: e.toString(),
+        );
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -376,19 +452,103 @@ class _ActivityDetailDrawerState extends ConsumerState<ActivityDetailDrawer> {
                   children: [
                     Builder(
                       builder: (context) {
-                        final status = _activity!.approvers.approvalStatus;
-                        return StatusChip(
-                          label: status.displayLabel.toUpperCase(),
-                          background: status.backgroundColor,
-                          foreground: status.foregroundColor,
-                          icon: status.icon,
-                          elevated: true,
-                          fontSize: 13.5,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 9,
-                          ),
-                          fullWidth: true,
+                        final status = _activity!.effectiveStatus;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            StatusChip(
+                              label: status.displayLabel.toUpperCase(),
+                              background: status.backgroundColor,
+                              foreground: status.foregroundColor,
+                              icon: status.icon,
+                              elevated: true,
+                              fontSize: 13.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 9,
+                              ),
+                              fullWidth: true,
+                            ),
+                            if (_activity!.isOverridden) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiaryContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.admin_panel_settings_outlined,
+                                      size: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onTertiaryContainer,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Admin override',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onTertiaryContainer,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 12),
+                            // Override action buttons for admin
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        _overrideActivityApproval(
+                                          ApprovalStatus.approved,
+                                        ),
+                                    icon: const Icon(Icons.check_circle_outline,
+                                        size: 16),
+                                    label: const Text('Override Approve'),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        _overrideActivityApproval(
+                                          ApprovalStatus.rejected,
+                                        ),
+                                    icon: const Icon(Icons.cancel_outlined,
+                                        size: 16),
+                                    label: const Text('Override Reject'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .error,
+                                      side: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .error,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       },
                     ),
