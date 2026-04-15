@@ -32,6 +32,15 @@ const CONGREGATION_JSON_PATH = path.resolve(
   'congregation.json',
 );
 
+const REQUIRED_MEMBERSHIP_POSITION_NAMES = [
+  'Ketua Jemaat',
+  'Sekertaris',
+  'Bendahara',
+  'Admin Gereja',
+] as const;
+
+const CONGREGATION_SEED_LIMIT = parseCongregationSeedLimit();
+
 interface RawCongregationLocation {
   name?: unknown;
 }
@@ -185,13 +194,43 @@ function parseDob(value: unknown, context: string): Date {
   return parsed;
 }
 
+function parseCongregationSeedLimit(): number | null {
+  const raw = process.env.CONGREGATION_SEED_LIMIT?.trim();
+  if (!raw) {
+    const isProductionEnv =
+      process.env.PALAKAT_ENV?.trim().toLowerCase() === 'production' ||
+      process.env.NODE_ENV?.trim().toLowerCase() === 'production';
+    return isProductionEnv ? null : 10;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(
+      `Invalid CONGREGATION_SEED_LIMIT '${raw}'. Expected positive integer.`,
+    );
+  }
+
+  return parsed;
+}
+
 function readCongregationJson(): RawCongregationRecord[] {
   const raw = fs.readFileSync(CONGREGATION_JSON_PATH, 'utf8');
   const parsed = JSON.parse(raw) as unknown;
   if (!Array.isArray(parsed)) {
     throw new Error('docs/congregation.json must contain a top-level array');
   }
-  return parsed as RawCongregationRecord[];
+  const records = parsed as RawCongregationRecord[];
+  if (
+    CONGREGATION_SEED_LIMIT != null &&
+    records.length > CONGREGATION_SEED_LIMIT
+  ) {
+    console.log(
+      `⚠️ Applying CONGREGATION_SEED_LIMIT=${CONGREGATION_SEED_LIMIT}; importing first ${CONGREGATION_SEED_LIMIT} congregations only`,
+    );
+    return records.slice(0, CONGREGATION_SEED_LIMIT);
+  }
+
+  return records;
 }
 
 async function cleanDatabase() {
@@ -249,6 +288,45 @@ async function syncSequences() {
   }
 }
 
+async function ensureRequiredPositionsForChurch(params: {
+  churchId: number;
+  churchName: string;
+  fallbackMembershipId: number | undefined;
+  positionHolderByChurchAndName: Map<string, number>;
+  summary: ImportSummary;
+}) {
+  const {
+    churchId,
+    churchName,
+    fallbackMembershipId,
+    positionHolderByChurchAndName,
+    summary,
+  } = params;
+
+  if (fallbackMembershipId == null) {
+    throw new Error(
+      `Cannot ensure required positions for church '${churchName}' (#${churchId}) without memberships`,
+    );
+  }
+
+  for (const positionName of REQUIRED_MEMBERSHIP_POSITION_NAMES) {
+    const positionKey = `${churchId}:${positionName.toLowerCase()}`;
+    if (positionHolderByChurchAndName.has(positionKey)) {
+      continue;
+    }
+
+    await prisma.membershipPosition.create({
+      data: {
+        name: positionName,
+        churchId,
+        membershipId: fallbackMembershipId,
+      },
+    });
+    positionHolderByChurchAndName.set(positionKey, fallbackMembershipId);
+    summary.membershipPositions += 1;
+  }
+}
+
 async function importCongregationData(records: RawCongregationRecord[]) {
   const p = prisma as any;
   const summary: ImportSummary = {
@@ -267,6 +345,7 @@ async function importCongregationData(records: RawCongregationRecord[]) {
   const accountIdBySource = new Map<number, number>();
   const membershipIdBySourceAccount = new Map<number, number>();
   const positionHolderByChurchAndName = new Map<string, number>();
+  const fallbackMembershipIdByChurch = new Map<number, number>();
 
   for (let recordIndex = 0; recordIndex < records.length; recordIndex++) {
     const record = records[recordIndex];
@@ -454,6 +533,10 @@ async function importCongregationData(records: RawCongregationRecord[]) {
         });
         membershipIdBySourceAccount.set(sourceAccountId, createdMembership.id);
         summary.memberships += 1;
+        fallbackMembershipIdByChurch.set(
+          churchId,
+          fallbackMembershipIdByChurch.get(churchId) ?? createdMembership.id,
+        );
 
         const membershipPositions = Array.isArray(
           membership.membershipPositions,
@@ -503,6 +586,14 @@ async function importCongregationData(records: RawCongregationRecord[]) {
         }
       }
     }
+
+    await ensureRequiredPositionsForChurch({
+      churchId,
+      churchName,
+      fallbackMembershipId: fallbackMembershipIdByChurch.get(churchId),
+      positionHolderByChurchAndName,
+      summary,
+    });
   }
 
   await syncSequences();
@@ -541,6 +632,11 @@ async function main() {
 
   console.log('🌱 Starting congregation import seed...\n');
   console.log(`📄 Source: ${CONGREGATION_JSON_PATH}`);
+  if (CONGREGATION_SEED_LIMIT != null) {
+    console.log(
+      `🔢 Limit: first ${CONGREGATION_SEED_LIMIT} congregations via CONGREGATION_SEED_LIMIT`,
+    );
+  }
 
   try {
     const records = readCongregationJson();
