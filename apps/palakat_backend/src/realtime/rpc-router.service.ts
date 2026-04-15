@@ -28,6 +28,12 @@ import { FinancialAccountNumberService } from '../financial-account-number/finan
 import { LocationService } from '../location/location.service';
 import { MembershipService } from '../membership/membership.service';
 import { MembershipPositionService } from '../membership-position/membership-position.service';
+import {
+  CreateMembershipPositionDto,
+  UpdateMembershipPositionDto,
+} from '../membership-position/dto/membership-position-write.dto';
+import { CreateApprovalRuleDto } from '../approval-rule/dto/create-approval-rule.dto';
+import { UpdateApprovalRuleDto } from '../approval-rule/dto/update-approval-rule.dto';
 import { NotificationService } from '../notification/notification.service';
 import { PrismaService } from '../prisma.service';
 import { ReportQueueService } from '../report/report-queue.service';
@@ -40,7 +46,12 @@ import { ChurchPermissionPolicyService } from '../church-permission-policy/churc
 import { RpcRequest, RpcResponse } from './realtime.types';
 import { mapErrorToRpc } from './realtime.utils';
 import { RealtimeEmitterService } from './realtime-emitter.service';
-import { stripKeys, transformToIdArrays, transformToSetFormat } from '../utils';
+import {
+  stripKeys,
+  transformToIdArrays,
+  transformToSetFormat,
+  validateDto,
+} from '../utils';
 
 @Injectable()
 export class RpcRouterService {
@@ -731,6 +742,12 @@ export class RpcRouterService {
           password: payload.password,
         });
 
+      case 'auth.adminSignIn':
+        return this.authService.adminSignIn({
+          identifier: payload.identifier,
+          password: payload.password,
+        });
+
       case 'auth.superAdminSignIn':
         return this.authService.superAdminSignIn({
           phone: payload.phone,
@@ -749,7 +766,11 @@ export class RpcRouterService {
         if (!decoded?.sub) {
           throw new BadRequestException('Invalid refresh token');
         }
-        return this.authService.refreshToken(decoded.sub, refreshToken);
+        return this.authService.refreshToken(
+          decoded.sub,
+          refreshToken,
+          typeof decoded?.aud === 'string' ? decoded.aud : undefined,
+        );
       }
 
       case 'auth.signOut': {
@@ -2160,9 +2181,11 @@ export class RpcRouterService {
 
       // ===== Finance / Revenue / Expense =====
       case 'finance.list': {
+        // Allow finance creators OR finance approvers to read standalone entries
         const { user } = await this.requireAnyOperationPermission(client, [
           'ops.finance.revenue.create',
           'ops.finance.expense.create',
+          'ops.approval.finance',
         ]);
         const query = this.withPagination(payload) as any;
         const res: any = await this.financeService.findAll(query, user);
@@ -2176,6 +2199,29 @@ export class RpcRouterService {
         query.membershipId = membershipId;
         const res: any = await this.financeService.findAll(query, user);
         return this.normalizePaginatedList(query, res);
+      }
+
+      case 'finance.get': {
+        // Allow finance creators OR finance approvers to read detail
+        const { user } = await this.requireAnyOperationPermission(client, [
+          'ops.finance.revenue.create',
+          'ops.finance.expense.create',
+          'ops.approval.finance',
+        ]);
+        const getFinanceId = payload.id as number;
+        const getFinanceType = (payload.financeType ?? payload.type) as
+          | 'REVENUE'
+          | 'EXPENSE';
+        if (typeof getFinanceId !== 'number') {
+          throw new BadRequestException('id is required');
+        }
+        if (getFinanceType !== 'REVENUE' && getFinanceType !== 'EXPENSE') {
+          throw new BadRequestException('financeType is required');
+        }
+        return this.financeService.findOne(
+          { id: getFinanceId, financeType: getFinanceType },
+          user,
+        );
       }
 
       case 'finance.approval.get': {
@@ -2229,6 +2275,49 @@ export class RpcRouterService {
             status: dto.status,
           },
           user,
+        );
+      }
+
+      case 'finance.approver.override': {
+        // Admin-only: must be an admin-app session with override permission
+        const { user: overrideUser } = await this.requireOperationPermission(
+          client,
+          'ops.approval.finance.override',
+        );
+        if (overrideUser.aud !== 'admin') {
+          throw new ForbiddenException(
+            'Admin-app session required for override',
+          );
+        }
+        const overrideApproverId = (payload.approverId ?? payload.id) as number;
+        const overrideFinanceType = (payload.financeType ?? payload.type) as
+          | 'REVENUE'
+          | 'EXPENSE';
+        const overrideDto = payload.dto ?? payload;
+        if (typeof overrideApproverId !== 'number') {
+          throw new BadRequestException('approverId is required');
+        }
+        if (
+          overrideFinanceType !== 'REVENUE' &&
+          overrideFinanceType !== 'EXPENSE'
+        ) {
+          throw new BadRequestException(
+            'financeType must be REVENUE or EXPENSE',
+          );
+        }
+        const { ApprovalStatus: AS } = await import(
+          '../generated/prisma/client'
+        );
+        const overrideStatus =
+          overrideDto.status === 'APPROVED' ? AS.APPROVED : AS.REJECTED;
+        return this.financeService.adminOverrideApprover(
+          {
+            approverId: overrideApproverId,
+            financeType: overrideFinanceType,
+            status: overrideStatus,
+            overrideNote: overrideDto.note ?? overrideDto.overrideNote,
+          },
+          overrideUser,
         );
       }
 
@@ -3296,7 +3385,8 @@ export class RpcRouterService {
 
       case 'membershipPosition.create': {
         this.requireUserId(client);
-        return this.membershipPositionService.create(payload);
+        const dto = validateDto(CreateMembershipPositionDto, payload);
+        return this.membershipPositionService.create(dto);
       }
 
       case 'membershipPosition.update': {
@@ -3304,7 +3394,8 @@ export class RpcRouterService {
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.membershipPositionService.update(id, payload.dto ?? {});
+        const dto = validateDto(UpdateMembershipPositionDto, payload.dto ?? {});
+        return this.membershipPositionService.update(id, dto);
       }
 
       case 'membershipPosition.delete': {
@@ -3333,7 +3424,8 @@ export class RpcRouterService {
 
       case 'approvalRule.create': {
         this.requireUserId(client);
-        return this.approvalRuleService.create(payload);
+        const dto = validateDto(CreateApprovalRuleDto, payload);
+        return this.approvalRuleService.create(dto);
       }
 
       case 'approvalRule.update': {
@@ -3341,7 +3433,8 @@ export class RpcRouterService {
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.approvalRuleService.update(id, payload.dto ?? {});
+        const dto = validateDto(UpdateApprovalRuleDto, payload.dto ?? {});
+        return this.approvalRuleService.update(id, dto);
       }
 
       case 'approvalRule.delete': {
@@ -3397,19 +3490,54 @@ export class RpcRouterService {
       }
 
       case 'approver.update': {
-        this.requireUserId(client);
+        const user = this.requireUserId(client);
         const id = payload.id as number;
         if (typeof id !== 'number')
           throw new BadRequestException('id is required');
-        return this.approverService.update(id, payload.dto ?? {});
+        // Resolve requester's membershipId to enforce self-only scoping
+        const requesterMembershipId = await this.resolveMembershipIdForUser(
+          user.userId,
+        );
+        return this.approverService.update(
+          id,
+          payload.dto ?? {},
+          requesterMembershipId,
+        );
       }
 
-      case 'approver.delete': {
-        this.requireUserId(client);
+      case 'approver.override': {
+        // Admin-only: must be an admin-app session with override permission
+        const { user } = await this.requireOperationPermission(
+          client,
+          'ops.approval.activity.override',
+        );
+        if (user.aud !== 'admin') {
+          throw new ForbiddenException(
+            'Admin-app session required for override',
+          );
+        }
         const id = payload.id as number;
-        if (typeof id !== 'number')
+        if (typeof id !== 'number') {
           throw new BadRequestException('id is required');
-        return this.approverService.remove(id);
+        }
+        const statusRaw = (payload.status ?? payload.dto?.status) as string;
+        if (!statusRaw) {
+          throw new BadRequestException('status is required');
+        }
+        const { ApprovalStatus } = await import('../generated/prisma/client');
+        const status =
+          statusRaw === 'APPROVED'
+            ? ApprovalStatus.APPROVED
+            : ApprovalStatus.REJECTED;
+        const overrideNote = (payload.note ?? payload.overrideNote) as
+          | string
+          | undefined;
+        return this.approverService.adminOverride(
+          id,
+          status,
+          overrideNote,
+          user,
+        );
       }
 
       // ===== Financial Account Numbers =====
