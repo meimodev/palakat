@@ -11,7 +11,10 @@ export type OperationPermissionKey =
   | 'ops.members.invite'
   | 'ops.report.generate'
   | 'ops.finance.revenue.create'
-  | 'ops.finance.expense.create';
+  | 'ops.finance.expense.create'
+  | 'ops.approval.activity.override'
+  | 'ops.approval.finance.override'
+  | 'ops.approvalRule.manage';
 
 type GrantMode = 'positionsAny';
 
@@ -34,6 +37,9 @@ const ALL_PERMISSIONS: OperationPermissionKey[] = [
   'ops.report.generate',
   'ops.finance.revenue.create',
   'ops.finance.expense.create',
+  'ops.approval.activity.override',
+  'ops.approval.finance.override',
+  'ops.approvalRule.manage',
 ];
 
 const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
@@ -57,6 +63,16 @@ const DEFAULT_POSITION_NAMES: Record<OperationPermissionKey, string[]> = {
     'Sekretaris',
     'Pengurus Harian',
     'Bendahara',
+  ],
+  // Override capabilities: only admin-designated positions by default
+  'ops.approval.activity.override': ['Ketua Jemaat', 'Admin Gereja'],
+  'ops.approval.finance.override': ['Ketua Jemaat', 'Admin Gereja'],
+  'ops.approvalRule.manage': [
+    'Ketua Jemaat',
+    'Admin Gereja',
+    'Ketua Majelis',
+    'Sekretaris',
+    'Pengurus Harian',
   ],
 };
 
@@ -129,6 +145,15 @@ export class ChurchPermissionPolicyService {
         'ops.report.generate': { mode: 'positionsAny', positionIds: [] },
         'ops.finance.revenue.create': { mode: 'positionsAny', positionIds: [] },
         'ops.finance.expense.create': { mode: 'positionsAny', positionIds: [] },
+        'ops.approval.activity.override': {
+          mode: 'positionsAny',
+          positionIds: [],
+        },
+        'ops.approval.finance.override': {
+          mode: 'positionsAny',
+          positionIds: [],
+        },
+        'ops.approvalRule.manage': { mode: 'positionsAny', positionIds: [] },
       },
     };
   }
@@ -412,9 +437,20 @@ export class ChurchPermissionPolicyService {
 
   async getEffectivePermissions(user: { userId: number; role?: string }) {
     if (this.isElevatedRole(user?.role)) {
+      // Elevated roles get all permissions; resolve their churchId too
+      const membership = await (this.prisma as any).membership.findUnique({
+        where: { accountId: user.userId },
+        select: {
+          churchId: true,
+          column: { select: { churchId: true } },
+        },
+      });
+      const churchId =
+        membership?.churchId ?? membership?.column?.churchId ?? null;
       return {
         message: 'OK',
         data: {
+          churchId,
           permissions: ALL_PERMISSIONS,
         },
       };

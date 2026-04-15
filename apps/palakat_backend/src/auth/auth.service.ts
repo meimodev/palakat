@@ -21,6 +21,13 @@ export class AuthService {
     private readonly firebaseAdmin: FirebaseAdminService,
   ) {}
 
+  private normalizeSessionAudience(
+    aud?: string,
+  ): 'user' | 'admin' | 'super-admin' {
+    if (aud === 'admin' || aud === 'super-admin') return aud;
+    return 'user';
+  }
+
   private async issueTokensWithRole(
     accountId: number,
     role: AccountRole,
@@ -42,7 +49,12 @@ export class AuthService {
       } as any,
     );
     const refreshToken = this.jwtService.sign(
-      { sub: accountId, typ: 'refresh', jti: randomBytes(16).toString('hex') },
+      {
+        sub: accountId,
+        typ: 'refresh',
+        aud: this.normalizeSessionAudience(aud),
+        jti: randomBytes(16).toString('hex'),
+      },
       { expiresIn: '7d' },
     );
     const refreshTokenExpiresAt = new Date(
@@ -508,7 +520,141 @@ export class AuthService {
   }
 
   async adminSignIn(payload: { identifier: string; password: string }) {
-    return this.signIn(payload);
+    const { identifier, password } = payload;
+
+    if (!identifier || identifier.trim().length === 0) {
+      throw new BadRequestException('Identifier is required');
+    }
+
+    const trimmed = identifier.trim();
+    const looksLikeEmail = /@/.test(trimmed);
+
+    const account: any = await this.prisma.account.findFirst({
+      where: looksLikeEmail
+        ? { email: trimmed.toLowerCase() }
+        : { phone: trimmed },
+      include: {
+        membership: {
+          include: {
+            membershipPositions: true,
+            column: {
+              include: {
+                church: {
+                  include: {
+                    location: true,
+                  },
+                },
+              },
+            },
+            church: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    if (!account) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const allowedPositionNames = ['Ketua Jemaat', 'Admin Gereja'];
+    const isAdminRole =
+      account.role === AccountRole.ADMIN ||
+      account.role === AccountRole.SUPER_ADMIN;
+    const hasAdminPosition = account.membership?.membershipPositions?.some(
+      (position: { name: string }) =>
+        allowedPositionNames.includes(position.name),
+    );
+
+    if (!isAdminRole && !hasAdminPosition) {
+      throw new ForbiddenException(
+        'Admin account or authorized position required',
+      );
+    }
+
+    if (!account.isActive) {
+      throw new ForbiddenException('Account is inactive');
+    }
+
+    if (account.lockUntil && account.lockUntil > new Date()) {
+      throw new ForbiddenException('Account is locked. Try again later');
+    }
+
+    if (!account.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      account.passwordHash,
+    );
+
+    const MAX_ATTEMPTS = 5;
+    const LOCK_MINUTES = 5;
+
+    if (!passwordMatches) {
+      const newAttempts = (account.failedLoginAttempts ?? 0) + 1;
+      const shouldLock = newAttempts >= MAX_ATTEMPTS;
+
+      await this.prisma.account.update({
+        where: { id: account.id },
+        data: {
+          failedLoginAttempts: shouldLock ? 0 : newAttempts,
+          lockUntil: shouldLock
+            ? new Date(Date.now() + LOCK_MINUTES * 60 * 1000)
+            : null,
+        } as any,
+      } as any);
+
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    await this.prisma.account.update({
+      where: { id: account.id },
+      data: { failedLoginAttempts: 0, lockUntil: null } as any,
+    } as any);
+
+    // Issue tokens with aud:'admin' to mark this as an admin-app session
+    const { accessToken, refreshToken, refreshTokenExpiresAt } =
+      await this.issueTokensWithRole(
+        account.id,
+        account.role ?? AccountRole.USER,
+        'admin',
+      );
+
+    const decoded: any = this.jwtService.decode(refreshToken);
+    await this.prisma.account.update({
+      where: { id: account.id },
+      data: {
+        refreshTokenHash: await bcrypt.hash(refreshToken, 12),
+        refreshTokenExpiresAt,
+        refreshTokenJti:
+          decoded && typeof decoded === 'object' ? (decoded as any).jti : null,
+      } as any,
+    } as any);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash, ...filteredAccount } = account;
+    const sanitizedAccount = Object.keys(filteredAccount).reduce((acc, key) => {
+      if (!key.toLowerCase().includes('token')) {
+        acc[key] = filteredAccount[key];
+      }
+      return acc;
+    }, {} as any);
+
+    return {
+      message: 'OK',
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+        account: sanitizedAccount,
+      },
+    };
   }
 
   async changePassword(
@@ -581,7 +727,10 @@ export class AuthService {
     };
   }
 
-  private async issueTokens(accountId: number): Promise<{
+  private async issueTokens(
+    accountId: number,
+    aud?: string,
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
     refreshTokenExpiresAt: Date;
@@ -593,7 +742,7 @@ export class AuthService {
     return this.issueTokensWithRole(
       accountId,
       account?.role ?? AccountRole.USER,
-      'user',
+      this.normalizeSessionAudience(aud),
     );
   }
 
@@ -697,7 +846,7 @@ export class AuthService {
     };
   }
 
-  async refreshToken(accountId: number, refreshToken: string) {
+  async refreshToken(accountId: number, refreshToken: string, aud?: string) {
     const account: any = await this.prisma.account.findUnique({
       where: { id: accountId },
       select: {
@@ -731,6 +880,13 @@ export class AuthService {
       }
     }
 
+    const sessionAudience = this.normalizeSessionAudience(
+      aud ??
+        (decodedProvided && typeof decodedProvided === 'object'
+          ? (decodedProvided as any).aud
+          : undefined),
+    );
+
     const valid = await bcrypt.compare(refreshToken, account.refreshTokenHash);
     if (!valid) {
       throw new UnauthorizedException('Invalid refresh');
@@ -740,7 +896,7 @@ export class AuthService {
       accessToken,
       refreshToken: newRefreshToken,
       refreshTokenExpiresAt,
-    } = await this.issueTokens(account.id);
+    } = await this.issueTokens(account.id, sessionAudience);
 
     const decodedNew: any = this.jwtService.decode(newRefreshToken);
     await this.prisma.account.update({

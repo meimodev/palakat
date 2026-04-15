@@ -1,5 +1,11 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { PaginationQueryDto } from '../../../common/pagination/pagination.dto';
 import { PaymentMethod } from '../../generated/prisma/client';
 import {
@@ -37,4 +43,9 @@ export class FinanceListQueryDto extends PaginationQueryDto {
   @IsOptional()
   @TransformToEndOfDayUtc()
   endDate?: Date;
+
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  standalone?: boolean;
 }

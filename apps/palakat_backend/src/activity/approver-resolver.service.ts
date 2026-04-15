@@ -104,22 +104,22 @@ export class ApproverResolverService {
       }
     }
 
-    if (positionIds.size === 0) {
-      return { membershipIds: [], matchedRuleIds };
-    }
-
-    const memberships = await this.prisma.membership.findMany({
-      where: {
-        churchId,
-        membershipPositions: {
-          some: { id: { in: Array.from(positionIds) } },
-        },
-      },
-      select: { id: true },
-    });
+    // Resolve memberships from configured rule positions
+    const positionMemberships =
+      positionIds.size > 0
+        ? await this.prisma.membership.findMany({
+            where: {
+              churchId,
+              membershipPositions: {
+                some: { id: { in: Array.from(positionIds) } },
+              },
+            },
+            select: { id: true },
+          })
+        : [];
 
     return {
-      membershipIds: memberships.map((m) => m.id),
+      membershipIds: positionMemberships.map((membership) => membership.id),
       matchedRuleIds,
     };
   }
