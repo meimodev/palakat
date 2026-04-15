@@ -271,6 +271,7 @@
   "operations_noPositionsSubtitle": "Anda belum memiliki posisi operasional",
   "operationsCategory_publishing": "Publikasi",
   "operationsCategory_financial": "Keuangan",
+  "operationsCategory_financial_recentEntries": "Transaksi Terbaru",
   "operationsCategory_reports": "Laporan",
   "operationsCategory_membership": "Keanggotaan",
   "operationsItem_publish_service_title": "Publikasikan Ibadah",
@@ -574,6 +575,8 @@
   "@btn_cancel": {
     "description": "Button text for cancel"
   },
+  "btn_overrideApprove": "Override Setujui",
+  "btn_overrideReject": "Override Tolak",
   "btn_save": "Simpan",
   "@btn_save": {
     "description": "Button text for save"
@@ -786,6 +789,14 @@
   "lbl_amount": "Jumlah",
   "@lbl_amount": {
     "description": "Label for amount field"
+  },
+  "lbl_revenue": "Pendapatan",
+  "@lbl_revenue": {
+    "description": "Label for revenue"
+  },
+  "lbl_expense": "Pengeluaran",
+  "@lbl_expense": {
+    "description": "Label for expense"
   },
   "lbl_currency": "Mata Uang",
   "@lbl_currency": {
@@ -1658,6 +1669,14 @@
   "drawer_expenseDetails_subtitle": "Lihat informasi detail tentang entri pengeluaran ini",
   "@drawer_expenseDetails_subtitle": {
     "description": "Drawer subtitle for expense details"
+  },
+  "drawer_financeDetails_title": "Detail Keuangan",
+  "@drawer_financeDetails_title": {
+    "description": "Drawer title for finance details"
+  },
+  "drawer_financeDetails_subtitle": "Lihat informasi detail tentang entri keuangan ini",
+  "@drawer_financeDetails_subtitle": {
+    "description": "Drawer subtitle for finance details"
   },
   "drawer_editChurchInfo_title": "Ubah Informasi Gereja",
   "@drawer_editChurchInfo_title": {
@@ -2595,6 +2614,10 @@
   "@dlg_selectFinanceType_title": {
     "description": "Title for selecting finance type dialog"
   },
+  "dlg_financeOverride_title": "Override Admin",
+  "@dlg_financeOverride_title": {
+    "description": "Title for finance admin override dialog and snackbar"
+  },
   "dlg_confirmAction_title": "Konfirmasi Tindakan",
   "@dlg_confirmAction_title": {
     "description": "Generic title for action confirmation dialog"
@@ -3198,6 +3221,68 @@
   "msg_noApproversAssigned": "Tidak ada penyetuju yang ditetapkan",
   "@msg_noApproversAssigned": {
     "description": "Message when no approvers are assigned"
+  },
+  "msg_financeOverrideApproveConfirmation": "Yakin ingin melakukan override dan menyetujui semua approver untuk entri {financeType} ini?",
+  "@msg_financeOverrideApproveConfirmation": {
+    "description": "Confirmation message for overriding finance approvers to approved",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideRejectConfirmation": "Yakin ingin melakukan override dan menolak semua approver untuk entri {financeType} ini?",
+  "@msg_financeOverrideRejectConfirmation": {
+    "description": "Confirmation message for overriding finance approvers to rejected",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideNoApprovers": "Entri {financeType} ini tidak memiliki approver untuk dioverride.",
+  "@msg_financeOverrideNoApprovers": {
+    "description": "Message shown when a finance entry has no approvers to override",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideApproveSuccess": "Semua approver keuangan telah disetujui oleh admin.",
+  "@msg_financeOverrideApproveSuccess": {
+    "description": "Success message after finance approvers are override-approved"
+  },
+  "msg_financeOverrideRejectSuccess": "Semua approver keuangan telah ditolak oleh admin.",
+  "@msg_financeOverrideRejectSuccess": {
+    "description": "Success message after finance approvers are override-rejected"
+  },
+  "msg_financeRealtimeCreated": "Entri {financeType} dibuat.",
+  "@msg_financeRealtimeCreated": {
+    "description": "Realtime snackbar message for created finance entry",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeRealtimeUpdated": "Entri {financeType} diperbarui.",
+  "@msg_financeRealtimeUpdated": {
+    "description": "Realtime snackbar message for updated finance entry",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeRealtimeDeleted": "Entri {financeType} dihapus.",
+  "@msg_financeRealtimeDeleted": {
+    "description": "Realtime snackbar message for deleted finance entry",
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
   },
   "btn_viewAllPaymentsWithCount": "Lihat Semua {count} pembayaran",
   "@btn_viewAllPaymentsWithCount": {

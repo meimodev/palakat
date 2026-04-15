@@ -446,6 +446,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsCategory_financial => 'Financial';
 
   @override
+  String get operationsCategory_financial_recentEntries =>
+      'Recent Transactions';
+
+  @override
   String get operationsCategory_reports => 'Reports';
 
   @override
@@ -836,6 +840,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btn_cancel => 'Cancel';
 
   @override
+  String get btn_overrideApprove => 'Override Approve';
+
+  @override
+  String get btn_overrideReject => 'Override Reject';
+
+  @override
   String get btn_save => 'Save';
 
   @override
@@ -987,6 +997,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lbl_amount => 'Amount';
+
+  @override
+  String get lbl_revenue => 'Revenue';
+
+  @override
+  String get lbl_expense => 'Expense';
 
   @override
   String get lbl_currency => 'Currency';
@@ -1730,6 +1746,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get drawer_expenseDetails_subtitle =>
       'View detailed information about this expense entry';
+
+  @override
+  String get drawer_financeDetails_title => 'Finance Details';
+
+  @override
+  String get drawer_financeDetails_subtitle =>
+      'View detailed information about this finance entry';
 
   @override
   String get drawer_editChurchInfo_title => 'Edit Church Information';
@@ -2800,6 +2823,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dlg_selectFinanceType_title => 'Select Finance Type';
 
   @override
+  String get dlg_financeOverride_title => 'Admin Override';
+
+  @override
   String get dlg_confirmAction_title => 'Confirm Action';
 
   @override
@@ -2993,6 +3019,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msg_noApproversAssigned => 'No approvers assigned';
+
+  @override
+  String msg_financeOverrideApproveConfirmation(String financeType) {
+    return 'Are you sure you want to override and approve all approvers for this $financeType entry?';
+  }
+
+  @override
+  String msg_financeOverrideRejectConfirmation(String financeType) {
+    return 'Are you sure you want to override and reject all approvers for this $financeType entry?';
+  }
+
+  @override
+  String msg_financeOverrideNoApprovers(String financeType) {
+    return 'This $financeType entry has no approvers to override.';
+  }
+
+  @override
+  String get msg_financeOverrideApproveSuccess =>
+      'All finance approvers have been approved by admin.';
+
+  @override
+  String get msg_financeOverrideRejectSuccess =>
+      'All finance approvers have been rejected by admin.';
+
+  @override
+  String msg_financeRealtimeCreated(String financeType) {
+    return '$financeType entry created.';
+  }
+
+  @override
+  String msg_financeRealtimeUpdated(String financeType) {
+    return '$financeType entry updated.';
+  }
+
+  @override
+  String msg_financeRealtimeDeleted(String financeType) {
+    return '$financeType entry deleted.';
+  }
 
   @override
   String btn_viewAllPaymentsWithCount(int count) {
@@ -3683,6 +3747,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String segmentTitle_emptyState(String title) {
     return 'No $title available';
   }
+
+  @override
+  String get msg_pendingJobWillAppearSoon =>
+      'Your report status will appear here once the queue starts.';
 
   @override
   String get lbl_bipra => 'Bipra Group (Optional)';

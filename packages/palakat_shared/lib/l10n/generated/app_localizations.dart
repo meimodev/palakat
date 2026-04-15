@@ -866,6 +866,12 @@ abstract class AppLocalizations {
   /// **'Financial'**
   String get operationsCategory_financial;
 
+  /// No description provided for @operationsCategory_financial_recentEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get operationsCategory_financial_recentEntries;
+
   /// No description provided for @operationsCategory_reports.
   ///
   /// In en, this message translates to:
@@ -1520,6 +1526,18 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get btn_cancel;
 
+  /// No description provided for @btn_overrideApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Override Approve'**
+  String get btn_overrideApprove;
+
+  /// No description provided for @btn_overrideReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Override Reject'**
+  String get btn_overrideReject;
+
   /// No description provided for @btn_save.
   ///
   /// In en, this message translates to:
@@ -1819,6 +1837,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount'**
   String get lbl_amount;
+
+  /// No description provided for @lbl_revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get lbl_revenue;
+
+  /// No description provided for @lbl_expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get lbl_expense;
 
   /// No description provided for @lbl_currency.
   ///
@@ -3121,6 +3151,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View detailed information about this expense entry'**
   String get drawer_expenseDetails_subtitle;
+
+  /// No description provided for @drawer_financeDetails_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance Details'**
+  String get drawer_financeDetails_title;
+
+  /// No description provided for @drawer_financeDetails_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View detailed information about this finance entry'**
+  String get drawer_financeDetails_subtitle;
 
   /// No description provided for @drawer_editChurchInfo_title.
   ///
@@ -5138,6 +5180,12 @@ abstract class AppLocalizations {
   /// **'Select Finance Type'**
   String get dlg_selectFinanceType_title;
 
+  /// No description provided for @dlg_financeOverride_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Override'**
+  String get dlg_financeOverride_title;
+
   /// No description provided for @dlg_confirmAction_title.
   ///
   /// In en, this message translates to:
@@ -5503,6 +5551,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No approvers assigned'**
   String get msg_noApproversAssigned;
+
+  /// No description provided for @msg_financeOverrideApproveConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to override and approve all approvers for this {financeType} entry?'**
+  String msg_financeOverrideApproveConfirmation(String financeType);
+
+  /// No description provided for @msg_financeOverrideRejectConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to override and reject all approvers for this {financeType} entry?'**
+  String msg_financeOverrideRejectConfirmation(String financeType);
+
+  /// No description provided for @msg_financeOverrideNoApprovers.
+  ///
+  /// In en, this message translates to:
+  /// **'This {financeType} entry has no approvers to override.'**
+  String msg_financeOverrideNoApprovers(String financeType);
+
+  /// No description provided for @msg_financeOverrideApproveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All finance approvers have been approved by admin.'**
+  String get msg_financeOverrideApproveSuccess;
+
+  /// No description provided for @msg_financeOverrideRejectSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All finance approvers have been rejected by admin.'**
+  String get msg_financeOverrideRejectSuccess;
+
+  /// No description provided for @msg_financeRealtimeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{financeType} entry created.'**
+  String msg_financeRealtimeCreated(String financeType);
+
+  /// No description provided for @msg_financeRealtimeUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{financeType} entry updated.'**
+  String msg_financeRealtimeUpdated(String financeType);
+
+  /// No description provided for @msg_financeRealtimeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{financeType} entry deleted.'**
+  String msg_financeRealtimeDeleted(String financeType);
 
   /// No description provided for @btn_viewAllPaymentsWithCount.
   ///
@@ -6703,6 +6799,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No {title} available'**
   String segmentTitle_emptyState(String title);
+
+  /// No description provided for @msg_pendingJobWillAppearSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report status will appear here once the queue starts.'**
+  String get msg_pendingJobWillAppearSoon;
 
   /// No description provided for @lbl_bipra.
   ///

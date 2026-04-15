@@ -449,6 +449,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get operationsCategory_financial => 'Keuangan';
 
   @override
+  String get operationsCategory_financial_recentEntries => 'Transaksi Terbaru';
+
+  @override
   String get operationsCategory_reports => 'Laporan';
 
   @override
@@ -841,6 +844,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get btn_cancel => 'Batal';
 
   @override
+  String get btn_overrideApprove => 'Override Setujui';
+
+  @override
+  String get btn_overrideReject => 'Override Tolak';
+
+  @override
   String get btn_save => 'Simpan';
 
   @override
@@ -992,6 +1001,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get lbl_amount => 'Jumlah';
+
+  @override
+  String get lbl_revenue => 'Pendapatan';
+
+  @override
+  String get lbl_expense => 'Pengeluaran';
 
   @override
   String get lbl_currency => 'Mata Uang';
@@ -1733,6 +1748,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get drawer_expenseDetails_subtitle =>
       'Lihat informasi detail tentang entri pengeluaran ini';
+
+  @override
+  String get drawer_financeDetails_title => 'Detail Keuangan';
+
+  @override
+  String get drawer_financeDetails_subtitle =>
+      'Lihat informasi detail tentang entri keuangan ini';
 
   @override
   String get drawer_editChurchInfo_title => 'Ubah Informasi Gereja';
@@ -2807,6 +2829,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get dlg_selectFinanceType_title => 'Pilih Jenis Keuangan';
 
   @override
+  String get dlg_financeOverride_title => 'Override Admin';
+
+  @override
   String get dlg_confirmAction_title => 'Konfirmasi Tindakan';
 
   @override
@@ -3003,6 +3028,44 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get msg_noApproversAssigned => 'Tidak ada penyetuju yang ditetapkan';
+
+  @override
+  String msg_financeOverrideApproveConfirmation(String financeType) {
+    return 'Yakin ingin melakukan override dan menyetujui semua approver untuk entri $financeType ini?';
+  }
+
+  @override
+  String msg_financeOverrideRejectConfirmation(String financeType) {
+    return 'Yakin ingin melakukan override dan menolak semua approver untuk entri $financeType ini?';
+  }
+
+  @override
+  String msg_financeOverrideNoApprovers(String financeType) {
+    return 'Entri $financeType ini tidak memiliki approver untuk dioverride.';
+  }
+
+  @override
+  String get msg_financeOverrideApproveSuccess =>
+      'Semua approver keuangan telah disetujui oleh admin.';
+
+  @override
+  String get msg_financeOverrideRejectSuccess =>
+      'Semua approver keuangan telah ditolak oleh admin.';
+
+  @override
+  String msg_financeRealtimeCreated(String financeType) {
+    return 'Entri $financeType dibuat.';
+  }
+
+  @override
+  String msg_financeRealtimeUpdated(String financeType) {
+    return 'Entri $financeType diperbarui.';
+  }
+
+  @override
+  String msg_financeRealtimeDeleted(String financeType) {
+    return 'Entri $financeType dihapus.';
+  }
 
   @override
   String btn_viewAllPaymentsWithCount(int count) {
@@ -3693,6 +3756,10 @@ class AppLocalizationsId extends AppLocalizations {
   String segmentTitle_emptyState(String title) {
     return 'Tidak ada $title tersedia';
   }
+
+  @override
+  String get msg_pendingJobWillAppearSoon =>
+      'Status laporan Anda akan muncul di sini setelah antrean dimulai.';
 
   @override
   String get lbl_bipra => 'Kelompok Bipra (Opsional)';

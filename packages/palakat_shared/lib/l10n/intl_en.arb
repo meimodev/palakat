@@ -172,6 +172,7 @@
   "operations_noPositionsSubtitle": "You don't have any operational positions yet",
   "operationsCategory_publishing": "Publishing",
   "operationsCategory_financial": "Financial",
+  "operationsCategory_financial_recentEntries": "Recent Transactions",
   "operationsCategory_reports": "Reports",
   "operationsCategory_membership": "Membership",
   "operationsItem_publish_service_title": "Publish Service",
@@ -337,6 +338,8 @@
 
   "btn_continue": "Continue",
   "btn_cancel": "Cancel",
+  "btn_overrideApprove": "Override Approve",
+  "btn_overrideReject": "Override Reject",
   "btn_save": "Save",
   "btn_delete": "Delete",
   "btn_retry": "Retry",
@@ -395,6 +398,8 @@
   "lbl_time": "Time",
   "lbl_description": "Description",
   "lbl_amount": "Amount",
+  "lbl_revenue": "Revenue",
+  "lbl_expense": "Expense",
   "lbl_currency": "Currency",
   "lbl_openingBalance": "Opening Balance",
   "lbl_balance": "Balance",
@@ -745,6 +750,8 @@
   "drawer_revenueDetails_subtitle": "View detailed information about this revenue entry",
   "drawer_expenseDetails_title": "Expense Details",
   "drawer_expenseDetails_subtitle": "View detailed information about this expense entry",
+  "drawer_financeDetails_title": "Finance Details",
+  "drawer_financeDetails_subtitle": "View detailed information about this finance entry",
   "drawer_editChurchInfo_title": "Edit Church Information",
   "drawer_editChurchInfo_subtitle": "Update your church details",
   "drawer_editLocation_title": "Edit Location",
@@ -1200,6 +1207,7 @@
   "@dlg_selectFinanceType_title": {
     "description": "Title for selecting finance type dialog"
   },
+  "dlg_financeOverride_title": "Admin Override",
   "dlg_confirmAction_title": "Confirm Action",
   "dlg_articleArchive_content": "This will hide the article from the public app. You can still edit it later.",
   "dlg_articleCoverUploadRequiresDraft_content": "Save draft first to upload cover.",
@@ -1298,6 +1306,56 @@
   "msg_publishedActivitiesManagedOnMobile": "Published activities can only be managed in the mobile app by the assigned person in charge.",
   "msg_activityRejected": "Activity rejected successfully",
   "msg_noApproversAssigned": "No approvers assigned",
+  "msg_financeOverrideApproveConfirmation": "Are you sure you want to override and approve all approvers for this {financeType} entry?",
+  "@msg_financeOverrideApproveConfirmation": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideRejectConfirmation": "Are you sure you want to override and reject all approvers for this {financeType} entry?",
+  "@msg_financeOverrideRejectConfirmation": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideNoApprovers": "This {financeType} entry has no approvers to override.",
+  "@msg_financeOverrideNoApprovers": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeOverrideApproveSuccess": "All finance approvers have been approved by admin.",
+  "msg_financeOverrideRejectSuccess": "All finance approvers have been rejected by admin.",
+  "msg_financeRealtimeCreated": "{financeType} entry created.",
+  "@msg_financeRealtimeCreated": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeRealtimeUpdated": "{financeType} entry updated.",
+  "@msg_financeRealtimeUpdated": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
+  "msg_financeRealtimeDeleted": "{financeType} entry deleted.",
+  "@msg_financeRealtimeDeleted": {
+    "placeholders": {
+      "financeType": {
+        "type": "String"
+      }
+    }
+  },
   "btn_viewAllPaymentsWithCount": "View All {count} payments",
   "@btn_viewAllPaymentsWithCount": {
     "placeholders": {
@@ -1663,6 +1721,8 @@
       }
     }
   },
+
+  "msg_pendingJobWillAppearSoon": "Your report status will appear here once the queue starts.",
 
   "lbl_bipra": "Bipra Group (Optional)",
   "hint_allBipra": "All groups",
