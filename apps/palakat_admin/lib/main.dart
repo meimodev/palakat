@@ -17,6 +17,7 @@ import 'package:palakat_shared/core/extension/build_context_extension.dart';
 import 'package:palakat_shared/core/theme/theme.dart';
 
 import 'core/layout/app_scaffold.dart';
+import 'core/services/admin_approval_realtime_listener.dart';
 import 'core/navigation/page_transitions.dart';
 import 'features/account/presentation/screens/account_screen.dart';
 import 'features/activity/presentation/screens/activity_screen.dart';
@@ -96,7 +97,9 @@ class PalakatAdminApp extends ConsumerWidget {
         routerConfig: router,
         builder: (context, child) => FocusTraversalGroup(
           policy: WidgetOrderTraversalPolicy(),
-          child: FileTransferProgressBanner(child: child),
+          child: AdminApprovalRealtimeListener(
+            child: FileTransferProgressBanner(child: child),
+          ),
         ),
         // Localization configuration - Requirements: 1.2, 1.4
         locale: locale,

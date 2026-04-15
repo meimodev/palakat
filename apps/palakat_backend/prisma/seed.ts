@@ -1,8 +1,58 @@
-import 'dotenv/config';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+// Section-aware .env loader — mirrors prisma.config.ts logic.
+// Plain `dotenv/config` is NOT section-aware and picks up the last duplicate
+// value per key (i.e. the [production] Supabase URL), which causes the seeder
+// to connect to the wrong database.
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { parse } from 'dotenv';
+
+(function loadSectionEnv() {
+  const envFile = path.resolve(process.cwd(), '.env');
+  if (!fs.existsSync(envFile)) return;
+
+  const source = fs.readFileSync(envFile, 'utf8');
+  const lines = source.split(/\r?\n/);
+  const hasSections = lines.some((l) => /^\s*\[[^\]]+\]\s*$/.test(l));
+
+  if (!hasSections) {
+    const parsed = parse(source);
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof process.env[k] === 'undefined') process.env[k] = v;
+    }
+    return;
+  }
+
+  const targetSection = (process.env.PALAKAT_ENV || 'local')
+    .trim()
+    .toLowerCase();
+  const commonLines: string[] = [];
+  const sectionLines: string[] = [];
+  let current: string | null = null;
+  let sawSection = false;
+
+  for (const line of lines) {
+    const m = line.match(/^\s*\[([^\]]+)\]\s*$/);
+    if (m) {
+      sawSection = true;
+      current = m[1].trim().toLowerCase();
+      continue;
+    }
+    if (!sawSection) {
+      commonLines.push(line);
+    } else if (current === targetSection) {
+      sectionLines.push(line);
+    }
+  }
+
+  const parsed = parse([...commonLines, ...sectionLines].join('\n'));
+  for (const [k, v] of Object.entries(parsed)) {
+    // Only set if not already set by the shell environment
+    if (typeof process.env[k] === 'undefined') process.env[k] = v;
+  }
+})();
+
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import {
   ActivityType,
   ApprovalStatus,
@@ -26,6 +76,8 @@ const pool = new Pool({
 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+
+const CONGREGATION_SEED_LIMIT = parseCongregationSeedLimit();
 
 // ============================================================================
 // SEEDED RANDOM NUMBER GENERATOR
@@ -73,6 +125,25 @@ function generateLatitude(): number {
 
 function generateLongitude(): number {
   return parseFloat((106.5 + seededRandom() * 0.5).toFixed(4));
+}
+
+function parseCongregationSeedLimit(): number | null {
+  const raw = process.env.CONGREGATION_SEED_LIMIT?.trim();
+  if (!raw) {
+    const isProductionEnv =
+      process.env.PALAKAT_ENV?.trim().toLowerCase() === 'production' ||
+      process.env.NODE_ENV?.trim().toLowerCase() === 'production';
+    return isProductionEnv ? null : 10;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(
+      `Invalid CONGREGATION_SEED_LIMIT '${raw}'. Expected positive integer.`,
+    );
+  }
+
+  return parsed;
 }
 
 function getStartOfMonth(date: Date = new Date()): Date {
@@ -260,47 +331,61 @@ function getAllActivityVariations(): {
 
 async function cleanDatabase() {
   console.log('🧹 Cleaning existing data...');
-  // Use type assertion to handle Prisma client types that may not be regenerated yet
-  const p = prisma as any;
 
-  // Delete in strict FK dependency order (leaf → root).
-  // A batch $transaction([...]) does NOT guarantee execution order, which can
-  // cause FK violations when a parent is deleted before its children.
-  await p.articleLike.deleteMany();
-  await p.article.deleteMany();
-
-  await prisma.approver.deleteMany();
-  await p.revenueApprover.deleteMany();
-  await p.expenseApprover.deleteMany();
-  await prisma.revenue.deleteMany();
-  await prisma.expense.deleteMany();
-  await p.financialAccountNumber.deleteMany();
-
-  await prisma.activity.deleteMany();
-
-  await p.reportJob.deleteMany();
-  await prisma.report.deleteMany();
-  await prisma.document.deleteMany();
-  await prisma.fileManager.deleteMany();
-
-  await prisma.songPart.deleteMany();
-  await prisma.song.deleteMany();
-
-  await prisma.approvalRule.deleteMany();
-  await prisma.membershipPosition.deleteMany();
-  await p.membershipInvitation.deleteMany();
-  await prisma.membership.deleteMany();
-
-  await prisma.churchRequest.deleteMany();
-  await prisma.column.deleteMany();
-  await prisma.church.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.location.deleteMany();
-  await prisma.region.deleteMany();
+  // Truncate all tables in dependency order with CASCADE.
+  // We quote each name explicitly because Prisma creates tables with
+  // mixed-case names that PostgreSQL only finds when double-quoted.
+  // The IF EXISTS check prevents errors on fresh/partially-migrated DBs.
+  await prisma.$executeRawUnsafe(`
+    DO $$
+    DECLARE
+      _tbl TEXT;
+      _tables TEXT[] := ARRAY[
+        'ArticleLike',
+        'Article',
+        'Notification',
+        'ReportJob',
+        'Report',
+        'Document',
+        'FileManager',
+        'Approver',
+        'RevenueApprover',
+        'ExpenseApprover',
+        'Revenue',
+        'Expense',
+        'CashMutation',
+        'CashAccount',
+        'FinancialAccountNumber',
+        'Activity',
+        'Song',
+        'SongPart',
+        'ApprovalRule',
+        'ChurchPermissionPolicy',
+        'MembershipPosition',
+        'MembershipInvitation',
+        'Membership',
+        'ChurchRequest',
+        'Column',
+        'Church',
+        'Account',
+        'Location',
+        'Region'
+      ];
+    BEGIN
+      FOREACH _tbl IN ARRAY _tables LOOP
+        IF EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_schema = 'public'
+            AND table_name = _tbl
+        ) THEN
+          EXECUTE format('TRUNCATE TABLE public."%s" CASCADE', _tbl);
+        END IF;
+      END LOOP;
+    END $$;
+  `);
 
   console.log('✅ Database cleaned');
 }
-
 
 async function seedArticles() {
   const p = prisma as any;
@@ -367,7 +452,9 @@ async function seedArticles() {
 }
 
 async function seedCongregationsAndFinances(passwordHash: string) {
-  console.log('\n🏛️  Seeding congregations and financial accounts from JSON...');
+  console.log(
+    '\n🏛️  Seeding congregations and financial accounts from JSON...',
+  );
 
   const congJsonPath = path.resolve(
     __dirname,
@@ -391,11 +478,18 @@ async function seedCongregationsAndFinances(passwordHash: string) {
   const congRaw = fs.readFileSync(congJsonPath, 'utf-8');
   console.log(`      File size: ${(congRaw.length / 1024).toFixed(1)} KB`);
   let congregations = JSON.parse(congRaw);
-  console.log(`      ✔ Loaded ${congregations.length} congregations from file`);
-  const LIMIT = 50;
-  if (congregations.length > LIMIT) {
-    congregations = congregations.slice(0, LIMIT);
-    console.log(`      ⚠️ Limiting to ${LIMIT} congregations for faster development seeding`);
+  console.log(
+    `      ✔ Loaded ${congregations.length} congregations from file`,
+  );
+
+  if (
+    CONGREGATION_SEED_LIMIT != null &&
+    congregations.length > CONGREGATION_SEED_LIMIT
+  ) {
+    congregations = congregations.slice(0, CONGREGATION_SEED_LIMIT);
+    console.log(
+      `      ⚠️ Applying CONGREGATION_SEED_LIMIT=${CONGREGATION_SEED_LIMIT}; importing first ${CONGREGATION_SEED_LIMIT} congregations only`,
+    );
   }
 
   console.log(`   📂 Reading financial_accounts_number.json...`);
@@ -403,11 +497,15 @@ async function seedCongregationsAndFinances(passwordHash: string) {
   const finRaw = fs.readFileSync(finJsonPath, 'utf-8');
   console.log(`      File size: ${(finRaw.length / 1024).toFixed(1)} KB`);
   const finAccountsData = JSON.parse(finRaw);
-  const revenueAccounts = finAccountsData.filter((f: any) => f.type !== 'EXPENSE');
-  const expenseAccounts = finAccountsData.filter((f: any) => f.type === 'EXPENSE');
+  const revenueAccounts = finAccountsData.filter(
+    (f: any) => f.type !== 'EXPENSE',
+  );
+  const expenseAccounts = finAccountsData.filter(
+    (f: any) => f.type === 'EXPENSE',
+  );
   console.log(
     `      ✔ Loaded ${finAccountsData.length} account templates ` +
-    `(${revenueAccounts.length} revenue, ${expenseAccounts.length} expense)`,
+      `(${revenueAccounts.length} revenue, ${expenseAccounts.length} expense)`,
   );
 
   const createdChurches: ChurchWithColumns[] = [];
@@ -580,7 +678,6 @@ async function seedCongregationsAndFinances(passwordHash: string) {
                       name: pos.name,
                       membershipId: membership.id,
                       churchId: church.id,
-                      approvalRuleId: null,
                     },
                   });
                 }
@@ -593,147 +690,89 @@ async function seedCongregationsAndFinances(passwordHash: string) {
     createdChurches.push(churchWithCols);
     console.log(
       ` done ` +
-      `(${churchColCount} cols, ${churchMemberCount} members, ` +
-      `${churchPositionCount} positions, ${churchFinCount} fin-accounts)`,
+        `(${churchColCount} cols, ${churchMemberCount} members, ` +
+        `${churchPositionCount} positions, ${churchFinCount} fin-accounts)`,
     );
   }
 
   console.log(`\n   ✅ Congregation seeding complete:`);
   console.log(`      Churches   : ${createdChurches.length}`);
-  console.log(`      Memberships: ${mainMemberships.length} (with linked accounts)`);
-  console.log(`      Fin accounts: ${financialAccounts.length} total across all churches`);
+  console.log(
+    `      Memberships: ${mainMemberships.length} (with linked accounts)`,
+  );
+  console.log(
+    `      Fin accounts: ${financialAccounts.length} total across all churches`,
+  );
 
   return { createdChurches, mainMemberships, financialAccounts, mainAccounts };
 }
 
-/**
- * Canonical approval rule set — completely deterministic.
- *
- * Rule categories:
- * 1. SERVICE + bipra  – for each bipra group (PKB, WKI, PMD, RMJ, ASM)
- * 2. SERVICE generic  – fallback for SERVICE activities with no bipra
- * 3. EVENT            – all event activities
- * 4. ANNOUNCEMENT     – all announcements
- * 5. REVENUE          – all revenue records
- * 6. EXPENSE          – all expense records
- * 7. Generic fallback – catches everything else (no activityType, no financialType)
- */
-interface CanonicalRuleSpec {
+interface ApprovalRuleSpec {
   name: string;
   description: string;
+  active: boolean;
   activityType: ActivityType | null;
   financialType: FinancialType | null;
-  bipra: Bipra | null;
-  positionName: string; // exact position name to link
+  positionName: string;
 }
 
-const CANONICAL_RULE_SPECS: CanonicalRuleSpec[] = [
-  // 1. SERVICE + bipra rules
-  {
-    name: 'Persetujuan Ibadah PKB',
-    description: 'Aturan persetujuan untuk ibadah Persekutuan Kaum Bapak',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: Bipra.PKB,
-    positionName: 'Ketua Jemaat',
-  },
-  {
-    name: 'Persetujuan Ibadah WKI',
-    description: 'Aturan persetujuan untuk ibadah Wanita Kaum Ibu',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: Bipra.WKI,
-    positionName: 'Ketua Jemaat',
-  },
-  {
-    name: 'Persetujuan Ibadah PMD',
-    description: 'Aturan persetujuan untuk ibadah Pemuda',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: Bipra.PMD,
-    positionName: 'Ketua Jemaat',
-  },
-  {
-    name: 'Persetujuan Ibadah RMJ',
-    description: 'Aturan persetujuan untuk ibadah Remaja',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: Bipra.RMJ,
-    positionName: 'Ketua Jemaat',
-  },
-  {
-    name: 'Persetujuan Ibadah ASM',
-    description: 'Aturan persetujuan untuk ibadah Anak Sekolah Minggu',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: Bipra.ASM,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 2. SERVICE generic (no bipra)
-  {
-    name: 'Persetujuan Ibadah Umum',
-    description: 'Aturan persetujuan umum untuk kegiatan ibadah',
-    activityType: ActivityType.SERVICE,
-    financialType: null,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 3. EVENT
-  {
-    name: 'Persetujuan Acara',
-    description: 'Aturan persetujuan untuk acara dan kegiatan khusus',
-    activityType: ActivityType.EVENT,
-    financialType: null,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 4. ANNOUNCEMENT
-  {
-    name: 'Persetujuan Pengumuman',
-    description: 'Aturan persetujuan untuk pengumuman gereja',
-    activityType: ActivityType.ANNOUNCEMENT,
-    financialType: null,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 5. REVENUE
-  {
-    name: 'Persetujuan Pendapatan',
-    description: 'Aturan persetujuan untuk semua penerimaan keuangan',
-    activityType: null,
-    financialType: FinancialType.REVENUE,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 6. EXPENSE
-  {
-    name: 'Persetujuan Pengeluaran',
-    description: 'Aturan persetujuan untuk semua pengeluaran keuangan',
-    activityType: null,
-    financialType: FinancialType.EXPENSE,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-
-  // 7. Generic fallback
-  {
-    name: 'Persetujuan Umum',
-    description: 'Aturan persetujuan umum untuk semua kegiatan tanpa aturan khusus',
-    activityType: null,
-    financialType: null,
-    bipra: null,
-    positionName: 'Ketua Jemaat',
-  },
-];
-
+function loadApprovalRuleSpecs(): ApprovalRuleSpec[] {
+  const jsonPath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'docs',
+    'approval_rules.json',
+  );
+  const raw = fs.readFileSync(jsonPath, 'utf-8');
+  const parsed = JSON.parse(raw) as unknown;
+  if (!Array.isArray(parsed)) {
+    throw new Error('docs/approval_rules.json must contain a top-level array');
+  }
+  return (parsed as any[]).map((entry, i) => {
+    const ctx = `approval_rules.json[${i}]`;
+    if (typeof entry.name !== 'string' || entry.name.trim().length === 0) {
+      throw new Error(`Missing or invalid 'name' at ${ctx}`);
+    }
+    if (
+      typeof entry.positionName !== 'string' ||
+      entry.positionName.trim().length === 0
+    ) {
+      throw new Error(`Missing or invalid 'positionName' at ${ctx}`);
+    }
+    const activityType = entry.activityType
+      ? (ActivityType[entry.activityType as keyof typeof ActivityType] ?? null)
+      : null;
+    if (entry.activityType && !activityType) {
+      throw new Error(`Unknown activityType '${entry.activityType}' at ${ctx}`);
+    }
+    const financialType = entry.financialType
+      ? (FinancialType[entry.financialType as keyof typeof FinancialType] ??
+        null)
+      : null;
+    if (entry.financialType && !financialType) {
+      throw new Error(
+        `Unknown financialType '${entry.financialType}' at ${ctx}`,
+      );
+    }
+    return {
+      name: entry.name.trim(),
+      description:
+        typeof entry.description === 'string' ? entry.description.trim() : '',
+      active: entry.active !== false,
+      activityType,
+      financialType,
+      positionName: entry.positionName.trim(),
+    } satisfies ApprovalRuleSpec;
+  });
+}
 
 async function seedApprovalRules(churches: ChurchWithColumns[]) {
-  console.log(`\n📜 Creating canonical approval rules (${CANONICAL_RULE_SPECS.length} specs × ${churches.length} churches)...`);
+  const specs = loadApprovalRuleSpecs();
+  console.log(
+    `\n📜 Creating approval rules from docs/approval_rules.json (${specs.length} specs × ${churches.length} churches)...`,
+  );
 
   const approvalRules = [];
   let skippedCount = 0;
@@ -742,8 +781,7 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
     let churchCreated = 0;
     let churchSkipped = 0;
 
-    for (const spec of CANONICAL_RULE_SPECS) {
-      // Find the first matching position in this church by name
+    for (const spec of specs) {
       const position = await prisma.membershipPosition.findFirst({
         where: { churchId: church.id, name: spec.positionName },
       });
@@ -761,11 +799,10 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
         data: {
           name: spec.name,
           description: `${spec.description} di ${church.name}`,
-          active: true,
+          active: spec.active,
           churchId: church.id,
           activityType: spec.activityType,
           financialType: spec.financialType,
-          bipra: spec.bipra,
           positions: { connect: [{ id: position.id }] },
         } as any,
         include: { positions: true },
@@ -778,12 +815,14 @@ async function seedApprovalRules(churches: ChurchWithColumns[]) {
     if (churchCreated > 0) {
       console.log(
         `   ✔  ${church.name}: ${churchCreated} rules created` +
-        (churchSkipped > 0 ? `, ${churchSkipped} skipped` : ''),
+          (churchSkipped > 0 ? `, ${churchSkipped} skipped` : ''),
       );
     }
   }
 
-  console.log(`\n   ✅ Approval rules: ${approvalRules.length} created, ${skippedCount} skipped (missing positions)`);
+  console.log(
+    `\n   ✅ Approval rules: ${approvalRules.length} created, ${skippedCount} skipped (missing positions)`,
+  );
   return approvalRules;
 }
 
@@ -1097,15 +1136,18 @@ async function seedMainAccountActivities(
   financialAccounts: FinancialAccountWithType[],
   documents: { id: number; churchId: number }[],
 ) {
-  const totalActivities = mainMemberships.length * CONFIG.activitiesPerMainAccount;
+  const totalActivities =
+    mainMemberships.length * CONFIG.activitiesPerMainAccount;
   console.log(
     `\n📅 Seeding activities for ${mainMemberships.length} main account(s) ` +
-    `(${CONFIG.activitiesPerMainAccount} each = ~${totalActivities} total)...`,
+      `(${CONFIG.activitiesPerMainAccount} each = ~${totalActivities} total)...`,
   );
 
   const activities = [];
   const variations = getAllActivityVariations(); // 15 variations
-  console.log(`   Activity variations: ${variations.length} (types × bipra groups)`);
+  console.log(
+    `   Activity variations: ${variations.length} (types × bipra groups)`,
+  );
   let globalIndex = 0;
 
   // Financial type cycle: revenue, expense, none (an activity can only have one)
@@ -1118,9 +1160,11 @@ async function seedMainAccountActivities(
   for (const mainMembership of mainMemberships) {
     console.log(
       `\n   👤 Main account [${mainMembership.accountPhone}] ` +
-      `(membership #${mainMembership.id}, church #${mainMembership.churchId})`,
+        `(membership #${mainMembership.id}, church #${mainMembership.churchId})`,
     );
-    console.log(`      Creating ${CONFIG.activitiesPerMainAccount} activities...`);
+    console.log(
+      `      Creating ${CONFIG.activitiesPerMainAccount} activities...`,
+    );
 
     const weekDates = getCurrentWeekDates();
     const weekDateOverrideMap = getWeekDateOverrideMapForActivityVariations(
@@ -1203,7 +1247,9 @@ async function seedMainAccountActivities(
       globalIndex++;
     }
 
-    console.log(`      ✔ Done — ${CONFIG.activitiesPerMainAccount} activities created for this account`);
+    console.log(
+      `      ✔ Done — ${CONFIG.activitiesPerMainAccount} activities created for this account`,
+    );
   }
 
   console.log(`\n   ✅ Main account activities: ${activities.length} total`);
@@ -1356,10 +1402,13 @@ async function seedSongs() {
   console.log(`      File size: ${(rawContent.length / 1024).toFixed(1)} KB`);
   const songsData = JSON.parse(rawContent);
   const rawSongs = songsData.songs || [];
-  const totalParts = rawSongs.reduce((sum: number, s: any) => sum + (s.definition?.length || 0), 0);
+  const totalParts = rawSongs.reduce(
+    (sum: number, s: any) => sum + (s.definition?.length || 0),
+    0,
+  );
   console.log(
     `      ✔ Loaded ${rawSongs.length} songs, ${totalParts} parts total ` +
-    `(avg ${rawSongs.length ? (totalParts / rawSongs.length).toFixed(1) : 0} parts/song)`,
+      `(avg ${rawSongs.length ? (totalParts / rawSongs.length).toFixed(1) : 0} parts/song)`,
   );
 
   const songs = [];
@@ -1386,8 +1435,8 @@ async function seedSongs() {
 
     process.stdout.write(
       `   [${String(i + 1).padStart(4, ' ')}/${rawSongs.length}] ` +
-      `${book} #${index} — "${title.substring(0, 40)}${title.length > 40 ? '…' : ''}" ` +
-      `(${partsToCreate.length} parts)\r`,
+        `${book} #${index} — "${title.substring(0, 40)}${title.length > 40 ? '…' : ''}" ` +
+        `(${partsToCreate.length} parts)\r`,
     );
 
     const song = await prisma.song.create({
@@ -1410,7 +1459,9 @@ async function seedSongs() {
   }
 
   const totalInsertedParts = songs.reduce((sum, s) => sum + s.parts.length, 0);
-  console.log(`\n   ✅ Songs: ${songs.length} songs, ${totalInsertedParts} parts inserted`);
+  console.log(
+    `\n   ✅ Songs: ${songs.length} songs, ${totalInsertedParts} parts inserted`,
+  );
   return songs;
 }
 
@@ -1449,7 +1500,7 @@ async function seedSongDbFile(churches: ChurchWithColumns[]) {
   try {
     const buf = fs.readFileSync(localTemplatePath);
     sizeInKB = Math.max(0.01, parseFloat((buf.byteLength / 1024).toFixed(2)));
-  } catch (_e) {
+  } catch {
     console.log(
       `⚠️ Song DB template not found at ${localTemplatePath}. Record will be seeded with sizeInKB=${sizeInKB}.`,
     );
@@ -1481,7 +1532,7 @@ async function seedSongDbFile(churches: ChurchWithColumns[]) {
     await prisma.$executeRawUnsafe(
       `SELECT setval(pg_get_serial_sequence('"FileManager"', 'id'), (SELECT MAX(id) FROM "FileManager"));`,
     );
-  } catch (_e) {}
+  } catch {}
 
   console.log('✅ Seeded Song DB FileManager record');
   console.log(`   id=${file.id} bucket=${bucket} path=${storagePath}`);
@@ -1620,9 +1671,16 @@ async function main() {
   console.log('╔══════════════════════════════════════════════════════╗');
   console.log('║           🌱 PALAKAT — Comprehensive Seed            ║');
   console.log('╚══════════════════════════════════════════════════════╝');
-  console.log(`   DB  : ${process.env.DATABASE_URL?.replace(/:\/\/[^@]+@/, '://<credentials>@') ?? '(not set)'}`);
+  console.log(
+    `   DB  : ${process.env.DATABASE_URL?.replace(/:\/\/[^@]+@/, '://<credentials>@') ?? '(not set)'}`,
+  );
   console.log(`   Time: ${new Date().toISOString()}`);
   console.log(`   Env : ${process.env.NODE_ENV ?? 'unset'}`);
+  if (CONGREGATION_SEED_LIMIT != null) {
+    console.log(
+      `   Limit: first ${CONGREGATION_SEED_LIMIT} congregations via CONGREGATION_SEED_LIMIT`,
+    );
+  }
   console.log('');
 
   const phase = (name: string) => {
@@ -1638,6 +1696,16 @@ async function main() {
 
   try {
     seed = 12345;
+
+    // Always push the schema first so tables exist regardless of migration state.
+    // This is safe for local/dev: it's a no-op when the DB is already in sync.
+    const doneSync = phase('Sync schema (db push)');
+    const { execSync } = await import('node:child_process');
+    execSync('./node_modules/.bin/prisma db push --accept-data-loss', {
+      stdio: 'inherit',
+      env: { ...process.env },
+    });
+    doneSync();
 
     const doneClean = phase('Clean database');
     await cleanDatabase();
@@ -1692,7 +1760,9 @@ async function main() {
     const totalElapsed = ((Date.now() - seedStart) / 1000).toFixed(1);
     console.log('');
     console.log('╔══════════════════════════════════════════════════════╗');
-    console.log(`║  🎉 Seed completed successfully in ${totalElapsed.padStart(6, ' ')}s          ║`);
+    console.log(
+      `║  🎉 Seed completed successfully in ${totalElapsed.padStart(6, ' ')}s          ║`,
+    );
     console.log('╚══════════════════════════════════════════════════════╝');
   } catch (error) {
     const totalElapsed = ((Date.now() - seedStart) / 1000).toFixed(1);
@@ -1700,7 +1770,6 @@ async function main() {
     throw error;
   }
 }
-
 
 main()
   .catch((e) => {
