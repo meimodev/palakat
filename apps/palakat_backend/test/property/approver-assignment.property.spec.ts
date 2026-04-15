@@ -485,8 +485,10 @@ describe('Automatic Approver Assignment Property Tests', () => {
               },
             });
 
-            // Create two active approval rules with overlapping positions
-            await prisma.approvalRule.create({
+            // Create two active approval rules with overlapping positions.
+            // This directly exercises the many-to-many relation: position1 is
+            // linked to BOTH rules simultaneously.
+            const rule1 = await prisma.approvalRule.create({
               data: {
                 name: `test_prop_rule_${testId}_1`,
                 description: 'First approval rule',
@@ -496,9 +498,10 @@ describe('Automatic Approver Assignment Property Tests', () => {
                   connect: [{ id: position1.id }],
                 },
               },
+              include: { positions: { select: { id: true } } },
             });
 
-            await prisma.approvalRule.create({
+            const rule2 = await prisma.approvalRule.create({
               data: {
                 name: `test_prop_rule_${testId}_2`,
                 description: 'Second approval rule',
@@ -508,7 +511,19 @@ describe('Automatic Approver Assignment Property Tests', () => {
                   connect: [{ id: position1.id }, { id: position2.id }],
                 },
               },
+              include: { positions: { select: { id: true } } },
             });
+
+            // Property: many-to-many — position1 must appear in both rules
+            expect(rule1.positions.some((p) => p.id === position1.id)).toBe(
+              true,
+            );
+            expect(rule2.positions.some((p) => p.id === position1.id)).toBe(
+              true,
+            );
+            expect(rule2.positions.some((p) => p.id === position2.id)).toBe(
+              true,
+            );
 
             // Create member with position1 (appears in both rules)
             const memberAccount = await createTestAccount(prisma, {

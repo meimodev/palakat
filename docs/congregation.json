@@ -25,7 +25,10 @@
             "baptize": true,
             "sidi": true,
             "membershipPositions": [
-              {"name":"Ketua Jemaat"}
+              {"name":"Ketua Jemaat"},
+              {"name":"Sekertaris"},
+              {"name":"Bendahara"},
+              {"name":"Admin Gereja"}
             ],
             "accountId": 1,
             "account": {

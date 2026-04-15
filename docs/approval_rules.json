@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Persetujuan Umum",
+    "description": "Aturan persetujuan umum untuk semua kegiatan tanpa aturan khusus",
+    "active": true,
+    "activityType": null,
+    "financialType": null,
+    "positionName": "Ketua Jemaat"
+  },
+  {
+    "name": "Persetujuan Pengeluaran",
+    "description": "Aturan persetujuan untuk semua pengeluaran keuangan",
+    "active": true,
+    "activityType": null,
+    "financialType": "EXPENSE",
+    "positionName": "Bendahara"
+  },
+  {
+    "name": "Persetujuan Pendapatan",
+    "description": "Aturan persetujuan untuk semua penerimaan keuangan",
+    "active": true,
+    "activityType": null,
+    "financialType": "REVENUE",
+    "positionName": "Bendahara"
+  },
+  {
+    "name": "Persetujuan Pengumuman",
+    "description": "Aturan persetujuan untuk pengumuman gereja",
+    "active": true,
+    "activityType": "ANNOUNCEMENT",
+    "financialType": null,
+    "positionName": "Sekertaris"
+  },
+  {
+    "name": "Persetujuan Acara",
+    "description": "Aturan persetujuan untuk acara dan kegiatan khusus",
+    "active": true,
+    "activityType": "EVENT",
+    "financialType": null,
+    "positionName": "Sekertaris"
+  },
+  {
+    "name": "Persetujuan Ibadah",
+    "description": "Aturan persetujuan untuk kegiatan ibadah",
+    "active": true,
+    "activityType": "SERVICE",
+    "financialType": null,
+    "positionName": "Sekertaris"
+  }
+]
