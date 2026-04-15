@@ -140,18 +140,51 @@ export class ExpenseService {
     tx: any,
     expenseId: number,
     churchId: number,
-  ): Promise<void> {
+  ): Promise<number[]> {
     await tx.expenseApprover.deleteMany({ where: { expenseId } });
 
-    const membershipIds = await this.resolveFinanceApproverMembershipIds(churchId);
+    const membershipIds =
+      await this.resolveFinanceApproverMembershipIds(churchId);
 
-    if (membershipIds.length === 0) return;
+    if (membershipIds.length === 0) return [];
 
     await tx.expenseApprover.createMany({
       data: membershipIds.map((membershipId: number) => ({
         expenseId,
         membershipId,
       })),
+    });
+
+    return membershipIds;
+  }
+
+  private emitExpenseApprovalRequiredEvent(
+    expense: any,
+    membershipIds?: number[],
+  ) {
+    const affectedMembershipIds =
+      membershipIds ??
+      (expense?.approvers ?? []).map((approver: any) => approver.membershipId);
+
+    if (
+      typeof expense?.id !== 'number' ||
+      typeof expense?.churchId !== 'number' ||
+      !Array.isArray(affectedMembershipIds) ||
+      affectedMembershipIds.length === 0
+    ) {
+      return;
+    }
+
+    this.realtime.emitApprovalLifecycleEvent({
+      eventName: 'approval.required',
+      entityType: 'EXPENSE',
+      entityId: expense.id,
+      entityTitle: expense.activity?.title ?? 'Expense approval',
+      churchId: expense.churchId,
+      resultingStatus: 'UNCONFIRMED',
+      isOverride: false,
+      affectedMembershipIds,
+      updatedAt: expense.updatedAt,
     });
   }
 
@@ -357,6 +390,7 @@ export class ExpenseService {
     });
 
     this.emitExpenseFinanceEvent('finance.created', expense);
+    this.emitExpenseApprovalRequiredEvent(expense);
 
     return {
       message: 'Expense created successfully',
@@ -423,6 +457,7 @@ export class ExpenseService {
       rest.churchId !== undefined;
 
     const include = this.buildExpenseInclude();
+    let refreshedApproverMembershipIds: number[] = [];
     const expense = await (this.prisma as any).$transaction(async (tx: any) => {
       const updatedExpense = await tx.expense.update({
         where: { id },
@@ -430,7 +465,11 @@ export class ExpenseService {
       });
 
       if (shouldRefreshApprovers) {
-        await this.syncApprovers(tx, id, effectiveChurchId);
+        refreshedApproverMembershipIds = await this.syncApprovers(
+          tx,
+          id,
+          effectiveChurchId,
+        );
       }
 
       return tx.expense.findUniqueOrThrow({
@@ -440,6 +479,12 @@ export class ExpenseService {
     });
 
     this.emitExpenseFinanceEvent('finance.updated', expense);
+    if (refreshedApproverMembershipIds.length > 0) {
+      this.emitExpenseApprovalRequiredEvent(
+        expense,
+        refreshedApproverMembershipIds,
+      );
+    }
 
     return {
       message: 'Expense updated successfully',

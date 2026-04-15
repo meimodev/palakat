@@ -77,6 +77,8 @@ export class ActivitiesService {
     eventName: 'activity.created' | 'activity.updated' | 'activity.deleted';
     activityId: number;
     churchId: number;
+    activityTitle?: string | null;
+    changeSource?: 'activity' | 'approval';
     supervisorId?: number | null;
     approverMembershipIds?: Array<number | null | undefined>;
     updatedAt?: unknown;
@@ -86,6 +88,8 @@ export class ActivitiesService {
         eventName: params.eventName,
         activityId: params.activityId,
         churchId: params.churchId,
+        activityTitle: params.activityTitle,
+        changeSource: params.changeSource,
         affectedMembershipIds: [
           params.supervisorId,
           ...(params.approverMembershipIds ?? []),
@@ -171,6 +175,36 @@ export class ActivitiesService {
     });
 
     return membershipIds;
+  }
+
+  private emitApprovalRequiredEvent(params: {
+    entityType: 'ACTIVITY' | 'REVENUE' | 'EXPENSE';
+    entityId: number;
+    churchId: number;
+    affectedMembershipIds: Array<number | null | undefined>;
+    entityTitle?: string | null;
+    updatedAt?: unknown;
+  }): void {
+    const affectedMembershipIds = (params.affectedMembershipIds ?? []).filter(
+      (membershipId): membershipId is number =>
+        typeof membershipId === 'number',
+    );
+
+    if (affectedMembershipIds.length === 0) {
+      return;
+    }
+
+    this.realtime.emitApprovalLifecycleEvent({
+      eventName: 'approval.required',
+      entityType: params.entityType,
+      entityId: params.entityId,
+      entityTitle: params.entityTitle ?? null,
+      churchId: params.churchId,
+      resultingStatus: 'UNCONFIRMED',
+      isOverride: false,
+      affectedMembershipIds,
+      updatedAt: params.updatedAt,
+    });
   }
 
   async findAll(query: ActivityListQueryDto, user?: any) {
@@ -937,10 +971,23 @@ export class ActivitiesService {
         eventName: 'activity.created',
         activityId: activity.fullActivity.id,
         churchId: membership.churchId,
+        activityTitle: activity.fullActivity.title ?? null,
+        changeSource: 'activity',
         supervisorId: activity.fullActivity.supervisorId,
         approverMembershipIds: activity.fullActivity.approvers?.map(
           (approver: any) => approver.membershipId,
         ),
+        updatedAt: activity.fullActivity.updatedAt,
+      });
+
+      this.emitApprovalRequiredEvent({
+        entityType: 'ACTIVITY',
+        entityId: activity.fullActivity.id,
+        churchId: membership.churchId,
+        affectedMembershipIds: activity.fullActivity.approvers?.map(
+          (approver: any) => approver.membershipId,
+        ),
+        entityTitle: activity.fullActivity.title ?? null,
         updatedAt: activity.fullActivity.updatedAt,
       });
 
@@ -952,6 +999,19 @@ export class ActivitiesService {
           churchId: membership.churchId,
           activityId: activity.fullActivity.id,
           affectedMembershipIds: financeRealtimeEvent.affectedMembershipIds,
+          updatedAt: activity.fullActivity.updatedAt,
+        });
+
+        this.emitApprovalRequiredEvent({
+          entityType: financeRealtimeEvent.financeType,
+          entityId: financeRealtimeEvent.financeId,
+          churchId: membership.churchId,
+          affectedMembershipIds: financeRealtimeEvent.affectedMembershipIds,
+          entityTitle:
+            activity.fullActivity.title ??
+            (financeRealtimeEvent.financeType === 'REVENUE'
+              ? 'Revenue approval'
+              : 'Expense approval'),
           updatedAt: activity.fullActivity.updatedAt,
         });
       }
@@ -1232,6 +1292,8 @@ export class ActivitiesService {
         eventName: 'activity.updated',
         activityId: activity.id,
         churchId: activity.supervisor.churchId,
+        activityTitle: activity.title ?? null,
+        changeSource: 'activity',
         supervisorId: activity.supervisorId,
         approverMembershipIds: activity.approvers?.map(
           (approver: any) => approver.membershipId,

@@ -19,6 +19,29 @@ export class FinanceService {
     private realtime: RealtimeEmitterService,
   ) {}
 
+  private async resolveActorName(user?: {
+    userId?: number;
+    name?: string | null;
+  }): Promise<string | null> {
+    const explicitName = user?.name?.trim();
+    if (explicitName) {
+      return explicitName;
+    }
+
+    if (typeof user?.userId !== 'number') {
+      return null;
+    }
+
+    const account = await this.prisma.account.findUnique({
+      where: { id: user.userId },
+      select: { name: true },
+    });
+
+    return typeof account?.name === 'string' && account.name.trim().length > 0
+      ? account.name.trim()
+      : null;
+  }
+
   private normalizeFinanceDate(value?: Date | string): Date | undefined {
     if (value == null) return undefined;
 
@@ -162,8 +185,60 @@ export class FinanceService {
     };
   }
 
+  private getFinanceApprovalEntityTitle(
+    finance: any,
+    entityType: 'REVENUE' | 'EXPENSE',
+  ): string {
+    const activityTitle = finance?.activity?.title?.toString().trim();
+    if (activityTitle) {
+      return activityTitle;
+    }
+
+    return entityType === 'REVENUE' ? 'Revenue approval' : 'Expense approval';
+  }
+
+  private emitFinanceApprovalLifecycleEvent(params: {
+    eventName:
+      | 'approval.approved'
+      | 'approval.rejected'
+      | 'approval.override.approved'
+      | 'approval.override.rejected';
+    entityType: 'REVENUE' | 'EXPENSE';
+    finance: any;
+    approver: any;
+    actorName?: string | null;
+    resultingStatus: ApprovalStatus;
+    isOverride: boolean;
+  }) {
+    this.realtime.emitApprovalLifecycleEvent({
+      eventName: params.eventName,
+      entityType: params.entityType,
+      entityId: params.finance.id,
+      entityTitle: this.getFinanceApprovalEntityTitle(
+        params.finance,
+        params.entityType,
+      ),
+      churchId: params.finance.churchId,
+      actorName:
+        params.actorName ?? params.approver.membership?.account?.name ?? null,
+      resultingStatus: params.resultingStatus,
+      isOverride: params.isOverride,
+      affectedMembershipIds: (params.finance.approvers ?? []).map(
+        (item: any) => item.membershipId,
+      ),
+      updatedAt: params.finance.updatedAt,
+    });
+  }
+
   private buildFinanceWhere(query: FinanceListQueryDto, churchId: number) {
-    const { search, paymentMethod, startDate, endDate, membershipId } = query;
+    const {
+      search,
+      paymentMethod,
+      startDate,
+      endDate,
+      membershipId,
+      standalone,
+    } = query;
     const normalizedStartDate = this.normalizeFinanceDate(startDate);
     const normalizedEndDate = this.normalizeFinanceDate(endDate);
 
@@ -200,6 +275,10 @@ export class FinanceService {
           membershipId,
         },
       };
+    }
+
+    if (standalone === true) {
+      where.activityId = null;
     }
 
     return where;
@@ -431,6 +510,12 @@ export class FinanceService {
         throw new ForbiddenException('You cannot update this approver');
       }
 
+      if (currentApprover.status !== ApprovalStatus.UNCONFIRMED) {
+        throw new BadRequestException(
+          'Approver decision has already been submitted',
+        );
+      }
+
       const approver = await (this.prisma as any).revenueApprover.update({
         where: { id: params.approverId },
         data: { status: params.status },
@@ -466,6 +551,18 @@ export class FinanceService {
         updatedAt: approver.revenue.updatedAt,
       });
 
+      this.emitFinanceApprovalLifecycleEvent({
+        eventName:
+          params.status === ApprovalStatus.APPROVED
+            ? 'approval.approved'
+            : 'approval.rejected',
+        entityType: 'REVENUE',
+        finance: approver.revenue,
+        approver,
+        resultingStatus: params.status,
+        isOverride: false,
+      });
+
       return {
         message: 'Finance approver updated successfully',
         data: approver,
@@ -496,6 +593,12 @@ export class FinanceService {
 
     if (currentApprover.membershipId !== requesterMembershipId) {
       throw new ForbiddenException('You cannot update this approver');
+    }
+
+    if (currentApprover.status !== ApprovalStatus.UNCONFIRMED) {
+      throw new BadRequestException(
+        'Approver decision has already been submitted',
+      );
     }
 
     const approver = await (this.prisma as any).expenseApprover.update({
@@ -533,8 +636,165 @@ export class FinanceService {
       updatedAt: approver.expense.updatedAt,
     });
 
+    this.emitFinanceApprovalLifecycleEvent({
+      eventName:
+        params.status === ApprovalStatus.APPROVED
+          ? 'approval.approved'
+          : 'approval.rejected',
+      entityType: 'EXPENSE',
+      finance: approver.expense,
+      approver,
+      resultingStatus: params.status,
+      isOverride: false,
+    });
+
     return {
       message: 'Finance approver updated successfully',
+      data: approver,
+    };
+  }
+
+  /**
+   * Admin override: skips the self-only check; forces a specific status on any
+   * finance approver within the same church. Only callable from admin-app RPC actions.
+   */
+  async adminOverrideApprover(
+    params: {
+      financeType: FinanceEntryType | 'REVENUE' | 'EXPENSE';
+      approverId: number;
+      status: ApprovalStatus;
+      overrideNote?: string;
+    },
+    user?: any,
+  ) {
+    const churchId = await this.resolveRequesterChurchId(user);
+    const isRevenueType = `${params.financeType}` === FinanceEntryType.REVENUE;
+    const actorName = await this.resolveActorName(user);
+
+    if (isRevenueType) {
+      const currentApprover = await (
+        this.prisma as any
+      ).revenueApprover.findUnique({
+        where: { id: params.approverId },
+        include: {
+          revenue: { select: { id: true, churchId: true } },
+        },
+      });
+
+      if (!currentApprover?.revenue) {
+        throw new NotFoundException('Finance approver not found');
+      }
+      if (currentApprover.revenue.churchId !== churchId) {
+        throw new BadRequestException('Invalid church scope');
+      }
+
+      const approver = await (this.prisma as any).revenueApprover.update({
+        where: { id: params.approverId },
+        data: { status: params.status },
+        include: {
+          revenue: { include: this.buildRevenueInclude() },
+          membership: {
+            include: {
+              account: {
+                select: { id: true, name: true, phone: true, dob: true },
+              },
+            },
+          },
+        },
+      });
+
+      this.realtime.emitFinanceEvent({
+        eventName: 'finance.updated',
+        financeId: approver.revenue.id,
+        financeType: 'REVENUE',
+        churchId: approver.revenue.churchId,
+        activityId:
+          approver.revenue.activityId ?? approver.revenue.activity?.id ?? null,
+        affectedMembershipIds: (approver.revenue.approvers ?? []).map(
+          (item: any) => item.membershipId,
+        ),
+        updatedAt: approver.revenue.updatedAt,
+      });
+
+      this.emitFinanceApprovalLifecycleEvent({
+        eventName:
+          params.status === ApprovalStatus.APPROVED
+            ? 'approval.override.approved'
+            : 'approval.override.rejected',
+        entityType: 'REVENUE',
+        finance: approver.revenue,
+        approver,
+        actorName,
+        resultingStatus: params.status,
+        isOverride: true,
+      });
+
+      return {
+        message: 'Finance approver override applied successfully',
+        data: approver,
+      };
+    }
+
+    // EXPENSE branch
+    const currentApprover = await (
+      this.prisma as any
+    ).expenseApprover.findUnique({
+      where: { id: params.approverId },
+      include: {
+        expense: { select: { id: true, churchId: true } },
+      },
+    });
+
+    if (!currentApprover?.expense) {
+      throw new NotFoundException('Finance approver not found');
+    }
+    if (currentApprover.expense.churchId !== churchId) {
+      throw new BadRequestException('Invalid church scope');
+    }
+
+    const approver = await (this.prisma as any).expenseApprover.update({
+      where: { id: params.approverId },
+      data: { status: params.status },
+      include: {
+        expense: { include: this.buildExpenseInclude() },
+        membership: {
+          include: {
+            account: {
+              select: { id: true, name: true, phone: true, dob: true },
+            },
+          },
+        },
+      },
+    });
+
+    this.realtime.emitFinanceEvent({
+      eventName: 'finance.updated',
+      financeId: approver.expense.id,
+      financeType: 'EXPENSE',
+      churchId: approver.expense.churchId,
+      activityId:
+        approver.expense.activityId ?? approver.expense.activity?.id ?? null,
+      affectedMembershipIds: (approver.expense.approvers ?? []).map(
+        (item: any) => item.membershipId,
+      ),
+      updatedAt: approver.expense.updatedAt,
+    });
+
+    this.emitFinanceApprovalLifecycleEvent({
+      eventName:
+        params.status === ApprovalStatus.APPROVED
+          ? 'approval.override.approved'
+          : 'approval.override.rejected',
+      entityType: 'EXPENSE',
+      finance: approver.expense,
+      approver,
+      actorName,
+      resultingStatus: params.status,
+      isOverride: true,
+    });
+
+    return {
+      message: 'Finance approver override applied successfully',
       data: approver,
     };
   }
