@@ -10,10 +10,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 import { MembershipPositionService } from './membership-position.service';
 import { MembershipPositionListQueryDto } from './dto/membership-position-list.dto';
+import {
+  CreateMembershipPositionDto,
+  UpdateMembershipPositionDto,
+} from './dto/membership-position-write.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('membership-position')
@@ -31,14 +34,14 @@ export class MembershipPositionController {
   }
 
   @Post()
-  async create(@Body() dto: Prisma.MembershipPositionCreateInput) {
+  async create(@Body() dto: CreateMembershipPositionDto) {
     return this.service.create(dto);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: Prisma.MembershipPositionUpdateInput,
+    @Body() dto: UpdateMembershipPositionDto,
   ) {
     return this.service.update(id, dto);
   }

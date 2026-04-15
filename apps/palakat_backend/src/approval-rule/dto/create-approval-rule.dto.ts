@@ -1,4 +1,8 @@
-import { ActivityType, Bipra, FinancialType } from '../../generated/prisma/client';
+import {
+  ActivityType,
+  Bipra,
+  FinancialType,
+} from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -8,15 +12,7 @@ import {
   IsOptional,
   IsString,
   Min,
-  ValidateNested,
 } from 'class-validator';
-
-class ApprovalRulePositionDto {
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  id: number;
-}
 
 export class CreateApprovalRuleDto {
   @IsString()
@@ -51,10 +47,4 @@ export class CreateApprovalRuleDto {
   @IsArray()
   @IsInt({ each: true })
   positionIds?: number[];
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ApprovalRulePositionDto)
-  positions?: ApprovalRulePositionDto[];
 }

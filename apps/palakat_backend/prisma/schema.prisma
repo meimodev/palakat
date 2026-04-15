@@ -94,6 +94,10 @@ model Membership {
   approvers            Approver[]
   revenueApprovers     RevenueApprover[]
   expenseApprovers     ExpenseApprover[]
+  // Override relations — for admin override audit trail
+  activityOverrides    Activity[]           @relation("ActivityOverrideMembership")
+  revenueOverrides     Revenue[]            @relation("RevenueOverrideMembership")
+  expenseOverrides     Expense[]            @relation("ExpenseOverrideMembership")
   account              Account              @relation(fields: [accountId], references: [id])
   church               Church?              @relation(fields: [churchId], references: [id], onDelete: SetNull)
   column               Column?              @relation(fields: [columnId], references: [id], onDelete: SetNull)
@@ -103,16 +107,15 @@ model Membership {
 }
 
 model MembershipPosition {
-  id             Int           @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   name           String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   membershipId   Int?
-  membership     Membership?   @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  membership     Membership?    @relation(fields: [membershipId], references: [id], onDelete: SetNull)
   churchId       Int?
-  church         Church?       @relation(fields: [churchId], references: [id], onDelete: SetNull)
-  approvalRuleId Int?
-  approvalRule   ApprovalRule? @relation(fields: [approvalRuleId], references: [id], onDelete: SetNull)
+  church         Church?        @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  approvalRules  ApprovalRule[]
 
   @@unique([churchId, name])
 }
@@ -185,6 +188,13 @@ model Activity {
   reminder      Reminder?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  // Override metadata — set by church admin, supersedes approver aggregation
+  overrideStatus       ApprovalOverrideStatus?
+  overrideMembershipId Int?
+  overrideMembership   Membership?   @relation("ActivityOverrideMembership", fields: [overrideMembershipId], references: [id], onDelete: SetNull)
+  overrideNote         String?
+  overriddenAt         DateTime?
+  isOverridden         Boolean       @default(false)
   supervisor    Membership     @relation("SupervisorActivities", fields: [supervisorId], references: [id], onDelete: Cascade)
   column        Column?        @relation(fields: [columnId], references: [id], onDelete: SetNull)
   approvers     Approver[]
@@ -201,6 +211,7 @@ model Activity {
   @@index([columnId])
   @@index([activityType])
   @@index([bipra])
+  @@index([isOverridden])
 }
 
 model Revenue {
@@ -215,11 +226,19 @@ model Revenue {
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
   approvers                RevenueApprover[]
+  // Override metadata — set by church admin, supersedes approver aggregation
+  overrideStatus       ApprovalOverrideStatus?
+  overrideMembershipId Int?
+  overrideMembership   Membership?   @relation("RevenueOverrideMembership", fields: [overrideMembershipId], references: [id], onDelete: SetNull)
+  overrideNote         String?
+  overriddenAt         DateTime?
+  isOverridden         Boolean       @default(false)
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
 
   @@index([activityId])
   @@index([financialAccountNumberId])
+  @@index([isOverridden])
 }
 
 model Expense {
@@ -234,11 +253,19 @@ model Expense {
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
   approvers                ExpenseApprover[]
+  // Override metadata — set by church admin, supersedes approver aggregation
+  overrideStatus       ApprovalOverrideStatus?
+  overrideMembershipId Int?
+  overrideMembership   Membership?   @relation("ExpenseOverrideMembership", fields: [overrideMembershipId], references: [id], onDelete: SetNull)
+  overrideNote         String?
+  overriddenAt         DateTime?
+  isOverridden         Boolean       @default(false)
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
 
   @@index([activityId])
   @@index([financialAccountNumberId])
+  @@index([isOverridden])
 }
 
 model CashAccount {
@@ -401,6 +428,11 @@ enum Book {
 
 enum ApprovalStatus {
   UNCONFIRMED
+  APPROVED
+  REJECTED
+}
+
+enum ApprovalOverrideStatus {
   APPROVED
   REJECTED
 }

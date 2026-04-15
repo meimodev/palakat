@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { ApprovalRuleListQueryDto } from './dto/approval-rule-list.dto';
@@ -8,6 +8,23 @@ import { UpdateApprovalRuleDto } from './dto/update-approval-rule.dto';
 @Injectable()
 export class ApprovalRuleService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  private async validatePositionsInChurch(
+    positionIds: number[],
+    churchId: number,
+  ): Promise<void> {
+    if (positionIds.length === 0) return;
+    const positions = await this.prismaService.membershipPosition.findMany({
+      where: { id: { in: positionIds } },
+      select: { id: true, churchId: true },
+    });
+    const mismatched = positions.filter((p) => p.churchId !== churchId);
+    if (mismatched.length > 0) {
+      throw new BadRequestException(
+        `MembershipPosition(s) [${mismatched.map((p) => p.id).join(', ')}] do not belong to church ${churchId}`,
+      );
+    }
+  }
 
   async getApprovalRules(query: ApprovalRuleListQueryDto) {
     const {
@@ -115,12 +132,11 @@ export class ApprovalRuleService {
       bipra,
       churchId,
       positionIds,
-      positions,
       financialType,
     } = createApprovalRuleDto;
 
-    const normalizedPositionIds =
-      positionIds ?? (positions ? positions.map((p) => p.id) : undefined);
+    const dedupedPositionIds = positionIds ? [...new Set(positionIds)] : [];
+    await this.validatePositionsInChurch(dedupedPositionIds, churchId);
 
     const data: Prisma.ApprovalRuleCreateInput = {
       name,
@@ -130,10 +146,10 @@ export class ApprovalRuleService {
       ...(bipra !== undefined ? { bipra } : {}),
       ...(financialType !== undefined ? { financialType } : {}),
       church: { connect: { id: churchId } },
-      ...(normalizedPositionIds && normalizedPositionIds.length > 0
+      ...(dedupedPositionIds.length > 0
         ? {
             positions: {
-              connect: normalizedPositionIds.map((id) => ({ id })),
+              connect: dedupedPositionIds.map((id) => ({ id })),
             },
           }
         : {}),
@@ -172,12 +188,28 @@ export class ApprovalRuleService {
       bipra,
       churchId,
       positionIds,
-      positions,
       financialType,
     } = updateApprovalRuleDto;
 
-    const normalizedPositionIds =
-      positionIds ?? (positions ? positions.map((p) => p.id) : undefined);
+    const existing = await this.prismaService.approvalRule.findUniqueOrThrow({
+      where: { id },
+      select: { churchId: true },
+    });
+    const resolvedChurchId = churchId ?? existing.churchId;
+    const churchChanged =
+      churchId !== undefined && churchId !== existing.churchId;
+
+    // When church changes without explicit positionIds, clear stale links
+    const effectivePositionIds =
+      positionIds !== undefined ? positionIds : churchChanged ? [] : undefined;
+
+    if (effectivePositionIds !== undefined) {
+      const dedupedPositionIds = [...new Set(effectivePositionIds)];
+      await this.validatePositionsInChurch(
+        dedupedPositionIds,
+        resolvedChurchId,
+      );
+    }
 
     const data: Prisma.ApprovalRuleUpdateInput = {
       ...(name !== undefined ? { name } : {}),
@@ -189,10 +221,10 @@ export class ApprovalRuleService {
       ...(churchId !== undefined
         ? { church: { connect: { id: churchId } } }
         : {}),
-      ...(normalizedPositionIds !== undefined
+      ...(effectivePositionIds !== undefined
         ? {
             positions: {
-              set: normalizedPositionIds.map((id) => ({ id })),
+              set: [...new Set(effectivePositionIds)].map((id) => ({ id })),
             },
           }
         : {}),
