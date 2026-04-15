@@ -60,6 +60,7 @@ final approvalRouting = GoRoute(
         final approvalTypeName = params['approvalType'] as String?;
         final activityId = params['activityId'] as int?;
         final currentMembershipId = params['currentMembershipId'] as int?;
+        final useGeneralFetch = params['useGeneralFetch'] == true;
         ApprovalSubjectType? approvalType;
         if (approvalTypeName != null) {
           for (final value in ApprovalSubjectType.values) {
@@ -85,6 +86,7 @@ final approvalRouting = GoRoute(
                           ? FinanceEntryType.revenue
                           : FinanceEntryType.expense,
                       currentMembershipId: currentMembershipId,
+                      useGeneralFetch: useGeneralFetch,
                     ))
             : (activityId == null && approvalId == null
                   ? const ApprovalScreen()

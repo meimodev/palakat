@@ -20,11 +20,16 @@ class FinanceApprovalDetailScreen extends ConsumerStatefulWidget {
     required this.financeId,
     required this.financeType,
     this.currentMembershipId,
+    this.useGeneralFetch = false,
   });
 
   final int financeId;
   final FinanceEntryType financeType;
   final int? currentMembershipId;
+
+  /// When true, fetches via finance.get (accessible to all ops users).
+  /// When false (default), fetches via finance.approval.get (membership-restricted).
+  final bool useGeneralFetch;
 
   @override
   ConsumerState<FinanceApprovalDetailScreen> createState() =>
@@ -53,10 +58,15 @@ class _FinanceApprovalDetailScreenState
       _errorMessage = null;
     });
 
-    final result = await _financeRepository.fetchApprovalFinanceEntry(
-      financeId: widget.financeId,
-      type: widget.financeType,
-    );
+    final result = widget.useGeneralFetch
+        ? await _financeRepository.fetchFinanceEntry(
+            financeId: widget.financeId,
+            type: widget.financeType,
+          )
+        : await _financeRepository.fetchApprovalFinanceEntry(
+            financeId: widget.financeId,
+            type: widget.financeType,
+          );
 
     result.when(
       onSuccess: (entry) {

@@ -132,12 +132,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
         backgroundColor: AppColors.surface,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              20.0,
-              12.0,
-              20.0,
-              20.0,
-            ),
+            padding: EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -152,9 +147,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.warning.shade100,
                         borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                          color: AppColors.warning.shade200,
-                        ),
+                        border: Border.all(color: AppColors.warning.shade200),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -167,10 +160,11 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                           Gap.w10,
                           Text(
                             l10n.activityAlarm_ringing,
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: AppColors.warning.shade800,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(
+                                  color: AppColors.warning.shade800,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ],
                       ),
@@ -189,7 +183,9 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.surfaceContainerLowest.withValues(alpha: 0.1),
+                            color: AppColors.surfaceContainerLowest.withValues(
+                              alpha: 0.1,
+                            ),
                             border: Border.all(
                               color: AppColors.surfaceContainerLowest,
                             ),
@@ -207,12 +203,13 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         child: Text(
                           timeText,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                            color: AppColors.surfaceContainerLowest,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 72,
-                            letterSpacing: -2,
-                          ),
+                          style: Theme.of(context).textTheme.headlineLarge!
+                              .copyWith(
+                                color: AppColors.surfaceContainerLowest,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 72,
+                                letterSpacing: -2,
+                              ),
                         ),
                       ),
                       Gap.h8,
@@ -221,11 +218,12 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         child: Text(
                           dayText,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: AppColors.surfaceContainerLowest,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge!
+                              .copyWith(
+                                color: AppColors.surfaceContainerLowest,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
                         ),
                       ),
                       Gap.h24,
@@ -236,9 +234,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                           padding: EdgeInsets.all(18.0),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceContainerLowest,
-                            borderRadius: BorderRadius.circular(
-                              16.0,
-                            ),
+                            borderRadius: BorderRadius.circular(16.0),
                             border: Border.all(
                               color: AppColors.ghostBorder(0.08),
                             ),
@@ -248,18 +244,22 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                             children: [
                               Text(
                                 l10n.lbl_activity,
-                                style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                                  color: AppColors.onSurfaceVariant,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: Theme.of(context).textTheme.labelLarge!
+                                    .copyWith(
+                                      color: AppColors.onSurfaceVariant,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                               Gap.h8,
                               Text(
                                 title,
-                                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                  color: AppColors.onSurface,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      color: AppColors.onSurface,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                               ),
                               if (reminderText != null &&
                                   reminderText.trim().isNotEmpty) ...[
@@ -270,17 +270,20 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                                     vertical: 8.0,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.warning.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(
-                                      16.0,
+                                    color: AppColors.warning.withValues(
+                                      alpha: 0.08,
                                     ),
+                                    borderRadius: BorderRadius.circular(16.0),
                                   ),
                                   child: Text(
                                     reminderText,
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      color: AppColors.warning,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: AppColors.warning,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -288,7 +291,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                           ),
                         ),
                       ),
-                      Gap.h20,
+                      Gap.h16,
                       ActivityAlarmAnimatedPresence(
                         visible: _starting,
                         child: CompactLoadingWidget(
@@ -296,9 +299,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                           size: 18.0,
                           baseColor: AppColors.warning.withValues(alpha: 0.24),
                           highlightColor: AppColors.surfaceContainerLowest,
-                          backgroundColor: AppColors.onSurface.withValues(alpha: 0.24),
-                          borderColor: AppColors.surfaceContainerLowest.withValues(
-                            alpha: 0.18,
+                          backgroundColor: AppColors.onSurface.withValues(
+                            alpha: 0.24,
+                          ),
+                          borderColor: AppColors.surfaceContainerLowest
+                              .withValues(alpha: 0.18),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                            vertical: 6.0,
                           ),
                         ),
                       ),
@@ -313,9 +321,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                       backgroundColor: AppColors.error,
                       foregroundColor: AppColors.surfaceContainerLowest,
                       elevation: 0,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
@@ -335,12 +341,8 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                   child: OutlinedButton(
                     onPressed: _openActivity,
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16,
-                      ),
-                      side: BorderSide(
-                        color: AppColors.surfaceContainerLowest,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: AppColors.surfaceContainerLowest),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
