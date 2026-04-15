@@ -45,6 +45,8 @@ class OperationsController extends _$OperationsController {
   ActivityRepository get _activityRepository =>
       ref.read(activityRepositoryProvider);
   ReportRepository get _reportRepository => ref.read(reportRepositoryProvider);
+  FinanceRepository get _financeRepository =>
+      ref.read(financeRepositoryProvider);
 
   @override
   OperationsState build() {
@@ -62,6 +64,12 @@ class OperationsController extends _$OperationsController {
         Future.microtask(() => fetchReportData());
       }
 
+      if (e.name == 'finance.created' ||
+          e.name == 'finance.updated' ||
+          e.name == 'finance.deleted') {
+        Future.microtask(() => fetchRecentFinanceEntries());
+      }
+
       if (e.name == 'permissions.updated') {
         Future.microtask(() => fetchMembership());
       }
@@ -74,6 +82,7 @@ class OperationsController extends _$OperationsController {
     await fetchMembership();
     await fetchSupervisedActivities();
     await fetchReportData();
+    await fetchRecentFinanceEntries();
   }
 
   /// Fetches both recent reports and pending report jobs.
@@ -123,6 +132,7 @@ class OperationsController extends _$OperationsController {
       accountName: account?.name,
       categories: categoriesWithExpansion,
       categoryExpansionState: expansionState,
+      permissions: permissions,
       loadingScreen: false,
     );
   }
@@ -247,6 +257,73 @@ class OperationsController extends _$OperationsController {
       pendingReportJobs: allPendingJobs,
       loadingPendingReportJobs: false,
       pendingReportJobsError: errorMessage,
+    );
+  }
+
+  /// Marks a finance entry as having an approval action in-flight.
+  void markFinanceActionPending(int entryId) {
+    state = state.copyWith(
+      pendingFinanceActionIds: {...state.pendingFinanceActionIds, entryId},
+    );
+  }
+
+  /// Clears the in-flight approval action mark for a finance entry.
+  void clearFinanceActionPending(int entryId) {
+    state = state.copyWith(
+      pendingFinanceActionIds: state.pendingFinanceActionIds
+          .where((id) => id != entryId)
+          .toSet(),
+    );
+  }
+
+  /// Fetches up to 10 recent standalone finance entries (activityId == null).
+  /// Allows both creators and approvers to view (backend handles permission check).
+  Future<void> fetchRecentFinanceEntries() async {
+    // Gate: only fetch if user has finance visibility (create OR approval permission)
+    final hasFinanceVisibility =
+        state.permissions.contains('ops.finance.revenue.create') ||
+        state.permissions.contains('ops.finance.expense.create') ||
+        state.permissions.contains('ops.approval.finance');
+    if (!hasFinanceVisibility) {
+      state = state.copyWith(
+        loadingRecentFinanceEntries: false,
+        recentFinanceEntriesError: null,
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      loadingRecentFinanceEntries: true,
+      recentFinanceEntriesError: null,
+    );
+
+    final request = PaginationRequestWrapper(
+      page: 1,
+      pageSize: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      data: GetFetchFinanceEntriesRequest(standalone: true),
+    );
+
+    // Use general fetch; backend now allows both creators and approvers
+    final result = await _financeRepository.fetchFinanceEntries(
+      paginationRequest: request,
+    );
+
+    result.when(
+      onSuccess: (response) {
+        state = state.copyWith(
+          recentFinanceEntries: response.data,
+          loadingRecentFinanceEntries: false,
+          recentFinanceEntriesError: null,
+        );
+      },
+      onFailure: (failure) {
+        state = state.copyWith(
+          loadingRecentFinanceEntries: false,
+          recentFinanceEntriesError: failure.message,
+        );
+      },
     );
   }
 

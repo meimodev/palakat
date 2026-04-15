@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:palakat/core/constants/constants.dart';
 import 'package:palakat/features/operations/data/operation_models.dart';
 import 'package:palakat/features/operations/presentations/widgets/operation_item_card_widget.dart';
+import 'package:palakat/features/operations/presentations/widgets/recent_finance_entries_section_widget.dart';
 import 'package:palakat/features/operations/presentations/widgets/recent_reports_section_widget.dart';
 import 'package:palakat/features/operations/presentations/widgets/responsive_operation_grid_widget.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
+import 'package:palakat_shared/core/models/finance_entry.dart';
 import 'package:palakat_shared/core/models/report.dart';
 import 'package:palakat_shared/core/models/report_job.dart';
 
@@ -28,6 +30,14 @@ class OperationCategoryCard extends StatelessWidget {
     this.isLoadingPendingReportJobs = false,
     this.downloadedReportIds = const <int>{},
     this.downloadingReportIds = const <int>{},
+    this.recentFinanceEntries,
+    this.isLoadingRecentFinanceEntries = false,
+    this.recentFinanceEntriesError,
+    this.onRecentFinanceEntriesRetry,
+    this.currentMembershipId,
+    this.onFinanceEntryTap,
+    this.pendingFinanceActionIds = const <int>{},
+    this.onFinanceApprovalAction,
   });
 
   /// The category data to display
@@ -66,6 +76,31 @@ class OperationCategoryCard extends StatelessWidget {
   final Set<int> downloadedReportIds;
 
   final Set<int> downloadingReportIds;
+
+  /// Recent standalone finance entries for the Financial category (optional)
+  final List<FinanceEntry>? recentFinanceEntries;
+
+  /// Loading state for recent finance entries
+  final bool isLoadingRecentFinanceEntries;
+
+  /// Error message for recent finance entries
+  final String? recentFinanceEntriesError;
+
+  /// Callback when retry button is tapped for recent finance entries
+  final VoidCallback? onRecentFinanceEntriesRetry;
+
+  /// Current user's membership ID for determining approver status
+  final int? currentMembershipId;
+
+  /// Callback when a finance entry item is tapped
+  final ValueChanged<FinanceEntry>? onFinanceEntryTap;
+
+  /// Set of finance entry IDs with an approval action currently in-flight
+  final Set<int> pendingFinanceActionIds;
+
+  /// Callback when approve/reject is tapped inline on a finance entry
+  final void Function(FinanceEntry, int, ApprovalStatus)?
+  onFinanceApprovalAction;
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +212,35 @@ class OperationCategoryCard extends StatelessWidget {
             ),
           );
         },
+      );
+    }
+
+    if (category.id == 'financial') {
+      return Padding(
+        padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ResponsiveOperationGrid(
+              operations: operations,
+              onOperationTap: onOperationTap,
+            ),
+            if (recentFinanceEntries != null ||
+                isLoadingRecentFinanceEntries ||
+                recentFinanceEntriesError != null)
+              RecentFinanceEntriesSection(
+                entries: recentFinanceEntries ?? [],
+                isLoading: isLoadingRecentFinanceEntries,
+                error: recentFinanceEntriesError,
+                onRetry: () => onRecentFinanceEntriesRetry?.call(),
+                currentMembershipId: currentMembershipId,
+                onEntryTap: (entry) => onFinanceEntryTap?.call(entry),
+                pendingFinanceActionIds: pendingFinanceActionIds,
+                onApprovalAction: (entry, approverId, status) =>
+                    onFinanceApprovalAction?.call(entry, approverId, status),
+              ),
+          ],
+        ),
       );
     }
 

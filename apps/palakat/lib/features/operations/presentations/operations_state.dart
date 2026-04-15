@@ -60,5 +60,21 @@ abstract class OperationsState with _$OperationsState {
 
     /// Error message for pending report jobs fetch
     String? pendingReportJobsError,
+
+    /// Up to 10 recent standalone finance entries (activityId == null)
+    @Default([]) List<FinanceEntry> recentFinanceEntries,
+
+    /// Loading state for recent finance entries section
+    @Default(false) bool loadingRecentFinanceEntries,
+
+    /// Error message for recent finance entries fetch
+    String? recentFinanceEntriesError,
+
+    /// Set of finance entry IDs that have an approval action currently in-flight.
+    /// Buttons are disabled for any entry whose ID is in this set.
+    @Default(<int>{}) Set<int> pendingFinanceActionIds,
+
+    /// User's effective permissions for gating finance visibility.
+    @Default(<String>{}) Set<String> permissions,
   }) = _OperationsState;
 }

@@ -14,6 +14,8 @@ import 'package:palakat_shared/core/models/models.dart' hide Column;
 import 'package:palakat_shared/core/models/report_job.dart';
 import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/repositories/repositories.dart';
+import 'package:palakat/features/approval/presentations/widgets/approval_confirmation_bottom_sheet.dart';
+import 'package:palakat/features/approval/presentations/approval_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Operations screen displaying user's positions and available operations.
@@ -81,8 +83,7 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
                   state.errorMessage != null && state.loadingScreen == false,
               errorMessage: state.errorMessage,
               onRetry: () => controller.fetchData(),
-              shimmerPlaceholder:
-                  ShimmerPlaceholders.operationsOverview(),
+              shimmerPlaceholder: ShimmerPlaceholders.operationsOverview(),
               child: _buildContent(context, ref, state, controller),
             ),
           ],
@@ -162,6 +163,24 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
           isLoadingPendingReportJobs: state.loadingPendingReportJobs,
           downloadedReportIds: _cachedReportIds,
           downloadingReportIds: _downloadingReportIds,
+          recentFinanceEntries: state.recentFinanceEntries,
+          isLoadingRecentFinanceEntries: state.loadingRecentFinanceEntries,
+          recentFinanceEntriesError: state.recentFinanceEntriesError,
+          onRecentFinanceEntriesRetry: () =>
+              controller.fetchRecentFinanceEntries(),
+          currentMembershipId: state.membership?.id,
+          onFinanceEntryTap: (entry) =>
+              _handleFinanceEntryTap(context, entry, state.membership?.id),
+          pendingFinanceActionIds: state.pendingFinanceActionIds,
+          onFinanceApprovalAction: (entry, approverId, status) =>
+              _handleFinanceApprovalAction(
+                context,
+                ref,
+                controller,
+                entry,
+                approverId,
+                status,
+              ),
         ),
       ],
     );
@@ -406,6 +425,90 @@ class _OperationsScreenState extends ConsumerState<OperationsScreen> {
     }
   }
 
+  void _handleFinanceEntryTap(
+    BuildContext context,
+    FinanceEntry entry,
+    int? currentMembershipId,
+  ) {
+    // Navigate to finance detail using general fetch (backend allows both
+    // creators with ops.finance.*.create AND approvers with ops.approval.finance)
+    context.pushNamed(
+      AppRoute.approvalDetail,
+      extra: RouteParam(
+        params: {
+          'approvalId': entry.id,
+          'approvalType': entry.type == FinanceEntryType.revenue
+              ? ApprovalSubjectType.revenue.name
+              : ApprovalSubjectType.expense.name,
+          'currentMembershipId': currentMembershipId,
+          'useGeneralFetch': true,
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleFinanceApprovalAction(
+    BuildContext context,
+    WidgetRef ref,
+    OperationsController controller,
+    FinanceEntry entry,
+    int approverId,
+    ApprovalStatus status,
+  ) async {
+    final entryId = entry.id;
+    if (entryId == null) return;
+
+    final currentPending = ref
+        .read(operationsControllerProvider)
+        .pendingFinanceActionIds;
+    if (currentPending.contains(entryId)) return;
+
+    final l10n = context.l10n;
+    final isApprove = status == ApprovalStatus.approved;
+    final title = entry.accountNumber.isNotEmpty
+        ? entry.accountNumber
+        : (entry.type == FinanceEntryType.revenue
+              ? l10n.lbl_revenue
+              : l10n.lbl_expense);
+
+    final confirmed = await showApprovalConfirmationBottomSheet(
+      context: context,
+      isApprove: isApprove,
+      activityTitle: title,
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    controller.markFinanceActionPending(entryId);
+
+    final result = await ref
+        .read(financeRepositoryProvider)
+        .updateFinanceApprover(
+          approverId: approverId,
+          type: entry.type,
+          status: status,
+        );
+
+    if (!context.mounted) return;
+
+    controller.clearFinanceActionPending(entryId);
+
+    result.when(
+      onSuccess: (_) {
+        controller.fetchRecentFinanceEntries();
+      },
+      onFailure: (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(failure.message),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _handleReportView(
     BuildContext context,
     WidgetRef ref,
@@ -532,6 +635,14 @@ class _OperationCategoryList extends StatelessWidget {
     this.isLoadingPendingReportJobs = false,
     this.downloadedReportIds = const <int>{},
     this.downloadingReportIds = const <int>{},
+    this.recentFinanceEntries,
+    this.isLoadingRecentFinanceEntries = false,
+    this.recentFinanceEntriesError,
+    this.onRecentFinanceEntriesRetry,
+    this.currentMembershipId,
+    this.onFinanceEntryTap,
+    this.pendingFinanceActionIds = const <int>{},
+    this.onFinanceApprovalAction,
   });
 
   final List<OperationCategory> categories;
@@ -547,6 +658,15 @@ class _OperationCategoryList extends StatelessWidget {
   final bool isLoadingPendingReportJobs;
   final Set<int> downloadedReportIds;
   final Set<int> downloadingReportIds;
+  final List<FinanceEntry>? recentFinanceEntries;
+  final bool isLoadingRecentFinanceEntries;
+  final String? recentFinanceEntriesError;
+  final VoidCallback? onRecentFinanceEntriesRetry;
+  final int? currentMembershipId;
+  final ValueChanged<FinanceEntry>? onFinanceEntryTap;
+  final Set<int> pendingFinanceActionIds;
+  final void Function(FinanceEntry, int, ApprovalStatus)?
+  onFinanceApprovalAction;
 
   @override
   Widget build(BuildContext context) {
@@ -559,6 +679,7 @@ class _OperationCategoryList extends StatelessWidget {
       itemBuilder: (context, index) {
         final category = categories[index];
         final isReportsCategory = category.id == 'reports';
+        final isFinancialCategory = category.id == 'financial';
         return OperationsReveal(
           key: ValueKey('operations-category-${category.id}'),
           delay: Duration(milliseconds: 70 + (index * 40)),
@@ -588,6 +709,28 @@ class _OperationCategoryList extends StatelessWidget {
             downloadingReportIds: isReportsCategory
                 ? downloadingReportIds
                 : const <int>{},
+            recentFinanceEntries: isFinancialCategory
+                ? recentFinanceEntries
+                : null,
+            isLoadingRecentFinanceEntries: isFinancialCategory
+                ? isLoadingRecentFinanceEntries
+                : false,
+            recentFinanceEntriesError: isFinancialCategory
+                ? recentFinanceEntriesError
+                : null,
+            onRecentFinanceEntriesRetry: isFinancialCategory
+                ? onRecentFinanceEntriesRetry
+                : null,
+            currentMembershipId: isFinancialCategory
+                ? currentMembershipId
+                : null,
+            onFinanceEntryTap: isFinancialCategory ? onFinanceEntryTap : null,
+            pendingFinanceActionIds: isFinancialCategory
+                ? pendingFinanceActionIds
+                : const <int>{},
+            onFinanceApprovalAction: isFinancialCategory
+                ? onFinanceApprovalAction
+                : null,
           ),
         );
       },
