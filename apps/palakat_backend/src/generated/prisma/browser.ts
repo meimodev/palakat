@@ -103,16 +103,6 @@ export type RevenueApprover = Prisma.RevenueApproverModel
  */
 export type ExpenseApprover = Prisma.ExpenseApproverModel
 /**
- * Model Song
- * 
- */
-export type Song = Prisma.SongModel
-/**
- * Model SongPart
- * 
- */
-export type SongPart = Prisma.SongPartModel
-/**
  * Model FileManager
  * 
  */

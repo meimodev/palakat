@@ -26,8 +26,6 @@ import { NotificationModule } from './notification/notification.module';
 import { PrismaModule } from './prisma.module';
 import { ReportModule } from './report/report.module';
 import { RevenueModule } from './revenue/revenue.module';
-import { SongPartModule } from './song-part/song-part.module';
-import { SongModule } from './song/song.module';
 import { FinanceModule } from './finance/finance.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { VerifyModule } from './verify/verify.module';
@@ -57,9 +55,7 @@ const envFilePath = process.env.DOTENV_CONFIG_PATH?.trim();
     ApproverModule,
     ChurchModule,
     ChurchPermissionPolicyModule,
-    SongModule,
     ColumnModule,
-    SongPartModule,
     MembershipPositionModule,
     LocationModule,
     RevenueModule,

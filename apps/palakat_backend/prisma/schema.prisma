@@ -369,31 +369,6 @@ model ExpenseApprover {
   @@index([status])
 }
 
-model Song {
-  id        Int        @id @default(autoincrement())
-  title     String
-  index     Int
-  book      Book
-  link      String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  parts     SongPart[]
-
-  @@unique([book, index])
-}
-
-model SongPart {
-  id      Int    @id @default(autoincrement())
-  index   Int
-  name    String
-  content String
-  songId  Int
-  song    Song   @relation(fields: [songId], references: [id])
-
-  @@unique([songId, index])
-  @@index([songId])
-}
-
 enum Gender {
   MALE
   FEMALE
@@ -417,13 +392,6 @@ enum ActivityType {
   SERVICE
   EVENT
   ANNOUNCEMENT
-}
-
-enum Book {
-  NKB
-  NNBT
-  KJ
-  DSL
 }
 
 enum ApprovalStatus {

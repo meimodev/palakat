@@ -401,8 +401,6 @@ export const ModelName = {
   Approver: 'Approver',
   RevenueApprover: 'RevenueApprover',
   ExpenseApprover: 'ExpenseApprover',
-  Song: 'Song',
-  SongPart: 'SongPart',
   FileManager: 'FileManager',
   Report: 'Report',
   Document: 'Document',
@@ -428,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "region" | "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "revenueApprover" | "expenseApprover" | "song" | "songPart" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
+    modelProps: "region" | "church" | "churchPermissionPolicy" | "column" | "membership" | "membershipPosition" | "account" | "approvalRule" | "activity" | "revenue" | "expense" | "cashAccount" | "cashMutation" | "location" | "approver" | "revenueApprover" | "expenseApprover" | "fileManager" | "report" | "document" | "churchRequest" | "membershipInvitation" | "financialAccountNumber" | "notification" | "article" | "articleLike" | "reportJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1690,154 +1688,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Song: {
-      payload: Prisma.$SongPayload<ExtArgs>
-      fields: Prisma.SongFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SongFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SongFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        findFirst: {
-          args: Prisma.SongFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SongFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        findMany: {
-          args: Prisma.SongFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>[]
-        }
-        create: {
-          args: Prisma.SongCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        createMany: {
-          args: Prisma.SongCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SongCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>[]
-        }
-        delete: {
-          args: Prisma.SongDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        update: {
-          args: Prisma.SongUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        deleteMany: {
-          args: Prisma.SongDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SongUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SongUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>[]
-        }
-        upsert: {
-          args: Prisma.SongUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPayload>
-        }
-        aggregate: {
-          args: Prisma.SongAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSong>
-        }
-        groupBy: {
-          args: Prisma.SongGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SongGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SongCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SongCountAggregateOutputType> | number
-        }
-      }
-    }
-    SongPart: {
-      payload: Prisma.$SongPartPayload<ExtArgs>
-      fields: Prisma.SongPartFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SongPartFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SongPartFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        findFirst: {
-          args: Prisma.SongPartFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SongPartFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        findMany: {
-          args: Prisma.SongPartFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>[]
-        }
-        create: {
-          args: Prisma.SongPartCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        createMany: {
-          args: Prisma.SongPartCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SongPartCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>[]
-        }
-        delete: {
-          args: Prisma.SongPartDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        update: {
-          args: Prisma.SongPartUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        deleteMany: {
-          args: Prisma.SongPartDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SongPartUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SongPartUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>[]
-        }
-        upsert: {
-          args: Prisma.SongPartUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SongPartPayload>
-        }
-        aggregate: {
-          args: Prisma.SongPartAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSongPart>
-        }
-        groupBy: {
-          args: Prisma.SongPartGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SongPartGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SongPartCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SongPartCountAggregateOutputType> | number
-        }
-      }
-    }
     FileManager: {
       payload: Prisma.$FileManagerPayload<ExtArgs>
       fields: Prisma.FileManagerFieldRefs
@@ -2881,30 +2731,6 @@ export const ExpenseApproverScalarFieldEnum = {
 export type ExpenseApproverScalarFieldEnum = (typeof ExpenseApproverScalarFieldEnum)[keyof typeof ExpenseApproverScalarFieldEnum]
 
 
-export const SongScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  index: 'index',
-  book: 'book',
-  link: 'link',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SongScalarFieldEnum = (typeof SongScalarFieldEnum)[keyof typeof SongScalarFieldEnum]
-
-
-export const SongPartScalarFieldEnum = {
-  id: 'id',
-  index: 'index',
-  name: 'name',
-  content: 'content',
-  songId: 'songId'
-} as const
-
-export type SongPartScalarFieldEnum = (typeof SongPartScalarFieldEnum)[keyof typeof SongPartScalarFieldEnum]
-
-
 export const FileManagerScalarFieldEnum = {
   id: 'id',
   provider: 'provider',
@@ -3007,6 +2833,7 @@ export const FinancialAccountNumberScalarFieldEnum = {
   accountNumber: 'accountNumber',
   description: 'description',
   type: 'type',
+  isCategory: 'isCategory',
   churchId: 'churchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -3380,20 +3207,6 @@ export type ListEnumApprovalStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'Book'
- */
-export type EnumBookFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Book'>
-    
-
-
-/**
- * Reference to a field of type 'Book[]'
- */
-export type ListEnumBookFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Book[]'>
-    
-
-
-/**
  * Reference to a field of type 'FileProvider'
  */
 export type EnumFileProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FileProvider'>
@@ -3658,8 +3471,6 @@ export type GlobalOmitConfig = {
   approver?: Prisma.ApproverOmit
   revenueApprover?: Prisma.RevenueApproverOmit
   expenseApprover?: Prisma.ExpenseApproverOmit
-  song?: Prisma.SongOmit
-  songPart?: Prisma.SongPartOmit
   fileManager?: Prisma.FileManagerOmit
   report?: Prisma.ReportOmit
   document?: Prisma.DocumentOmit

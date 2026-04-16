@@ -57,7 +57,6 @@ import {
   ActivityType,
   ApprovalStatus,
   Bipra,
-  Book,
   FinancialType,
   PaymentMethod,
   PrismaClient,
@@ -357,8 +356,6 @@ async function cleanDatabase() {
         'CashAccount',
         'FinancialAccountNumber',
         'Activity',
-        'Song',
-        'SongPart',
         'ApprovalRule',
         'ChurchPermissionPolicy',
         'MembershipPosition',
@@ -580,11 +577,13 @@ async function seedCongregationsAndFinances(passwordHash: string) {
         update: {
           description: fin.description,
           type: finType,
+          isCategory: fin.category === true,
         },
         create: {
           accountNumber: fin.accountNumber,
           description: fin.description,
           type: finType,
+          isCategory: fin.category === true,
           churchId: church.id,
         },
       });
@@ -1378,93 +1377,6 @@ async function seedExtraChurchActivities(
   return activities;
 }
 
-async function seedSongs() {
-  console.log('\n🎵 Seeding songs from songs.json...');
-
-  const songsJsonPath = path.resolve(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'docs',
-    'songs.json',
-  );
-
-  console.log(`   📂 Reading songs.json...`);
-  console.log(`      Path: ${songsJsonPath}`);
-
-  if (!fs.existsSync(songsJsonPath)) {
-    console.warn(`   ⚠️  songs.json not found — skipping song seeding.`);
-    return [];
-  }
-
-  const rawContent = fs.readFileSync(songsJsonPath, 'utf-8');
-  console.log(`      File size: ${(rawContent.length / 1024).toFixed(1)} KB`);
-  const songsData = JSON.parse(rawContent);
-  const rawSongs = songsData.songs || [];
-  const totalParts = rawSongs.reduce(
-    (sum: number, s: any) => sum + (s.definition?.length || 0),
-    0,
-  );
-  console.log(
-    `      ✔ Loaded ${rawSongs.length} songs, ${totalParts} parts total ` +
-      `(avg ${rawSongs.length ? (totalParts / rawSongs.length).toFixed(1) : 0} parts/song)`,
-  );
-
-  const songs = [];
-
-  console.log(`\n   ⏳ Inserting songs into database...`);
-
-  for (let i = 0; i < rawSongs.length; i++) {
-    const rawSong = rawSongs[i];
-    const book = rawSong.bookId.toUpperCase() as Book;
-
-    const indexMatch = String(rawSong.id).match(/\d+/);
-    const index = indexMatch ? parseInt(indexMatch[0], 10) : 0;
-
-    const title = rawSong.subTitle
-      ? `${rawSong.title} - ${rawSong.subTitle}`
-      : rawSong.title;
-
-    let partIndex = 1;
-    const partsToCreate = (rawSong.definition || []).map((def: any) => ({
-      index: partIndex++,
-      name: def.type || 'VERSE',
-      content: def.content || '',
-    }));
-
-    process.stdout.write(
-      `   [${String(i + 1).padStart(4, ' ')}/${rawSongs.length}] ` +
-        `${book} #${index} — "${title.substring(0, 40)}${title.length > 40 ? '…' : ''}" ` +
-        `(${partsToCreate.length} parts)\r`,
-    );
-
-    const song = await prisma.song.create({
-      data: {
-        title,
-        index,
-        book,
-        link:
-          rawSong.urlVideo ||
-          rawSong.urlImage ||
-          `https://example.com/song/${book.toLowerCase()}-${index}`,
-        parts: {
-          create: partsToCreate,
-        },
-      },
-      include: { parts: true },
-    });
-
-    songs.push(song);
-  }
-
-  const totalInsertedParts = songs.reduce((sum, s) => sum + s.parts.length, 0);
-  console.log(
-    `\n   ✅ Songs: ${songs.length} songs, ${totalInsertedParts} parts inserted`,
-  );
-  return songs;
-}
-
 async function seedSongDbFile(churches: ChurchWithColumns[]) {
   const rawId = process.env.SONG_DB_FILE_ID;
   if (!rawId || rawId.trim().length === 0) {
@@ -1562,7 +1474,6 @@ async function printSummary(
   console.log(`✔️  Approvers: ${await prisma.approver.count()}`);
   console.log(`💰 Revenues: ${await prisma.revenue.count()}`);
   console.log(`💸 Expenses: ${await prisma.expense.count()}`);
-  console.log(`🎵 Songs: ${await prisma.song.count()}`);
   console.log(
     `💳 Financial Account Numbers: ${await p.financialAccountNumber.count()}`,
   );
@@ -1740,10 +1651,6 @@ async function main() {
       [],
     );
     doneExtraActs();
-
-    const doneSongs = phase('Songs (JSON)');
-    await seedSongs();
-    doneSongs();
 
     const doneArticles = phase('Articles');
     await seedArticles();

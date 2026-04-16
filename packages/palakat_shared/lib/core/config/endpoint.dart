@@ -104,18 +104,6 @@ class Endpoints {
 
   static const String validatePhone = '/auth/validate';
 
-  // Song
-  static const String songs = '/public/songs';
-  static String song(String songId) => '/public/songs/$songId';
-
-  // Song (Admin)
-  static const String adminSongs = '/admin/songs';
-  static String adminSong(String songId) => '/admin/songs/$songId';
-
-  static const String adminSongParts = '/admin/song-parts';
-  static String adminSongPart(String songPartId) =>
-      '/admin/song-parts/$songPartId';
-
   // Financial Account Number
   static const String financialAccountNumbers = '/financial-account-number';
   static const String availableFinancialAccountNumbers =

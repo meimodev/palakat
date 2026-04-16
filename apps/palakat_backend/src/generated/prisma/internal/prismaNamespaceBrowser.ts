@@ -68,8 +68,6 @@ export const ModelName = {
   Approver: 'Approver',
   RevenueApprover: 'RevenueApprover',
   ExpenseApprover: 'ExpenseApprover',
-  Song: 'Song',
-  SongPart: 'SongPart',
   FileManager: 'FileManager',
   Report: 'Report',
   Document: 'Document',
@@ -362,30 +360,6 @@ export const ExpenseApproverScalarFieldEnum = {
 export type ExpenseApproverScalarFieldEnum = (typeof ExpenseApproverScalarFieldEnum)[keyof typeof ExpenseApproverScalarFieldEnum]
 
 
-export const SongScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  index: 'index',
-  book: 'book',
-  link: 'link',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SongScalarFieldEnum = (typeof SongScalarFieldEnum)[keyof typeof SongScalarFieldEnum]
-
-
-export const SongPartScalarFieldEnum = {
-  id: 'id',
-  index: 'index',
-  name: 'name',
-  content: 'content',
-  songId: 'songId'
-} as const
-
-export type SongPartScalarFieldEnum = (typeof SongPartScalarFieldEnum)[keyof typeof SongPartScalarFieldEnum]
-
-
 export const FileManagerScalarFieldEnum = {
   id: 'id',
   provider: 'provider',
@@ -488,6 +462,7 @@ export const FinancialAccountNumberScalarFieldEnum = {
   accountNumber: 'accountNumber',
   description: 'description',
   type: 'type',
+  isCategory: 'isCategory',
   churchId: 'churchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

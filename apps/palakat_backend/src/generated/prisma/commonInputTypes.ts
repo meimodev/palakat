@@ -501,23 +501,6 @@ export type EnumApprovalStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumApprovalStatusFilter<$PrismaModel>
 }
 
-export type EnumBookFilter<$PrismaModel = never> = {
-  equals?: $Enums.Book | Prisma.EnumBookFieldRefInput<$PrismaModel>
-  in?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumBookFilter<$PrismaModel> | $Enums.Book
-}
-
-export type EnumBookWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Book | Prisma.EnumBookFieldRefInput<$PrismaModel>
-  in?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumBookWithAggregatesFilter<$PrismaModel> | $Enums.Book
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumBookFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumBookFilter<$PrismaModel>
-}
-
 export type EnumFileProviderFilter<$PrismaModel = never> = {
   equals?: $Enums.FileProvider | Prisma.EnumFileProviderFieldRefInput<$PrismaModel>
   in?: $Enums.FileProvider[] | Prisma.ListEnumFileProviderFieldRefInput<$PrismaModel>
@@ -1260,23 +1243,6 @@ export type NestedEnumApprovalStatusWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumApprovalStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumApprovalStatusFilter<$PrismaModel>
-}
-
-export type NestedEnumBookFilter<$PrismaModel = never> = {
-  equals?: $Enums.Book | Prisma.EnumBookFieldRefInput<$PrismaModel>
-  in?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumBookFilter<$PrismaModel> | $Enums.Book
-}
-
-export type NestedEnumBookWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Book | Prisma.EnumBookFieldRefInput<$PrismaModel>
-  in?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Book[] | Prisma.ListEnumBookFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumBookWithAggregatesFilter<$PrismaModel> | $Enums.Book
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumBookFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumBookFilter<$PrismaModel>
 }
 
 export type NestedEnumFileProviderFilter<$PrismaModel = never> = {

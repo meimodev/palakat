@@ -46,16 +46,6 @@ export const ActivityType = {
 export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType]
 
 
-export const Book = {
-  NKB: 'NKB',
-  NNBT: 'NNBT',
-  KJ: 'KJ',
-  DSL: 'DSL'
-} as const
-
-export type Book = (typeof Book)[keyof typeof Book]
-
-
 export const ApprovalStatus = {
   UNCONFIRMED: 'UNCONFIRMED',
   APPROVED: 'APPROVED',
