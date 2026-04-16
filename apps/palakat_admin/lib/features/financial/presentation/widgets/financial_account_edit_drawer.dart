@@ -15,6 +15,7 @@ class FinancialAccountEditDrawer extends StatefulWidget {
     String accountNumber,
     FinanceType type,
     String? description,
+    bool isCategory,
   )
   onSave;
   final VoidCallback onClose;
@@ -30,6 +31,7 @@ class _FinancialAccountEditDrawerState
   late final TextEditingController _accountNumberController;
   late final TextEditingController _descriptionController;
   late FinanceType _selectedType;
+  late bool _isCategory;
   bool _isLoading = false;
 
   bool get isEditMode => widget.account != null;
@@ -44,6 +46,7 @@ class _FinancialAccountEditDrawerState
       text: widget.account?.description ?? '',
     );
     _selectedType = widget.account?.type ?? FinanceType.revenue;
+    _isCategory = widget.account?.isCategory ?? false;
   }
 
   @override
@@ -65,6 +68,7 @@ class _FinancialAccountEditDrawerState
         _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),
+        _isCategory,
       );
       if (mounted) {
         final l10n = context.l10n;
@@ -155,6 +159,26 @@ class _FinancialAccountEditDrawerState
               onSelectionChanged: (Set<FinanceType> selected) {
                 setState(() => _selectedType = selected.first);
               },
+            ),
+            const SizedBox(height: 24),
+
+            // isCategory Toggle
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                l10n.lbl_isCategory,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                l10n.lbl_isCategory_hint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isCategory,
+              onChanged: (value) => setState(() => _isCategory = value),
             ),
             const SizedBox(height: 24),
 

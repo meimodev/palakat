@@ -3584,6 +3584,18 @@ abstract class AppLocalizations {
   /// **'Type'**
   String get lbl_type;
 
+  /// Label for isCategory toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Account'**
+  String get lbl_isCategory;
+
+  /// Hint text for isCategory toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as a category header (grouping account, not for direct transactions)'**
+  String get lbl_isCategory_hint;
+
   /// No description provided for @lbl_columnId.
   ///
   /// In en, this message translates to:
@@ -4807,6 +4819,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'File'**
   String get tbl_file;
+
+  /// No description provided for @tbl_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get tbl_category;
 
   /// No description provided for @opt_manual.
   ///

@@ -1979,6 +1979,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_type => 'Type';
 
   @override
+  String get lbl_isCategory => 'Category Account';
+
+  @override
+  String get lbl_isCategory_hint =>
+      'Mark as a category header (grouping account, not for direct transactions)';
+
+  @override
   String get lbl_columnId => 'Column ID';
 
   @override
@@ -2629,6 +2636,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tbl_file => 'File';
+
+  @override
+  String get tbl_category => 'Category';
 
   @override
   String get opt_manual => 'Manual';

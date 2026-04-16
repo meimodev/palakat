@@ -197,6 +197,7 @@ export class FinancialAccountNumberService {
         accountNumber: dto.accountNumber,
         description: dto.description,
         type: dto.type,
+        isCategory: dto.isCategory ?? false,
         churchId,
       },
     });

@@ -113,6 +113,7 @@ class FinancialAccountListController extends _$FinancialAccountListController {
     required String accountNumber,
     required FinanceType type,
     String? description,
+    bool isCategory = false,
   }) async {
     final repository = ref.read(financialAccountRepositoryProvider);
     final result = await repository.create(
@@ -121,6 +122,7 @@ class FinancialAccountListController extends _$FinancialAccountListController {
         'type': type.value,
         if (description != null && description.isNotEmpty)
           'description': description,
+        'isCategory': isCategory,
       },
     );
 
@@ -140,6 +142,7 @@ class FinancialAccountListController extends _$FinancialAccountListController {
     required String accountNumber,
     required FinanceType type,
     String? description,
+    bool isCategory = false,
   }) async {
     final repository = ref.read(financialAccountRepositoryProvider);
     final result = await repository.update(
@@ -148,6 +151,7 @@ class FinancialAccountListController extends _$FinancialAccountListController {
         'accountNumber': accountNumber,
         'type': type.value,
         'description': description,
+        'isCategory': isCategory,
       },
     );
 

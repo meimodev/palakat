@@ -1,5 +1,11 @@
 import { FinancialType } from '../../generated/prisma/client';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateFinancialAccountNumberDto {
   @IsString()
@@ -13,4 +19,8 @@ export class CreateFinancialAccountNumberDto {
   @IsEnum(FinancialType)
   @IsNotEmpty()
   type: FinancialType;
+
+  @IsBoolean()
+  @IsOptional()
+  isCategory?: boolean;
 }

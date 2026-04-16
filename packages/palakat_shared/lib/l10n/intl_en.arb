@@ -830,6 +830,8 @@
   "lbl_longitude": "Longitude",
   "lbl_accountNumber": "Account Number",
   "lbl_type": "Type",
+  "lbl_isCategory": "Category Account",
+  "lbl_isCategory_hint": "Mark as a category header (grouping account, not for direct transactions)",
   "lbl_columnId": "Column ID",
   "lbl_columnName": "Column Name",
   "lbl_positionId": "Position ID",
@@ -1128,6 +1130,7 @@
   "tbl_by": "By",
   "tbl_on": "On",
   "tbl_file": "File",
+  "tbl_category": "Category",
 
   "opt_manual": "Manual",
   "opt_system": "System",

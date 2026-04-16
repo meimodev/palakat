@@ -676,6 +676,7 @@ model FinancialAccountNumber {
   accountNumber String
   description   String?
   type          FinancialType
+  isCategory    Boolean        @default(false)
   churchId      Int
   church        Church         @relation(fields: [churchId], references: [id], onDelete: Cascade)
   createdAt     DateTime       @default(now())

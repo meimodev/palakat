@@ -1981,6 +1981,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_type => 'Jenis';
 
   @override
+  String get lbl_isCategory => 'Akun Kategori';
+
+  @override
+  String get lbl_isCategory_hint =>
+      'Tandai sebagai header kategori (akun pengelompokan, bukan untuk transaksi langsung)';
+
+  @override
   String get lbl_columnId => 'ID Kolom';
 
   @override
@@ -2635,6 +2642,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tbl_file => 'File';
+
+  @override
+  String get tbl_category => 'Kategori';
 
   @override
   String get opt_manual => 'Manual';

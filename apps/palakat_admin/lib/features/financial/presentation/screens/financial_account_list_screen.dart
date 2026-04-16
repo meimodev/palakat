@@ -22,7 +22,7 @@ class _FinancialAccountListScreenState
       context: context,
       drawer: FinancialAccountEditDrawer(
         onClose: () => DrawerUtils.closeDrawer(context),
-        onSave: (accountNumber, type, description) async {
+        onSave: (accountNumber, type, description, isCategory) async {
           final controller = ref.read(
             financialAccountListControllerProvider.notifier,
           );
@@ -30,6 +30,7 @@ class _FinancialAccountListScreenState
             accountNumber: accountNumber,
             type: type,
             description: description,
+            isCategory: isCategory,
           );
         },
       ),
@@ -42,7 +43,7 @@ class _FinancialAccountListScreenState
       drawer: FinancialAccountEditDrawer(
         account: account,
         onClose: () => DrawerUtils.closeDrawer(context),
-        onSave: (accountNumber, type, description) async {
+        onSave: (accountNumber, type, description, isCategory) async {
           final controller = ref.read(
             financialAccountListControllerProvider.notifier,
           );
@@ -51,6 +52,7 @@ class _FinancialAccountListScreenState
             accountNumber: accountNumber,
             type: type,
             description: description,
+            isCategory: isCategory,
           );
         },
       ),
@@ -221,23 +223,15 @@ class _FinancialAccountListScreenState
         },
       ),
       AppTableColumn<FinancialAccountNumber>(
-        title: l10n.tbl_linkedApprovalRule,
-        flex: 2,
+        title: l10n.tbl_category,
+        flex: 1,
         cellBuilder: (ctx, account) {
-          final approvalRule = account.approvalRule;
-          if (approvalRule == null) {
-            return Text(
-              l10n.lbl_na,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            );
-          }
-          return Text(
-            approvalRule.name,
-            style: theme.textTheme.bodyMedium,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          return Icon(
+            account.isCategory ? Icons.check_circle : Icons.remove,
+            size: 18,
+            color: account.isCategory
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurfaceVariant,
           );
         },
       ),

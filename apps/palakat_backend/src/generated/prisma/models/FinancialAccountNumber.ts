@@ -41,6 +41,7 @@ export type FinancialAccountNumberMinAggregateOutputType = {
   accountNumber: string | null
   description: string | null
   type: $Enums.FinancialType | null
+  isCategory: boolean | null
   churchId: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +52,7 @@ export type FinancialAccountNumberMaxAggregateOutputType = {
   accountNumber: string | null
   description: string | null
   type: $Enums.FinancialType | null
+  isCategory: boolean | null
   churchId: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,7 @@ export type FinancialAccountNumberCountAggregateOutputType = {
   accountNumber: number
   description: number
   type: number
+  isCategory: number
   churchId: number
   createdAt: number
   updatedAt: number
@@ -83,6 +86,7 @@ export type FinancialAccountNumberMinAggregateInputType = {
   accountNumber?: true
   description?: true
   type?: true
+  isCategory?: true
   churchId?: true
   createdAt?: true
   updatedAt?: true
@@ -93,6 +97,7 @@ export type FinancialAccountNumberMaxAggregateInputType = {
   accountNumber?: true
   description?: true
   type?: true
+  isCategory?: true
   churchId?: true
   createdAt?: true
   updatedAt?: true
@@ -103,6 +108,7 @@ export type FinancialAccountNumberCountAggregateInputType = {
   accountNumber?: true
   description?: true
   type?: true
+  isCategory?: true
   churchId?: true
   createdAt?: true
   updatedAt?: true
@@ -200,6 +206,7 @@ export type FinancialAccountNumberGroupByOutputType = {
   accountNumber: string
   description: string | null
   type: $Enums.FinancialType
+  isCategory: boolean
   churchId: number
   createdAt: Date
   updatedAt: Date
@@ -233,6 +240,7 @@ export type FinancialAccountNumberWhereInput = {
   accountNumber?: Prisma.StringFilter<"FinancialAccountNumber"> | string
   description?: Prisma.StringNullableFilter<"FinancialAccountNumber"> | string | null
   type?: Prisma.EnumFinancialTypeFilter<"FinancialAccountNumber"> | $Enums.FinancialType
+  isCategory?: Prisma.BoolFilter<"FinancialAccountNumber"> | boolean
   churchId?: Prisma.IntFilter<"FinancialAccountNumber"> | number
   createdAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
@@ -246,6 +254,7 @@ export type FinancialAccountNumberOrderByWithRelationInput = {
   accountNumber?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
+  isCategory?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -263,6 +272,7 @@ export type FinancialAccountNumberWhereUniqueInput = Prisma.AtLeast<{
   accountNumber?: Prisma.StringFilter<"FinancialAccountNumber"> | string
   description?: Prisma.StringNullableFilter<"FinancialAccountNumber"> | string | null
   type?: Prisma.EnumFinancialTypeFilter<"FinancialAccountNumber"> | $Enums.FinancialType
+  isCategory?: Prisma.BoolFilter<"FinancialAccountNumber"> | boolean
   churchId?: Prisma.IntFilter<"FinancialAccountNumber"> | number
   createdAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
@@ -276,6 +286,7 @@ export type FinancialAccountNumberOrderByWithAggregationInput = {
   accountNumber?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
+  isCategory?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -294,6 +305,7 @@ export type FinancialAccountNumberScalarWhereWithAggregatesInput = {
   accountNumber?: Prisma.StringWithAggregatesFilter<"FinancialAccountNumber"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"FinancialAccountNumber"> | string | null
   type?: Prisma.EnumFinancialTypeWithAggregatesFilter<"FinancialAccountNumber"> | $Enums.FinancialType
+  isCategory?: Prisma.BoolWithAggregatesFilter<"FinancialAccountNumber"> | boolean
   churchId?: Prisma.IntWithAggregatesFilter<"FinancialAccountNumber"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinancialAccountNumber"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinancialAccountNumber"> | Date | string
@@ -303,6 +315,7 @@ export type FinancialAccountNumberCreateInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
@@ -315,6 +328,7 @@ export type FinancialAccountNumberUncheckedCreateInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   churchId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -326,6 +340,7 @@ export type FinancialAccountNumberUpdateInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
@@ -338,6 +353,7 @@ export type FinancialAccountNumberUncheckedUpdateInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +366,7 @@ export type FinancialAccountNumberCreateManyInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   churchId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -359,6 +376,7 @@ export type FinancialAccountNumberUpdateManyMutationInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -368,6 +386,7 @@ export type FinancialAccountNumberUncheckedUpdateManyInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -398,6 +417,7 @@ export type FinancialAccountNumberCountOrderByAggregateInput = {
   accountNumber?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isCategory?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -413,6 +433,7 @@ export type FinancialAccountNumberMaxOrderByAggregateInput = {
   accountNumber?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isCategory?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -423,6 +444,7 @@ export type FinancialAccountNumberMinOrderByAggregateInput = {
   accountNumber?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isCategory?: Prisma.SortOrder
   churchId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -515,6 +537,7 @@ export type FinancialAccountNumberCreateWithoutChurchInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   revenues?: Prisma.RevenueCreateNestedManyWithoutFinancialAccountNumberInput
@@ -526,6 +549,7 @@ export type FinancialAccountNumberUncheckedCreateWithoutChurchInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutFinancialAccountNumberInput
@@ -566,6 +590,7 @@ export type FinancialAccountNumberScalarWhereInput = {
   accountNumber?: Prisma.StringFilter<"FinancialAccountNumber"> | string
   description?: Prisma.StringNullableFilter<"FinancialAccountNumber"> | string | null
   type?: Prisma.EnumFinancialTypeFilter<"FinancialAccountNumber"> | $Enums.FinancialType
+  isCategory?: Prisma.BoolFilter<"FinancialAccountNumber"> | boolean
   churchId?: Prisma.IntFilter<"FinancialAccountNumber"> | number
   createdAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialAccountNumber"> | Date | string
@@ -575,6 +600,7 @@ export type FinancialAccountNumberCreateWithoutRevenuesInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
@@ -586,6 +612,7 @@ export type FinancialAccountNumberUncheckedCreateWithoutRevenuesInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   churchId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -612,6 +639,7 @@ export type FinancialAccountNumberUpdateWithoutRevenuesInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
@@ -623,6 +651,7 @@ export type FinancialAccountNumberUncheckedUpdateWithoutRevenuesInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -633,6 +662,7 @@ export type FinancialAccountNumberCreateWithoutExpensesInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutFinancialAccountNumbersInput
@@ -644,6 +674,7 @@ export type FinancialAccountNumberUncheckedCreateWithoutExpensesInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   churchId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -670,6 +701,7 @@ export type FinancialAccountNumberUpdateWithoutExpensesInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutFinancialAccountNumbersNestedInput
@@ -681,6 +713,7 @@ export type FinancialAccountNumberUncheckedUpdateWithoutExpensesInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   churchId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -692,6 +725,7 @@ export type FinancialAccountNumberCreateManyChurchInput = {
   accountNumber: string
   description?: string | null
   type: $Enums.FinancialType
+  isCategory?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -700,6 +734,7 @@ export type FinancialAccountNumberUpdateWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUpdateManyWithoutFinancialAccountNumberNestedInput
@@ -711,6 +746,7 @@ export type FinancialAccountNumberUncheckedUpdateWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revenues?: Prisma.RevenueUncheckedUpdateManyWithoutFinancialAccountNumberNestedInput
@@ -722,6 +758,7 @@ export type FinancialAccountNumberUncheckedUpdateManyWithoutChurchInput = {
   accountNumber?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumFinancialTypeFieldUpdateOperationsInput | $Enums.FinancialType
+  isCategory?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -771,6 +808,7 @@ export type FinancialAccountNumberSelect<ExtArgs extends runtime.Types.Extension
   accountNumber?: boolean
   description?: boolean
   type?: boolean
+  isCategory?: boolean
   churchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -785,6 +823,7 @@ export type FinancialAccountNumberSelectCreateManyAndReturn<ExtArgs extends runt
   accountNumber?: boolean
   description?: boolean
   type?: boolean
+  isCategory?: boolean
   churchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -796,6 +835,7 @@ export type FinancialAccountNumberSelectUpdateManyAndReturn<ExtArgs extends runt
   accountNumber?: boolean
   description?: boolean
   type?: boolean
+  isCategory?: boolean
   churchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -807,12 +847,13 @@ export type FinancialAccountNumberSelectScalar = {
   accountNumber?: boolean
   description?: boolean
   type?: boolean
+  isCategory?: boolean
   churchId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinancialAccountNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountNumber" | "description" | "type" | "churchId" | "createdAt" | "updatedAt", ExtArgs["result"]["financialAccountNumber"]>
+export type FinancialAccountNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountNumber" | "description" | "type" | "isCategory" | "churchId" | "createdAt" | "updatedAt", ExtArgs["result"]["financialAccountNumber"]>
 export type FinancialAccountNumberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   revenues?: boolean | Prisma.FinancialAccountNumber$revenuesArgs<ExtArgs>
@@ -838,6 +879,7 @@ export type $FinancialAccountNumberPayload<ExtArgs extends runtime.Types.Extensi
     accountNumber: string
     description: string | null
     type: $Enums.FinancialType
+    isCategory: boolean
     churchId: number
     createdAt: Date
     updatedAt: Date
@@ -1271,6 +1313,7 @@ export interface FinancialAccountNumberFieldRefs {
   readonly accountNumber: Prisma.FieldRef<"FinancialAccountNumber", 'String'>
   readonly description: Prisma.FieldRef<"FinancialAccountNumber", 'String'>
   readonly type: Prisma.FieldRef<"FinancialAccountNumber", 'FinancialType'>
+  readonly isCategory: Prisma.FieldRef<"FinancialAccountNumber", 'Boolean'>
   readonly churchId: Prisma.FieldRef<"FinancialAccountNumber", 'Int'>
   readonly createdAt: Prisma.FieldRef<"FinancialAccountNumber", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinancialAccountNumber", 'DateTime'>

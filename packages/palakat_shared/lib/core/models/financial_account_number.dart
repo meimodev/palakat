@@ -23,6 +23,7 @@ abstract class FinancialAccountNumber with _$FinancialAccountNumber {
     required String accountNumber,
     String? description,
     required FinanceType type,
+    @Default(false) bool isCategory,
     int? churchId,
     DateTime? createdAt,
     DateTime? updatedAt,

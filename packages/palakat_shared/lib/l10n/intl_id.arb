@@ -1906,6 +1906,14 @@
   "@lbl_type": {
     "description": "Label for type field"
   },
+  "lbl_isCategory": "Akun Kategori",
+  "@lbl_isCategory": {
+    "description": "Label for isCategory toggle"
+  },
+  "lbl_isCategory_hint": "Tandai sebagai header kategori (akun pengelompokan, bukan untuk transaksi langsung)",
+  "@lbl_isCategory_hint": {
+    "description": "Hint text for isCategory toggle"
+  },
   "lbl_columnId": "ID Kolom",
   "@lbl_columnId": {
     "description": "Label for column ID field"
@@ -2798,6 +2806,10 @@
   "tbl_file": "File",
   "@tbl_file": {
     "description": "Table column header for file"
+  },
+  "tbl_category": "Kategori",
+  "@tbl_category": {
+    "description": "Table column header for category"
   },
 
   "opt_manual": "Manual",
