@@ -802,49 +802,112 @@ export class FinanceService {
   async getOverview(user?: any) {
     const churchId = await this.resolveRequesterChurchId(user);
 
-    const [
-      revenueCashAgg,
-      revenueCashlessAgg,
-      expenseCashAgg,
-      expenseCashlessAgg,
-    ] = await (this.prisma as any).$transaction([
-      (this.prisma as any).revenue.aggregate({
-        where: { churchId, paymentMethod: PaymentMethod.CASH },
-        _sum: { amount: true },
-        _max: { updatedAt: true },
+    // Fetch all revenues and expenses with their approvers to compute approval-aware totals
+    const [revenues, expenses] = await (this.prisma as any).$transaction([
+      (this.prisma as any).revenue.findMany({
+        where: { churchId },
+        include: { approvers: { select: { status: true } } },
       }),
-      (this.prisma as any).revenue.aggregate({
-        where: { churchId, paymentMethod: PaymentMethod.CASHLESS },
-        _sum: { amount: true },
-        _max: { updatedAt: true },
-      }),
-      (this.prisma as any).expense.aggregate({
-        where: { churchId, paymentMethod: PaymentMethod.CASH },
-        _sum: { amount: true },
-        _max: { updatedAt: true },
-      }),
-      (this.prisma as any).expense.aggregate({
-        where: { churchId, paymentMethod: PaymentMethod.CASHLESS },
-        _sum: { amount: true },
-        _max: { updatedAt: true },
+      (this.prisma as any).expense.findMany({
+        where: { churchId },
+        include: { approvers: { select: { status: true } } },
       }),
     ]);
 
-    const revenueCash = revenueCashAgg?._sum?.amount ?? 0;
-    const revenueCashless = revenueCashlessAgg?._sum?.amount ?? 0;
-    const expenseCash = expenseCashAgg?._sum?.amount ?? 0;
-    const expenseCashless = expenseCashlessAgg?._sum?.amount ?? 0;
+    // Helper to determine effective approval status matching shared client logic
+    const getEffectiveStatus = (
+      entry: any,
+    ): { isApproved: boolean; isUnconfirmed: boolean; isRejected: boolean } => {
+      const isOverridden = entry.isOverridden === true;
+      const overrideStatus = entry.overrideStatus;
 
-    const cashBalance = revenueCash - expenseCash;
-    const cashlessBalance = revenueCashless - expenseCashless;
+      // Overridden entries: override status determines effective status
+      if (isOverridden && overrideStatus != null) {
+        const isApproved = overrideStatus === ApprovalStatus.APPROVED;
+        return {
+          isApproved,
+          isUnconfirmed:
+            !isApproved && overrideStatus !== ApprovalStatus.REJECTED,
+          isRejected: overrideStatus === ApprovalStatus.REJECTED,
+        };
+      }
+
+      const approvers = entry.approvers ?? [];
+
+      // Empty approver list is treated as unconfirmed (matches shared extension behavior)
+      if (approvers.length === 0) {
+        return { isApproved: false, isUnconfirmed: true, isRejected: false };
+      }
+
+      const hasRejected = approvers.some(
+        (a: any) => a.status === ApprovalStatus.REJECTED,
+      );
+      if (hasRejected) {
+        return { isApproved: false, isUnconfirmed: false, isRejected: true };
+      }
+
+      const allApproved = approvers.every(
+        (a: any) => a.status === ApprovalStatus.APPROVED,
+      );
+      if (allApproved) {
+        return { isApproved: true, isUnconfirmed: false, isRejected: false };
+      }
+
+      // Some pending/mixed states = unconfirmed
+      return { isApproved: false, isUnconfirmed: true, isRejected: false };
+    };
+
+    let approvedCashRevenue = 0;
+    let approvedCashlessRevenue = 0;
+    let approvedCashExpense = 0;
+    let approvedCashlessExpense = 0;
+    let unconfirmedRevenueAmount = 0;
+    let unconfirmedExpenseAmount = 0;
+    const updatedAts: Date[] = [];
+
+    for (const revenue of revenues) {
+      const status = getEffectiveStatus(revenue);
+      const isCash = revenue.paymentMethod === PaymentMethod.CASH;
+
+      if (status.isApproved) {
+        if (isCash) {
+          approvedCashRevenue += revenue.amount ?? 0;
+        } else {
+          approvedCashlessRevenue += revenue.amount ?? 0;
+        }
+      } else if (status.isUnconfirmed) {
+        unconfirmedRevenueAmount += revenue.amount ?? 0;
+      }
+      // Rejected entries are excluded from all totals
+
+      if (revenue.updatedAt) {
+        updatedAts.push(revenue.updatedAt);
+      }
+    }
+
+    for (const expense of expenses) {
+      const status = getEffectiveStatus(expense);
+      const isCash = expense.paymentMethod === PaymentMethod.CASH;
+
+      if (status.isApproved) {
+        if (isCash) {
+          approvedCashExpense += expense.amount ?? 0;
+        } else {
+          approvedCashlessExpense += expense.amount ?? 0;
+        }
+      } else if (status.isUnconfirmed) {
+        unconfirmedExpenseAmount += expense.amount ?? 0;
+      }
+      // Rejected entries are excluded from all totals
+
+      if (expense.updatedAt) {
+        updatedAts.push(expense.updatedAt);
+      }
+    }
+
+    const cashBalance = approvedCashRevenue - approvedCashExpense;
+    const cashlessBalance = approvedCashlessRevenue - approvedCashlessExpense;
     const totalBalance = cashBalance + cashlessBalance;
-
-    const updatedAts = [
-      revenueCashAgg?._max?.updatedAt,
-      revenueCashlessAgg?._max?.updatedAt,
-      expenseCashAgg?._max?.updatedAt,
-      expenseCashlessAgg?._max?.updatedAt,
-    ].filter((d): d is Date => !!d);
 
     const lastUpdatedAt =
       updatedAts.sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
@@ -855,6 +918,8 @@ export class FinanceService {
         totalBalance,
         cashBalance,
         cashlessBalance,
+        unconfirmedRevenueAmount,
+        unconfirmedExpenseAmount,
         lastUpdatedAt,
       },
     };

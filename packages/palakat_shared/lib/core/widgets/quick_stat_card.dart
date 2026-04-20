@@ -5,6 +5,15 @@ import 'package:palakat_shared/core/extension/extension.dart';
 import 'package:palakat_shared/core/theme/theme.dart';
 import 'package:palakat_shared/core/widgets/loading_shimmer.dart';
 
+/// Presentation density for QuickStatCard
+enum QuickStatDensity {
+  /// Standard comfortable spacing (default)
+  comfortable,
+
+  /// Tighter spacing for showing more cards in limited space
+  compact,
+}
+
 /// Reusable quick statistic card with built-in shimmer loading
 class QuickStatCard extends StatelessWidget {
   const QuickStatCard({
@@ -17,6 +26,7 @@ class QuickStatCard extends StatelessWidget {
     this.subtitle,
     this.isLoading = false,
     this.width = 200,
+    this.density = QuickStatDensity.comfortable,
   });
 
   final String label;
@@ -27,10 +37,12 @@ class QuickStatCard extends StatelessWidget {
   final String? subtitle;
   final bool isLoading;
   final double width;
+  final QuickStatDensity density;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isCompact = density == QuickStatDensity.compact;
     final resolvedIconBackgroundColor =
         iconBackgroundColor ?? AppColors.surfaceContainerHigh;
     final resolvedIconColor = () {
@@ -47,6 +59,16 @@ class QuickStatCard extends StatelessWidget {
           : Colors.black87;
     }();
 
+    final iconSize = isCompact ? 16.0 : 18.0;
+    final iconPadding = isCompact ? 6.0 : 8.0;
+    final cardPadding = isCompact ? 14.0 : 18.0;
+    final labelValueSpacing = isCompact ? 12.0 : 16.0;
+    final labelIconSpacing = isCompact ? 8.0 : 12.0;
+    final subtitleSpacing = isCompact ? 2.0 : 4.0;
+    final valueTextStyle = isCompact
+        ? theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)
+        : theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700);
+
     Widget buildContent() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +79,11 @@ class QuickStatCard extends StatelessWidget {
             children: [
               Expanded(
                 child: isLoading
-                    ? _shimmerBlock(height: 12, width: 80, borderRadius: 3)
+                    ? _shimmerBlock(
+                        height: isCompact ? 10 : 12,
+                        width: 80,
+                        borderRadius: 3,
+                      )
                     : Text(
                         label,
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -68,37 +94,44 @@ class QuickStatCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: labelIconSpacing),
               if (icon != null)
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(iconPadding),
                   decoration: BoxDecoration(
                     color: resolvedIconBackgroundColor,
                     borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
                   ),
-                  child: Icon(icon!, size: 18, color: resolvedIconColor),
+                  child: Icon(icon!, size: iconSize, color: resolvedIconColor),
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: labelValueSpacing),
           isLoading
-              ? _shimmerBlock(height: 28, width: 60, borderRadius: 6)
+              ? _shimmerBlock(
+                  height: isCompact ? 24 : 28,
+                  width: 60,
+                  borderRadius: 6,
+                )
               : Text(
                   value.toThousands(),
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: valueTextStyle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: subtitleSpacing),
             isLoading
-                ? _shimmerBlock(height: 10, width: 120, borderRadius: 3)
+                ? _shimmerBlock(
+                    height: isCompact ? 8 : 10,
+                    width: 120,
+                    borderRadius: 3,
+                  )
                 : Text(
                     subtitle!,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: isCompact ? 11 : null,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -117,7 +150,7 @@ class QuickStatCard extends StatelessWidget {
 
         return Container(
           width: resolvedWidth,
-          padding: const EdgeInsets.all(18),
+          padding: EdgeInsets.all(cardPadding),
           decoration: BoxDecoration(
             color: AppColors.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(SanctuaryLayout.radiusLarge),

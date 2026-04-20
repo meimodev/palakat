@@ -403,6 +403,8 @@
   "lbl_currency": "Currency",
   "lbl_openingBalance": "Opening Balance",
   "lbl_balance": "Balance",
+  "lbl_unconfirmedRevenue": "Unconfirmed Revenue",
+  "lbl_unconfirmedExpense": "Unconfirmed Expense",
   "lbl_from": "From",
   "lbl_to": "To",
   "lbl_songsCount": "songs_count={songsCount}, books_count={booksCount}, updatedAt={updatedAt}",

@@ -1014,6 +1014,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lbl_balance => 'Balance';
 
   @override
+  String get lbl_unconfirmedRevenue => 'Unconfirmed Revenue';
+
+  @override
+  String get lbl_unconfirmedExpense => 'Unconfirmed Expense';
+
+  @override
   String get lbl_from => 'From';
 
   @override

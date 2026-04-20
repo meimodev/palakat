@@ -1868,6 +1868,18 @@ abstract class AppLocalizations {
   /// **'Balance'**
   String get lbl_balance;
 
+  /// No description provided for @lbl_unconfirmedRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconfirmed Revenue'**
+  String get lbl_unconfirmedRevenue;
+
+  /// No description provided for @lbl_unconfirmedExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconfirmed Expense'**
+  String get lbl_unconfirmedExpense;
+
   /// No description provided for @lbl_from.
   ///
   /// In en, this message translates to:
@@ -3584,13 +3596,13 @@ abstract class AppLocalizations {
   /// **'Type'**
   String get lbl_type;
 
-  /// Label for isCategory toggle.
+  /// No description provided for @lbl_isCategory.
   ///
   /// In en, this message translates to:
   /// **'Category Account'**
   String get lbl_isCategory;
 
-  /// Hint text for isCategory toggle.
+  /// No description provided for @lbl_isCategory_hint.
   ///
   /// In en, this message translates to:
   /// **'Mark as a category header (grouping account, not for direct transactions)'**

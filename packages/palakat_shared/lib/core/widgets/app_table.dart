@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:palakat_shared/core/constants/date_range_preset.dart';
 import 'package:palakat_shared/core/extension/build_context_extension.dart';
@@ -18,7 +19,7 @@ import 'package:palakat_shared/core/widgets/search_field.dart';
 /// - Loading, error, and empty states.
 /// - Row tap callback.
 /// - Optional sorting hooks (delegated to the parent for state changes).
-class AppTable<T> extends StatelessWidget {
+class AppTable<T> extends StatefulWidget {
   const AppTable({
     super.key,
     required this.columns,
@@ -79,18 +80,46 @@ class AppTable<T> extends StatelessWidget {
   final bool showDividers;
 
   @override
+  State<AppTable<T>> createState() => _AppTableState<T>();
+}
+
+class _AppTableState<T> extends State<AppTable<T>> {
+  late final ScrollController _horizontalScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _horizontalScrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final horizontalDragBehavior = ScrollConfiguration.of(context).copyWith(
+      dragDevices: {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+      },
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (filtersConfig != null) ...[
-          _BuiltInFiltersBar(config: filtersConfig!),
+        if (widget.filtersConfig != null) ...[
+          _BuiltInFiltersBar(config: widget.filtersConfig!),
           const SizedBox(height: 12),
-        ] else if (filters != null) ...[
+        ] else if (widget.filters != null) ...[
           // Backward compatibility: allow custom filters slot
-          filters!,
+          widget.filters!,
           const SizedBox(height: 12),
         ],
         LayoutBuilder(
@@ -98,70 +127,94 @@ class AppTable<T> extends StatelessWidget {
             final availableWidth = constraints.hasBoundedWidth
                 ? constraints.maxWidth
                 : 0.0;
+            final trailingWidth = widget.onRowTap != null ? 20.0 : 0.0;
+            final estimatedColumnsWidth = widget.columns.fold<double>(
+              0,
+              (total, column) =>
+                  total +
+                  (column.minWidth ?? math.max(140.0, column.flex * 96.0)),
+            );
             final tableMinWidth = math.max(
-              columns.length * 140.0 + (onRowTap != null ? 20.0 : 0.0),
+              estimatedColumnsWidth + trailingWidth,
               availableWidth,
             );
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: tableMinWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _Header<T>(
-                      columns: columns,
-                      sortConfig: sortConfig,
-                      decoration:
-                          headerDecoration ?? _defaultHeaderDecoration(theme),
+            return ScrollConfiguration(
+              behavior: horizontalDragBehavior,
+              child: Scrollbar(
+                controller: _horizontalScrollController,
+                thumbVisibility: tableMinWidth > availableWidth,
+                interactive: true,
+                notificationPredicate: (notification) =>
+                    notification.metrics.axis == Axis.horizontal,
+                child: SingleChildScrollView(
+                  controller: _horizontalScrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: tableMinWidth,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _Header<T>(
+                          columns: widget.columns,
+                          sortConfig: widget.sortConfig,
+                          decoration:
+                              widget.headerDecoration ??
+                              _defaultHeaderDecoration(theme),
+                        ),
+                        if (widget.loading) ...[
+                          _ShimmerLoadingPlaceholder(columns: widget.columns),
+                        ] else if (widget.errorText != null) ...[
+                          _ErrorPlaceholder(
+                            message: widget.errorText!,
+                            onRetry: widget.onRetry,
+                          ),
+                        ] else if (widget.data.isEmpty) ...[
+                          if (widget.emptyBuilder != null)
+                            widget.emptyBuilder!(context)
+                          else
+                            _EmptyPlaceholder(),
+                        ] else ...[
+                          ...List.generate(widget.data.length, (index) {
+                            final item = widget.data[index];
+                            final row = _Row<T>(
+                              item: item,
+                              columns: widget.columns,
+                              onTap: widget.onRowTap,
+                              decoration: widget.rowDecoration,
+                            );
+                            if (!widget.showDividers) return row;
+                            return Column(
+                              children: [
+                                row,
+                                Divider(
+                                  height: 1,
+                                  color: theme.colorScheme.outlineVariant,
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ],
                     ),
-                    if (loading) ...[
-                      _ShimmerLoadingPlaceholder(columns: columns),
-                    ] else if (errorText != null) ...[
-                      _ErrorPlaceholder(message: errorText!, onRetry: onRetry),
-                    ] else if (data.isEmpty) ...[
-                      if (emptyBuilder != null)
-                        emptyBuilder!(context)
-                      else
-                        _EmptyPlaceholder(),
-                    ] else ...[
-                      ...List.generate(data.length, (index) {
-                        final item = data[index];
-                        final row = _Row<T>(
-                          item: item,
-                          columns: columns,
-                          onTap: onRowTap,
-                          decoration: rowDecoration,
-                        );
-                        if (!showDividers) return row;
-                        return Column(
-                          children: [
-                            row,
-                            Divider(
-                              height: 1,
-                              color: theme.colorScheme.outlineVariant,
-                            ),
-                          ],
-                        );
-                      }),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             );
           },
         ),
-        if (pagination != null && !loading && errorText == null) ...[
+        if (widget.pagination != null &&
+            !widget.loading &&
+            widget.errorText == null) ...[
           const SizedBox(height: 12),
           PaginationBar(
-            total: pagination!.total,
-            pageSize: pagination!.pageSize,
-            page: pagination!.page,
-            onPageSizeChanged: pagination!.onPageSizeChanged,
-            onPageChanged: pagination!.onPageChanged,
-            onPrev: pagination?.onPrev,
-            onNext: pagination?.onNext,
+            total: widget.pagination!.total,
+            pageSize: widget.pagination!.pageSize,
+            page: widget.pagination!.page,
+            onPageSizeChanged: widget.pagination!.onPageSizeChanged,
+            onPageChanged: widget.pagination!.onPageChanged,
+            onPrev: widget.pagination?.onPrev,
+            onNext: widget.pagination?.onNext,
           ),
         ],
       ],
@@ -181,6 +234,7 @@ class AppTableColumn<T> {
     required this.title,
     required this.cellBuilder,
     this.flex = 1,
+    this.minWidth,
     this.headerAlignment = Alignment.centerLeft,
     this.cellAlignment = Alignment.centerLeft,
     this.tooltip,
@@ -195,6 +249,12 @@ class AppTableColumn<T> {
 
   /// Flex for layout width distribution.
   final int flex;
+
+  /// Optional minimum width used by the horizontal table scroller.
+  ///
+  /// When omitted, AppTable estimates width from the column flex so wide tables
+  /// still overflow horizontally instead of clipping content into the viewport.
+  final double? minWidth;
 
   /// Alignment for header label.
   final Alignment headerAlignment;

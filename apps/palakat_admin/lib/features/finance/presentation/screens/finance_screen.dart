@@ -50,11 +50,25 @@ class FinanceScreen extends ConsumerWidget {
               subtitle: subtitle,
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final cardWidth = constraints.maxWidth < 560
-                      ? constraints.maxWidth
-                      : constraints.maxWidth < 860
-                      ? ((constraints.maxWidth - 16) / 2).clamp(220.0, 280.0)
-                      : 240.0;
+                  // Compact card width calculation for 5-card layout
+                  // Target: wide=5, medium=3, narrow=2, mobile=1
+                  final maxWidth = constraints.maxWidth;
+                  final cardWidth = maxWidth < 400
+                      ? maxWidth // Mobile: 1 card
+                      : maxWidth < 640
+                      ? ((maxWidth - 16) / 2).clamp(
+                          180.0,
+                          280.0,
+                        ) // Narrow: 2 cards
+                      : maxWidth < 960
+                      ? ((maxWidth - 32) / 3).clamp(
+                          180.0,
+                          280.0,
+                        ) // Medium: 3 cards
+                      : ((maxWidth - 64) / 5).clamp(
+                          180.0,
+                          220.0,
+                        ); // Wide: 5 cards
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,37 +77,69 @@ class FinanceScreen extends ConsumerWidget {
                         spacing: 16,
                         runSpacing: 16,
                         children: [
+                          // 1. Saldo (Total Balance)
                           QuickStatCard(
                             label: l10n.lbl_balance,
                             value: (overview?.totalBalance ?? 0).toCurrency,
                             icon: Icons.account_balance_wallet_outlined,
-                            iconColor: AppColors.primary,
+                            iconColor: AppColors.onPrimaryContainer,
                             iconBackgroundColor: AppColors.primary,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
+                            density: QuickStatDensity.compact,
                           ),
+                          // 2. Cash Saldo
                           QuickStatCard(
                             label:
                                 '${l10n.paymentMethod_cash} ${l10n.lbl_balance}',
                             value: (overview?.cashBalance ?? 0).toCurrency,
                             icon: Icons.payments_outlined,
-                            iconColor: AppColors.success,
-                            iconBackgroundColor: AppColors.success,
+                            iconColor: AppColors.onPrimaryContainer,
+                            iconBackgroundColor: AppColors.primary,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
+                            density: QuickStatDensity.compact,
                           ),
+                          // 3. Cashless Saldo
                           QuickStatCard(
                             label:
                                 '${l10n.paymentMethod_cashless} ${l10n.lbl_balance}',
                             value: (overview?.cashlessBalance ?? 0).toCurrency,
                             icon: Icons.credit_card_outlined,
-                            iconColor: AppColors.primary,
+                            iconColor: AppColors.onPrimaryContainer,
                             iconBackgroundColor: AppColors.primary,
                             isLoading: overviewState.overview.isLoading,
                             subtitle: subtitle,
                             width: cardWidth.toDouble(),
+                            density: QuickStatDensity.compact,
+                          ),
+                          // 4. Unconfirmed Revenue
+                          QuickStatCard(
+                            label: l10n.lbl_unconfirmedRevenue,
+                            value: (overview?.unconfirmedRevenueAmount ?? 0)
+                                .toCurrency,
+                            icon: Icons.hourglass_empty_outlined,
+                            iconColor: AppColors.warning,
+                            iconBackgroundColor: AppColors.warning.shade50,
+                            isLoading: overviewState.overview.isLoading,
+                            subtitle: subtitle,
+                            width: cardWidth.toDouble(),
+                            density: QuickStatDensity.compact,
+                          ),
+                          // 5. Unconfirmed Expense
+                          QuickStatCard(
+                            label: l10n.lbl_unconfirmedExpense,
+                            value: (overview?.unconfirmedExpenseAmount ?? 0)
+                                .toCurrency,
+                            icon: Icons.hourglass_empty_outlined,
+                            iconColor: AppColors.warning,
+                            iconBackgroundColor: AppColors.warning.shade50,
+                            isLoading: overviewState.overview.isLoading,
+                            subtitle: subtitle,
+                            width: cardWidth.toDouble(),
+                            density: QuickStatDensity.compact,
                           ),
                         ],
                       ),
@@ -326,22 +372,13 @@ class _FinanceTypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final isRevenue = type == FinanceEntryType.revenue;
 
-    final label = isRevenue
-        ? l10n.financeType_revenue
-        : l10n.financeType_expense;
     final color = isRevenue ? AppColors.success : AppColors.error;
     final icon = isRevenue ? Icons.arrow_downward : Icons.arrow_upward;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final iconOnly =
-            constraints.maxWidth.isFinite &&
-            constraints.maxWidth > 0 &&
-            constraints.maxWidth < 80;
-
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -350,20 +387,7 @@ class _FinanceTypeChip extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: color),
-              if (!iconOnly) ...[
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
+            children: [Icon(icon, size: 14, color: color)],
           ),
         );
       },

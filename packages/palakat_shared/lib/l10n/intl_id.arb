@@ -810,6 +810,14 @@
   "@lbl_balance": {
     "description": "Label for balance field"
   },
+  "lbl_unconfirmedRevenue": "Pendapatan Belum Disetujui",
+  "@lbl_unconfirmedRevenue": {
+    "description": "Label for unconfirmed revenue amount in finance overview"
+  },
+  "lbl_unconfirmedExpense": "Pengeluaran Belum Disetujui",
+  "@lbl_unconfirmedExpense": {
+    "description": "Label for unconfirmed expense amount in finance overview"
+  },
   "lbl_from": "Dari",
   "@lbl_from": {
     "description": "Label for from field"

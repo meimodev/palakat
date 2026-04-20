@@ -1018,6 +1018,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get lbl_balance => 'Saldo';
 
   @override
+  String get lbl_unconfirmedRevenue => 'Pendapatan Belum Disetujui';
+
+  @override
+  String get lbl_unconfirmedExpense => 'Pengeluaran Belum Disetujui';
+
+  @override
   String get lbl_from => 'Dari';
 
   @override
