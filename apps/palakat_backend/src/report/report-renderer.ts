@@ -1,6 +1,30 @@
 import * as PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const UNICODE_FONT_CANDIDATES = [
+  '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+  '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf',
+  '/usr/share/fonts/noto/NotoSans-Regular.ttf',
+  '/System/Library/Fonts/Supplemental/Arial Unicode MS.ttf',
+  '/System/Library/Fonts/Helvetica.ttc',
+  path.join(__dirname, '../../assets/fonts/NotoSans-Regular.ttf'),
+];
+
+function resolveUnicodeFontPath(): string | undefined {
+  for (const candidate of UNICODE_FONT_CANDIDATES) {
+    try {
+      if (fs.existsSync(candidate)) return candidate;
+    } catch {
+      // ignore
+    }
+  }
+  return undefined;
+}
+
+const _unicodeFontPath = resolveUnicodeFontPath();
 
 const BRAND_PRIMARY_HEX = '#921573';
 const BRAND_SECONDARY_HEX = '#6B1D84';
@@ -316,6 +340,18 @@ function renderPdfVerifyBlock(params: {
   return boxHeight;
 }
 
+function applyBodyFont(doc: any, size: number): void {
+  if (_unicodeFontPath) {
+    try {
+      doc.font(_unicodeFontPath).fontSize(size);
+      return;
+    } catch {
+      // fall through to built-in
+    }
+  }
+  doc.font('Helvetica').fontSize(size);
+}
+
 function formatPdfCellValue(value: unknown): string {
   if (value == null) return '';
   if (value instanceof Date) return value.toISOString();
@@ -502,7 +538,8 @@ export async function renderPdfTableReportBuffer(params: {
     let y = doc.y;
     y = renderTableHeader(y);
 
-    doc.fontSize(bodyFontSize).fillColor('#000000');
+    applyBodyFont(doc, bodyFontSize);
+    doc.fillColor('#000000');
 
     for (const row of section.rows) {
       const cellValues = columns.map((c) => row[c.key]);
@@ -529,7 +566,8 @@ export async function renderPdfTableReportBuffer(params: {
           y = doc.y;
         }
         y = renderTableHeader(y);
-        doc.fontSize(bodyFontSize).fillColor('#000000');
+        applyBodyFont(doc, bodyFontSize);
+        doc.fillColor('#000000');
       }
 
       let x = doc.page.margins.left;

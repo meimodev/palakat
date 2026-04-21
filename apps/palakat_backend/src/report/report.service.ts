@@ -176,6 +176,35 @@ export class ReportService {
     };
   }
 
+  private buildMembershipScopeWhere(
+    churchId: number,
+    columnId?: number,
+  ): Prisma.MembershipWhereInput {
+    return {
+      churchId,
+      ...(columnId != null ? { columnId } : {}),
+    };
+  }
+
+  private buildMembershipBaseWhere(
+    churchId: number,
+    columnId?: number,
+    startDate?: Date,
+    endDate?: Date,
+  ): Prisma.MembershipWhereInput {
+    return {
+      ...this.buildMembershipScopeWhere(churchId, columnId),
+      ...(startDate && endDate
+        ? {
+            createdAt: {
+              gte: startDate,
+              lte: endDate,
+            },
+          }
+        : {}),
+    };
+  }
+
   private async listWartaBirthdayEntries(params: {
     churchId: number;
     startDate: Date;
@@ -226,6 +255,78 @@ export class ReportService {
           matchedDate,
           originalDob: dob,
           columnName: membership.column?.name ?? null,
+        },
+      ];
+    });
+
+    items.sort((a, b) => {
+      const dateCompare = a.matchedDate.getTime() - b.matchedDate.getTime();
+      if (dateCompare !== 0) return dateCompare;
+
+      return a.name.localeCompare(b.name, 'id');
+    });
+
+    return items;
+  }
+
+  private async listHutBirthdayEntries(params: {
+    churchId: number;
+    columnId?: number;
+    startDate: Date;
+    endDate: Date;
+  }): Promise<
+    Array<{
+      name: string;
+      dob: Date;
+      phone?: string | null;
+      email?: string | null;
+      columnName?: string | null;
+      baptize: boolean;
+      sidi: boolean;
+      matchedDate: Date;
+    }>
+  > {
+    const memberships = await this.prisma.membership.findMany({
+      where: this.buildMembershipScopeWhere(params.churchId, params.columnId),
+      select: {
+        baptize: true,
+        sidi: true,
+        account: {
+          select: {
+            name: true,
+            dob: true,
+            phone: true,
+            email: true,
+          },
+        },
+        column: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const items = memberships.flatMap((membership) => {
+      const dob = membership.account?.dob;
+      const matchedDate = this.findBirthdayOccurrenceInRange(
+        dob,
+        params.startDate,
+        params.endDate,
+      );
+
+      if (!matchedDate || !dob) return [];
+
+      return [
+        {
+          name: membership.account?.name?.trim() || '-',
+          dob,
+          phone: membership.account?.phone,
+          email: membership.account?.email,
+          columnName: membership.column?.name ?? null,
+          baptize: membership.baptize,
+          sidi: membership.sidi,
+          matchedDate,
         },
       ];
     });
@@ -460,18 +561,12 @@ export class ReportService {
         });
         break;
       case ReportGenerateType.CONGREGATION: {
-        const membershipBaseWhere: Prisma.MembershipWhereInput = {
+        const membershipBaseWhere = this.buildMembershipBaseWhere(
           churchId,
-          ...(columnId != null ? { columnId } : {}),
-          ...(startDate && endDate
-            ? {
-                createdAt: {
-                  gte: startDate,
-                  lte: endDate,
-                },
-              }
-            : {}),
-        };
+          columnId,
+          startDate,
+          endDate,
+        );
 
         if (congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT) {
           if (format === ReportFormat.PDF) {
@@ -505,21 +600,18 @@ export class ReportService {
         }
 
         if (congregationSubtype === CongregationReportSubtype.HUT_JEMAAT) {
-          matchingCount = await this.prisma.membership.count({
-            where: {
-              ...membershipBaseWhere,
-              ...(startDate && endDate
-                ? {
-                    account: {
-                      dob: {
-                        gte: startDate,
-                        lte: endDate,
-                      },
-                    },
-                  }
-                : {}),
-            },
-          });
+          if (!startDate || !endDate) {
+            throw new BadRequestException('Invalid report date range');
+          }
+
+          matchingCount = (
+            await this.listHutBirthdayEntries({
+              churchId,
+              columnId,
+              startDate,
+              endDate,
+            })
+          ).length;
           break;
         }
 
@@ -1144,18 +1236,28 @@ export class ReportService {
         : 'Laporan Dokumen Masuk'
       : isWartaPdfReport
         ? 'Warta Jemaat'
-        : [
-            'Report',
-            type,
-            type === ReportGenerateType.CONGREGATION
-              ? congregationSubtype
-              : undefined,
-            type === ReportGenerateType.FINANCIAL
-              ? financialSubtype
-              : undefined,
-          ]
-            .filter((x) => !!x)
-            .join(' ');
+        : congregationSubtype === CongregationReportSubtype.HUT_JEMAAT
+          ? 'Laporan Hari Ulang Tahun Jemaat'
+          : type === ReportGenerateType.ACTIVITY
+            ? 'Laporan Kegiatan Jemaat'
+            : type === ReportGenerateType.FINANCIAL &&
+                financialSubtype === FinancialReportSubtype.REVENUE
+              ? 'Laporan Pendapatan'
+              : type === ReportGenerateType.FINANCIAL &&
+                  financialSubtype === FinancialReportSubtype.EXPENSE
+                ? 'Laporan Pengeluaran'
+                : [
+                    'Report',
+                    type,
+                    type === ReportGenerateType.CONGREGATION
+                      ? congregationSubtype
+                      : undefined,
+                    type === ReportGenerateType.FINANCIAL
+                      ? financialSubtype
+                      : undefined,
+                  ]
+                    .filter((x) => !!x)
+                    .join(' ');
 
     const generatedAt = new Date();
 
@@ -1276,7 +1378,13 @@ export class ReportService {
           },
           include: {
             financialAccountNumber: true,
-            activity: true,
+            activity: {
+              include: {
+                supervisor: {
+                  include: { account: true },
+                },
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
@@ -1286,22 +1394,20 @@ export class ReportService {
         const sections: TableSection[] = [
           {
             columns: [
-              { header: 'Date', key: 'createdAt', weight: 2 },
-              { header: 'Account No', key: 'accountNumber', weight: 2 },
-              { header: 'Amount', key: 'amount', weight: 2, align: 'right' },
-              { header: 'Payment', key: 'paymentMethod', weight: 1 },
-              { header: 'Fin. Account', key: 'finAccount', weight: 2 },
-              { header: 'Description', key: 'description', weight: 3 },
-              { header: 'Activity', key: 'activity', weight: 3 },
+              { header: 'Tanggal', key: 'tanggal', weight: 2 },
+              { header: 'Jumlah', key: 'jumlah', weight: 2, align: 'right' },
+              { header: 'Metode', key: 'paymentMethod', weight: 1 },
+              { header: 'Akun', key: 'finAccount', weight: 2 },
+              { header: 'Kegiatan', key: 'activity', weight: 3 },
+              { header: 'Penanggung Jawab', key: 'supervisor', weight: 3 },
             ],
             rows: revenues.map((r) => ({
-              createdAt: r.createdAt,
-              accountNumber: r.accountNumber,
-              amount: r.amount,
+              tanggal: this.formatIndonesianDate(r.createdAt),
+              jumlah: this.formatIndonesianCurrency(r.amount),
               paymentMethod: r.paymentMethod,
               finAccount: r.financialAccountNumber?.accountNumber ?? '',
-              description: r.financialAccountNumber?.description ?? '',
               activity: r.activity?.title ?? '',
+              supervisor: r.activity?.supervisor?.account?.name ?? '',
             })),
           },
         ];
@@ -1310,12 +1416,14 @@ export class ReportService {
           format === ReportFormat.XLSX
             ? await renderXlsxTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
               })
             : await renderPdfTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
@@ -1345,7 +1453,13 @@ export class ReportService {
           },
           include: {
             financialAccountNumber: true,
-            activity: true,
+            activity: {
+              include: {
+                supervisor: {
+                  include: { account: true },
+                },
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
@@ -1355,22 +1469,20 @@ export class ReportService {
         const sections: TableSection[] = [
           {
             columns: [
-              { header: 'Date', key: 'createdAt', weight: 2 },
-              { header: 'Account No', key: 'accountNumber', weight: 2 },
-              { header: 'Amount', key: 'amount', weight: 2, align: 'right' },
-              { header: 'Payment', key: 'paymentMethod', weight: 1 },
-              { header: 'Fin. Account', key: 'finAccount', weight: 2 },
-              { header: 'Description', key: 'description', weight: 3 },
-              { header: 'Activity', key: 'activity', weight: 3 },
+              { header: 'Tanggal', key: 'tanggal', weight: 2 },
+              { header: 'Jumlah', key: 'jumlah', weight: 2, align: 'right' },
+              { header: 'Metode', key: 'paymentMethod', weight: 1 },
+              { header: 'Akun', key: 'finAccount', weight: 2 },
+              { header: 'Kegiatan', key: 'activity', weight: 3 },
+              { header: 'Penanggung Jawab', key: 'supervisor', weight: 3 },
             ],
             rows: expenses.map((e) => ({
-              createdAt: e.createdAt,
-              accountNumber: e.accountNumber,
-              amount: e.amount,
+              tanggal: this.formatIndonesianDate(e.createdAt),
+              jumlah: this.formatIndonesianCurrency(e.amount),
               paymentMethod: e.paymentMethod,
               finAccount: e.financialAccountNumber?.accountNumber ?? '',
-              description: e.financialAccountNumber?.description ?? '',
               activity: e.activity?.title ?? '',
+              supervisor: e.activity?.supervisor?.account?.name ?? '',
             })),
           },
         ];
@@ -1379,12 +1491,14 @@ export class ReportService {
           format === ReportFormat.XLSX
             ? await renderXlsxTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
               })
             : await renderPdfTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
@@ -1585,18 +1699,12 @@ export class ReportService {
     }
 
     if (type === ReportGenerateType.CONGREGATION) {
-      const membershipBaseWhere: Prisma.MembershipWhereInput = {
+      const membershipBaseWhere = this.buildMembershipBaseWhere(
         churchId,
-        ...(columnId != null ? { columnId } : {}),
-        ...(startDate && endDate
-          ? {
-              createdAt: {
-                gte: startDate,
-                lte: endDate,
-              },
-            }
-          : {}),
-      };
+        columnId,
+        startDate,
+        endDate,
+      );
 
       if (congregationSubtype === CongregationReportSubtype.WARTA_JEMAAT) {
         if (format === ReportFormat.PDF) {
@@ -1804,48 +1912,32 @@ export class ReportService {
                 });
         }
       } else if (congregationSubtype === CongregationReportSubtype.HUT_JEMAAT) {
-        const where: Prisma.MembershipWhereInput = {
-          ...membershipBaseWhere,
-          ...(startDate && endDate
-            ? {
-                account: {
-                  dob: {
-                    gte: startDate,
-                    lte: endDate,
-                  },
-                },
-              }
-            : {}),
-        };
+        if (!startDate || !endDate) {
+          throw new BadRequestException('Invalid report date range');
+        }
 
-        const memberships = await this.prisma.membership.findMany({
-          where,
-          include: {
-            account: true,
-            column: true,
-          },
-          orderBy: [{ account: { dob: 'asc' } }, { account: { name: 'asc' } }],
+        const memberships = await this.listHutBirthdayEntries({
+          churchId,
+          columnId,
+          startDate,
+          endDate,
         });
 
         const sections: TableSection[] = [
           {
             columns: [
-              { header: 'Name', key: 'name', weight: 3 },
-              { header: 'DOB', key: 'dob', weight: 2 },
-              { header: 'Phone', key: 'phone', weight: 2 },
-              { header: 'Email', key: 'email', weight: 3 },
+              { header: 'Name', key: 'name', weight: 4 },
+              { header: 'DOB', key: 'dob', weight: 3 },
               { header: 'Column', key: 'column', weight: 2 },
               { header: 'Baptize', key: 'baptize', weight: 1, align: 'center' },
               { header: 'Sidi', key: 'sidi', weight: 1, align: 'center' },
             ],
-            rows: memberships.map((m) => ({
-              name: m.account?.name,
-              dob: m.account?.dob,
-              phone: m.account?.phone,
-              email: m.account?.email,
-              column: m.column?.name ?? '',
-              baptize: m.baptize,
-              sidi: m.sidi,
+            rows: memberships.map((membership) => ({
+              name: membership.name,
+              dob: this.formatIndonesianDate(membership.dob),
+              column: membership.columnName ?? '',
+              baptize: membership.baptize,
+              sidi: membership.sidi,
             })),
           },
         ];
@@ -1854,12 +1946,14 @@ export class ReportService {
           format === ReportFormat.XLSX
             ? await renderXlsxTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
               })
             : await renderPdfTableReportBuffer({
                 title,
+                titleAlign: 'center',
                 sections,
                 letterhead: letterheadInfo,
                 logoBuffer,
@@ -1956,13 +2050,20 @@ export class ReportService {
 
       const activities = await this.prisma.activity.findMany({
         where,
-        include: {
-          column: true,
+        select: {
+          date: true,
+          activityType: true,
+          title: true,
           supervisor: {
-            include: {
-              account: true,
+            select: {
+              account: {
+                select: { name: true },
+              },
             },
           },
+          revenues: { select: { id: true }, take: 1 },
+          expenses: { select: { id: true }, take: 1 },
+          document: { select: { id: true } },
         },
         orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       });
@@ -1970,21 +2071,30 @@ export class ReportService {
       const sections: TableSection[] = [
         {
           columns: [
-            { header: 'Date', key: 'date', weight: 2 },
-            { header: 'Type', key: 'activityType', weight: 1 },
-            { header: 'Title', key: 'title', weight: 4 },
-            { header: 'Column', key: 'column', weight: 2 },
-            { header: 'Supervisor', key: 'supervisor', weight: 2 },
-            { header: 'Note', key: 'note', weight: 3 },
+            { header: 'Tanggal', key: 'tanggal', weight: 2 },
+            { header: 'Jenis', key: 'jenis', weight: 2 },
+            { header: 'Judul', key: 'judul', weight: 4 },
+            { header: 'Penanggung Jawab', key: 'penanggungjawab', weight: 3 },
+            { header: 'Lampiran', key: 'lampiran', weight: 1, align: 'center' },
           ],
-          rows: activities.map((a) => ({
-            date: a.date,
-            activityType: a.activityType,
-            title: a.title,
-            column: a.column?.name ?? '',
-            supervisor: a.supervisor?.account?.name ?? '',
-            note: a.note ?? '',
-          })),
+          rows: activities.map((a) => {
+            const lampiranParts: string[] = [];
+            if ((a.revenues?.length ?? 0) > 0) lampiranParts.push('^');
+            if ((a.expenses?.length ?? 0) > 0) lampiranParts.push('v');
+            if (a.document != null) lampiranParts.push('D');
+            const activityTypeLabel: Record<string, string> = {
+              SERVICE: 'Ibadah',
+              EVENT: 'Kegiatan',
+              ANNOUNCEMENT: 'Pengumuman',
+            };
+            return {
+              tanggal: this.formatIndonesianDate(a.date),
+              jenis: activityTypeLabel[a.activityType] ?? a.activityType,
+              judul: a.title,
+              penanggungjawab: a.supervisor?.account?.name ?? '',
+              lampiran: lampiranParts.join(' '),
+            };
+          }),
         },
       ];
 
@@ -1992,12 +2102,14 @@ export class ReportService {
         format === ReportFormat.XLSX
           ? await renderXlsxTableReportBuffer({
               title,
+              titleAlign: 'center',
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
             })
           : await renderPdfTableReportBuffer({
               title,
+              titleAlign: 'center',
               sections,
               letterhead: letterheadInfo,
               logoBuffer,
