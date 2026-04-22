@@ -28,6 +28,10 @@ abstract class CreateExpenseRequest with _$CreateExpenseRequest {
     /// Used to link the expense to a predefined account number
     /// Requirements: 2.4
     int? financialAccountNumberId,
+
+    /// Required ID of the CashAccount the expense is drawn from.
+    /// Used to keep the paired CashMutation in sync on the backend.
+    required int cashAccountId,
   }) = _CreateExpenseRequest;
 
   factory CreateExpenseRequest.fromJson(Map<String, dynamic> json) =>

@@ -15,7 +15,12 @@ import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationService } from '../notification/notification.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { DocumentInput } from '../generated/prisma/enums';
-import { FinancialType } from '../generated/prisma/client';
+import {
+  CashMutationReferenceType,
+  CashMutationType,
+  FinancialType,
+} from '../generated/prisma/client';
+import { CashMutationService } from '../cash/cash-mutation.service';
 
 /**
  * Service for managing church activities.
@@ -71,6 +76,7 @@ export class ActivitiesService {
     private notificationService: NotificationService,
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
+    private cashMutationService: CashMutationService,
   ) {}
 
   private emitActivityEvent(params: {
@@ -800,6 +806,19 @@ export class ActivitiesService {
 
         // Create finance record (revenue or expense) alongside activity if provided
         for (const finance of finances ?? []) {
+          const cashAccount = await tx.cashAccount.findFirst({
+            where: {
+              id: finance.cashAccountId,
+              churchId: membership.churchId,
+            },
+            select: { id: true },
+          });
+          if (!cashAccount) {
+            throw new BadRequestException(
+              `Cash account ${finance.cashAccountId} not found for church ${membership.churchId}`,
+            );
+          }
+
           const financeData = {
             accountNumber: finance.accountNumber,
             amount: finance.amount,
@@ -807,6 +826,7 @@ export class ActivitiesService {
             churchId: membership.churchId,
             activityId: newActivity.id,
             financialAccountNumberId: finance.financialAccountNumberId ?? null,
+            cashAccountId: finance.cashAccountId,
           };
 
           if (finance.type === 'REVENUE') {
@@ -817,6 +837,16 @@ export class ActivitiesService {
                 financialType: FinancialType.REVENUE,
                 financeId: revenue.id,
               });
+            await this.cashMutationService.syncMutationForReference(tx, {
+              churchId: membership.churchId,
+              referenceType: CashMutationReferenceType.REVENUE,
+              referenceId: revenue.id,
+              type: CashMutationType.IN,
+              amount: revenue.amount,
+              cashAccountId: finance.cashAccountId,
+              happenedAt: newActivity.date ?? revenue.createdAt ?? new Date(),
+              note: newActivity.title ?? null,
+            });
             financeRealtimeEvents.push({
               financeId: revenue.id,
               financeType: 'REVENUE',
@@ -830,6 +860,16 @@ export class ActivitiesService {
                 financialType: FinancialType.EXPENSE,
                 financeId: expense.id,
               });
+            await this.cashMutationService.syncMutationForReference(tx, {
+              churchId: membership.churchId,
+              referenceType: CashMutationReferenceType.EXPENSE,
+              referenceId: expense.id,
+              type: CashMutationType.OUT,
+              amount: expense.amount,
+              cashAccountId: finance.cashAccountId,
+              happenedAt: newActivity.date ?? expense.createdAt ?? new Date(),
+              note: newActivity.title ?? null,
+            });
             financeRealtimeEvents.push({
               financeId: expense.id,
               financeType: 'EXPENSE',

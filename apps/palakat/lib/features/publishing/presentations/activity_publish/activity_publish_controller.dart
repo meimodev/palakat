@@ -330,6 +330,7 @@ class ActivityPublishController extends _$ActivityPublishController {
               amount: finance.amount,
               paymentMethod: finance.paymentMethod,
               financialAccountNumberId: finance.financialAccountNumberId,
+              cashAccountId: finance.cashAccountId!,
             ),
           )
           .toList();

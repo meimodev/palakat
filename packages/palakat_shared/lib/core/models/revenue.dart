@@ -14,6 +14,7 @@ abstract class Revenue with _$Revenue {
     required int amount,
     required int churchId,
     int? activityId,
+    int? cashAccountId,
     required PaymentMethod paymentMethod,
     DateTime? createdAt,
     DateTime? updatedAt,

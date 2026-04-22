@@ -4,7 +4,12 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { FinancialType } from '../generated/prisma/client';
+import {
+  CashMutationReferenceType,
+  CashMutationType,
+  FinancialType,
+} from '../generated/prisma/client';
+import { CashMutationService } from '../cash/cash-mutation.service';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { CreateRevenueDto } from './dto/create-revenue.dto';
@@ -17,7 +22,24 @@ export class RevenueService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
+    private cashMutationService: CashMutationService,
   ) {}
+
+  private async assertCashAccountOwnedByChurch(
+    tx: any,
+    churchId: number,
+    cashAccountId: number,
+  ) {
+    const exists = await tx.cashAccount.findFirst({
+      where: { id: cashAccountId, churchId },
+      select: { id: true },
+    });
+    if (!exists) {
+      throw new BadRequestException(
+        `Cash account ${cashAccountId} not found for church ${churchId}`,
+      );
+    }
+  }
 
   private emitRevenueFinanceEvent(
     eventName: 'finance.created' | 'finance.updated' | 'finance.deleted',
@@ -99,6 +121,7 @@ export class RevenueService {
         },
       },
       financialAccountNumber: true,
+      cashAccount: true,
     };
   }
 
@@ -333,20 +356,30 @@ export class RevenueService {
   }
 
   async remove(id: number) {
-    const revenue = await (this.prisma as any).revenue.delete({
-      where: { id },
-      include: {
-        approvers: {
-          select: {
-            membershipId: true,
+    const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+      const deleted = await tx.revenue.delete({
+        where: { id },
+        include: {
+          approvers: {
+            select: {
+              membershipId: true,
+            },
+          },
+          activity: {
+            select: {
+              id: true,
+            },
           },
         },
-        activity: {
-          select: {
-            id: true,
-          },
-        },
-      },
+      });
+
+      await this.cashMutationService.deleteMutationForReference(tx, {
+        churchId: deleted.churchId,
+        referenceType: CashMutationReferenceType.REVENUE,
+        referenceId: deleted.id,
+      });
+
+      return deleted;
     });
 
     this.emitRevenueFinanceEvent('finance.deleted', revenue, new Date());
@@ -359,8 +392,13 @@ export class RevenueService {
   async create(
     createRevenueDto: CreateRevenueDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
-      createRevenueDto;
+    const {
+      financialAccountNumberId,
+      accountNumber,
+      activityId,
+      cashAccountId,
+      ...rest
+    } = createRevenueDto;
 
     const resolvedFinancialAccount = await this.resolveFinancialAccount(
       rest.churchId,
@@ -371,6 +409,7 @@ export class RevenueService {
     const data: any = {
       ...rest,
       activityId,
+      cashAccountId,
       accountNumber: resolvedFinancialAccount.accountNumber,
     };
 
@@ -381,8 +420,34 @@ export class RevenueService {
 
     const include = this.buildRevenueInclude();
     const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+      await this.assertCashAccountOwnedByChurch(
+        tx,
+        rest.churchId,
+        cashAccountId,
+      );
+
       const createdRevenue = await tx.revenue.create({ data });
       await this.syncApprovers(tx, createdRevenue.id, rest.churchId);
+
+      const activityInfo = activityId
+        ? await tx.activity.findUnique({
+            where: { id: activityId },
+            select: { title: true, date: true },
+          })
+        : null;
+
+      await this.cashMutationService.syncMutationForReference(tx, {
+        churchId: rest.churchId,
+        referenceType: CashMutationReferenceType.REVENUE,
+        referenceId: createdRevenue.id,
+        type: CashMutationType.IN,
+        amount: createdRevenue.amount,
+        cashAccountId,
+        happenedAt:
+          activityInfo?.date ?? createdRevenue.createdAt ?? new Date(),
+        note: activityInfo?.title ?? null,
+      });
+
       return tx.revenue.findUniqueOrThrow({
         where: { id: createdRevenue.id },
         include,
@@ -402,8 +467,13 @@ export class RevenueService {
     id: number,
     updateRevenueDto: UpdateRevenueDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
-      updateRevenueDto;
+    const {
+      financialAccountNumberId,
+      accountNumber,
+      activityId,
+      cashAccountId,
+      ...rest
+    } = updateRevenueDto;
 
     const currentRevenue = await (this.prisma as any).revenue.findUniqueOrThrow(
       {
@@ -411,12 +481,19 @@ export class RevenueService {
         select: {
           churchId: true,
           financialAccountNumberId: true,
+          cashAccountId: true,
+          amount: true,
         },
       },
     );
 
     const effectiveChurchId = rest.churchId ?? currentRevenue.churchId;
+    const effectiveCashAccountId =
+      cashAccountId ?? currentRevenue.cashAccountId;
     const data: any = { ...rest, activityId };
+    if (cashAccountId !== undefined) {
+      data.cashAccountId = cashAccountId;
+    }
 
     if (financialAccountNumberId !== undefined) {
       if (financialAccountNumberId === null) {
@@ -459,6 +536,18 @@ export class RevenueService {
     const include = this.buildRevenueInclude();
     let refreshedApproverMembershipIds: number[] = [];
     const revenue = await (this.prisma as any).$transaction(async (tx: any) => {
+      if (
+        cashAccountId !== undefined ||
+        (rest.churchId !== undefined &&
+          rest.churchId !== currentRevenue.churchId)
+      ) {
+        await this.assertCashAccountOwnedByChurch(
+          tx,
+          effectiveChurchId,
+          effectiveCashAccountId,
+        );
+      }
+
       const updatedRevenue = await tx.revenue.update({
         where: { id },
         data,
@@ -471,6 +560,35 @@ export class RevenueService {
           effectiveChurchId,
         );
       }
+
+      const effectiveActivityId =
+        activityId !== undefined
+          ? activityId
+          : ((
+              await tx.revenue.findUnique({
+                where: { id },
+                select: { activityId: true },
+              })
+            )?.activityId ?? null);
+
+      const activityInfo = effectiveActivityId
+        ? await tx.activity.findUnique({
+            where: { id: effectiveActivityId },
+            select: { title: true, date: true },
+          })
+        : null;
+
+      await this.cashMutationService.syncMutationForReference(tx, {
+        churchId: effectiveChurchId,
+        referenceType: CashMutationReferenceType.REVENUE,
+        referenceId: id,
+        type: CashMutationType.IN,
+        amount: updatedRevenue.amount,
+        cashAccountId: effectiveCashAccountId,
+        happenedAt:
+          activityInfo?.date ?? updatedRevenue.updatedAt ?? new Date(),
+        note: activityInfo?.title ?? null,
+      });
 
       return tx.revenue.findUniqueOrThrow({
         where: { id: updatedRevenue.id },

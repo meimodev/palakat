@@ -156,18 +156,27 @@ class ExpenseController extends _$ExpenseController {
 
     if (expense.id != null) {
       final payload = expense.toJson();
+      if (expense.cashAccountId != null) {
+        payload['cashAccountId'] = expense.cashAccountId;
+      }
       result = await repository.updateExpense(
         expenseId: expense.id!,
         update: payload,
       );
     } else {
       // Create new expense using CreateExpenseRequest
+      if (expense.cashAccountId == null) {
+        throw AppError.serverError(
+          'cashAccountId is required to create an expense',
+        );
+      }
       final request = CreateExpenseRequest(
         accountNumber: expense.accountNumber,
         amount: expense.amount,
         churchId: expense.churchId,
         activityId: expense.activityId,
         paymentMethod: expense.paymentMethod,
+        cashAccountId: expense.cashAccountId!,
       );
       result = await repository.createExpense(request: request);
     }

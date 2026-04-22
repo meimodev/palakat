@@ -14,6 +14,7 @@ abstract class Expense with _$Expense {
     required int amount,
     required int churchId,
     int? activityId,
+    int? cashAccountId,
     required PaymentMethod paymentMethod,
     String? notes,
     DateTime? createdAt,

@@ -31,6 +31,10 @@ abstract class CreateActivityFinance with _$CreateActivityFinance {
 
     /// Optional ID of the financial account number record
     int? financialAccountNumberId,
+
+    /// Required ID of the cash account the amount flows through.
+    /// Backend uses this to keep the paired CashMutation in sync.
+    required int cashAccountId,
   }) = _CreateActivityFinance;
 
   factory CreateActivityFinance.fromJson(Map<String, dynamic> json) =>

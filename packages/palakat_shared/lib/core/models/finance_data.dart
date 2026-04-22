@@ -31,6 +31,10 @@ abstract class FinanceData with _$FinanceData {
     /// Used to link the finance record to a predefined account number
     /// Requirements: 3.4
     int? financialAccountNumberId,
+
+    /// The ID of the CashAccount the record flows through.
+    /// Required by the backend to keep the paired CashMutation in sync.
+    int? cashAccountId,
   }) = _FinanceData;
 
   factory FinanceData.fromJson(Map<String, dynamic> json) =>

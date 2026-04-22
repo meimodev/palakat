@@ -1,6 +1,7 @@
 import 'package:palakat/features/finance/presentations/finance_create/finance_create_state.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/cash_account.dart';
 import 'package:palakat_shared/core/models/finance_data.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
@@ -67,7 +68,10 @@ class FinanceCreateController extends _$FinanceCreateController {
 
     // Validate and compute form validity
     // Requirements: 1.4, 2.1
-    final isValid = data.amount > 0 && data.accountNumber.isNotEmpty;
+    final isValid =
+        data.amount > 0 &&
+        data.accountNumber.isNotEmpty &&
+        data.cashAccountId != null;
 
     return FinanceCreateState(
       financeType: financeType,
@@ -75,6 +79,9 @@ class FinanceCreateController extends _$FinanceCreateController {
       amount: formattedAmount,
       selectedFinancialAccountNumber: accountNumber,
       paymentMethod: data.paymentMethod,
+      selectedCashAccount: data.cashAccountId != null
+          ? CashAccount(id: data.cashAccountId!, name: '', churchId: 0)
+          : null,
       isFormValid: isValid,
     );
   }
@@ -130,6 +137,14 @@ class FinanceCreateController extends _$FinanceCreateController {
     return null;
   }
 
+  /// Validates that a cash account is selected.
+  String? validateCashAccount(CashAccount? value) {
+    if (value == null) {
+      return 'Cash account is required';
+    }
+    return null;
+  }
+
   // ===== onChange Handlers =====
 
   /// Handles amount input changes.
@@ -162,6 +177,14 @@ class FinanceCreateController extends _$FinanceCreateController {
     );
   }
 
+  /// Handles cash account selection.
+  void onSelectedCashAccount(CashAccount? account) {
+    state = state.copyWith(
+      selectedCashAccount: account,
+      errorCashAccount: validateCashAccount(account),
+    );
+  }
+
   // ===== Form Validation =====
 
   /// Validates all form fields and updates state.
@@ -175,18 +198,21 @@ class FinanceCreateController extends _$FinanceCreateController {
     );
     final paymentMethodError = validatePaymentMethod(state.paymentMethod);
     final activityError = validateActivity(state.selectedActivity);
+    final cashAccountError = validateCashAccount(state.selectedCashAccount);
 
     final isValid =
         amountError == null &&
         accountNumberError == null &&
         paymentMethodError == null &&
-        activityError == null;
+        activityError == null &&
+        cashAccountError == null;
 
     state = state.copyWith(
       errorAmount: amountError,
       errorAccountNumber: accountNumberError,
       errorPaymentMethod: paymentMethodError,
       errorActivity: activityError,
+      errorCashAccount: cashAccountError,
       isFormValid: isValid,
     );
 
@@ -236,6 +262,7 @@ class FinanceCreateController extends _$FinanceCreateController {
 
       // Get account number from selected financial account
       final accountNumber = state.selectedFinancialAccountNumber!.accountNumber;
+      final cashAccountId = state.selectedCashAccount!.id;
 
       // Create revenue or expense based on financeType
       if (state.financeType == FinanceType.revenue) {
@@ -245,6 +272,7 @@ class FinanceCreateController extends _$FinanceCreateController {
           churchId: churchId,
           activityId: activityId,
           paymentMethod: state.paymentMethod!,
+          cashAccountId: cashAccountId,
         );
 
         final revenueRepository = ref.read(revenueRepositoryProvider);
@@ -273,6 +301,7 @@ class FinanceCreateController extends _$FinanceCreateController {
           churchId: churchId,
           activityId: activityId,
           paymentMethod: state.paymentMethod!,
+          cashAccountId: cashAccountId,
         );
 
         final expenseRepository = ref.read(expenseRepositoryProvider);
@@ -313,7 +342,8 @@ class FinanceCreateController extends _$FinanceCreateController {
     // Validate required fields
     if (state.amount == null ||
         state.selectedFinancialAccountNumber == null ||
-        state.paymentMethod == null) {
+        state.paymentMethod == null ||
+        state.selectedCashAccount == null) {
       return null;
     }
 
@@ -322,10 +352,12 @@ class FinanceCreateController extends _$FinanceCreateController {
       state.selectedFinancialAccountNumber,
     );
     final paymentMethodError = validatePaymentMethod(state.paymentMethod);
+    final cashAccountError = validateCashAccount(state.selectedCashAccount);
 
     if (amountError != null ||
         accountNumberError != null ||
-        paymentMethodError != null) {
+        paymentMethodError != null ||
+        cashAccountError != null) {
       return null;
     }
 
@@ -343,6 +375,7 @@ class FinanceCreateController extends _$FinanceCreateController {
       accountDescription: state.selectedFinancialAccountNumber!.description,
       paymentMethod: state.paymentMethod!,
       financialAccountNumberId: state.selectedFinancialAccountNumber!.id,
+      cashAccountId: state.selectedCashAccount!.id,
     );
   }
 }

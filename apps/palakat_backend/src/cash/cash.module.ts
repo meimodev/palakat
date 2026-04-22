@@ -6,5 +6,6 @@ import { CashMutationService } from './cash-mutation.service';
 @Module({
   imports: [PrismaModule],
   providers: [CashAccountService, CashMutationService],
+  exports: [CashAccountService, CashMutationService],
 })
 export class CashModule {}

@@ -225,6 +225,8 @@ model Revenue {
   paymentMethod            PaymentMethod
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  cashAccountId            Int
+  cashAccount              CashAccount             @relation("RevenueCashAccount", fields: [cashAccountId], references: [id])
   approvers                RevenueApprover[]
   // Override metadata — set by church admin, supersedes approver aggregation
   overrideStatus       ApprovalOverrideStatus?
@@ -238,6 +240,7 @@ model Revenue {
 
   @@index([activityId])
   @@index([financialAccountNumberId])
+  @@index([cashAccountId])
   @@index([isOverridden])
 }
 
@@ -252,6 +255,8 @@ model Expense {
   paymentMethod            PaymentMethod
   financialAccountNumberId Int?
   financialAccountNumber   FinancialAccountNumber? @relation(fields: [financialAccountNumberId], references: [id])
+  cashAccountId            Int
+  cashAccount              CashAccount             @relation("ExpenseCashAccount", fields: [cashAccountId], references: [id])
   approvers                ExpenseApprover[]
   // Override metadata — set by church admin, supersedes approver aggregation
   overrideStatus       ApprovalOverrideStatus?
@@ -265,6 +270,7 @@ model Expense {
 
   @@index([activityId])
   @@index([financialAccountNumberId])
+  @@index([cashAccountId])
   @@index([isOverridden])
 }
 
@@ -279,6 +285,8 @@ model CashAccount {
   updatedAt      DateTime       @updatedAt
   mutationsFrom  CashMutation[] @relation("CashMutationFromAccount")
   mutationsTo    CashMutation[] @relation("CashMutationToAccount")
+  revenues       Revenue[]      @relation("RevenueCashAccount")
+  expenses       Expense[]      @relation("ExpenseCashAccount")
 
   @@unique([churchId, name])
   @@index([churchId])

@@ -31,4 +31,9 @@ export class CreateExpenseDto {
   @IsInt()
   @Min(1)
   financialAccountNumberId?: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  cashAccountId: number;
 }

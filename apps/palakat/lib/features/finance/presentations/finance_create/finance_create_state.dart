@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:palakat_shared/core/constants/enums.dart';
 import 'package:palakat_shared/core/models/activity.dart';
+import 'package:palakat_shared/core/models/cash_account.dart';
 import 'package:palakat_shared/core/models/finance_type.dart';
 import 'package:palakat_shared/core/models/financial_account_number.dart';
 
@@ -32,6 +33,11 @@ abstract class FinanceCreateState with _$FinanceCreateState {
     /// The selected activity (only used in standalone mode)
     Activity? selectedActivity,
 
+    /// The selected cash account the record flows through.
+    /// Required for both standalone and embedded modes so the backend can
+    /// keep the paired CashMutation in sync.
+    CashAccount? selectedCashAccount,
+
     // Error messages for form fields
     /// Error message for amount field
     String? errorAmount,
@@ -45,6 +51,9 @@ abstract class FinanceCreateState with _$FinanceCreateState {
 
     /// Error message for activity picker field
     String? errorActivity,
+
+    /// Error message for cash account picker field
+    String? errorCashAccount,
 
     // UI state
     /// Whether the form is currently being submitted

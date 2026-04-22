@@ -57,6 +57,8 @@ import {
   ActivityType,
   ApprovalStatus,
   Bipra,
+  CashMutationReferenceType,
+  CashMutationType,
   FinancialType,
   PaymentMethod,
   PrismaClient,
@@ -279,6 +281,14 @@ interface FinancialAccountWithType {
   type: 'income' | 'expense';
   name: string;
 }
+
+interface CashAccountSeed {
+  id: number;
+  churchId: number;
+  name: string;
+}
+
+type CashAccountsByChurch = Map<number, CashAccountSeed[]>;
 
 // ============================================================================
 // FACTORY FUNCTIONS
@@ -706,6 +716,53 @@ async function seedCongregationsAndFinances(passwordHash: string) {
   return { createdChurches, mainMemberships, financialAccounts, mainAccounts };
 }
 
+async function seedCashAccountsForChurches(
+  churches: ChurchWithColumns[],
+): Promise<CashAccountsByChurch> {
+  console.log(
+    `\n💳 Creating cash accounts for ${churches.length} church(es)...`,
+  );
+
+  const accountsByChurch: CashAccountsByChurch = new Map();
+  const templates: Array<{ name: string; openingBalance: number }> = [
+    { name: 'Kas Utama', openingBalance: 5_000_000 },
+    { name: 'Bank', openingBalance: 10_000_000 },
+  ];
+
+  for (const church of churches) {
+    const created: CashAccountSeed[] = [];
+    for (const tpl of templates) {
+      const record = await prisma.cashAccount.upsert({
+        where: {
+          churchId_name: { churchId: church.id, name: tpl.name },
+        },
+        update: {
+          openingBalance: tpl.openingBalance,
+        },
+        create: {
+          churchId: church.id,
+          name: tpl.name,
+          openingBalance: tpl.openingBalance,
+        },
+        select: { id: true, name: true, churchId: true },
+      });
+      created.push({
+        id: record.id,
+        name: record.name,
+        churchId: record.churchId,
+      });
+    }
+    accountsByChurch.set(church.id, created);
+  }
+
+  const total = Array.from(accountsByChurch.values()).reduce(
+    (sum, list) => sum + list.length,
+    0,
+  );
+  console.log(`   ✅ Cash accounts seeded: ${total}`);
+  return accountsByChurch;
+}
+
 interface ApprovalRuleSpec {
   name: string;
   description: string;
@@ -942,6 +999,7 @@ async function createActivityWithConnectedModels(
   index: number,
   financialAccounts: FinancialAccountWithType[],
   financialType: ActivityFinancialType,
+  cashAccountsByChurch: CashAccountsByChurch,
   dateOverride?: Date,
   forceAllApproversApproved?: boolean,
   linkedDocumentId?: number,
@@ -1001,6 +1059,17 @@ async function createActivityWithConnectedModels(
     (fa) => fa.churchId === churchId && fa.type === 'expense',
   );
 
+  const churchCashAccounts = cashAccountsByChurch.get(churchId) ?? [];
+  const pickCashAccount = (): CashAccountSeed => {
+    if (churchCashAccounts.length === 0) {
+      throw new Error(
+        `No cash accounts seeded for church ${churchId}; cannot create revenue/expense`,
+      );
+    }
+    const idx = Math.floor(seededRandom() * churchCashAccounts.length);
+    return churchCashAccounts[idx];
+  };
+
   // Add revenue if specified (for SERVICE and EVENT types only)
   if (
     financialType === 'revenue' &&
@@ -1013,17 +1082,34 @@ async function createActivityWithConnectedModels(
         : null;
     revenueFinancialAccountId = selectedAccount?.id;
 
+    const cashAccount = pickCashAccount();
+    const revenueAmount = Math.floor(seededRandom() * 3000000) + 500000;
     const revenue = await prisma.revenue.create({
       data: {
         accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
-        amount: Math.floor(seededRandom() * 3000000) + 500000,
+        amount: revenueAmount,
         churchId,
         activityId: activity.id,
         paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
         financialAccountNumberId: revenueFinancialAccountId,
+        cashAccountId: cashAccount.id,
       },
     });
     revenueId = revenue.id;
+
+    await prisma.cashMutation.create({
+      data: {
+        churchId,
+        type: CashMutationType.IN,
+        amount: revenueAmount,
+        toAccountId: cashAccount.id,
+        fromAccountId: null,
+        happenedAt: activity.date ?? new Date(),
+        note: activityData.title,
+        referenceType: CashMutationReferenceType.REVENUE,
+        referenceId: revenue.id,
+      },
+    });
   }
 
   // Add expense if specified (for EVENT types primarily)
@@ -1035,17 +1121,34 @@ async function createActivityWithConnectedModels(
         : null;
     expenseFinancialAccountId = selectedAccount?.id;
 
+    const cashAccount = pickCashAccount();
+    const expenseAmount = Math.floor(seededRandom() * 2000000) + 300000;
     const expense = await prisma.expense.create({
       data: {
         accountNumber: `${Math.floor(1000000000 + seededRandom() * 9000000000)}`,
-        amount: Math.floor(seededRandom() * 2000000) + 300000,
+        amount: expenseAmount,
         churchId,
         activityId: activity.id,
         paymentMethod: PAYMENT_METHODS[index % PAYMENT_METHODS.length],
         financialAccountNumberId: expenseFinancialAccountId,
+        cashAccountId: cashAccount.id,
       },
     });
     expenseId = expense.id;
+
+    await prisma.cashMutation.create({
+      data: {
+        churchId,
+        type: CashMutationType.OUT,
+        amount: expenseAmount,
+        fromAccountId: cashAccount.id,
+        toAccountId: null,
+        happenedAt: activity.date ?? new Date(),
+        note: activityData.title,
+        referenceType: CashMutationReferenceType.EXPENSE,
+        referenceId: expense.id,
+      },
+    });
   }
 
   // Resolve approvers using the automatic approver linking logic
@@ -1134,6 +1237,7 @@ async function seedMainAccountActivities(
   mainMemberships: MembershipWithChurch[],
   financialAccounts: FinancialAccountWithType[],
   documents: { id: number; churchId: number }[],
+  cashAccountsByChurch: CashAccountsByChurch,
 ) {
   const totalActivities =
     mainMemberships.length * CONFIG.activitiesPerMainAccount;
@@ -1197,6 +1301,7 @@ async function seedMainAccountActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        cashAccountsByChurch,
         dateOverride,
         forceAllApproversApproved,
         doc?.id,
@@ -1233,6 +1338,7 @@ async function seedMainAccountActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        cashAccountsByChurch,
         undefined,
         undefined,
         doc?.id,
@@ -1260,6 +1366,7 @@ async function seedExtraChurchActivities(
   extraMemberships: MembershipWithChurch[],
   financialAccounts: FinancialAccountWithType[],
   documents: { id: number; churchId: number }[],
+  cashAccountsByChurch: CashAccountsByChurch,
 ) {
   console.log(
     '📅 Creating extra activities for churches (25 each, not connected to main accounts)...',
@@ -1322,6 +1429,7 @@ async function seedExtraChurchActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        cashAccountsByChurch,
         dateOverride,
         forceAllApproversApproved,
         doc?.id,
@@ -1359,6 +1467,7 @@ async function seedExtraChurchActivities(
         globalIndex,
         financialAccounts,
         financialType,
+        cashAccountsByChurch,
         undefined,
         undefined,
         doc?.id,
@@ -1474,6 +1583,33 @@ async function printSummary(
   console.log(`✔️  Approvers: ${await prisma.approver.count()}`);
   console.log(`💰 Revenues: ${await prisma.revenue.count()}`);
   console.log(`💸 Expenses: ${await prisma.expense.count()}`);
+  const cashAccountCount = await prisma.cashAccount.count();
+  const cashMutationCount = await prisma.cashMutation.count();
+  const revenueCount = await prisma.revenue.count();
+  const expenseCount = await prisma.expense.count();
+  const referencedMutations = await prisma.cashMutation.count({
+    where: {
+      referenceType: {
+        in: [
+          CashMutationReferenceType.REVENUE,
+          CashMutationReferenceType.EXPENSE,
+        ],
+      },
+    },
+  });
+  console.log(`🏦 Cash Accounts: ${cashAccountCount}`);
+  console.log(`🔁 Cash Mutations (total): ${cashMutationCount}`);
+  console.log(
+    `   ↳ Referenced by revenue/expense: ${referencedMutations} (expected ${
+      revenueCount + expenseCount
+    })`,
+  );
+  if (referencedMutations !== revenueCount + expenseCount) {
+    console.warn(
+      `⚠️  Mismatch: referenced cash mutations (${referencedMutations}) ` +
+        `!= revenue+expense count (${revenueCount + expenseCount})`,
+    );
+  }
   console.log(
     `💳 Financial Account Numbers: ${await p.financialAccountNumber.count()}`,
   );
@@ -1635,12 +1771,22 @@ async function main() {
 
     const extraMemberships: MembershipWithChurch[] = [];
 
+    const doneCashAccounts = phase('Cash accounts');
+    const cashAccountsByChurch =
+      await seedCashAccountsForChurches(mainChurches);
+    doneCashAccounts();
+
     const doneRules = phase('Approval rules');
     await seedApprovalRules(mainChurches);
     doneRules();
 
     const doneMainActs = phase('Main account activities');
-    await seedMainAccountActivities(mainMemberships, financialAccounts, []);
+    await seedMainAccountActivities(
+      mainMemberships,
+      financialAccounts,
+      [],
+      cashAccountsByChurch,
+    );
     doneMainActs();
 
     const doneExtraActs = phase('Extra church activities');
@@ -1649,6 +1795,7 @@ async function main() {
       extraMemberships,
       financialAccounts,
       [],
+      cashAccountsByChurch,
     );
     doneExtraActs();
 

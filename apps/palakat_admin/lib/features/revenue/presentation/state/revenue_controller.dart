@@ -156,18 +156,27 @@ class RevenueController extends _$RevenueController {
 
     if (revenue.id != null) {
       final payload = revenue.toJson();
+      if (revenue.cashAccountId != null) {
+        payload['cashAccountId'] = revenue.cashAccountId;
+      }
       result = await repository.updateRevenue(
         revenueId: revenue.id!,
         update: payload,
       );
     } else {
       // Create new revenue using CreateRevenueRequest
+      if (revenue.cashAccountId == null) {
+        throw AppError.serverError(
+          'cashAccountId is required to create a revenue',
+        );
+      }
       final request = CreateRevenueRequest(
         accountNumber: revenue.accountNumber,
         amount: revenue.amount,
         churchId: revenue.churchId,
         activityId: revenue.activityId,
         paymentMethod: revenue.paymentMethod,
+        cashAccountId: revenue.cashAccountId!,
       );
       result = await repository.createRevenue(request: request);
     }

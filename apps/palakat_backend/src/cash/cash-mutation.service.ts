@@ -47,13 +47,106 @@ export class CashMutationService {
   private async assertAccountOwnedByChurch(params: {
     churchId: number;
     accountId: number;
+    client?: any;
   }) {
-    const exists = await this.prisma.cashAccount.findFirst({
+    const client = params.client ?? this.prisma;
+    const exists = await client.cashAccount.findFirst({
       where: { id: params.accountId, churchId: params.churchId },
       select: { id: true },
     });
 
     if (!exists) throw new NotFoundException('Cash account not found');
+  }
+
+  /**
+   * Upserts the CashMutation linked to a Revenue/Expense reference so the
+   * monetary state stays consistent with the originating financial record.
+   *
+   * - IN (revenue): toAccountId = cashAccountId, fromAccountId = null
+   * - OUT (expense): fromAccountId = cashAccountId, toAccountId = null
+   */
+  async syncMutationForReference(
+    tx: any,
+    params: {
+      churchId: number;
+      referenceType: CashMutationReferenceType;
+      referenceId: number;
+      type: CashMutationType;
+      amount: number;
+      cashAccountId: number;
+      happenedAt: Date;
+      note?: string | null;
+      createdById?: number | null;
+    },
+  ) {
+    const {
+      churchId,
+      referenceType,
+      referenceId,
+      type,
+      amount,
+      cashAccountId,
+      happenedAt,
+      note,
+      createdById,
+    } = params;
+
+    if (type !== CashMutationType.IN && type !== CashMutationType.OUT) {
+      throw new BadRequestException(
+        'syncMutationForReference only supports IN or OUT mutations',
+      );
+    }
+
+    await this.assertAccountOwnedByChurch({
+      churchId,
+      accountId: cashAccountId,
+      client: tx,
+    });
+
+    const data: any = {
+      churchId,
+      type,
+      amount,
+      happenedAt,
+      note: note ?? null,
+      referenceType,
+      referenceId,
+      createdById: createdById ?? null,
+      fromAccountId: type === CashMutationType.OUT ? cashAccountId : null,
+      toAccountId: type === CashMutationType.IN ? cashAccountId : null,
+    };
+
+    const existing = await tx.cashMutation.findFirst({
+      where: { churchId, referenceType, referenceId },
+      select: { id: true },
+    });
+
+    if (existing) {
+      return tx.cashMutation.update({
+        where: { id: existing.id },
+        data,
+      });
+    }
+
+    return tx.cashMutation.create({ data });
+  }
+
+  /**
+   * Deletes the CashMutation row linked to a Revenue/Expense reference, if
+   * one exists. Safe to call when the referenced record is being deleted.
+   */
+  async deleteMutationForReference(
+    tx: any,
+    params: {
+      churchId: number;
+      referenceType: CashMutationReferenceType;
+      referenceId: number;
+    },
+  ) {
+    const { churchId, referenceType, referenceId } = params;
+    await tx.cashMutation.deleteMany({
+      where: { churchId, referenceType, referenceId },
+    });
   }
 
   private validateMutation(dto: CreateCashMutationDto) {

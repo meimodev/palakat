@@ -4,7 +4,12 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { FinancialType } from '../generated/prisma/client';
+import {
+  CashMutationReferenceType,
+  CashMutationType,
+  FinancialType,
+} from '../generated/prisma/client';
+import { CashMutationService } from '../cash/cash-mutation.service';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -17,7 +22,24 @@ export class ExpenseService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
+    private cashMutationService: CashMutationService,
   ) {}
+
+  private async assertCashAccountOwnedByChurch(
+    tx: any,
+    churchId: number,
+    cashAccountId: number,
+  ) {
+    const exists = await tx.cashAccount.findFirst({
+      where: { id: cashAccountId, churchId },
+      select: { id: true },
+    });
+    if (!exists) {
+      throw new BadRequestException(
+        `Cash account ${cashAccountId} not found for church ${churchId}`,
+      );
+    }
+  }
 
   private emitExpenseFinanceEvent(
     eventName: 'finance.created' | 'finance.updated' | 'finance.deleted',
@@ -99,6 +121,7 @@ export class ExpenseService {
         },
       },
       financialAccountNumber: true,
+      cashAccount: true,
     };
   }
 
@@ -333,20 +356,30 @@ export class ExpenseService {
   }
 
   async remove(id: number) {
-    const expense = await (this.prisma as any).expense.delete({
-      where: { id },
-      include: {
-        approvers: {
-          select: {
-            membershipId: true,
+    const expense = await (this.prisma as any).$transaction(async (tx: any) => {
+      const deleted = await tx.expense.delete({
+        where: { id },
+        include: {
+          approvers: {
+            select: {
+              membershipId: true,
+            },
+          },
+          activity: {
+            select: {
+              id: true,
+            },
           },
         },
-        activity: {
-          select: {
-            id: true,
-          },
-        },
-      },
+      });
+
+      await this.cashMutationService.deleteMutationForReference(tx, {
+        churchId: deleted.churchId,
+        referenceType: CashMutationReferenceType.EXPENSE,
+        referenceId: deleted.id,
+      });
+
+      return deleted;
     });
 
     this.emitExpenseFinanceEvent('finance.deleted', expense, new Date());
@@ -359,8 +392,13 @@ export class ExpenseService {
   async create(
     createExpenseDto: CreateExpenseDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
-      createExpenseDto;
+    const {
+      financialAccountNumberId,
+      accountNumber,
+      activityId,
+      cashAccountId,
+      ...rest
+    } = createExpenseDto;
 
     const resolvedFinancialAccount = await this.resolveFinancialAccount(
       rest.churchId,
@@ -371,6 +409,7 @@ export class ExpenseService {
     const data: any = {
       ...rest,
       activityId,
+      cashAccountId,
       accountNumber: resolvedFinancialAccount.accountNumber,
     };
 
@@ -381,8 +420,34 @@ export class ExpenseService {
 
     const include = this.buildExpenseInclude();
     const expense = await (this.prisma as any).$transaction(async (tx: any) => {
+      await this.assertCashAccountOwnedByChurch(
+        tx,
+        rest.churchId,
+        cashAccountId,
+      );
+
       const createdExpense = await tx.expense.create({ data });
       await this.syncApprovers(tx, createdExpense.id, rest.churchId);
+
+      const activityTitle = activityId
+        ? await tx.activity.findUnique({
+            where: { id: activityId },
+            select: { title: true, date: true },
+          })
+        : null;
+
+      await this.cashMutationService.syncMutationForReference(tx, {
+        churchId: rest.churchId,
+        referenceType: CashMutationReferenceType.EXPENSE,
+        referenceId: createdExpense.id,
+        type: CashMutationType.OUT,
+        amount: createdExpense.amount,
+        cashAccountId,
+        happenedAt:
+          activityTitle?.date ?? createdExpense.createdAt ?? new Date(),
+        note: activityTitle?.title ?? null,
+      });
+
       return tx.expense.findUniqueOrThrow({
         where: { id: createdExpense.id },
         include,
@@ -402,8 +467,13 @@ export class ExpenseService {
     id: number,
     updateExpenseDto: UpdateExpenseDto,
   ): Promise<{ message: string; data: any }> {
-    const { financialAccountNumberId, accountNumber, activityId, ...rest } =
-      updateExpenseDto;
+    const {
+      financialAccountNumberId,
+      accountNumber,
+      activityId,
+      cashAccountId,
+      ...rest
+    } = updateExpenseDto;
 
     const currentExpense = await (this.prisma as any).expense.findUniqueOrThrow(
       {
@@ -411,12 +481,19 @@ export class ExpenseService {
         select: {
           churchId: true,
           financialAccountNumberId: true,
+          cashAccountId: true,
+          amount: true,
         },
       },
     );
 
     const effectiveChurchId = rest.churchId ?? currentExpense.churchId;
+    const effectiveCashAccountId =
+      cashAccountId ?? currentExpense.cashAccountId;
     const data: any = { ...rest, activityId };
+    if (cashAccountId !== undefined) {
+      data.cashAccountId = cashAccountId;
+    }
 
     if (financialAccountNumberId !== undefined) {
       if (financialAccountNumberId === null) {
@@ -459,6 +536,18 @@ export class ExpenseService {
     const include = this.buildExpenseInclude();
     let refreshedApproverMembershipIds: number[] = [];
     const expense = await (this.prisma as any).$transaction(async (tx: any) => {
+      if (
+        cashAccountId !== undefined ||
+        (rest.churchId !== undefined &&
+          rest.churchId !== currentExpense.churchId)
+      ) {
+        await this.assertCashAccountOwnedByChurch(
+          tx,
+          effectiveChurchId,
+          effectiveCashAccountId,
+        );
+      }
+
       const updatedExpense = await tx.expense.update({
         where: { id },
         data,
@@ -471,6 +560,35 @@ export class ExpenseService {
           effectiveChurchId,
         );
       }
+
+      const effectiveActivityId =
+        activityId !== undefined
+          ? activityId
+          : ((
+              await tx.expense.findUnique({
+                where: { id },
+                select: { activityId: true },
+              })
+            )?.activityId ?? null);
+
+      const activityInfo = effectiveActivityId
+        ? await tx.activity.findUnique({
+            where: { id: effectiveActivityId },
+            select: { title: true, date: true },
+          })
+        : null;
+
+      await this.cashMutationService.syncMutationForReference(tx, {
+        churchId: effectiveChurchId,
+        referenceType: CashMutationReferenceType.EXPENSE,
+        referenceId: id,
+        type: CashMutationType.OUT,
+        amount: updatedExpense.amount,
+        cashAccountId: effectiveCashAccountId,
+        happenedAt:
+          activityInfo?.date ?? updatedExpense.updatedAt ?? new Date(),
+        note: activityInfo?.title ?? null,
+      });
 
       return tx.expense.findUniqueOrThrow({
         where: { id: updatedExpense.id },

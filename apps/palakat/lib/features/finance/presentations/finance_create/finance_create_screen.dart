@@ -183,6 +183,14 @@ class _FinanceCreateScreenState extends ConsumerState<FinanceCreateScreen> {
           errorText: state.errorPaymentMethod,
           onSelected: controller.onSelectedPaymentMethod,
         ),
+        Gap.h16,
+        // Cash account picker — required so backend can keep CashMutation in sync
+        CashAccountPicker(
+          label: 'Cash Account',
+          selectedAccount: state.selectedCashAccount,
+          errorText: state.errorCashAccount,
+          onSelected: controller.onSelectedCashAccount,
+        ),
       ],
     );
   }

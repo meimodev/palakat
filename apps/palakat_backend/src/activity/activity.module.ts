@@ -3,6 +3,7 @@ import { ActivitiesService } from './activity.service';
 import { ApproverResolverService } from './approver-resolver.service';
 import { NotificationModule } from '../notification/notification.module';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { CashModule } from '../cash/cash.module';
 
 /**
  * Activity module for managing church activities.
@@ -13,7 +14,7 @@ import { RealtimeModule } from '../realtime/realtime.module';
  * **Validates: Requirements 8.3**
  */
 @Module({
-  imports: [NotificationModule, RealtimeModule],
+  imports: [NotificationModule, RealtimeModule, CashModule],
   providers: [ActivitiesService, ApproverResolverService],
 })
 export class ActivitiesModule {}

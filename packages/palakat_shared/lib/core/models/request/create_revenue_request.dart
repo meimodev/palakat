@@ -28,6 +28,10 @@ abstract class CreateRevenueRequest with _$CreateRevenueRequest {
     /// Used to link the revenue to a predefined account number
     /// Requirements: 2.3
     int? financialAccountNumberId,
+
+    /// Required ID of the CashAccount the revenue is deposited into.
+    /// Used to keep the paired CashMutation in sync on the backend.
+    required int cashAccountId,
   }) = _CreateRevenueRequest;
 
   factory CreateRevenueRequest.fromJson(Map<String, dynamic> json) =>

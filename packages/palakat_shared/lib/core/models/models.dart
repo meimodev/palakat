@@ -15,6 +15,7 @@ export 'auth_permissions.dart';
 export 'auth_response.dart';
 export 'auth_tokens.dart';
 export 'billing.dart';
+export 'cash_account.dart';
 export 'church.dart';
 export 'church_permission_policy.dart';
 export 'church_request.dart';

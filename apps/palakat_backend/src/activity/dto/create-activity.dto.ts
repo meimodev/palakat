@@ -34,6 +34,9 @@ export class CreateFinanceDto {
   @IsOptional()
   @IsInt()
   financialAccountNumberId?: number;
+
+  @IsInt()
+  cashAccountId: number;
 }
 
 export class CreateActivityLocationDto {

@@ -243,6 +243,8 @@ export type CashAccountWhereInput = {
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   mutationsFrom?: Prisma.CashMutationListRelationFilter
   mutationsTo?: Prisma.CashMutationListRelationFilter
+  revenues?: Prisma.RevenueListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }
 
 export type CashAccountOrderByWithRelationInput = {
@@ -256,6 +258,8 @@ export type CashAccountOrderByWithRelationInput = {
   church?: Prisma.ChurchOrderByWithRelationInput
   mutationsFrom?: Prisma.CashMutationOrderByRelationAggregateInput
   mutationsTo?: Prisma.CashMutationOrderByRelationAggregateInput
+  revenues?: Prisma.RevenueOrderByRelationAggregateInput
+  expenses?: Prisma.ExpenseOrderByRelationAggregateInput
 }
 
 export type CashAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -273,6 +277,8 @@ export type CashAccountWhereUniqueInput = Prisma.AtLeast<{
   church?: Prisma.XOR<Prisma.ChurchScalarRelationFilter, Prisma.ChurchWhereInput>
   mutationsFrom?: Prisma.CashMutationListRelationFilter
   mutationsTo?: Prisma.CashMutationListRelationFilter
+  revenues?: Prisma.RevenueListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }, "id" | "churchId_name">
 
 export type CashAccountOrderByWithAggregationInput = {
@@ -312,6 +318,8 @@ export type CashAccountCreateInput = {
   church: Prisma.ChurchCreateNestedOneWithoutCashAccountsInput
   mutationsFrom?: Prisma.CashMutationCreateNestedManyWithoutFromAccountInput
   mutationsTo?: Prisma.CashMutationCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountUncheckedCreateInput = {
@@ -324,6 +332,8 @@ export type CashAccountUncheckedCreateInput = {
   updatedAt?: Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedCreateNestedManyWithoutFromAccountInput
   mutationsTo?: Prisma.CashMutationUncheckedCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountUpdateInput = {
@@ -335,6 +345,8 @@ export type CashAccountUpdateInput = {
   church?: Prisma.ChurchUpdateOneRequiredWithoutCashAccountsNestedInput
   mutationsFrom?: Prisma.CashMutationUpdateManyWithoutFromAccountNestedInput
   mutationsTo?: Prisma.CashMutationUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUncheckedUpdateInput = {
@@ -347,6 +359,8 @@ export type CashAccountUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedUpdateManyWithoutFromAccountNestedInput
   mutationsTo?: Prisma.CashMutationUncheckedUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountCreateManyInput = {
@@ -385,6 +399,11 @@ export type CashAccountListRelationFilter = {
 
 export type CashAccountOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type CashAccountScalarRelationFilter = {
+  is?: Prisma.CashAccountWhereInput
+  isNot?: Prisma.CashAccountWhereInput
 }
 
 export type CashAccountChurchIdNameCompoundUniqueInput = {
@@ -481,6 +500,34 @@ export type CashAccountUncheckedUpdateManyWithoutChurchNestedInput = {
   deleteMany?: Prisma.CashAccountScalarWhereInput | Prisma.CashAccountScalarWhereInput[]
 }
 
+export type CashAccountCreateNestedOneWithoutRevenuesInput = {
+  create?: Prisma.XOR<Prisma.CashAccountCreateWithoutRevenuesInput, Prisma.CashAccountUncheckedCreateWithoutRevenuesInput>
+  connectOrCreate?: Prisma.CashAccountCreateOrConnectWithoutRevenuesInput
+  connect?: Prisma.CashAccountWhereUniqueInput
+}
+
+export type CashAccountUpdateOneRequiredWithoutRevenuesNestedInput = {
+  create?: Prisma.XOR<Prisma.CashAccountCreateWithoutRevenuesInput, Prisma.CashAccountUncheckedCreateWithoutRevenuesInput>
+  connectOrCreate?: Prisma.CashAccountCreateOrConnectWithoutRevenuesInput
+  upsert?: Prisma.CashAccountUpsertWithoutRevenuesInput
+  connect?: Prisma.CashAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CashAccountUpdateToOneWithWhereWithoutRevenuesInput, Prisma.CashAccountUpdateWithoutRevenuesInput>, Prisma.CashAccountUncheckedUpdateWithoutRevenuesInput>
+}
+
+export type CashAccountCreateNestedOneWithoutExpensesInput = {
+  create?: Prisma.XOR<Prisma.CashAccountCreateWithoutExpensesInput, Prisma.CashAccountUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.CashAccountCreateOrConnectWithoutExpensesInput
+  connect?: Prisma.CashAccountWhereUniqueInput
+}
+
+export type CashAccountUpdateOneRequiredWithoutExpensesNestedInput = {
+  create?: Prisma.XOR<Prisma.CashAccountCreateWithoutExpensesInput, Prisma.CashAccountUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.CashAccountCreateOrConnectWithoutExpensesInput
+  upsert?: Prisma.CashAccountUpsertWithoutExpensesInput
+  connect?: Prisma.CashAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CashAccountUpdateToOneWithWhereWithoutExpensesInput, Prisma.CashAccountUpdateWithoutExpensesInput>, Prisma.CashAccountUncheckedUpdateWithoutExpensesInput>
+}
+
 export type CashAccountCreateNestedOneWithoutMutationsFromInput = {
   create?: Prisma.XOR<Prisma.CashAccountCreateWithoutMutationsFromInput, Prisma.CashAccountUncheckedCreateWithoutMutationsFromInput>
   connectOrCreate?: Prisma.CashAccountCreateOrConnectWithoutMutationsFromInput
@@ -521,6 +568,8 @@ export type CashAccountCreateWithoutChurchInput = {
   updatedAt?: Date | string
   mutationsFrom?: Prisma.CashMutationCreateNestedManyWithoutFromAccountInput
   mutationsTo?: Prisma.CashMutationCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountUncheckedCreateWithoutChurchInput = {
@@ -532,6 +581,8 @@ export type CashAccountUncheckedCreateWithoutChurchInput = {
   updatedAt?: Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedCreateNestedManyWithoutFromAccountInput
   mutationsTo?: Prisma.CashMutationUncheckedCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountCreateOrConnectWithoutChurchInput = {
@@ -573,6 +624,138 @@ export type CashAccountScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CashAccount"> | Date | string
 }
 
+export type CashAccountCreateWithoutRevenuesInput = {
+  name: string
+  currency?: string
+  openingBalance?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutCashAccountsInput
+  mutationsFrom?: Prisma.CashMutationCreateNestedManyWithoutFromAccountInput
+  mutationsTo?: Prisma.CashMutationCreateNestedManyWithoutToAccountInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCashAccountInput
+}
+
+export type CashAccountUncheckedCreateWithoutRevenuesInput = {
+  id?: number
+  name: string
+  currency?: string
+  openingBalance?: number
+  churchId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mutationsFrom?: Prisma.CashMutationUncheckedCreateNestedManyWithoutFromAccountInput
+  mutationsTo?: Prisma.CashMutationUncheckedCreateNestedManyWithoutToAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCashAccountInput
+}
+
+export type CashAccountCreateOrConnectWithoutRevenuesInput = {
+  where: Prisma.CashAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.CashAccountCreateWithoutRevenuesInput, Prisma.CashAccountUncheckedCreateWithoutRevenuesInput>
+}
+
+export type CashAccountUpsertWithoutRevenuesInput = {
+  update: Prisma.XOR<Prisma.CashAccountUpdateWithoutRevenuesInput, Prisma.CashAccountUncheckedUpdateWithoutRevenuesInput>
+  create: Prisma.XOR<Prisma.CashAccountCreateWithoutRevenuesInput, Prisma.CashAccountUncheckedCreateWithoutRevenuesInput>
+  where?: Prisma.CashAccountWhereInput
+}
+
+export type CashAccountUpdateToOneWithWhereWithoutRevenuesInput = {
+  where?: Prisma.CashAccountWhereInput
+  data: Prisma.XOR<Prisma.CashAccountUpdateWithoutRevenuesInput, Prisma.CashAccountUncheckedUpdateWithoutRevenuesInput>
+}
+
+export type CashAccountUpdateWithoutRevenuesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  openingBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutCashAccountsNestedInput
+  mutationsFrom?: Prisma.CashMutationUpdateManyWithoutFromAccountNestedInput
+  mutationsTo?: Prisma.CashMutationUpdateManyWithoutToAccountNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCashAccountNestedInput
+}
+
+export type CashAccountUncheckedUpdateWithoutRevenuesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  openingBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mutationsFrom?: Prisma.CashMutationUncheckedUpdateManyWithoutFromAccountNestedInput
+  mutationsTo?: Prisma.CashMutationUncheckedUpdateManyWithoutToAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCashAccountNestedInput
+}
+
+export type CashAccountCreateWithoutExpensesInput = {
+  name: string
+  currency?: string
+  openingBalance?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  church: Prisma.ChurchCreateNestedOneWithoutCashAccountsInput
+  mutationsFrom?: Prisma.CashMutationCreateNestedManyWithoutFromAccountInput
+  mutationsTo?: Prisma.CashMutationCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutCashAccountInput
+}
+
+export type CashAccountUncheckedCreateWithoutExpensesInput = {
+  id?: number
+  name: string
+  currency?: string
+  openingBalance?: number
+  churchId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mutationsFrom?: Prisma.CashMutationUncheckedCreateNestedManyWithoutFromAccountInput
+  mutationsTo?: Prisma.CashMutationUncheckedCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutCashAccountInput
+}
+
+export type CashAccountCreateOrConnectWithoutExpensesInput = {
+  where: Prisma.CashAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.CashAccountCreateWithoutExpensesInput, Prisma.CashAccountUncheckedCreateWithoutExpensesInput>
+}
+
+export type CashAccountUpsertWithoutExpensesInput = {
+  update: Prisma.XOR<Prisma.CashAccountUpdateWithoutExpensesInput, Prisma.CashAccountUncheckedUpdateWithoutExpensesInput>
+  create: Prisma.XOR<Prisma.CashAccountCreateWithoutExpensesInput, Prisma.CashAccountUncheckedCreateWithoutExpensesInput>
+  where?: Prisma.CashAccountWhereInput
+}
+
+export type CashAccountUpdateToOneWithWhereWithoutExpensesInput = {
+  where?: Prisma.CashAccountWhereInput
+  data: Prisma.XOR<Prisma.CashAccountUpdateWithoutExpensesInput, Prisma.CashAccountUncheckedUpdateWithoutExpensesInput>
+}
+
+export type CashAccountUpdateWithoutExpensesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  openingBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  church?: Prisma.ChurchUpdateOneRequiredWithoutCashAccountsNestedInput
+  mutationsFrom?: Prisma.CashMutationUpdateManyWithoutFromAccountNestedInput
+  mutationsTo?: Prisma.CashMutationUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutCashAccountNestedInput
+}
+
+export type CashAccountUncheckedUpdateWithoutExpensesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  openingBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  churchId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mutationsFrom?: Prisma.CashMutationUncheckedUpdateManyWithoutFromAccountNestedInput
+  mutationsTo?: Prisma.CashMutationUncheckedUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutCashAccountNestedInput
+}
+
 export type CashAccountCreateWithoutMutationsFromInput = {
   name: string
   currency?: string
@@ -581,6 +764,8 @@ export type CashAccountCreateWithoutMutationsFromInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutCashAccountsInput
   mutationsTo?: Prisma.CashMutationCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountUncheckedCreateWithoutMutationsFromInput = {
@@ -592,6 +777,8 @@ export type CashAccountUncheckedCreateWithoutMutationsFromInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   mutationsTo?: Prisma.CashMutationUncheckedCreateNestedManyWithoutToAccountInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountCreateOrConnectWithoutMutationsFromInput = {
@@ -607,6 +794,8 @@ export type CashAccountCreateWithoutMutationsToInput = {
   updatedAt?: Date | string
   church: Prisma.ChurchCreateNestedOneWithoutCashAccountsInput
   mutationsFrom?: Prisma.CashMutationCreateNestedManyWithoutFromAccountInput
+  revenues?: Prisma.RevenueCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountUncheckedCreateWithoutMutationsToInput = {
@@ -618,6 +807,8 @@ export type CashAccountUncheckedCreateWithoutMutationsToInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedCreateNestedManyWithoutFromAccountInput
+  revenues?: Prisma.RevenueUncheckedCreateNestedManyWithoutCashAccountInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCashAccountInput
 }
 
 export type CashAccountCreateOrConnectWithoutMutationsToInput = {
@@ -644,6 +835,8 @@ export type CashAccountUpdateWithoutMutationsFromInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutCashAccountsNestedInput
   mutationsTo?: Prisma.CashMutationUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUncheckedUpdateWithoutMutationsFromInput = {
@@ -655,6 +848,8 @@ export type CashAccountUncheckedUpdateWithoutMutationsFromInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mutationsTo?: Prisma.CashMutationUncheckedUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUpsertWithoutMutationsToInput = {
@@ -676,6 +871,8 @@ export type CashAccountUpdateWithoutMutationsToInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   church?: Prisma.ChurchUpdateOneRequiredWithoutCashAccountsNestedInput
   mutationsFrom?: Prisma.CashMutationUpdateManyWithoutFromAccountNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUncheckedUpdateWithoutMutationsToInput = {
@@ -687,6 +884,8 @@ export type CashAccountUncheckedUpdateWithoutMutationsToInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedUpdateManyWithoutFromAccountNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountCreateManyChurchInput = {
@@ -706,6 +905,8 @@ export type CashAccountUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mutationsFrom?: Prisma.CashMutationUpdateManyWithoutFromAccountNestedInput
   mutationsTo?: Prisma.CashMutationUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUncheckedUpdateWithoutChurchInput = {
@@ -717,6 +918,8 @@ export type CashAccountUncheckedUpdateWithoutChurchInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mutationsFrom?: Prisma.CashMutationUncheckedUpdateManyWithoutFromAccountNestedInput
   mutationsTo?: Prisma.CashMutationUncheckedUpdateManyWithoutToAccountNestedInput
+  revenues?: Prisma.RevenueUncheckedUpdateManyWithoutCashAccountNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCashAccountNestedInput
 }
 
 export type CashAccountUncheckedUpdateManyWithoutChurchInput = {
@@ -736,11 +939,15 @@ export type CashAccountUncheckedUpdateManyWithoutChurchInput = {
 export type CashAccountCountOutputType = {
   mutationsFrom: number
   mutationsTo: number
+  revenues: number
+  expenses: number
 }
 
 export type CashAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   mutationsFrom?: boolean | CashAccountCountOutputTypeCountMutationsFromArgs
   mutationsTo?: boolean | CashAccountCountOutputTypeCountMutationsToArgs
+  revenues?: boolean | CashAccountCountOutputTypeCountRevenuesArgs
+  expenses?: boolean | CashAccountCountOutputTypeCountExpensesArgs
 }
 
 /**
@@ -767,6 +974,20 @@ export type CashAccountCountOutputTypeCountMutationsToArgs<ExtArgs extends runti
   where?: Prisma.CashMutationWhereInput
 }
 
+/**
+ * CashAccountCountOutputType without action
+ */
+export type CashAccountCountOutputTypeCountRevenuesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RevenueWhereInput
+}
+
+/**
+ * CashAccountCountOutputType without action
+ */
+export type CashAccountCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseWhereInput
+}
+
 
 export type CashAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -779,6 +1000,8 @@ export type CashAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   mutationsFrom?: boolean | Prisma.CashAccount$mutationsFromArgs<ExtArgs>
   mutationsTo?: boolean | Prisma.CashAccount$mutationsToArgs<ExtArgs>
+  revenues?: boolean | Prisma.CashAccount$revenuesArgs<ExtArgs>
+  expenses?: boolean | Prisma.CashAccount$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.CashAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cashAccount"]>
 
@@ -819,6 +1042,8 @@ export type CashAccountInclude<ExtArgs extends runtime.Types.Extensions.Internal
   church?: boolean | Prisma.ChurchDefaultArgs<ExtArgs>
   mutationsFrom?: boolean | Prisma.CashAccount$mutationsFromArgs<ExtArgs>
   mutationsTo?: boolean | Prisma.CashAccount$mutationsToArgs<ExtArgs>
+  revenues?: boolean | Prisma.CashAccount$revenuesArgs<ExtArgs>
+  expenses?: boolean | Prisma.CashAccount$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.CashAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CashAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -834,6 +1059,8 @@ export type $CashAccountPayload<ExtArgs extends runtime.Types.Extensions.Interna
     church: Prisma.$ChurchPayload<ExtArgs>
     mutationsFrom: Prisma.$CashMutationPayload<ExtArgs>[]
     mutationsTo: Prisma.$CashMutationPayload<ExtArgs>[]
+    revenues: Prisma.$RevenuePayload<ExtArgs>[]
+    expenses: Prisma.$ExpensePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1240,6 +1467,8 @@ export interface Prisma__CashAccountClient<T, Null = never, ExtArgs extends runt
   church<T extends Prisma.ChurchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChurchDefaultArgs<ExtArgs>>): Prisma.Prisma__ChurchClient<runtime.Types.Result.GetResult<Prisma.$ChurchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   mutationsFrom<T extends Prisma.CashAccount$mutationsFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashAccount$mutationsFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashMutationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mutationsTo<T extends Prisma.CashAccount$mutationsToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashAccount$mutationsToArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashMutationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  revenues<T extends Prisma.CashAccount$revenuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashAccount$revenuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevenuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  expenses<T extends Prisma.CashAccount$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashAccount$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1717,6 +1946,54 @@ export type CashAccount$mutationsToArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.CashMutationScalarFieldEnum | Prisma.CashMutationScalarFieldEnum[]
+}
+
+/**
+ * CashAccount.revenues
+ */
+export type CashAccount$revenuesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Revenue
+   */
+  select?: Prisma.RevenueSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Revenue
+   */
+  omit?: Prisma.RevenueOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RevenueInclude<ExtArgs> | null
+  where?: Prisma.RevenueWhereInput
+  orderBy?: Prisma.RevenueOrderByWithRelationInput | Prisma.RevenueOrderByWithRelationInput[]
+  cursor?: Prisma.RevenueWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RevenueScalarFieldEnum | Prisma.RevenueScalarFieldEnum[]
+}
+
+/**
+ * CashAccount.expenses
+ */
+export type CashAccount$expensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Expense
+   */
+  select?: Prisma.ExpenseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Expense
+   */
+  omit?: Prisma.ExpenseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExpenseInclude<ExtArgs> | null
+  where?: Prisma.ExpenseWhereInput
+  orderBy?: Prisma.ExpenseOrderByWithRelationInput | Prisma.ExpenseOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
 }
 
 /**
