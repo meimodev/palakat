@@ -10,6 +10,7 @@ import { ApprovalStatus, PaymentMethod } from '../generated/prisma/client';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { FinanceEntryType, FinanceListQueryDto } from './dto/finance-list.dto';
+import { financeEntryInclude } from '../finance-entry/finance-entry.include';
 
 @Injectable()
 export class FinanceService {
@@ -69,120 +70,15 @@ export class FinanceService {
     return parsed;
   }
 
+  // Both revenue and expense reads share the one canonical include, which also
+  // carries `cashAccount`. Previously these were two local copies that omitted
+  // it, so finance responses drifted from the revenue/expense endpoints.
   private buildRevenueInclude() {
-    return {
-      approvers: {
-        include: {
-          membership: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-        },
-      },
-      activity: {
-        include: {
-          approvers: {
-            include: {
-              membership: {
-                include: {
-                  account: {
-                    select: {
-                      id: true,
-                      name: true,
-                      phone: true,
-                      dob: true,
-                    },
-                  },
-                  membershipPositions: true,
-                },
-              },
-            },
-          },
-          supervisor: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-          location: true,
-        },
-      },
-      financialAccountNumber: true,
-    };
+    return financeEntryInclude;
   }
 
   private buildExpenseInclude() {
-    return {
-      approvers: {
-        include: {
-          membership: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-        },
-      },
-      activity: {
-        include: {
-          approvers: {
-            include: {
-              membership: {
-                include: {
-                  account: {
-                    select: {
-                      id: true,
-                      name: true,
-                      phone: true,
-                      dob: true,
-                    },
-                  },
-                  membershipPositions: true,
-                },
-              },
-            },
-          },
-          supervisor: {
-            include: {
-              account: {
-                select: {
-                  id: true,
-                  name: true,
-                  phone: true,
-                  dob: true,
-                },
-              },
-              membershipPositions: true,
-            },
-          },
-          location: true,
-        },
-      },
-      financialAccountNumber: true,
-    };
+    return financeEntryInclude;
   }
 
   private getFinanceApprovalEntityTitle(

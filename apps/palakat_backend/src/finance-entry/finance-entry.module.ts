@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CashModule } from '../cash/cash.module';
 import { RealtimeModule } from '../realtime/realtime.module';
-import { ExpenseService } from './expense.service';
+import { FinanceEntryService } from './finance-entry.service';
 
 @Module({
   imports: [RealtimeModule, CashModule],
-  providers: [ExpenseService],
-  exports: [ExpenseService],
+  providers: [FinanceEntryService],
+  exports: [FinanceEntryService],
 })
-export class ExpenseModule {}
+export class FinanceEntryModule {}

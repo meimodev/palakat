@@ -2,7 +2,7 @@ import { PaymentMethod } from '../../generated/prisma/client';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
-export class CreateRevenueDto {
+export class CreateFinanceEntryDto {
   @IsOptional()
   @IsString()
   accountNumber?: string;
