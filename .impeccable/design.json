@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-21T00:00:00Z",
+  "title": "Design System: Palakat",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Sanctuary Magenta",
+        "canonical": "#921573",
+        "tonalRamp": ["#600E4C", "#72105A", "#801265", "#8C146E", "#9F3184", "#AC4D95", "#C077AE", "#F2E3EE"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Vespers Violet",
+        "canonical": "#6B1D84",
+        "tonalRamp": ["#471357", "#531767", "#5E1A74", "#671C7F", "#7D3893", "#8F53A2", "#C1A0CB", "#EDE4F0"]
+      },
+      "tertiary": {
+        "role": "tertiary",
+        "displayName": "Rose Signal",
+        "canonical": "#B81D5B",
+        "tonalRamp": ["#5C0E2D", "#75123A", "#8E1646", "#A31A52", "#B81D5B", "#CC4A7C", "#E08FAA", "#F5DDE5"]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Ledger Green",
+        "canonical": "#2F7A64",
+        "tonalRamp": ["#1F5142", "#255F4E", "#296B58", "#2D7560", "#488A77", "#619A89", "#A8C7BE", "#E6EFEC"]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Pending Amber",
+        "canonical": "#A56A1F",
+        "tonalRamp": ["#6D4614", "#815318", "#915D1B", "#9E661E", "#B07C3A", "#BB8E55", "#D9C0A1", "#F4EDE4"]
+      },
+      "error": {
+        "role": "semantic",
+        "displayName": "Ledger Rose",
+        "canonical": "#AD2E4F",
+        "tonalRamp": ["#721E34", "#87243E", "#982846", "#A62C4C", "#B74764", "#C16079", "#DDA7B5", "#F5E6EA"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Sanctuary Ground",
+        "canonical": "#F9F9F9",
+        "tonalRamp": ["#1A1A1A", "#777777", "#A6A6A6", "#C6C6C6", "#DADADA", "#E8E8E8", "#F3F3F3", "#F9F9F9"]
+      },
+      "surface-container-lowest": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#E2E2E2", "#E8E8E8", "#EEEEEE", "#F3F3F3", "#F9F9F9", "#FCFCFC", "#FEFEFE", "#FFFFFF"]
+      },
+      "on-surface": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1A1C1C",
+        "tonalRamp": ["#0D0E0E", "#1A1C1C", "#2F3131", "#474747", "#777777", "#A6A6A6", "#C6C6C6", "#F1F1F1"]
+      },
+      "on-surface-variant": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#474747",
+        "tonalRamp": ["#1A1C1C", "#2F3131", "#474747", "#5E5E5E", "#777777", "#A6A6A6", "#C6C6C6", "#E2E2E2"]
+      },
+      "outline-variant": {
+        "role": "neutral",
+        "displayName": "Outline Mist",
+        "canonical": "#C6C6C6",
+        "tonalRamp": ["#474747", "#777777", "#A6A6A6", "#C6C6C6", "#DADADA", "#E8E8E8", "#F3F3F3", "#F9F9F9"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Rare. One dominant number or statement on a screen with nothing else to say." },
+      "headline": { "displayName": "Headline", "purpose": "Screen titles and section openers. Top of the hierarchy on most real screens." },
+      "title": { "displayName": "Title", "purpose": "App-bar titles, card headings, list-item primaries." },
+      "body": { "displayName": "Body", "purpose": "All running text. Measure capped at 65-75 characters." },
+      "label": { "displayName": "Label", "purpose": "Buttons, chips, navigation, form labels, metadata. 700 weight with positive tracking." }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 12px 40px rgba(26, 28, 28, 0.05)",
+        "purpose": "The only sanctioned shadow. Optional atmosphere beneath a major surface. Never a hover affordance, never a card default. Source: SanctuaryDepth.ambient()."
+      },
+      {
+        "name": "ghost-border",
+        "value": "1px solid rgba(198, 198, 198, 0.15)",
+        "purpose": "The default separator, via AppColors.ghostBorder(). Dividers drop to 0.08, checkbox strokes rise to 0.3."
+      }
+    ],
+    "motion": [
+      {
+        "name": "splash",
+        "value": "InkSparkle",
+        "purpose": "Touch feedback on all Material interactive surfaces. Not a focus indicator."
+      },
+      {
+        "name": "ease-out-quart",
+        "value": "cubic-bezier(0.25, 1, 0.5, 1)",
+        "purpose": "State transitions and surface entrances. No bounce, no elastic. Honors prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "600px" },
+      { "name": "medium", "value": "768px" },
+      { "name": "expanded", "value": "960px" },
+      { "name": "wide", "value": "1600px" },
+      { "name": "sidebar-width", "value": "288px" },
+      { "name": "content-max-desktop", "value": "1440px" },
+      { "name": "content-max-mobile", "value": "840px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single dominant action on a screen. Magenta fill, flat, no shadow.",
+      "html": "<button class=\"ds-btn-primary\">Simpan</button>",
+      "css": ".ds-btn-primary { background: #921573; color: #FFFFFF; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; line-height: 1.2; padding: 16px 18px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-btn-primary:hover { background: #801265; } .ds-btn-primary:focus-visible { outline: 2px solid #921573; outline-offset: 2px; } .ds-btn-primary:active { background: #72105A; }"
+    },
+    {
+      "name": "Outlined Button",
+      "kind": "button",
+      "refersTo": "button-outlined",
+      "description": "The secondary action. Always beside a primary, never alone.",
+      "html": "<button class=\"ds-btn-outlined\">Batal</button>",
+      "css": ".ds-btn-outlined { background: #FFFFFF; color: #921573; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; line-height: 1.2; padding: 16px 18px; border: 1px solid rgba(198, 198, 198, 0.15); border-radius: 8px; cursor: pointer; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-btn-outlined:hover { background: #F3F3F3; } .ds-btn-outlined:focus-visible { outline: 2px solid #921573; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Tertiary actions and inline navigation.",
+      "html": "<button class=\"ds-btn-text\">Lihat semua</button>",
+      "css": ".ds-btn-text { background: transparent; color: #921573; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-btn-text:hover { background: #F3F3F3; } .ds-btn-text:focus-visible { outline: 2px solid #921573; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Borderless and filled. The theme ships no focus border; this snippet adds the visible focus treatment the spec calls for.",
+      "html": "<input class=\"ds-input-field\" type=\"text\" placeholder=\"Cari lagu\" />",
+      "css": ".ds-input-field { background: #EEEEEE; color: #1A1C1C; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.55; padding: 16px; border: none; border-radius: 8px; width: 100%; box-sizing: border-box; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-input-field::placeholder { color: rgba(71, 71, 71, 0.72); } .ds-input-field:hover { background: #E8E8E8; } .ds-input-field:focus-visible { outline: 2px solid #921573; outline-offset: 0; background: #FFFFFF; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill chip. Selection is a fill change, never a border change.",
+      "html": "<div style=\"display:flex; gap:8px;\"><button class=\"ds-chip\">Semua</button><button class=\"ds-chip ds-chip-selected\">Minggu ini</button></div>",
+      "css": ".ds-chip { background: #EEEEEE; color: #1A1C1C; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2; padding: 6px 12px; border: none; border-radius: 999px; cursor: pointer; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-chip:hover { background: #E8E8E8; } .ds-chip:focus-visible { outline: 2px solid #921573; outline-offset: 2px; } .ds-chip-selected { background: #921573; color: #FFFFFF; } .ds-chip-selected:hover { background: #801265; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Paper White on Sanctuary Ground. Flat, borderless, 8px. Must earn itself.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Ibadah Kolom 4</div><div class=\"ds-card-meta\">Minggu, 26 Juli &middot; 17.00</div></div>",
+      "css": ".ds-card { background: #FFFFFF; border-radius: 8px; padding: 16px; } .ds-card-title { color: #1A1C1C; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 16px; font-weight: 500; line-height: 1.34; } .ds-card-meta { color: #474747; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.5; margin-top: 4px; }"
+    },
+    {
+      "name": "List Item",
+      "kind": "custom",
+      "refersTo": "list-item",
+      "description": "The workhorse of the system and the preferred alternative to a card grid. Ghost divider between rows.",
+      "html": "<div class=\"ds-list\"><div class=\"ds-list-item\"><span class=\"ds-list-primary\">KJ 001 &mdash; Haleluya, Pujilah</span><span class=\"ds-list-secondary\">Kidung Jemaat</span></div><div class=\"ds-list-item\"><span class=\"ds-list-primary\">KJ 002 &mdash; Suci, Suci, Suci</span><span class=\"ds-list-secondary\">Kidung Jemaat</span></div></div>",
+      "css": ".ds-list { background: #FFFFFF; border-radius: 8px; overflow: hidden; } .ds-list-item { display: flex; flex-direction: column; gap: 2px; padding: 10px 16px; cursor: pointer; transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-list-item + .ds-list-item { border-top: 1px solid rgba(198, 198, 198, 0.08); } .ds-list-item:hover { background: #F3F3F3; } .ds-list-primary { color: #1A1C1C; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 16px; font-weight: 400; line-height: 1.55; } .ds-list-secondary { color: #474747; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.5; }"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Mobile shell. Destinations always visible and always labelled; no hidden overlay menus.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-item-active\" href=\"#\">Beranda</a><a class=\"ds-nav-item\" href=\"#\">Lagu</a><a class=\"ds-nav-item\" href=\"#\">Artikel</a><a class=\"ds-nav-item\" href=\"#\">Gereja</a></nav>",
+      "css": ".ds-nav { display: flex; justify-content: space-around; background: rgba(249, 249, 249, 0.92); padding: 8px 0; } .ds-nav-item { color: #474747; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.35px; line-height: 1.18; text-decoration: none; padding: 8px 12px; border-radius: 8px; transition: color 0.2s cubic-bezier(0.25, 1, 0.5, 1); } .ds-nav-item:hover { color: #1A1C1C; } .ds-nav-item:focus-visible { outline: 2px solid #921573; outline-offset: 2px; } .ds-nav-item-active { color: #921573; }"
+    },
+    {
+      "name": "Status Marker",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Financial and approval state. Demonstrates the Two-Signal Rule: color plus icon plus label, never color alone.",
+      "html": "<div style=\"display:flex; gap:12px; flex-wrap:wrap;\"><span class=\"ds-status ds-status-confirmed\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Disetujui</span><span class=\"ds-status ds-status-pending\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><polyline points=\"12 7 12 12 15 14\"></polyline></svg>Menunggu</span><span class=\"ds-status ds-status-error\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"></line></svg>Ditolak</span></div>",
+      "css": ".ds-status { display: inline-flex; align-items: center; gap: 6px; font-family: OpenSans, Roboto, system-ui, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2; padding: 6px 12px; border-radius: 999px; } .ds-status-confirmed { background: #E6EFEC; color: #1F5142; } .ds-status-pending { background: #F4EDE4; color: #6D4614; } .ds-status-error { background: #EBCDD5; color: #721E34; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Sanctuary",
+    "overview": "A sanctuary is orderly without being cold, and it does not shout to be taken seriously. The room is calm, the light is even, and the few things that carry meaning are placed deliberately. Palakat's interface works the same way: a near-white ground (#F9F9F9) holds almost every surface, depth comes from tonal steps rather than shadow, and the magenta accent appears only where a member or operator is meant to act. The code already carries this posture in its own vocabulary: SanctuaryLayout, SanctuaryDepth, ghostBorder().\n\nThe system serves two very different sessions from one visual language. A member opens the app for thirty seconds during service to find a song. A treasurer sits with the admin console for an hour reconciling cash. Neither gets a separate aesthetic. What changes between them is density, not personality: the same 8px corner, the same borderless filled input, the same magenta reserved for intent. Consistency here is a trust argument, because the app that announces Sunday's activity is the same app that reports where the offering went.\n\nThis system explicitly rejects the generic SaaS dashboard, with its hero-metric tiles, identical card grids, and gradient accents applied as decoration. It rejects enterprise accounting software, with its grey walls of dense tables and cryptic labels. It rejects the megachurch marketing app, with stock photography and motivational typography standing in for information. And it rejects the consumer social feed, with badge spam and engagement mechanics competing for a member's attention. Every one of those failures is a container or a color used where a decision should have been made.",
+    "keyCharacteristics": [
+      "Near-white ground; a five-step neutral surface ramp does the layering",
+      "Magenta accent (#921573) reserved for action and selection, never decoration",
+      "Flat at rest: every theme entry ships elevation: 0",
+      "Hairline ghost borders (8-15% opacity) instead of hard rules",
+      "8px corner everywhere; 16px only for floating surfaces; pills only for chips",
+      "Semantic status colors (success / warning / error) never carry meaning alone"
+    ],
+    "rules": [
+      {
+        "name": "The Reserved Accent Rule",
+        "body": "Sanctuary Magenta covers no more than 10% of any screen. It marks what the user acts on. A heading is not an action. A card border is not an action. A decorative flourish is not an action. If magenta appears anywhere the user cannot tap, remove it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-Signal Rule",
+        "body": "Financial and approval state is never carried by color alone. Confirmed, unconfirmed, and pending must each pair their color with a second signal: a label, an icon, or a position in the layout. A treasurer with color-vision deficiency must be able to close the month.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Gradient Rule",
+        "body": "AppColors.primaryGradient exists in the codebase and is legacy. Do not reach for it in new work. Gradients on text are forbidden outright; gradients as surface decoration are forbidden; the accent carries meaning as a flat fill or not at all.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Gap Rule",
+        "body": "Adjacent roles must differ by at least one weight step or 1.25x in size. If a heading and the text under it look like the same thing at arm's length, the hierarchy has failed and no amount of color will fix it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Label-Is-Not-Body Rule",
+        "body": "Label styles are 700 weight with positive tracking. Never use a label style for a sentence, and never set a button in body weight.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "Nothing casts a shadow because it exists. If a surface needs to be distinguished, move it one step on the neutral ramp first. Reach for Ambient only when tone alone has failed.",
+        "section": "elevation"
+      },
+      {
+        "name": "The 2014 Test",
+        "body": "If a surface looks like a 2014 Material app, the shadow is too dark and the blur is too small. Ambient is 40px of blur at 5%. Anything tighter or darker is wrong.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do start every screen on Sanctuary Ground (#F9F9F9) and step up to Paper White (#FFFFFF) only for content surfaces that need separation.",
+      "Do keep Sanctuary Magenta (#921573) under 10% of the screen and only on things the user can act on.",
+      "Do express grouping with the 12 / 16 / 24px spacing scale and type weight before reaching for a container.",
+      "Do pair every financial and approval state with a second non-color signal: label, icon, or position.",
+      "Do use list items with ghost dividers where a card grid is the reflex.",
+      "Do hold the 8px corner. 16px is for floating surfaces only; 999px is for chips only.",
+      "Do cap body measure at 65-75 characters, especially in the admin console.",
+      "Do let longer Indonesian labels wrap rather than truncate.",
+      "Do honor reduced-motion preferences; motion in this system is state feedback, never choreography."
+    ],
+    "donts": [
+      "Don't build a generic SaaS dashboard: no hero-metric tiles, no identical card grids, no gradient accents, no decorative chrome around content that could stand alone.",
+      "Don't build enterprise accounting software: no grey walls of dense tables, no cryptic column labels, no screens that expose raw database shape.",
+      "Don't build a megachurch marketing app: no stock photography, no hero video, no motivational typography where informational design is needed.",
+      "Don't build a consumer social feed: no infinite scroll, no engagement mechanics, no badge spam, no notification noise competing with content.",
+      "Don't use background-clip: text with a gradient, or reach for AppColors.primaryGradient in new work.",
+      "Don't use a colored border-left or border-right above 1px as a stripe on cards, list items, callouts, or alerts. Use a full ghost border, a tonal fill, or nothing.",
+      "Don't nest a card inside a card. Ever.",
+      "Don't add a shadow to indicate hover. Change tone.",
+      "Don't hide operator features behind unusual interaction patterns; work destinations are standard, labelled, and visible.",
+      "Don't introduce a second typeface. One humanist sans, five roles, weight and scale do the rest.",
+      "Don't let a warning banner, setup prompt, or system notice sit above the screen's dominant content.",
+      "Don't reach for a modal first. Exhaust inline and progressive alternatives."
+    ]
+  }
+}

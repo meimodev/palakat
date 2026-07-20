@@ -112,12 +112,6 @@ class AppColors {
   static const Color inverseOnSurface = Color(0xFFF1F1F1);
   static const Color inversePrimary = Color(0xFFD19DC4);
 
-  static const LinearGradient primaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF921573), Color(0xFF6B1D84)],
-  );
-
   static Color ghostBorder([double opacity = 0.15]) =>
       outlineVariant.withValues(alpha: opacity);
 }

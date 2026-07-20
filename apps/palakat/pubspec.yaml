@@ -102,21 +102,7 @@ flutter:
     - assets/icons/app/
     - .env
 
-  fonts:
-    - family: OpenSans
-      fonts:
-        - asset: assets/fonts/OpenSans-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/OpenSans-ExtraBold.ttf
-          weight: 800
-        - asset: assets/fonts/OpenSans-Light.ttf
-          weight: 300
-        - asset: assets/fonts/OpenSans-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/OpenSans-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/OpenSans-SemiBold.ttf
-          weight: 600
+  # OpenSans now ships from palakat_shared so all three apps share one typeface.
 
 # Flutter gen configuration
 flutter_gen:

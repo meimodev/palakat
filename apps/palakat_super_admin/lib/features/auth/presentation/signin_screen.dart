@@ -148,7 +148,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(
                             SanctuaryLayout.radiusLarge,
                           ),

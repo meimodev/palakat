@@ -34,6 +34,9 @@ class SanctuaryLayout {
   }
 }
 
+/// Fonts ship from this package, so the family needs the `packages/` prefix.
+const String kAppFontFamily = 'packages/palakat_shared/OpenSans';
+
 class SanctuaryDepth {
   const SanctuaryDepth._();
 
@@ -77,6 +80,7 @@ ThemeData buildAppTheme() {
   final baseTheme = ThemeData(
     useMaterial3: true,
     colorScheme: baseColorTheme,
+    fontFamily: kAppFontFamily,
     scaffoldBackgroundColor: AppColors.background,
     canvasColor: AppColors.background,
   );
@@ -118,9 +122,11 @@ ThemeData buildAppTheme() {
         borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
         borderSide: BorderSide.none,
       ),
+      // Fields are borderless at rest; focus is the one state that must be
+      // visible without color perception alone (WCAG 2.4.7 / 1.4.11).
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
-        borderSide: BorderSide.none,
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
@@ -131,10 +137,7 @@ ThemeData buildAppTheme() {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(SanctuaryLayout.radius),
-        borderSide: BorderSide(
-          color: AppColors.error.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: AppColors.error, width: 2),
       ),
       isDense: true,
       filled: true,

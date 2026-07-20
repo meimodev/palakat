@@ -78,3 +78,21 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+
+  # Bundled here, not per-app, so every app rendering buildAppTheme() gets the
+  # same typeface. Referenced in code as 'packages/palakat_shared/OpenSans'.
+  fonts:
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/OpenSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/OpenSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/OpenSans-ExtraBold.ttf
+          weight: 800
