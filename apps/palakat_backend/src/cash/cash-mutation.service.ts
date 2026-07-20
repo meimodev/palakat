@@ -44,7 +44,12 @@ export class CashMutationService {
     return churchId;
   }
 
-  private async assertAccountOwnedByChurch(params: {
+  /**
+   * Asserts a cash account belongs to the church. Single owner of this check —
+   * the finance flow (FinanceEntryService) delegates here rather than keeping
+   * its own copy. Pass `client` to run inside a transaction.
+   */
+  async assertAccountOwnedByChurch(params: {
     churchId: number;
     accountId: number;
     client?: any;
@@ -55,7 +60,11 @@ export class CashMutationService {
       select: { id: true },
     });
 
-    if (!exists) throw new NotFoundException('Cash account not found');
+    if (!exists) {
+      throw new NotFoundException(
+        `Cash account ${params.accountId} not found for church ${params.churchId}`,
+      );
+    }
   }
 
   /**

@@ -203,6 +203,13 @@ describe('FinanceEntryService', () => {
       const res2 = await service.create(FinancialType.EXPENSE, baseCreateDto);
       expect(res2.message).toBe('Expense created successfully');
     });
+
+    it('delegates cash-account ownership to CashMutationService', async () => {
+      await service.create(FinancialType.REVENUE, baseCreateDto);
+      expect(mockCashMutation.assertAccountOwnedByChurch).toHaveBeenCalledWith(
+        expect.objectContaining({ churchId: 1, accountId: 7, client: mockTx }),
+      );
+    });
   });
 
   describe('update — ledger direction per kind', () => {

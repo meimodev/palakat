@@ -78,22 +78,6 @@ export class FinanceEntryService {
     };
   }
 
-  private async assertCashAccountOwnedByChurch(
-    tx: any,
-    churchId: number,
-    cashAccountId: number,
-  ) {
-    const exists = await tx.cashAccount.findFirst({
-      where: { id: cashAccountId, churchId },
-      select: { id: true },
-    });
-    if (!exists) {
-      throw new BadRequestException(
-        `Cash account ${cashAccountId} not found for church ${churchId}`,
-      );
-    }
-  }
-
   private emitFinanceEvent(
     cfg: KindConfig,
     eventName: 'finance.created' | 'finance.updated' | 'finance.deleted',
@@ -385,11 +369,11 @@ export class FinanceEntryService {
     }
 
     const entry = await (this.prisma as any).$transaction(async (tx: any) => {
-      await this.assertCashAccountOwnedByChurch(
-        tx,
-        rest.churchId,
-        cashAccountId,
-      );
+      await this.cashMutationService.assertAccountOwnedByChurch({
+        churchId: rest.churchId,
+        accountId: cashAccountId,
+        client: tx,
+      });
 
       const created = await tx[cfg.model].create({ data });
       await this.syncApprovers(cfg, tx, created.id, rest.churchId);
@@ -502,11 +486,11 @@ export class FinanceEntryService {
         cashAccountId !== undefined ||
         (rest.churchId !== undefined && rest.churchId !== current.churchId)
       ) {
-        await this.assertCashAccountOwnedByChurch(
-          tx,
-          effectiveChurchId,
-          effectiveCashAccountId,
-        );
+        await this.cashMutationService.assertAccountOwnedByChurch({
+          churchId: effectiveChurchId,
+          accountId: effectiveCashAccountId,
+          client: tx,
+        });
       }
 
       const updated = await tx[cfg.model].update({
