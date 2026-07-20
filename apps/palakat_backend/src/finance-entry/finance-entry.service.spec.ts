@@ -13,6 +13,7 @@ import { FinanceEntryService } from './finance-entry.service';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { CashMutationService } from '../cash/cash-mutation.service';
+import { ApproverResolverService } from '../activity/approver-resolver.service';
 import {
   CashMutationReferenceType,
   CashMutationType,
@@ -42,6 +43,13 @@ describe('FinanceEntryService', () => {
   const mockCashMutation = {
     syncMutationForReference: jest.fn(),
     deleteMutationForReference: jest.fn(),
+    assertAccountOwnedByChurch: jest.fn(),
+  };
+
+  const mockApproverResolver = {
+    resolveFinanceApprovers: jest
+      .fn()
+      .mockResolvedValue({ membershipIds: [], matchedRuleIds: [] }),
   };
 
   beforeEach(async () => {
@@ -51,6 +59,7 @@ describe('FinanceEntryService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RealtimeEmitterService, useValue: mockRealtime },
         { provide: CashMutationService, useValue: mockCashMutation },
+        { provide: ApproverResolverService, useValue: mockApproverResolver },
       ],
     }).compile();
 
@@ -116,8 +125,11 @@ describe('FinanceEntryService', () => {
       id: 5,
       accountNumber: 'ACC-1',
     });
-    // No approval rules → resolveFinanceApproverMembershipIds returns [].
-    mockPrisma.approvalRule.findMany.mockResolvedValue([]);
+    // No approvers resolved by default.
+    mockApproverResolver.resolveFinanceApprovers.mockResolvedValue({
+      membershipIds: [],
+      matchedRuleIds: [],
+    });
 
     mockPrisma.$transaction.mockImplementation(async (arg: any) => {
       if (typeof arg === 'function') return arg(mockTx);
@@ -164,26 +176,17 @@ describe('FinanceEntryService', () => {
       );
     });
 
-    it('resolves approvers by the matching financialType', async () => {
+    it('resolves approvers through the resolver seam by financialType', async () => {
       await service.create(FinancialType.REVENUE, baseCreateDto);
-      expect(mockPrisma.approvalRule.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            financialType: FinancialType.REVENUE,
-          }),
-        }),
-      );
+      expect(
+        mockApproverResolver.resolveFinanceApprovers,
+      ).toHaveBeenCalledWith(1, FinancialType.REVENUE);
 
-      jest.clearAllMocks();
-      mockPrisma.approvalRule.findMany.mockResolvedValue([]);
+      mockApproverResolver.resolveFinanceApprovers.mockClear();
       await service.create(FinancialType.EXPENSE, baseCreateDto);
-      expect(mockPrisma.approvalRule.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            financialType: FinancialType.EXPENSE,
-          }),
-        }),
-      );
+      expect(
+        mockApproverResolver.resolveFinanceApprovers,
+      ).toHaveBeenCalledWith(1, FinancialType.EXPENSE);
     });
 
     it('reads back through the shared include (carries cashAccount)', async () => {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ActivitiesService } from './activity.service';
-import { ApproverResolverService } from './approver-resolver.service';
+import { ApproverResolverModule } from './approver-resolver.module';
 import { NotificationModule } from '../notification/notification.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { CashModule } from '../cash/cash.module';
@@ -14,7 +14,12 @@ import { CashModule } from '../cash/cash.module';
  * **Validates: Requirements 8.3**
  */
 @Module({
-  imports: [NotificationModule, RealtimeModule, CashModule],
-  providers: [ActivitiesService, ApproverResolverService],
+  imports: [
+    NotificationModule,
+    RealtimeModule,
+    CashModule,
+    ApproverResolverModule,
+  ],
+  providers: [ActivitiesService],
 })
 export class ActivitiesModule {}

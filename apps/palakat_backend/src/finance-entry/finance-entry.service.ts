@@ -10,6 +10,7 @@ import {
   FinancialType,
 } from '../generated/prisma/client';
 import { CashMutationService } from '../cash/cash-mutation.service';
+import { ApproverResolverService } from '../activity/approver-resolver.service';
 import { PrismaService } from '../prisma.service';
 import { RealtimeEmitterService } from '../realtime/realtime-emitter.service';
 import { CreateFinanceEntryDto } from './dto/create-finance-entry.dto';
@@ -45,6 +46,7 @@ export class FinanceEntryService {
     @Inject(forwardRef(() => RealtimeEmitterService))
     private realtime: RealtimeEmitterService,
     private cashMutationService: CashMutationService,
+    private approverResolver: ApproverResolverService,
   ) {}
 
   private kindConfig(kind: FinancialType): KindConfig {
@@ -115,41 +117,6 @@ export class FinanceEntryService {
     });
   }
 
-  private async resolveFinanceApproverMembershipIds(
-    cfg: KindConfig,
-    churchId: number,
-  ): Promise<number[]> {
-    const rules = await (this.prisma as any).approvalRule.findMany({
-      where: {
-        churchId,
-        financialType: cfg.financialType,
-        active: true,
-      },
-      include: {
-        positions: { select: { id: true } },
-      },
-    });
-
-    const positionIds = new Set<number>();
-    for (const rule of rules) {
-      for (const position of rule.positions) {
-        positionIds.add(position.id);
-      }
-    }
-
-    if (positionIds.size === 0) return [];
-
-    const memberships = await (this.prisma as any).membership.findMany({
-      where: {
-        churchId,
-        membershipPositions: { some: { id: { in: Array.from(positionIds) } } },
-      },
-      select: { id: true },
-    });
-
-    return memberships.map((m: { id: number }) => m.id);
-  }
-
   private async syncApprovers(
     cfg: KindConfig,
     tx: any,
@@ -160,9 +127,9 @@ export class FinanceEntryService {
       where: { [cfg.approverFk]: entryId },
     });
 
-    const membershipIds = await this.resolveFinanceApproverMembershipIds(
-      cfg,
+    const { membershipIds } = await this.approverResolver.resolveFinanceApprovers(
       churchId,
+      cfg.financialType,
     );
 
     if (membershipIds.length === 0) return [];
