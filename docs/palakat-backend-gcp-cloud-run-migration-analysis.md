@@ -243,6 +243,82 @@ Two practical notes: budget in IDR with **headroom of at least 10–15%** rather
 spot rate, and set a **billing budget alert in USD** (both clouds support this) so a currency move or a traffic
 spike surfaces before the invoice does.
 
+### 3.8 The Cloud Run free tier — already applied, and it explains everything
+
+**Every Cloud Run figure in this document is net of the free tier**, including the Lambda comparison (1 juta
+requests + 400 ribu GB-s) and the EC2 baseline (no free tier applies — the AWS 12-month free tier is long
+expired for an account already running production). Confirming the allowances used:
+
+| | Instance-based | Request-based |
+|---|---|---|
+| CPU | 240.000 vCPU-s | 180.000 vCPU-s |
+| RAM | 450.000 GiB-s | 360.000 GiB-s |
+| Requests | n/a (no request charge) | 2 juta |
+| **Total value** | **$5.22 · Rp 96.570** | **$6.02 · Rp 111.370** |
+
+Note that both compute allowances are worth **exactly $5.22**. Google sized them to equal dollar value, which
+confirms how to read the footnote *"Free tier (based on us-central1 active pricing)"*: it is a **monetary
+allowance**, not a fixed quantity of seconds. Jakarta (`asia-southeast2`) **is** on the eligible-region list,
+but because Jakarta rates are higher, the same allowance buys proportionally fewer seconds there. Treat
+Rp ~100 ribu/bulan as the value and verify the exact mechanics on your first invoice.
+
+**Two things it does not do:** it is granted **per billing account, not per service** — a migrations Job, a
+Cloud Scheduler target and the main API all draw on one pool — and Cloud Run **Jobs bill at instance-based
+rates**, so a nightly migration job competes with your service for the same allowance.
+
+#### Why this matters far more than Rp 100 ribu
+
+Convert the allowance to hours and the whole analysis snaps into focus. 240.000 vCPU-seconds is **66,7
+vCPU-hours**. A month is **730 hours**.
+
+| Active instance-hours / month | Free tier covers (at 1 vCPU) | Verdict |
+|---|---:|---|
+| 730h — always-on, **today, because of sockets** | **9,1%** | rounding error |
+| 360h (12h/day) | 18,5% | rounding error |
+| 180h (6h/day) | 37,0% | meaningful |
+| 90h (3h/day) | **74,1%** | covers most of it |
+| ≤50h (1,7h/day) | **100%** | **compute entirely free** |
+
+**The free tier is nearly worthless to you right now and transformative the moment the sockets go.** That is
+the same §2 finding wearing different clothes: holding WebSockets does not merely defeat scale-to-zero, it also
+burns through a free allowance sized for bursty workloads in the first 9% of the month.
+
+Break-even — the active-hours below which compute costs **nothing** on request-based billing:
+
+| Container size | Free up to |
+|---|---|
+| 0,5 vCPU / 512 MiB | **100 h/bulan** (3,3 h/hari) |
+| 1 vCPU / 1 GiB | **50 h/bulan** (1,7 h/hari) |
+| 2 vCPU / 2 GiB | 25 h/bulan (0,8 h/hari) |
+
+#### A single church could run for free
+
+The most concrete consequence, for a deployment of one congregation (~200 users, ~720 ribu requests/month),
+HTTP-only per §10:
+
+| Config | Gross | **Net after free tier** |
+|---|---:|---:|
+| 45h active, 0,5 vCPU / 512 MiB | $2.43 · Rp 45.038 | **Rp 0** |
+| 90h active, 0,5 vCPU / 512 MiB | $4.58 · Rp 84.749 | **Rp 0** |
+| 45h active, 1 vCPU / 1 GiB | $4.58 · Rp 84.749 | **Rp 0** |
+
+**Zero rupiah per month** — against Rp 378 ribu/bulan on EC2, which charges the same whether one person or one
+thousand use it. For a pilot, a single-church deployment, or a staging environment, that is a genuinely strong
+argument for Cloud Run that has nothing to do with the multi-church numbers elsewhere in this document. It only
+unlocks once the sockets are gone.
+
+#### Gross vs. net, for the record
+
+| Scenario | Gross | Net (the figure quoted) | Free tier saves |
+|---|---:|---:|---:|
+| 1 vCPU/1 GiB instance-based, always-on | $52.56 · Rp 972.360 | **$47.34 · Rp 875.790** | Rp 96.570 |
+| 0,5/512 instance-based, always-on | $26.28 · Rp 486.180 | **$21.06 · Rp 389.610** | Rp 96.570 |
+| 1/1 request-based, 180h, 24 juta req | $26.77 · Rp 495.282 | **$20.75 · Rp 383.912** | Rp 111.370 |
+| 1/1 request-based, 90h, 24 juta req | $18.19 · Rp 336.441 | **$12.26 · Rp 226.736** | Rp 109.705 |
+
+The headline conclusion is unchanged: at Rp ~100 ribu against a Rp 875.790 always-on bill, **the free tier does
+not rescue the socket architecture.** It rescues the one without sockets.
+
 ---
 
 ## 4. Drawbacks and blockers, specific to this codebase
@@ -593,6 +669,7 @@ Rates verified 2026-07-21.
 | Recommended path if migrating | Phase 1: lift-and-shift at `max-instances=1`, zero code changes, **Rp 390–876 ribu/bulan**. Earn multi-instance later. |
 | Cheapest fix if the real pain is Sunday burst | `t3.medium` — **Rp 658.933/bulan**, a console dropdown, no migration. |
 | Budgeting caveat | Bills are in USD. Budget IDR with **10–15% headroom** and set a USD billing alert (§3.7). |
+| Does the free tier change the answer? | **No — every figure here is already net of it** (§3.8). Worth ~Rp 100 ribu/bulan; it covers just **9,1%** of an always-on vCPU. But at ≤50 active-hours/month compute is **entirely free**, so it transforms the §10 architecture — a single-church HTTP-only deployment lands at **Rp 0/bulan**. |
 | Can we delete the WebSocket and go serverless? | Mostly yes — see §10. **Not** by moving it to Cloud Functions (those *are* Cloud Run). By deleting it: 166 of your 166 RPC actions are CRUD, not realtime. |
 
 ---
@@ -756,6 +833,12 @@ Once sockets are gone, Cloud Run's bill is driven by **active instance-hours**, 
 For scale: 24 juta requests × 150 ms is only **12,5 instance-hours of actual work** at concurrency 80. The bill
 is set by how *spread out* the traffic is, not by how much of it there is. For an app with evening and Sunday
 peaks, 90–180 active-hours/month is the honest range.
+
+**The free tier compounds this** (§3.8). At 730 always-on hours it covers 9,1% of your CPU; at 90 active-hours
+it covers **74%**; below 50 hours (100 hours at 0,5 vCPU) compute is **entirely free**. Dropping the socket
+therefore wins twice — you stop buying hours you don't use, *and* the free allowance finally covers a real
+share of the hours you do. For a single-church deployment the two effects together bring the bill to
+**Rp 0/bulan**.
 
 **Comparison at 4.000 users:**
 
