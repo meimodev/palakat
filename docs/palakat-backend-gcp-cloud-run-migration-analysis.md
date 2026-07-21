@@ -182,10 +182,12 @@ For completeness — if this were a plain REST API with no sockets, and traffic 
 | Cloud Run 0.5 vCPU / 512 MiB, request-based, 33% active | $6.79 | **Rp 125.560** |
 
 That **Rp 125 ribu/bulan** is the number Cloud Run marketing is selling you — one third of the EC2 bill, not
-2,3×. **Your open WebSockets are what stand between you and it.** If you ever move the realtime layer to a managed service (you already pay for Pusher Beams for push
-notifications — Pusher Channels would cover this), the Cloud Run economics flip completely and it becomes the
-cheapest option on the table by a wide margin. That is a genuinely interesting option and it is *not* the one
-you asked about.
+2,3×. **Your open WebSockets are what stand between you and it.**
+
+Moving the realtime layer to a managed service flips these economics. **§10 works that option through in
+full** — including the finding that 166 of the 166 socket RPC actions are not realtime at all, and a correction
+to the Pusher Channels suggestion originally made here (it costs more than the problem; use FCM, which is free
+and already in your dependency tree).
 
 ### 3.5 Lambda, priced for completeness
 
@@ -531,14 +533,21 @@ Rp 876 ribu/bulan service quietly becomes a Rp 10 juta/bulan one.
 
 ### Phase 3 — Optional, and the actual prize
 
-Move the realtime layer off your own process (Pusher Channels — you already pay Pusher for Beams — or Firestore
-listeners, which you already have Firebase for). Sockets stop pinning instances active. Cloud Run finally scales
-to zero. **§3.4's $6.79 · Rp 125.560/bulan becomes reachable — one third of today's EC2 bill — and Cloud Run
-becomes unambiguously the cheapest option.**
+Move the realtime layer off your own process so sockets stop pinning instances active, and Cloud Run can finally
+scale to zero.
 
-This is the only path where Cloud Run's economics actually beat EC2 rather than merely justifying themselves on
-ops savings. If cost reduction is the real goal, **phase 3 is the goal** — and phases 1 and 2 are just how you
-get there.
+**This phase is worked through in detail in §10**, which was added after the first draft in response to the
+follow-up question *"can the realtime transactions be moved to serverless functions?"* Two corrections to what
+this section originally said:
+
+- **Not via Cloud Functions.** Cloud Functions 2nd gen *is* Cloud Run and inherits the same
+  billed-while-connected rule (§10.1). No serverless platform holds connections cheaply.
+- **Not via Pusher Channels.** At Rp 906.500/bulan it costs more than the Cloud Run bill it would eliminate
+  (§10.5). **Use FCM** — free, unlimited, and `firebase-admin` is already wired.
+
+The genuinely good news from §10: only **10 push call sites** are truly realtime; the other 166 RPC actions are
+CRUD, and `rpc-router.service.ts` is a pure adapter over the same service layer the 27 REST controllers already
+use. The blocker is permission parity between the two transports (§10.4), not the transport swap itself.
 
 ---
 
@@ -555,6 +564,12 @@ Rates verified 2026-07-21.
 - [EC2 On-Demand pricing](https://aws.amazon.com/ec2/pricing/on-demand/) — T-family rates and Unlimited-mode credit charges
 - [Memorystore for Redis pricing](https://cloud.google.com/memorystore/docs/redis/pricing) — Basic M1 tier
 - [Upstash Redis pricing](https://upstash.com/pricing) — serverless free tier and per-command rates
+- [Cloud Run functions version comparison](https://docs.cloud.google.com/functions/docs/concepts/version-comparison)
+  — the §10.1 quote that 2nd-gen functions deploy as Cloud Run services; 60-min HTTP / 9-min event timeouts
+- [Firebase pricing](https://firebase.google.com/pricing) — FCM free and unlimited; Firestore read pricing
+  ($0.06 per 100k reads, 50k/day free) used in §10.5
+- [Pusher Channels pricing](https://pusher.com/channels/pricing/) — Sandbox 100 concurrent connections, paid
+  tiers from $49/mo, fan-out counted per delivered message (§10.5)
 - Lambda per-GB-second figures ($0.0000166667 x86 / $0.0000133334 Arm) cross-checked against
   [CloudZero's 2026 Lambda pricing guide](https://www.cloudzero.com/blog/lambda-pricing/) because AWS renders
   its own rate tables in JavaScript and they are not machine-readable.
@@ -578,3 +593,227 @@ Rates verified 2026-07-21.
 | Recommended path if migrating | Phase 1: lift-and-shift at `max-instances=1`, zero code changes, **Rp 390–876 ribu/bulan**. Earn multi-instance later. |
 | Cheapest fix if the real pain is Sunday burst | `t3.medium` — **Rp 658.933/bulan**, a console dropdown, no migration. |
 | Budgeting caveat | Bills are in USD. Budget IDR with **10–15% headroom** and set a USD billing alert (§3.7). |
+| Can we delete the WebSocket and go serverless? | Mostly yes — see §10. **Not** by moving it to Cloud Functions (those *are* Cloud Run). By deleting it: 166 of your 166 RPC actions are CRUD, not realtime. |
+
+---
+
+## 10. Follow-up: can we drop the WebSocket and move realtime to serverless functions?
+
+Asked after the first draft. Short answer: **the "serverless functions" half of the idea does not work, but the
+"drop the WebSocket" half does — and it is far more achievable than §7 Phase 3 implied.** Two separate claims,
+so take them separately.
+
+### 10.1 ❌ Moving realtime to serverless functions solves nothing — Cloud Functions *is* Cloud Run
+
+From [Google's own version-comparison doc](https://docs.cloud.google.com/functions/docs/concepts/version-comparison):
+
+> **"By deploying functions directly onto Cloud Run, your functions are automatically built as containers and
+> deployed as a Cloud Run service."**
+
+Cloud Functions 2nd gen is a packaging convenience on top of Cloud Run. Same runtime, same billing model, same
+60-minute HTTP ceiling, and — decisively — **the same §2 rule: an instance holding an open WebSocket is billed
+as active.** Moving the gateway into a "function" relocates the invoice, not the cost.
+
+Generalise it, because this is the part worth internalising: **no serverless compute platform lets you hold a
+connection cheaply.** Serverless bills for resident time; a held connection *is* resident time. Cloud Run,
+Cloud Functions, Lambda + API Gateway (§3.5, and there the connection-minutes are itemised on the bill) — all
+three charge you for it, just on different line items.
+
+The only way to stop paying to hold connections is **to stop holding them yourself** and delegate to a service
+whose entire business model is holding connections. Which leads to the half that does work.
+
+### 10.2 ✅ 166 of your 166 RPC actions are not realtime
+
+This is the finding that changes the answer. `rpc-router.service.ts` dispatches **166 actions**. Sampling the
+list:
+
+```
+account.list      church.create     finance.get        cashAccount.update
+activity.delete   column.list       document.generate  approvalRule.create
+membership.get    articles.like     expense.update     file.upload.chunk
+```
+
+These are **CRUD request/response**. Nothing about them requires a persistent connection — it is REST wearing
+a socket costume. A request goes up, a response comes back, the exchange is over.
+
+The genuinely realtime surface — server pushing to a client that did not ask — is **10 `emitToRoom` call sites**
+in three categories:
+
+| Category | Sites | Events |
+|---|---|---|
+| Notifications | `notification.service.ts` ×3 | `notification.created/updated/deleted` |
+| Entity lifecycle | `rpc-router.service.ts` ×2 | `activity.*`, `finance.*`, `approval.*` — in-app banners for admins |
+| Report job progress | `report-queue.service.ts` ×5 | `reportJob.created/updated/…` progress ticks |
+
+**Ten push points are holding an entire always-on billing model hostage.** That is the whole problem, stated
+precisely.
+
+### 10.3 ✅ The refactor is much cheaper than it looks — you already have two transports over one brain
+
+The decisive structural fact:
+
+```
+$ grep -c 'this.prisma\.'            rpc-router.service.ts   →   0
+$ grep -cE 'this\.[a-zA-Z]+Service\.' rpc-router.service.ts   →   143
+```
+
+**Zero direct database calls. 143 service delegations.** `RpcRouterService` is a *pure transport adapter* — it
+authenticates, checks permissions, normalises pagination, and hands off to the service layer. Compare a case
+body against the equivalent controller:
+
+```ts
+// rpc-router.service.ts:2070
+case 'finance.list': {
+  const { user } = await this.requireAnyOperationPermission(client, [...]);
+  const query = this.withPagination(payload) as any;
+  const res: any = await this.financeService.findAll(query, user);
+  return this.normalizePaginatedList(query, res);
+}
+
+// finance.controller.ts — same service, same method
+@Get()
+async findAll(@Query() query: FinanceListQueryDto, @Req() req: any) {
+  return this.financeService.findAll(query, req.user);
+}
+```
+
+Your architecture is already:
+
+```
+Socket RPC  ──┐
+              ├──►  Service layer (all business logic)  ──►  Prisma
+REST HTTP   ──┘
+```
+
+**27 REST controllers already exist**, covering the same domains. Dropping the socket is therefore a *transport
+swap*, not a rewrite of business logic. The backend keeps every service untouched.
+
+### 10.4 🔴 The landmine: your two transports are not at permission parity
+
+Look at that comparison again. The RPC path calls `requireAnyOperationPermission(client, ['ops.finance.revenue.create',
+'ops.finance.expense.create', 'ops.approval.finance'])`. The REST path has `@UseGuards(AuthGuard('jwt'))` and
+**nothing else** — any authenticated user reaches `financeService.findAll`.
+
+**The REST surface is less protected than the RPC surface.** If you point the Flutter client at the existing
+controllers as-is, you ship a privilege-escalation bug across the finance module and probably others.
+
+This is the actual work in this migration, and it is not transport plumbing:
+
+1. Extract `requireAnyOperationPermission` / `requireUserId` into a reusable Nest **guard** (`@RequirePermissions('ops.finance.…')`).
+2. Extract `withPagination` / `normalizePaginatedList` into an **interceptor** — you already have
+   `PaginationInterceptor` registered globally in `main.ts`, so check for overlap before adding a second one.
+3. Bring every controller to parity with its RPC counterpart, action by action, **auditing all 166** rather than
+   assuming the controller is equivalent.
+4. Only then repoint the client.
+
+Do not skip step 3 because the controllers "already exist." They exist; they are not equivalent.
+
+### 10.5 Which push transport — and *not* the one this document recommended earlier
+
+§3.4 and §7 Phase 3 suggested Pusher Channels on the grounds that you already pay Pusher for Beams. **Running
+the numbers, that advice was wrong.** Correcting it:
+
+| Option | Cost at 4.000 users | Verdict |
+|---|---:|---|
+| **FCM** (Firebase Cloud Messaging) | **Rp 0** | ✅ Free, unlimited, no per-message fee. `firebase-admin` is **already wired** (`firebase-admin.service.ts` uses `auth()` and `storage()`); you just never called `messaging()`. No new vendor. |
+| Firestore listeners | ~Rp 23.310 | Workable. 50 ribu reads/day free, then $0.06 · Rp 1.110 per 100 ribu reads. Adds a data model you don't have. |
+| Pusher Channels (Sandbox) | Rp 0 | ❌ **100 concurrent connections.** Unusable past ~100 simultaneous users. |
+| Pusher Channels (paid) | **Rp 906.500** | ❌ **Worse than the problem.** Paying Rp 906 ribu/bulan to avoid Rp 876 ribu/bulan of Cloud Run is a net loss — and fan-out counts against your quota (1 message to 50 subscribers = 51 messages). |
+| Ably | ~Rp 460 ribu est. | Consumption-based, no daily cap, better SLA. Cheaper than Pusher, still a new vendor for something FCM does free. |
+
+**Take FCM.** It costs nothing, it is already in your dependency tree, and it is the same channel your Pusher
+Beams notifications are ultimately delivered over anyway.
+
+One honest caveat: **FCM data messages are best-effort.** The OS may delay or batch them — Android Doze, iOS
+background throttling. That is fine for notifications and admin banners. It is *not* fine for the report-progress
+ticks, which want sub-second liveness while the user watches a modal.
+
+Solve that one differently and trivially: **poll `GET /report-jobs/:id` every 2 seconds while the progress modal
+is open.** Report generation is rare, user-initiated, and short. A handful of polls for 30 seconds occasionally
+is nothing — and it deletes the only category that genuinely wanted a live channel.
+
+So the mapping is:
+
+| Realtime category | Replacement |
+|---|---|
+| `notification.*` | FCM data message |
+| `activity.*` / `finance.*` / `approval.*` banners | FCM data message, or refetch-on-focus |
+| `reportJob.*` progress | Short-lived polling while the modal is open |
+
+### 10.6 What it costs — including the part that gets *more* expensive
+
+Once sockets are gone, Cloud Run's bill is driven by **active instance-hours**, not by user count. At 1 vCPU /
+1 GiB and 24 juta requests/month:
+
+| Active instance-hours / month | Cost |
+|---|---:|
+| 730h (always on — today, because of sockets) | $73.22 · Rp 1.354.607 |
+| 360h (12h/day) | $37.92 · Rp 701.594 |
+| **180h (6h/day) — realistic for a church app** | **$20.75 · Rp 383.912** |
+| 90h (3h/day) | $12.26 · Rp 226.736 |
+| 45h | $8.80 · Rp 162.800 |
+
+For scale: 24 juta requests × 150 ms is only **12,5 instance-hours of actual work** at concurrency 80. The bill
+is set by how *spread out* the traffic is, not by how much of it there is. For an app with evening and Sunday
+peaks, 90–180 active-hours/month is the honest range.
+
+**Comparison at 4.000 users:**
+
+| Architecture | Monthly |
+|---|---:|
+| EC2 today (sockets, always on) | $20.43 · Rp 377.955 |
+| Cloud Run **with** sockets (always on) | $47.34 · Rp 875.790 |
+| **Cloud Run HTTP-only + FCM (~180h)** | **$20.75 · Rp 383.912** |
+| Cloud Run HTTP-only + Pusher Channels paid | $69.75 · Rp 1.290.412 |
+
+- **vs. Cloud Run with sockets: saves Rp 491.878/bulan ≈ Rp 5,9 juta/tahun.** This is the real prize.
+- **vs. EC2 today: saves nothing.** Rp 383.912 vs Rp 377.955 — a rounding error. Be clear-eyed: this refactor
+  does **not** beat the box you already run on price. It makes *Cloud Run* affordable.
+- **It also deletes the Redis line item** (Rp 666.000/bulan Memorystore, or the Upstash tier) — no Socket.IO
+  adapter means no cross-instance pub/sub. That saving is larger than the compute saving.
+
+**And one cost that goes up, which no one mentions.** Today, one WebSocket connection is *one* Cloud Run
+request no matter how many RPCs travel over it. Switching to HTTP turns 24 juta RPC calls into **24 juta
+billable requests** — $8.80 · **Rp 162.800/bulan** in per-request charges that simply did not exist before, and
+which forms a hard floor no amount of CPU tuning removes. It is comfortably outweighed here, but it is a real
+line item and it scales with request count.
+
+### 10.7 The architectural payoff is bigger than the money
+
+Deleting the socket does not just cut ~Rp 6 juta/tahun off the Cloud Run bill. It **removes three of the
+blockers in §4 outright**:
+
+| Blocker | Status after |
+|---|---|
+| §4.4 Socket.IO sticky sessions vs. best-effort affinity | ✅ **Gone.** No sockets, no affinity requirement. |
+| §4.5 Hard 60-minute WebSocket timeout | ✅ **Gone.** HTTP requests finish in milliseconds. |
+| §3.3 Redis mandatory for multi-instance | ✅ **Gone.** No adapter, no pub/sub, no Memorystore. |
+| §4.1 Report-queue job-claim race | ❌ **Still there.** Independent of transport — still the first thing to fix. |
+| §4.3 Cron silently stops on request-based billing | ⚠️ **Still there**, and now it *bites*, because scale-to-zero is finally viable. Move both `@Cron` jobs to **Cloud Scheduler → HTTP endpoint** as part of this work. |
+
+That last row is the trap. Scale-to-zero and in-process `@Cron` are mutually exclusive. The moment this refactor
+makes scale-to-zero real, your cron jobs stop running. **Cloud Scheduler hitting an authenticated HTTP endpoint
+is the replacement**, and it must ship in the same change, not after.
+
+Multi-instance Cloud Run also becomes genuinely *safe* rather than merely affordable — which was the original
+goal behind the whole migration question.
+
+### 10.8 Honest verdict
+
+**Do it — but for the architecture, not the money.** It saves nothing against your current EC2 box. What it
+buys is a system where scale-to-zero, multi-instance, and autoscaling all actually work, instead of one where
+you adopt a serverless platform and then configure every serverless property back out of it (§6, item 2).
+
+Sequenced against §7:
+
+- The **client rewrite is the dominant cost** and it is Flutter-side, not backend. 166 actions to repoint.
+- The **backend cost is the permission-parity audit** (§10.4), not the transport plumbing. That audit is
+  security work and cannot be rushed.
+- **Fix §4.1 first regardless.** It is independent of all of this.
+- Realistic sizing: this is materially more than the 3–6 engineer-days quoted in §3.6 for a plain lift-and-shift.
+  Treat it as its own project.
+
+If you want the cheap win first: **§7 Phase 1 (lift-and-shift at `max-instances=1`) requires zero code changes
+and costs Rp 390–876 ribu/bulan.** Ship that, run it, then decide whether ~Rp 6 juta/tahun and a cleaner
+architecture justify the client rewrite. It is a real prize, but it is not urgent, and it is much easier to
+scope once the container is already running in production.
