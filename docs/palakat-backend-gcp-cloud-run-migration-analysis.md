@@ -3,6 +3,8 @@
 **Date:** 2026-07-21
 **Scope:** `apps/palakat_backend` (NestJS 10, Prisma 7 + Postgres, Socket.IO, in-process cron)
 **Question asked:** should we move off AWS to GCP Cloud Run, and how does that compare to AWS Lambda on cost and performance?
+**Currency:** all costs shown as **USD · IDR** at an assumed **Rp 18,500 / USD**. Read §3.7 before treating the
+rupiah figures as a budget — Google and AWS bill in USD, so these are conversions, not prices.
 
 ---
 
@@ -93,39 +95,55 @@ container that you rent by the vCPU-second**, and you should price it that way. 
 
 All rates verified 2026-07-21 against primary sources (linked in §8). Region: `us-central1` for Cloud Run,
 `us-east-1` for AWS. Jakarta (`asia-southeast2` / `ap-southeast-3`) runs roughly 15–25% higher on both sides;
-the *ratios* hold.
+the *ratios* hold. IDR at Rp 18,500 / USD.
 
 ### 3.1 Verified rates
+
+Billed rates are per-second and denominated in USD. Converting a per-vCPU-second rate to rupiah produces a
+meaningless fraction, so the practical column — what one unit costs if you run it for a full month — is given
+in both.
 
 | | Cloud Run (instance-based) | Cloud Run (request-based) | AWS Lambda |
 |---|---|---|---|
 | CPU | $0.000018 / vCPU-s | $0.000024 / vCPU-s active, $0.0000025 idle | bundled into GB-s |
 | Memory | $0.000002 / GiB-s | $0.0000025 / GiB-s | $0.0000166667 / GB-s (x86)<br>$0.0000133334 / GB-s (Arm) |
-| Requests | none | $0.40 / million | $0.20 / million |
-| Free tier / mo | 240,000 vCPU-s + 450,000 GiB-s | 180,000 vCPU-s + 360,000 GiB-s + 2M req | 1M req + 400,000 GB-s |
+| Requests | none | $0.40 / M · **Rp 7.400 / juta** | $0.20 / M · **Rp 3.700 / juta** |
+| Free tier / mo | 240.000 vCPU-s + 450.000 GiB-s | 180.000 vCPU-s + 360.000 GiB-s + 2 juta req | 1 juta req + 400.000 GB-s |
 
-API Gateway WebSocket (needed for any Lambda realtime path): **$1.00 / million messages** (metered in 32 KB
-increments) + **$0.25 / million connection-minutes**.
+**What one unit costs running 24/7 for a month** — the number worth memorising:
+
+| Unit | Cloud Run instance-based | Cloud Run request-based (active) |
+|---|---|---|
+| 1 vCPU | $47.30 · **Rp 875.124** | $63.07 · **Rp 1.166.832** |
+| 1 GiB RAM | $5.26 · **Rp 97.236** | $6.57 · **Rp 121.545** |
+
+So a rupiah rule of thumb: **each always-on vCPU on Cloud Run is roughly Rp 875 ribu/bulan, each GiB of RAM
+roughly Rp 100 ribu/bulan.** Size the container and you can price it in your head.
+
+API Gateway WebSocket (needed for any Lambda realtime path): **$1.00 / M messages · Rp 18.500 / juta**
+(metered in 32 KB increments) + **$0.25 / M connection-minutes · Rp 4.625 / juta**.
 
 ### 3.2 Always-on single instance — the honest apples-to-apples
 
 Because §2 means your instance is always active:
 
-| Configuration | Monthly |
-|---|---:|
-| **EC2 `t4g.small`** (2 vCPU burst / 2 GiB) + 20 GB gp3 + IPv4 | **$17.51** |
-| **EC2 `t3.small`** (2 vCPU burst / 2 GiB) + 20 GB gp3 + IPv4 | **$20.43** |
-| Cloud Run 0.5 vCPU / 512 MiB, instance-based | $21.06 |
-| Cloud Run 0.5 vCPU / 512 MiB, request-based | $30.00 |
-| **Cloud Run 1 vCPU / 1 GiB, instance-based** | **$47.34** |
-| Cloud Run 1 vCPU / 1 GiB, request-based (3M req) | $64.82 |
-| Cloud Run 1 vCPU / 2 GiB, instance-based | $52.60 |
-| Cloud Run 2 vCPU / 2 GiB, instance-based | $99.90 |
+| Configuration | Monthly (USD) | Monthly (IDR) |
+|---|---:|---:|
+| **EC2 `t4g.small`** (2 vCPU burst / 2 GiB) + 20 GB gp3 + IPv4 | **$17.51** | **Rp 324.009** |
+| **EC2 `t3.small`** (2 vCPU burst / 2 GiB) + 20 GB gp3 + IPv4 | **$20.43** | **Rp 378.029** |
+| Cloud Run 0.5 vCPU / 512 MiB, instance-based | $21.06 | Rp 389.610 |
+| Cloud Run 0.5 vCPU / 512 MiB, request-based | $30.00 | Rp 555.019 |
+| **Cloud Run 1 vCPU / 1 GiB, instance-based** | **$47.34** | **Rp 875.790** |
+| Cloud Run 1 vCPU / 1 GiB, request-based (3 juta req) | $64.82 | Rp 1.199.207 |
+| Cloud Run 1 vCPU / 2 GiB, instance-based | $52.60 | Rp 973.026 |
+| Cloud Run 2 vCPU / 2 GiB, instance-based | $99.90 | Rp 1.848.150 |
 
-EC2 line items: `t3.small` $15.18 compute + $1.60 for 20 GB gp3 + $3.65 for the public IPv4 address (AWS began
-charging $0.005/hr for all public IPv4 in Feb 2024 — easy to forget).
+EC2 line items: `t3.small` $15.18 · Rp 280.904 compute + $1.60 · Rp 29.600 for 20 GB gp3 + $3.65 · Rp 67.525
+for the public IPv4 address (AWS began charging $0.005/hr for all public IPv4 in Feb 2024 — easy to forget).
 
-**The honest number: a like-for-like Cloud Run instance (1 vCPU / 1 GiB) costs ~2.3× your current EC2 box.**
+**The honest number: a like-for-like Cloud Run instance (1 vCPU / 1 GiB) costs ~2.3× your current EC2 box —
+Rp 875.790 vs Rp 378.029 per month.** The gap is **Rp 497.761/bulan**, or **Rp 5.973.132 per year** — call it
+**~Rp 6 juta annually** for the same application doing the same work.
 
 You *can* get to parity at 0.5 vCPU / 512 MiB ($21.06). You should not want to. That is half a core and 512 MB
 for a Node process that renders PDFs with `pdfkit` and spreadsheets with `exceljs` — and on Cloud Run the
@@ -139,29 +157,32 @@ The premium is multiplicative, not fixed:
 
 | Instances (1 vCPU / 1 GiB) | Cloud Run | Equivalent EC2 `t3.small` |
 |---|---:|---:|
-| 1 | $47.34 | $20.43 |
-| 2 | $99.90 | $40.87 |
-| 3 | $152.46 | $61.30 |
-| 5 | $257.58 | $102.17 |
-| 10 | $520.38 | $204.34 |
+| 1 | $47.34 · Rp 875.790 | $20.43 · Rp 378.029 |
+| 2 | $99.90 · Rp 1.848.150 | $40.87 · Rp 756.058 |
+| 3 | $152.46 · Rp 2.820.510 | $61.30 · Rp 1.134.087 |
+| 5 | $257.58 · Rp 4.765.230 | $102.17 · Rp 1.890.145 |
+| 10 | $520.38 · **Rp 9.627.030** | $204.34 · Rp 3.780.290 |
 
-And multi-instance Cloud Run **forces Redis** (§4.1), which is a new line item:
-Memorystore Basic M1 is ~$0.049/GiB-hr ≈ **$36/mo** for 1 GiB with no free tier. Upstash serverless Redis is
-the pragmatic alternative — free at 256 MB / 500k commands/mo, then $0.20 per 100k commands. Socket.IO's Redis
-adapter is *chatty* (every cross-instance emit is a pub/sub round trip), so model the command count honestly
-before assuming the free tier holds.
+At ten instances you are paying **nearly Rp 10 juta/bulan** for compute alone — Rp 5,8 juta/bulan more than the
+EC2 equivalent, before Redis or egress.
+
+And multi-instance Cloud Run **forces Redis** (§4.4), which is a new line item:
+Memorystore Basic M1 is ~$0.049/GiB-hr ≈ **$36/mo · Rp 666.000** for 1 GiB with no free tier. Upstash
+serverless Redis is the pragmatic alternative — free at 256 MB / 500 ribu commands/mo, then $0.20 · Rp 3.700
+per 100 ribu commands. Socket.IO's Redis adapter is *chatty* (every cross-instance emit is a pub/sub round
+trip), so model the command count honestly before assuming the free tier holds.
 
 ### 3.4 The scale-to-zero case that does not apply to you
 
 For completeness — if this were a plain REST API with no sockets, and traffic ran 8 hours a day:
 
-| | Monthly |
-|---|---:|
-| Cloud Run 1 vCPU / 1 GiB, request-based, 33% active | $18.39 |
-| Cloud Run 0.5 vCPU / 512 MiB, request-based, 33% active | $6.79 |
+| | Monthly (USD) | Monthly (IDR) |
+|---|---:|---:|
+| Cloud Run 1 vCPU / 1 GiB, request-based, 33% active | $18.39 | Rp 340.289 |
+| Cloud Run 0.5 vCPU / 512 MiB, request-based, 33% active | $6.79 | **Rp 125.560** |
 
-That $6.79 is the number Cloud Run marketing is selling you. **Your open WebSockets are what stand between you
-and it.** If you ever move the realtime layer to a managed service (you already pay for Pusher Beams for push
+That **Rp 125 ribu/bulan** is the number Cloud Run marketing is selling you — one third of the EC2 bill, not
+2,3×. **Your open WebSockets are what stand between you and it.** If you ever move the realtime layer to a managed service (you already pay for Pusher Beams for push
 notifications — Pusher Channels would cover this), the Cloud Run economics flip completely and it becomes the
 cheapest option on the table by a wide margin. That is a genuinely interesting option and it is *not* the one
 you asked about.
@@ -170,17 +191,17 @@ you asked about.
 
 Assumes API Gateway WebSocket, 2 hrs/day connected per user, 150 ms and 1 GB per RPC invocation:
 
-| Users | Conn-minutes | Messages | Invoke | Duration | **Total** |
-|---|---|---|---|---|---:|
-| 200 | 0.7M → $0.18 | 0.7M → $0.72 | $0.00 | $0.00 | **$0.90** |
-| 4,000 | 14.4M → $3.60 | 24.0M → $24.00 | $4.60 | $53.33 | **$85.53** |
-| 40,000 | 144.0M → $36.00 | 240.0M → $240.00 | $47.80 | $593.33 | **$917.13** |
+| Users | Conn-minutes | Messages | Invoke | Duration | **Total (USD)** | **Total (IDR)** |
+|---|---|---|---|---|---:|---:|
+| 200 | 0,7 juta → $0.18 | 0,7 juta → $0.72 | $0.00 | $0.00 | **$0.90** | **Rp 16.650** |
+| 4.000 | 14,4 juta → $3.60 | 24 juta → $24.00 | $4.60 | $53.33 | **$85.53** | **Rp 1.582.369** |
+| 40.000 | 144 juta → $36.00 | 240 juta → $240.00 | $47.80 | $593.33 | **$917.13** | **Rp 16.966.989** |
 
 Note the shape: at small scale Lambda is nearly free; at real scale it is **the most expensive option by far**,
 and the cost is dominated by **per-message** charges — which is precisely the wrong pricing axis for a
 chatty RPC-over-socket protocol. Every `reportJob.updated` progress tick, every room broadcast, is a billable
-message. At 40k users you would be paying **$917/mo to run what a $20 EC2 box runs today**, after paying for a
-full rewrite of the realtime layer.
+message. At 40 ribu users you would be paying **~Rp 17 juta/bulan to run what a Rp 378 ribu EC2 box runs
+today** — a **45× increase** — after paying for a full rewrite of the realtime layer.
 
 **Lambda is the worst option for this workload on both cost and effort. Please drop it from consideration.**
 
@@ -188,12 +209,37 @@ full rewrite of the realtime layer.
 
 | Item | Impact |
 |---|---|
-| **Cross-cloud egress to Supabase** | Supabase runs on AWS. Cloud Run → Supabase means every Prisma query leaves GCP over the internet: **~$0.085–0.12/GiB egress**, plus ~5–15 ms added per round trip vs. same-region. Chatty ORM patterns (N+1s in `report.service.ts` loops) multiply this. Today, EC2 in the same region as Supabase pays neither. |
-| **Artifact Registry** | ~$0.10/GB-month. A NestJS + pnpm image is 300–600 MB; keeping 20 revisions is real storage. |
-| **Cloud Build** | 120 free build-minutes/day, then $0.003/min. Probably free for you. |
-| **Egress to mobile clients** | GCP premium tier ~$0.12/GiB to APAC. AWS gives 100 GB/mo free then $0.09/GiB. GCP is more expensive here and has a smaller free allowance. |
-| **Migration labour** | See §4. Realistically 3–6 engineer-days minimum, more if you scale past one instance. |
+| **Cross-cloud egress to Supabase** | Supabase runs on AWS. Cloud Run → Supabase means every Prisma query leaves GCP over the internet: **~$0.085–0.12/GiB · Rp 1.572–2.220 per GiB**, plus ~5–15 ms added per round trip vs. same-region. Chatty ORM patterns (N+1s in `report.service.ts` loops) multiply this. Today, EC2 in the same region as Supabase pays neither. |
+| **Artifact Registry** | ~$0.10/GB-month · **Rp 1.850/GB-bulan**. A NestJS + pnpm image is 300–600 MB; keeping 20 revisions is real storage. |
+| **Cloud Build** | 120 free build-minutes/day, then $0.003/min · Rp 56/menit. Probably free for you. |
+| **Egress to mobile clients** | GCP premium tier ~$0.12/GiB · **Rp 2.220/GiB** to APAC. AWS gives 100 GB/mo free then $0.09/GiB · **Rp 1.665/GiB**. GCP is more expensive here *and* has a smaller free allowance — for a mobile app shipping reports and images this is a genuine recurring difference. |
+| **Migration labour** | See §4. Realistically 3–6 engineer-days minimum, more if you scale past one instance. At any plausible Indonesian senior-dev day rate this dwarfs the first year of infrastructure difference in either direction. |
 | **A second cloud to operate** | Two IAM models, two billing consoles, two audit trails, two on-call runbooks, two sets of credentials to rotate. For a team this size that is a permanent, recurring tax. |
+
+### 3.7 The rupiah figures carry FX risk that the dollar figures do not
+
+Every number in this document is **billed in USD**. Google Cloud and AWS invoice in dollars; the rupiah column
+is a conversion at an assumed Rp 18.500/USD, not a price anyone has quoted you.
+
+That matters more than it sounds for this project. If the app is funded in rupiah — church budgets,
+congregational contributions, a local sponsor — then **your revenue is IDR and your infrastructure cost is
+USD**. Every 1% the rupiah weakens raises your real hosting bill by 1%, with no action on your part and no
+warning. Over the past several years IDR/USD has moved by well more than 10% within single years.
+
+Applied to the decision:
+
+| Scenario at Rp 18.500 | +10% IDR weakening (Rp 20.350) |
+|---|---|
+| EC2 `t3.small` — Rp 378.029/bulan | Rp 415.832/bulan (+Rp 37.803) |
+| Cloud Run 1 vCPU/1 GiB — Rp 875.790/bulan | Rp 963.369/bulan (+Rp 87.579) |
+
+**FX exposure scales with the size of the bill.** Choosing the 2,3× more expensive platform also means taking
+2,3× the currency risk on the same workload. This is not an argument against Cloud Run by itself — it is an
+argument for not carrying more USD-denominated cost than the technical case actually justifies.
+
+Two practical notes: budget in IDR with **headroom of at least 10–15%** rather than converting at today's
+spot rate, and set a **billing budget alert in USD** (both clouds support this) so a currency move or a traffic
+spike surfaces before the invoice does.
 
 ---
 
@@ -393,10 +439,11 @@ You asked for it, so here it is, unhedged.
 
 **1. The stated motivation is missing.** "Port to Cloud Run instead of AWS" is a statement about
 infrastructure, not about a problem. Nothing in this analysis can tell you whether to migrate, because the
-answer depends entirely on *why* — and the "why" is not in the request. If it is cost: **Cloud Run is 2.3×
-more expensive** for your workload, so the answer is no. If it is ops burden: yes, and read §7. If it is
-Sunday-morning burst capacity or single-AZ risk: yes, and those are good reasons. If it is "serverless is
-modern": that is not a reason, and your open WebSockets mean you would not even be serverless.
+answer depends entirely on *why* — and the "why" is not in the request. If it is cost: **Cloud Run is 2,3×
+more expensive** for your workload (**Rp 875.790 vs Rp 378.029/bulan, ~Rp 6 juta/tahun extra**), so the answer
+is no. If it is ops burden: yes, and read §7. If it is Sunday-morning burst capacity or single-AZ risk: yes,
+and those are good reasons. If it is "serverless is modern": that is not a reason, and your open WebSockets
+mean you would not even be serverless.
 
 **2. Scale-to-zero — the entire reason to pick Cloud Run — does not apply to you.** One user with the app open
 pins an instance active. You will pay for a 24/7 container with serverless pricing on top of it, which is the
@@ -416,18 +463,30 @@ with per-GiB egress attached. You would be *adding* a network boundary in the ho
 order to remove one you never complained about.
 
 **5. Lambda should not be on the list at all.** It cannot run this app, and if you rewrote the app to fit it,
-per-message pricing on a chatty RPC socket protocol produces **$917/mo at 40k users** vs. $20 today. It is the
-most expensive option on both axes — build and run.
+per-message pricing on a chatty RPC socket protocol produces **Rp 17 juta/bulan at 40 ribu users** vs. Rp 378
+ribu today — a 45× increase. It is the most expensive option on both axes — build and run.
 
 **6. The cheapest correct answer is probably not a migration.** If the pain is Sunday burst, `t3.medium` costs
-$30/mo and buys headroom today with zero migration risk. If the pain is single-AZ risk, an ALB plus a second
-EC2 instance costs less than the Cloud Run equivalent — though it hits the same §4.1/§4.2 bugs, which tells
-you those bugs are the real blocker, not the platform. **The multi-instance work is the same work regardless of
-cloud.** Do it first, then choose a platform from a position where all the options actually work.
+**$35.62 · Rp 658.933/bulan** all-in and buys headroom today with zero migration risk — still cheaper than
+Cloud Run at 1 vCPU/1 GiB (Rp 875.790), and it is a console dropdown, not a project. If the pain is single-AZ
+risk, an ALB plus a second EC2 instance costs less than the Cloud Run equivalent — though it hits the same
+§4.1 bug, which tells you that bug is the real blocker, not the platform. **The multi-instance work is the
+same work regardless of cloud.** Do it first, then choose a platform from a position where all the options
+actually work.
 
-**7. Two clouds is a permanent tax on a small team.** You would run compute on GCP, data on Supabase/AWS, push
+**7. Your costs are in USD but your funding probably is not.** See §3.7 — picking the 2,3× more expensive
+platform also means carrying 2,3× the currency exposure on the same workload, permanently.
+
+**8. Two clouds is a permanent tax on a small team.** You would run compute on GCP, data on Supabase/AWS, push
 on Pusher, and mobile builds on Codemagic. Every incident starts with "which console?" That cost never shows up
 in a pricing table and never goes away.
+
+**9. The whole decision is worth less than you think.** The spread between the cheapest and most expensive
+*viable* option here is roughly **Rp 500 ribu/bulan** — about **Rp 6 juta/tahun**. Real money for a church
+app, but also less than a week of engineering time. Do not spend a month optimising a Rp 6 juta/tahun
+decision. Pick on the technical merits (burst, redundancy, ops load), budget the difference with FX headroom,
+and move on. **The one thing genuinely worth engineering time here is the §4.1 job-claim race** — that is a
+correctness bug, and correctness bugs do not get cheaper by waiting.
 
 ---
 
@@ -444,8 +503,9 @@ blocker in §4:
 - **Zero code changes required.** One instance means: the `isProcessing` latch is still correct, cron fires
   exactly once, the in-memory Socket.IO adapter is still valid, no Redis needed.
 - Run migrations from a separate Cloud Build step, never at container start.
-- **Cost: ~$21–47/mo** depending on sizing. You are paying a premium over EC2 in exchange for deleting SSH
-  keys, systemd, Nginx, TLS renewal, and OS patching from your life. **For a one-person ops team that is a
+- **Cost: ~$21–47/mo · Rp 390 ribu – 876 ribu/bulan** depending on sizing. Against Rp 378 ribu on EC2 today,
+  the premium runs from roughly **nothing to Rp 500 ribu/bulan**. You are paying it to delete SSH keys,
+  systemd, Nginx, TLS renewal, and OS patching from your life. **For a one-person ops team that is a
   defensible trade — just make the trade knowingly.**
 - What you get immediately: zero-downtime deploys, instant rollback, zonal redundancy, managed TLS, built-in
   logging. What you do *not* get yet: burst scaling. Which was one of your two good reasons. Hence phase 2.
@@ -455,8 +515,8 @@ blocker in §4:
 Only after all of these are done and tested:
 
 1. Atomic job claim in `ReportQueueService` (`FOR UPDATE SKIP LOCKED`) — §4.1. **This is the one that matters.**
-2. Ship Redis (Upstash first; Memorystore only if command volume justifies $36/mo) and make the Socket.IO
-   adapter mandatory, not optional — §4.4.
+2. Ship Redis (Upstash first; Memorystore only if command volume justifies $36/mo · Rp 666.000) and make the
+   Socket.IO adapter mandatory, not optional — §4.4.
 3. Force `transports: ['websocket']` in the Flutter client; enable session affinity — §4.4.
 4. Bound the Prisma pool (`max: 3`), move to the Supabase transaction pooler, verify prepared-statement
    compatibility — §4.6.
@@ -465,14 +525,16 @@ Only after all of these are done and tested:
 The birthday cron (§4.2) needs no work — it is already idempotent. Sweep any *future* `@Cron` for the same
 guarantee.
 
-Then raise `max-instances`. **Costs scale linearly and steeply — $47 per always-on instance — so set the
-ceiling deliberately, not at the default.**
+Then raise `max-instances`. **Costs scale linearly and steeply — $47 · Rp 876 ribu per always-on instance — so
+set the ceiling deliberately, not at the default.** A runaway `max-instances` on Cloud Run is how a
+Rp 876 ribu/bulan service quietly becomes a Rp 10 juta/bulan one.
 
 ### Phase 3 — Optional, and the actual prize
 
 Move the realtime layer off your own process (Pusher Channels — you already pay Pusher for Beams — or Firestore
 listeners, which you already have Firebase for). Sockets stop pinning instances active. Cloud Run finally scales
-to zero. **§3.4's $6.79/month becomes reachable, and Cloud Run becomes unambiguously the cheapest option.**
+to zero. **§3.4's $6.79 · Rp 125.560/bulan becomes reachable — one third of today's EC2 bill — and Cloud Run
+becomes unambiguously the cheapest option.**
 
 This is the only path where Cloud Run's economics actually beat EC2 rather than merely justifying themselves on
 ops savings. If cost reduction is the real goal, **phase 3 is the goal** — and phases 1 and 2 are just how you
@@ -508,9 +570,11 @@ Rates verified 2026-07-21.
 |---|---|
 | Are we on Lambda today? | No. Single EC2 + Supabase. |
 | Can this app run on Lambda? | No — not without rewriting the realtime layer, the job queue, and the cron jobs. |
-| Is Cloud Run cheaper than what we run now? | **No. ~2.3× more** (~$47 vs ~$20/mo), because open WebSockets defeat scale-to-zero. |
+| Is Cloud Run cheaper than what we run now? | **No. ~2,3× more** — **Rp 875.790 vs Rp 378.029/bulan**, ~**Rp 6 juta/tahun** extra — because open WebSockets defeat scale-to-zero. |
 | Is Cloud Run cheaper than Lambda? | Yes, dramatically, at any scale that matters. |
 | Is Cloud Run faster? | Same steady-state, **worse** DB latency (cross-cloud), **much better** burst handling. |
 | Is there a good reason to migrate? | Yes: Sunday-morning burst capacity, zonal redundancy, and deleting server ops. **None of them is cost.** |
 | What should we do first, regardless? | **Fix the report-queue job-claim race (§4.1).** It blocks multi-instance on *any* platform, including a second EC2 box. The birthday cron is already idempotent and needs nothing. |
-| Recommended path if migrating | Phase 1: lift-and-shift at `max-instances=1`, zero code changes, ~$21–47/mo. Earn multi-instance later. |
+| Recommended path if migrating | Phase 1: lift-and-shift at `max-instances=1`, zero code changes, **Rp 390–876 ribu/bulan**. Earn multi-instance later. |
+| Cheapest fix if the real pain is Sunday burst | `t3.medium` — **Rp 658.933/bulan**, a console dropdown, no migration. |
+| Budgeting caveat | Bills are in USD. Budget IDR with **10–15% headroom** and set a USD billing alert (§3.7). |
