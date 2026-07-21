@@ -1,14 +1,53 @@
 # `palakat_backend` → GCP Cloud Run: Migration Plan (HTTP-only + FCM)
 
-**Date:** 2026-07-21
+**Date:** 2026-07-21 · **Revised:** 2026-07-21 (grilling session — see §0.0)
 **Companion:** [`palakat-backend-gcp-cloud-run-migration-analysis.md`](./palakat-backend-gcp-cloud-run-migration-analysis.md) — the *whether*. This document is the *how*.
 **Supersedes for deployment:** [`palakat-backend-aws-ec2-cicd-deployment-guide.md`](./palakat-backend-aws-ec2-cicd-deployment-guide.md) once Phase 8 completes.
 
 ---
 
+## 0.0 🛑 Status: not approved. This is the NO-GO branch of an open fork.
+
+**Nothing in this document is implemented until [#26](https://github.com/meimodev/palakat/issues/26) is answered.**
+
+Per [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md), there are two migrations
+on the table and Cloud Run is the **no-go** branch. Choosing to implement this plan is materially the same
+act as answering #26 "no". #26 is open, along with #14, #15, #16, #23, #24, #25, #27 and #28.
+
+Settled by the grilling session of 2026-07-21 — see
+[ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
+
+| | |
+|---|---|
+| **Effort ceiling for the alternative** | ~12–15 weeks solo FTE for the Supabase port. Beyond it, #26 is a no. |
+| **What "no" commits to** | This plan in full — socket deleted, REST surface built, Cloud Run. Not "stay as we are". |
+| **Marginal cost of "no"** | 3–5 weeks beyond genuinely shared work. Not free — which is what makes the ceiling meaningful. |
+
+### What may be worked on before #26
+
+**Frozen:** everything with a transport or permission opinion. Phases 2, 5, 7, 8, 9 in their entirety.
+
+**Permitted, because it ships nothing and is 100% reused on either branch:**
+
+- The **Phase 1 parity table** (§6). It is planning, not code, and it is the stated input to
+  [#24](https://github.com/meimodev/palakat/issues/24), the gate most likely to produce the "no".
+
+**Permitted, because they are defects independent of the verdict** (see §5 and §1.3):
+
+- Stale-job reaper, atomic job claim + concurrency test, the committed PDF font, and the dead-code deletions.
+
+**Permitted, because [#27](https://github.com/meimodev/palakat/issues/27) makes it shared:** report
+generation cannot run on Deno ([#17](https://github.com/meimodev/palakat/issues/17)), so a Node worker
+survives on Cloud Run under *either* verdict. Phase 6 scaffolding (§11) is therefore not no-go-only work.
+Accept the consequence openly: **a "go" does not remove GCP from the stack**, and the ops-burden argument
+for the Supabase port shrinks accordingly.
+
+---
+
 ## 0. Decisions taken
 
-These are settled. The plan below implements them; it does not re-argue them.
+These are settled **conditional on #26 answering "no"**. The plan below implements them; it does not
+re-argue them.
 
 | # | Decision | Consequence |
 |---|---|---|
@@ -20,6 +59,8 @@ These are settled. The plan below implements them; it does not re-argue them.
 | 6 | **`min-instances=0`, cold starts accepted** | Cheapest possible. 2–5 s on the first request after idle. Reversible. |
 | 7 | **Hard `-breaking` update gate immediately** | Socket drains in days, not weeks. Ship midweek. |
 | 8 | **Birthday cron pinned to `Asia/Makassar`**, date-matching fixed | Behaviour change: notifications move from ~15:00 to 07:00 local. |
+| 9 | **`Asia/Makassar` is app-wide, not per-church** | GMIM is a single Minahasa synod; no church sits in another Indonesian zone. `Church` gains no timezone column. Glossary term: **Church-local day** (`CONTEXT.md`). This resolves the WIB/WITA disagreement between this plan and [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) in favour of WITA. |
+| 10 | **Under a "go", identity comes from the token and scope from the row** | Not a Cloud Run decision, but it constrains Phase 1: the guard's behaviour is the thing RLS would have to reproduce. [ADR-0001](./adr/0001-identity-from-jwt-scope-from-row.md). |
 
 ### 0.1 What it costs
 
@@ -40,6 +81,12 @@ which is free).
 
 At 90 active-hours the free tier covers compute entirely and the bill is **only per-request charges**.
 
+> **Reconciling with [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md).** That document
+> quotes Rp 383.912/bulan and states plainly that Cloud Run *does not* beat EC2 on cost. Both figures are right.
+> It prices Cloud Run **with the socket still attached**; this plan prices it **with the socket deleted**. The
+> whole saving is decision 1. If the socket survives for any reason, revert to the other document's number and
+> the cost case for migrating disappears with it.
+
 ### 0.2 Sequencing — the socket work happens on EC2
 
 Running the socket on Cloud Run costs the always-on rate for every month the refactor takes. EC2 charges
@@ -51,6 +98,20 @@ Phases 6–8  ── migrate the finished thing ────►  Cloud Run, scal
 Phase 9     ── tune ──────────────────────────►  price floor
 ```
 
+**"On EC2" does not mean "shared with the Supabase branch."** The handoff plan's "nothing gets wasted"
+framing is wrong in two places, and the correction is what sets the ceiling in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md):
+
+| Phase | Shared with a "go"? | |
+|---|---|---|
+| 0 correctness fixes | ✅ yes | Defects either way. |
+| 1 parity table | ✅ yes | The RLS spec under a go; the review artefact under a no-go. |
+| 1 `PermissionsGuard` | ❌ no | Under a go this logic becomes RLS policies, not a Nest guard. |
+| 2 REST surface | ❌ **no** — 3–4 weeks | Becomes PostgREST + Edge Functions under a go. The single largest piece of throwaway work available. |
+| 3 event-driven jobs | ✅ yes | External scheduler + task queue is required on both. |
+| 4 FCM | ✅ yes | Pusher Beams retires either way. |
+| 5 client repositories | ❌ no | Different URLs, payload shapes and auth headers per branch. Move them **once**, after #26 — two `-breaking` gates is two support events. |
+| 6 scaffolding | ✅ yes | Per [#27](https://github.com/meimodev/palakat/issues/27), the report worker lands on Cloud Run under either verdict. |
+
 ---
 
 ## 1. Two corrections to the existing analysis
@@ -61,10 +122,11 @@ Both were load-bearing, and both are wrong. Established by reading the source.
 
 Analysis §10.3's central claim. **False.**
 
-- 26 controller files exist, carrying **131 route decorators**.
+- **27** controller files exist, carrying **132 route decorators**. (Re-measured 2026-07-21; the earlier
+  "26 / 131" was off by one on both counts. Matches the handoff plan's baseline.)
 - **Only 2 are registered**: `HealthController` and `VerifyController`. Every other module — `FinanceModule`,
-  `MembershipModule`, `ReportModule` and 21 more — declares `providers:` and **no `controllers:` array at all**.
-- **Zero** controllers carry any permission decorator. The count across all 26 files is 0.
+  `MembershipModule`, `ReportModule` and 22 more — declares `providers:` and **no `controllers:` array at all**.
+- **Zero** controllers carry any permission decorator. The count across all 27 files is 0.
 
 So what exists is code that has never been wired, never been guarded, and never served a request. Phase 2 is not
 alignment work — it is building the REST surface, with 131 routes of untested code as a starting draft.
@@ -77,6 +139,35 @@ under-protected. **It is not reachable.** Unregistered controllers serve nothing
 
 The risk is real but **prospective**: it appears the moment Phase 2 registers those modules. It is created by this
 migration, not inherited by it. That reframes it from "hotfix now" to "do not get Phase 2 wrong."
+
+### 1.3 ❌ "The job-claim race is a live bug"
+
+Claimed by §5's 🔴 and by the handoff plan's "do this first, it is a live bug". **It is latent, not live.**
+
+EC2 runs **one** process — `ExecStart=/usr/bin/env pnpm run start:prod` under systemd, no PM2, no cluster mode.
+The per-process `isProcessing` guard (`report-queue.service.ts:29`) therefore holds today. The race arms at
+>1 instance, which is a Cloud Run condition.
+
+**What *is* live in that file is the other half, and neither document says so: there is no stale-job reaper
+anywhere.** `getHealthSnapshot` (:50) only *counts* rows in `PROCESSING`; nothing ever resets one.
+`Restart=always` plus a deploy restart mid-render strands the job permanently — the user's modal spins with no
+error and no recovery path. That is the defect worth shipping during the freeze.
+
+Tempered by the baseline's most important fact: the project is **pre-launch**. "Live" means broken for you, not
+for users.
+
+### 1.4 ⚠️ The PDF font may or may not be broken today — one command settles it
+
+`report-renderer.ts:7-14` probes six paths. No `.ttf` is committed (`src/assets/` holds only `gmim-logo.png`),
+so candidate [5] never resolves. Whether [0] or [1] hits depends on the Ubuntu image the EC2 box was built from;
+`fonts-dejavu-core` is not present on every minimal server image. The failure is **silent** either way.
+
+```bash
+ls /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+```
+
+Regardless of the answer, the fix in §5.2 is to **commit the font** so it resolves host-independently — that is
+what makes it branch-agnostic work rather than Dockerfile work.
 
 ---
 
@@ -179,10 +270,21 @@ price case if done with a poller.
 
 Scale-to-zero and multi-instance both become real, so single-process assumptions must go first.
 
-### 0.1 🔴 Atomic job claim in `ReportQueueService`
+**All of §5 ships during the freeze** — these are defects on either branch. See §0.0.
 
-`report-queue.service.ts:29` guards with `private isProcessing = false` (per-process); `:283`/`:296` claim a job
-as `findFirst` → separate `update`. Two instances claim the same job and render it twice.
+### 0.1 🔴 Stale-job reaper (live) + atomic job claim (latent)
+
+Two separate defects, ranked correctly per §1.3.
+
+**The reaper is the live one.** Nothing resets a row stuck in `PROCESSING` — `getHealthSnapshot` (:50) counts
+them and moves on. Any restart mid-render strands the job forever. Sweep rows whose `updatedAt` is older than a
+render's worth of time back to `PENDING` (or `FAILED` past a retry count), and run it on boot as well as on a
+schedule, because boot is exactly when the stranding happened.
+
+**The atomic claim is the latent one**, armed by `max-instances=5`. `report-queue.service.ts:29` guards with
+`private isProcessing = false` (per-process); `:283`/`:296` claim a job as `findFirst` → separate `update`. Two
+instances claim the same job and render it twice. Worth fixing now anyway: the raw SQL below survives into a
+plpgsql function under a "go", so it is not throwaway work.
 
 ```ts
 const [job] = await this.prisma.$queryRaw<ReportJob[]>`
@@ -199,11 +301,10 @@ const [job] = await this.prisma.$queryRaw<ReportJob[]>`
 if (!job) return;
 ```
 
-Keep `isProcessing` as a *local* limiter. Add a **stale-job reaper** — a job stuck in `PROCESSING` never recovers
-today, and Cloud Run kills instances on every rollout and every scale-to-zero.
+Keep `isProcessing` as a *local* limiter.
 
 **Verification:** integration test running two `processQueue()` calls concurrently against one PENDING row,
-asserting exactly one render.
+asserting exactly one render. Plus a test that a `PROCESSING` row older than the threshold is reclaimed.
 
 ### 0.2 🔴 Ship the PDF font
 
@@ -217,7 +318,10 @@ Verified path arithmetic: compiled output is `dist/src/report/report-renderer.js
 `src/assets/**` → `dist/assets/**`. `src/utils/gmim-letterhead.ts:104-105` already documents and depends on this
 layout.
 
-Fix in the Dockerfile (`fonts-dejavu-core`, Phase 6) — and regardless:
+**Fix by committing the font**, not in the Dockerfile. `src/assets/fonts/NotoSans-Regular.ttf` makes candidate
+[5] resolve on every host — EC2, container, laptop, and a Supabase-branch worker alike — which is what makes this
+freeze-eligible work rather than Cloud Run work. The `fonts-dejavu-core` apt line in §11.2 becomes belt-and-braces,
+not the mechanism. And regardless:
 
 ```ts
 const UNICODE_FONT_PATH = resolveUnicodeFontPath();
@@ -384,6 +488,11 @@ gcloud scheduler jobs create http birthday-notifications \
 
 The handler must derive month/day/`dateKey` in `Asia/Makassar` too — scheduling alone does not fix date-matching.
 
+Per decision 9, that zone is **app-wide**, not per-church. `sendDailyBirthdayNotifications` derives one
+`dateKey` and loops every church with it (`birthday-notification.service.ts:16-21`), which is correct behaviour
+under a single-synod deployment and should stay that way. `Church` gains **no** timezone column. The concept is
+named **Church-local day** in `CONTEXT.md`; use that term rather than "today" or "server date".
+
 **This changes observable behaviour**: notifications move from mid-afternoon to 07:00 local. Announce it.
 
 The job is **already idempotent** and needs no logic change — `schema.prisma:677` has `dedupeKey String? @unique`,
@@ -509,6 +618,13 @@ one place authorization lives.
 ---
 
 ## 11. Phase 6 — containerize + scaffolding
+
+> **This phase is shared with the Supabase branch.** [#17](https://github.com/meimodev/palakat/issues/17)
+> established that report generation cannot run on Deno — pdfkit breaks on the filesystem sandbox, exceljs has no
+> Deno support, and the 2 s CPU / 256 MB Edge caps rule it out regardless. So ~2k lines of Node survive a "go",
+> and [#27](https://github.com/meimodev/palakat/issues/27) puts them on a Cloud Run Job. The Dockerfile,
+> Artifact Registry, secrets, WIF and Cloud Tasks pipeline below get built either way. Two consequences, both to
+> be stated rather than buried: this work is not gated on #26, and **a "go" does not remove GCP from the stack**.
 
 ### 11.1 Build facts that constrain the Dockerfile
 
@@ -855,6 +971,15 @@ already exists, so it is cheap to add later.
 ## 16. Checklist
 
 ```
+BEFORE #26 — permitted during the freeze (§0.0)
+          [ ] stale-job reaper (the live defect) + reclaim test
+          [ ] atomic job claim FOR UPDATE SKIP LOCKED + concurrency test
+          [ ] NotoSans-Regular.ttf committed to src/assets/fonts/ + startup assertion
+          [ ] stale lockfiles, vercel.json, dead emitToSocketId removed
+          [ ] PARITY TABLE: 166 actions → route + verb + permissions, reviewed
+          [ ] Phase 6 scaffolding, if #27's worker justifies it early
+
+GATED ON #26 — everything below
 ON EC2 — no cost change
 Phase 0   [ ] atomic job claim + stale-job reaper + concurrency test
           [ ] font in image + startup assertion
@@ -919,6 +1044,9 @@ Phase 9   [ ] USD budget alert; IDR budget +15% headroom
 
 | Question | Answer |
 |---|---|
+| Is this approved? | **No.** It is the no-go branch of [#26](https://github.com/meimodev/palakat/issues/26), which is open. Implementing it answers #26 by accident. |
+| What would make it approved? | The Supabase port measuring beyond ~12–15 weeks solo at [#25](https://github.com/meimodev/palakat/issues/25). [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md). |
+| Is "no" free? | **No — 3–5 weeks marginal.** Phase 2 and the Flutter repositories are fork-specific, not shared work, whatever the handoff plan says. |
 | Cheaper than today? | **Yes** — Rp 163–227 ribu/bulan vs Rp 378 ribu, database Rp 0 on Supabase Free. Redis and Pusher Beams deleted too. |
 | Biggest cost in the project? | **Phase 2**, 3–4 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |
 | Most dangerous mistake? | Registering routes in Phase 2 without correct permissions. The vulnerability is **created by** this work, not inherited. |
