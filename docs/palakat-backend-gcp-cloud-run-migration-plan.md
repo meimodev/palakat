@@ -61,25 +61,63 @@ re-argue them.
 | 8 | **Birthday cron pinned to `Asia/Makassar`**, date-matching fixed | Behaviour change: notifications move from ~15:00 to 07:00 local. |
 | 9 | **`Asia/Makassar` is app-wide, not per-church** | GMIM is a single Minahasa synod; no church sits in another Indonesian zone. `Church` gains no timezone column. Glossary term: **Church-local day** (`CONTEXT.md`). This resolves the WIB/WITA disagreement between this plan and [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md) in favour of WITA. |
 | 10 | **Under a "go", identity comes from the token and scope from the row** | Not a Cloud Run decision, but it constrains Phase 1: the guard's behaviour is the thing RLS would have to reproduce. [ADR-0001](./adr/0001-identity-from-jwt-scope-from-row.md). |
+| 11 | **There is no single cost number — two scales and a crossover** | Free tier covers launch scale and nothing like the modelled load. §0.1 and §14.1 are priced twice. **At target scale this migration is not a saving.** |
+| 12 | **Free serves production until the first real congregation, then Pro** | Trigger is an onboarding event, not a usage threshold. Requires a *daily* `pg_dump` to GCS, not only the pre-migration one. |
+| 13 | **Push splits by category — content-free, not notification-free** | `notification.*` keeps an OS-rendered generic title/body; change signals stay data-only. Reverses §9.1's uniform data-only send. [ADR-0003](./adr/0003-push-splits-by-category.md). |
+| 14 | **Change signals invalidate; they never trigger a refetch** | Refetch happens when a screen is next viewed. This is the fan-out control that keeps decision 11's crossover where it is. |
 
 ### 0.1 What it costs
 
 The socket is why Cloud Run was 2,3× EC2 — an instance holding any open WebSocket bills as active, defeating
-scale-to-zero. Removing it removes that floor. With the database on Supabase Free, **compute is the entire bill**:
+scale-to-zero. Removing it removes that floor.
+
+**But "database Rp 0" is not a property of this plan — it is a property of being small.** Per decision 11, there
+are two prices, and which one applies is set by request volume, not by architecture.
+
+#### At launch scale — one church, ~200 users
 
 | Architecture | Compute | Database | **Total** |
 |---|---:|---:|---:|
 | EC2 today (socket, always on) | Rp 378.029 | Rp 0 | **Rp 378.029** |
-| Cloud Run **with** socket (rejected) | Rp 875.790 | Rp 0 | **Rp 875.790** |
-| **Cloud Run HTTP-only + FCM, 180h active** | Rp 226.810 | Rp 0 | **Rp 226.810** |
-| **Cloud Run HTTP-only + FCM, 90h active** | Rp 162.800 | Rp 0 | **Rp 162.800** |
-| Single church (~200 users) | Rp 0 | Rp 0 | **Rp 0** |
+| **Cloud Run HTTP-only + FCM** | Rp 0 | Rp 0 (Free) | **Rp 0** |
 
-**Saving: Rp 151–215 ribu/bulan against today**, plus two line items deleted outright — **Redis** (never needed
-without the Socket.IO adapter; the Memorystore option was Rp 666.000/bulan) and **Pusher Beams** (folded into FCM,
-which is free).
+Here the migration is unambiguously better: free tier covers compute *and* database, and two line items are
+deleted outright — **Redis** (never needed without the Socket.IO adapter; the Memorystore option was
+Rp 666.000/bulan) and **Pusher Beams** (folded into FCM, which is free).
 
-At 90 active-hours the free tier covers compute entirely and the bill is **only per-request charges**.
+#### At the modelled scale — 4.000 users, 24 juta requests/bulan
+
+| Architecture | Compute | Database | **Total** |
+|---|---:|---:|---:|
+| EC2 today (socket, always on) | Rp 378.029 | Rp 0 | **Rp 378.029** |
+| Cloud Run **with** socket (rejected) | Rp 875.790 | — | **Rp 875.790+** |
+| Cloud Run HTTP-only + FCM, 180h active | Rp 226.810 | Rp 462.500 (Pro) | **Rp 689.310** |
+| Cloud Run HTTP-only + FCM, 90h active | Rp 162.800 | Rp 462.500 (Pro) | **Rp 625.300** |
+
+**At target scale this migration is not a saving.** It costs roughly Rp 250–310 ribu/bulan more than EC2, and
+buys managed infrastructure, zero-downtime deploys, zonal redundancy, burst capacity, and — via Pro — real
+automated backups and PITR for a church's financial records. That is a defensible purchase. It is not a discount,
+and it must not be sold internally as one.
+
+#### The crossover
+
+Supabase Free allows **5 GB egress/bulan** (and 500 MB database, 50.000 MAU; paused after 1 week idle). Cloud Run
+is GCP and Supabase SEA is not, so **every query counts as egress** — R3 says so, and the earlier version of this
+table then ignored it.
+
+```
+5 GB ÷ 24 juta requests  =  208 bytes per response, everything included
+```
+
+That is not achievable with real read shapes. At a realistic ~1 KB average the Free ceiling is **≈5 juta
+requests/bulan**, or **≈800–1.600 users** at this plan's own 6.000 requests/user/month.
+
+> **Decision 12:** the trigger to move to Pro is **the first real congregation onboarding**, not a usage
+> threshold. It arrives earlier than the ceilings and cannot be missed. Until then Free serves production,
+> defended by a **daily** `pg_dump` to GCS (§12.2 covers only the pre-migration dump — that is not sufficient on
+> its own) and Free usage alerts.
+
+Decision 14 is what keeps the crossover where it is. See §9.4.
 
 > **Reconciling with [`palakat-backend-migration-plan.md`](./palakat-backend-migration-plan.md).** That document
 > quotes Rp 383.912/bulan and states plainly that Cloud Run *does not* beat EC2 on cost. Both figures are right.
@@ -222,18 +260,38 @@ Today's payloads carry `entityTitle`, `actorName`, `financeType`, `affectedMembe
 Published to `church.{id}` topics, **anyone guessing a church ID would receive that church's finance and approval
 activity.**
 
-**Therefore, mandatory:** FCM messages carry **event name and entity id only**. The client refetches over
-authenticated REST, where the Phase 2 permission guards apply.
+**Therefore, mandatory:** no push carries entity content. But the rule is **content-free, not
+notification-free** — an earlier draft of this plan conflated the two and would have deleted the notification
+feature as a side effect of a security fix. Per decision 13 and
+[ADR-0003](./adr/0003-push-splits-by-category.md), push splits by what the message is *for*:
+
+| | **Change signal** | **Notification** |
+|---|---|---|
+| Events | `activity.*`, `finance.*`, `approval.*` | `notification.*` |
+| Payload | `data` only — event name + entity id | generic OS-rendered title/body + routing `data` |
+| Rendered by OS? | no | **yes — works with the app killed** |
+| Client does | marks the provider stale (§9.4) | user taps → app fetches real content over REST |
 
 ```ts
-// server — no content in the push
+// change signal — no content at all
 { topic: `church.${churchId}`, data: { event: 'finance.updated', entityId: String(id) } }
 
-// client — ping invalidates cache, refetch goes through the guard
-onMessage: (m) => invalidate(m.data['event'])   →   GET /finance/482   (JWT + PermissionsGuard)
+// notification — rendered by the OS, but the text is deliberately vague
+{ topic: `membership.${id}`,
+  notification: { title: 'Palakat', body: 'Ada pemberitahuan baru' },
+  data: { event: 'notification.created', entityId: String(id) } }
 ```
 
-Anyone subscribing to a topic they should not learns only that **something changed**.
+**Why the generic title is not a leak.** A self-subscribed stranger already learns *"something happened in
+church N"* from the subscription itself — this design accepts that. A generic title reveals exactly that and no
+more. What must never travel is what the current helpers build: `entityTitle`, `actorName`, `financeType`,
+`affectedMembershipIds`, `resultingStatus`.
+
+> ⚠️ **Notification copy is a security surface.** Whoever edits that string is editing what leaks to an
+> unauthorised subscriber. It belongs under review, not in a translation file edited casually.
+
+Glossary: `CONTEXT.md` defines **Change signal** and **Notification** as distinct terms precisely because
+conflating them is what hid this.
 
 > **Pusher Beams interests have the same self-subscribe property**, so this exposure partially exists today for
 > notification payloads. Phase 4 fixes both at once rather than porting the flaw forward.
@@ -520,17 +578,33 @@ Callers do not change. Per §3, the payload carries no content.
 // realtime-emitter.service.ts — same signature, different transport
 async emitToRoom(room: string, event: string, payload: unknown) {
   if (!room?.trim()) return;
-  // ponytail: bare change-signal only. Topics are client-subscribable (§3),
-  // so content never travels in the push — the client refetches over REST.
+  // ponytail: content never travels in the push — topics are client-subscribable (§3).
+  // But notifications still need the OS to draw something, so they carry a
+  // deliberately generic title/body. Content-free, not notification-free.
   const entityId = extractEntityId(payload);
+  const isUserFacing = event.startsWith('notification.');
+
   await this.firebase.messaging().send({
     topic: room,                                   // church.12 / membership.5 — already FCM-legal
     data: { event, ...(entityId ? { entityId } : {}) },
-    android: { priority: 'high' },
-    apns: { payload: { aps: { 'content-available': 1 } } },
+    ...(isUserFacing
+      ? {
+          // rendered by the OS with the app killed. Text is a security surface — §3.
+          notification: { title: 'Palakat', body: 'Ada pemberitahuan baru' },
+          android: { priority: 'high' },
+        }
+      : {
+          android: { priority: 'high' },
+          apns: { payload: { aps: { 'content-available': 1 } } },
+        }),
   });
 }
 ```
+
+**Do not add an `onBackgroundMessage` handler.** There is none in the Flutter app today and the split above means
+none is needed — the OS draws the notification. A background isolate that refetches and builds a local
+notification would make the user-visible feature depend on `content-available` delivery, which iOS throttles and
+drops precisely when the app is killed.
 
 `FirebaseAdminService` (`firebase-admin.service.ts:36`) already calls `initializeApp` with `cert(...)` and exposes
 `auth()` (:52) and `storage()` (:66). **Add `messaging()`** in the same shape, including the existing
@@ -561,9 +635,27 @@ user-initiated, and short. That deletes the only category that genuinely wanted 
 
 | Category | Sites | Replacement |
 |---|---|---|
-| `notification.created/updated/deleted` | `notification.service.ts` :116, :441, :485 | FCM ping → refetch |
-| `activity.*` / `finance.*` / `approval.*` | `rpc-router.service.ts` :3153, :3956 + emitter helpers | FCM ping → refetch, or refetch-on-focus |
+| `notification.created/updated/deleted` | `notification.service.ts` :116, :441, :485 | **Notification** — OS-rendered generic title/body, tap → fetch content |
+| `activity.*` / `finance.*` / `approval.*` | `rpc-router.service.ts` :3153, :3956 + emitter helpers | **Change signal** — invalidate only, refetch on next view (§9.4) |
 | `reportJob.*` progress | `report-queue.service.ts` :138, :305, :362, :375, :408 | 2-second polling while modal open |
+
+### 9.4 🔴 Change signals invalidate — they never trigger a refetch
+
+**Decision 14, and it is a cost control, not a UX preference.**
+
+A single finance entry in a 200-member church publishes to `church.{id}`. If each device refetches on arrival,
+that is 200 requests and 200 payloads for one write. At a 20 KB list response, ~4 MB per event; 50 events/day is
+**~6 GB/bulan from one church** — past the entire Free egress allowance in §0.1, and billed twice on Cloud Run
+(per-request *and* per-GB) once on Pro.
+
+So the client marks the relevant provider **stale** and does nothing else. The read happens when a screen that
+needs it is next viewed. A user with the app closed, or on another screen, issues **zero** requests.
+
+Fan-out collapses from *every subscribed device* to *the handful currently looking*, which is the difference
+between the two columns of §0.1 arriving early or late.
+
+§10.1 step 3 is written against this rule. Eager refetch is the amplifier — do not reintroduce it as an
+optimisation.
 
 ---
 
@@ -580,14 +672,17 @@ The UI layer never touches the socket.
    `membership.{id}`, `church.{id}`, and the column/bipra topics.
    **`unsubscribeFromTopic` on logout and on church switch** — a missed unsubscribe leaks another church's pings
    to that device permanently, and **there is no server-side revocation for topics**.
-3. **Handle bare signals.** `realtime_events_service.dart` stops merging payload content and instead invalidates
-   the relevant provider so the UI refetches. Simpler than today.
+3. **Handle change signals — invalidate only.** `realtime_events_service.dart` stops merging payload content and
+   marks the relevant provider **stale**. It does **not** refetch (§9.4). The read happens when a screen that
+   needs the data is next viewed. Simpler than today, and it is the fan-out control the cost model depends on.
+   Notifications are a separate path: the OS renders them, and the app fetches content only when one is tapped.
 4. **Report progress polling** — 2 s, only while the modal is open, hard stop on close plus a backstop timeout.
 5. **No new dependency** — `firebase_messaging` is already there (§2.4).
 
-**Price note:** every RPC that was one socket message becomes one **billable request**. At 24 juta requests/month
-that is Rp 162.800/bulan and it is the **largest line item in the target architecture — larger than CPU**. Cache
-aggressively, coalesce list refreshes, and do not refetch on every FCM ping if several arrive together.
+**Price note:** every RPC that was one socket message becomes one **billable request** — and now bills *twice*,
+once as a Cloud Run request and once as Supabase egress (§0.1). At 24 juta requests/month that is Rp 162.800 of
+compute plus the Pro tier the egress forces. Requests are the **largest line item in the target architecture**,
+larger than CPU. Cache aggressively, coalesce list refreshes, and never refetch on a change signal.
 
 ### 10.2 The hard gate
 
@@ -903,11 +998,17 @@ At 4.000 users, 24 juta requests/month, 1 vCPU / 1 GiB:
 | CPU (net of 180.000 vCPU-s free) | $3.46 · Rp 64.010 | **$0 — free tier covers it** |
 | Memory (net of 360.000 GiB-s free) | $0 | $0 |
 | Requests (24 juta, net of 2 juta free) | $8.80 · Rp 162.800 | $8.80 · Rp 162.800 |
-| Database (Supabase Free) | Rp 0 | Rp 0 |
-| **Total** | **Rp 226.810** | **Rp 162.800** |
+| **Database (Supabase Pro — see below)** | **Rp 462.500** | **Rp 462.500** |
+| **Total** | **Rp 689.310** | **Rp 625.300** |
 
-**Requests dominate — not CPU.** That inverts the usual intuition: reducing request count beats any container
-tuning. Cache aggressively on the client, coalesce list refreshes, do not refetch on every FCM ping.
+**The database is the largest line item at this scale, and it is forced by request volume, not by data volume.**
+24 juta cross-cloud queries cannot fit in Free's 5 GB egress — that would need 208-byte responses. Pro's 250 GB
+covers it comfortably, but Pro's $25 alone exceeds the entire EC2 bill this plan set out to beat (§0.1).
+
+**After the database, requests dominate — not CPU.** That still inverts the usual intuition: reducing request
+count beats any container tuning, and it now compounds, because every request avoided is both a Cloud Run charge
+and a gigabyte of egress not spent. Cache aggressively on the client, coalesce list refreshes, and never refetch
+on a change signal (§9.4).
 
 Break-even for free compute: **50 h/bulan at 1 vCPU, 100 h/bulan at 0,5 vCPU.**
 
@@ -950,7 +1051,8 @@ already exists, so it is cheap to add later.
 |---|---|---|---|---|---|
 | R1 | **Phase 2 registers routes with wrong or missing permissions** | **High if rushed** | **Privilege escalation** — created by this migration, not inherited | Parity table reviewed independently; under-privileged-token test on every route | 2 |
 | R2 | **Supabase Free has no automated backups** | Certain | **Unrecoverable data loss on a bad migration** | `pg_dump` to GCS before every migration, as a pipeline step | 7 |
-| R3 | **Supabase Free size / egress ceilings** | Medium | Project throttled or suspended | **Check current Free limits on the dashboard** and set usage alerts. Cross-cloud queries count as Supabase egress | 0, 9 |
+| R3 | **Supabase Free egress ceiling is ~5× below the modelled load** | **Certain at scale, not a risk** | **The Rp 0 database line is false above ~5 juta requests/bulan** — Pro at Rp 462.500 exceeds the whole EC2 bill | Priced explicitly at both scales (§0.1, §14.1); move to Pro on first real congregation (decision 12); §9.4 keeps the crossover far away | 0, 5, 9 |
+| R3b | Free's other ceilings — 500 MB database, 50.000 MAU, paused after 1 week idle | Medium | Project throttled or suspended | Usage alerts; the daily birthday job prevents the idle pause (§8.2); **daily** `pg_dump` to GCS while on Free | 0, 9 |
 | R4 | **Supabase Free connection ceiling vs. spiky scale-from-zero** | Medium | Connection refusals under load | `DATABASE_POOL_MAX=3`, transaction pooler, `max-instances=5` | 0, 7 |
 | R5 | FCM topics client-subscribable → cross-church leak | **High if payloads carry content** | **Confidentiality breach** | Bare change-signals only; refetch over authenticated REST | 4 |
 | R6 | Polling cron survives into Cloud Run | Medium | **Price case deleted** — instance never idles | Cloud Tasks, not a Scheduler poll | 3 |
@@ -1006,13 +1108,16 @@ Phase 3   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE
           [ ] daily orphan sweep
 
 Phase 4   [ ] FirebaseAdminService.messaging() added
-          [ ] emitToRoom → FCM, BARE SIGNALS ONLY, no payload content
+          [ ] emitToRoom → FCM, NO ENTITY CONTENT in any push
+          [ ] notification.* keeps an OS-rendered GENERIC title/body — verify on a
+              KILLED app, both platforms. No onBackgroundMessage handler added.
+          [ ] change signals (activity/finance/approval) data-only
           [ ] Pusher Beams retired AFTER FCM proven; deps + secrets + web stub deleted
           [ ] report progress → 2s polling
 
 Phase 5   [ ] 22 repositories on http_service, per the parity table
           [ ] topic subscribe AND unsubscribe on logout / church switch
-          [ ] FCM ping → invalidate → refetch
+          [ ] change signal → invalidate ONLY; refetch on next view, never on arrival
           [ ] -breaking gate shipped MIDWEEK; support answer written
           [ ] socket connections drained to zero, then all socket code deleted
 
@@ -1035,6 +1140,9 @@ Phase 8   [ ] DNS TTL 60s, 24h ahead; cut over midweek
 
 Phase 9   [ ] USD budget alert; IDR budget +15% headroom
           [ ] request count monitored as the primary price metric
+          [ ] Supabase egress monitored as the SECOND price metric — 5 GB Free ceiling
+          [ ] daily pg_dump → GCS while on Free (not only pre-migration)
+          [ ] Pro provisioned when the first real congregation onboards
           [ ] split report worker IF the bill or an OOM justifies it
 ```
 
@@ -1047,11 +1155,11 @@ Phase 9   [ ] USD budget alert; IDR budget +15% headroom
 | Is this approved? | **No.** It is the no-go branch of [#26](https://github.com/meimodev/palakat/issues/26), which is open. Implementing it answers #26 by accident. |
 | What would make it approved? | The Supabase port measuring beyond ~12–15 weeks solo at [#25](https://github.com/meimodev/palakat/issues/25). [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md). |
 | Is "no" free? | **No — 3–5 weeks marginal.** Phase 2 and the Flutter repositories are fork-specific, not shared work, whatever the handoff plan says. |
-| Cheaper than today? | **Yes** — Rp 163–227 ribu/bulan vs Rp 378 ribu, database Rp 0 on Supabase Free. Redis and Pusher Beams deleted too. |
+| Cheaper than today? | **Only while small.** At launch scale Rp 0 vs Rp 378 ribu. At 4.000 users, Rp 625–689 ribu vs Rp 378 ribu — Supabase Free cannot carry 24 juta cross-cloud queries, and Pro alone costs more than the EC2 box. Redis and Pusher Beams are still deleted either way. |
 | Biggest cost in the project? | **Phase 2**, 3–4 weeks. The REST surface is 131 unwired, unguarded, untested routes — not the "already exists" the analysis claimed. |
 | Most dangerous mistake? | Registering routes in Phase 2 without correct permissions. The vulnerability is **created by** this work, not inherited. |
 | Most expensive mistake? | Replacing the 10-second poller with a **Scheduler poll instead of Cloud Tasks** — the instance never idles and the price case evaporates. |
-| Most easily missed? | Putting **content in FCM payloads**. Topics are client-subscribable; socket rooms were not. |
+| Most easily missed? | Putting **content in FCM payloads**. Topics are client-subscribable; socket rooms were not. Its twin: over-correcting to data-only everywhere, which **deletes tray notifications** for backgrounded apps — content-free, not notification-free ([ADR-0003](./adr/0003-push-splits-by-category.md)). |
 | Why migrate last? | The socket on Cloud Run costs Rp 875.790/bulan. The refactor is free on EC2. |
-| What is the real floor? | **Requests, not CPU** — Rp 162.800/bulan. Client caching is the main price lever after migration. |
+| What is the real floor? | **Requests, not CPU** — and they now bill twice, as Cloud Run requests *and* Supabase egress. Client caching plus invalidate-only change signals (§9.4) is the main price lever after migration, and the thing keeping the Free→Pro crossover distant. |
 | Biggest non-cost win | Deleting `rpc-router.service.ts`: one transport, one permission model, one place authorization lives. |

@@ -40,3 +40,27 @@ token when it was issued, which may be stale. Identity comes from the token;
 effective permissions never do.
 
 _Avoid_: role, claims, grants.
+
+### Notification
+
+A user-facing record that something happened, addressed to a member and
+readable in the app. It has content — a title, a body, a thing it refers to —
+and it survives being read later. It is a domain object, not a delivery
+mechanism.
+
+_Avoid_: push, alert, message.
+
+### Change signal
+
+A hint that some entity changed, carrying an event name and an entity id and
+**no content**. It exists to tell a client its cached copy is stale; the client
+learns what actually changed by reading over an authorised path. A change
+signal is disposable — missing one costs a stale screen, never lost
+information.
+
+Distinct from a **Notification**, which has content and is the thing the user
+reads. The two travel over the same transport and must not be conflated: a
+Notification may be *announced* by a change signal, but the announcement is
+never the notification itself.
+
+_Avoid_: event, ping, realtime message.
