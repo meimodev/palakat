@@ -21,7 +21,15 @@ Settled by the grilling session of 2026-07-21 — see
 |---|---|
 | **Effort ceiling for the alternative** | ~12–15 weeks solo FTE for the Supabase port. Beyond it, #26 is a no. |
 | **What "no" commits to** | This plan in full — socket deleted, REST surface built, Cloud Run. Not "stay as we are". |
-| **Marginal cost of "no"** | 3–5 weeks beyond genuinely shared work. Not free — which is what makes the ceiling meaningful. |
+| **Marginal cost of "no"** | **8–12 weeks** beyond genuinely shared work (decision 23 — the earlier 3–5 omitted the client work). So the ceiling is now roughly a **1× bar, not 3×**, and a "no" is materially more likely. |
+
+> ⚠️ **"Pre-launch" is not uniform, and this plan leans on it heavily.** `palakat` (mobile) has never been
+> released — zero `v*` tags. `palakat_super_admin` has never been deployed — no workflow runs. But
+> **`palakat_admin` is live on Vercel**, with successful production deploys on 2026-03-18 and 2026-03-20.
+> Per decision 21 the data behind it is pilot/internal and disposable, which is what keeps the aggressive choices
+> here defensible — but it is a live deployment, so the **daily `pg_dump` starts now**, not at some future
+> onboarding event. If that pilot becomes a real congregation, decisions 12, 16 and ADR-0002 all need revisiting
+> together.
 
 ### What may be worked on before #26
 
@@ -71,6 +79,11 @@ re-argue them.
 | 18 | **REST is deliberately stricter than RPC on input validation** | The global `ValidationPipe` is HTTP-only and the gateway has no `@UsePipes`, so **production validates ~4 of 166 actions**. Parity means permissions and success semantics — **not** porting the absence of validation. The parity table gains a request-shape column; the 54 DTOs become candidates to verify, not the source of truth. |
 | 19 | **Uploads: constrain at signing, verify at finalize** | Firebase Storage rules do **not** apply to GCS signed URLs, so enforcement is built explicitly on both sides. [ADR-0004](./adr/0004-upload-trust-boundary.md). |
 | 20 | **24 juta requests/bulan is a stress case, not a forecast** | It was derived from "2 hrs/day connected per user" — a socket-era assumption — and contradicts the same analysis's 200-user figure by 1,7× per user. A bottom-up estimate from real screen flows replaces it; measurement replaces both. |
+| 21 | **`palakat_admin` is already deployed** — pilot use, disposable data | "Pre-launch" holds for `palakat` (never released) and `palakat_super_admin` (never deployed), **not** for the admin web app: successful production deploys on 2026-03-18 and 2026-03-20. Consequence: the **daily `pg_dump` starts now**, not at first congregation. |
+| 22 | **Phase 5 covers three clients, ~180 call sites** | Neither admin app imports `palakat_shared/core/repositories/` — **zero imports each**. `palakat_super_admin` is migrated, not deleted: church-request approval and song management have no other home. |
+| 23 | **The no-go branch costs 8–12 weeks, not 4–5** | [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md) named the Flutter work fork-specific and then omitted it from the total. Ceiling stays 12–15 weeks as a **calendar** limit — so it is now a **~1× bar, not 3×**, and a "no" is materially more likely. |
+| 24 | **`/internal/*` runs as a second, IAM-protected Cloud Run service** | Same image, `--no-allow-unauthenticated`. Replaces hand-verifying `aud`+`email` on a public service. [ADR-0005](./adr/0005-internal-endpoints-separate-service.md). |
+| 25 | **`BIPRA` and `Column` enter the glossary** | Both appear in FCM topic names (`church.{id}_bipra.{BIPRA}`, `church.{id}_column.{id}`) and neither is decodable from the repo. `Column` collides with "table column" in documents full of DDL. |
 
 ### 0.1 What it costs
 
@@ -318,7 +331,7 @@ Phase 1   Permission layer            guard + decorator, built from nothing   ~1
 Phase 2   REST surface                register 24 modules, 131→166 routes     ~3–4 weeks  🔴 SECURITY
 Phase 3   Event-driven jobs           kill the 10s poller                     ~2 days     🔴 PRICE
 Phase 4   FCM push                    reimplement the emitter; retire Beams   ~2–3 days
-Phase 5   Flutter client              22 repos → REST, topics (no gate)       ~2–4 weeks
+Phase 5   Flutter clients (×3)        ~180 call sites → REST, topics          ~3–6 weeks
 ─────────────────────────────────────────────────────────────────────────────────────────
 THEN MIGRATE — nothing pins an instance any more
 Phase 6   Containerize + scaffolding  Dockerfile, registry, secrets, WIF      ~2 days
@@ -327,8 +340,13 @@ Phase 8   Cutover                     DNS, soak, decommission EC2             ~0
 Phase 9   Cost tuning                 measure, then right-size                ~1–2 days
 ```
 
-Backend **4–6 weeks**, dominated by Phase 2. Client 2–4 weeks, overlapping from Phase 1's parity table onward.
-Migration itself is **under a week** — it is the smallest part of this project.
+Backend **5–7 weeks**, dominated by Phase 2 (now delete-all-and-rewrite). Clients **3–6 weeks** across *three*
+apps, overlapping from Phase 1's parity table onward. Migration itself is **under a week** — it is the smallest
+part of this project.
+
+**Marginal cost of the no-go branch: 8–12 weeks** (Phase 2 + Phase 5 + Phases 7–9; Phase 6 is shared per #27).
+Decision 23 corrects the 4–5 weeks quoted in [ADR-0002](./adr/0002-effort-ceiling-and-meaning-of-no.md), which
+named the client work fork-specific and then left it out of the sum.
 
 **Phases 2 and 3 are the ones that can hurt you.** Phase 2 ships a vulnerability if rushed; Phase 3 deletes the
 price case if done with a poller.
@@ -615,11 +633,40 @@ can double-deliver.
 > **Free-tier bonus:** Supabase pauses inactive Free projects. This daily job touches the database every day, so
 > it keeps the project active on its own. Do not remove it without checking §11 R6.
 
-### 8.3 Secure `/internal/*`
+### 8.3 Secure `/internal/*` — a second service, not a code check
 
-These routes bypass user authentication by design, so a mistake is a full authorization bypass. Verify the
-Google-signed OIDC token's `aud` **and** `email` against the invoker service account. Exclude the prefix from the
-global `api/v1` prefix deliberately, as `main.ts:17-21` already does for `/health`.
+These routes bypass user authentication by design, so a mistake is a full authorization bypass. The earlier draft
+verified the Google-signed OIDC token's `aud` and `email` in application code, on a service that is
+`--allow-unauthenticated` because the API is public — putting the least-protected routes in the codebase behind a
+check we wrote, reachable from the internet, where being too permissive fails **silently**.
+
+Per decision 24 and [ADR-0005](./adr/0005-internal-endpoints-separate-service.md), deploy the **same image** a
+second time:
+
+```bash
+gcloud run deploy palakat-internal \
+  --image=asia-southeast1-docker.pkg.dev/PROJECT_ID/palakat/backend:TAG \
+  --region=asia-southeast1 \
+  --service-account=palakat-backend@PROJECT_ID.iam.gserviceaccount.com \
+  --no-allow-unauthenticated \
+  --min-instances=0 --max-instances=3
+
+gcloud run services add-iam-policy-binding palakat-internal \
+  --region=asia-southeast1 \
+  --member=serviceAccount:palakat-invoker@PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/run.invoker
+```
+
+Google rejects an unauthenticated or wrongly-authenticated request **before the process handles it**. Scheduler
+and Tasks target this service's URL. Still exclude `/internal/*` from the global `api/v1` prefix as
+`main.ts:17-21` already does for `/health`.
+
+Two things this buys beyond the security property: the internal worker **scales independently of user traffic**
+— which is where §14.2's split-worker option was already heading — and it is *less* code than token verification,
+not more.
+
+> **Test that `/internal/*` is genuinely unreachable on the public service**, not merely unrouted by convention.
+> Same image means the handlers exist there too.
 
 ---
 
@@ -718,11 +765,31 @@ optimisation.
 
 ### 10.1 The client work
 
-Structure is favourable: `socket_service.dart` is the single transport, **`http_service.dart` already sits beside
-it**, and the ~150 RPC call sites live in **22 files** under `packages/palakat_shared/lib/core/repositories/`.
-The UI layer never touches the socket.
+**There are three clients, not one** (decision 22). An earlier draft scoped only the shared package:
 
-1. **Re-point 22 repositories** onto REST routes, working from the Phase 1 parity table, one repository at a time.
+| App | Own repo files | Socket call sites | Deployed? |
+|---|---:|---:|---|
+| `palakat_shared` (consumed by `palakat`) | 22 repositories | 138 | — |
+| `palakat` (mobile) | 8 | 2 | never (`v*` tags: zero) |
+| **`palakat_admin`** (web, Vercel) | 2 | **9** | **yes — 2026-03-20** |
+| **`palakat_super_admin`** (web, Vercel) | 5 | **33** | never — no workflow runs |
+
+**Neither admin app imports `palakat_shared/core/repositories/` — zero imports each.** They have their own data
+layers and hold `SocketService` directly, so migrating the 22 shared repositories does not touch them. That is
+~42 call sites and two apps the estimate previously priced at zero.
+
+Two corrections to the earlier framing:
+
+- "`http_service.dart` already sits beside it" implies a trodden path. **One file references it repo-wide**, and
+  **zero of the 22 repositories use it.** It is a file, not a precedent.
+- `palakat_super_admin` is the heaviest client migration in the repo and has never served anyone. It is migrated
+  rather than deleted (decision 22) because church-request approval and song-database management have no other
+  home — but it is the natural candidate to sequence **last**, since nothing depends on it yet.
+
+The UI layer never touches the socket. That much is favourable and still true.
+
+1. **Re-point the data layers** onto REST routes, working from the Phase 1 parity table — 22 shared repositories
+   first, then `palakat_admin`'s 2, then `palakat_super_admin`'s 5. One repository at a time.
 2. **Topic subscription** replaces room joins. On login/session restore, `subscribeToTopic` for `account.{id}`,
    `membership.{id}`, `church.{id}`, and the column/bipra topics.
    **`unsubscribeFromTopic` on logout and on church switch** — a missed unsubscribe leaks another church's pings
@@ -1013,7 +1080,12 @@ The existing workflow (~150 lines: temporary SG ingress, scp a tarball, ssh, bui
           curl -fsS -H "x-health-secret: ${{ secrets.HEALTH_PAGE_SECRET }}" "$URL/health"
       - name: Promote
         run: gcloud run services update-traffic palakat-backend --region=asia-southeast1 --to-latest
+      - name: Deploy the internal service        # same image, IAM-protected — ADR-0005
+        run: gcloud run deploy palakat-internal --image="$IMAGE" --region=asia-southeast1 --no-allow-unauthenticated
 ```
+
+**Both services deploy from the same `$IMAGE` in the same run.** If they ever diverge, that is the bug — never
+promote one without the other.
 
 Order matters: **backup → migrate → deploy `--no-traffic` → smoke the tagged revision → promote.** The
 `--tag=candidate` URL lets you hit the new revision before any user does — something `systemctl restart` never
@@ -1145,6 +1217,9 @@ already exists, so it is cheap to add later.
 | R18 | **Validation drift** — REST rejects payloads the socket accepted | **High without the table's request-shape column** | 400s discovered per-repository during Phase 5, while transport is also changing | Decision 18: request shape sourced from the client and carried in the parity table; `ValidationPipe` stays strict deliberately | 1, 2, 5 |
 | R19 | **Unfinalized uploads** accumulate in the bucket | Medium | Storage cost; `FileManager` and storage disagree | [ADR-0004](./adr/0004-upload-trust-boundary.md): row written only after reading real GCS metadata; daily orphan sweep becomes load-bearing | 2, 3 |
 | R20 | **Request model is a socket-era guess** | **Certain — it is already known wrong** | The Free→Pro crossover (§0.1) is priced against a number derived from hours-connected | Decision 20: bottom-up estimate from screen flows; 24 juta relabelled a stress case; instrument day one | 0, 9 |
+| R21 | **Two admin clients missing from the Phase 5 estimate** | **Certain — already found** | ~42 call sites and two apps priced at zero; `palakat_admin` is live, so it breaks visibly | Decision 22: three clients, ~180 call sites, Phase 5 re-sized to 3–6 weeks | 5 |
+| R22 | **Ceiling and no-go cost were misaligned** | **Certain — already found** | #26 would have been judged against a 3× bar that is really ~1× | Decision 23: no-go is 8–12 weeks; ADR-0002 amended in place rather than silently corrected | — |
+| R23 | `/internal/*` reachable on the public service | Low after decision 24 | Full authorization bypass | Second IAM-protected service ([ADR-0005](./adr/0005-internal-endpoints-separate-service.md)) **plus** an explicit test that the public service does not serve the prefix | 3, 7 |
 
 ---
 
@@ -1187,7 +1262,8 @@ Phase 2   [ ] all 27 existing controller files DELETED first     🔴 SECURITY G
 Phase 3   [ ] report queue → Cloud Tasks (NOT a Scheduler poll)     🔴 PRICE GATE
           [ ] birthday → Scheduler --time-zone=Asia/Makassar
           [ ] handler date-matching moved to Asia/Makassar too
-          [ ] /internal/* verifies OIDC aud + email
+          [ ] /internal/* on a SEPARATE service, --no-allow-unauthenticated
+          [ ] test: /internal/* NOT reachable on the public service
           [ ] daily orphan sweep
 
 Phase 4   [ ] FirebaseAdminService.messaging() added
@@ -1198,7 +1274,8 @@ Phase 4   [ ] FirebaseAdminService.messaging() added
           [ ] Pusher Beams retired AFTER FCM proven; deps + secrets + web stub deleted
           [ ] report progress → 2s polling
 
-Phase 5   [ ] 22 repositories on http_service, per the parity table
+Phase 5   [ ] THREE clients: 22 shared repos + palakat_admin (2) +
+              palakat_super_admin (5). ~180 call sites, not 138
           [ ] topic subscribe AND unsubscribe on logout / church switch
           [ ] change signal → invalidate ONLY; refetch on next view, never on arrival
           [ ] NO -breaking gate — never released, nothing to drain (decision 15)
@@ -1212,6 +1289,7 @@ Phase 6   [ ] Dockerfile (context = repo root); .dockerignore excludes src/gener
           [ ] WIF with --attribute-condition
 
 Phase 7   [ ] min=0, max=5, request-based, timeout 300, no affinity, no Redis
+          [ ] palakat-internal deployed from the SAME image, IAM-bound
           [ ] pg_dump → GCS step precedes every migration
           [ ] migrations = Cloud Run Job on the DIRECT url
           [ ] CI/CD: backup → migrate → --no-traffic → smoke → promote
@@ -1224,7 +1302,7 @@ Phase 8   [ ] DNS TTL 60s, 24h ahead; cut over midweek
 Phase 9   [ ] USD budget alert; IDR budget +15% headroom
           [ ] request count monitored as the primary price metric
           [ ] Supabase egress monitored as the SECOND price metric — 5 GB Free ceiling
-          [ ] daily pg_dump → GCS while on Free (not only pre-migration)
+          [ ] daily pg_dump → GCS starting NOW — palakat_admin is already live
           [ ] Pro provisioned when the first real congregation onboards
           [ ] split report worker IF the bill or an OOM justifies it
 ```

@@ -21,10 +21,35 @@ It is **not** "stay as we are".
 
 ## Why the ceiling is anchored to the no-go branch
 
-The no-go branch costs **3–5 weeks of marginal work**, so the ceiling is roughly 3× the
-alternative rather than 3× nothing. Setting it against a do-nothing baseline would have
-decided #26 in advance: no rewrite of 40 models, a 499-line permission service and 85
-transaction sites justifies 12 weeks against a free alternative.
+The ceiling is set against the **cost of the alternative**, not against nothing. Setting it
+against a do-nothing baseline would have decided #26 in advance: no rewrite of 40 models, a
+499-line permission service and 85 transaction sites justifies 12 weeks against a free
+alternative.
+
+> ### Amendment, 2026-07-22 — the no-go branch costs 8–12 weeks, not 3–5
+>
+> The original figure was **wrong, and wrong in this document's own terms**: the section
+> below names the ~21 Flutter repositories as fork-specific work, then computed the
+> marginal cost as Phase 2 (3–4 wk) + Phases 6–9 (~1 wk) and omitted the client work
+> entirely. A later sweep also found that **Phase 5 covers three clients, not one** —
+> neither `palakat_admin` nor `palakat_super_admin` imports the shared repositories, adding
+> ~42 call sites and two apps that were priced at zero.
+>
+> | No-go marginal work | Original | Corrected |
+> |---|---:|---:|
+> | Phase 2 REST surface (now delete-all-and-rewrite) | 3–4 wk | 4–5 wk |
+> | Phase 5 clients (three apps, ~180 call sites) | *omitted* | 3–6 wk |
+> | Phases 7–9 (6 is shared per #27) | ~1 wk | ~1 wk |
+> | **Total** | **4–5 wk** | **8–12 wk** |
+>
+> **The ceiling stays at 12–15 weeks**, because it was always a statement about what a solo
+> dev can absorb pre-launch — a calendar limit, not a multiple. But it is now roughly a
+> **1× bar rather than 3×**: Supabase must come in at about the same cost as staying on
+> Nest, not merely within triple it.
+>
+> **This makes a "no" materially more likely.** Recorded rather than quietly repaired,
+> because #26's whole purpose is to be judged against a bar decided in advance — and a bar
+> that moves without anyone noticing is worse than no bar at all.
 
 Correcting the handoff plan on this point: the REST surface (3–4 weeks) and the ~21
 Flutter repositories are **fork-specific, not shared work**. Under a go they become

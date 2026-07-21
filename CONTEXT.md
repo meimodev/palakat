@@ -41,6 +41,30 @@ effective permissions never do.
 
 _Avoid_: role, claims, grants.
 
+### Column
+
+A named subdivision of a congregation — the neighbourhood grouping a member
+belongs to. Unique by name within a church, and the unit activities and
+membership invitations are addressed to.
+
+**Not a database column.** In migration and schema documents, always qualify:
+"a Column" (the domain concept) versus "a table column".
+
+_Avoid_: group, sector, kolom (in English prose).
+
+### BIPRA
+
+The five-way categorisation of church members by life stage —
+**B**apak, **I**bu, **P**emuda, **R**emaja, **A**nak — used to target
+activities and announcements. Its values are `PKB` (Pria Kaum Bapa),
+`WKI` (Wanita Kaum Ibu), `PMD` (Pemuda), `RMJ` (Remaja) and
+`ASM` (Anak Sekolah Minggu).
+
+A member has exactly one. Orthogonal to **Column**: a member has both, and
+both are addressable targets.
+
+_Avoid_: age group, category, demographic.
+
 ### Notification
 
 A user-facing record that something happened, addressed to a member and
